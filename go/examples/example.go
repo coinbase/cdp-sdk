@@ -68,10 +68,13 @@ func createCDPClient() (*openapi.ClientWithResponses, error) {
 		log.Fatal("CDP_WALLET_SECRET environment variable is required")
 	}
 
+	apiURL := os.Getenv("CDP_API_URL")
+
 	cdpClient, err := cdp.NewClient(cdp.ClientOptions{
 		APIKeyID:     apiKeyName,
 		APIKeySecret: apiKeySecret,
 		WalletSecret: walletSecret,
+		BasePath:     apiURL,
 	})
 	if err != nil {
 		return nil, err
