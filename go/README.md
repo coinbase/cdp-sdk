@@ -11,6 +11,9 @@
 - [Support](#support)
 - [Security](#security)
 
+> [!TIP]
+> If you're looking to contribute to the SDK, please see the [Contributing Guide](https://github.com/coinbase/cdp-sdk/blob/main/go/CONTRIBUTING.md).
+
 ## CDP SDK
 
 This module contains the Go CDP SDK, which is a library that provides a client for interacting with the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). It includes a CDP Client for interacting with EVM and Solana APIs to create accounts and send transactions, as well as authentication tools for interacting directly with the CDP APIs.
@@ -46,7 +49,7 @@ cdp "github.com/coinbase/cdp-sdk/go"
 #### Then, initialize the client as follows:
 
 ```go
-cdpClient, err := cdp.NewClient(cdp.ClientOptions{
+cdp, err := cdp.NewClient(cdp.ClientOptions{
 		APIKeyID:     apiKeyName,
 		APIKeySecret: apiKeySecret,
 		WalletSecret: walletSecret,
@@ -58,7 +61,7 @@ cdpClient, err := cdp.NewClient(cdp.ClientOptions{
 #### Create an EVM account as follows:
 
 ```go
-response, err := cdpClient.CreateEvmAccountWithResponse(
+response, err := cdp.CreateEvmAccountWithResponse(
   ctx,
   nil,
   openapi.CreateEvmAccountJSONRequestBody{},
@@ -79,7 +82,7 @@ You can use the faucet function to request testnet ETH or SOL from the CDP.
 #### Request testnet ETH as follows:
 
 ```go
-response, err := cdpClient.RequestEvmFaucetWithResponse(
+response, err := cdp.RequestEvmFaucetWithResponse(
   ctx,
   openapi.RequestEvmFaucetJSONRequestBody{
     Address: evmAddress,
@@ -122,7 +125,7 @@ if err != nil {
 rlpHex := hex.EncodeToString(rlpData)
 rlpHex = "0x" + rlpHex
 
-response, err := cdpClient.SignEvmTransactionWithResponse(
+response, err := cdp.SignEvmTransactionWithResponse(
   ctx,
   evmAddress,
   nil,
