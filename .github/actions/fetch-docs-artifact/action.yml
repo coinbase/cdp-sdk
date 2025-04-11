@@ -1,0 +1,75 @@
+name: "Fetch Documentation Artifact"
+description: "Fetches documentation artifacts from previous workflow runs"
+
+inputs:
+  artifact-name:
+    description: "Name of the artifact to fetch"
+    required: true
+  target-path:
+    description: "Path where the artifact should be extracted"
+    required: true
+  github-token:
+    description: "GitHub token for authentication"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Download docs artifact
+      shell: bash
+      run: |
+        echo "Downloading ${{ inputs.artifact-name }} artifact"
+        # Get the workflow ID first
+        workflow_id=$(curl -s -H "Authorization: Bearer ${{ inputs.github-token }}" \
+          https://api.github.com/repos/${{ github.repository }}/actions/workflows | \
+          jq -r ".workflows[] | select(.name == \"${{ github.workflow }}\") | .id")
+
+        if [ -z "$workflow_id" ]; then
+          echo "Could not find workflow ID"
+          exit 1
+        fi
+
+        echo "Found workflow ID: $workflow_id"
+
+        # Check the last 30 runs
+        for i in {0..29}; do
+          # Get run ID from current workflow
+          run_id=$(curl -s -H "Authorization: Bearer ${{ inputs.github-token }}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/$workflow_id/runs | \
+            jq -r ".workflow_runs[$i].id")
+
+          if [ -z "$run_id" ]; then
+            echo "Could not find run at index $i"
+            continue
+          fi
+
+          echo "Checking run ID: $run_id"
+
+          # Get the artifact ID from this run
+          artifact_id=$(curl -s -H "Authorization: Bearer ${{ inputs.github-token }}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/runs/$run_id/artifacts | \
+            jq -r ".artifacts[] | select(.name==\"${{ inputs.artifact-name }}\") | .id")
+
+          if [ ! -z "$artifact_id" ]; then
+            echo "Found ${{ inputs.artifact-name }} artifact in run $run_id"
+            echo "Found artifact ID: $artifact_id"
+
+            # Now download using the artifact ID
+            response=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer ${{ inputs.github-token }}" \
+              -L -o "${{ inputs.artifact-name }}.zip" \
+              https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$artifact_id/zip)
+            http_code=$(echo "$response" | tail -n1)
+
+            if [ "$http_code" = "200" ]; then
+              mkdir -p "${{ inputs.target-path }}"
+              unzip "${{ inputs.artifact-name }}.zip" -d "${{ inputs.target-path }}"
+              exit 0
+            else
+              echo "Failed to download ${{ inputs.artifact-name }} artifact"
+              continue
+            fi
+          fi
+        done
+
+        echo "Could not find ${{ inputs.artifact-name }} artifact in any recent runs"
+        exit 1

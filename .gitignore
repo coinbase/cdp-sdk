@@ -68,6 +68,7 @@ typescript/docs
 *.out
 go.work
 vendor/
+go/docs
 
 # OpenAPI
 openapi-preprocessed.yaml
