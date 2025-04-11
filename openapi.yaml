@@ -29,7 +29,7 @@ tags:
 
       ## Authentication
 
-      The EVM Account APIs use two layers of authentication to ensure the security of your accounts' private keys:
+      The EVM Account API uses two layers of authentication to ensure the security of your accounts' private keys:
 
       - **CDP Secret API Key**: This key is used to authenticate all requests to the entire suite of
          REST APIs offered on Coinbase Developer Platform.
