@@ -13,8 +13,6 @@ info:
 servers:
   - url: https://api.cdp.coinbase.com/platform
     description: The production server of the CDP APIs.
-security:
-  - bearerAuth: []
 tags:
   - name: EVM Accounts
     x-audience: public
@@ -31,21 +29,46 @@ tags:
 
       The EVM Account APIs use two layers of authentication to ensure the security of your accounts' private keys:
 
-      - **CDP Secret API Key**: This key is used to authenticate all requests to the entire suite of
-         REST APIs offered on Coinbase Developer Platform.
-      - **Wallet Secret**: This secret is used specifically to authenticate sensitive wallet operations 
-        to `POST`, `PUT`, and `DELETE` endpoints in the EVM and Solana Account APIs.
+      - **CDP Secret API Key**: This key is used to authenticate requests to the entire suite of
+         APIs offered on Coinbase Developer Platform. [Read more about CDP API keys](https://docs.cdp.coinbase.com/get-started/docs/cdp-api-keys).
+      - **Wallet Secret**: This secret is used specifically to authenticate requests to `POST`, and `DELETE`
+        endpoints in the EVM and Solana Account APIs.
 
 
-      To learn more about creating and using using these keys, visit our [Authentication docs](../docs/authentication).
+      Both are configured in the [CDP Portal](https://portal.cdp.coinbase.com/).
 
-      :::tip Use our SDK
+      > **Note:** The [CDP SDK](https://github.com/coinbase/cdp-sdk) automatically issue requests using the CDP Secret API Key and the Wallet Secret when making requests to the EVM Account APIs. Use the CDP SDK for your convenience.
 
+      Endpoints that require usage of the Wallet Secret are marked with the `X-Wallet-Auth` header. The value of this header is a JWT with the following header and claims:
 
-      The [CDP SDK](https://github.com/coinbase/cdp-sdk) automatically authenticates requests using your CDP Secret API Key and Wallet Secret. Use the CDP SDK for a more convenient access to our APIs.
+      ```javascript
+      {
+        "header": {
+          "alg": "ES256",
+          "typ": "JWT"
+        },
+        "payload": {
+          "iat": 1714431600,
+          "jti": "123e4567-e89b-12d3-a456-426614174000",
+          "nbf": 1714431600,
+          "req": {
+            "transaction": "0x1234567890123456789012345678901234567890"
+          },
+          "uris": [
+            "POST api.cdp.coinbase.com/platform/v2/evm/accounts/0x1234567890123456789012345678901234567890/sign/transaction"
+          ]
+        }
+      }
+      ```
 
+      where:
+      - `alg`, `typ`, `iat`, `nbf`, and `jti` are standard JWT claims as defined by [RFC 7519](https://www.rfc-editor.org/rfc/rfc7519).
+      - `req` is a JSON object corresponding exactly to the request body of the endpoint. If the request body is empty, the `req` field should not be present in the JWT.
+      - `uris` is a single-element array containing the HTTP method and URI of the endpoint that is being accessed.
 
-      :::
+      The JWT should be signed using the Wallet Secret, and the resulting base64 encoded signature should be the value of the `X-Wallet-Auth` header. CDP's TEE verifies that the value of the `X-Wallet-Auth` header in the request matches the JWT and the customer's Wallet Secret.
+
+      > **Important:** Your Wallet Secret is a **secret** that, when combined with your CDP Secret API Key, can be used to access any account in your CDP Project. Secure it as you would a password.
   - name: EVM Smart Accounts
     x-audience: public
     description: |-
@@ -74,21 +97,46 @@ tags:
 
       The Solana Account APIs use two layers of authentication to ensure the security of your accounts' private keys:
 
-      - **CDP Secret API Key**: This key is used to authenticate all requests to the entire suite of
-         REST APIs offered on Coinbase Developer Platform.
-      - **Wallet Secret**: This secret is used specifically to authenticate sensitive wallet operations 
-        to `POST`, `PUT`, and `DELETE` endpoints in the EVM and Solana Account APIs.
+      - **CDP Secret API Key**: This key is used to authenticate requests to the entire suite of
+         APIs offered on Coinbase Developer Platform. [Read more about CDP API keys](https://docs.cdp.coinbase.com/get-started/docs/cdp-api-keys).
+      - **Wallet Secret**: This secret is used specifically to authenticate requests to `POST`, and `DELETE`
+        endpoints in the EVM and Solana Account APIs.
 
 
-      To learn more about creating and using using these keys, visit our [Authentication docs](../docs/authentication).
+      Both are configured in the [CDP Portal](https://portal.cdp.coinbase.com/).
 
-      :::tip Use our SDK
+      > **Note:** The [CDP SDK](https://github.com/coinbase/cdp-sdk) automatically issue requests using the CDP Secret API Key and the Wallet Secret when making requests to the Solana Account APIs. Use the CDP SDK for your convenience.
 
+      Endpoints that require usage of the Wallet Secret are marked with the `X-Wallet-Auth` header. The value of this header is a JWT with the following header and claims:
 
-      The [CDP SDK](https://github.com/coinbase/cdp-sdk) automatically authenticates requests using your CDP Secret API Key and Wallet Secret. Use the CDP SDK for a more convenient access to our APIs.
+      ```javascript
+      {
+        "header": {
+          "alg": "ES256",
+          "typ": "JWT"
+        },
+        "payload": {
+          "iat": 1714431600,
+          "jti": "123e4567-e89b-12d3-a456-426614174000",
+          "nbf": 1714431600,
+          "req": {
+            "transaction": "4hXTCkRzt9WyecNzV1XPgCDfGAZzQKNxLXgynz5QDuWWPSAZBZSHptvWRL3BjCvzUXRdKvHL2b7yGrRQcWyaqsaBCncVG7BFggS8w9snUts67BSh3EqKpXLUm5UMHfD7ZBe9GhARjbNQMLJ1QD3Spr6oMTBU6KchZiTXHcFDp99F"
+          },
+          "uris": [
+            "POST api.cdp.coinbase.com/platform/v2/solana/accounts/HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT/sign/transaction"
+          ]
+        }
+      }
+      ```
 
+      where:
+      - `alg`, `typ`, `iat`, `nbf`, and `jti` are standard JWT claims as defined by [RFC 7519](https://www.rfc-editor.org/rfc/rfc7519).
+      - `req` is a JSON object corresponding exactly to the request body of the endpoint. If the request body is empty, the `req` field should not be present in the JWT.
+      - `uris` is a single-element array containing the HTTP method and URI of the endpoint that is being accessed.
 
-      :::
+      The JWT should be signed using the Wallet Secret, and the resulting base64 encoded signature should be the value of the `X-Wallet-Auth` header. CDP's TEE verifies that the value of the `X-Wallet-Auth` header in the request matches the JWT and the customer's Wallet Secret.
+
+      > **Important:** Your Wallet Secret is a **secret** that, when combined with your CDP Secret API Key, can be used to access any account in your CDP Project. Secure it as you would a password.
 paths:
   /v2/evm/accounts:
     get:
@@ -1491,11 +1539,10 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
-    bearerAuth:
+    BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: A JWT signed using your API Key Secret, encoded in base64. Refer to the [Generate a Bearer Token](../docs/authentication#2-generate-a-bearer-token) section of our Authentication docs for information on how to generate your Bearer Token.
   schemas:
     EvmAccount:
       type: object
@@ -1774,7 +1821,7 @@ components:
         errorLink:
           description: A link to the corresponding error documentation.
           type: string
-          example: https://docs.cdp.coinbase.com/api-v2/docs/errors#invalid_request
+          example: https://docs.cdp.coinbase.com/api/v2/docs/errors#invalid_request
       required:
         - errorType
         - errorMessage
@@ -1782,7 +1829,7 @@ components:
         errorType: invalid_request
         errorMessage: Invalid request.
         correlationId: 41deb8d59a9dc9a7-IAD
-        errorLink: https://docs.cdp.coinbase.com/api-v2/docs/errors#invalid_request
+        errorLink: https://docs.cdp.coinbase.com/api/v2/docs/errors#invalid_request
     EvmSmartAccount:
       type: object
       properties:
@@ -1936,7 +1983,8 @@ components:
       in: header
       required: true
       description: |
-        A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.
+        The JWT signed using the Server Wallet Secret, encoded in base64.
+        See the Authentication section above for more details.
       schema:
         type: string
       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywicm9sZSI6ImFkbWluIiwiZXhwIjoxNzAxOTgwMDAwfQ.HWvMTKmCCTxHaxjvZyLaC6UQ6TV3ErTDWBf7zmdH0Lw
@@ -1945,9 +1993,12 @@ components:
       in: header
       required: false
       description: |
-        An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
-        When included, duplicate requests with the same key will return identical responses. 
-        Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys.
+        The optional header for making requests safely retryable.
+        When included, duplicate requests with the same key return identical responses.
+
+
+
+        The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4).
       schema:
         type: string
         maxLength: 36
