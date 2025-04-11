@@ -49,8 +49,8 @@ class SolanaAccountsApi:
     @validate_call
     async def create_solana_account(
         self,
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). ")] = None,
         create_solana_account_request: Optional[CreateSolanaAccountRequest] = None,
         _request_timeout: Union[
             None,
@@ -69,9 +69,9 @@ class SolanaAccountsApi:
 
         Creates a new Solana account.
 
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. 
         :type x_wallet_auth: str
-        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. 
+        :param x_idempotency_key: The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). 
         :type x_idempotency_key: str
         :param create_solana_account_request:
         :type create_solana_account_request: CreateSolanaAccountRequest
@@ -129,8 +129,8 @@ class SolanaAccountsApi:
     @validate_call
     async def create_solana_account_with_http_info(
         self,
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). ")] = None,
         create_solana_account_request: Optional[CreateSolanaAccountRequest] = None,
         _request_timeout: Union[
             None,
@@ -149,9 +149,9 @@ class SolanaAccountsApi:
 
         Creates a new Solana account.
 
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. 
         :type x_wallet_auth: str
-        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. 
+        :param x_idempotency_key: The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). 
         :type x_idempotency_key: str
         :param create_solana_account_request:
         :type create_solana_account_request: CreateSolanaAccountRequest
@@ -209,8 +209,8 @@ class SolanaAccountsApi:
     @validate_call
     async def create_solana_account_without_preload_content(
         self,
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). ")] = None,
         create_solana_account_request: Optional[CreateSolanaAccountRequest] = None,
         _request_timeout: Union[
             None,
@@ -229,9 +229,9 @@ class SolanaAccountsApi:
 
         Creates a new Solana account.
 
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. 
         :type x_wallet_auth: str
-        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. 
+        :param x_idempotency_key: The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). 
         :type x_idempotency_key: str
         :param create_solana_account_request:
         :type create_solana_account_request: CreateSolanaAccountRequest
@@ -344,7 +344,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -614,7 +613,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -884,7 +882,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1167,7 +1164,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1192,8 +1188,8 @@ class SolanaAccountsApi:
     async def sign_solana_message(
         self,
         address: Annotated[str, Field(strict=True, description="The base58 encoded address of the Solana account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). ")] = None,
         sign_solana_message_request: Optional[SignSolanaMessageRequest] = None,
         _request_timeout: Union[
             None,
@@ -1214,9 +1210,9 @@ class SolanaAccountsApi:
 
         :param address: The base58 encoded address of the Solana account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. 
         :type x_wallet_auth: str
-        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. 
+        :param x_idempotency_key: The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). 
         :type x_idempotency_key: str
         :param sign_solana_message_request:
         :type sign_solana_message_request: SignSolanaMessageRequest
@@ -1277,8 +1273,8 @@ class SolanaAccountsApi:
     async def sign_solana_message_with_http_info(
         self,
         address: Annotated[str, Field(strict=True, description="The base58 encoded address of the Solana account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). ")] = None,
         sign_solana_message_request: Optional[SignSolanaMessageRequest] = None,
         _request_timeout: Union[
             None,
@@ -1299,9 +1295,9 @@ class SolanaAccountsApi:
 
         :param address: The base58 encoded address of the Solana account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. 
         :type x_wallet_auth: str
-        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. 
+        :param x_idempotency_key: The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). 
         :type x_idempotency_key: str
         :param sign_solana_message_request:
         :type sign_solana_message_request: SignSolanaMessageRequest
@@ -1362,8 +1358,8 @@ class SolanaAccountsApi:
     async def sign_solana_message_without_preload_content(
         self,
         address: Annotated[str, Field(strict=True, description="The base58 encoded address of the Solana account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). ")] = None,
         sign_solana_message_request: Optional[SignSolanaMessageRequest] = None,
         _request_timeout: Union[
             None,
@@ -1384,9 +1380,9 @@ class SolanaAccountsApi:
 
         :param address: The base58 encoded address of the Solana account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. 
         :type x_wallet_auth: str
-        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. 
+        :param x_idempotency_key: The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). 
         :type x_idempotency_key: str
         :param sign_solana_message_request:
         :type sign_solana_message_request: SignSolanaMessageRequest
@@ -1504,7 +1500,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1529,8 +1524,8 @@ class SolanaAccountsApi:
     async def sign_solana_transaction(
         self,
         address: Annotated[str, Field(strict=True, description="The base58 encoded address of the Solana account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). ")] = None,
         sign_solana_transaction_request: Optional[SignSolanaTransactionRequest] = None,
         _request_timeout: Union[
             None,
@@ -1551,9 +1546,9 @@ class SolanaAccountsApi:
 
         :param address: The base58 encoded address of the Solana account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. 
         :type x_wallet_auth: str
-        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. 
+        :param x_idempotency_key: The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). 
         :type x_idempotency_key: str
         :param sign_solana_transaction_request:
         :type sign_solana_transaction_request: SignSolanaTransactionRequest
@@ -1615,8 +1610,8 @@ class SolanaAccountsApi:
     async def sign_solana_transaction_with_http_info(
         self,
         address: Annotated[str, Field(strict=True, description="The base58 encoded address of the Solana account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). ")] = None,
         sign_solana_transaction_request: Optional[SignSolanaTransactionRequest] = None,
         _request_timeout: Union[
             None,
@@ -1637,9 +1632,9 @@ class SolanaAccountsApi:
 
         :param address: The base58 encoded address of the Solana account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. 
         :type x_wallet_auth: str
-        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. 
+        :param x_idempotency_key: The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). 
         :type x_idempotency_key: str
         :param sign_solana_transaction_request:
         :type sign_solana_transaction_request: SignSolanaTransactionRequest
@@ -1701,8 +1696,8 @@ class SolanaAccountsApi:
     async def sign_solana_transaction_without_preload_content(
         self,
         address: Annotated[str, Field(strict=True, description="The base58 encoded address of the Solana account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). ")] = None,
         sign_solana_transaction_request: Optional[SignSolanaTransactionRequest] = None,
         _request_timeout: Union[
             None,
@@ -1723,9 +1718,9 @@ class SolanaAccountsApi:
 
         :param address: The base58 encoded address of the Solana account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: The JWT signed using the Server Wallet Secret, encoded in base64. See the Authentication section above for more details. 
         :type x_wallet_auth: str
-        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys. 
+        :param x_idempotency_key: The optional header for making requests safely retryable. When included, duplicate requests with the same key return identical responses.    The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4). 
         :type x_idempotency_key: str
         :param sign_solana_transaction_request:
         :type sign_solana_transaction_request: SignSolanaTransactionRequest
@@ -1844,7 +1839,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
         ]
 
         return self.api_client.param_serialize(

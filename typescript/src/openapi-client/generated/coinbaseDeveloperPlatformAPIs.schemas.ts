@@ -170,15 +170,19 @@ export type IdempotencyErrorResponse = Error;
 export type AlreadyExistsErrorResponse = Error;
 
 /**
- * A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.
+ * The JWT signed using the Server Wallet Secret, encoded in base64.
+See the Authentication section above for more details.
 
  */
 export type XWalletAuthParameter = string;
 
 /**
- * An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
-When included, duplicate requests with the same key will return identical responses. 
-Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys.
+ * The optional header for making requests safely retryable.
+When included, duplicate requests with the same key return identical responses.
+
+
+
+The idempotency key must be a valid [UUID v4](https://www.uuidgenerator.net/version4).
 
  */
 export type IdempotencyKeyParameter = string;
