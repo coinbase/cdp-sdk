@@ -22,6 +22,7 @@
 - [🤝 Contributing](#-contributing)
 - [🚨 Security and Bug Reports](#-security-and-bug-reports)
 - [📧 Contact](#-contact)
+- [✍️ Contributors](#-contributors)
 - [📝 License](#-license)
 
 ## 📖 Overview
@@ -58,6 +59,12 @@ Resources:
 
 - [CDP API Reference](https://docs.cdp.coinbase.com/api-v2/docs/welcome)
 - [GitHub Issues](https://github.com/coinbase/cdp-sdk/issues)
+
+## ✍️ Contributors
+
+<a href="https://github.com/coinbase/cdp-sdk/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=coinbase/cdp-sdk" />
+</a>
 
 ## 📝 License
 
