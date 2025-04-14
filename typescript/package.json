@@ -4,6 +4,7 @@
   "description": "CDP SDK",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": "https://github.com/coinbase/cdp-sdk",
   "scripts": {
     "changeset": "changeset",
     "changeset:version": "changeset version",
