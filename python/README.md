@@ -104,15 +104,17 @@ smart_account = await cdp.evm.create_smart_account(
 #### Sending User Operations
 
 ```python
+from cdp.evm_call_types import EncodedCall
+
 user_operation = await cdp.evm.send_user_operation(
     smart_account=smart_account,
     network="base-sepolia",
     calls=[
-        {
-            "to": "0x0000000000000000000000000000000000000000",
-            "value": 10000000000000000,
-            "data": "0x"
-        }
+        EncodedCall(
+            to="0x0000000000000000000000000000000000000000",
+            value=0,
+            data="0x"
+        )
     ]
 )
 ```

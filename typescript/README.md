@@ -128,7 +128,7 @@ const userOperation = await cdp.sendUserOperation({
   calls: [
     {
       to: "0x0000000000000000000000000000000000000000",
-      value: parseEther("0.000001"),
+      value: parseEther("0"),
       data: "0x",
     },
   ],
