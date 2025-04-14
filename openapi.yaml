@@ -29,15 +29,15 @@ tags:
 
       ## Authentication
 
-      The EVM Account APIs use two layers of authentication to ensure the security of your accounts' private keys:
+      The EVM Account API uses two layers of authentication to ensure the security of your accounts' private keys:
 
       - **CDP Secret API Key**: This key is used to authenticate all requests to the entire suite of
          REST APIs offered on Coinbase Developer Platform.
       - **Wallet Secret**: This secret is used specifically to authenticate sensitive wallet operations 
-        to `POST`, `PUT`, and `DELETE` endpoints in the EVM and Solana Account APIs.
+        to `POST` and `DELETE` endpoints in the EVM and Solana Account APIs.
 
 
-      To learn more about creating and using using these keys, visit our [Authentication docs](../docs/authentication).
+      To learn more about creating and using using these keys, visit our [Authentication docs](https://docs.cdp.coinbase.com/api-v2/docs/authentication).
 
       :::tip Use our SDK
 
@@ -77,10 +77,10 @@ tags:
       - **CDP Secret API Key**: This key is used to authenticate all requests to the entire suite of
          REST APIs offered on Coinbase Developer Platform.
       - **Wallet Secret**: This secret is used specifically to authenticate sensitive wallet operations 
-        to `POST`, `PUT`, and `DELETE` endpoints in the EVM and Solana Account APIs.
+        to `POST` and `DELETE` endpoints in the EVM and Solana Account APIs.
 
 
-      To learn more about creating and using using these keys, visit our [Authentication docs](../docs/authentication).
+      To learn more about creating and using using these keys, visit our [Authentication docs](https://docs.cdp.coinbase.com/api-v2/docs/authentication).
 
       :::tip Use our SDK
 
@@ -1495,7 +1495,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: A JWT signed using your API Key Secret, encoded in base64. Refer to the [Generate a Bearer Token](../docs/authentication#2-generate-a-bearer-token) section of our Authentication docs for information on how to generate your Bearer Token.
+      description: A JWT signed using your API Key Secret, encoded in base64. Refer to the  [Generate a Bearer Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-a-bearer-token) section of our Authentication docs for information on how to generate your Bearer Token.
   schemas:
     EvmAccount:
       type: object
@@ -1936,7 +1936,9 @@ components:
       in: header
       required: true
       description: |
-        A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.
+        A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+        [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token)
+        section of our Authentication docs for more details on how to generate your Wallet Token.
       schema:
         type: string
       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywicm9sZSI6ImFkbWluIiwiZXhwIjoxNzAxOTgwMDAwfQ.HWvMTKmCCTxHaxjvZyLaC6UQ6TV3ErTDWBf7zmdH0Lw
@@ -1947,7 +1949,7 @@ components:
       description: |
         An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
         When included, duplicate requests with the same key will return identical responses. 
-        Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys.
+        Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
       schema:
         type: string
         maxLength: 36

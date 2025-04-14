@@ -170,7 +170,9 @@ export type IdempotencyErrorResponse = Error;
 export type AlreadyExistsErrorResponse = Error;
 
 /**
- * A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](../docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.
+ * A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+[Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token)
+section of our Authentication docs for more details on how to generate your Wallet Token.
 
  */
 export type XWalletAuthParameter = string;
@@ -178,7 +180,7 @@ export type XWalletAuthParameter = string;
 /**
  * An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
 When included, duplicate requests with the same key will return identical responses. 
-Refer to our [Idempotency docs](../docs/idempotency) for more information on using idempotency keys.
+Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
 
  */
 export type IdempotencyKeyParameter = string;
