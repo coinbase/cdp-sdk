@@ -92,7 +92,6 @@ jobs:
         if: steps.check_branch.outputs.branch_exists == 'false'
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         with:
-          token: ${{ github.token }}
           branch: update_openapi
           base: main
           delete-branch: true
@@ -105,4 +104,5 @@ jobs:
             - Generated TypeScript code from the updated specs
             - Generated Python client from the updated specs
           commit-message: "chore: update OpenAPI spec and generated code"
+          sign-commits: true
           labels: automated-pr, api-update
