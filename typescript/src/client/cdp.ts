@@ -38,9 +38,9 @@ export class CdpClient {
    *
    * The CdpClient is namespaced by chain type: `evm` or `solana`.
    *
-   * As an example, to create a new EVM account, use `cdpClient.evm.createAccount()`.
+   * As an example, to create a new EVM account, use `cdp.evm.createAccount()`.
    *
-   * To create a new Solana account, use `cdpClient.solana.createAccount()`.
+   * To create a new Solana account, use `cdp.solana.createAccount()`.
    *
    * @param {CdpClientOptions} options - Configuration options for the CdpClient.
    */

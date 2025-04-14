@@ -29,8 +29,8 @@ async function main() {
   try {
     /*
      * create 2 accounts
-     * await cdpClient.createSolanaAccount();
-     * await cdpClient.createSolanaAccount();
+     * await cdp.createSolanaAccount();
+     * await cdp.createSolanaAccount();
      */
   } catch (error) {
     console.error("Error creating Solana account:", error);

@@ -23,21 +23,21 @@ import (
 func main() {
 	ctx := context.Background()
 
-	cdpClient, err := createCDPClient()
+	cdp, err := createCDPClient()
 	if err != nil {
 		log.Fatalf("Failed to create CDP client: %v", err)
 	}
 
-	evmAddress, err := createEVMAccount(ctx, cdpClient)
+	evmAddress, err := createEVMAccount(ctx, cdp)
 	if err != nil {
 		log.Printf("Failed to create EVM account: %v", err)
 	}
 
-	if err := faucetEVMAccount(ctx, cdpClient, evmAddress); err != nil {
+	if err := faucetEVMAccount(ctx, cdp, evmAddress); err != nil {
 		log.Printf("Failed to faucet EVM address: %v", err)
 	}
 
-	signedTransaction, err := createAndSignEVMTransaction(ctx, cdpClient, evmAddress)
+	signedTransaction, err := createAndSignEVMTransaction(ctx, cdp, evmAddress)
 	if err != nil {
 		log.Printf("Failed to sign transaction: %v", err)
 	}
@@ -70,7 +70,7 @@ func createCDPClient() (*openapi.ClientWithResponses, error) {
 
 	apiURL := os.Getenv("CDP_API_URL")
 
-	cdpClient, err := cdp.NewClient(cdp.ClientOptions{
+	cdp, err := cdp.NewClient(cdp.ClientOptions{
 		APIKeyID:     apiKeyName,
 		APIKeySecret: apiKeySecret,
 		WalletSecret: walletSecret,
@@ -80,14 +80,14 @@ func createCDPClient() (*openapi.ClientWithResponses, error) {
 		return nil, err
 	}
 
-	return cdpClient, nil
+	return cdp, nil
 }
 
 // createEVMAccount creates a new EVM account using the CDP client.
-func createEVMAccount(ctx context.Context, cdpClient *openapi.ClientWithResponses) (string, error) {
+func createEVMAccount(ctx context.Context, cdp *openapi.ClientWithResponses) (string, error) {
 	log.Println("Creating EVM account...")
 
-	response, err := cdpClient.CreateEvmAccountWithResponse(
+	response, err := cdp.CreateEvmAccountWithResponse(
 		ctx,
 		nil,
 		openapi.CreateEvmAccountJSONRequestBody{},
@@ -106,10 +106,10 @@ func createEVMAccount(ctx context.Context, cdpClient *openapi.ClientWithResponse
 }
 
 // faucetEVMAccount requests test ETH from the faucet for the given EVM address on Base Sepolia.
-func faucetEVMAccount(ctx context.Context, cdpClient *openapi.ClientWithResponses, evmAddress string) error {
+func faucetEVMAccount(ctx context.Context, cdp *openapi.ClientWithResponses, evmAddress string) error {
 	log.Printf("Fauceting EVM address on Base Sepolia: %v", evmAddress)
 
-	response, err := cdpClient.RequestEvmFaucetWithResponse(
+	response, err := cdp.RequestEvmFaucetWithResponse(
 		ctx,
 		openapi.RequestEvmFaucetJSONRequestBody{
 			Address: evmAddress,
@@ -135,7 +135,7 @@ func faucetEVMAccount(ctx context.Context, cdpClient *openapi.ClientWithResponse
 }
 
 // createAndSignEVMTransaction creates and signs an EVM transaction using the CDP client.
-func createAndSignEVMTransaction(ctx context.Context, cdpClient *openapi.ClientWithResponses, evmAddress string) (string, error) {
+func createAndSignEVMTransaction(ctx context.Context, cdp *openapi.ClientWithResponses, evmAddress string) (string, error) {
 	toAddress := common.HexToAddress("0x450B2dC4Ba2a08E58C7ECc3DE48e3C825262caF8")
 
 	transaction := types.DynamicFeeTx{
@@ -159,7 +159,7 @@ func createAndSignEVMTransaction(ctx context.Context, cdpClient *openapi.ClientW
 	rlpHex := hex.EncodeToString(rlpData)
 	rlpHex = "0x" + rlpHex
 
-	response, err := cdpClient.SignEvmTransactionWithResponse(
+	response, err := cdp.SignEvmTransactionWithResponse(
 		ctx,
 		evmAddress,
 		nil,

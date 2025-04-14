@@ -8,10 +8,10 @@ import dotenv from "dotenv";
 dotenv.config();
 
 describe("CDP Client E2E Tests", () => {
-  let cdpClient: CdpClient;
+  let cdp: CdpClient;
 
   beforeAll(() => {
-    cdpClient = new CdpClient({
+    cdp = new CdpClient({
       apiKeyId: process.env.API_KEY_ID as string,
       apiKeySecret: process.env.API_KEY_SECRET as string,
       walletSecret: process.env.WALLET_SECRET as string,
@@ -28,34 +28,34 @@ describe("CDP Client E2E Tests", () => {
 
   it("should create, get, and list accounts", async () => {
     const randomName = generateRandomName();
-    const serverAccount = await cdpClient.evm.createAccount({ name: randomName });
+    const serverAccount = await cdp.evm.createAccount({ name: randomName });
     expect(serverAccount).toBeDefined();
 
-    const accounts = await cdpClient.evm.listAccounts();
+    const accounts = await cdp.evm.listAccounts();
     expect(accounts).toBeDefined();
     expect(accounts.accounts.length).toBeGreaterThan(0);
 
-    let account = await cdpClient.evm.getAccount({ address: serverAccount.address });
+    let account = await cdp.evm.getAccount({ address: serverAccount.address });
     expect(account).toBeDefined();
     expect(account.address).toBe(serverAccount.address);
     expect(account.name).toBe(serverAccount.name);
 
-    account = await cdpClient.evm.getAccount({ name: randomName });
+    account = await cdp.evm.getAccount({ name: randomName });
     expect(account).toBeDefined();
     expect(account.address).toBe(serverAccount.address);
     expect(account.name).toBe(randomName);
   });
 
   it("should test evm sign functions", async () => {
-    const account = await cdpClient.evm.createAccount();
+    const account = await cdp.evm.createAccount();
 
-    const signedHash = await cdpClient.evm.signHash({
+    const signedHash = await cdp.evm.signHash({
       address: account.address,
       hash: ("0x" + "1".repeat(64)) as Hex,
     });
     expect(signedHash).toBeDefined();
 
-    const signedMessage = await cdpClient.evm.signMessage({
+    const signedMessage = await cdp.evm.signMessage({
       address: account.address,
       message: "0x123",
     });
@@ -80,7 +80,7 @@ describe("CDP Client E2E Tests", () => {
       },
     );
 
-    const signedTransaction = await cdpClient.evm.signTransaction({
+    const signedTransaction = await cdp.evm.signTransaction({
       address: account.address,
       transaction: serializedTx,
     });
@@ -91,16 +91,16 @@ describe("CDP Client E2E Tests", () => {
     const privateKey = generatePrivateKey();
     const owner = privateKeyToAccount(privateKey);
 
-    const smartAccount = await cdpClient.evm.createSmartAccount({
+    const smartAccount = await cdp.evm.createSmartAccount({
       owner: owner,
     });
     expect(smartAccount).toBeDefined();
 
-    const smartAccounts = await cdpClient.evm.listSmartAccounts();
+    const smartAccounts = await cdp.evm.listSmartAccounts();
     expect(smartAccounts).toBeDefined();
     expect(smartAccounts.accounts.length).toBeGreaterThan(0);
 
-    const retrievedSmartAccount = await cdpClient.evm.getSmartAccount({
+    const retrievedSmartAccount = await cdp.evm.getSmartAccount({
       address: smartAccount.address,
       owner: owner,
     });
@@ -110,10 +110,10 @@ describe("CDP Client E2E Tests", () => {
   it("should prepare user operation", async () => {
     const privateKey = generatePrivateKey();
     const owner = privateKeyToAccount(privateKey);
-    const smartAccount = await cdpClient.evm.createSmartAccount({ owner });
+    const smartAccount = await cdp.evm.createSmartAccount({ owner });
     expect(smartAccount).toBeDefined();
 
-    const userOperation = await cdpClient.evm.prepareUserOperation({
+    const userOperation = await cdp.evm.prepareUserOperation({
       smartAccount: smartAccount,
       network: "base-sepolia",
       calls: [
@@ -131,10 +131,10 @@ describe("CDP Client E2E Tests", () => {
     const privateKey = generatePrivateKey();
     const owner = privateKeyToAccount(privateKey);
 
-    const smartAccount = await cdpClient.evm.createSmartAccount({ owner });
+    const smartAccount = await cdp.evm.createSmartAccount({ owner });
     expect(smartAccount).toBeDefined();
 
-    const userOperation = await cdpClient.evm.sendUserOperation({
+    const userOperation = await cdp.evm.sendUserOperation({
       smartAccount: smartAccount,
       network: "base-sepolia",
       calls: [
@@ -149,7 +149,7 @@ describe("CDP Client E2E Tests", () => {
     expect(userOperation).toBeDefined();
     expect(userOperation.userOpHash).toBeDefined();
 
-    const userOpResult = await cdpClient.evm.waitForUserOperation({
+    const userOpResult = await cdp.evm.waitForUserOperation({
       smartAccountAddress: smartAccount.address,
       userOpHash: userOperation.userOpHash,
     });
@@ -157,7 +157,7 @@ describe("CDP Client E2E Tests", () => {
     expect(userOpResult).toBeDefined();
     expect(userOpResult.status).toBe("complete");
 
-    const userOp = await cdpClient.evm.getUserOperation({
+    const userOp = await cdp.evm.getUserOperation({
       smartAccount: smartAccount,
       userOpHash: userOperation.userOpHash,
     });
@@ -167,21 +167,21 @@ describe("CDP Client E2E Tests", () => {
 
   it("should create, get, and list solana accounts", async () => {
     const randomName = generateRandomName();
-    const solanaAccount = await cdpClient.solana.createAccount({ name: randomName });
+    const solanaAccount = await cdp.solana.createAccount({ name: randomName });
     expect(solanaAccount).toBeDefined();
 
-    const solanaAccounts = await cdpClient.solana.listAccounts();
+    const solanaAccounts = await cdp.solana.listAccounts();
     expect(solanaAccounts).toBeDefined();
     expect(solanaAccounts.accounts.length).toBeGreaterThan(0);
 
-    let retrievedSolanaAccount = await cdpClient.solana.getAccount({
+    let retrievedSolanaAccount = await cdp.solana.getAccount({
       address: solanaAccount.address,
     });
     expect(retrievedSolanaAccount).toBeDefined();
     expect(retrievedSolanaAccount.address).toBe(solanaAccount.address);
     expect(retrievedSolanaAccount.name).toBe(randomName);
 
-    retrievedSolanaAccount = await cdpClient.solana.getAccount({
+    retrievedSolanaAccount = await cdp.solana.getAccount({
       name: randomName,
     });
     expect(retrievedSolanaAccount).toBeDefined();
@@ -190,14 +190,14 @@ describe("CDP Client E2E Tests", () => {
   });
 
   it("should test solana sign functions", async () => {
-    const account = await cdpClient.solana.createAccount();
+    const account = await cdp.solana.createAccount();
 
     // For sign_message - use base64 encoded message
     const message = "Hello Solana!";
     const encoder = new TextEncoder();
     const encodedMessage = Buffer.from(encoder.encode(message)).toString("base64");
 
-    const signedMessage = await cdpClient.solana.signMessage({
+    const signedMessage = await cdp.solana.signMessage({
       address: account.address,
       message: encodedMessage,
     });
@@ -225,7 +225,7 @@ describe("CDP Client E2E Tests", () => {
 
     const base64Tx = Buffer.from(unsignedTxBytes).toString("base64");
 
-    const signedTransaction = await cdpClient.solana.signTransaction({
+    const signedTransaction = await cdp.solana.signTransaction({
       address: account.address,
       transaction: base64Tx,
     });

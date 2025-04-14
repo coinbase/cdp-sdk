@@ -19,17 +19,32 @@ export class SolanaClient implements SolanaClientInterface {
   /**
    * Creates a new Solana account.
    *
-   * @param {CreateAccountOptions} options - Configuration options for creating the Solana account.
-   * @returns A promise that resolves to the newly created Solana account instance.
+   * @param {CreateAccountOptions} options - Parameters for creating the Solana account.
+   * @param {string} [options.name] - The name of the account.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
    *
-   * @example
-   * ```ts
-   * // You can create a new Solana account without any parameters
-   * const account = await cdpClient.solana.createAccount();
+   * @returns A promise that resolves to the newly created account.
    *
-   * // You can also create a new Solana account with a name
-   * const account = await cdpClient.solana.createAccount({ name: "MyAccount" });
-   * ```
+   * @example **Without arguments**
+   *          ```ts
+   *          const account = await cdp.solana.createAccount();
+   *          ```
+   *
+   * @example **With a name**
+   *          ```ts
+   *          const account = await cdp.solana.createAccount({ name: "MyAccount" });
+   *          ```
+   *
+   * @example **With an idempotency key**
+   *          ```ts
+   *          const idempotencyKey = uuidv4();
+   *
+   *          // First call
+   *          await cdp.solana.createAccount({ idempotencyKey });
+   *
+   *          // Second call with the same idempotency key will return the same account
+   *          await cdp.solana.createAccount({ idempotencyKey });
+   *          ```
    */
   async createAccount(options: CreateAccountOptions = {}): Promise<Account> {
     return CdpOpenApiClient.createSolanaAccount(options, options.idempotencyKey);
@@ -38,19 +53,27 @@ export class SolanaClient implements SolanaClientInterface {
   /**
    * Gets a Solana account by its address.
    *
-   * @param {GetAccountOptions} options - Configuration options for getting the Solana account.
-   * @returns A promise that resolves to the Solana account instance.
+   * @param {GetAccountOptions} options - Parameters for getting the Solana account.
+   * Either `address` or `name` must be provided.
+   * If both are provided, lookup will be done by `address` and `name` will be ignored.
+   * @param {string} [options.address] - The address of the account.
+   * @param {string} [options.name] - The name of the account.
    *
-   * @example
-   * ```ts
-   * // At some point, you will have created a Solana account
-   * const newAccount = await cdpClient.solana.createAccount();
+   * @returns A promise that resolves to the account.
    *
-   * // Later when you want to get the account, you can do so by address
-   * const account = await cdpClient.solana.getAccount({
-   *   address: newAccount.address,
-   * });
-   * ```
+   * @example **Get an account by address**
+   *          ```ts
+   *          const account = await cdp.solana.getAccount({
+   *            address: "1234567890123456789012345678901234567890",
+   *          });
+   *          ```
+   *
+   * @example **Get an account by name**
+   *          ```ts
+   *          const account = await cdp.solana.getAccount({
+   *            name: "MyAccount",
+   *          });
+   *          ```
    */
   async getAccount(options: GetAccountOptions): Promise<Account> {
     if (options.address) {
@@ -67,25 +90,28 @@ export class SolanaClient implements SolanaClientInterface {
   /**
    * Lists all Solana accounts.
    *
-   * @param {ListAccountsOptions} options - Configuration options for listing the Solana accounts.
+   * @param {ListAccountsOptions} options - Parameters for listing the Solana accounts.
+   * @param {number} [options.pageSize] - The number of accounts to return.
+   * @param {string} [options.pageToken] - The page token to begin listing from.
+   * This is obtained by previous calls to this method.
+   *
    * @returns A promise that resolves to an array of Solana account instances.
    *
-   * @example
-   * ```ts
-   * // You can paginate through the accounts
-   * let page = await cdpClient.solana.listAccounts({
-   *   pageSize: 2,
-   * });
+   * @example **Without arguments**
+   *          ```ts
+   *          const accounts = await cdp.solana.listAccounts();
+   *          ```
    *
-   * page.accounts.forEach(account => console.log(account));
+   * @example **With pagination**
+   *          ```ts
+   *          let page = await cdp.solana.listAccounts();
    *
-   * while (page.nextPageToken) {
-   *   page = await cdpClient.solana.listAccounts({
-   *     pageSize: 2,
-   *     pageToken: page.nextPageToken,
-   *   });
+   *          while (page.nextPageToken) {
+   *            page = await cdp.solana.listAccounts({ pageToken: page.nextPageToken });
+   *          }
    *
-   *   page.accounts.forEach(account => console.log(account));
+   *          page.accounts.forEach(account => console.log(account));
+   *          ```
    * }
    * ```
    */
@@ -104,8 +130,20 @@ export class SolanaClient implements SolanaClientInterface {
   /**
    * Requests funds from a Solana faucet.
    *
-   * @param {RequestFaucetOptions} options - Configuration options for requesting funds from the Solana faucet.
+   * @param {RequestFaucetOptions} options - Parameters for requesting funds from the Solana faucet.
+   * @param {string} options.address - The address to request funds for.
+   * @param {string} options.token - The token to request funds for.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
    * @returns A promise that resolves to the transaction signature.
+   *
+   * @example
+   *          ```ts
+   *          const signature = await cdp.solana.requestFaucet({
+   *            address: "1234567890123456789012345678901234567890",
+   *            token: "sol",
+   *          });
+   *          ```
    */
   async requestFaucet(options: RequestFaucetOptions): Promise<SignatureResult> {
     const signature = await CdpOpenApiClient.requestSolanaFaucet(
@@ -119,18 +157,22 @@ export class SolanaClient implements SolanaClientInterface {
   }
 
   /**
-   * Signs a message using a Solana wallet.
+   * Signs a message.
    *
-   * @param {SignMessageOptions} options - Configuration options for signing the message.
+   * @param {SignMessageOptions} options - Parameters for signing the message.
+   * @param {string} options.address - The address to sign the message for.
+   * @param {string} options.message - The message to sign.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
    * @returns A promise that resolves to the signature.
    *
    * @example
    * ```ts
    * // Create a Solana account
-   * const account = await cdpClient.solana.createAccount();
+   * const account = await cdp.solana.createAccount();
    *
    * // When you want to sign a message, you can do so by address
-   * const signature = await cdpClient.solana.signMessage({
+   * const signature = await cdp.solana.signMessage({
    *   address: account.address,
    *   message: "Hello, world!",
    * });
@@ -147,15 +189,19 @@ export class SolanaClient implements SolanaClientInterface {
   }
 
   /**
-   * Signs a transaction using a Solana wallet.
+   * Signs a transaction.
    *
-   * @param {SignTransactionOptions} options - Configuration options for signing the transaction.
+   * @param {SignTransactionOptions} options - Parameters for signing the transaction.
+   * @param {string} options.address - The address to sign the transaction for.
+   * @param {string} options.transaction - The transaction to sign.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
    * @returns A promise that resolves to the signature.
    *
    * @example
    * ```ts
    * // Create a Solana account
-   * const account = await cdpClient.solana.createAccount();
+   * const account = await cdp.solana.createAccount();
    *
    * // Add your transaction instructions here
    * const transaction = new Transaction()
@@ -169,7 +215,7 @@ export class SolanaClient implements SolanaClientInterface {
    * const transaction = Buffer.from(serializedTransaction).toString("base64");
    *
    * // When you want to sign a transaction, you can do so by address and base64 encoded transaction
-   * const signature = await cdpClient.solana.signTransaction({
+   * const signature = await cdp.solana.signTransaction({
    *   address: account.address,
    *   transaction,
    * });
