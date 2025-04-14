@@ -150,6 +150,7 @@ For feature requests, feedback, or questions, please reach out to us in the
 **#cdp-sdk** channel of the [Coinbase Developer Platform Discord](https://discord.com/invite/cdp).
 
 - [API Reference](https://docs.cdp.coinbase.com/api-v2/docs/welcome)
+- [SDK Docs](https://coinbase.github.io/cdp-sdk/python)
 - [GitHub Issues](https://github.com/coinbase/cdp-sdk/issues)
 
 ## Security

@@ -22,6 +22,7 @@
 - [🤝 Contributing](#-contributing)
 - [🚨 Security and Bug Reports](#-security-and-bug-reports)
 - [📧 Contact](#-contact)
+- [📚 SDK Docs](#-sdk-docs)
 - [✍️ Contributors](#-contributors)
 - [📝 License](#-license)
 
@@ -59,6 +60,14 @@ Resources:
 
 - [CDP API Reference](https://docs.cdp.coinbase.com/api-v2/docs/welcome)
 - [GitHub Issues](https://github.com/coinbase/cdp-sdk/issues)
+
+## 📚 SDK Docs
+
+CDP SDK has auto-generated SDK docs for each of the full-featured client libraries:
+
+- [TypeScript](https://coinbase.github.io/cdp-sdk/typescript)
+- [Python](https://coinbase.github.io/cdp-sdk/python)
+- [Go](https://coinbase.github.io/cdp-sdk/go)
 
 ## ✍️ Contributors
 
