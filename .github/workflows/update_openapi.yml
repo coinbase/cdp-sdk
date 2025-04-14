@@ -48,9 +48,9 @@ jobs:
           # Verify installation
           openapi-generator version
 
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - name: Install pnpm
         if: steps.check_branch.outputs.branch_exists == 'false'
-        name: Install pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with:
           version: 10
           run_install: false
@@ -106,3 +106,4 @@ jobs:
           commit-message: "chore: update OpenAPI spec and generated code"
           sign-commits: true
           labels: automated-pr, api-update
+          draft: always-true
