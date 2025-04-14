@@ -32,21 +32,13 @@ async function main() {
 
   console.log("EVM Account Address: ", ethAccount.address);
 
-  const serializedTx = serializeTransaction(
-    {
-      chainId: baseSepolia.id,
-      data: "0x",
-      to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
-      type: "eip1559",
-      value: parseEther("0.000001"),
-    },
-    // use an empty signature, since the transaction will be signed via the CDP API
-    {
-      v: BigInt(0),
-      r: "0x0",
-      s: "0x0",
-    },
-  );
+  const serializedTx = serializeTransaction({
+    chainId: baseSepolia.id,
+    data: "0x",
+    to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+    type: "eip1559",
+    value: parseEther("0.000001"),
+  });
 
   const signature = await cdp.evm.signTransaction({
     address: ethAccount.address,

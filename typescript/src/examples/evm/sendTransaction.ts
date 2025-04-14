@@ -44,15 +44,9 @@ async function main() {
       },
 
       async signTransaction(transaction) {
-        const serializedTx = serializeTransaction(transaction, {
-          v: BigInt(0),
-          r: "0x0",
-          s: "0x0",
-        });
-
         const result = await cdp.evm.signTransaction({
           address: a.address,
-          transaction: serializedTx,
+          transaction: serializeTransaction(transaction),
         });
         return result.signature;
       },

@@ -541,12 +541,6 @@ export class EvmClient implements EvmClientInterface {
    *     type: "eip1559",
    *     value: parseEther("0.000001"),
    *   },
-   *   // use an empty signature, since the transaction will be signed via the CDP API
-   *   {
-   *     v: BigInt(0),
-   *     r: "0x0",
-   *     s: "0x0",
-   *   },
    * );
    *
    * const signature = await cdp.evm.signTransaction({

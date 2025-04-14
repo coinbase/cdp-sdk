@@ -73,11 +73,6 @@ describe("CDP Client E2E Tests", () => {
         gasLimit: BigInt(21000),
         nonce: 0,
       },
-      {
-        v: BigInt(0),
-        r: "0x0",
-        s: "0x0",
-      },
     );
 
     const signedTransaction = await cdp.evm.signTransaction({

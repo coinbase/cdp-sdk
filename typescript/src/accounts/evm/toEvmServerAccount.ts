@@ -41,14 +41,8 @@ export function toEvmServerAccount(
     },
 
     async signTransaction(transaction: Transaction) {
-      const serializedTx = serializeTransaction(transaction, {
-        v: BigInt(0),
-        r: "0x0",
-        s: "0x0",
-      });
-
       const result = await apiClient.signEvmTransaction(options.account.address, {
-        transaction: serializedTx,
+        transaction: serializeTransaction(transaction),
       });
       return result.signedTransaction as `0x${string}`;
     },
