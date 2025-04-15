@@ -69,7 +69,7 @@ CDP SDK has auto-generated SDK docs for each of the full-featured client librari
 - [Python](https://coinbase.github.io/cdp-sdk/python)
 - [Go](https://coinbase.github.io/cdp-sdk/go)
 
-## ✍️ Contributors
+## ✍ Contributors
 
 <a href="https://github.com/coinbase/cdp-sdk/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=coinbase/cdp-sdk" />
