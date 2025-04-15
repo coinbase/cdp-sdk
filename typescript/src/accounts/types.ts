@@ -1,4 +1,4 @@
-import { SignableMessage, Transaction, TypedData, TypedDataDefinition } from "viem";
+import { SignableMessage, TransactionSerializable, TypedData, TypedDataDefinition } from "viem";
 
 import type { Hash, Hex, Address } from "../types/misc";
 import { Prettify } from "../types/utils";
@@ -15,7 +15,7 @@ export type EvmAccount = {
   /** Signs a message and returns the signature as a hex string. */
   signMessage: (parameters: { message: SignableMessage }) => Promise<Hex>;
   /** Signs a transaction and returns the signed transaction as a hex string. */
-  signTransaction: (transaction: Transaction) => Promise<Hex>;
+  signTransaction: (transaction: TransactionSerializable) => Promise<Hex>;
   /** Signs a typed data and returns the signature as a hex string. */
   signTypedData: <
     const typedData extends TypedData | Record<string, unknown>,

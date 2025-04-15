@@ -2,10 +2,10 @@
 
 import { config } from "dotenv";
 import { toAccount } from "viem/accounts";
-import { createWalletClient, http, createPublicClient, Hex } from "viem";
-import { serializeTransaction, parseEther } from "viem";
+import { createWalletClient, http, createPublicClient } from "viem";
+import { parseEther } from "viem";
 
-import { CdpClient, EvmServerAccount } from "../../index";
+import { CdpClient } from "../../index";
 
 import { baseSepolia } from "viem/chains";
 
@@ -35,28 +35,6 @@ async function main() {
     basePath,
   });
 
-  const EthereumAccountToViemAccount = (a: EvmServerAccount) => {
-    return toAccount({
-      address: a.address as Hex,
-
-      async signMessage() {
-        throw new Error("Not implemented");
-      },
-
-      async signTransaction(transaction) {
-        const result = await cdp.evm.signTransaction({
-          address: a.address,
-          transaction: serializeTransaction(transaction),
-        });
-        return result.signature;
-      },
-
-      async signTypedData() {
-        throw new Error("Not implemented");
-      },
-    });
-  };
-
   try {
     const serverAccount = await cdp.evm.createAccount();
     console.log("Successfully created EVM account:", serverAccount.address);
@@ -67,8 +45,6 @@ async function main() {
       token: "eth",
     });
     console.log("Successfully requested ETH from faucet:", faucetResp.transactionHash);
-
-    const account = EthereumAccountToViemAccount(serverAccount);
 
     // Wait for the faucet transaction to be confirmed onchain.
     const publicClient = createPublicClient({
@@ -89,11 +65,13 @@ async function main() {
     }
     console.log("Faucet transaction confirmed");
 
-    const hash = await createWalletClient({
+    const walletClient = createWalletClient({
+      account: toAccount(serverAccount),
       chain: baseSepolia,
       transport: http(),
-    }).sendTransaction({
-      account,
+    });
+
+    const hash = await walletClient.sendTransaction({
       to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
       value: parseEther("0.000001"),
     });

@@ -1,6 +1,6 @@
 import { EvmServerAccount } from "../types";
 import type { Address, Hash } from "../../types/misc";
-import { serializeTransaction, Transaction } from "viem";
+import { serializeTransaction, TransactionSerializable } from "viem";
 import { CdpOpenApiClientType, EvmAccount } from "../../openapi-client";
 
 /**
@@ -40,7 +40,7 @@ export function toEvmServerAccount(
       return result.signature as `0x${string}`;
     },
 
-    async signTransaction(transaction: Transaction) {
+    async signTransaction(transaction: TransactionSerializable) {
       const result = await apiClient.signEvmTransaction(options.account.address, {
         transaction: serializeTransaction(transaction),
       });

@@ -62,18 +62,16 @@ describe("CDP Client E2E Tests", () => {
     expect(signedMessage).toBeDefined();
 
     // Must be a valid transaction that can be decoded
-    const serializedTx = serializeTransaction(
-      {
-        chainId: baseSepolia.id,
-        to: "0x0000000000000000000000000000000000000000",
-        value: parseEther("0.00001"),
-        type: "eip1559",
-        maxFeePerGas: BigInt(20000000000),
-        maxPriorityFeePerGas: BigInt(1000000000),
-        gasLimit: BigInt(21000),
-        nonce: 0,
-      },
-    );
+    const serializedTx = serializeTransaction({
+      chainId: baseSepolia.id,
+      to: "0x0000000000000000000000000000000000000000",
+      value: parseEther("0.00001"),
+      type: "eip1559",
+      maxFeePerGas: BigInt(20000000000),
+      maxPriorityFeePerGas: BigInt(1000000000),
+      gasLimit: BigInt(21000),
+      nonce: 0,
+    });
 
     const signedTransaction = await cdp.evm.signTransaction({
       address: account.address,
