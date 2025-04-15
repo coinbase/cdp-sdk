@@ -1,4 +1,4 @@
-# Usage: uv run python cdp/examples/send_sol_tx.py
+# Usage: uv run python cdp/examples/solana/send_transaction.py
 
 import os
 import time

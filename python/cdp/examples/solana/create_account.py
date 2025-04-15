@@ -1,4 +1,4 @@
-# Usage: uv run python cdp/examples/create_sol_account.py
+# Usage: uv run python cdp/examples/solana/create_account.py
 
 import asyncio
 from dotenv import load_dotenv

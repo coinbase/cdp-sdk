@@ -12,5 +12,5 @@ Follow these steps to get started:
 To run an example, use `uv run python` followed by the path to the example file, for example:
 
 ```bash
-uv run python cdp/examples/create_evm_account.py
+uv run python cdp/examples/evm/create_account.py
 ```

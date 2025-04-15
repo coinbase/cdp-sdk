@@ -1,11 +1,10 @@
-# Usage: uv run python cdp/examples/create_smart_wallet_and_send.py
+# Usage: uv run python cdp/examples/evm/create_server_smart_wallet_and_send.py
 
 import asyncio
 from decimal import Decimal
 from dotenv import load_dotenv
 import os
 
-from eth_account import Account
 from web3 import Web3
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
@@ -22,10 +21,10 @@ async def main():
     )
 
     # create evm account
-    private_key = Account.create().key
-    owner = Account.from_key(private_key)
+    evm_account = await cdp.evm.create_account()
+    print("Server account address:", evm_account.address)
     # create evm smart account
-    evm_smart_account = await cdp.evm.create_smart_account(owner)
+    evm_smart_account = await cdp.evm.create_smart_account(evm_account)
     print("Smart account address:", evm_smart_account.address)
 
     # Faucet eth to the evm smart account

@@ -1,4 +1,4 @@
-# Usage: uv run python cdp/examples/create_evm_account.py
+# Usage: uv run python cdp/examples/evm/create_account.py
 
 import asyncio
 from dotenv import load_dotenv
