@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.1.1
+
+### Patch Changes
+
+- [#36](https://github.com/coinbase/cdp-sdk/pull/36) [`3a24e74`](https://github.com/coinbase/cdp-sdk/commit/3a24e74b07551023a5fbe542759f7fbe27c15201) Thanks [@0xRAG](https://github.com/0xRAG)! - Accept CDP_API_KEY_ID over CDP_API_KEY_NAME
+
 ## 1.1.0
 
 ### Minor Changes
