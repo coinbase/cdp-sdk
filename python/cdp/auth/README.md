@@ -30,7 +30,7 @@ jwt = generate_jwt(JwtOptions(
     api_key_secret="YOUR_API_KEY_SECRET",
     request_method="GET",
     request_host="api.cdp.coinbase.com",
-    request_path="/platform/v1/wallets",
+    request_path="/platform/v2/evm/accounts",
     expires_in=120  # optional (defaults to 120 seconds)
 ))
 
@@ -42,7 +42,7 @@ For information about the above parameters, please refer to the [Authentication 
 **Step 3**: Use your JWT (Bearer token) in the `Authorization` header of your HTTP request:
 
 ```bash
-curl -L 'https://api.cdp.coinbase.com/platform/v1/wallets' \
+curl -L 'https://api.cdp.coinbase.com/platform/v2/evm/accounts' \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -H 'Authorization: Bearer $jwt'
@@ -68,14 +68,12 @@ headers = get_auth_headers(
     GetAuthHeadersOptions(
         api_key_id="YOUR_API_KEY_ID",
         api_key_secret="YOUR_API_KEY_SECRET",
+        wallet_secret="YOUR_WALLET_SECRET",
         request_method="POST",
         request_host="api.cdp.coinbase.com",
-        request_path="/platform/v1/wallets",
-        request_body={  # optional
-            "wallet": {
-                "network_id":"base-sepolia",
-                "use_server_signer":false
-            }
+        request_path="/platform/v2/evm/accounts",
+        request_body={
+            "name": "MyAccount",
         },
         expires_in=120  # optional (defaults to 120 seconds)
     )
@@ -106,7 +104,8 @@ from cdp.auth.clients import Urllib3AuthClient, Urllib3AuthClientOptions
 client = Urllib3AuthClient(
     Urllib3AuthClientOptions(
         api_key_id="YOUR_API_KEY_ID",
-        api_key_secret="YOUR_API_KEY_SECRET"
+        api_key_secret="YOUR_API_KEY_SECRET",
+        wallet_secret="YOUR_WALLET_SECRET"
     ),
     base_url="https://api.cdp.coinbase.com"
 )
@@ -116,12 +115,9 @@ client = Urllib3AuthClient(
 try:
     response = client.request(
         "POST",
-        "/platform/v1/wallets",
+        "/platform/v2/evm/accounts",
         body={
-            "wallet": {
-                "network_id":"base-sepolia",
-                "use_server_signer":false
-            }
+            "name": "MyAccount",
         }
     )
     print(response.data)
