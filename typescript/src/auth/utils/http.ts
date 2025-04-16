@@ -90,7 +90,9 @@ export async function getAuthHeaders(
   // Add wallet auth if needed
   if (requiresWalletAuth(options.requestMethod, options.requestPath)) {
     if (!options.walletSecret) {
-      throw new Error("Wallet Secret not configured. Call configure() first.");
+      throw new Error(
+        "Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
+      );
     }
 
     const walletAuthToken = await generateWalletJwt({

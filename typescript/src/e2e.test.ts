@@ -11,19 +11,7 @@ describe("CDP Client E2E Tests", () => {
   let cdp: CdpClient;
 
   beforeAll(() => {
-    cdp = new CdpClient({
-      apiKeyId: process.env.API_KEY_ID as string,
-      apiKeySecret: process.env.API_KEY_SECRET as string,
-      walletSecret: process.env.WALLET_SECRET as string,
-      basePath: process.env.CDP_API_URL as string,
-    });
-  });
-
-  it("should test env vars access", () => {
-    expect(process.env.API_KEY_ID).toBeDefined();
-    expect(process.env.API_KEY_SECRET).toBeDefined();
-    expect(process.env.WALLET_SECRET).toBeDefined();
-    expect(process.env.CDP_API_URL).toBeDefined();
+    cdp = new CdpClient();
   });
 
   it("should create, get, and list accounts", async () => {

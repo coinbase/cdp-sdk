@@ -12,21 +12,7 @@ import { CdpClient } from "../../index";
 async function main() {
   config();
 
-  const apiKeyName = process.env.CDP_API_KEY_NAME;
-  const apiKeySecret = process.env.CDP_API_KEY_SECRET;
-  const walletSecret = process.env.CDP_WALLET_SECRET;
-  const apiUrl = process.env.CDP_API_URL;
-
-  if (!apiKeyName || !apiKeySecret || !walletSecret) {
-    throw new Error("Missing required environment variables");
-  }
-
-  const cdp = new CdpClient({
-    apiKeyId: apiKeyName,
-    apiKeySecret,
-    walletSecret,
-    basePath: apiUrl,
-  });
+  const cdp = new CdpClient();
 
   const account = await cdp.evm.createAccount();
   const smartAccount = await cdp.evm.createSmartAccount({ owner: account });

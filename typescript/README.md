@@ -27,19 +27,55 @@ npm install @coinbase/cdp-sdk
 
 ## API Keys
 
-To start, [create a CDP API Key](https://portal.cdp.coinbase.com/access/api). Save the `API Key ID` and `API Key Secret` for use in the SDK. You will also need to create a wallet secret in the [CDP Portal](https://portal.cdp.coinbase.com/products/wallet-api) to sign transactions.
+To start, [create a CDP API Key](https://portal.cdp.coinbase.com/access/api). Save the `API Key ID` and `API Key Secret` for use in the SDK. You will also need to create a wallet secret in the Portal to sign transactions.
 
 ## Usage
 
 ### Initialization
 
-#### You can import the SDK as follows:
+#### Load client config from shell
+
+One option is to export your CDP API Key and Wallet Secret as environment variables:
+
+```bash
+export CDP_API_KEY_NAME="YOUR_API_KEY_ID"
+export CDP_API_KEY_SECRET="YOUR_API_KEY_SECRET"
+export CDP_WALLET_SECRET="YOUR_WALLET_SECRET"
+```
+
+Then, initialize the client:
 
 ```typescript
 import { CdpClient } from "@coinbase/cdp-sdk";
+
+const cdp = new CdpClient();
 ```
 
-#### Then, initialize the client as follows:
+#### Load client config from `.env` file
+
+Another option is to save your CDP API Key and Wallet Secret in a `.env` file:
+
+```bash
+touch .env
+echo "CDP_API_KEY_NAME=YOUR_API_KEY_ID" >> .env
+echo "CDP_API_KEY_SECRET=YOUR_API_KEY_SECRET" >> .env
+echo "CDP_WALLET_SECRET=YOUR_WALLET_SECRET" >> .env
+```
+
+Then, load the client config from the `.env` file:
+
+```typescript
+import { CdpClient } from "@coinbase/cdp-sdk";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const cdp = new CdpClient();
+```
+
+#### Pass the API Key and Wallet Secret to the client
+
+Another option is to directly pass the API Key and Wallet Secret to the client:
 
 ```typescript
 const cdp = new CdpClient({

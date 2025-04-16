@@ -24,28 +24,13 @@ import { CdpClient } from "../../client/cdp";
 async function main(sourceAddress?: string) {
   config();
 
-  const apiKeyId = process.env.CDP_API_KEY_NAME;
-  const apiKeySecret = process.env.CDP_API_KEY_SECRET;
-  const walletSecret = process.env.CDP_WALLET_SECRET;
-  const basePath = process.env.CDP_API_URL;
+  const cdp = new CdpClient();
 
   // Required: Destination address to send SOL to
   const destinationAddress = "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE";
 
   // Amount of lamports to send (default: 1000 = 0.000001 SOL)
   const lamportsToSend = 1000;
-
-  if (!apiKeyId || !apiKeySecret || !walletSecret) {
-    throw new Error("Missing required environment variables");
-  }
-
-  const cdp = new CdpClient({
-    apiKeyId,
-    apiKeySecret,
-    walletSecret,
-    basePath,
-    debugging: Boolean(process.env.CDP_DEBUG),
-  });
 
   try {
     const connection = new Connection("https://api.devnet.solana.com");

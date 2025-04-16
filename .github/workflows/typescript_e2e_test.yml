@@ -33,8 +33,7 @@ jobs:
 
       - name: Run E2E Tests
         env:
-          API_KEY_ID: ${{ secrets.API_KEY_ID }}
-          API_KEY_SECRET: ${{ secrets.API_KEY_SECRET }}
-          WALLET_SECRET: ${{ secrets.WALLET_SECRET }}
-          CDP_API_URL: ${{ vars.CDP_API_URL }}
+          CDP_API_KEY_NAME: ${{ secrets.CDP_API_KEY_NAME }}
+          CDP_API_KEY_SECRET: ${{ secrets.CDP_API_KEY_SECRET }}
+          CDP_WALLET_SECRET: ${{ secrets.CDP_WALLET_SECRET }}
         run: pnpm run test:e2e
