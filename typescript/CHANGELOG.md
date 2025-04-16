@@ -1,5 +1,49 @@
 # CDP SDK Changelog
 
+## 1.1.0
+
+### Minor Changes
+
+- [#29](https://github.com/coinbase/cdp-sdk/pull/29) [`b9455ce`](https://github.com/coinbase/cdp-sdk/commit/b9455ce88dc7f8340637bd617757af0571b7558a) Thanks [@0xRAG](https://github.com/0xRAG)! - Add support for configuring `CdpClient` via environment variables.
+
+  Developers can now simply set the following environment variables in their shell:
+
+  ```bash
+  export CDP_API_KEY_NAME=your-api-key-id
+  export CDP_API_KEY_SECRET=your-api-key-secret
+  export CDP_WALLET_SECRET=your-wallet-secret
+  ```
+
+  And configure the `CdpClient` like so:
+
+  ```typescript
+  import { CdpClient } from "@coinbase/cdp-sdk";
+
+  const cdp = new CdpClient();
+  ```
+
+  Or, load from a `.env` file:
+
+  ```bash
+  # .env
+  CDP_API_KEY_NAME=your-api-key-id
+  CDP_API_KEY_SECRET=your-api-key-secret
+  CDP_WALLET_SECRET=your-wallet-secret
+  ```
+
+  And configure the `CdpClient` like so:
+
+  ```typescript
+  import { CdpClient } from "@coinbase/cdp-sdk";
+  import { config } from "dotenv";
+
+  config();
+
+  const cdp = new CdpClient();
+  ```
+
+- [#27](https://github.com/coinbase/cdp-sdk/pull/27) [`3e11b51`](https://github.com/coinbase/cdp-sdk/commit/3e11b5115eb822c8b904c6d842f27460a8f28356) Thanks [@0xRAG](https://github.com/0xRAG)! - Export auth subpackage
+
 ## 1.0.1
 
 ### Patch Changes
