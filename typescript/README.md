@@ -38,7 +38,7 @@ To start, [create a CDP API Key](https://portal.cdp.coinbase.com/access/api). Sa
 One option is to export your CDP API Key and Wallet Secret as environment variables:
 
 ```bash
-export CDP_API_KEY_NAME="YOUR_API_KEY_ID"
+export CDP_API_KEY_ID="YOUR_API_KEY_ID"
 export CDP_API_KEY_SECRET="YOUR_API_KEY_SECRET"
 export CDP_WALLET_SECRET="YOUR_WALLET_SECRET"
 ```
@@ -57,7 +57,7 @@ Another option is to save your CDP API Key and Wallet Secret in a `.env` file:
 
 ```bash
 touch .env
-echo "CDP_API_KEY_NAME=YOUR_API_KEY_ID" >> .env
+echo "CDP_API_KEY_ID=YOUR_API_KEY_ID" >> .env
 echo "CDP_API_KEY_SECRET=YOUR_API_KEY_SECRET" >> .env
 echo "CDP_WALLET_SECRET=YOUR_WALLET_SECRET" >> .env
 ```

@@ -38,7 +38,7 @@ export class CdpClient {
    *
    * These parameters can be set as environment variables:
    * ```
-   * CDP_API_KEY_NAME=your-api-key-id
+   * CDP_API_KEY_ID=your-api-key-id
    * CDP_API_KEY_SECRET=your-api-key-secret
    * CDP_WALLET_SECRET=your-wallet-secret
    * ```
@@ -62,7 +62,7 @@ export class CdpClient {
    * @param {CdpClientOptions} [options] - Configuration options for the CdpClient.
    */
   constructor(options: CdpClientOptions = {}) {
-    const apiKeyId = options.apiKeyId ?? process.env.CDP_API_KEY_NAME;
+    const apiKeyId = options.apiKeyId ?? process.env.CDP_API_KEY_ID ?? process.env.CDP_API_KEY_NAME;
     const apiKeySecret = options.apiKeySecret ?? process.env.CDP_API_KEY_SECRET;
     const walletSecret = options.walletSecret ?? process.env.CDP_WALLET_SECRET;
 
@@ -72,7 +72,7 @@ export class CdpClient {
 
 You can set them as environment variables:
 
-CDP_API_KEY_NAME=your-api-key-id
+CDP_API_KEY_ID=your-api-key-id
 CDP_API_KEY_SECRET=your-api-key-secret
 
 You can also pass them as options to the constructor:
