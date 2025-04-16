@@ -53,9 +53,9 @@ func createCDPClient() (*openapi.ClientWithResponses, error) {
 		log.Fatal("Error loading .env file: %w", err)
 	}
 
-	apiKeyName := os.Getenv("CDP_API_KEY_NAME")
-	if apiKeyName == "" {
-		log.Fatal("CDP_API_KEY_NAME environment variable is required")
+	apiKeyID := os.Getenv("CDP_API_KEY_ID")
+	if apiKeyID == "" {
+		log.Fatal("CDP_API_KEY_ID environment variable is required")
 	}
 
 	apiKeySecret := os.Getenv("CDP_API_KEY_SECRET")
@@ -71,7 +71,7 @@ func createCDPClient() (*openapi.ClientWithResponses, error) {
 	apiURL := os.Getenv("CDP_API_URL")
 
 	cdp, err := cdp.NewClient(cdp.ClientOptions{
-		APIKeyID:     apiKeyName,
+		APIKeyID:     apiKeyID,
 		APIKeySecret: apiKeySecret,
 		WalletSecret: walletSecret,
 		BasePath:     apiURL,
