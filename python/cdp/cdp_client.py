@@ -66,7 +66,7 @@ cdp = CdpClient(
   wallet_secret="your-wallet-secret",
 )
 
-For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/typescript/README.md#api-keys.
+For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/README.md#api-keys.
 """)
 
         self.api_key_id = api_key_id
