@@ -25,7 +25,7 @@ class CdpClient:
         """Instantiate the CdpClient.
 
         Args:
-            api_key_id (str, optional): The API key ID. Defaults to the CDP_API_KEY_NAME environment variable.
+            api_key_id (str, optional): The API key ID. Defaults to the CDP_API_KEY_ID environment variable.
             api_key_secret (str, optional): The API key secret. Defaults to the CDP_API_KEY_SECRET environment variable.
             wallet_secret (str, optional): The wallet secret. Defaults to the CDP_WALLET_SECRET environment variable.
             debugging (bool, optional): Whether to enable debugging. Defaults to False.
@@ -34,7 +34,7 @@ class CdpClient:
             source (str, optional): The source. Defaults to SDK_DEFAULT_SOURCE.
             source_version (str, optional): The source version. Defaults to __version__.
         """
-        api_key_id = api_key_id or os.getenv("CDP_API_KEY_NAME")
+        api_key_id = api_key_id or os.getenv("CDP_API_KEY_ID") or os.getenv("CDP_API_KEY_NAME")
         api_key_secret = api_key_secret or os.getenv("CDP_API_KEY_SECRET")
         wallet_secret = wallet_secret or os.getenv("CDP_WALLET_SECRET")
 
@@ -44,7 +44,7 @@ class CdpClient:
 
 You can set them as environment variables:
 
-CDP_API_KEY_NAME=your-api-key-id
+CDP_API_KEY_ID=your-api-key-id
 CDP_API_KEY_SECRET=your-api-key-secret
 
 You can also pass them as options to the constructor:

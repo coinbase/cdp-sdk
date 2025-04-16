@@ -35,7 +35,7 @@ jobs:
 
       - name: Run E2E tests
         env:
-          CDP_API_KEY_NAME: ${{ secrets.CDP_API_KEY_NAME }}
+          CDP_API_KEY_ID: ${{ secrets.CDP_API_KEY_ID }}
           CDP_API_KEY_SECRET: ${{ secrets.CDP_API_KEY_SECRET }}
           CDP_WALLET_SECRET: ${{ secrets.CDP_WALLET_SECRET }}
         run: uv run pytest cdp/test/test_e2e.py -v
