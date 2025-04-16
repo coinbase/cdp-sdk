@@ -30,7 +30,7 @@ const jwt = await generateJwt({
   apiKeySecret: "YOUR_API_KEY_SECRET",
   requestMethod: "GET",
   requestHost: "api.cdp.coinbase.com",
-  requestPath: "/platform/v1/wallets",
+  requestPath: "/platform/v2/evm/accounts",
   expiresIn: 120, // optional (defaults to 120 seconds)
 });
 
@@ -42,7 +42,7 @@ For information about the above parameters, please refer to the [Authentication 
 **Step 3**: Use your JWT (Bearer token) in the `Authorization` header of your HTTP request:
 
 ```bash
-curl -L 'https://api.cdp.coinbase.com/platform/v1/wallets' \
+curl -L 'https://api.cdp.coinbase.com/platform/v2/evm/accounts' \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -H 'Authorization: Bearer $jwt'
@@ -66,14 +66,12 @@ import { getAuthHeaders } from "@coinbase/cdp-sdk/auth";
 const headers = await getAuthHeaders({
   apiKeyId: "YOUR_API_KEY_ID",
   apiKeySecret: "YOUR_API_KEY_SECRET",
+  walletSecret: "YOUR_WALLET_SECRET",
   requestMethod: "POST",
   requestHost: "api.cdp.coinbase.com",
-  requestPath: "/platform/v1/wallets/create",
+  requestPath: "/platform/v2/evm/accounts",
   requestBody: {
-    wallet: {
-      network_id: "base-sepolia",
-      use_server_signer: false,
-    },
+    name: "MyAccount",
   },
   expiresIn: 120, // optional (defaults to 120 seconds)
 });
@@ -108,16 +106,14 @@ const axiosClient = axios.create({
 axiosHooks.withAuth(axiosClient, {
   apiKeyId: "YOUR_API_KEY_ID",
   apiKeySecret: "YOUR_API_KEY_SECRET",
+  walletSecret: "YOUR_WALLET_SECRET",
 });
 
 // Make authenticated requests (example)
 // The appropriate authentication headers will be automatically added to the request
 try {
-  const response = await axiosClient.post("/platform/v1/wallets", {
-    wallet: {
-      network_id: "base-sepolia",
-      use_server_signer: false,
-    },
+  const response = await axiosClient.post("/platform/v2/evm/accounts", {
+    name: "MyAccount",
   });
   console.log(response.data);
 } catch (error) {
