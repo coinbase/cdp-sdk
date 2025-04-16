@@ -1,10 +1,8 @@
 import base64
-import os
 import pytest
 from dotenv import load_dotenv
 from eth_account.account import Account
 import pytest_asyncio
-
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
 import random
@@ -16,23 +14,9 @@ load_dotenv()
 @pytest_asyncio.fixture(scope="function")
 async def cdp_client():
     """Create and configure CDP client for all tests."""
-    client = CdpClient(
-        api_key_id=os.environ["API_KEY_ID"],
-        api_key_secret=os.environ["API_KEY_SECRET"],
-        wallet_secret=os.environ["WALLET_SECRET"],
-        base_path=os.environ["CDP_API_URL"],
-    )
+    client = CdpClient()
     yield client
     await client.close()
-
-
-@pytest.mark.e2e
-def test_env_vars_access():
-    """Test that environment variables are accessible."""
-    assert os.environ.get("API_KEY_ID") is not None
-    assert os.environ.get("API_KEY_SECRET") is not None
-    assert os.environ.get("WALLET_SECRET") is not None
-    assert os.environ.get("CDP_API_URL") is not None
 
 
 @pytest.mark.e2e

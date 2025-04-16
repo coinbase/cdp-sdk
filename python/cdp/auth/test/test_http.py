@@ -58,7 +58,10 @@ def test_get_auth_headers_missing_wallet_auth(mock_jwt, auth_options_factory):
     options = auth_options_factory(request_method="POST", request_path="/accounts")
 
     # Execute & Verify
-    with pytest.raises(ValueError, match="Wallet secret not configured"):
+    with pytest.raises(
+        ValueError,
+        match="Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
+    ):
         get_auth_headers(options)
 
 

@@ -2,7 +2,6 @@
 
 import asyncio
 from dotenv import load_dotenv
-import os
 import uuid
 
 from cdp import CdpClient
@@ -11,12 +10,7 @@ from cdp import CdpClient
 async def main():
     load_dotenv()
 
-    cdp = CdpClient(
-        api_key_id=os.getenv("CDP_API_KEY_NAME"),
-        api_key_secret=os.getenv("CDP_API_KEY_SECRET"),
-        wallet_secret=os.getenv("CDP_WALLET_SECRET"),
-        base_path=os.getenv("CDP_API_URL"),
-    )
+    cdp = CdpClient()
 
     key = str(uuid.uuid4())
     evm_account = await cdp.evm.create_account(idempotency_key=key)

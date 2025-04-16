@@ -1,3 +1,5 @@
+import os
+
 from cdp.__version__ import __version__
 from cdp.api_clients import ApiClients
 from cdp.evm_client import EvmClient
@@ -11,9 +13,9 @@ class CdpClient:
 
     def __init__(
         self,
-        api_key_id: str,
-        api_key_secret: str,
-        wallet_secret: str,
+        api_key_id: str = None,
+        api_key_secret: str = None,
+        wallet_secret: str = None,
         debugging: bool = False,
         base_path: str = "https://api.cdp.coinbase.com/platform",
         max_network_retries: int = 3,
@@ -23,15 +25,50 @@ class CdpClient:
         """Instantiate the CdpClient.
 
         Args:
-            api_key_id (str): The API key ID.
-            api_key_secret (str): The API key secret.
-            wallet_secret (str): The wallet secret.
+            api_key_id (str, optional): The API key ID. Defaults to the CDP_API_KEY_NAME environment variable.
+            api_key_secret (str, optional): The API key secret. Defaults to the CDP_API_KEY_SECRET environment variable.
+            wallet_secret (str, optional): The wallet secret. Defaults to the CDP_WALLET_SECRET environment variable.
             debugging (bool, optional): Whether to enable debugging. Defaults to False.
             base_path (str, optional): The base path. Defaults to "https://api.cdp.coinbase.com/platform".
             max_network_retries (int, optional): The maximum number of network retries. Defaults to 3.
             source (str, optional): The source. Defaults to SDK_DEFAULT_SOURCE.
             source_version (str, optional): The source version. Defaults to __version__.
         """
+        api_key_id = api_key_id or os.getenv("CDP_API_KEY_NAME")
+        api_key_secret = api_key_secret or os.getenv("CDP_API_KEY_SECRET")
+        wallet_secret = wallet_secret or os.getenv("CDP_WALLET_SECRET")
+
+        if not api_key_id or not api_key_secret:
+            raise ValueError("""
+\nMissing required CDP Secret API Key configuration parameters.
+
+You can set them as environment variables:
+
+CDP_API_KEY_NAME=your-api-key-id
+CDP_API_KEY_SECRET=your-api-key-secret
+
+You can also pass them as options to the constructor:
+
+cdp = CdpClient(
+  api_key_id="your-api-key-id",
+  api_key_secret="your-api-key-secret",
+)
+
+If you're performing write operations, make sure to also set your wallet secret:
+
+CDP_WALLET_SECRET=your-wallet-secret
+
+This is also available as an option to the constructor:
+
+cdp = CdpClient(
+  api_key_id="your-api-key-id",
+  api_key_secret="your-api-key-secret",
+  wallet_secret="your-wallet-secret",
+)
+
+For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/typescript/README.md#api-keys.
+""")
+
         self.api_key_id = api_key_id
         self.api_key_secret = api_key_secret
         self.wallet_secret = wallet_secret

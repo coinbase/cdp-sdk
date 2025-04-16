@@ -33,20 +33,56 @@ To start, [create a CDP API Key](https://portal.cdp.coinbase.com/access/api). Sa
 
 ### Initialization
 
-#### You can import the SDK as follows:
+#### Load client config from shell
+
+One option is to export your CDP API Key and Wallet Secret as environment variables:
+
+```bash
+export CDP_API_KEY_NAME="YOUR_API_KEY_ID"
+export CDP_API_KEY_SECRET="YOUR_API_KEY_SECRET"
+export CDP_WALLET_SECRET="YOUR_WALLET_SECRET"
+```
+
+Then, initialize the client:
 
 ```python
 from cdp import CdpClient
+
+cdp = CdpClient()
 ```
 
-#### Then, initialize the client as follows:
+#### Load client config from `.env` file
+
+Another option is to save your CDP API Key and Wallet Secret in a `.env` file:
+
+```bash
+touch .env
+echo "CDP_API_KEY_NAME=YOUR_API_KEY_ID" >> .env
+echo "CDP_API_KEY_SECRET=YOUR_API_KEY_SECRET" >> .env
+echo "CDP_WALLET_SECRET=YOUR_WALLET_SECRET" >> .env
+```
+
+Then, load the client config from the `.env` file:
+
+```python
+from cdp import CdpClient
+from dotenv import load_dotenv
+
+load_dotenv()
+
+cdp = CdpClient()
+```
+
+#### Pass the API Key and Wallet Secret to the client
+
+Another option is to directly pass the API Key and Wallet Secret to the client:
 
 ```python
 cdp = CdpClient(
-    api_key_id="YOUR_API_KEY_ID",
-    api_key_secret="YOUR_API_KEY_SECRET",
-    wallet_secret="YOUR_WALLET_SECRET",
-)
+  api_key_id="YOUR_API_KEY_ID",
+  api_key_secret="YOUR_API_KEY_SECRET",
+  wallet_secret="YOUR_WALLET_SECRET",
+);
 ```
 
 ### Creating EVM or Solana accounts

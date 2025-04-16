@@ -1,6 +1,5 @@
 # Usage: uv run python cdp/examples/solana/send_transaction.py
 
-import os
 import time
 import base64
 import argparse
@@ -166,20 +165,7 @@ async def main():
 
     load_dotenv()
 
-    api_key_name = os.getenv("CDP_API_KEY_NAME")
-    api_key_secret = os.getenv("CDP_API_KEY_SECRET")
-    wallet_secret = os.getenv("CDP_WALLET_SECRET")
-    api_url = os.getenv("CDP_API_URL")
-
-    if not all([api_key_name, api_key_secret, api_url, wallet_secret]):
-        raise ValueError("Missing required environment variables")
-
-    cdp = CdpClient(
-        api_key_id=api_key_name,
-        api_key_secret=api_key_secret,
-        wallet_secret=wallet_secret,
-        base_path=api_url,
-    )
+    cdp = CdpClient()
 
     connection = SolanaClient("https://api.devnet.solana.com")
 

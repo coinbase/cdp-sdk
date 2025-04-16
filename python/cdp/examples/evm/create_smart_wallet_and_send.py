@@ -3,7 +3,6 @@
 import asyncio
 from decimal import Decimal
 from dotenv import load_dotenv
-import os
 
 from eth_account import Account
 from web3 import Web3
@@ -14,12 +13,7 @@ from cdp.evm_call_types import EncodedCall
 async def main():
     load_dotenv()
 
-    cdp = CdpClient(
-        api_key_id=os.getenv("CDP_API_KEY_NAME"),
-        api_key_secret=os.getenv("CDP_API_KEY_SECRET"),
-        wallet_secret=os.getenv("CDP_WALLET_SECRET"),
-        base_path=os.getenv("CDP_API_URL"),
-    )
+    cdp = CdpClient()
 
     # create evm account
     private_key = Account.create().key

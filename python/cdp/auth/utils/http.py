@@ -70,7 +70,9 @@ def get_auth_headers(options: GetAuthHeadersOptions) -> Dict[str, str]:
     # Add wallet auth if needed
     if _requires_wallet_auth(options.request_method, options.request_path):
         if not options.wallet_secret:
-            raise ValueError("Wallet secret not configured. Call configure() first.")
+            raise ValueError(
+                "Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
+            )
 
         wallet_auth_token = generate_wallet_jwt(
             WalletJwtOptions(
