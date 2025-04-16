@@ -144,6 +144,7 @@ describe("CDP Client E2E Tests", () => {
     });
     expect(userOp).toBeDefined();
     expect(userOp.status).toBe("complete");
+    expect(userOp.transactionHash).toBeDefined();
   });
 
   it("should create, get, and list solana accounts", async () => {

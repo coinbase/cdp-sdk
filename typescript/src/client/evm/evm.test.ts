@@ -287,18 +287,21 @@ describe("EvmClient", () => {
         type: "evm-smart",
       };
       const userOpHash = "0xhash";
+      const transactionHash = "0xtransactionhash" as Hex;
 
       const openApiUserOp: OpenApiUserOperation = {
-        network: "sepolia" as EvmUserOperationNetwork,
-        userOpHash,
-        status: "broadcast",
         calls: [],
+        network: "sepolia" as EvmUserOperationNetwork,
+        status: "broadcast",
+        transactionHash,
+        userOpHash,
       };
       const userOp: UserOperation = {
-        network: "sepolia" as EvmUserOperationNetwork,
-        userOpHash,
-        status: "broadcast",
         calls: [],
+        network: "sepolia" as EvmUserOperationNetwork,
+        status: "broadcast",
+        transactionHash,
+        userOpHash,
       };
 
       const getUserOperationMock = CdpOpenApiClient.getUserOperation as MockedFunction<

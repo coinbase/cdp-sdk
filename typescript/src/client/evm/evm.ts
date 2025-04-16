@@ -242,14 +242,15 @@ export class EvmClient implements EvmClientInterface {
     );
 
     return {
-      network: userOp.network,
-      userOpHash: userOp.userOpHash as Hex,
-      status: userOp.status,
       calls: userOp.calls.map(call => ({
         to: call.to as Address,
         value: BigInt(call.value),
         data: call.data as Hex,
       })),
+      network: userOp.network,
+      status: userOp.status,
+      transactionHash: userOp.transactionHash as Hex | undefined,
+      userOpHash: userOp.userOpHash as Hex,
     };
   }
 
