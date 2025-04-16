@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.1.2
+
+### Patch Changes
+
+- [#41](https://github.com/coinbase/cdp-sdk/pull/41) [`3006fe0`](https://github.com/coinbase/cdp-sdk/commit/3006fe03bc50a2d3b9869d08c9c0690d7bc6bd4d) Thanks [@0xRAG](https://github.com/0xRAG)! - Return transactionHash in getUserOperation
+
 ## 1.1.1
 
 ### Patch Changes
