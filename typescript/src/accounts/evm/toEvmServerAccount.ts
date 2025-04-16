@@ -1,7 +1,8 @@
 import { EvmServerAccount } from "../types";
 import type { Address, Hash } from "../../types/misc";
-import { serializeTransaction, TransactionSerializable } from "viem";
+import { Hex, serializeTransaction, TransactionSerializable } from "viem";
 import { CdpOpenApiClientType, EvmAccount } from "../../openapi-client";
+import { RequestFaucetOptions } from "../../client/evm/evm.types";
 
 /**
  * Options for converting a pre-existing EvmAccount to a EvmServerAccount.
@@ -50,6 +51,15 @@ export function toEvmServerAccount(
     async signTypedData() {
       throw new Error("Not implemented");
     },
+
+    async faucet(options: RequestFaucetOptions): Promise<Hex> {
+      const result = await apiClient.requestEvmFaucet(
+        { address: options.address, network: options.network, token: options.token },
+        options.idempotencyKey,
+      );
+      return result.transactionHash as Hex;
+    },
+
     name: options.account.name,
     type: "evm-server",
   };

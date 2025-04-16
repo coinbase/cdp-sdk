@@ -1,5 +1,5 @@
 import { SignableMessage, TransactionSerializable, TypedData, TypedDataDefinition } from "viem";
-
+import { RequestFaucetOptions } from "../client/evm/evm.types";
 import type { Hash, Hex, Address } from "../types/misc";
 import { Prettify } from "../types/utils";
 
@@ -23,6 +23,8 @@ export type EvmAccount = {
   >(
     parameters: TypedDataDefinition<typedData, primaryType>,
   ) => Promise<Hex>;
+  /** Requests funds from an EVM faucet. */
+  faucet: (options: RequestFaucetOptions) => Promise<Hex>;
 };
 
 /**
