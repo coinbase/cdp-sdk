@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.1.1] - 2025-04-17
+
+### Bugfixes
+
+- Correctly implement aenter and aexit on CdpClient ([#43](https://github.com/coinbase/cdp-sdk/pull/43))
+
+
 ## [1.1.0] - 2025-04-16
 
 ### Features
