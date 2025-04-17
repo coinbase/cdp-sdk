@@ -4,8 +4,8 @@ import pytest
 
 from cdp.auth.utils.http import (
     _get_correlation_data,
-    get_auth_headers,
     _requires_wallet_auth,
+    get_auth_headers,
 )
 
 
@@ -27,9 +27,7 @@ def test_get_auth_headers(mock_jwt, auth_options_factory):
 
 @patch("cdp.auth.utils.http.generate_jwt")
 @patch("cdp.auth.utils.http.generate_wallet_jwt")
-def test_get_auth_headers_with_wallet_auth(
-    mock_wallet_jwt, mock_jwt, auth_options_factory
-):
+def test_get_auth_headers_with_wallet_auth(mock_wallet_jwt, mock_jwt, auth_options_factory):
     """Test creating headers with wallet authentication."""
     # Setup
     mock_jwt.return_value = "mock.jwt.token"

@@ -1,19 +1,19 @@
-name: Python Linting
+name: Python Checks
 
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
+defaults:
+  run:
+    working-directory: ./python
+
 jobs:
-  lint:
+  build:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ./python
-
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Python
         uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
@@ -32,11 +32,97 @@ jobs:
           source .venv/bin/activate
           uv pip install ruff
 
-      - name: Verify environment
-        run: make verify-env
+      - name: Install dependencies
+        run: make install
+
+      - name: Build
+        run: make build
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Install ruff
+        run: |
+          source .venv/bin/activate
+          uv pip install ruff
 
       - name: Install dependencies
         run: make install
 
-      - name: Run linters
+      - name: Lint
         run: make lint
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Install ruff
+        run: |
+          source .venv/bin/activate
+          uv pip install ruff
+
+      - name: Install dependencies
+        run: make install
+
+      - name: Check formatting
+        run: make format-check
+
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Install ruff
+        run: |
+          source .venv/bin/activate
+          uv pip install ruff
+
+      - name: Check uv.lock
+        run: |
+          uv sync
+          if [ -n "$(git diff uv.lock)" ]; then
+            echo "Error: uv.lock was modified after running uv sync. Please commit the updated uv.lock file."
+            exit 1
+          fi

@@ -9,6 +9,7 @@ def jwt_options_factory():
 
     Returns:
         callable: A factory function that creates JwtOptions instances
+
     """
 
     def _create_options(

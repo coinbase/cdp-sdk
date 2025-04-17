@@ -24,6 +24,7 @@ async def wait_for_user_operation(
 
     Raises:
         TimeoutError: If the operation doesn't complete within the specified timeout.
+
     """
     start_time = time.time()
 

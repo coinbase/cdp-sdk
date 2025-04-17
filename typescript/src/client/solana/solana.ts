@@ -1,4 +1,3 @@
-import { CdpOpenApiClient } from "../../openapi-client";
 import {
   SolanaClientInterface,
   Account,
@@ -11,6 +10,7 @@ import {
   SignMessageOptions,
   SignTransactionOptions,
 } from "./solana.types";
+import { CdpOpenApiClient } from "../../openapi-client";
 
 /**
  * The namespace containing all Solana methods.

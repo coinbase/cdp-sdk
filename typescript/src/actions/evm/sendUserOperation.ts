@@ -1,9 +1,14 @@
-import type { EvmSmartAccount } from "../../accounts/types";
-import { EvmUserOperationNetwork, EvmUserOperationStatus } from "../../openapi-client";
-import type { Address, Hex } from "../../types/misc";
-import type { Calls } from "../../types/calls";
 import { encodeFunctionData } from "viem";
-import { CdpOpenApiClientType } from "../../openapi-client";
+
+import {
+  EvmUserOperationNetwork,
+  EvmUserOperationStatus,
+  CdpOpenApiClientType,
+} from "../../openapi-client";
+
+import type { EvmSmartAccount } from "../../accounts/types";
+import type { Calls } from "../../types/calls";
+import type { Address, Hex } from "../../types/misc";
 
 /**
  * Options for sending a user operation.

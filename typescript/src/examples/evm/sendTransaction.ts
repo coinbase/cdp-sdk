@@ -1,13 +1,11 @@
 // Usage: pnpm tsx src/examples/evm/sendTransaction.ts
 
 import { config } from "dotenv";
+import { createWalletClient, http, createPublicClient, parseEther } from "viem";
 import { toAccount } from "viem/accounts";
-import { createWalletClient, http, createPublicClient } from "viem";
-import { parseEther } from "viem";
+import { baseSepolia } from "viem/chains";
 
 import { CdpClient } from "../../index";
-
-import { baseSepolia } from "viem/chains";
 
 /**
  * This script will:
@@ -45,7 +43,7 @@ async function main() {
         receipt = await publicClient.getTransactionReceipt({
           hash: faucetResp.transactionHash,
         });
-      } catch (error) {
+      } catch {
         await sleep(1000);
       }
     }

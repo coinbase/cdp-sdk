@@ -13,11 +13,12 @@ def smart_account_model_factory():
     def _create_smart_account_model(
         smart_account_address="0x1234567890123456789012345678901234567890",
         name="test-smart-account",
-        owners=["0x1234567890123456789012345678901234567890"],
+        owners=None,
     ):
-        return EvmSmartAccountModel(
-            address=smart_account_address, owners=owners, name=name
-        )
+        """Create and return a factory for EVM smart account model fixtures."""
+        if owners is None:
+            owners = ["0x1234567890123456789012345678901234567890"]
+        return EvmSmartAccountModel(address=smart_account_address, owners=owners, name=name)
 
     return _create_smart_account_model
 

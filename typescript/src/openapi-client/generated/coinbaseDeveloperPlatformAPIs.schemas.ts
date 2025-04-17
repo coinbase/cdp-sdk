@@ -28,24 +28,23 @@ export interface ListResponse {
 /**
  * The code that indicates the type of error that occurred. These error codes can be used to determine how to handle the error.
  */
-export type ErrorType = typeof ErrorType[keyof typeof ErrorType];
-
+export type ErrorType = (typeof ErrorType)[keyof typeof ErrorType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ErrorType = {
-  already_exists: 'already_exists',
-  faucet_limit_exceeded: 'faucet_limit_exceeded',
-  forbidden: 'forbidden',
-  idempotency_error: 'idempotency_error',
-  internal_server_error: 'internal_server_error',
-  invalid_request: 'invalid_request',
-  invalid_signature: 'invalid_signature',
-  malformed_transaction: 'malformed_transaction',
-  not_found: 'not_found',
-  rate_limit_exceeded: 'rate_limit_exceeded',
-  request_canceled: 'request_canceled',
-  timed_out: 'timed_out',
-  unauthorized: 'unauthorized',
+  already_exists: "already_exists",
+  faucet_limit_exceeded: "faucet_limit_exceeded",
+  forbidden: "forbidden",
+  idempotency_error: "idempotency_error",
+  internal_server_error: "internal_server_error",
+  invalid_request: "invalid_request",
+  invalid_signature: "invalid_signature",
+  malformed_transaction: "malformed_transaction",
+  not_found: "not_found",
+  rate_limit_exceeded: "rate_limit_exceeded",
+  request_canceled: "request_canceled",
+  timed_out: "timed_out",
+  unauthorized: "unauthorized",
 } as const;
 
 /**
@@ -96,28 +95,28 @@ export interface EvmCall {
 /**
  * The network the user operation is for.
  */
-export type EvmUserOperationNetwork = typeof EvmUserOperationNetwork[keyof typeof EvmUserOperationNetwork];
-
+export type EvmUserOperationNetwork =
+  (typeof EvmUserOperationNetwork)[keyof typeof EvmUserOperationNetwork];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const EvmUserOperationNetwork = {
-  'base-sepolia': 'base-sepolia',
-  base: 'base',
+  "base-sepolia": "base-sepolia",
+  base: "base",
 } as const;
 
 /**
  * The status of the user operation.
  */
-export type EvmUserOperationStatus = typeof EvmUserOperationStatus[keyof typeof EvmUserOperationStatus];
-
+export type EvmUserOperationStatus =
+  (typeof EvmUserOperationStatus)[keyof typeof EvmUserOperationStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const EvmUserOperationStatus = {
-  pending: 'pending',
-  signed: 'signed',
-  broadcast: 'broadcast',
-  complete: 'complete',
-  failed: 'failed',
+  pending: "pending",
+  signed: "signed",
+  broadcast: "broadcast",
+  complete: "complete",
+  failed: "failed",
 } as const;
 
 export interface EvmUserOperation {
@@ -186,14 +185,14 @@ Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempo
 export type IdempotencyKeyParameter = string;
 
 export type ListEvmAccountsParams = {
-/**
- * The number of accounts to return per page.
- */
-pageSize?: number;
-/**
- * The token for the next page of accounts, if any.
- */
-pageToken?: string;
+  /**
+   * The number of accounts to return per page.
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of accounts, if any.
+   */
+  pageToken?: string;
 };
 
 export type ListEvmAccounts200AllOf = {
@@ -244,14 +243,14 @@ export type SignEvmMessage200 = {
 };
 
 export type ListEvmSmartAccountsParams = {
-/**
- * The number of accounts to return per page.
- */
-pageSize?: number;
-/**
- * The token for the next page of accounts, if any.
- */
-pageToken?: string;
+  /**
+   * The number of accounts to return per page.
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of accounts, if any.
+   */
+  pageToken?: string;
 };
 
 export type ListEvmSmartAccounts200AllOf = {
@@ -269,13 +268,13 @@ export type CreateEvmSmartAccountBody = {
 /**
  * The network to prepare the user operation for.
  */
-export type PrepareUserOperationBodyNetwork = typeof PrepareUserOperationBodyNetwork[keyof typeof PrepareUserOperationBodyNetwork];
-
+export type PrepareUserOperationBodyNetwork =
+  (typeof PrepareUserOperationBodyNetwork)[keyof typeof PrepareUserOperationBodyNetwork];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const PrepareUserOperationBodyNetwork = {
-  'base-sepolia': 'base-sepolia',
-  base: 'base',
+  "base-sepolia": "base-sepolia",
+  base: "base",
 } as const;
 
 export type PrepareUserOperationBody = {
@@ -295,27 +294,27 @@ export type SendUserOperationBody = {
 /**
  * The network to request funds from.
  */
-export type RequestEvmFaucetBodyNetwork = typeof RequestEvmFaucetBodyNetwork[keyof typeof RequestEvmFaucetBodyNetwork];
-
+export type RequestEvmFaucetBodyNetwork =
+  (typeof RequestEvmFaucetBodyNetwork)[keyof typeof RequestEvmFaucetBodyNetwork];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const RequestEvmFaucetBodyNetwork = {
-  'base-sepolia': 'base-sepolia',
-  'ethereum-sepolia': 'ethereum-sepolia',
+  "base-sepolia": "base-sepolia",
+  "ethereum-sepolia": "ethereum-sepolia",
 } as const;
 
 /**
  * The token to request funds for.
  */
-export type RequestEvmFaucetBodyToken = typeof RequestEvmFaucetBodyToken[keyof typeof RequestEvmFaucetBodyToken];
-
+export type RequestEvmFaucetBodyToken =
+  (typeof RequestEvmFaucetBodyToken)[keyof typeof RequestEvmFaucetBodyToken];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const RequestEvmFaucetBodyToken = {
-  eth: 'eth',
-  usdc: 'usdc',
-  eurc: 'eurc',
-  cbbtc: 'cbbtc',
+  eth: "eth",
+  usdc: "usdc",
+  eurc: "eurc",
+  cbbtc: "cbbtc",
 } as const;
 
 export type RequestEvmFaucetBody = {
@@ -332,19 +331,19 @@ export type RequestEvmFaucetBody = {
 
 export type RequestEvmFaucet200 = {
   /** The hash of the transaction that requested the funds.
-**Note:** In rare cases, when gas conditions are unusually high, the transaction may not confirm, and the system may issue a replacement transaction to complete the faucet request. In these rare cases, the `transactionHash` will be out of sync with the actual faucet transaction that was confirmed onchain. */
+   **Note:** In rare cases, when gas conditions are unusually high, the transaction may not confirm, and the system may issue a replacement transaction to complete the faucet request. In these rare cases, the `transactionHash` will be out of sync with the actual faucet transaction that was confirmed onchain. */
   transactionHash: string;
 };
 
 export type ListSolanaAccountsParams = {
-/**
- * The number of accounts to return per page.
- */
-pageSize?: number;
-/**
- * The token for the next page of accounts, if any.
- */
-pageToken?: string;
+  /**
+   * The number of accounts to return per page.
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of accounts, if any.
+   */
+  pageToken?: string;
 };
 
 export type ListSolanaAccounts200AllOf = {
@@ -387,13 +386,13 @@ export type SignSolanaMessage200 = {
 /**
  * The token to request funds for.
  */
-export type RequestSolanaFaucetBodyToken = typeof RequestSolanaFaucetBodyToken[keyof typeof RequestSolanaFaucetBodyToken];
-
+export type RequestSolanaFaucetBodyToken =
+  (typeof RequestSolanaFaucetBodyToken)[keyof typeof RequestSolanaFaucetBodyToken];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const RequestSolanaFaucetBodyToken = {
-  sol: 'sol',
-  usdc: 'usdc',
+  sol: "sol",
+  usdc: "usdc",
 } as const;
 
 export type RequestSolanaFaucetBody = {
@@ -410,4 +409,3 @@ export type RequestSolanaFaucet200 = {
   /** The signature identifying the transaction that requested the funds. */
   transactionSignature: string;
 };
-

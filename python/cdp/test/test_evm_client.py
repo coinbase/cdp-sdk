@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from cdp.api_clients import ApiClients
 from cdp.evm_client import EvmClient
@@ -8,8 +9,6 @@ from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccoun
 from cdp.openapi_client.models.create_evm_smart_account_request import (
     CreateEvmSmartAccountRequest,
 )
-
-
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
 from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageRequest
@@ -43,18 +42,14 @@ async def test_create_account(server_account_model_factory):
     mock_evm_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.evm_accounts = mock_evm_accounts_api
-    mock_evm_accounts_api.create_evm_account = AsyncMock(
-        return_value=evm_server_account_model
-    )
+    mock_evm_accounts_api.create_evm_account = AsyncMock(return_value=evm_server_account_model)
 
     client = EvmClient(api_clients=mock_api_clients)
 
     test_name = "test-account"
     test_idempotency_key = "65514b9d-ffa1-4d46-ac59-ac88b5f651ae"
 
-    result = await client.create_account(
-        name=test_name, idempotency_key=test_idempotency_key
-    )
+    result = await client.create_account(name=test_name, idempotency_key=test_idempotency_key)
 
     mock_evm_accounts_api.create_evm_account.assert_called_once_with(
         x_idempotency_key=test_idempotency_key,
@@ -88,9 +83,7 @@ async def test_list_accounts(server_account_model_factory):
 
     result = await client.list_accounts()
 
-    mock_evm_accounts_api.list_evm_accounts.assert_called_once_with(
-        page_size=None, page_token=None
-    )
+    mock_evm_accounts_api.list_evm_accounts.assert_called_once_with(page_size=None, page_token=None)
 
     assert len(result["evm_accounts"]) == 2
     assert result["evm_accounts"][0].address == evm_server_account_model_1.address
@@ -108,9 +101,7 @@ async def test_get_account(server_account_model_factory):
     mock_api_clients.evm_accounts = mock_evm_accounts_api
 
     evm_server_account_model = server_account_model_factory()
-    mock_evm_accounts_api.get_evm_account = AsyncMock(
-        return_value=evm_server_account_model
-    )
+    mock_evm_accounts_api.get_evm_account = AsyncMock(return_value=evm_server_account_model)
 
     client = EvmClient(api_clients=mock_api_clients)
 
@@ -131,9 +122,7 @@ async def test_get_account_by_name(server_account_model_factory):
     mock_api_clients.evm_accounts = mock_evm_accounts_api
 
     evm_server_account_model = server_account_model_factory()
-    mock_evm_accounts_api.get_evm_account_by_name = AsyncMock(
-        return_value=evm_server_account_model
-    )
+    mock_evm_accounts_api.get_evm_account_by_name = AsyncMock(return_value=evm_server_account_model)
 
     client = EvmClient(api_clients=mock_api_clients)
 
@@ -179,9 +168,7 @@ async def test_create_smart_account(smart_account_model_factory):
 
 @pytest.mark.asyncio
 @patch("cdp.evm_client.send_user_operation")
-async def test_send_user_operation(
-    mock_send_user_operation, smart_account_model_factory
-):
+async def test_send_user_operation(mock_send_user_operation, smart_account_model_factory):
     """Test sending a user operation for a smart account."""
     mock_evm_smart_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
@@ -216,9 +203,8 @@ async def test_send_user_operation(
 
 @pytest.mark.asyncio
 @patch("cdp.evm_client.wait_for_user_operation")
-async def test_wait_for_user_operation(
-    mock_wait_for_user_operation, smart_account_model_factory
-):
+async def test_wait_for_user_operation(mock_wait_for_user_operation, smart_account_model_factory):
+    """Test waiting for a user operation."""
     mock_evm_smart_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
@@ -318,9 +304,7 @@ async def test_sign_transaction():
 
     mock_evm_accounts_api.sign_evm_transaction.assert_called_once_with(
         address=test_address,
-        sign_evm_transaction_request=SignEvmTransactionRequest(
-            transaction=test_transaction
-        ),
+        sign_evm_transaction_request=SignEvmTransactionRequest(transaction=test_transaction),
         x_idempotency_key=test_idempotency_key,
     )
 
@@ -360,6 +344,7 @@ async def test_request_faucet():
 
 @pytest.mark.asyncio
 async def test_get_smart_account(smart_account_model_factory):
+    """Test getting an EVM smart account."""
     mock_evm_smart_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
@@ -377,9 +362,7 @@ async def test_get_smart_account(smart_account_model_factory):
 
     result = await client.get_smart_account(address=test_address, owner=mock_owner)
 
-    mock_evm_smart_accounts_api.get_evm_smart_account.assert_called_once_with(
-        test_address
-    )
+    mock_evm_smart_accounts_api.get_evm_smart_account.assert_called_once_with(test_address)
 
     assert result.address == evm_smart_account_model.address
     assert result.name == evm_smart_account_model.name
@@ -388,6 +371,7 @@ async def test_get_smart_account(smart_account_model_factory):
 
 @pytest.mark.asyncio
 async def test_list_smart_accounts():
+    """Test listing EVM smart accounts."""
     mock_evm_smart_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
@@ -402,9 +386,7 @@ async def test_list_smart_accounts():
     mock_response = AsyncMock()
     mock_response.accounts = [mock_account_1, mock_account_2]
     mock_response.next_page_token = "next-page-token"
-    mock_evm_smart_accounts_api.list_evm_smart_accounts = AsyncMock(
-        return_value=mock_response
-    )
+    mock_evm_smart_accounts_api.list_evm_smart_accounts = AsyncMock(return_value=mock_response)
 
     client = EvmClient(api_clients=mock_api_clients)
 
@@ -422,6 +404,7 @@ async def test_list_smart_accounts():
 
 @pytest.mark.asyncio
 async def test_prepare_user_operation():
+    """Test preparing a user operation."""
     mock_evm_smart_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
@@ -440,9 +423,7 @@ async def test_prepare_user_operation():
             data="0xabcdef",
             value="1000000000000000000",
         ),
-        EncodedCall(
-            to="0x4567890123456789012345678901234567890123", data="0x123456", value=None
-        ),
+        EncodedCall(to="0x4567890123456789012345678901234567890123", data="0x123456", value=None),
     ]
 
     mock_user_operation = AsyncMock()
@@ -451,9 +432,7 @@ async def test_prepare_user_operation():
     mock_user_operation.calls = [AsyncMock(), AsyncMock()]
     mock_user_operation.status = "pending"
 
-    mock_evm_smart_accounts_api.prepare_user_operation = AsyncMock(
-        return_value=mock_user_operation
-    )
+    mock_evm_smart_accounts_api.prepare_user_operation = AsyncMock(return_value=mock_user_operation)
 
     client = EvmClient(api_clients=mock_api_clients)
 
@@ -488,6 +467,7 @@ async def test_prepare_user_operation():
 
 @pytest.mark.asyncio
 async def test_get_user_operation():
+    """Test getting a user operation."""
     mock_evm_smart_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
@@ -498,18 +478,14 @@ async def test_get_user_operation():
     mock_user_operation.calls = [AsyncMock(), AsyncMock()]
     mock_user_operation.status = "pending"
 
-    mock_evm_smart_accounts_api.get_user_operation = AsyncMock(
-        return_value=mock_user_operation
-    )
+    mock_evm_smart_accounts_api.get_user_operation = AsyncMock(return_value=mock_user_operation)
 
     client = EvmClient(api_clients=mock_api_clients)
 
     test_address = "0x1234567890123456789012345678901234567890"
     test_user_op_hash = "0x789"
 
-    result = await client.get_user_operation(
-        address=test_address, user_op_hash=test_user_op_hash
-    )
+    result = await client.get_user_operation(address=test_address, user_op_hash=test_user_op_hash)
 
     mock_evm_smart_accounts_api.get_user_operation.assert_called_once_with(
         test_address, test_user_op_hash

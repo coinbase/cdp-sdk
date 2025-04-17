@@ -1,10 +1,11 @@
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
-from cdp.evm_smart_account import EvmSmartAccount
-from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
-from cdp.openapi_client.exceptions import ApiException
 
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
+from cdp.evm_smart_account import EvmSmartAccount
+from cdp.openapi_client.exceptions import ApiException
+from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
 
 
 @pytest.mark.asyncio
@@ -22,9 +23,7 @@ async def test_wait_for_user_operation_success_immediate(mock_api_clients, mock_
     mock_user_op.user_op_hash = "0xuserhash123"
     mock_user_op.status = "complete"
 
-    mock_api_clients.evm_smart_accounts.get_user_operation = AsyncMock(
-        return_value=mock_user_op
-    )
+    mock_api_clients.evm_smart_accounts.get_user_operation = AsyncMock(return_value=mock_user_op)
 
     result = await wait_for_user_operation(
         api_clients=mock_api_clients,
@@ -150,9 +149,7 @@ async def test_wait_for_user_operation_timeout(mock_api_clients, mock_time):
     mock_pending_op.user_op_hash = "0xuserhash123"
     mock_pending_op.status = "pending"
 
-    mock_api_clients.evm_smart_accounts.get_user_operation = AsyncMock(
-        return_value=mock_pending_op
-    )
+    mock_api_clients.evm_smart_accounts.get_user_operation = AsyncMock(return_value=mock_pending_op)
 
     with pytest.raises(TimeoutError, match="User Operation timed out"):
         await wait_for_user_operation(
@@ -206,9 +203,7 @@ async def test_wait_for_user_operation_api_error(mock_api_clients, mock_time):
 @pytest.mark.asyncio
 @patch("cdp.actions.evm.wait_for_user_operation.time")
 @patch("cdp.cdp_client.ApiClients")
-async def test_wait_for_user_operation_custom_timeout_and_interval(
-    mock_api_clients, mock_time
-):
+async def test_wait_for_user_operation_custom_timeout_and_interval(mock_api_clients, mock_time):
     """Test using custom timeout and interval values."""
     start_time = 1000
     mock_time.time.side_effect = [
@@ -227,9 +222,7 @@ async def test_wait_for_user_operation_custom_timeout_and_interval(
     mock_pending_op.user_op_hash = "0xuserhash123"
     mock_pending_op.status = "pending"
 
-    mock_api_clients.evm_smart_accounts.get_user_operation = AsyncMock(
-        return_value=mock_pending_op
-    )
+    mock_api_clients.evm_smart_accounts.get_user_operation = AsyncMock(return_value=mock_pending_op)
 
     with pytest.raises(TimeoutError, match="User Operation timed out"):
         await wait_for_user_operation(
@@ -246,9 +239,7 @@ async def test_wait_for_user_operation_custom_timeout_and_interval(
 @pytest.mark.asyncio
 @patch("cdp.actions.evm.wait_for_user_operation.time")
 @patch("cdp.cdp_client.ApiClients")
-async def test_wait_for_user_operation_multiple_status_changes(
-    mock_api_clients, mock_time
-):
+async def test_wait_for_user_operation_multiple_status_changes(mock_api_clients, mock_time):
     """Test handling of a user operation that goes through multiple status changes."""
     mock_time.time.side_effect = [1000, 1000.5, 1001, 1001.5]
     mock_time.sleep = MagicMock()
@@ -288,9 +279,7 @@ async def test_wait_for_user_operation_multiple_status_changes(
 @pytest.mark.asyncio
 @patch("cdp.actions.evm.wait_for_user_operation.time")
 @patch("cdp.cdp_client.ApiClients")
-async def test_wait_for_user_operation_invalid_user_op_hash(
-    mock_api_clients, mock_time
-):
+async def test_wait_for_user_operation_invalid_user_op_hash(mock_api_clients, mock_time):
     """Test handling of an API error when user_op_hash is invalid."""
     mock_time.time.return_value = 1000
     mock_time.sleep = MagicMock()

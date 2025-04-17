@@ -1,12 +1,15 @@
 import json
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
+
 from cdp.analytics import ErrorEventData
 
 
 @pytest.mark.asyncio
 @patch("requests.post")
 async def test_send_event(mock_post, mock_send_event):
+    """Test sending an error event."""
     mock_response = MagicMock()
     mock_response.ok = True
     mock_response.status_code = 200

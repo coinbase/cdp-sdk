@@ -1,12 +1,14 @@
 # Usage: uv run python cdp/examples/solana/create_account.py
 
 import asyncio
+
 from dotenv import load_dotenv
 
 from cdp import CdpClient
 
 
 async def main():
+    """Contains main function for the Solana account script."""
     load_dotenv()
 
     async with CdpClient() as cdp:

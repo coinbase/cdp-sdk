@@ -1,7 +1,9 @@
-import { EvmServerAccount } from "../types";
-import type { Address, Hash } from "../../types/misc";
 import { serializeTransaction, TransactionSerializable } from "viem";
+
 import { CdpOpenApiClientType, EvmAccount } from "../../openapi-client";
+import { EvmServerAccount } from "../types";
+
+import type { Address, Hash } from "../../types/misc";
 
 /**
  * Options for converting a pre-existing EvmAccount to a EvmServerAccount.

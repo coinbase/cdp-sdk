@@ -1,18 +1,17 @@
-from urllib.parse import urlparse
 import json
+from urllib.parse import urlparse
 
 from urllib3.util import Retry
 
 from cdp import __version__
+from cdp.auth.utils.http import GetAuthHeadersOptions, get_auth_headers
 from cdp.openapi_client import rest
 from cdp.openapi_client.api_client import ApiClient
-from cdp.openapi_client.api_response import ApiResponse
-from cdp.openapi_client.api_response import T as ApiResponseT
+from cdp.openapi_client.api_response import ApiResponse, T as ApiResponseT
 from cdp.openapi_client.configuration import Configuration
-from cdp.openapi_client.exceptions import ApiException
-from cdp.openapi_client.constants import SDK_DEFAULT_SOURCE, ERROR_DOCS_PAGE_URL
+from cdp.openapi_client.constants import ERROR_DOCS_PAGE_URL, SDK_DEFAULT_SOURCE
 from cdp.openapi_client.errors import ApiError, is_openapi_error
-from cdp.auth.utils.http import get_auth_headers, GetAuthHeadersOptions
+from cdp.openapi_client.exceptions import ApiException
 
 
 class CdpApiClient(ApiClient):
@@ -40,6 +39,7 @@ class CdpApiClient(ApiClient):
             max_network_retries (int): The maximum number of network retries. Defaults to 3.
             source (str): Specifies whether the sdk is being used directly or if it's an Agentkit extension.
             source_version (str): The version of the source package.
+
         """
         retry_strategy = self._get_retry_strategy(max_network_retries)
         configuration = Configuration(host=base_path, retries=retry_strategy)
@@ -174,7 +174,7 @@ class CdpApiClient(ApiClient):
             raise ApiError(
                 http_code=500,
                 error_type="unexpected_error",
-                error_message=f"An unexpected error occurred: {str(e)}",
+                error_message=f"An unexpected error occurred: {e!s}",
                 error_link=ERROR_DOCS_PAGE_URL,
             ) from None
 
@@ -215,7 +215,7 @@ class CdpApiClient(ApiClient):
                 raise ApiError(
                     http_code=e.status,
                     error_type="unexpected_error",
-                    error_message=f"An unexpected error occurred: {str(parse_error)}. Original error message: {str(e)}.",
+                    error_message=f"An unexpected error occurred: {parse_error!s}. Original error message: {e!s}.",
                     error_link=f"{ERROR_DOCS_PAGE_URL}",
                 ) from None
 

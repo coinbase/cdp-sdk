@@ -1,17 +1,5 @@
 import { Address } from "viem";
 
-import { CdpOpenApiClient } from "../../openapi-client";
-import {
-  sendUserOperation,
-  SendUserOperationReturnType,
-} from "../../actions/evm/sendUserOperation";
-import {
-  waitForUserOperation,
-  WaitForUserOperationReturnType,
-} from "../../actions/evm/waitForUserOperation";
-import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount";
-import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount";
-import { Hex } from "../../types/misc";
 import {
   CreateServerAccountOptions,
   GetServerAccountOptions,
@@ -36,6 +24,18 @@ import {
   ListSmartAccountResult,
   ListSmartAccountsOptions,
 } from "./evm.types";
+import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount";
+import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount";
+import {
+  sendUserOperation,
+  SendUserOperationReturnType,
+} from "../../actions/evm/sendUserOperation";
+import {
+  waitForUserOperation,
+  WaitForUserOperationReturnType,
+} from "../../actions/evm/waitForUserOperation";
+import { CdpOpenApiClient } from "../../openapi-client";
+import { Hex } from "../../types/misc";
 
 /**
  * The namespace containing all EVM methods.

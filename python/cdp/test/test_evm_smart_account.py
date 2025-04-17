@@ -38,18 +38,14 @@ class TestEvmSmartAccount:
         name = "Test Smart Account"
 
         # Test with name
-        account = EvmSmartAccount.to_evm_smart_account(
-            address, smart_account.owners[0], name
-        )
+        account = EvmSmartAccount.to_evm_smart_account(address, smart_account.owners[0], name)
         assert isinstance(account, EvmSmartAccount)
         assert account.address == address
         assert account.owners == smart_account.owners
         assert account.name == name
 
         # Test without name
-        account_no_name = EvmSmartAccount.to_evm_smart_account(
-            address, smart_account.owners[0]
-        )
+        account_no_name = EvmSmartAccount.to_evm_smart_account(address, smart_account.owners[0])
         assert isinstance(account_no_name, EvmSmartAccount)
         assert account_no_name.address == address
         assert account_no_name.owners == smart_account.owners

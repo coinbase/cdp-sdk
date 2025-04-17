@@ -1,6 +1,8 @@
 import * as crypto from "crypto";
 import { createPrivateKey } from "crypto";
+
 import { SignJWT, importPKCS8, importJWK, JWTPayload } from "jose";
+
 import { InvalidWalletSecretFormatError, UndefinedWalletSecretError } from "../errors";
 
 /**

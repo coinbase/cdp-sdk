@@ -2,14 +2,16 @@
 
 import asyncio
 from decimal import Decimal
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from web3 import Web3
+
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
 
 
 async def main():
+    """Contains main function for the EVM server smart wallet and send transaction script."""
     load_dotenv()
 
     async with CdpClient() as cdp:

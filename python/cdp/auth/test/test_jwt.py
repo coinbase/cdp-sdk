@@ -1,28 +1,29 @@
 import base64
+from urllib.parse import urlparse
+
+import jwt as jwt_lib
 import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec, ed25519
-from urllib.parse import urlparse
-import jwt as jwt_lib
 from pydantic import ValidationError
 
 # Import JWT utilities from the utils package
 from cdp.auth.utils.jwt import (
-    generate_jwt,
-    _parse_private_key,
-    _generate_nonce,
     JwtOptions,
+    _generate_nonce,
+    _parse_private_key,
+    generate_jwt,
 )
 
 
 # Test fixtures for common test data
 @pytest.fixture
 def ec_private_key():
-    """
-    Fixture that generates an EC private key in PEM format for testing.
+    """Fixture that generates an EC private key in PEM format for testing.
 
     Returns:
         str: PEM-encoded EC private key
+
     """
     private_key = ec.generate_private_key(ec.SECP256K1())
     pem = private_key.private_bytes(
@@ -35,11 +36,11 @@ def ec_private_key():
 
 @pytest.fixture
 def ed25519_private_key():
-    """
-    Fixture that generates an Ed25519 private key in base64 format for testing.
+    """Fixture that generates an Ed25519 private key in base64 format for testing.
 
     Returns:
         str: Base64-encoded Ed25519 private key
+
     """
     private_key = ed25519.Ed25519PrivateKey.generate()
     private_bytes = private_key.private_bytes(
@@ -56,11 +57,11 @@ def ed25519_private_key():
 
 @pytest.fixture
 def jwt_options():
-    """
-    Fixture that provides basic JWT options for testing.
+    """Fixture that provides basic JWT options for testing.
 
     Returns:
         JwtOptions: Basic JWT options for testing
+
     """
     return JwtOptions(
         api_key_id="test-key-id",

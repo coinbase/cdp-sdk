@@ -1,12 +1,14 @@
 import base64
-import pytest
-from dotenv import load_dotenv
-from eth_account.account import Account
-import pytest_asyncio
-from cdp import CdpClient
-from cdp.evm_call_types import EncodedCall
 import random
 import string
+
+import pytest
+import pytest_asyncio
+from dotenv import load_dotenv
+from eth_account.account import Account
+
+from cdp import CdpClient
+from cdp.evm_call_types import EncodedCall
 
 load_dotenv()
 
@@ -60,9 +62,7 @@ async def test_evm_sign_fns(cdp_client):
 
     # must be a valid transaction that can be decoded
     signature = "0x02f87083014a3480830f4240831e895582520894000000000000000000000000000000000000000085e8d4a5100080c080a0c3685a0f41476c9917a16a55726b19e4b1b06a856843dc19faa212df5901243aa0218063520078d5ea45dc2b66cef8668d73ad640a65b2debf542b30b5fdf42b2a"
-    signed_transaction = await cdp_client.evm.sign_transaction(
-        account.address, signature
-    )
+    signed_transaction = await cdp_client.evm.sign_transaction(account.address, signature)
     assert signed_transaction is not None
 
 
@@ -184,9 +184,7 @@ async def test_solana_sign_fns(cdp_client):
     # For sign_message - use base64 encoded message
     message = "Hello Solana!"
     encoded_message = base64.b64encode(message.encode("utf-8")).decode("utf-8")
-    signed_message = await cdp_client.solana.sign_message(
-        account.address, encoded_message
-    )
+    signed_message = await cdp_client.solana.sign_message(account.address, encoded_message)
     assert signed_message is not None
 
     # Create a transaction with minimal valid structure for the API
@@ -221,7 +219,5 @@ async def test_solana_sign_fns(cdp_client):
     )
 
     base64_tx = base64.b64encode(unsigned_tx_bytes).decode("utf-8")
-    signed_transaction = await cdp_client.solana.sign_transaction(
-        account.address, base64_tx
-    )
+    signed_transaction = await cdp_client.solana.sign_transaction(account.address, base64_tx)
     assert signed_transaction is not None

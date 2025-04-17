@@ -6,6 +6,7 @@ from cdp import CdpClient
 
 
 async def main():
+    """Contains main function for the EVM account script."""
     load_dotenv()
 
     async with CdpClient() as cdp:

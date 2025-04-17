@@ -1,30 +1,29 @@
-from eth_account.signers.base import BaseAccount
-from hexbytes import HexBytes
-from web3 import Web3
-from eth_typing import (
-    Hash32,
-)
-
-from eth_account.messages import _hash_eip191_message
-from eth_account.types import (
-    TransactionDictType,
-)
-from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from eth_account.datastructures import (
     SignedMessage,
     SignedTransaction,
 )
-from eth_account.typed_transactions import TypedTransaction
-
 from eth_account.messages import (
     SignableMessage,
+    _hash_eip191_message,
 )
-from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageRequest
+from eth_account.signers.base import BaseAccount
+from eth_account.typed_transactions import TypedTransaction
+from eth_account.types import (
+    TransactionDictType,
+)
+from eth_typing import (
+    Hash32,
+)
+from hexbytes import HexBytes
+from web3 import Web3
+
+from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
+from cdp.openapi_client.models.evm_account import EvmAccount as EvmServerAccountModel
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
+from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageRequest
 from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
-from cdp.openapi_client.models.evm_account import EvmAccount as EvmServerAccountModel
 
 
 class EvmServerAccount(BaseAccount):
@@ -40,6 +39,7 @@ class EvmServerAccount(BaseAccount):
         Args:
             evm_server_account_model (EvmServerAccountModel): The EVM server account model.
             evm_accounts_api (EVMAccountsApi): The EVM accounts API.
+
         """
         self.__address = evm_server_account_model.address
         self.__name = evm_server_account_model.name
@@ -68,8 +68,7 @@ class EvmServerAccount(BaseAccount):
     async def sign_message(
         self, signable_message: SignableMessage, idempotency_key: str | None = None
     ) -> SignedMessage:
-        """
-        Sign the EIP-191 message.
+        """Sign the EIP-191 message.
 
         Args:
             signable_message: The encoded message, ready for signing
@@ -80,12 +79,11 @@ class EvmServerAccount(BaseAccount):
 
         Raises:
             AttributeError: If the signature response is missing required fields
+
         """
         message_body = signable_message.body
         message_hex = (
-            message_body.hex()
-            if isinstance(message_body, bytes)
-            else HexBytes(message_body).hex()
+            message_body.hex() if isinstance(message_body, bytes) else HexBytes(message_body).hex()
         )
         sign_evm_message_request = SignEvmMessageRequest(message=message_hex)
         signature_response = self.__evm_accounts_api.sign_evm_message(
@@ -110,8 +108,7 @@ class EvmServerAccount(BaseAccount):
     async def unsafe_sign_hash(
         self, message_hash: Hash32, idempotency_key: str | None = None
     ) -> SignedMessage:
-        """
-        Sign the hash of a message.
+        """Sign the hash of a message.
 
         WARNING: Never sign a hash that you didn't generate,
         it can be an arbitrary transaction.
@@ -125,6 +122,7 @@ class EvmServerAccount(BaseAccount):
 
         Raises:
             ValueError: If the signature response is missing required fields
+
         """
         hash_hex = HexBytes(message_hash).hex()
         sign_evm_hash_request = SignEvmHashRequest(hash=hash_hex)
@@ -150,8 +148,8 @@ class EvmServerAccount(BaseAccount):
     async def sign_transaction(
         self, transaction_dict: TransactionDictType, idempotency_key: str | None = None
     ) -> SignedTransaction:
-        """
-        Sign a transaction dict.
+        """Sign a transaction dict.
+
         Args:
             transaction_dict: transaction with all fields specified
             idempotency_key: Optional idempotency key
@@ -159,6 +157,7 @@ class EvmServerAccount(BaseAccount):
             The signed transaction
         Raises:
             ValueError: If the signature response is missing required fields
+
         """
         typed_tx = TypedTransaction.from_dict(transaction_dict)
         typed_tx.transaction.dictionary["v"] = 0
@@ -213,9 +212,7 @@ class EvmServerAccount(BaseAccount):
         return str(self)
 
     @classmethod
-    def to_evm_account(
-        cls, address: str, name: str | None = None
-    ) -> "EvmServerAccount":
+    def to_evm_account(cls, address: str, name: str | None = None) -> "EvmServerAccount":
         """Construct an existing EvmAccount by its address and the name.
 
         Args:

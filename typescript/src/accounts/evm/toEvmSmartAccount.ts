@@ -1,6 +1,7 @@
-import { EvmAccount, EvmSmartAccount } from "../types";
-import type { Address } from "../../types/misc";
 import { EvmSmartAccount as EvmSmartAccountModel } from "../../openapi-client";
+import { EvmAccount, EvmSmartAccount } from "../types";
+
+import type { Address } from "../../types/misc";
 
 /**
  * Options for converting a pre-existing EvmSmartAccount and owner to a EvmSmartAccount

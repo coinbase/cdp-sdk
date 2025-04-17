@@ -9,6 +9,7 @@ def auth_options_factory():
 
     Returns:
         callable: A factory function that creates GetAuthHeadersOptions instances
+
     """
 
     def _create_options(

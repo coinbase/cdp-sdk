@@ -5,111 +5,279 @@
  * The Coinbase Developer Platform APIs - leading the world's transition onchain.
  * OpenAPI spec version: 2.0.0
  */
-import {
-  faker
-} from '@faker-js/faker';
+import { faker } from "@faker-js/faker";
 
-import {
-  HttpResponse,
-  delay,
-  http
-} from 'msw';
+import { HttpResponse, delay, http } from "msw";
 
 import type {
   EvmSmartAccount,
   EvmUserOperation,
-  ListEvmSmartAccounts200
-} from '../coinbaseDeveloperPlatformAPIs.schemas';
+  ListEvmSmartAccounts200,
+} from "../coinbaseDeveloperPlatformAPIs.schemas";
 
+export const getListEvmSmartAccountsResponseMock = (): ListEvmSmartAccounts200 => ({
+  ...{
+    accounts: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        address: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+        owners: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+          () => faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+        ),
+        name: faker.helpers.arrayElement([
+          faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+          undefined,
+        ]),
+      }),
+    ),
+  },
+  ...{ nextPageToken: faker.helpers.arrayElement([faker.string.alpha(20), undefined]) },
+});
 
-export const getListEvmSmartAccountsResponseMock = (): ListEvmSmartAccounts200 => ({...{accounts: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({address: faker.helpers.fromRegExp('^0x[0-9a-fA-F]{40}$'), owners: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.helpers.fromRegExp('^0x[0-9a-fA-F]{40}$'))), name: faker.helpers.arrayElement([faker.helpers.fromRegExp('^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$'), undefined])}))},...{nextPageToken: faker.helpers.arrayElement([faker.string.alpha(20), undefined])},})
+export const getCreateEvmSmartAccountResponseMock = (
+  overrideResponse: Partial<EvmSmartAccount> = {},
+): EvmSmartAccount => ({
+  address: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  owners: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+    faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  ),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
 
-export const getCreateEvmSmartAccountResponseMock = (overrideResponse: Partial< EvmSmartAccount > = {}): EvmSmartAccount => ({address: faker.helpers.fromRegExp('^0x[0-9a-fA-F]{40}$'), owners: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.helpers.fromRegExp('^0x[0-9a-fA-F]{40}$'))), name: faker.helpers.arrayElement([faker.helpers.fromRegExp('^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$'), undefined]), ...overrideResponse})
+export const getGetEvmSmartAccountResponseMock = (
+  overrideResponse: Partial<EvmSmartAccount> = {},
+): EvmSmartAccount => ({
+  address: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  owners: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+    faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  ),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
 
-export const getGetEvmSmartAccountResponseMock = (overrideResponse: Partial< EvmSmartAccount > = {}): EvmSmartAccount => ({address: faker.helpers.fromRegExp('^0x[0-9a-fA-F]{40}$'), owners: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.helpers.fromRegExp('^0x[0-9a-fA-F]{40}$'))), name: faker.helpers.arrayElement([faker.helpers.fromRegExp('^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$'), undefined]), ...overrideResponse})
+export const getPrepareUserOperationResponseMock = (
+  overrideResponse: Partial<EvmUserOperation> = {},
+): EvmUserOperation => ({
+  network: faker.helpers.arrayElement(["base-sepolia", "base"] as const),
+  userOpHash: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$"),
+  calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+    to: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    value: faker.string.alpha(20),
+    data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"),
+  })),
+  status: faker.helpers.arrayElement([
+    "pending",
+    "signed",
+    "broadcast",
+    "complete",
+    "failed",
+  ] as const),
+  transactionHash: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
 
-export const getPrepareUserOperationResponseMock = (overrideResponse: Partial< EvmUserOperation > = {}): EvmUserOperation => ({network: faker.helpers.arrayElement(['base-sepolia','base'] as const), userOpHash: faker.helpers.fromRegExp('^0x[0-9a-fA-F]{64}$'), calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({to: faker.helpers.fromRegExp('^0x[0-9a-fA-F]{40}$'), value: faker.string.alpha(20), data: faker.helpers.fromRegExp('^0x[0-9a-fA-F]*$')})), status: faker.helpers.arrayElement(['pending','signed','broadcast','complete','failed'] as const), transactionHash: faker.helpers.arrayElement([faker.helpers.fromRegExp('^0x[0-9a-fA-F]{64}$|^$'), undefined]), ...overrideResponse})
+export const getGetUserOperationResponseMock = (
+  overrideResponse: Partial<EvmUserOperation> = {},
+): EvmUserOperation => ({
+  network: faker.helpers.arrayElement(["base-sepolia", "base"] as const),
+  userOpHash: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$"),
+  calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+    to: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    value: faker.string.alpha(20),
+    data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"),
+  })),
+  status: faker.helpers.arrayElement([
+    "pending",
+    "signed",
+    "broadcast",
+    "complete",
+    "failed",
+  ] as const),
+  transactionHash: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
 
-export const getGetUserOperationResponseMock = (overrideResponse: Partial< EvmUserOperation > = {}): EvmUserOperation => ({network: faker.helpers.arrayElement(['base-sepolia','base'] as const), userOpHash: faker.helpers.fromRegExp('^0x[0-9a-fA-F]{64}$'), calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({to: faker.helpers.fromRegExp('^0x[0-9a-fA-F]{40}$'), value: faker.string.alpha(20), data: faker.helpers.fromRegExp('^0x[0-9a-fA-F]*$')})), status: faker.helpers.arrayElement(['pending','signed','broadcast','complete','failed'] as const), transactionHash: faker.helpers.arrayElement([faker.helpers.fromRegExp('^0x[0-9a-fA-F]{64}$|^$'), undefined]), ...overrideResponse})
+export const getSendUserOperationResponseMock = (
+  overrideResponse: Partial<EvmUserOperation> = {},
+): EvmUserOperation => ({
+  network: faker.helpers.arrayElement(["base-sepolia", "base"] as const),
+  userOpHash: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$"),
+  calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+    to: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    value: faker.string.alpha(20),
+    data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"),
+  })),
+  status: faker.helpers.arrayElement([
+    "pending",
+    "signed",
+    "broadcast",
+    "complete",
+    "failed",
+  ] as const),
+  transactionHash: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
 
-export const getSendUserOperationResponseMock = (overrideResponse: Partial< EvmUserOperation > = {}): EvmUserOperation => ({network: faker.helpers.arrayElement(['base-sepolia','base'] as const), userOpHash: faker.helpers.fromRegExp('^0x[0-9a-fA-F]{64}$'), calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({to: faker.helpers.fromRegExp('^0x[0-9a-fA-F]{40}$'), value: faker.string.alpha(20), data: faker.helpers.fromRegExp('^0x[0-9a-fA-F]*$')})), status: faker.helpers.arrayElement(['pending','signed','broadcast','complete','failed'] as const), transactionHash: faker.helpers.arrayElement([faker.helpers.fromRegExp('^0x[0-9a-fA-F]{64}$|^$'), undefined]), ...overrideResponse})
+export const getListEvmSmartAccountsMockHandler = (
+  overrideResponse?:
+    | ListEvmSmartAccounts200
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<ListEvmSmartAccounts200> | ListEvmSmartAccounts200),
+) => {
+  return http.get("*/v2/evm/smart-accounts", async info => {
+    await delay(0);
 
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getListEvmSmartAccountsResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 
-export const getListEvmSmartAccountsMockHandler = (overrideResponse?: ListEvmSmartAccounts200 | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<ListEvmSmartAccounts200> | ListEvmSmartAccounts200)) => {
-  return http.get('*/v2/evm/smart-accounts', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getListEvmSmartAccountsResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+export const getCreateEvmSmartAccountMockHandler = (
+  overrideResponse?:
+    | EvmSmartAccount
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<EvmSmartAccount> | EvmSmartAccount),
+) => {
+  return http.post("*/v2/evm/smart-accounts", async info => {
+    await delay(0);
 
-export const getCreateEvmSmartAccountMockHandler = (overrideResponse?: EvmSmartAccount | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<EvmSmartAccount> | EvmSmartAccount)) => {
-  return http.post('*/v2/evm/smart-accounts', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getCreateEvmSmartAccountResponseMock()),
-      { status: 201,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getCreateEvmSmartAccountResponseMock(),
+      ),
+      { status: 201, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 
-export const getGetEvmSmartAccountMockHandler = (overrideResponse?: EvmSmartAccount | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<EvmSmartAccount> | EvmSmartAccount)) => {
-  return http.get('*/v2/evm/smart-accounts/:address', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getGetEvmSmartAccountResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+export const getGetEvmSmartAccountMockHandler = (
+  overrideResponse?:
+    | EvmSmartAccount
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<EvmSmartAccount> | EvmSmartAccount),
+) => {
+  return http.get("*/v2/evm/smart-accounts/:address", async info => {
+    await delay(0);
 
-export const getPrepareUserOperationMockHandler = (overrideResponse?: EvmUserOperation | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<EvmUserOperation> | EvmUserOperation)) => {
-  return http.post('*/v2/evm/smart-accounts/:address/user-operations', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getPrepareUserOperationResponseMock()),
-      { status: 201,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetEvmSmartAccountResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 
-export const getGetUserOperationMockHandler = (overrideResponse?: EvmUserOperation | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<EvmUserOperation> | EvmUserOperation)) => {
-  return http.get('*/v2/evm/smart-accounts/:address/user-operations/:userOpHash', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getGetUserOperationResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+export const getPrepareUserOperationMockHandler = (
+  overrideResponse?:
+    | EvmUserOperation
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<EvmUserOperation> | EvmUserOperation),
+) => {
+  return http.post("*/v2/evm/smart-accounts/:address/user-operations", async info => {
+    await delay(0);
 
-export const getSendUserOperationMockHandler = (overrideResponse?: EvmUserOperation | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<EvmUserOperation> | EvmUserOperation)) => {
-  return http.post('*/v2/evm/smart-accounts/:address/user-operations/:userOpHash/send', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getSendUserOperationResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getPrepareUserOperationResponseMock(),
+      ),
+      { status: 201, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getGetUserOperationMockHandler = (
+  overrideResponse?:
+    | EvmUserOperation
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<EvmUserOperation> | EvmUserOperation),
+) => {
+  return http.get("*/v2/evm/smart-accounts/:address/user-operations/:userOpHash", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetUserOperationResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getSendUserOperationMockHandler = (
+  overrideResponse?:
+    | EvmUserOperation
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<EvmUserOperation> | EvmUserOperation),
+) => {
+  return http.post(
+    "*/v2/evm/smart-accounts/:address/user-operations/:userOpHash/send",
+    async info => {
+      await delay(0);
+
+      return new HttpResponse(
+        JSON.stringify(
+          overrideResponse !== undefined
+            ? typeof overrideResponse === "function"
+              ? await overrideResponse(info)
+              : overrideResponse
+            : getSendUserOperationResponseMock(),
+        ),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    },
+  );
+};
 export const getEvmSmartAccountsMock = () => [
   getListEvmSmartAccountsMockHandler(),
   getCreateEvmSmartAccountMockHandler(),
   getGetEvmSmartAccountMockHandler(),
   getPrepareUserOperationMockHandler(),
   getGetUserOperationMockHandler(),
-  getSendUserOperationMockHandler()]
+  getSendUserOperationMockHandler(),
+];

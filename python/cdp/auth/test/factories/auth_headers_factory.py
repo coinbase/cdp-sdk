@@ -7,6 +7,7 @@ def auth_headers_factory():
 
     Returns:
         callable: A factory function that creates auth header dictionaries
+
     """
 
     def _create_headers(
