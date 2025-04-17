@@ -9,12 +9,9 @@ from cdp import CdpClient
 async def main():
     load_dotenv()
 
-    cdp = CdpClient()
-
-    evm_account = await cdp.evm.create_account()
-    print(f"Successfully created EVM account: {evm_account.address}")
-
-    await cdp.close()
+    async with CdpClient() as cdp:
+        evm_account = await cdp.evm.create_account()
+        print(f"Successfully created EVM account: {evm_account.address}")
 
 
 # Run the async function

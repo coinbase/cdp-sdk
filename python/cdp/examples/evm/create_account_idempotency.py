@@ -10,18 +10,15 @@ from cdp import CdpClient
 async def main():
     load_dotenv()
 
-    cdp = CdpClient()
+    async with CdpClient() as cdp:
+        key = str(uuid.uuid4())
+        evm_account = await cdp.evm.create_account(idempotency_key=key)
+        evm_account2 = await cdp.evm.create_account(idempotency_key=key)
+        evm_account3 = await cdp.evm.create_account(idempotency_key=key)
 
-    key = str(uuid.uuid4())
-    evm_account = await cdp.evm.create_account(idempotency_key=key)
-    evm_account2 = await cdp.evm.create_account(idempotency_key=key)
-    evm_account3 = await cdp.evm.create_account(idempotency_key=key)
-
-    print(evm_account.address)
-    print(evm_account2.address)
-    print(evm_account3.address)
-
-    await cdp.close()
+        print(evm_account.address)
+        print(evm_account2.address)
+        print(evm_account3.address)
 
 
 # Run the async function

@@ -34,7 +34,9 @@ class CdpClient:
             source (str, optional): The source. Defaults to SDK_DEFAULT_SOURCE.
             source_version (str, optional): The source version. Defaults to __version__.
         """
-        api_key_id = api_key_id or os.getenv("CDP_API_KEY_ID") or os.getenv("CDP_API_KEY_NAME")
+        api_key_id = (
+            api_key_id or os.getenv("CDP_API_KEY_ID") or os.getenv("CDP_API_KEY_NAME")
+        )
         api_key_secret = api_key_secret or os.getenv("CDP_API_KEY_SECRET")
         wallet_secret = wallet_secret or os.getenv("CDP_WALLET_SECRET")
 
@@ -96,6 +98,12 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
     def solana(self) -> SolanaClient:
         """Get the SolanaClient instance."""
         return self._solana
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        await self.close()
 
     async def close(self):
         """Close the CDP client."""

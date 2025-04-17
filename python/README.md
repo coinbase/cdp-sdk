@@ -47,8 +47,13 @@ Then, initialize the client:
 
 ```python
 from cdp import CdpClient
+import asyncio
 
-cdp = CdpClient()
+async def main():
+    async with CdpClient() as cdp:
+        pass
+
+asyncio.run(main())
 ```
 
 #### Load client config from `.env` file
@@ -67,10 +72,15 @@ Then, load the client config from the `.env` file:
 ```python
 from cdp import CdpClient
 from dotenv import load_dotenv
+import asyncio
 
 load_dotenv()
 
-cdp = CdpClient()
+async def main():
+    async with CdpClient() as cdp:
+        pass
+
+asyncio.run(main())
 ```
 
 #### Pass the API Key and Wallet Secret to the client
@@ -78,11 +88,18 @@ cdp = CdpClient()
 Another option is to directly pass the API Key and Wallet Secret to the client:
 
 ```python
-cdp = CdpClient(
-  api_key_id="YOUR_API_KEY_ID",
-  api_key_secret="YOUR_API_KEY_SECRET",
-  wallet_secret="YOUR_WALLET_SECRET",
-);
+import asyncio
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient(
+        api_key_id="YOUR_API_KEY_ID",
+        api_key_secret="YOUR_API_KEY_SECRET",
+        wallet_secret="YOUR_WALLET_SECRET",
+    ) as cdp:
+        pass
+
+asyncio.run(main())
 ```
 
 ### Creating EVM or Solana accounts
@@ -90,13 +107,27 @@ cdp = CdpClient(
 #### Create an EVM account as follows:
 
 ```python
-evm_account = await cdp.evm.create_account()
+import asyncio
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        evm_account = await cdp.evm.create_account()
+
+asyncio.run(main())
 ```
 
 #### Create a Solana account as follows:
 
 ```python
-solana_account = await cdp.solana.create_account()
+import asyncio
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        solana_account = await cdp.solana.create_account()
+
+asyncio.run(main())
 ```
 
 ### Testnet faucet
@@ -106,17 +137,31 @@ You can use the faucet function to request testnet ETH or SOL from the CDP.
 #### Request testnet ETH as follows:
 
 ```python
-await cdp.evm.request_faucet(
-    address=evm_account.address, network="base-sepolia", token="eth"
-)
+import asyncio
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        await cdp.evm.request_faucet(
+            address=evm_account.address, network="base-sepolia", token="eth"
+        )
+
+asyncio.run(main())
 ```
 
 #### Request testnet SOL as follows:
 
 ```python
-await cdp.solana.request_faucet(
-    address=address, token="sol"
-)
+import asyncio
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        await cdp.solana.request_faucet(
+            address=address, token="sol"
+        )
+
+asyncio.run(main())
 ```
 
 ### Sending transactions
@@ -131,39 +176,60 @@ For EVM, we support Smart Accounts which are account-abstraction (ERC-4337) acco
 #### Create an EVM account and a smart account as follows:
 
 ```python
-evm_account = await cdp.evm.create_account()
-smart_account = await cdp.evm.create_smart_account(
-    owner=evm_account
-)
+import asyncio
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        evm_account = await cdp.evm.create_account()
+        smart_account = await cdp.evm.create_smart_account(
+            owner=evm_account
+        )
+
+asyncio.run(main())
 ```
 
 #### Sending User Operations
 
 ```python
+import asyncio
 from cdp.evm_call_types import EncodedCall
+from cdp import CdpClient
 
-user_operation = await cdp.evm.send_user_operation(
-    smart_account=smart_account,
-    network="base-sepolia",
-    calls=[
-        EncodedCall(
-            to="0x0000000000000000000000000000000000000000",
-            value=0,
-            data="0x"
+async def main():
+    async with CdpClient() as cdp:
+        user_operation = await cdp.evm.send_user_operation(
+            smart_account=smart_account,
+            network="base-sepolia",
+            calls=[
+                EncodedCall(
+                    to="0x0000000000000000000000000000000000000000",
+                    value=0,
+                    data="0x"
+                )
+            ]
         )
-    ]
-)
+
+asyncio.run(main())
 ```
 
 #### In Base Sepolia, all user operations are gasless by default. If you'd like to specify a different paymaster, you can do so as follows:
 
 ```python
-user_operation = await cdp.evm.send_user_operation(
-    smart_account=smart_account,
-    network="base-sepolia",
-    calls=[],
-    paymaster_url="https://some-paymaster-url.com"
-)
+import asyncio
+from cdp.evm_call_types import EncodedCall
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+    user_operation = await cdp.evm.send_user_operation(
+        smart_account=smart_account,
+        network="base-sepolia",
+        calls=[],
+            paymaster_url="https://some-paymaster-url.com"
+        )
+
+asyncio.run(main())
 ```
 
 ## Authentication tools

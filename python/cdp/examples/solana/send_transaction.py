@@ -165,40 +165,39 @@ async def main():
 
     load_dotenv()
 
-    cdp = CdpClient()
+    async with CdpClient() as cdp:
+        connection = SolanaClient("https://api.devnet.solana.com")
 
-    connection = SolanaClient("https://api.devnet.solana.com")
+        try:
+            sender_address = args.sender
 
-    try:
-        sender_address = args.sender
-
-        # If no sender address is provided, create a new account and faucet it
-        if not sender_address:
-            print(
-                "No sender address provided. Creating a new account and requesting funds..."
-            )
-            sender_address = await create_sol_account(cdp)
-            await request_faucet(cdp, sender_address)
-            await wait_for_balance(connection, sender_address)
-        else:
-            print(f"Using provided sender address: {sender_address}")
-            # Check if there's a balance
-            source_pubkey = PublicKey.from_string(sender_address)
-            balance_resp = connection.get_balance(source_pubkey)
-            balance = balance_resp.value
-            print(f"Sender account balance: {balance / 1e9} SOL ({balance} lamports)")
-
-            if balance == 0:
-                print("Account has zero balance, requesting funds from faucet...")
+            # If no sender address is provided, create a new account and faucet it
+            if not sender_address:
+                print(
+                    "No sender address provided. Creating a new account and requesting funds..."
+                )
+                sender_address = await create_sol_account(cdp)
                 await request_faucet(cdp, sender_address)
                 await wait_for_balance(connection, sender_address)
+            else:
+                print(f"Using provided sender address: {sender_address}")
+                # Check if there's a balance
+                source_pubkey = PublicKey.from_string(sender_address)
+                balance_resp = connection.get_balance(source_pubkey)
+                balance = balance_resp.value
+                print(
+                    f"Sender account balance: {balance / 1e9} SOL ({balance} lamports)"
+                )
 
-        await send_transaction(cdp, sender_address, args.destination, args.amount)
+                if balance == 0:
+                    print("Account has zero balance, requesting funds from faucet...")
+                    await request_faucet(cdp, sender_address)
+                    await wait_for_balance(connection, sender_address)
 
-    except Exception as error:
-        print(f"Error in process: {error}")
-    finally:
-        await cdp.close()
+            await send_transaction(cdp, sender_address, args.destination, args.amount)
+
+        except Exception as error:
+            print(f"Error in process: {error}")
 
 
 if __name__ == "__main__":

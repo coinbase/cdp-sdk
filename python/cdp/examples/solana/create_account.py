@@ -9,11 +9,9 @@ from cdp import CdpClient
 async def main():
     load_dotenv()
 
-    cdp = CdpClient()
-    solana_account = await cdp.solana.create_account()
-    print(f"Successfully created SOL account: {solana_account.address}")
-
-    await cdp.close()
+    async with CdpClient() as cdp:
+        solana_account = await cdp.solana.create_account()
+        print(f"Successfully created SOL account: {solana_account.address}")
 
 
 # Run the async function
