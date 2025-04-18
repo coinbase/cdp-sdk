@@ -35,7 +35,9 @@ import {
   GetUserOperationOptions,
   ListSmartAccountResult,
   ListSmartAccountsOptions,
+  GetOrCreateAccountOptions,
 } from "./evm.types";
+import { APIError } from "../../openapi-client/errors";
 
 /**
  * The namespace containing all EVM methods.
@@ -188,6 +190,29 @@ export class EvmClient implements EvmClientInterface {
     return toEvmServerAccount(CdpOpenApiClient, {
       account,
     });
+  }
+
+  /**
+   * Gets or creates a CDP EVM account.
+   *
+   * @param {GetOrCreateAccountOptions} options - Parameters for getting the account.
+   * @param {string} [options.name] - The name of the account to get. Used in getting the account, and creating the account if it doesn't exist.
+   * @param {string} [options.idempotencyKey] - An idempotency key. Used only in creating the account.
+   *
+   * @returns A promise that resolves to the account.
+   */
+  async getOrCreateAccount(options: GetOrCreateAccountOptions): Promise<ServerAccount> {
+    const { name, idempotencyKey } = options;
+
+    try {
+      return await this.getAccount({ name });
+    } catch (error) {
+      if (error instanceof APIError && error.statusCode === 404) {
+        return this.createAccount({ name, idempotencyKey });
+      }
+
+      throw error;
+    }
   }
 
   /**

@@ -132,6 +132,11 @@ export interface GetServerAccountOptions {
 }
 
 /**
+ * Options for getting or creating an EVM account.
+ */
+export type GetOrCreateAccountOptions = CreateServerAccountOptions;
+
+/**
  * Options for getting an EVM smart account.
  */
 export interface GetSmartAccountOptions {
