@@ -1,20 +1,20 @@
 import os
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
-from unittest.mock import patch
 
 
 # Globally mock analytics.send_event for all tests.
 # This prevents actual analytics events from being sent during tests.
 @pytest.fixture(autouse=True)
 def mock_send_event():
-    from cdp.analytics import send_event
+    """Mock the send_event function for all tests.
 
-    """
-    Automatically mock the send_event function for all tests.
     This prevents actual analytics events from being sent during tests.
     """
+    from cdp.analytics import send_event
+
     with patch("cdp.analytics.send_event") as mock:
         mock.return_value = None
 
@@ -51,9 +51,7 @@ for package in CDP_PACKAGES_WITH_FACTORIES:
 
     # Find all factory modules
     factory_modules = [
-        f[:-3]
-        for f in os.listdir(factories_dir)
-        if f.endswith(".py") and f != "__init__.py"
+        f[:-3] for f in os.listdir(factories_dir) if f.endswith(".py") and f != "__init__.py"
     ]
 
     # Convert to proper module paths and add to plugins

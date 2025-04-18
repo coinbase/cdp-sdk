@@ -5,50 +5,72 @@
  * The Coinbase Developer Platform APIs - leading the world's transition onchain.
  * OpenAPI spec version: 2.0.0
  */
-import {
-  faker
-} from '@faker-js/faker';
+import { faker } from "@faker-js/faker";
 
-import {
-  HttpResponse,
-  delay,
-  http
-} from 'msw';
+import { HttpResponse, delay, http } from "msw";
 
 import type {
   RequestEvmFaucet200,
-  RequestSolanaFaucet200
-} from '../coinbaseDeveloperPlatformAPIs.schemas';
+  RequestSolanaFaucet200,
+} from "../coinbaseDeveloperPlatformAPIs.schemas";
 
+export const getRequestEvmFaucetResponseMock = (
+  overrideResponse: Partial<RequestEvmFaucet200> = {},
+): RequestEvmFaucet200 => ({ transactionHash: faker.string.alpha(20), ...overrideResponse });
 
-export const getRequestEvmFaucetResponseMock = (overrideResponse: Partial< RequestEvmFaucet200 > = {}): RequestEvmFaucet200 => ({transactionHash: faker.string.alpha(20), ...overrideResponse})
+export const getRequestSolanaFaucetResponseMock = (
+  overrideResponse: Partial<RequestSolanaFaucet200> = {},
+): RequestSolanaFaucet200 => ({
+  transactionSignature: faker.string.alpha(20),
+  ...overrideResponse,
+});
 
-export const getRequestSolanaFaucetResponseMock = (overrideResponse: Partial< RequestSolanaFaucet200 > = {}): RequestSolanaFaucet200 => ({transactionSignature: faker.string.alpha(20), ...overrideResponse})
+export const getRequestEvmFaucetMockHandler = (
+  overrideResponse?:
+    | RequestEvmFaucet200
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<RequestEvmFaucet200> | RequestEvmFaucet200),
+) => {
+  return http.post("*/v2/evm/faucet", async info => {
+    await delay(0);
 
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getRequestEvmFaucetResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 
-export const getRequestEvmFaucetMockHandler = (overrideResponse?: RequestEvmFaucet200 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<RequestEvmFaucet200> | RequestEvmFaucet200)) => {
-  return http.post('*/v2/evm/faucet', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getRequestEvmFaucetResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+export const getRequestSolanaFaucetMockHandler = (
+  overrideResponse?:
+    | RequestSolanaFaucet200
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<RequestSolanaFaucet200> | RequestSolanaFaucet200),
+) => {
+  return http.post("*/v2/solana/faucet", async info => {
+    await delay(0);
 
-export const getRequestSolanaFaucetMockHandler = (overrideResponse?: RequestSolanaFaucet200 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<RequestSolanaFaucet200> | RequestSolanaFaucet200)) => {
-  return http.post('*/v2/solana/faucet', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getRequestSolanaFaucetResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getRequestSolanaFaucetResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 export const getFaucetsMock = () => [
   getRequestEvmFaucetMockHandler(),
-  getRequestSolanaFaucetMockHandler()]
+  getRequestSolanaFaucetMockHandler(),
+];

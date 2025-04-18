@@ -1,12 +1,15 @@
 # Usage: uv run python cdp/examples/evm/send_transaction.py
 
 import asyncio
+
 from dotenv import load_dotenv
 from web3 import Web3
+
 from cdp import CdpClient
 
 
 async def main():
+    """Contains main function for the EVM transaction script."""
     load_dotenv()
 
     async with CdpClient() as cdp:
@@ -68,9 +71,7 @@ async def main():
         print("Waiting for transaction confirmation...")
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         print(f"Transaction confirmed in block {tx_receipt.blockNumber}")
-        print(
-            f"Transaction status: {'Success' if tx_receipt.status == 1 else 'Failed'}"
-        )
+        print(f"Transaction status: {'Success' if tx_receipt.status == 1 else 'Failed'}")
 
 
 asyncio.run(main())

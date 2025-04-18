@@ -1,13 +1,13 @@
+import contextlib
+import functools
 import hashlib
+import inspect
 import json
 import os
 import time
-import inspect
-import functools
 import traceback
-import requests
 
-from typing import Optional
+import requests
 from pydantic import BaseModel
 
 from cdp.cdp_client import CdpClient
@@ -16,30 +16,26 @@ from cdp.solana_client import SolanaClient
 
 
 class ErrorEventData(BaseModel):
-    """
-    The data in an error event
-    """
+    """The data in an error event."""
 
-    method: (
-        str  # The API method where the error occurred, e.g. createAccount, getAccount
-    )
+    method: str  # The API method where the error occurred, e.g. createAccount, getAccount
     message: str  # The error message
     name: str  # The name of the event. This should match the name in AEC
-    stack: Optional[str] = None  # The error stack trace
+    stack: str | None = None  # The error stack trace
 
 
 EventData = ErrorEventData
 
 
 async def send_event(event: EventData) -> None:
-    """
-    Sends an analytics event to the default endpoint
+    """Send an analytics event to the default endpoint.
 
     Args:
         event: The event data containing event-specific fields
 
     Returns:
         None - resolves when the event is sent
+
     """
     timestamp = int(time.time() * 1000)
 
@@ -59,9 +55,7 @@ async def send_event(event: EventData) -> None:
     stringified_event_data = json.dumps(events)
     upload_time = str(timestamp)
 
-    checksum = hashlib.md5(
-        (stringified_event_data + upload_time).encode("utf-8")
-    ).hexdigest()
+    checksum = hashlib.md5((stringified_event_data + upload_time).encode("utf-8")).hexdigest()
 
     analytics_service_data = {"e": stringified_event_data, "checksum": checksum}
 
@@ -78,14 +72,14 @@ async def send_event(event: EventData) -> None:
 
 
 def wrap_with_error_tracking(func):
-    """
-    Decorator that wraps a method with error tracking.
+    """Wrap a method with error tracking.
 
     Args:
         func: The function to wrap.
 
     Returns:
         The wrapped function.
+
     """
 
     @functools.wraps(func)
@@ -101,11 +95,8 @@ def wrap_with_error_tracking(func):
             )
 
             if os.getenv("DISABLE_CDP_ERROR_REPORTING") != "true":
-                try:
+                with contextlib.suppress(Exception):
                     await send_event(event_data)
-                except Exception:
-                    # ignore error
-                    pass
 
             raise
 
@@ -113,14 +104,14 @@ def wrap_with_error_tracking(func):
 
 
 def wrap_class_with_error_tracking(cls):
-    """
-    Wraps all methods of a class with error tracking.
+    """Wrap all methods of a class with error tracking.
 
     Args:
         cls: The class to wrap.
 
     Returns:
         The class with wrapped methods.
+
     """
     for name, method in inspect.getmembers(cls, inspect.isfunction):
         if not name.startswith("__"):

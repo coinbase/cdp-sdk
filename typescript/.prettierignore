@@ -1,8 +1,6 @@
 docs/
 coverage/
 .github/
-src/client
 **/**/*.json
 *.md
-src/openapi-client/generated
 dist/

@@ -9,6 +9,7 @@ def auth_client_options_factory():
 
     Returns:
         callable: A factory function that creates Urllib3AuthClientOptions instances
+
     """
 
     def _create_auth_client_options(

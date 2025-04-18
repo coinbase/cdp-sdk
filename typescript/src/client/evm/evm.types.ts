@@ -1,17 +1,18 @@
-import type {
-  EvmUserOperationNetwork,
-  EvmUserOperationStatus,
-  OpenApiEvmMethods,
-} from "../../openapi-client";
 import {
   EvmAccount as Account,
   EvmServerAccount as ServerAccount,
   EvmSmartAccount as SmartAccount,
 } from "../../accounts/types";
+import { SendUserOperationReturnType } from "../../actions/evm/sendUserOperation";
 import { Call, Calls } from "../../types/calls";
 import { Address, Hex } from "../../types/misc";
 import { WaitOptions } from "../../utils/wait";
-import { SendUserOperationReturnType } from "../../actions/evm/sendUserOperation";
+
+import type {
+  EvmUserOperationNetwork,
+  EvmUserOperationStatus,
+  OpenApiEvmMethods,
+} from "../../openapi-client";
 
 /**
  * The EvmClient type, where all OpenApiEvmMethods methods are wrapped.

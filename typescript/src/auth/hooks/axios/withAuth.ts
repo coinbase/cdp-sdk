@@ -1,4 +1,5 @@
 import { AxiosInstance, AxiosHeaders } from "axios";
+
 import { getAuthHeaders } from "../../utils/http";
 
 export interface AuthInterceptorOptions {

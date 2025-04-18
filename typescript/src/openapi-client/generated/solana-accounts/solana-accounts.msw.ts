@@ -5,112 +5,215 @@
  * The Coinbase Developer Platform APIs - leading the world's transition onchain.
  * OpenAPI spec version: 2.0.0
  */
-import {
-  faker
-} from '@faker-js/faker';
+import { faker } from "@faker-js/faker";
 
-import {
-  HttpResponse,
-  delay,
-  http
-} from 'msw';
+import { HttpResponse, delay, http } from "msw";
 
 import type {
   ListSolanaAccounts200,
   SignSolanaMessage200,
   SignSolanaTransaction200,
-  SolanaAccount
-} from '../coinbaseDeveloperPlatformAPIs.schemas';
+  SolanaAccount,
+} from "../coinbaseDeveloperPlatformAPIs.schemas";
 
+export const getListSolanaAccountsResponseMock = (): ListSolanaAccounts200 => ({
+  ...{
+    accounts: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        address: faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+        name: faker.helpers.arrayElement([
+          faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+          undefined,
+        ]),
+      }),
+    ),
+  },
+  ...{ nextPageToken: faker.helpers.arrayElement([faker.string.alpha(20), undefined]) },
+});
 
-export const getListSolanaAccountsResponseMock = (): ListSolanaAccounts200 => ({...{accounts: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({address: faker.helpers.fromRegExp('^[1-9A-HJ-NP-Za-km-z]{32,44}$'), name: faker.helpers.arrayElement([faker.helpers.fromRegExp('^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$'), undefined])}))},...{nextPageToken: faker.helpers.arrayElement([faker.string.alpha(20), undefined])},})
+export const getCreateSolanaAccountResponseMock = (
+  overrideResponse: Partial<SolanaAccount> = {},
+): SolanaAccount => ({
+  address: faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
 
-export const getCreateSolanaAccountResponseMock = (overrideResponse: Partial< SolanaAccount > = {}): SolanaAccount => ({address: faker.helpers.fromRegExp('^[1-9A-HJ-NP-Za-km-z]{32,44}$'), name: faker.helpers.arrayElement([faker.helpers.fromRegExp('^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$'), undefined]), ...overrideResponse})
+export const getGetSolanaAccountResponseMock = (
+  overrideResponse: Partial<SolanaAccount> = {},
+): SolanaAccount => ({
+  address: faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
 
-export const getGetSolanaAccountResponseMock = (overrideResponse: Partial< SolanaAccount > = {}): SolanaAccount => ({address: faker.helpers.fromRegExp('^[1-9A-HJ-NP-Za-km-z]{32,44}$'), name: faker.helpers.arrayElement([faker.helpers.fromRegExp('^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$'), undefined]), ...overrideResponse})
+export const getGetSolanaAccountByNameResponseMock = (
+  overrideResponse: Partial<SolanaAccount> = {},
+): SolanaAccount => ({
+  address: faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
 
-export const getGetSolanaAccountByNameResponseMock = (overrideResponse: Partial< SolanaAccount > = {}): SolanaAccount => ({address: faker.helpers.fromRegExp('^[1-9A-HJ-NP-Za-km-z]{32,44}$'), name: faker.helpers.arrayElement([faker.helpers.fromRegExp('^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$'), undefined]), ...overrideResponse})
+export const getSignSolanaTransactionResponseMock = (
+  overrideResponse: Partial<SignSolanaTransaction200> = {},
+): SignSolanaTransaction200 => ({ signedTransaction: faker.string.alpha(20), ...overrideResponse });
 
-export const getSignSolanaTransactionResponseMock = (overrideResponse: Partial< SignSolanaTransaction200 > = {}): SignSolanaTransaction200 => ({signedTransaction: faker.string.alpha(20), ...overrideResponse})
+export const getSignSolanaMessageResponseMock = (
+  overrideResponse: Partial<SignSolanaMessage200> = {},
+): SignSolanaMessage200 => ({ signature: faker.string.alpha(20), ...overrideResponse });
 
-export const getSignSolanaMessageResponseMock = (overrideResponse: Partial< SignSolanaMessage200 > = {}): SignSolanaMessage200 => ({signature: faker.string.alpha(20), ...overrideResponse})
+export const getListSolanaAccountsMockHandler = (
+  overrideResponse?:
+    | ListSolanaAccounts200
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<ListSolanaAccounts200> | ListSolanaAccounts200),
+) => {
+  return http.get("*/v2/solana/accounts", async info => {
+    await delay(0);
 
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getListSolanaAccountsResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 
-export const getListSolanaAccountsMockHandler = (overrideResponse?: ListSolanaAccounts200 | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<ListSolanaAccounts200> | ListSolanaAccounts200)) => {
-  return http.get('*/v2/solana/accounts', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getListSolanaAccountsResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+export const getCreateSolanaAccountMockHandler = (
+  overrideResponse?:
+    | SolanaAccount
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<SolanaAccount> | SolanaAccount),
+) => {
+  return http.post("*/v2/solana/accounts", async info => {
+    await delay(0);
 
-export const getCreateSolanaAccountMockHandler = (overrideResponse?: SolanaAccount | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<SolanaAccount> | SolanaAccount)) => {
-  return http.post('*/v2/solana/accounts', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getCreateSolanaAccountResponseMock()),
-      { status: 201,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getCreateSolanaAccountResponseMock(),
+      ),
+      { status: 201, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 
-export const getGetSolanaAccountMockHandler = (overrideResponse?: SolanaAccount | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<SolanaAccount> | SolanaAccount)) => {
-  return http.get('*/v2/solana/accounts/:address', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getGetSolanaAccountResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+export const getGetSolanaAccountMockHandler = (
+  overrideResponse?:
+    | SolanaAccount
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<SolanaAccount> | SolanaAccount),
+) => {
+  return http.get("*/v2/solana/accounts/:address", async info => {
+    await delay(0);
 
-export const getGetSolanaAccountByNameMockHandler = (overrideResponse?: SolanaAccount | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<SolanaAccount> | SolanaAccount)) => {
-  return http.get('*/v2/solana/accounts/by-name/:name', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getGetSolanaAccountByNameResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetSolanaAccountResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 
-export const getSignSolanaTransactionMockHandler = (overrideResponse?: SignSolanaTransaction200 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<SignSolanaTransaction200> | SignSolanaTransaction200)) => {
-  return http.post('*/v2/solana/accounts/:address/sign/transaction', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getSignSolanaTransactionResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+export const getGetSolanaAccountByNameMockHandler = (
+  overrideResponse?:
+    | SolanaAccount
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<SolanaAccount> | SolanaAccount),
+) => {
+  return http.get("*/v2/solana/accounts/by-name/:name", async info => {
+    await delay(0);
 
-export const getSignSolanaMessageMockHandler = (overrideResponse?: SignSolanaMessage200 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<SignSolanaMessage200> | SignSolanaMessage200)) => {
-  return http.post('*/v2/solana/accounts/:address/sign/message', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getSignSolanaMessageResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetSolanaAccountByNameResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getSignSolanaTransactionMockHandler = (
+  overrideResponse?:
+    | SignSolanaTransaction200
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<SignSolanaTransaction200> | SignSolanaTransaction200),
+) => {
+  return http.post("*/v2/solana/accounts/:address/sign/transaction", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getSignSolanaTransactionResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getSignSolanaMessageMockHandler = (
+  overrideResponse?:
+    | SignSolanaMessage200
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<SignSolanaMessage200> | SignSolanaMessage200),
+) => {
+  return http.post("*/v2/solana/accounts/:address/sign/message", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getSignSolanaMessageResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 export const getSolanaAccountsMock = () => [
   getListSolanaAccountsMockHandler(),
   getCreateSolanaAccountMockHandler(),
   getGetSolanaAccountMockHandler(),
   getGetSolanaAccountByNameMockHandler(),
   getSignSolanaTransactionMockHandler(),
-  getSignSolanaMessageMockHandler()]
+  getSignSolanaMessageMockHandler(),
+];

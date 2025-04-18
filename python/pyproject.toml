@@ -38,6 +38,27 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = [
+    "cdp/openapi_client"
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "D", "UP", "B", "C4", "SIM", "RUF"]
+ignore = ["D213", "D203", "D100", "D104", "D107", "E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.isort]
+known-first-party = ["cdp"]
+combine-as-imports = true
+
 [tool.hatch.build.targets.sdist]
 include = ["cdp"]
 exclude = ["cdp/examples"]

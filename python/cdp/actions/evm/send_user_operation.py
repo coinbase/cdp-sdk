@@ -1,4 +1,6 @@
 from web3 import Web3
+
+from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall, FunctionCall
 from cdp.evm_smart_account import EvmSmartAccount
 from cdp.openapi_client.models.evm_call import EvmCall
@@ -10,7 +12,6 @@ from cdp.openapi_client.models.send_user_operation_request import (
     SendUserOperationRequest,
 )
 from cdp.utils import ensure_awaitable
-from cdp.api_clients import ApiClients
 
 
 async def send_user_operation(
@@ -33,7 +34,6 @@ async def send_user_operation(
         UserOperation: The user operation object.
 
     """
-
     if not calls:
         raise ValueError("Calls list cannot be empty")
 

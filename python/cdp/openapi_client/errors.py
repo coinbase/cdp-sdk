@@ -74,6 +74,7 @@ class ApiError(Exception):
 
         Returns:
             str: The string representation of the ApiError.
+
         """
         fields = [
             f"http_code={self.http_code}",
@@ -96,6 +97,7 @@ def is_openapi_error(obj: Any) -> bool:
 
     Returns:
         bool: True if the object is an OpenAPI error
+
     """
     return (
         isinstance(obj, dict)

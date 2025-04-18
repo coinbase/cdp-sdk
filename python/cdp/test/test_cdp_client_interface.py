@@ -1,12 +1,14 @@
 import inspect
-import pytest
 import re
+
+import pytest
+
 from cdp.evm_client import EvmClient
-from cdp.solana_client import SolanaClient
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
+from cdp.solana_client import SolanaClient
 
 
 def get_public_methods(cls):

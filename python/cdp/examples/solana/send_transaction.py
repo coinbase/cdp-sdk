@@ -1,19 +1,22 @@
 # Usage: uv run python cdp/examples/solana/send_transaction.py
 
-import time
-import base64
 import argparse
 import asyncio
+import base64
+import time
+
 from dotenv import load_dotenv
-from cdp import CdpClient
 from solana.rpc.api import Client as SolanaClient
 from solana.rpc.types import TxOpts
+from solders.message import Message
 from solders.pubkey import Pubkey as PublicKey
 from solders.system_program import TransferParams, transfer
-from solders.message import Message
+
+from cdp import CdpClient
 
 
 async def create_sol_account(cdp: CdpClient):
+    """Create a Solana account."""
     print("Creating Solana account...")
     solana_account = await cdp.solana.create_account()
     print(f"Successfully created SOL account: {solana_account.address}")
@@ -21,11 +24,10 @@ async def create_sol_account(cdp: CdpClient):
 
 
 async def request_faucet(cdp: CdpClient, address: str):
+    """Request SOL from the faucet."""
     print(f"Requesting SOL from faucet for {address}...")
     try:
-        transaction_signature = await cdp.solana.request_faucet(
-            address=address, token="sol"
-        )
+        transaction_signature = await cdp.solana.request_faucet(address=address, token="sol")
         print(f"Successfully requested SOL from faucet: {transaction_signature}")
         return transaction_signature
     except Exception as e:
@@ -36,6 +38,7 @@ async def request_faucet(cdp: CdpClient, address: str):
 
 
 async def wait_for_balance(connection: SolanaClient, address: str):
+    """Wait for the faucet to fund the account."""
     print("Waiting for faucet funds...")
     source_pubkey = PublicKey.from_string(address)
 
@@ -70,14 +73,13 @@ async def send_transaction(
     destination_address: str,
     amount: int = 1000,
 ):
+    """Send a transaction to the Solana network."""
     connection = SolanaClient("https://api.devnet.solana.com")
 
     source_pubkey = PublicKey.from_string(sender_address)
     dest_pubkey = PublicKey.from_string(destination_address)
 
-    print(
-        f"Preparing to send {amount} lamports from {sender_address} to {destination_address}"
-    )
+    print(f"Preparing to send {amount} lamports from {sender_address} to {destination_address}")
 
     blockhash_resp = connection.get_latest_blockhash()
     blockhash = blockhash_resp.value.blockhash
@@ -137,14 +139,13 @@ async def send_transaction(
     print(
         f"Transaction confirmed: {'failed' if hasattr(confirmation, 'err') and confirmation.err else 'success'}"
     )
-    print(
-        f"Transaction explorer link: https://explorer.solana.com/tx/{signature}?cluster=devnet"
-    )
+    print(f"Transaction explorer link: https://explorer.solana.com/tx/{signature}?cluster=devnet")
 
     return signature
 
 
 async def main():
+    """Contains main function for the Solana transfer script."""
     parser = argparse.ArgumentParser(description="Solana transfer script")
     parser.add_argument(
         "--sender",
@@ -173,9 +174,7 @@ async def main():
 
             # If no sender address is provided, create a new account and faucet it
             if not sender_address:
-                print(
-                    "No sender address provided. Creating a new account and requesting funds..."
-                )
+                print("No sender address provided. Creating a new account and requesting funds...")
                 sender_address = await create_sol_account(cdp)
                 await request_faucet(cdp, sender_address)
                 await wait_for_balance(connection, sender_address)
@@ -185,9 +184,7 @@ async def main():
                 source_pubkey = PublicKey.from_string(sender_address)
                 balance_resp = connection.get_balance(source_pubkey)
                 balance = balance_resp.value
-                print(
-                    f"Sender account balance: {balance / 1e9} SOL ({balance} lamports)"
-                )
+                print(f"Sender account balance: {balance / 1e9} SOL ({balance} lamports)")
 
                 if balance == 0:
                     print("Account has zero balance, requesting funds from faucet...")

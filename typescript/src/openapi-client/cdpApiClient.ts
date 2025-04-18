@@ -1,6 +1,8 @@
+// eslint-disable-next-line import/no-named-as-default
 import Axios, { AxiosInstance, AxiosRequestConfig, HttpStatusCode } from "axios";
-import { withAuth } from "../auth/hooks/axios";
+
 import { APIError, isOpenAPIError, HttpErrorType } from "./errors";
+import { withAuth } from "../auth/hooks/axios";
 import { ERROR_DOCS_PAGE_URL } from "../constants";
 
 /**
@@ -113,6 +115,7 @@ export const cdpApiClient = async <T>(
     const response = await axiosInstance(configWithIdempotencyKey);
     return response.data as T;
   } catch (error) {
+    // eslint-disable-next-line import/no-named-as-default-member
     if (Axios.isAxiosError(error) && error.response) {
       if (isOpenAPIError(error.response.data)) {
         throw new APIError(
@@ -167,6 +170,7 @@ export const cdpApiClient = async <T>(
             );
         }
       }
+      // eslint-disable-next-line import/no-named-as-default-member
     } else if (Axios.isAxiosError(error) && error.request) {
       throw new APIError(
         HttpStatusCode.ServiceUnavailable,

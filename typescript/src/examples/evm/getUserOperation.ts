@@ -1,8 +1,8 @@
 // Usage: pnpm tsx src/examples/evm/prepareUserOperation.ts
 
 import { config } from "dotenv";
-import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { parseEther } from "viem";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 
 import { CdpClient } from "../../index";
 

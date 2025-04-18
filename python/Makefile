@@ -8,6 +8,10 @@ build:
 format:
 	uv run ruff format --exclude "cdp/openapi_client/api/*" --exclude "cdp/openapi_client/models/*" --exclude "cdp/openapi_client/test/*" --exclude "cdp/openapi_client/api_client.py" --exclude "cdp/openapi_client/configuration.py" . || (echo "Error: Failed to format code" && exit 1)
 
+.PHONY: format-check
+format-check:
+	uv run ruff format --check --exclude "cdp/openapi_client/api/*" --exclude "cdp/openapi_client/models/*" --exclude "cdp/openapi_client/test/*" --exclude "cdp/openapi_client/api_client.py" --exclude "cdp/openapi_client/configuration.py" . || (echo "Error: Failed to format code" && exit 1)
+
 .PHONY: lint
 lint:
 	uv run ruff check --exclude "cdp/openapi_client/api/*" --exclude "cdp/openapi_client/models/*" --exclude "cdp/openapi_client/test/*" --exclude "cdp/openapi_client/api_client.py" --exclude "cdp/openapi_client/configuration.py" . || (echo "Error: Linting failed" && exit 1)

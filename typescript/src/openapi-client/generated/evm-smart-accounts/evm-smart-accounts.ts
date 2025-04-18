@@ -12,102 +12,120 @@ import type {
   ListEvmSmartAccounts200,
   ListEvmSmartAccountsParams,
   PrepareUserOperationBody,
-  SendUserOperationBody
-} from '../coinbaseDeveloperPlatformAPIs.schemas';
+  SendUserOperationBody,
+} from "../coinbaseDeveloperPlatformAPIs.schemas";
 
-import { cdpApiClient } from '../../cdpApiClient';
-
+import { cdpApiClient } from "../../cdpApiClient";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-
-  /**
+/**
  * Lists the Smart Accounts belonging to the developer's CDP Project.
 The response is paginated, and by default, returns 20 accounts per page.
  * @summary List Smart Accounts
  */
 export const listEvmSmartAccounts = (
-    params?: ListEvmSmartAccountsParams,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<ListEvmSmartAccounts200>(
-      {url: `/v2/evm/smart-accounts`, method: 'GET',
-        params
-    },
-      options);
-    }
-  /**
+  params?: ListEvmSmartAccountsParams,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ListEvmSmartAccounts200>(
+    { url: `/v2/evm/smart-accounts`, method: "GET", params },
+    options,
+  );
+};
+/**
  * Creates a new Smart Account.
  * @summary Create a Smart Account
  */
 export const createEvmSmartAccount = (
-    createEvmSmartAccountBody: CreateEvmSmartAccountBody,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<EvmSmartAccount>(
-      {url: `/v2/evm/smart-accounts`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: createEvmSmartAccountBody
+  createEvmSmartAccountBody: CreateEvmSmartAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmSmartAccount>(
+    {
+      url: `/v2/evm/smart-accounts`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createEvmSmartAccountBody,
     },
-      options);
-    }
-  /**
+    options,
+  );
+};
+/**
  * Gets a Smart Account by its address.
  * @summary Get a Smart Account by address
  */
 export const getEvmSmartAccount = (
-    address: string,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<EvmSmartAccount>(
-      {url: `/v2/evm/smart-accounts/${address}`, method: 'GET'
-    },
-      options);
-    }
-  /**
+  address: string,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmSmartAccount>(
+    { url: `/v2/evm/smart-accounts/${address}`, method: "GET" },
+    options,
+  );
+};
+/**
  * Prepares a new user operation on a Smart Account for a specific network.
  * @summary Prepare a user operation
  */
 export const prepareUserOperation = (
-    address: string,
-    prepareUserOperationBody: PrepareUserOperationBody,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<EvmUserOperation>(
-      {url: `/v2/evm/smart-accounts/${address}/user-operations`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: prepareUserOperationBody
+  address: string,
+  prepareUserOperationBody: PrepareUserOperationBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/evm/smart-accounts/${address}/user-operations`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: prepareUserOperationBody,
     },
-      options);
-    }
-  /**
+    options,
+  );
+};
+/**
  * Gets a user operation by its hash.
  * @summary Get a user operation
  */
 export const getUserOperation = (
-    address: string,
-    userOpHash: string,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<EvmUserOperation>(
-      {url: `/v2/evm/smart-accounts/${address}/user-operations/${userOpHash}`, method: 'GET'
-    },
-      options);
-    }
-  /**
+  address: string,
+  userOpHash: string,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    { url: `/v2/evm/smart-accounts/${address}/user-operations/${userOpHash}`, method: "GET" },
+    options,
+  );
+};
+/**
  * Sends a user operation with a signature.
  * @summary Send a user operation
  */
 export const sendUserOperation = (
-    address: string,
-    userOpHash: string,
-    sendUserOperationBody: SendUserOperationBody,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<EvmUserOperation>(
-      {url: `/v2/evm/smart-accounts/${address}/user-operations/${userOpHash}/send`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: sendUserOperationBody
+  address: string,
+  userOpHash: string,
+  sendUserOperationBody: SendUserOperationBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/evm/smart-accounts/${address}/user-operations/${userOpHash}/send`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: sendUserOperationBody,
     },
-      options);
-    }
-  export type ListEvmSmartAccountsResult = NonNullable<Awaited<ReturnType<typeof listEvmSmartAccounts>>>
-export type CreateEvmSmartAccountResult = NonNullable<Awaited<ReturnType<typeof createEvmSmartAccount>>>
-export type GetEvmSmartAccountResult = NonNullable<Awaited<ReturnType<typeof getEvmSmartAccount>>>
-export type PrepareUserOperationResult = NonNullable<Awaited<ReturnType<typeof prepareUserOperation>>>
-export type GetUserOperationResult = NonNullable<Awaited<ReturnType<typeof getUserOperation>>>
-export type SendUserOperationResult = NonNullable<Awaited<ReturnType<typeof sendUserOperation>>>
+    options,
+  );
+};
+export type ListEvmSmartAccountsResult = NonNullable<
+  Awaited<ReturnType<typeof listEvmSmartAccounts>>
+>;
+export type CreateEvmSmartAccountResult = NonNullable<
+  Awaited<ReturnType<typeof createEvmSmartAccount>>
+>;
+export type GetEvmSmartAccountResult = NonNullable<Awaited<ReturnType<typeof getEvmSmartAccount>>>;
+export type PrepareUserOperationResult = NonNullable<
+  Awaited<ReturnType<typeof prepareUserOperation>>
+>;
+export type GetUserOperationResult = NonNullable<Awaited<ReturnType<typeof getUserOperation>>>;
+export type SendUserOperationResult = NonNullable<Awaited<ReturnType<typeof sendUserOperation>>>;

@@ -1,8 +1,8 @@
-from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
+from cdp.openapi_client.cdp_api_client import CdpApiClient
 
 
 class ApiClients:
@@ -17,6 +17,7 @@ class ApiClients:
         _ethereum_smart_accounts (Optional[EthereumSmartAccountsApi]): The EthereumSmartAccountsApi client instance.
         _faucets (Optional[FaucetsApi]): The FaucetsApi client instance.
         _solana_accounts (Optional[SolanaAccountsApi]): The SolanaAccountsApi client instance.
+
     """
 
     def __init__(self, cdp_client: CdpApiClient) -> None:

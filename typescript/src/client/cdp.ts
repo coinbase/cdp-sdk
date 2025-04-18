@@ -1,7 +1,7 @@
-import { CdpOpenApiClient } from "../openapi-client";
-import { version } from "../../package.json";
 import { EvmClient } from "./evm";
 import { SolanaClient } from "./solana";
+import { version } from "../../package.json";
+import { CdpOpenApiClient } from "../openapi-client";
 
 interface CdpClientOptions {
   /** The API key ID. */

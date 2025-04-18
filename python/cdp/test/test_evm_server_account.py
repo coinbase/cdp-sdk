@@ -1,12 +1,11 @@
-from eth_typing import Hash32
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from eth_account.messages import _hash_eip191_message, encode_defunct
+from eth_typing import Hash32
 from hexbytes import HexBytes
-from eth_account.messages import encode_defunct
 
 from cdp.evm_server_account import EvmServerAccount
-from eth_account.messages import _hash_eip191_message
-
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
 from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageRequest
 from cdp.openapi_client.models.sign_evm_transaction_request import (
@@ -126,10 +125,8 @@ async def test_unsafe_sign_hash(mock_api, server_account_model_factory):
 @patch("cdp.evm_server_account.Web3")
 @patch("cdp.evm_server_account.TypedTransaction")
 @patch("cdp.evm_server_account.EVMAccountsApi")
-async def test_sign_transaction(
-    mock_api, mock_typed_tx, mock_web3, server_account_model_factory
-):
-    """Test sign_transaction method"""
+async def test_sign_transaction(mock_api, mock_typed_tx, mock_web3, server_account_model_factory):
+    """Test sign_transaction method."""
     address = "0x1234567890123456789012345678901234567890"
     name = "test-account"
     server_account_model = server_account_model_factory(address, name)

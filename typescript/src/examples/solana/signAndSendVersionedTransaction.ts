@@ -1,6 +1,5 @@
 // Usage: pnpm tsx src/examples/solana/signAndSendVersionedTransaction.ts [sourceAddress]
 
-import { config } from "dotenv";
 import {
   Connection,
   PublicKey,
@@ -8,6 +7,7 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
+import { config } from "dotenv";
 
 import { CdpClient } from "../../client/cdp";
 

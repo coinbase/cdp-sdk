@@ -1,11 +1,10 @@
 // Adapted from viem (https://github.com/wevm/viem)
-import type { Abi, AbiStateMutability } from "abitype";
-
 import type {
   ContractFunctionArgs,
   ContractFunctionName,
   ContractFunctionParameters,
 } from "./contract";
+import type { Abi, AbiStateMutability } from "abitype";
 
 // infer contract parameters from `unknown`
 export type GetMulticallContractParameters<

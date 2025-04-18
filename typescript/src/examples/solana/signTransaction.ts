@@ -1,6 +1,5 @@
 // Usage: pnpm tsx src/examples/solana/signTransaction.ts
 
-import { config } from "dotenv";
 import {
   Keypair,
   PublicKey,
@@ -9,6 +8,7 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
+import { config } from "dotenv";
 
 import { CdpClient } from "../../client/cdp";
 

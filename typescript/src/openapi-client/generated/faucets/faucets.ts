@@ -9,16 +9,14 @@ import type {
   RequestEvmFaucet200,
   RequestEvmFaucetBody,
   RequestSolanaFaucet200,
-  RequestSolanaFaucetBody
-} from '../coinbaseDeveloperPlatformAPIs.schemas';
+  RequestSolanaFaucetBody,
+} from "../coinbaseDeveloperPlatformAPIs.schemas";
 
-import { cdpApiClient } from '../../cdpApiClient';
-
+import { cdpApiClient } from "../../cdpApiClient";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-
-  /**
+/**
  * Request funds from the CDP Faucet on supported EVM test networks.
 
 Faucets are available for ETH, USDC, EURC, and cbBTC on Base Sepolia and Ethereum Sepolia.
@@ -37,16 +35,20 @@ A single blockchain address cannot exceed the specified limits, even if multiple
  * @summary Request funds on EVM test networks
  */
 export const requestEvmFaucet = (
-    requestEvmFaucetBody: RequestEvmFaucetBody,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<RequestEvmFaucet200>(
-      {url: `/v2/evm/faucet`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: requestEvmFaucetBody
+  requestEvmFaucetBody: RequestEvmFaucetBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<RequestEvmFaucet200>(
+    {
+      url: `/v2/evm/faucet`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: requestEvmFaucetBody,
     },
-      options);
-    }
-  /**
+    options,
+  );
+};
+/**
  * Request funds from the CDP Faucet on Solana devnet.
 
 Faucets are available for SOL.
@@ -62,14 +64,20 @@ A single blockchain address cannot exceed the specified limits, even if multiple
  * @summary Request funds on Solana devnet
  */
 export const requestSolanaFaucet = (
-    requestSolanaFaucetBody: RequestSolanaFaucetBody,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<RequestSolanaFaucet200>(
-      {url: `/v2/solana/faucet`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: requestSolanaFaucetBody
+  requestSolanaFaucetBody: RequestSolanaFaucetBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<RequestSolanaFaucet200>(
+    {
+      url: `/v2/solana/faucet`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: requestSolanaFaucetBody,
     },
-      options);
-    }
-  export type RequestEvmFaucetResult = NonNullable<Awaited<ReturnType<typeof requestEvmFaucet>>>
-export type RequestSolanaFaucetResult = NonNullable<Awaited<ReturnType<typeof requestSolanaFaucet>>>
+    options,
+  );
+};
+export type RequestEvmFaucetResult = NonNullable<Awaited<ReturnType<typeof requestEvmFaucet>>>;
+export type RequestSolanaFaucetResult = NonNullable<
+  Awaited<ReturnType<typeof requestSolanaFaucet>>
+>;

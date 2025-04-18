@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 
 @pytest.fixture
@@ -11,6 +12,7 @@ def http_client_factory(http_response_factory):
 
     Returns:
         callable: A factory function that creates mock HTTP client objects
+
     """
 
     def _create_client(response=None):

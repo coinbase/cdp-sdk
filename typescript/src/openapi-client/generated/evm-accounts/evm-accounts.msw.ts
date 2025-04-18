@@ -5,123 +5,232 @@
  * The Coinbase Developer Platform APIs - leading the world's transition onchain.
  * OpenAPI spec version: 2.0.0
  */
-import {
-  faker
-} from '@faker-js/faker';
+import { faker } from "@faker-js/faker";
 
-import {
-  HttpResponse,
-  delay,
-  http
-} from 'msw';
+import { HttpResponse, delay, http } from "msw";
 
 import type {
   EvmAccount,
   ListEvmAccounts200,
   SignEvmHash200,
   SignEvmMessage200,
-  SignEvmTransaction200
-} from '../coinbaseDeveloperPlatformAPIs.schemas';
+  SignEvmTransaction200,
+} from "../coinbaseDeveloperPlatformAPIs.schemas";
 
+export const getListEvmAccountsResponseMock = (): ListEvmAccounts200 => ({
+  ...{
+    accounts: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        address: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+        name: faker.helpers.arrayElement([
+          faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+          undefined,
+        ]),
+      }),
+    ),
+  },
+  ...{ nextPageToken: faker.helpers.arrayElement([faker.string.alpha(20), undefined]) },
+});
 
-export const getListEvmAccountsResponseMock = (): ListEvmAccounts200 => ({...{accounts: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({address: faker.helpers.fromRegExp('^0x[0-9a-fA-F]{40}$'), name: faker.helpers.arrayElement([faker.helpers.fromRegExp('^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$'), undefined])}))},...{nextPageToken: faker.helpers.arrayElement([faker.string.alpha(20), undefined])},})
+export const getCreateEvmAccountResponseMock = (
+  overrideResponse: Partial<EvmAccount> = {},
+): EvmAccount => ({
+  address: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
 
-export const getCreateEvmAccountResponseMock = (overrideResponse: Partial< EvmAccount > = {}): EvmAccount => ({address: faker.helpers.fromRegExp('^0x[0-9a-fA-F]{40}$'), name: faker.helpers.arrayElement([faker.helpers.fromRegExp('^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$'), undefined]), ...overrideResponse})
+export const getGetEvmAccountResponseMock = (
+  overrideResponse: Partial<EvmAccount> = {},
+): EvmAccount => ({
+  address: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
 
-export const getGetEvmAccountResponseMock = (overrideResponse: Partial< EvmAccount > = {}): EvmAccount => ({address: faker.helpers.fromRegExp('^0x[0-9a-fA-F]{40}$'), name: faker.helpers.arrayElement([faker.helpers.fromRegExp('^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$'), undefined]), ...overrideResponse})
+export const getGetEvmAccountByNameResponseMock = (
+  overrideResponse: Partial<EvmAccount> = {},
+): EvmAccount => ({
+  address: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
 
-export const getGetEvmAccountByNameResponseMock = (overrideResponse: Partial< EvmAccount > = {}): EvmAccount => ({address: faker.helpers.fromRegExp('^0x[0-9a-fA-F]{40}$'), name: faker.helpers.arrayElement([faker.helpers.fromRegExp('^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$'), undefined]), ...overrideResponse})
+export const getSignEvmTransactionResponseMock = (
+  overrideResponse: Partial<SignEvmTransaction200> = {},
+): SignEvmTransaction200 => ({ signedTransaction: faker.string.alpha(20), ...overrideResponse });
 
-export const getSignEvmTransactionResponseMock = (overrideResponse: Partial< SignEvmTransaction200 > = {}): SignEvmTransaction200 => ({signedTransaction: faker.string.alpha(20), ...overrideResponse})
+export const getSignEvmHashResponseMock = (
+  overrideResponse: Partial<SignEvmHash200> = {},
+): SignEvmHash200 => ({ signature: faker.string.alpha(20), ...overrideResponse });
 
-export const getSignEvmHashResponseMock = (overrideResponse: Partial< SignEvmHash200 > = {}): SignEvmHash200 => ({signature: faker.string.alpha(20), ...overrideResponse})
+export const getSignEvmMessageResponseMock = (
+  overrideResponse: Partial<SignEvmMessage200> = {},
+): SignEvmMessage200 => ({ signature: faker.string.alpha(20), ...overrideResponse });
 
-export const getSignEvmMessageResponseMock = (overrideResponse: Partial< SignEvmMessage200 > = {}): SignEvmMessage200 => ({signature: faker.string.alpha(20), ...overrideResponse})
+export const getListEvmAccountsMockHandler = (
+  overrideResponse?:
+    | ListEvmAccounts200
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<ListEvmAccounts200> | ListEvmAccounts200),
+) => {
+  return http.get("*/v2/evm/accounts", async info => {
+    await delay(0);
 
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getListEvmAccountsResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 
-export const getListEvmAccountsMockHandler = (overrideResponse?: ListEvmAccounts200 | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<ListEvmAccounts200> | ListEvmAccounts200)) => {
-  return http.get('*/v2/evm/accounts', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getListEvmAccountsResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+export const getCreateEvmAccountMockHandler = (
+  overrideResponse?:
+    | EvmAccount
+    | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<EvmAccount> | EvmAccount),
+) => {
+  return http.post("*/v2/evm/accounts", async info => {
+    await delay(0);
 
-export const getCreateEvmAccountMockHandler = (overrideResponse?: EvmAccount | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<EvmAccount> | EvmAccount)) => {
-  return http.post('*/v2/evm/accounts', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getCreateEvmAccountResponseMock()),
-      { status: 201,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getCreateEvmAccountResponseMock(),
+      ),
+      { status: 201, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 
-export const getGetEvmAccountMockHandler = (overrideResponse?: EvmAccount | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<EvmAccount> | EvmAccount)) => {
-  return http.get('*/v2/evm/accounts/:address', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getGetEvmAccountResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+export const getGetEvmAccountMockHandler = (
+  overrideResponse?:
+    | EvmAccount
+    | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<EvmAccount> | EvmAccount),
+) => {
+  return http.get("*/v2/evm/accounts/:address", async info => {
+    await delay(0);
 
-export const getGetEvmAccountByNameMockHandler = (overrideResponse?: EvmAccount | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<EvmAccount> | EvmAccount)) => {
-  return http.get('*/v2/evm/accounts/by-name/:name', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getGetEvmAccountByNameResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetEvmAccountResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 
-export const getSignEvmTransactionMockHandler = (overrideResponse?: SignEvmTransaction200 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<SignEvmTransaction200> | SignEvmTransaction200)) => {
-  return http.post('*/v2/evm/accounts/:address/sign/transaction', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getSignEvmTransactionResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+export const getGetEvmAccountByNameMockHandler = (
+  overrideResponse?:
+    | EvmAccount
+    | ((info: Parameters<Parameters<typeof http.get>[1]>[0]) => Promise<EvmAccount> | EvmAccount),
+) => {
+  return http.get("*/v2/evm/accounts/by-name/:name", async info => {
+    await delay(0);
 
-export const getSignEvmHashMockHandler = (overrideResponse?: SignEvmHash200 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<SignEvmHash200> | SignEvmHash200)) => {
-  return http.post('*/v2/evm/accounts/:address/sign', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getSignEvmHashResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetEvmAccountByNameResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 
-export const getSignEvmMessageMockHandler = (overrideResponse?: SignEvmMessage200 | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<SignEvmMessage200> | SignEvmMessage200)) => {
-  return http.post('*/v2/evm/accounts/:address/sign/message', async (info) => {await delay(0);
-  
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined 
-            ? (typeof overrideResponse === "function" ? await overrideResponse(info) : overrideResponse) 
-            : getSignEvmMessageResponseMock()),
-      { status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      })
-  })
-}
+export const getSignEvmTransactionMockHandler = (
+  overrideResponse?:
+    | SignEvmTransaction200
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<SignEvmTransaction200> | SignEvmTransaction200),
+) => {
+  return http.post("*/v2/evm/accounts/:address/sign/transaction", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getSignEvmTransactionResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getSignEvmHashMockHandler = (
+  overrideResponse?:
+    | SignEvmHash200
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<SignEvmHash200> | SignEvmHash200),
+) => {
+  return http.post("*/v2/evm/accounts/:address/sign", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getSignEvmHashResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getSignEvmMessageMockHandler = (
+  overrideResponse?:
+    | SignEvmMessage200
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<SignEvmMessage200> | SignEvmMessage200),
+) => {
+  return http.post("*/v2/evm/accounts/:address/sign/message", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getSignEvmMessageResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 export const getEvmAccountsMock = () => [
   getListEvmAccountsMockHandler(),
   getCreateEvmAccountMockHandler(),
@@ -129,4 +238,5 @@ export const getEvmAccountsMock = () => [
   getGetEvmAccountByNameMockHandler(),
   getSignEvmTransactionMockHandler(),
   getSignEvmHashMockHandler(),
-  getSignEvmMessageMockHandler()]
+  getSignEvmMessageMockHandler(),
+];

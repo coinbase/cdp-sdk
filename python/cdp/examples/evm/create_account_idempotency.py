@@ -1,13 +1,15 @@
 # Usage: uv run python cdp/examples/evm/create_account_idempotency.py
 
 import asyncio
-from dotenv import load_dotenv
 import uuid
+
+from dotenv import load_dotenv
 
 from cdp import CdpClient
 
 
 async def main():
+    """Contains main function for the EVM account idempotency script."""
     load_dotenv()
 
     async with CdpClient() as cdp:
