@@ -30,3 +30,4 @@ export const OpenApiSolanaMethods = {
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
+export * from "./generated/evm-token-balances/evm-token-balances";
