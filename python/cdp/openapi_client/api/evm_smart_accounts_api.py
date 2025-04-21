@@ -1485,7 +1485,7 @@ class EVMSmartAccountsApi:
     ) -> EvmUserOperation:
         """Send a user operation
 
-        Sends a user operation with a signature.
+        Sends a user operation with a signature. The signature that is sent should be 65 bytes, consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.
 
         :param address: The address of the Smart Account to send the user operation from. (required)
         :type address: str
@@ -1563,7 +1563,7 @@ class EVMSmartAccountsApi:
     ) -> ApiResponse[EvmUserOperation]:
         """Send a user operation
 
-        Sends a user operation with a signature.
+        Sends a user operation with a signature. The signature that is sent should be 65 bytes, consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.
 
         :param address: The address of the Smart Account to send the user operation from. (required)
         :type address: str
@@ -1641,7 +1641,7 @@ class EVMSmartAccountsApi:
     ) -> RESTResponseType:
         """Send a user operation
 
-        Sends a user operation with a signature.
+        Sends a user operation with a signature. The signature that is sent should be 65 bytes, consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.
 
         :param address: The address of the Smart Account to send the user operation from. (required)
         :type address: str

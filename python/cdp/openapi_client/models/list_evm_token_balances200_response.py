@@ -19,16 +19,18 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
+from cdp.openapi_client.models.token_balance import TokenBalance
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendUserOperationRequest(BaseModel):
+class ListEvmTokenBalances200Response(BaseModel):
     """
-    SendUserOperationRequest
+    ListEvmTokenBalances200Response
     """ # noqa: E501
-    signature: StrictStr = Field(description="The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.")
-    __properties: ClassVar[List[str]] = ["signature"]
+    next_page_token: Optional[StrictStr] = Field(default=None, description="The token for the next page of items, if any.", alias="nextPageToken")
+    balances: List[TokenBalance] = Field(description="The list of EVM token balances.")
+    __properties: ClassVar[List[str]] = ["nextPageToken", "balances"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +50,7 @@ class SendUserOperationRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendUserOperationRequest from a JSON string"""
+        """Create an instance of ListEvmTokenBalances200Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,11 +71,18 @@ class SendUserOperationRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in balances (list)
+        _items = []
+        if self.balances:
+            for _item_balances in self.balances:
+                if _item_balances:
+                    _items.append(_item_balances.to_dict())
+            _dict['balances'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendUserOperationRequest from a dict"""
+        """Create an instance of ListEvmTokenBalances200Response from a dict"""
         if obj is None:
             return None
 
@@ -81,7 +90,8 @@ class SendUserOperationRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "signature": obj.get("signature")
+            "nextPageToken": obj.get("nextPageToken"),
+            "balances": [TokenBalance.from_dict(_item) for _item in obj["balances"]] if obj.get("balances") is not None else None
         })
         return _obj
 

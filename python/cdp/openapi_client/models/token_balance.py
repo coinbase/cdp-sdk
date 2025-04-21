@@ -18,17 +18,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict
 from typing import Any, ClassVar, Dict, List
+from cdp.openapi_client.models.token import Token
+from cdp.openapi_client.models.token_amount import TokenAmount
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendUserOperationRequest(BaseModel):
+class TokenBalance(BaseModel):
     """
-    SendUserOperationRequest
+    TokenBalance
     """ # noqa: E501
-    signature: StrictStr = Field(description="The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.")
-    __properties: ClassVar[List[str]] = ["signature"]
+    amount: TokenAmount
+    token: Token
+    __properties: ClassVar[List[str]] = ["amount", "token"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +51,7 @@ class SendUserOperationRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendUserOperationRequest from a JSON string"""
+        """Create an instance of TokenBalance from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,11 +72,17 @@ class SendUserOperationRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of amount
+        if self.amount:
+            _dict['amount'] = self.amount.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of token
+        if self.token:
+            _dict['token'] = self.token.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendUserOperationRequest from a dict"""
+        """Create an instance of TokenBalance from a dict"""
         if obj is None:
             return None
 
@@ -81,7 +90,8 @@ class SendUserOperationRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "signature": obj.get("signature")
+            "amount": TokenAmount.from_dict(obj["amount"]) if obj.get("amount") is not None else None,
+            "token": Token.from_dict(obj["token"]) if obj.get("token") is not None else None
         })
         return _obj
 

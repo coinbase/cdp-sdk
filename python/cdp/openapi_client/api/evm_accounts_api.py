@@ -51,7 +51,7 @@ class EVMAccountsApi:
     @validate_call
     async def create_evm_account(
         self,
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
         create_evm_account_request: Optional[CreateEvmAccountRequest] = None,
         _request_timeout: Union[
@@ -71,7 +71,7 @@ class EVMAccountsApi:
 
         Creates a new EVM account.
 
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -131,7 +131,7 @@ class EVMAccountsApi:
     @validate_call
     async def create_evm_account_with_http_info(
         self,
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
         create_evm_account_request: Optional[CreateEvmAccountRequest] = None,
         _request_timeout: Union[
@@ -151,7 +151,7 @@ class EVMAccountsApi:
 
         Creates a new EVM account.
 
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -211,7 +211,7 @@ class EVMAccountsApi:
     @validate_call
     async def create_evm_account_without_preload_content(
         self,
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
         create_evm_account_request: Optional[CreateEvmAccountRequest] = None,
         _request_timeout: Union[
@@ -231,7 +231,7 @@ class EVMAccountsApi:
 
         Creates a new EVM account.
 
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -1194,7 +1194,7 @@ class EVMAccountsApi:
     async def sign_evm_hash(
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
         sign_evm_hash_request: Optional[SignEvmHashRequest] = None,
         _request_timeout: Union[
@@ -1216,7 +1216,7 @@ class EVMAccountsApi:
 
         :param address: The 0x-prefixed address of the EVM account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -1278,7 +1278,7 @@ class EVMAccountsApi:
     async def sign_evm_hash_with_http_info(
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
         sign_evm_hash_request: Optional[SignEvmHashRequest] = None,
         _request_timeout: Union[
@@ -1300,7 +1300,7 @@ class EVMAccountsApi:
 
         :param address: The 0x-prefixed address of the EVM account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -1362,7 +1362,7 @@ class EVMAccountsApi:
     async def sign_evm_hash_without_preload_content(
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
         sign_evm_hash_request: Optional[SignEvmHashRequest] = None,
         _request_timeout: Union[
@@ -1384,7 +1384,7 @@ class EVMAccountsApi:
 
         :param address: The 0x-prefixed address of the EVM account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -1528,7 +1528,7 @@ class EVMAccountsApi:
     async def sign_evm_message(
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
         sign_evm_message_request: Optional[SignEvmMessageRequest] = None,
         _request_timeout: Union[
@@ -1550,7 +1550,7 @@ class EVMAccountsApi:
 
         :param address: The 0x-prefixed address of the EVM account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -1612,7 +1612,7 @@ class EVMAccountsApi:
     async def sign_evm_message_with_http_info(
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
         sign_evm_message_request: Optional[SignEvmMessageRequest] = None,
         _request_timeout: Union[
@@ -1634,7 +1634,7 @@ class EVMAccountsApi:
 
         :param address: The 0x-prefixed address of the EVM account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -1696,7 +1696,7 @@ class EVMAccountsApi:
     async def sign_evm_message_without_preload_content(
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
         sign_evm_message_request: Optional[SignEvmMessageRequest] = None,
         _request_timeout: Union[
@@ -1718,7 +1718,7 @@ class EVMAccountsApi:
 
         :param address: The 0x-prefixed address of the EVM account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -1862,7 +1862,7 @@ class EVMAccountsApi:
     async def sign_evm_transaction(
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
         sign_evm_transaction_request: Optional[SignEvmTransactionRequest] = None,
         _request_timeout: Union[
@@ -1884,7 +1884,7 @@ class EVMAccountsApi:
 
         :param address: The 0x-prefixed address of the EVM account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -1948,7 +1948,7 @@ class EVMAccountsApi:
     async def sign_evm_transaction_with_http_info(
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
         sign_evm_transaction_request: Optional[SignEvmTransactionRequest] = None,
         _request_timeout: Union[
@@ -1970,7 +1970,7 @@ class EVMAccountsApi:
 
         :param address: The 0x-prefixed address of the EVM account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
@@ -2034,7 +2034,7 @@ class EVMAccountsApi:
     async def sign_evm_transaction_without_preload_content(
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account.")],
-        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
         sign_evm_transaction_request: Optional[SignEvmTransactionRequest] = None,
         _request_timeout: Union[
@@ -2056,7 +2056,7 @@ class EVMAccountsApi:
 
         :param address: The 0x-prefixed address of the EVM account. (required)
         :type address: str
-        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
