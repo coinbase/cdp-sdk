@@ -38,6 +38,7 @@ vi.mock("../../openapi-client", () => {
       getUserOperation: vi.fn(),
       listEvmAccounts: vi.fn(),
       listEvmSmartAccounts: vi.fn(),
+      listEvmTokenBalances: vi.fn(),
       prepareUserOperation: vi.fn(),
       requestEvmFaucet: vi.fn(),
       sendUserOperation: vi.fn(),
@@ -601,6 +602,49 @@ describe("EvmClient", () => {
         waitForUserOperationOptions,
       );
       expect(result).toBe(transactionReceipt);
+    });
+  });
+
+  describe("listTokenBalances", () => {
+    const token1 = { network: "base-sepolia", contractAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" };
+    const token2 = { network: "base-sepolia", contractAddress: "0x081827b8c3aa05287b5aa2bc3051fbe638f33152" };
+    const token3 = { network: "base-sepolia", contractAddress: "0x061e3de6eae18bf86fccd22064e6613bc383c1c2" };
+
+    const serverAmount1 = { amount: "1000000000000000000", decimals: 18 };
+    const serverAmount2 = { amount: "2000000000000000000", decimals: 18 };
+    const serverAmount3 = { amount: "3000000000000000000", decimals: 18 };
+
+    const serverTokenBalance1 = { token: token1, amount: serverAmount1 };
+    const serverTokenBalance2 = { token: token2, amount: serverAmount2 };
+    const serverTokenBalance3 = { token: token3, amount: serverAmount3 };
+
+    const serverTokenBalances = [serverTokenBalance1, serverTokenBalance2, serverTokenBalance3];
+    it("should list token balances", async () => {
+      const listEvmTokenBalancesMock = CdpOpenApiClient.listEvmTokenBalances as MockedFunction<
+        typeof CdpOpenApiClient.listEvmTokenBalances
+      >;
+      listEvmTokenBalancesMock.mockResolvedValue({
+        balances: serverTokenBalances,
+      });
+
+      const toEvmServerAccountMock = toEvmServerAccount as MockedFunction<
+        typeof toEvmServerAccount
+      >;
+      toEvmServerAccountMock
+        .mockReturnValueOnce(serverAccounts[0])
+        .mockReturnValueOnce(serverAccounts[1]);
+
+      const result = await client.listAccounts(listOptions);
+
+      expect(CdpOpenApiClient.listEvmAccounts).toHaveBeenCalledWith({
+        pageSize: undefined,
+        pageToken: undefined,
+      });
+      expect(toEvmServerAccount).toHaveBeenCalledTimes(2);
+      expect(result).toEqual({
+        accounts: serverAccounts,
+        nextPageToken: undefined,
+      });
     });
   });
 });
