@@ -2,6 +2,7 @@ import type {
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
+  SupportedEvmNetwork,
 } from "../../openapi-client";
 import {
   EvmAccount as Account,
@@ -309,7 +310,7 @@ export interface ListTokenBalancesOptions {
   /** The address of the account. */
   address: Hex;
   /** The network. */
-  network: "base-sepolia" | "base"
+  network: SupportedEvmNetwork;
   /** The page size to paginate through the token balances. */
   pageSize?: number;
   /** The page token to paginate through the token balances. */
@@ -326,7 +327,7 @@ export interface EvmToken {
    */
   contractAddress: Hex;
   /** The network the token is on. */
-  network: "base-sepolia" | "base";
+  network: SupportedEvmNetwork;
   /** The symbol of the token, which is optional and non-unique (e.g. "ETH" for Ether). */
   symbol?: string;
   /** The name of the token, which is optional and non-unique (e.g. "Ether" for Ether). */
@@ -358,7 +359,7 @@ export interface EvmTokenBalance {
  */
 export interface ListTokenBalancesResult {
   /** The token balances. */
-  tokenBalances: EvmTokenBalance[];
+  balances: EvmTokenBalance[];
   /**
    * The next page token to paginate through the token balances.
    * If undefined, there are no more token balances to paginate through.

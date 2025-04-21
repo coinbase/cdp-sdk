@@ -650,7 +650,7 @@ export class EvmClient implements EvmClientInterface {
       },
     );
 
-    const tokenBalances = response.balances.map(balance => {
+    const balances = response.balances.map(balance => {
       return {
         token: {
           network: balance.token.network,
@@ -664,7 +664,7 @@ export class EvmClient implements EvmClientInterface {
     });
 
     return {
-      tokenBalances,
+      balances,
       nextPageToken: response.nextPageToken,
     } as ListTokenBalancesResult;
   }

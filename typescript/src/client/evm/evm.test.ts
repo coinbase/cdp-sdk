@@ -11,7 +11,7 @@ import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount";
 import { sendUserOperation } from "../../actions/evm/sendUserOperation";
 import { waitForUserOperation } from "../../actions/evm/waitForUserOperation";
 import type { EvmAccount, EvmServerAccount, EvmSmartAccount } from "../../accounts/types";
-import type { EvmUserOperationNetwork } from "../../openapi-client";
+import type { EvmUserOperationNetwork, SupportedEvmNetwork } from "../../openapi-client";
 import type { WaitOptions } from "../../utils/wait";
 import { Address, Hex } from "../../types/misc";
 
@@ -606,19 +606,29 @@ describe("EvmClient", () => {
   });
 
   describe("listTokenBalances", () => {
-    const token1 = { network: "base-sepolia", contractAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" };
-    const token2 = { network: "base-sepolia", contractAddress: "0x081827b8c3aa05287b5aa2bc3051fbe638f33152" };
-    const token3 = { network: "base-sepolia", contractAddress: "0x061e3de6eae18bf86fccd22064e6613bc383c1c2" };
+    const token1 = { network: "base-sepolia" as SupportedEvmNetwork, contractAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" };
+    const token2 = { network: "base-sepolia" as SupportedEvmNetwork, contractAddress: "0x081827b8c3aa05287b5aa2bc3051fbe638f33152" };
+    const token3 = { network: "base-sepolia" as SupportedEvmNetwork, contractAddress: "0x061e3de6eae18bf86fccd22064e6613bc383c1c2" };
 
     const serverAmount1 = { amount: "1000000000000000000", decimals: 18 };
     const serverAmount2 = { amount: "2000000000000000000", decimals: 18 };
     const serverAmount3 = { amount: "3000000000000000000", decimals: 18 };
 
+    const clientAmount1 = { amount: BigInt(1000000000000000000), decimals: BigInt(18) };
+    const clientAmount2 = { amount: BigInt(2000000000000000000), decimals: BigInt(18) };
+    const clientAmount3 = { amount: BigInt(3000000000000000000), decimals: BigInt(18) };
+
     const serverTokenBalance1 = { token: token1, amount: serverAmount1 };
     const serverTokenBalance2 = { token: token2, amount: serverAmount2 };
     const serverTokenBalance3 = { token: token3, amount: serverAmount3 };
 
+    const clientTokenBalance1 = { token: token1, amount: clientAmount1 };
+    const clientTokenBalance2 = { token: token2, amount: clientAmount2 };
+    const clientTokenBalance3 = { token: token3, amount: clientAmount3 };
+
     const serverTokenBalances = [serverTokenBalance1, serverTokenBalance2, serverTokenBalance3];
+    const clientTokenBalances = [clientTokenBalance1, clientTokenBalance2, clientTokenBalance3];
+
     it("should list token balances", async () => {
       const listEvmTokenBalancesMock = CdpOpenApiClient.listEvmTokenBalances as MockedFunction<
         typeof CdpOpenApiClient.listEvmTokenBalances
@@ -627,22 +637,21 @@ describe("EvmClient", () => {
         balances: serverTokenBalances,
       });
 
-      const toEvmServerAccountMock = toEvmServerAccount as MockedFunction<
-        typeof toEvmServerAccount
-      >;
-      toEvmServerAccountMock
-        .mockReturnValueOnce(serverAccounts[0])
-        .mockReturnValueOnce(serverAccounts[1]);
-
-      const result = await client.listAccounts(listOptions);
-
-      expect(CdpOpenApiClient.listEvmAccounts).toHaveBeenCalledWith({
-        pageSize: undefined,
-        pageToken: undefined,
+      const result = await client.listTokenBalances({
+        address: "0xa12539f14e2fc01c4f9360deb0745528b3946048",
+        network: "base-sepolia",
       });
-      expect(toEvmServerAccount).toHaveBeenCalledTimes(2);
+
+      expect(CdpOpenApiClient.listEvmTokenBalances).toHaveBeenCalledWith(
+        "base-sepolia",
+        "0xa12539f14e2fc01c4f9360deb0745528b3946048",
+        {
+          pageSize: undefined,
+          pageToken: undefined,
+        },
+      );
       expect(result).toEqual({
-        accounts: serverAccounts,
+        balances: clientTokenBalances,
         nextPageToken: undefined,
       });
     });
