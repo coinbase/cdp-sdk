@@ -24,9 +24,9 @@ export type EvmClientInterface = Omit<
   | "getEvmAccountByName" // mapped to getAccount
   | "getEvmSmartAccount" // mapped to getSmartAccount
   | "getUserOperation"
-  | "listEVMBalances" // omit
   | "listEvmAccounts" // mapped to listAccounts
   | "listEvmSmartAccounts" // mapped to listSmartAccounts
+  | "listEvmTokenBalances" // mapped to listTokenBalances
   | "prepareUserOperation"
   | "requestEvmFaucet" // mapped to requestFaucet
   | "sendUserOperation"
@@ -41,6 +41,7 @@ export type EvmClientInterface = Omit<
   getUserOperation: (options: GetUserOperationOptions) => Promise<UserOperation>;
   listAccounts: (options: ListServerAccountsOptions) => Promise<ListServerAccountResult>;
   listSmartAccounts: (options: ListSmartAccountsOptions) => Promise<ListSmartAccountResult>;
+  listTokenBalances: (options: ListTokenBalancesOptions) => Promise<ListTokenBalancesResult>;
   prepareUserOperation: (options: PrepareUserOperationOptions) => Promise<UserOperation>;
   requestFaucet: (options: RequestFaucetOptions) => Promise<RequestFaucetResult>;
   sendUserOperation: (options: SendUserOperationOptions) => Promise<SendUserOperationReturnType>;
@@ -300,3 +301,70 @@ export interface WaitForUserOperationOptions {
   /** The wait options. */
   waitOptions?: WaitOptions;
 }
+
+/**
+ * Options for listing EVM token balances.
+ */
+export interface ListTokenBalancesOptions {
+  /** The address of the account. */
+  address: Hex;
+  /** The network. */
+  network: "base-sepolia" | "base"
+  /** The page size to paginate through the token balances. */
+  pageSize?: number;
+  /** The page token to paginate through the token balances. */
+  pageToken?: string;
+}
+
+/**
+ * A token on an EVM network, which is either an ERC-20 or a native token (i.e. ETH).
+ */ 
+export interface EvmToken {
+  /**
+   * The contract address of the token. For Ether, the contract address is 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE
+   * per EIP-7528. For ERC-20 tokens, this is the contract address where the token is deployed.
+   */
+  contractAddress: Hex;
+  /** The network the token is on. */
+  network: "base-sepolia" | "base";
+  /** The symbol of the token, which is optional and non-unique (e.g. "ETH" for Ether). */
+  symbol?: string;
+  /** The name of the token, which is optional and non-unique (e.g. "Ether" for Ether). */
+  name?: string;
+}
+
+/**
+ * A token amount on an EVM network.
+ */
+export interface EvmTokenAmount {
+  /** The amount of the token in the smallest indivisible unit of the token. */
+  amount: bigint;
+  /** The number of decimals in the token. */
+  decimals: bigint;
+}
+
+/**
+ * An EVM token balance.
+ */
+export interface EvmTokenBalance {
+  /** The token. */
+  token: EvmToken;
+  /** The amount of the token. */
+  amount: EvmTokenAmount;
+}
+
+/**
+ * The result of listing EVM token balances.
+ */
+export interface ListTokenBalancesResult {
+  /** The token balances. */
+  tokenBalances: EvmTokenBalance[];
+  /**
+   * The next page token to paginate through the token balances.
+   * If undefined, there are no more token balances to paginate through.
+   */
+  nextPageToken?: string;
+}
+
+
+
