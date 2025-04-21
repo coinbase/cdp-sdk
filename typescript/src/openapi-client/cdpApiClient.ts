@@ -1,9 +1,9 @@
 // eslint-disable-next-line import/no-named-as-default
 import Axios, { AxiosInstance, AxiosRequestConfig, HttpStatusCode } from "axios";
 
-import { APIError, isOpenAPIError, HttpErrorType } from "./errors";
-import { withAuth } from "../auth/hooks/axios";
-import { ERROR_DOCS_PAGE_URL } from "../constants";
+import { APIError, isOpenAPIError, HttpErrorType } from "./errors.js";
+import { withAuth } from "../auth/hooks/axios/index.js";
+import { ERROR_DOCS_PAGE_URL } from "../constants.js";
 
 /**
  * The options for the CDP API.

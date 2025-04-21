@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CdpClient } from "./cdp";
-import { CdpOpenApiClient } from "../openapi-client";
-import { version } from "../../package.json";
-import { EvmClient } from "./evm";
-import { SolanaClient } from "./solana";
+import { CdpClient } from "./cdp.js";
+import { CdpOpenApiClient } from "../openapi-client/index.js";
+import { version } from "../version.js";
+import { EvmClient } from "./evm/evm.js";
+import { SolanaClient } from "./solana/solana.js";
 
 vi.mock("../openapi-client", () => {
   return {
@@ -12,10 +12,6 @@ vi.mock("../openapi-client", () => {
     },
   };
 });
-
-vi.mock("../package.json", () => ({
-  version: "1.0.0",
-}));
 
 describe("CdpClient", () => {
   const options = {

@@ -1,7 +1,7 @@
-import { EvmSmartAccount as EvmSmartAccountModel } from "../../openapi-client";
-import { EvmAccount, EvmSmartAccount } from "../types";
+import { EvmSmartAccount as EvmSmartAccountModel } from "../../openapi-client/index.js";
+import { EvmAccount, EvmSmartAccount } from "../types.js";
 
-import type { Address } from "../../types/misc";
+import type { Address } from "../../types/misc.js";
 
 /**
  * Options for converting a pre-existing EvmSmartAccount and owner to a EvmSmartAccount

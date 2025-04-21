@@ -6,6 +6,7 @@ export default defineConfig({
       target: "../openapi.yaml",
     },
     output: {
+      clean: true,
       target: "./generated",
       mode: "tags-split",
       mock: {
@@ -18,12 +19,13 @@ export default defineConfig({
         mutator: {
           path: "./cdpApiClient.ts",
           name: "cdpApiClient",
+          extension: ".js",
         },
       },
       workspace: "./src/openapi-client",
     },
     hooks: {
-      afterAllFilesWrite: "prettier --write",
+      afterAllFilesWrite: 'prettier -c .prettierrc --write "**/*.{ts,js,cjs,json,md}"',
     },
   },
 });

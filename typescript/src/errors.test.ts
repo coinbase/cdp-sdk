@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { TimeoutError } from "./errors";
+import { TimeoutError } from "./errors.js";
 
 describe("TimeoutError", () => {
   it("should create an error with default message", () => {

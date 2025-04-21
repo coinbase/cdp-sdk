@@ -1,18 +1,18 @@
-import {
+import { SendUserOperationReturnType } from "../../actions/evm/sendUserOperation.js";
+import { Call, Calls } from "../../types/calls.js";
+import { Address, Hex } from "../../types/misc.js";
+import { WaitOptions } from "../../utils/wait.js";
+
+import type {
   EvmAccount as Account,
   EvmServerAccount as ServerAccount,
   EvmSmartAccount as SmartAccount,
-} from "../../accounts/types";
-import { SendUserOperationReturnType } from "../../actions/evm/sendUserOperation";
-import { Call, Calls } from "../../types/calls";
-import { Address, Hex } from "../../types/misc";
-import { WaitOptions } from "../../utils/wait";
-
+} from "../../accounts/types.js";
 import type {
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
-} from "../../openapi-client";
+} from "../../openapi-client/index.js";
 
 /**
  * The EvmClient type, where all OpenApiEvmMethods methods are wrapped.

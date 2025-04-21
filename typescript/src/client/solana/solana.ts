@@ -9,8 +9,8 @@ import {
   SignatureResult,
   SignMessageOptions,
   SignTransactionOptions,
-} from "./solana.types";
-import { CdpOpenApiClient } from "../../openapi-client";
+} from "./solana.types.js";
+import { CdpOpenApiClient } from "../../openapi-client/index.js";
 
 /**
  * The namespace containing all Solana methods.

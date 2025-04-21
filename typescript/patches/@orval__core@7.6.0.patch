@@ -1,0 +1,22 @@
+diff --git a/dist/index.js b/dist/index.js
+index 33ba2243e40324b31761ace9acb19723775151c4..fd7db963918280a2331a91512ad4f24e0f34814a 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -51405,7 +51405,7 @@ var generateDependency = ({
+   }
+   importString += `import ${onlyTypes ? "type " : ""}${defaultDep ? `${defaultDep.name}${depsString ? "," : ""}` : ""}${depsString ? `{
+   ${depsString}
+-}` : ""} from '${dependency}${key !== "default" && specsName[key] ? `/${specsName[key]}` : ""}';`;
++}` : ""} from '${dependency}${key !== "default" && specsName[key] ? `/${specsName[key]}` : ""}${dependency.includes('coinbaseDeveloperPlatformAPIs.schemas') ? '.js' : ''}';`;
+   return importString;
+ };
+ var addDependency = ({
+@@ -53088,7 +53088,7 @@ ${implementationMock}`;
+               tag,
+               tag + "." + getMockFileExtensionByTypeName(output.mock)
+             );
+-            import_fs_extra5.default.appendFile(indexFilePath, `export * from '${localMockPath}'
++            import_fs_extra5.default.appendFile(indexFilePath, `export * from '${localMockPath}.js'
+ `);
+           }
+         }

@@ -1,0 +1,45 @@
+{
+  "name": "@coinbase/cdp-sdk",
+  "version": "1.1.2",
+  "description": "SDK for interacting with the Coinbase Developer Platform Wallet API",
+  "type": "module",
+  "main": "./_cjs/index.js",
+  "module": "./_esm/index.js",
+  "types": "./_types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./_types/index.d.ts",
+      "import": "./_esm/index.js",
+      "default": "./_cjs/index.js"
+    },
+    "./auth": {
+      "types": "./_types/auth/index.d.ts",
+      "import": "./_esm/auth/index.js",
+      "default": "./_cjs/auth/index.js"
+    }
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.98.0",
+    "abitype": "1.0.6",
+    "axios": "^1.8.2",
+    "jose": "^6.0.8",
+    "md5": "^2.3.0",
+    "viem": "^2.21.26"
+  },
+  "author": "Coinbase Inc.",
+  "repository": "https://github.com/coinbase/cdp-sdk",
+  "license": "MIT",
+  "files": [
+    "*",
+    "!**/*.test.ts",
+    "!examples"
+  ],
+  "keywords": [
+    "coinbase",
+    "coinbase developer platform",
+    "coinbase sdk",
+    "cdp sdk",
+    "sdk",
+    "api"
+  ]
+}

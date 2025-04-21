@@ -15,7 +15,7 @@ import type {
   SignEvmHash200,
   SignEvmMessage200,
   SignEvmTransaction200,
-} from "../coinbaseDeveloperPlatformAPIs.schemas";
+} from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 export const getListEvmAccountsResponseMock = (): ListEvmAccounts200 => ({
   ...{

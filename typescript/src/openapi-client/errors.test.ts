@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { APIError, HttpErrorType, isOpenAPIError } from "./errors";
+import { APIError, HttpErrorType, isOpenAPIError } from "./errors.js";
 import {
   Error as OpenAPIError,
   ErrorType as OpenAPIErrorType,
-} from "./generated/coinbaseDeveloperPlatformAPIs.schemas";
+} from "./generated/coinbaseDeveloperPlatformAPIs.schemas.js";
 
 describe("Errors", () => {
   describe("APIError", () => {

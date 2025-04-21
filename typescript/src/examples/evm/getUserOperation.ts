@@ -4,7 +4,7 @@ import { config } from "dotenv";
 import { parseEther } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 
-import { CdpClient } from "../../index";
+import { CdpClient } from "../../index.js";
 
 /**
  * This example shows how to prepare a user operation

@@ -5,7 +5,7 @@ import { createWalletClient, http, createPublicClient, parseEther } from "viem";
 import { toAccount } from "viem/accounts";
 import { baseSepolia } from "viem/chains";
 
-import { CdpClient } from "../../index";
+import { CdpClient } from "../../index.js";
 
 /**
  * This script will:

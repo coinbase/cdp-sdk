@@ -1,5 +1,5 @@
-import { generateWalletJwt, generateJwt } from "./jwt";
-import { version } from "../../../package.json";
+import { generateWalletJwt, generateJwt } from "./jwt.js";
+import { version } from "../../version.js";
 
 /**
  * Options for generating authentication headers for API requests.

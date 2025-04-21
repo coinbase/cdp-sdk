@@ -1,6 +1,6 @@
 import { AxiosInstance, AxiosHeaders } from "axios";
 
-import { getAuthHeaders } from "../../utils/http";
+import { getAuthHeaders } from "../../utils/http.js";
 
 export interface AuthInterceptorOptions {
   /**

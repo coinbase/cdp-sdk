@@ -10,7 +10,7 @@ import {
 } from "@solana/web3.js";
 import { config } from "dotenv";
 
-import { CdpClient } from "../../client/cdp";
+import { CdpClient } from "../../client/cdp.js";
 
 /**
  * This example shows how to sign a message using a Solana wallet

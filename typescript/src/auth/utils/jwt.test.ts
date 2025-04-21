@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { generateJwt, JwtOptions, WalletJwtOptions, generateWalletJwt } from "./jwt";
 import crypto from "crypto";
-import { InvalidWalletSecretFormatError, UndefinedWalletSecretError } from "../errors";
+import { InvalidWalletSecretFormatError, UndefinedWalletSecretError } from "../errors.js";
+import { generateJwt, JwtOptions, WalletJwtOptions, generateWalletJwt } from "./jwt.js";
 
 describe("JWT Authentication", () => {
   // Generate EC256 key pair for testing

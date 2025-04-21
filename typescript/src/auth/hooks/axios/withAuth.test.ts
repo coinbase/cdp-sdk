@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from "vitest";
-import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosHeaders } from "axios";
-import { withAuth } from "./withAuth";
-import { generateWalletJwt, generateJwt } from "../../utils/jwt";
-import { version } from "../../../../package.json";
+import axios, { AxiosInstance, AxiosHeaders } from "axios";
+import { withAuth } from "./withAuth.js";
+import { generateWalletJwt, generateJwt } from "../../utils/jwt.js";
+import pkgJson from "../../../package.json" with { type: "json" };
+
+const version = pkgJson.version;
 
 // Mock the imported modules
 vi.mock("../../utils/jwt");

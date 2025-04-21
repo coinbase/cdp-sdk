@@ -1,8 +1,8 @@
 import md5 from "md5";
 
-import { CdpClient } from "./client/cdp";
-import { EvmClient } from "./client/evm";
-import { SolanaClient } from "./client/solana";
+import { CdpClient } from "./client/cdp.js";
+import { EvmClient } from "./client/evm/evm.js";
+import { SolanaClient } from "./client/solana/solana.js";
 
 /**
  * The data in an error event

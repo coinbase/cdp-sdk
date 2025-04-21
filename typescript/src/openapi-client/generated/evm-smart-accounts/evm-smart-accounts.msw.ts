@@ -13,7 +13,7 @@ import type {
   EvmSmartAccount,
   EvmUserOperation,
   ListEvmSmartAccounts200,
-} from "../coinbaseDeveloperPlatformAPIs.schemas";
+} from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 export const getListEvmSmartAccountsResponseMock = (): ListEvmSmartAccounts200 => ({
   ...{

@@ -16,9 +16,9 @@ import type {
   SignEvmMessageBody,
   SignEvmTransaction200,
   SignEvmTransactionBody,
-} from "../coinbaseDeveloperPlatformAPIs.schemas";
+} from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
-import { cdpApiClient } from "../../cdpApiClient";
+import { cdpApiClient } from "../../cdpApiClient.js";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 

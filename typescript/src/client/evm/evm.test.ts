@@ -15,7 +15,7 @@ import type { EvmUserOperationNetwork } from "../../openapi-client";
 import type { WaitOptions } from "../../utils/wait";
 import { Address, Hex } from "../../types/misc";
 
-import { EvmClient } from "./evm";
+import { EvmClient } from "./evm.js";
 import {
   CreateServerAccountOptions,
   GetServerAccountOptions,
@@ -25,7 +25,7 @@ import {
   UserOperation,
   WaitForUserOperationOptions,
   EvmCall,
-} from "./evm.types";
+} from "./evm.types.js";
 
 vi.mock("../../openapi-client", () => {
   return {

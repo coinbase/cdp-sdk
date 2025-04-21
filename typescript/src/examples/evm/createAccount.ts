@@ -2,7 +2,7 @@
 
 import { config } from "dotenv";
 
-import { CdpClient } from "../../index";
+import { CdpClient } from "../../index.js";
 
 /**
  * This example shows how to create a new EVM account

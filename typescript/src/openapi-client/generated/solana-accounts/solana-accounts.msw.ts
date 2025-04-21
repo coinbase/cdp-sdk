@@ -14,7 +14,7 @@ import type {
   SignSolanaMessage200,
   SignSolanaTransaction200,
   SolanaAccount,
-} from "../coinbaseDeveloperPlatformAPIs.schemas";
+} from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 export const getListSolanaAccountsResponseMock = (): ListSolanaAccounts200 => ({
   ...{

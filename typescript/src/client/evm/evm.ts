@@ -23,19 +23,19 @@ import {
   GetUserOperationOptions,
   ListSmartAccountResult,
   ListSmartAccountsOptions,
-} from "./evm.types";
-import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount";
-import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount";
+} from "./evm.types.js";
+import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
+import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
 import {
   sendUserOperation,
   SendUserOperationReturnType,
-} from "../../actions/evm/sendUserOperation";
+} from "../../actions/evm/sendUserOperation.js";
 import {
   waitForUserOperation,
   WaitForUserOperationReturnType,
-} from "../../actions/evm/waitForUserOperation";
-import { CdpOpenApiClient } from "../../openapi-client";
-import { Hex } from "../../types/misc";
+} from "../../actions/evm/waitForUserOperation.js";
+import { CdpOpenApiClient } from "../../openapi-client/index.js";
+import { Hex } from "../../types/misc.js";
 
 /**
  * The namespace containing all EVM methods.

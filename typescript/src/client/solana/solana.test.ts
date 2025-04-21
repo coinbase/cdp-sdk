@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, MockedFunction } from "vitest";
 
-import { CdpOpenApiClient } from "../../openapi-client";
+import { CdpOpenApiClient } from "../../openapi-client/index.js";
 
-import { SolanaClient } from "./solana";
+import { SolanaClient } from "./solana.js";
 
-vi.mock("../../openapi-client", () => {
+vi.mock("../../openapi-client/index.js", () => {
   return {
     CdpOpenApiClient: {
       createSolanaAccount: vi.fn(),

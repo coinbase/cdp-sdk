@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { sendEvent } from "./analytics";
+import { sendEvent } from "./analytics.js";
 
 describe("sendEvent", () => {
   it("should use the actual implementation", async () => {

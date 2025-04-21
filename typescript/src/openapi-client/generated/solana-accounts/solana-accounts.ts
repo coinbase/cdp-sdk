@@ -14,9 +14,9 @@ import type {
   SignSolanaTransaction200,
   SignSolanaTransactionBody,
   SolanaAccount,
-} from "../coinbaseDeveloperPlatformAPIs.schemas";
+} from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
-import { cdpApiClient } from "../../cdpApiClient";
+import { cdpApiClient } from "../../cdpApiClient.js";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 

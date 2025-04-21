@@ -1,49 +1,27 @@
 {
-  "name": "@coinbase/cdp-sdk",
-  "version": "1.1.2",
-  "description": "CDP SDK",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "repository": "https://github.com/coinbase/cdp-sdk",
+  "private": true,
+  "packageManager": "pnpm@10.5.2",
+  "type": "module",
   "scripts": {
+    "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
+    "build:cjs": "tsc --project ./tsconfig.cjs.json && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json",
+    "build:esm": "tsc --project ./tsconfig.esm.json && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
+    "build:types": "tsc --project ./tsconfig.types.json",
     "changeset": "changeset",
     "changeset:version": "changeset version",
-    "lint": "eslint -c .eslintrc.json \"src/**/*.ts\"",
-    "lint:fix": "eslint -c .eslintrc.json \"src/**/*.ts\" --fix",
+    "clean": "rm -rf src/_esm src/_cjs src/_types",
+    "docs": "typedoc --entryPoints ./src --entryPointStrategy expand --exclude ./src/tests/**/*.ts",
     "format": "prettier -c .prettierrc --write \"**/*.{ts,js,cjs,json,md}\"",
     "format:check": "prettier -c .prettierrc --check \"**/*.{ts,js,cjs,json,md}\"",
+    "lint": "eslint -c .eslintrc.json \"src/**/*.ts\"",
+    "lint:fix": "eslint -c .eslintrc.json \"src/**/*.ts\" --fix",
+    "orval": "make -C .. check-openapi || echo \" NOTE: THERE IS A NEW OPENAPI FILE AVAILABLE. RUN 'make update-openapi' IN THE ROOT DIRECTORY TO UPDATE IT.\"; orval --config orval.config.ts",
+    "prepublish": "pnpm tsx scripts/prepublish.ts",
     "test": "vitest --config=./vitest.config.ts run",
-    "test:watch": "vitest --config=./vitest.config.ts",
     "test:coverage": "vitest --config=./vitest.config.ts run --coverage",
     "test:e2e": "pnpm build && vitest --config=./vitest.e2e.config.ts run",
     "test:e2e:watch": "vitest --config=./vitest.e2e.config.ts",
-    "clean": "rm -rf dist/*",
-    "build": "tsc",
-    "prepack": "tsc --skipLibCheck",
-    "docs": "typedoc --entryPoints ./src --entryPointStrategy expand --exclude ./src/tests/**/*.ts",
-    "orval": "make -C .. check-openapi || echo \" NOTE: THERE IS A NEW OPENAPI FILE AVAILABLE. RUN 'make update-openapi' IN THE ROOT DIRECTORY TO UPDATE IT.\"; orval --config orval.config.ts"
-  },
-  "files": [
-    "dist"
-  ],
-  "keywords": [
-    "coinbase",
-    "coinbase developer platform",
-    "coinbase sdk",
-    "cdp sdk",
-    "sdk",
-    "api"
-  ],
-  "author": "Coinbase Inc.",
-  "license": "MIT",
-  "packageManager": "pnpm@10.5.2",
-  "dependencies": {
-    "@solana/web3.js": "^1.98.0",
-    "abitype": "1.0.6",
-    "axios": "^1.8.2",
-    "jose": "^6.0.8",
-    "md5": "^2.3.0",
-    "viem": "^2.21.26"
+    "test:watch": "vitest --config=./vitest.config.ts"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.1",
@@ -71,14 +49,9 @@
     "uuid": "^11.1.0",
     "vitest": "^1.4.0"
   },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./auth": {
-      "types": "./dist/auth/index.d.ts",
-      "default": "./dist/auth/index.js"
+  "pnpm": {
+    "patchedDependencies": {
+      "@orval/core@7.6.0": "patches/@orval__core@7.6.0.patch"
     }
   }
 }

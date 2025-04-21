@@ -4,11 +4,11 @@ import {
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   CdpOpenApiClientType,
-} from "../../openapi-client";
+} from "../../openapi-client/index.js";
 
-import type { EvmSmartAccount } from "../../accounts/types";
-import type { Calls } from "../../types/calls";
-import type { Address, Hex } from "../../types/misc";
+import type { EvmSmartAccount } from "../../accounts/types.js";
+import type { Calls } from "../../types/calls.js";
+import type { Address, Hex } from "../../types/misc.js";
 
 /**
  * Options for sending a user operation.

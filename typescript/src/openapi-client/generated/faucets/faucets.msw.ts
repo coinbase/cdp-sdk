@@ -12,7 +12,7 @@ import { HttpResponse, delay, http } from "msw";
 import type {
   RequestEvmFaucet200,
   RequestSolanaFaucet200,
-} from "../coinbaseDeveloperPlatformAPIs.schemas";
+} from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 export const getRequestEvmFaucetResponseMock = (
   overrideResponse: Partial<RequestEvmFaucet200> = {},

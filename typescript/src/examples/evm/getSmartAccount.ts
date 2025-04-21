@@ -3,7 +3,7 @@
 import { config } from "dotenv";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 
-import { CdpClient } from "../../index";
+import { CdpClient } from "../../index.js";
 
 /**
  * This example shows how to get an EVM smart account

@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import Axios, { AxiosError, AxiosInstance, HttpStatusCode } from "axios";
-import { configure, cdpApiClient, CdpOptions } from "./cdpApiClient"; // Adjust import path as needed
-import { APIError, HttpErrorType } from "./errors";
-import { withAuth } from "../auth/hooks/axios";
-import { ErrorType } from "./generated/coinbaseDeveloperPlatformAPIs.schemas";
+import Axios, { AxiosInstance } from "axios";
+import { configure, cdpApiClient, CdpOptions } from "./cdpApiClient.js"; // Adjust import path as needed
+import { HttpErrorType } from "./errors.js";
+import { withAuth } from "../auth/hooks/axios/index.js";
+import { ErrorType } from "./generated/coinbaseDeveloperPlatformAPIs.schemas.js";
 
 vi.mock("axios");
 vi.mock("../auth/hooks/axios");

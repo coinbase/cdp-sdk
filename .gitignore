@@ -53,6 +53,9 @@ out/
 *.pem
 .vercel
 .turbo
+_cjs
+_esm
+_types
 
 # TypeScript
 *.tsbuildinfo

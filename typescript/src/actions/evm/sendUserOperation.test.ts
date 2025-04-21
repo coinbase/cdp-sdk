@@ -1,9 +1,9 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { sendUserOperation } from "./sendUserOperation";
+import { sendUserOperation } from "./sendUserOperation.js";
 import { encodeFunctionData } from "viem";
-import { EvmUserOperationStatus, CdpOpenApiClientType } from "../../openapi-client";
+import { EvmUserOperationStatus, CdpOpenApiClientType } from "../../openapi-client/index.js";
 import { parseEther } from "viem";
-import { EvmSmartAccount } from "../../accounts/types";
+import { EvmSmartAccount } from "../../accounts/types.js";
 
 vi.mock("viem", () => ({
   encodeFunctionData: vi.fn().mockReturnValue("0xmockedEncodedData"),

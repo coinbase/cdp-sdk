@@ -1,7 +1,7 @@
 import {
   Error as OpenAPIError,
   ErrorType as OpenAPIErrorType,
-} from "./generated/coinbaseDeveloperPlatformAPIs.schemas";
+} from "./generated/coinbaseDeveloperPlatformAPIs.schemas.js";
 
 export const HttpErrorType = {
   unexpected_error: "unexpected_error",

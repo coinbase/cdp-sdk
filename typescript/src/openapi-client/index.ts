@@ -1,14 +1,14 @@
-export * from "./generated/coinbaseDeveloperPlatformAPIs.schemas";
-export * from "./generated/evm-accounts/evm-accounts";
-export * from "./generated/evm-smart-accounts/evm-smart-accounts";
-export * from "./generated/solana-accounts/solana-accounts";
-export * from "./generated/faucets/faucets";
+export * from "./generated/coinbaseDeveloperPlatformAPIs.schemas.js";
+export * from "./generated/evm-accounts/evm-accounts.js";
+export * from "./generated/evm-smart-accounts/evm-smart-accounts.js";
+export * from "./generated/solana-accounts/solana-accounts.js";
+export * from "./generated/faucets/faucets.js";
 
-import { configure } from "./cdpApiClient";
-import * as evm from "./generated/evm-accounts/evm-accounts";
-import * as evmSmartAccounts from "./generated/evm-smart-accounts/evm-smart-accounts";
-import * as faucets from "./generated/faucets/faucets";
-import * as solana from "./generated/solana-accounts/solana-accounts";
+import { configure } from "./cdpApiClient.js";
+import * as evm from "./generated/evm-accounts/evm-accounts.js";
+import * as evmSmartAccounts from "./generated/evm-smart-accounts/evm-smart-accounts.js";
+import * as faucets from "./generated/faucets/faucets.js";
+import * as solana from "./generated/solana-accounts/solana-accounts.js";
 
 export const CdpOpenApiClient = {
   ...evm,

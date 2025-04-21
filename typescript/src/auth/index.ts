@@ -1,5 +1,5 @@
-import * as axiosHooks from "./hooks/axios";
+import * as axiosHooks from "./hooks/axios/index.js";
 
-export * from "./utils/http";
-export * from "./utils/jwt";
+export * from "./utils/http.js";
+export * from "./utils/jwt.js";
 export { axiosHooks };

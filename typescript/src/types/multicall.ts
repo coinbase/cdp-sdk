@@ -3,7 +3,7 @@ import type {
   ContractFunctionArgs,
   ContractFunctionName,
   ContractFunctionParameters,
-} from "./contract";
+} from "./contract.js";
 import type { Abi, AbiStateMutability } from "abitype";
 
 // infer contract parameters from `unknown`

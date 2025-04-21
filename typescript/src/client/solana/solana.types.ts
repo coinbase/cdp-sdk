@@ -1,4 +1,7 @@
-import { OpenApiSolanaMethods, SolanaAccount as OpenAPISolanaAccount } from "../../openapi-client";
+import {
+  OpenApiSolanaMethods,
+  SolanaAccount as OpenAPISolanaAccount,
+} from "../../openapi-client/index.js";
 /**
  * The SolanaClient type, where all OpenApiSolanaMethods methods are wrapped.
  */

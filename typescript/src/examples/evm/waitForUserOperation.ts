@@ -3,7 +3,7 @@
 import { config } from "dotenv";
 import { parseEther } from "viem";
 
-import { CdpClient } from "../../index";
+import { CdpClient } from "../../index.js";
 
 /**
  * This example shows how to create a new EVM server account, create a smart account,

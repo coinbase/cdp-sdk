@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { toEvmSmartAccount } from "./toEvmSmartAccount";
-import { EvmAccount } from "../types";
-import { Address } from "../../types/misc";
-import { EvmSmartAccount as EvmSmartAccountModel } from "../../openapi-client";
+import { toEvmSmartAccount } from "./toEvmSmartAccount.js";
+import { EvmAccount } from "../types.js";
+import { Address } from "../../types/misc.js";
+import { EvmSmartAccount as EvmSmartAccountModel } from "../../openapi-client/index.js";
 
 describe("toEvmSmartAccount", () => {
   let mockOwner: EvmAccount;

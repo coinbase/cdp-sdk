@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { serializeTransaction, parseEther, Hex } from "viem";
 import { baseSepolia } from "viem/chains";
-import { CdpClient } from "./client/cdp";
+import { CdpClient } from "./client/cdp.js";
 import dotenv from "dotenv";
 
 dotenv.config();

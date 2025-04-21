@@ -4,7 +4,7 @@ import { config } from "dotenv";
 import { parseEther, serializeTransaction } from "viem";
 import { baseSepolia } from "viem/chains";
 
-import { CdpClient } from "../../index";
+import { CdpClient } from "../../index.js";
 
 /**
  * This example shows how to sign an EVM transaction.
