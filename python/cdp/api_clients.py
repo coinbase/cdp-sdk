@@ -1,6 +1,7 @@
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
+from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
 
@@ -15,6 +16,7 @@ class ApiClients:
         _cdp_client (CdpApiClient): The CDP API client used to initialize individual API clients.
         _ethereum_accounts (Optional[EthereumAccountsApi]): The EthereumAccountsApi client instance.
         _ethereum_smart_accounts (Optional[EthereumSmartAccountsApi]): The EthereumSmartAccountsApi client instance.
+        _evm_token_balances (Optional[EVMTokenBalancesApi]): The EVMTokenBalancesApi client instance.
         _faucets (Optional[FaucetsApi]): The FaucetsApi client instance.
         _solana_accounts (Optional[SolanaAccountsApi]): The SolanaAccountsApi client instance.
     """
@@ -62,6 +64,21 @@ class ApiClients:
         if self._evm_smart_accounts is None:
             self._evm_smart_accounts = EVMSmartAccountsApi(api_client=self._cdp_client)
         return self._evm_smart_accounts
+    
+    @property
+    def evm_token_balances(self) -> EVMTokenBalancesApi:
+        """Get the EVMTokenBalancesApi client instance.
+
+        Returns:
+            EVMTokenBalancesApi: The EVMTokenBalancesApi client instance.
+
+        Note:
+            This property lazily initializes the EVMTokenBalancesApi client on first access.
+
+        """
+        if self._evm_token_balances is None:
+            self._evm_token_balances = EVMTokenBalancesApi(api_client=self._cdp_client)
+        return self._evm_token_balances
 
     @property
     def faucets(self) -> FaucetsApi:

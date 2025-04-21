@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, patch
 
 from cdp.api_clients import ApiClients
 from cdp.evm_client import EvmClient
+from cdp.evm_token_balances import ListTokenBalancesResult, EvmToken, EvmTokenAmount, EvmTokenBalance
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccountRequest
 from cdp.openapi_client.models.create_evm_smart_account_request import (
@@ -516,3 +517,41 @@ async def test_get_user_operation():
     )
 
     assert result == mock_user_operation
+
+@pytest.mark.asyncio
+async def test_list_token_balances(evm_token_balances_model_factory):
+    mock_evm_token_balances_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_token_balances = mock_evm_token_balances_api
+
+    mock_token_balances = evm_token_balances_model_factory()
+
+    mock_evm_token_balances_api.list_evm_token_balances = AsyncMock(
+        return_value=mock_token_balances
+    )
+
+    expected_result = ListTokenBalancesResult(
+        balances=[
+            EvmTokenBalance(
+                token=EvmToken(
+                    contract_address="0x1234567890123456789012345678901234567890",
+                    network="base-sepolia", symbol="TEST", name="Test Token"),
+                amount=EvmTokenAmount(amount=1000000000000000000, decimals=18)),
+        ],
+        next_page_token="next-page-token",
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    test_address = "0x1234567890123456789012345678901234567890"
+    test_network = "base-sepolia"
+
+    result = await client.list_token_balances(
+        address=test_address, network=test_network
+    )
+
+    mock_evm_token_balances_api.list_evm_token_balances.assert_called_once_with(
+        address=test_address, network=test_network, page_size=None, page_token=None
+    )
+
+    assert result == expected_result
