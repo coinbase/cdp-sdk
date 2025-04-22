@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel, Field
 
 from cdp.openapi_client.models.list_evm_token_balances_network import ListEvmTokenBalancesNetwork
