@@ -27,7 +27,7 @@ A single blockchain address cannot exceed the specified limits, even if multiple
 
 | Token | Amount per Faucet Request |Rolling 24-hour window Rate Limits|
 |:-----:|:-------------------------:|:--------------------------------:|
-| ETH   | 0.0001 ETH                | 0.001 ETH                        |
+| ETH   | 0.0001 ETH                | 0.1 ETH                          |
 | USDC  | 1 USDC                    | 10 USDC                          |
 | EURC  | 1 EURC                    | 10 EURC                          |
 | cbBTC | 0.0001 cbBTC              | 0.001 cbBTC                      |
@@ -60,6 +60,7 @@ A single blockchain address cannot exceed the specified limits, even if multiple
 | Token | Amount per Faucet Request |Rolling 24-hour window Rate Limits|
 |:-----:|:-------------------------:|:--------------------------------:|
 | SOL   | 0.00125 SOL               | 0.0125 SOL                       |
+| USDC  | 1 USDC                    | 10 USDC                          |
 
  * @summary Request funds on Solana devnet
  */

@@ -99,6 +99,7 @@ export const getUserOperation = (
 };
 /**
  * Sends a user operation with a signature.
+The signature that is sent should be 65 bytes, consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.
  * @summary Send a user operation
  */
 export const sendUserOperation = (

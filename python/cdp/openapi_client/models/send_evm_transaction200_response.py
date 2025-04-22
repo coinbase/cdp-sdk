@@ -23,12 +23,12 @@ from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendUserOperationRequest(BaseModel):
+class SendEvmTransaction200Response(BaseModel):
     """
-    SendUserOperationRequest
+    SendEvmTransaction200Response
     """ # noqa: E501
-    signature: StrictStr = Field(description="The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.")
-    __properties: ClassVar[List[str]] = ["signature"]
+    transaction_hash: StrictStr = Field(description="The hash of the transaction, as a 0x-prefixed hex string.", alias="transactionHash")
+    __properties: ClassVar[List[str]] = ["transactionHash"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +48,7 @@ class SendUserOperationRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendUserOperationRequest from a JSON string"""
+        """Create an instance of SendEvmTransaction200Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,7 +73,7 @@ class SendUserOperationRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendUserOperationRequest from a dict"""
+        """Create an instance of SendEvmTransaction200Response from a dict"""
         if obj is None:
             return None
 
@@ -81,7 +81,7 @@ class SendUserOperationRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "signature": obj.get("signature")
+            "transactionHash": obj.get("transactionHash")
         })
         return _obj
 

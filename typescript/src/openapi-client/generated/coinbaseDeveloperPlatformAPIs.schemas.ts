@@ -45,6 +45,7 @@ export const ErrorType = {
   request_canceled: "request_canceled",
   timed_out: "timed_out",
   unauthorized: "unauthorized",
+  policy_violation: "policy_violation",
 } as const;
 
 /**
@@ -138,6 +139,64 @@ export interface EvmUserOperation {
   transactionHash?: string;
 }
 
+/**
+ * The name of the supported EVM networks in human-readable format.
+ */
+export type ListEvmTokenBalancesNetwork =
+  (typeof ListEvmTokenBalancesNetwork)[keyof typeof ListEvmTokenBalancesNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ListEvmTokenBalancesNetwork = {
+  base: "base",
+  "base-sepolia": "base-sepolia",
+} as const;
+
+/**
+ * Amount of a given token.
+ */
+export interface TokenAmount {
+  /**
+   * The amount is denominated in the smallest indivisible unit of the token. For ETH, the smallest indivisible unit is Wei (10^-18 ETH). For ERC-20s, the smallest unit is the unit returned from `function totalSupply() public view returns (uint256)`.
+   * @pattern ^[0-9]+$
+   */
+  amount: string;
+  /** 'decimals' is the exponential value N that satisfies the equation `amount * 10^-N = standard_denomination`. The standard denomination is the most commonly used denomination for the token.
+- In the case of the native gas token, `decimals` is defined via convention. As an example, for ETH of Ethereum mainnet, the standard denomination is 10^-18 the smallest denomination (Wei). As such, for ETH on Ethereum mainnet, `decimals` is 18. - In the case of ERC-20 tokens, `decimals` is defined via configuration. `decimals` will be the number returned by `function decimals() public view returns (uint8)` on the underlying token contract.
+Not all tokens have a `decimals` field, as this function is [optional in the ERC-20 specification](https://eips.ethereum.org/EIPS/eip-20#decimals). This field will be left empty if the underlying token contract doesn't implement `decimals`.
+Further, this endpoint will only populate this value for a small subset of whitelisted ERC-20 tokens at this time. We intend to improve coverage in the future. */
+  decimals: number;
+}
+
+/**
+ * General information about a token. Includes the type, the network, and other identifying information.
+ */
+export interface Token {
+  network: ListEvmTokenBalancesNetwork;
+  /** The symbol of this token (ex: SOL, ETH, USDC).
+The token symbol is not unique. It is possible for two different tokens to have the same symbol.
+For native gas tokens, this symbol is defined via convention. As an example, for ETH on Ethereum mainnet, the symbol is "ETH". For ERC-20 tokens, this symbol is defined via configuration. `symbol` will be the string returned by `function symbol() public view returns (string)` on the underlying token contract.
+Not all tokens have a symbol, as this function is [optional in the ERC-20 specification](https://eips.ethereum.org/EIPS/eip-20#symbol). This field will only be populated when the token's underlying ERC-20 contract has a `symbol()` function.
+Further, this endpoint will only populate this value for a small subset of whitelisted ERC-20 tokens at this time. We intend to improve coverage in the future. */
+  symbol?: string;
+  /** The name of this token (ex: "Solana", "Ether", "USD Coin").
+The token name is not unique. It is possible for two different tokens to have the same name.
+For native gas tokens, this name is defined via convention. As an example, for ETH on Ethereum mainnet, the name is "Ether". For ERC-20 tokens, this name is defined via configuration. `name` will be the string returned by `function name() public view returns (string)` on the underlying token contract.
+Not all tokens have a name, as this function is [optional in the ERC-20 specification](https://eips.ethereum.org/EIPS/eip-20#name). This field will only be populated when the token's underlying ERC-20 contract has a `name()` function.
+Further, this endpoint will only populate this value for a small subset of whitelisted ERC-20 tokens at this time. We intend to improve coverage in the future. */
+  name?: string;
+  /**
+   * The contract address of the token.
+For Ether, the contract address is `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` per [EIP-7528](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-7528.md). For ERC-20 tokens, this is the contract address where the token is deployed.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  contractAddress: string;
+}
+
+export interface TokenBalance {
+  amount: TokenAmount;
+  token: Token;
+}
+
 export interface SolanaAccount {
   /**
    * The base58 encoded Solana address.
@@ -170,7 +229,7 @@ export type AlreadyExistsErrorResponse = Error;
 
 /**
  * A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-[Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token)
+[Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token)
 section of our Authentication docs for more details on how to generate your Wallet Token.
 
  */
@@ -212,6 +271,30 @@ Account names must be unique across all EVM accounts in the developer's CDP Proj
   name?: string;
 };
 
+/**
+ * The network to send the transaction to.
+ */
+export type SendEvmTransactionBodyNetwork =
+  (typeof SendEvmTransactionBodyNetwork)[keyof typeof SendEvmTransactionBodyNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendEvmTransactionBodyNetwork = {
+  base: "base",
+  "base-sepolia": "base-sepolia",
+} as const;
+
+export type SendEvmTransactionBody = {
+  /** The network to send the transaction to. */
+  network: SendEvmTransactionBodyNetwork;
+  /** The RLP-encoded transaction to sign and send, as a 0x-prefixed hex string. */
+  transaction: string;
+};
+
+export type SendEvmTransaction200 = {
+  /** The hash of the transaction, as a 0x-prefixed hex string. */
+  transactionHash: string;
+};
+
 export type SignEvmTransactionBody = {
   /** The RLP-encoded transaction to sign, as a 0x-prefixed hex string. */
   transaction: string;
@@ -229,6 +312,35 @@ export type SignEvmHashBody = {
 
 export type SignEvmHash200 = {
   /** The signature of the hash, as a 0x-prefixed hex string. */
+  signature: string;
+};
+
+/**
+ * The network to sign the user operation for.
+ */
+export type SignEvmUserOperationBodyNetwork =
+  (typeof SignEvmUserOperationBodyNetwork)[keyof typeof SignEvmUserOperationBodyNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmUserOperationBodyNetwork = {
+  "base-sepolia": "base-sepolia",
+  base: "base",
+} as const;
+
+export type SignEvmUserOperationBody = {
+  /** The network to sign the user operation for. */
+  network: SignEvmUserOperationBodyNetwork;
+  /**
+   * The address of the Smart Account to sign the user operation for.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  smartAccountAddress: string;
+  /** The hash of the user operation, as a 0x-prefixed hex string. */
+  userOpHash: string;
+};
+
+export type SignEvmUserOperation200 = {
+  /** The signed user operation, as a 0x-prefixed hex string. */
   signature: string;
 };
 
@@ -287,9 +399,27 @@ export type PrepareUserOperationBody = {
 };
 
 export type SendUserOperationBody = {
-  /** The hex-encoded signature of the user operation. */
+  /** The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28. */
   signature: string;
 };
+
+export type ListEvmTokenBalancesParams = {
+  /**
+   * The number of balances to return per page.
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of balances. Will be empty if there are no more balances to fetch.
+   */
+  pageToken?: string;
+};
+
+export type ListEvmTokenBalances200AllOf = {
+  /** The list of EVM token balances. */
+  balances: TokenBalance[];
+};
+
+export type ListEvmTokenBalances200 = ListEvmTokenBalances200AllOf & ListResponse;
 
 /**
  * The network to request funds from.

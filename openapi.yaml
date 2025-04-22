@@ -56,6 +56,17 @@ tags:
       Smart Accounts can be assigned an optional **name** at creation time for easier identification in subsequent API calls.
 
       A Smart Account has a single owner, which is another EVM Account which signs the Smart Account's transactions. The owner can be a CDP EVM account, or an account managed solely by the developer.
+  - name: EVM Token Balances
+    x-audience: public
+    description: |-
+      The EVM Token Balances APIs enable you to retrieve the balances of EVM addresses.
+      This includes tokens (i.e. ERC-20s) and the native gas token of the network.
+      ## Denomination
+      - 'amount' is denominated in the smallest indivisible unit of the token. For ETH, the smallest indivisible unit is Wei (10^-18 ETH). For ERC-20s, the smallest unit is the unit returned from `function totalSupply() public view returns (uint256)`.
+      - 'decimals' is the exponential value N that satisfies the equation `amount * 10^-N = standard_denomination`. The standard denomination is the most commonly used denomination for the token.
+
+        - In the case of the native gas token, `decimals` is defined via convention. As an example, for ETH of Ethereum mainnet, the standard denomination is 10^-18 the smallest denomination (Wei). As such, for ETH on Ethereum mainnet, `decimals` is 18.
+        - In the case of ERC-20 tokens, `decimals` is defined via configuration. `decimals` will be the number returned by `function decimals() public view returns (uint8)` on the underlying token contract.
   - name: Faucets
     x-audience: public
     description: The Faucet APIs enable you to request funds on supported test networks. Faucets are for testing purposes and make development easier by providing a source of funds.
@@ -299,6 +310,135 @@ paths:
                     errorMessage: EVM account with the given address not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v2/evm/accounts/{address}/send/transaction:
+    x-audience: public
+    post:
+      summary: Send a transaction
+      description: |-
+        Signs a transaction with the given EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
+
+        The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).
+
+
+        **Transaction fields and API behavior**
+
+        - `to` *(Required)*: The address of the contract or account to send the transaction to.
+        - `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.
+          The transaction will be sent to the network indicated by the `network` field in the request body.
+
+        - `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign
+           a nonce to the transaction based on the current state of the account.
+
+        - `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.
+           If not provided, the API will estimate a value based on current network conditions.
+
+        - `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.
+           If not provided, the API will estimate a value based on current network conditions.
+
+        - `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value
+          based on the `to` and `data` fields of the transaction.
+
+        - `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction.
+        - `data` *(Optional)*: The data to send with the transaction; only used for contract calls.
+        - `accessList` *(Optional)*: The access list to use for the transaction.
+      operationId: sendEvmTransaction
+      tags:
+        - EVM Accounts
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: address
+          description: The 0x-prefixed address of the Ethereum account.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                network:
+                  type: string
+                  description: The network to send the transaction to.
+                  enum:
+                    - base
+                    - base-sepolia
+                  example: base-sepolia
+                transaction:
+                  type: string
+                  description: The RLP-encoded transaction to sign and send, as a 0x-prefixed hex string.
+                  example: '0xf86b098505d21dba00830334509431415daf58e2c6b7323b4c58712fd92952145da79018080'
+              required:
+                - transaction
+                - network
+      responses:
+        '200':
+          description: Successfully signed and sent transaction.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionHash:
+                    type: string
+                    description: The hash of the transaction, as a 0x-prefixed hex string.
+                    example: '0xf8f98fb6726fc936f24b2007df5cb20e2b8444ff3dfaa2a929335f432a9be2e7'
+                required:
+                  - transactionHash
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                malformed_transaction:
+                  value:
+                    errorType: malformed_transaction
+                    errorMessage: Malformed unsigned transaction.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '403':
+          description: Access to resource forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Unable to sign transaction for this address.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given address not found.
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /v2/evm/accounts/{address}/sign/transaction:
     post:
       x-audience: public
@@ -471,6 +611,91 @@ paths:
                     errorMessage: EVM account with the given address not found.
         '409':
           $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v2/evm/accounts/{address}/sign/user-operation:
+    post:
+      x-audience: public
+      summary: Sign an EIP-4337 User Operation
+      description: Signs an [EIP-4337](https://eips.ethereum.org/EIPS/eip-4337) User Operation with the given EVM account.
+      operationId: signEvmUserOperation
+      tags:
+        - EVM Accounts
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: address
+          description: The 0x-prefixed address of the EVM account that will sign the user operation.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                network:
+                  type: string
+                  description: The network to sign the user operation for.
+                  enum:
+                    - base-sepolia
+                    - base
+                  example: base-sepolia
+                smartAccountAddress:
+                  type: string
+                  description: The address of the Smart Account to sign the user operation for.
+                  pattern: ^0x[0-9a-fA-F]{40}$
+                  example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                userOpHash:
+                  type: string
+                  description: The hash of the user operation, as a 0x-prefixed hex string.
+                  example: '0x1b0c9cf8cd4554c6c6d9e7311e88f1be075d7f25b418a044f4bf2c0a42a93e212ad0a8b54de9e0b5f7e3812de3f2c6cc79aa8c3e1c02e7ad14b4a8f42012c2c01b'
+              required:
+                - network
+                - smartAccountAddress
+                - userOpHash
+      responses:
+        '200':
+          description: Successfully signed user operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signature:
+                    type: string
+                    description: The signed user operation, as a 0x-prefixed hex string.
+                    example: '0x1b0c9cf8cd4554c6c6d9e7311e88f1be075d7f25b418a044f4bf2c0a42a93e212ad0a8b54de9e0b5f7e3812de3f2c6cc79aa8c3e1c02e7ad14b4a8f42012c2c01b'
+                required:
+                  - signature
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given address not found.
         '422':
           $ref: '#/components/responses/IdempotencyError'
         '500':
@@ -825,7 +1050,9 @@ paths:
   /v2/evm/smart-accounts/{address}/user-operations/{userOpHash}/send:
     post:
       summary: Send a user operation
-      description: Sends a user operation with a signature.
+      description: |-
+        Sends a user operation with a signature.
+        The signature that is sent should be 65 bytes, consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.
       operationId: sendUserOperation
       tags:
         - EVM Smart Accounts
@@ -854,7 +1081,7 @@ paths:
               properties:
                 signature:
                   type: string
-                  description: The hex-encoded signature of the user operation.
+                  description: The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.
                   example: '0x1b0c9cf8cd4554c6c6d9e7311e88f1be075d7f25b418a044f4bf2c0a42a93e212ad0a8b54de9e0b5f7e3812de3f2c6cc79aa8c3e1c02e7ad14b4a8f42012c2c01b'
               required:
                 - signature
@@ -889,6 +1116,106 @@ paths:
                     errorMessage: User operation not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v2/evm/token-balances/{network}/{address}:
+    get:
+      summary: List EVM token balances
+      x-audience: public
+      description: |-
+        Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.
+
+        **Note:** This endpoint is still under development and does not yet provide strong freshness guarantees. Specifically, balances of new tokens can, on occasion, take up to ~30 seconds to appear, while balances of tokens already belonging to an address will generally be close to chain tip. Freshness of new token balances will improve over the coming weeks.
+      operationId: listEvmTokenBalances
+      tags:
+        - EVM Token Balances
+      parameters:
+        - name: address
+          description: The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - name: network
+          description: The human-readable network name to get the balances for.
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/ListEvmTokenBalancesNetwork'
+          example: base
+        - name: pageSize
+          description: The number of balances to return per page.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          example: 10
+        - name: pageToken
+          description: The token for the next page of balances. Will be empty if there are no more balances to fetch.
+          in: query
+          required: false
+          schema:
+            type: string
+          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+      responses:
+        '200':
+          description: Successfully listed token balances.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - balances
+                    properties:
+                      balances:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TokenBalance'
+                        description: The list of EVM token balances.
+                        example:
+                          - amount:
+                              amount: '1250000000000000000'
+                              decimals: 18
+                            token:
+                              network: base
+                              symbol: ETH
+                              name: ether
+                              contractAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+                          - amount:
+                              amount: '123456'
+                              decimals: 6
+                            token:
+                              network: base
+                              symbol: USDC
+                              name: USD Coin
+                              contractAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+                  - $ref: '#/components/schemas/ListResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: string doesn't match the regular expression "^0x[0-9a-fA-F]{40}$"
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Address not found, or no balances found for the given address on this chain.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /v2/evm/faucet:
     post:
       x-audience: public
@@ -904,7 +1231,7 @@ paths:
 
         | Token | Amount per Faucet Request |Rolling 24-hour window Rate Limits|
         |:-----:|:-------------------------:|:--------------------------------:|
-        | ETH   | 0.0001 ETH                | 0.001 ETH                        |
+        | ETH   | 0.0001 ETH                | 0.1 ETH                          |
         | USDC  | 1 USDC                    | 10 USDC                          |
         | EURC  | 1 EURC                    | 10 EURC                          |
         | cbBTC | 0.0001 cbBTC              | 0.001 cbBTC                      |
@@ -1412,6 +1739,7 @@ paths:
         | Token | Amount per Faucet Request |Rolling 24-hour window Rate Limits|
         |:-----:|:-------------------------:|:--------------------------------:|
         | SOL   | 0.00125 SOL               | 0.0125 SOL                       |
+        | USDC  | 1 USDC                    | 10 USDC                          |
       operationId: requestSolanaFaucet
       tags:
         - Faucets
@@ -1495,7 +1823,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: A JWT signed using your API Key Secret, encoded in base64. Refer to the  [Generate a Bearer Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-a-bearer-token) section of our Authentication docs for information on how to generate your Bearer Token.
+      description: A JWT signed using your API Key Secret, encoded in base64. Refer to the  [Generate Bearer Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-bearer-token) section of our Authentication docs for information on how to generate your Bearer Token.
   schemas:
     EvmAccount:
       type: object
@@ -1540,6 +1868,7 @@ components:
         - request_canceled
         - timed_out
         - unauthorized
+        - policy_violation
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -1555,7 +1884,7 @@ components:
           1. Wait for the time window to reset
           2. Use funds more efficiently in your testing
 
-          For more information on faucet limits, please visit the [EVM Faucet endpoint](../reference/requestEvmFaucet) or the [Solana Faucet endpoint](../reference/requestSolFaucet).
+          For more information on faucet limits, please visit the [EVM Faucet endpoint](../reference/requestEvmFaucet) or the [Solana Faucet endpoint](../reference/requestSolanaFaucet).
         forbidden: |-
           This error occurs when you don't have permission to access the resource.
 
@@ -1878,6 +2207,86 @@ components:
         - userOpHash
         - calls
         - status
+    ListEvmTokenBalancesNetwork:
+      type: string
+      enum:
+        - base
+        - base-sepolia
+      description: The name of the supported EVM networks in human-readable format.
+      example: base
+    TokenAmount:
+      type: object
+      description: Amount of a given token.
+      example:
+        amount: '125000000000000000000'
+        decimals: 18
+      properties:
+        amount:
+          type: string
+          pattern: ^[0-9]+$
+          description: The amount is denominated in the smallest indivisible unit of the token. For ETH, the smallest indivisible unit is Wei (10^-18 ETH). For ERC-20s, the smallest unit is the unit returned from `function totalSupply() public view returns (uint256)`.
+          example: '1250000000000000000'
+        decimals:
+          type: integer
+          format: int64
+          description: |-
+            'decimals' is the exponential value N that satisfies the equation `amount * 10^-N = standard_denomination`. The standard denomination is the most commonly used denomination for the token.
+            - In the case of the native gas token, `decimals` is defined via convention. As an example, for ETH of Ethereum mainnet, the standard denomination is 10^-18 the smallest denomination (Wei). As such, for ETH on Ethereum mainnet, `decimals` is 18. - In the case of ERC-20 tokens, `decimals` is defined via configuration. `decimals` will be the number returned by `function decimals() public view returns (uint8)` on the underlying token contract.
+            Not all tokens have a `decimals` field, as this function is [optional in the ERC-20 specification](https://eips.ethereum.org/EIPS/eip-20#decimals). This field will be left empty if the underlying token contract doesn't implement `decimals`.
+            Further, this endpoint will only populate this value for a small subset of whitelisted ERC-20 tokens at this time. We intend to improve coverage in the future.
+          example: 18
+      required:
+        - amount
+        - decimals
+    Token:
+      type: object
+      description: General information about a token. Includes the type, the network, and other identifying information.
+      example:
+        network: base
+        symbol: ETH
+        name: Ether
+        contractAddress: '0x1234567890123456789012345678901234567890'
+      properties:
+        network:
+          $ref: '#/components/schemas/ListEvmTokenBalancesNetwork'
+        symbol:
+          type: string
+          description: |-
+            The symbol of this token (ex: SOL, ETH, USDC).
+            The token symbol is not unique. It is possible for two different tokens to have the same symbol.
+            For native gas tokens, this symbol is defined via convention. As an example, for ETH on Ethereum mainnet, the symbol is "ETH". For ERC-20 tokens, this symbol is defined via configuration. `symbol` will be the string returned by `function symbol() public view returns (string)` on the underlying token contract.
+            Not all tokens have a symbol, as this function is [optional in the ERC-20 specification](https://eips.ethereum.org/EIPS/eip-20#symbol). This field will only be populated when the token's underlying ERC-20 contract has a `symbol()` function.
+            Further, this endpoint will only populate this value for a small subset of whitelisted ERC-20 tokens at this time. We intend to improve coverage in the future.
+          example: ETH
+        name:
+          type: string
+          description: |-
+            The name of this token (ex: "Solana", "Ether", "USD Coin").
+            The token name is not unique. It is possible for two different tokens to have the same name.
+            For native gas tokens, this name is defined via convention. As an example, for ETH on Ethereum mainnet, the name is "Ether". For ERC-20 tokens, this name is defined via configuration. `name` will be the string returned by `function name() public view returns (string)` on the underlying token contract.
+            Not all tokens have a name, as this function is [optional in the ERC-20 specification](https://eips.ethereum.org/EIPS/eip-20#name). This field will only be populated when the token's underlying ERC-20 contract has a `name()` function.
+            Further, this endpoint will only populate this value for a small subset of whitelisted ERC-20 tokens at this time. We intend to improve coverage in the future.
+          example: Ether
+        contractAddress:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{40}$
+          description: |-
+            The contract address of the token.
+            For Ether, the contract address is `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` per [EIP-7528](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-7528.md). For ERC-20 tokens, this is the contract address where the token is deployed.
+          example: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+      required:
+        - network
+        - contractAddress
+    TokenBalance:
+      type: object
+      properties:
+        amount:
+          $ref: '#/components/schemas/TokenAmount'
+        token:
+          $ref: '#/components/schemas/Token'
+      required:
+        - amount
+        - token
     SolanaAccount:
       type: object
       properties:
@@ -1937,7 +2346,7 @@ components:
       required: true
       description: |
         A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-        [Generate a Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#3-generate-a-wallet-token)
+        [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token)
         section of our Authentication docs for more details on how to generate your Wallet Token.
       schema:
         type: string

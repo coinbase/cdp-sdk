@@ -55,6 +55,13 @@ class TestEVMAccountsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_send_evm_transaction(self) -> None:
+        """Test case for send_evm_transaction
+
+        Send a transaction
+        """
+        pass
+
     async def test_sign_evm_hash(self) -> None:
         """Test case for sign_evm_hash
 
@@ -73,6 +80,13 @@ class TestEVMAccountsApi(unittest.IsolatedAsyncioTestCase):
         """Test case for sign_evm_transaction
 
         Sign a transaction
+        """
+        pass
+
+    async def test_sign_evm_user_operation(self) -> None:
+        """Test case for sign_evm_user_operation
+
+        Sign an EIP-4337 User Operation
         """
         pass
 

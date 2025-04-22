@@ -18,17 +18,25 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendUserOperationRequest(BaseModel):
+class SendEvmTransactionRequest(BaseModel):
     """
-    SendUserOperationRequest
+    SendEvmTransactionRequest
     """ # noqa: E501
-    signature: StrictStr = Field(description="The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.")
-    __properties: ClassVar[List[str]] = ["signature"]
+    network: StrictStr = Field(description="The network to send the transaction to.")
+    transaction: StrictStr = Field(description="The RLP-encoded transaction to sign and send, as a 0x-prefixed hex string.")
+    __properties: ClassVar[List[str]] = ["network", "transaction"]
+
+    @field_validator('network')
+    def network_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['base', 'base-sepolia']):
+            raise ValueError("must be one of enum values ('base', 'base-sepolia')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +56,7 @@ class SendUserOperationRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendUserOperationRequest from a JSON string"""
+        """Create an instance of SendEvmTransactionRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,7 +81,7 @@ class SendUserOperationRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendUserOperationRequest from a dict"""
+        """Create an instance of SendEvmTransactionRequest from a dict"""
         if obj is None:
             return None
 
@@ -81,7 +89,8 @@ class SendUserOperationRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "signature": obj.get("signature")
+            "network": obj.get("network"),
+            "transaction": obj.get("transaction")
         })
         return _obj
 
