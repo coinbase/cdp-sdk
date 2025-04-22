@@ -34,7 +34,6 @@ export type EvmClientInterface = Omit<
   | "signEvmHash" // mapped to signHash
   | "signEvmMessage" // mapped to signMessage
   | "signEvmTransaction" // mapped to signTransaction
-  | "signEvmUserOperation" // to be implemented soon
   | "sendEvmTransaction" // to be implemented soon
 > & {
   createAccount: (options: CreateServerAccountOptions) => Promise<ServerAccount>;
