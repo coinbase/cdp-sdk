@@ -23,6 +23,9 @@ import {
   GetUserOperationOptions,
   ListSmartAccountResult,
   ListSmartAccountsOptions,
+  ListTokenBalancesOptions,
+  ListTokenBalancesResult,
+  EvmTokenBalance,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
@@ -602,5 +605,63 @@ export class EvmClient implements EvmClientInterface {
     return waitForUserOperation(CdpOpenApiClient, {
       ...options,
     });
+  }
+
+  /**
+   * Lists CDP EVM token balances.
+   *
+   * @param {ListTokenBalancesOptions} options - Parameters for listing the token balances.
+   * @param {number} [options.pageSize] - The number of token balances to return.
+   * @param {string} [options.pageToken] - The page token to begin listing from.
+   * This is obtained by previous calls to this method.
+   *
+   * @returns A promise that resolves to an array of token balances, and a token to paginate through the token balances.
+   *
+   * @example
+   * ```ts
+   * const tokenBalances = await cdp.evm.listTokenBalances({
+   *   address: "0x1234567890123456789012345678901234567890",
+   *   network: "base-sepolia",
+   * });
+   * ```
+   *
+   * @example
+   * **With pagination**
+   * ```ts
+   * let page = await cdp.evm.listTokenBalances({
+   *   address: "0x1234567890123456789012345678901234567890",
+   *   network: "base-sepolia",
+   * });
+   *
+   * while (page.nextPageToken) {
+   *   page = await cdp.evm.listTokenBalances({
+   *     address: "0x1234567890123456789012345678901234567890",
+   *     network: "base-sepolia",
+   *     pageToken: page.nextPageToken,
+   *   });
+   */
+  async listTokenBalances(options: ListTokenBalancesOptions): Promise<ListTokenBalancesResult> {
+    const response = await CdpOpenApiClient.listEvmTokenBalances(options.network, options.address, {
+      pageSize: options.pageSize,
+      pageToken: options.pageToken,
+    });
+
+    const balances = response.balances.map(balance => {
+      return {
+        token: {
+          network: balance.token.network,
+          contractAddress: balance.token.contractAddress as `0x${string}`,
+        },
+        amount: {
+          amount: BigInt(balance.amount.amount),
+          decimals: BigInt(balance.amount.decimals),
+        },
+      } as EvmTokenBalance;
+    });
+
+    return {
+      balances,
+      nextPageToken: response.nextPageToken,
+    } as ListTokenBalancesResult;
   }
 }

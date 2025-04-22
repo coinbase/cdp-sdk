@@ -213,6 +213,41 @@ describe("CDP Client E2E Tests", () => {
     });
     expect(signedTransaction).toBeDefined();
   });
+
+  it("should list evm token balances", async () => {
+    const address = "0x5b76f5B8fc9D700624F78208132f91AD4e61a1f0";
+
+    const firstPage = await cdp.evm.listTokenBalances({
+      address,
+      network: "base-sepolia",
+      pageSize: 1,
+    });
+
+    expect(firstPage).toBeDefined();
+    expect(firstPage.balances.length).toEqual(1);
+    expect(firstPage.balances[0].token).toBeDefined();
+    expect(firstPage.balances[0].token.contractAddress).toBeDefined();
+    expect(firstPage.balances[0].token.network).toEqual("base-sepolia");
+    expect(firstPage.balances[0].amount).toBeDefined();
+    expect(firstPage.balances[0].amount.amount).toBeDefined();
+    expect(firstPage.balances[0].amount.decimals).toBeDefined();
+
+    const secondPage = await cdp.evm.listTokenBalances({
+      address,
+      network: "base-sepolia",
+      pageSize: 1,
+      pageToken: firstPage.nextPageToken,
+    });
+
+    expect(secondPage).toBeDefined();
+    expect(secondPage.balances.length).toEqual(1);
+    expect(secondPage.balances[0].token).toBeDefined();
+    expect(secondPage.balances[0].token.contractAddress).toBeDefined();
+    expect(secondPage.balances[0].token.network).toEqual("base-sepolia");
+    expect(secondPage.balances[0].amount).toBeDefined();
+    expect(secondPage.balances[0].amount.amount).toBeDefined();
+    expect(secondPage.balances[0].amount.decimals).toBeDefined();
+  })
 });
 
 // Helper function to generate random name matching the required pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
