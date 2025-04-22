@@ -1,5 +1,15 @@
 # CDP SDK Changelog
 
+## 1.2.0
+
+### Minor Changes
+
+- [#49](https://github.com/coinbase/cdp-sdk/pull/49) [`6d05130`](https://github.com/coinbase/cdp-sdk/commit/6d05130d9dc1db182bfeb2e2212979b7ab47cff4) Thanks [@0xRAG](https://github.com/0xRAG)! - Implement dual builds: output both CJS and ESM code
+
+### Patch Changes
+
+- [#51](https://github.com/coinbase/cdp-sdk/pull/51) [`1343a3e`](https://github.com/coinbase/cdp-sdk/commit/1343a3eb2b33df236fab883f50c8f9a5e13acd9c) Thanks [@0xRAG](https://github.com/0xRAG)! - Bump @solana/web3.js to v1.98.1 which includes a fix for a security vulnerability
+
 ## 1.1.2
 
 ### Patch Changes
