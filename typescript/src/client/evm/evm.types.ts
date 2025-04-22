@@ -308,7 +308,7 @@ export interface WaitForUserOperationOptions {
  */
 export interface ListTokenBalancesOptions {
   /** The address of the account. */
-  address: Hex;
+  address: Address;
   /** The network. */
   network: SupportedEvmNetwork;
   /** The page size to paginate through the token balances. */
@@ -325,7 +325,7 @@ export interface EvmToken {
    * The contract address of the token. For Ether, the contract address is 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE
    * per EIP-7528. For ERC-20 tokens, this is the contract address where the token is deployed.
    */
-  contractAddress: Hex;
+  contractAddress: Address;
   /** The network the token is on. */
   network: SupportedEvmNetwork;
   /** The symbol of the token, which is optional and non-unique (e.g. "ETH" for Ether). */
