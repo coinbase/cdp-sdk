@@ -25,7 +25,7 @@ export type EvmClientInterface = Omit<
   | "getEvmAccountByName" // mapped to getAccount
   | "getEvmSmartAccount" // mapped to getSmartAccount
   | "getUserOperation"
-  | "listEVMBalances" // omit
+  | "listEvmTokenBalances" // to be implemented soon
   | "listEvmAccounts" // mapped to listAccounts
   | "listEvmSmartAccounts" // mapped to listSmartAccounts
   | "prepareUserOperation"
@@ -34,6 +34,8 @@ export type EvmClientInterface = Omit<
   | "signEvmHash" // mapped to signHash
   | "signEvmMessage" // mapped to signMessage
   | "signEvmTransaction" // mapped to signTransaction
+  | "signEvmUserOperation" // to be implemented soon
+  | "sendEvmTransaction" // to be implemented soon
 > & {
   createAccount: (options: CreateServerAccountOptions) => Promise<ServerAccount>;
   createSmartAccount: (options: CreateSmartAccountOptions) => Promise<SmartAccount>;
