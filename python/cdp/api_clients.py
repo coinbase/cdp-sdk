@@ -14,9 +14,9 @@ class ApiClients:
 
     Attributes:
         _cdp_client (CdpApiClient): The CDP API client used to initialize individual API clients.
-        _ethereum_accounts (Optional[EthereumAccountsApi]): The EthereumAccountsApi client instance.
-        _ethereum_smart_accounts (Optional[EthereumSmartAccountsApi]): The EthereumSmartAccountsApi client instance.
-        _ethereum_token_balances (Optional[EVMTokenBalancesApi]): The EVMTokenBalancesApi client instance.
+        _evm_accounts (Optional[EVMAccountsApi]): The EVMAccountsApi client instance.
+        _evm_smart_accounts (Optional[EVMSmartAccountsApi]): The EVMSmartAccountsApi client instance.
+        _evm_token_balances (Optional[EVMTokenBalancesApi]): The EVMTokenBalancesApi client instance.
         _faucets (Optional[FaucetsApi]): The FaucetsApi client instance.
         _solana_accounts (Optional[SolanaAccountsApi]): The SolanaAccountsApi client instance.
 
