@@ -32,6 +32,7 @@ class ApiClients:
 
         self._evm_accounts: EVMAccountsApi | None = None
         self._evm_smart_accounts: EVMSmartAccountsApi | None = None
+        self._evm_token_balances: EVMTokenBalancesApi | None = None
         self._faucets: FaucetsApi | None = None
         self._solana_accounts: SolanaAccountsApi | None = None
 
