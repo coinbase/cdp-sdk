@@ -18,17 +18,34 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendUserOperationRequest(BaseModel):
+class SignEvmUserOperationRequest(BaseModel):
     """
-    SendUserOperationRequest
+    SignEvmUserOperationRequest
     """ # noqa: E501
-    signature: StrictStr = Field(description="The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.")
-    __properties: ClassVar[List[str]] = ["signature"]
+    network: StrictStr = Field(description="The network to sign the user operation for.")
+    smart_account_address: Annotated[str, Field(strict=True)] = Field(description="The address of the Smart Account to sign the user operation for.", alias="smartAccountAddress")
+    user_op_hash: StrictStr = Field(description="The hash of the user operation, as a 0x-prefixed hex string.", alias="userOpHash")
+    __properties: ClassVar[List[str]] = ["network", "smartAccountAddress", "userOpHash"]
+
+    @field_validator('network')
+    def network_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['base-sepolia', 'base']):
+            raise ValueError("must be one of enum values ('base-sepolia', 'base')")
+        return value
+
+    @field_validator('smart_account_address')
+    def smart_account_address_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^0x[0-9a-fA-F]{40}$", value):
+            raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{40}$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +65,7 @@ class SendUserOperationRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendUserOperationRequest from a JSON string"""
+        """Create an instance of SignEvmUserOperationRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,7 +90,7 @@ class SendUserOperationRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendUserOperationRequest from a dict"""
+        """Create an instance of SignEvmUserOperationRequest from a dict"""
         if obj is None:
             return None
 
@@ -81,7 +98,9 @@ class SendUserOperationRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "signature": obj.get("signature")
+            "network": obj.get("network"),
+            "smartAccountAddress": obj.get("smartAccountAddress"),
+            "userOpHash": obj.get("userOpHash")
         })
         return _obj
 

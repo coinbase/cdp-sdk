@@ -10,12 +10,16 @@ import type {
   EvmAccount,
   ListEvmAccounts200,
   ListEvmAccountsParams,
+  SendEvmTransaction200,
+  SendEvmTransactionBody,
   SignEvmHash200,
   SignEvmHashBody,
   SignEvmMessage200,
   SignEvmMessageBody,
   SignEvmTransaction200,
   SignEvmTransactionBody,
+  SignEvmUserOperation200,
+  SignEvmUserOperationBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -75,6 +79,50 @@ export const getEvmAccountByName = (
   );
 };
 /**
+ * Signs a transaction with the given EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
+
+The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).
+
+
+**Transaction fields and API behavior**
+
+- `to` *(Required)*: The address of the contract or account to send the transaction to.
+- `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.
+  The transaction will be sent to the network indicated by the `network` field in the request body.
+
+- `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign
+   a nonce to the transaction based on the current state of the account.
+
+- `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.
+   If not provided, the API will estimate a value based on current network conditions.
+
+- `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.
+   If not provided, the API will estimate a value based on current network conditions.
+
+- `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value
+  based on the `to` and `data` fields of the transaction.
+
+- `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction.
+- `data` *(Optional)*: The data to send with the transaction; only used for contract calls.
+- `accessList` *(Optional)*: The access list to use for the transaction.
+ * @summary Send a transaction
+ */
+export const sendEvmTransaction = (
+  address: string,
+  sendEvmTransactionBody: SendEvmTransactionBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SendEvmTransaction200>(
+    {
+      url: `/v2/evm/accounts/${address}/send/transaction`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: sendEvmTransactionBody,
+    },
+    options,
+  );
+};
+/**
  * Signs a transaction with the given EVM account.
 The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
 
@@ -119,6 +167,25 @@ export const signEvmHash = (
   );
 };
 /**
+ * Signs an [EIP-4337](https://eips.ethereum.org/EIPS/eip-4337) User Operation with the given EVM account.
+ * @summary Sign an EIP-4337 User Operation
+ */
+export const signEvmUserOperation = (
+  address: string,
+  signEvmUserOperationBody: SignEvmUserOperationBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SignEvmUserOperation200>(
+    {
+      url: `/v2/evm/accounts/${address}/sign/user-operation`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: signEvmUserOperationBody,
+    },
+    options,
+  );
+};
+/**
  * Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given EVM account.
 
 Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\n" + len(message)>` before being signed.
@@ -145,6 +212,10 @@ export type GetEvmAccountResult = NonNullable<Awaited<ReturnType<typeof getEvmAc
 export type GetEvmAccountByNameResult = NonNullable<
   Awaited<ReturnType<typeof getEvmAccountByName>>
 >;
+export type SendEvmTransactionResult = NonNullable<Awaited<ReturnType<typeof sendEvmTransaction>>>;
 export type SignEvmTransactionResult = NonNullable<Awaited<ReturnType<typeof signEvmTransaction>>>;
 export type SignEvmHashResult = NonNullable<Awaited<ReturnType<typeof signEvmHash>>>;
+export type SignEvmUserOperationResult = NonNullable<
+  Awaited<ReturnType<typeof signEvmUserOperation>>
+>;
 export type SignEvmMessageResult = NonNullable<Awaited<ReturnType<typeof signEvmMessage>>>;

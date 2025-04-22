@@ -40,6 +40,7 @@ class ErrorType(str, Enum):
     REQUEST_CANCELED = 'request_canceled'
     TIMED_OUT = 'timed_out'
     UNAUTHORIZED = 'unauthorized'
+    POLICY_VIOLATION = 'policy_violation'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
