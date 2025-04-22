@@ -542,8 +542,7 @@ paths:
     post:
       x-audience: public
       summary: Sign a hash
-      description: |-
-        Signs an arbitrary 32 byte hash with the given EVM account.
+      description: Signs an arbitrary 32 byte hash with the given EVM account.
       operationId: signEvmHash
       tags:
         - EVM Accounts

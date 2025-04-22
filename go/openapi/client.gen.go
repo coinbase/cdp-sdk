@@ -65,12 +65,6 @@ const (
 	SendEvmTransactionJSONBodyNetworkBaseSepolia SendEvmTransactionJSONBodyNetwork = "base-sepolia"
 )
 
-// Defines values for SignEvmUserOperationJSONBodyNetwork.
-const (
-	SignEvmUserOperationJSONBodyNetworkBase        SignEvmUserOperationJSONBodyNetwork = "base"
-	SignEvmUserOperationJSONBodyNetworkBaseSepolia SignEvmUserOperationJSONBodyNetwork = "base-sepolia"
-)
-
 // Defines values for RequestEvmFaucetJSONBodyNetwork.
 const (
 	RequestEvmFaucetJSONBodyNetworkBaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
@@ -87,8 +81,8 @@ const (
 
 // Defines values for PrepareUserOperationJSONBodyNetwork.
 const (
-	PrepareUserOperationJSONBodyNetworkBase        PrepareUserOperationJSONBodyNetwork = "base"
-	PrepareUserOperationJSONBodyNetworkBaseSepolia PrepareUserOperationJSONBodyNetwork = "base-sepolia"
+	Base        PrepareUserOperationJSONBodyNetwork = "base"
+	BaseSepolia PrepareUserOperationJSONBodyNetwork = "base-sepolia"
 )
 
 // Defines values for RequestSolanaFaucetJSONBodyToken.
@@ -368,34 +362,6 @@ type SignEvmTransactionParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
-// SignEvmUserOperationJSONBody defines parameters for SignEvmUserOperation.
-type SignEvmUserOperationJSONBody struct {
-	// Network The network to sign the user operation for.
-	Network SignEvmUserOperationJSONBodyNetwork `json:"network"`
-
-	// SmartAccountAddress The address of the Smart Account to sign the user operation for.
-	SmartAccountAddress string `json:"smartAccountAddress"`
-
-	// UserOpHash The hash of the user operation, as a 0x-prefixed hex string.
-	UserOpHash string `json:"userOpHash"`
-}
-
-// SignEvmUserOperationParams defines parameters for SignEvmUserOperation.
-type SignEvmUserOperationParams struct {
-	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token)
-	// section of our Authentication docs for more details on how to generate your Wallet Token.
-	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
-
-	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
-	// When included, duplicate requests with the same key will return identical responses.
-	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
-	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
-}
-
-// SignEvmUserOperationJSONBodyNetwork defines parameters for SignEvmUserOperation.
-type SignEvmUserOperationJSONBodyNetwork string
-
 // RequestEvmFaucetJSONBody defines parameters for RequestEvmFaucet.
 type RequestEvmFaucetJSONBody struct {
 	// Address The address to request funds to, which is a 0x-prefixed hexadecimal string.
@@ -554,9 +520,6 @@ type SignEvmMessageJSONRequestBody SignEvmMessageJSONBody
 // SignEvmTransactionJSONRequestBody defines body for SignEvmTransaction for application/json ContentType.
 type SignEvmTransactionJSONRequestBody SignEvmTransactionJSONBody
 
-// SignEvmUserOperationJSONRequestBody defines body for SignEvmUserOperation for application/json ContentType.
-type SignEvmUserOperationJSONRequestBody SignEvmUserOperationJSONBody
-
 // RequestEvmFaucetJSONRequestBody defines body for RequestEvmFaucet for application/json ContentType.
 type RequestEvmFaucetJSONRequestBody RequestEvmFaucetJSONBody
 
@@ -687,11 +650,6 @@ type ClientInterface interface {
 	SignEvmTransactionWithBody(ctx context.Context, address string, params *SignEvmTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SignEvmTransaction(ctx context.Context, address string, params *SignEvmTransactionParams, body SignEvmTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// SignEvmUserOperationWithBody request with any body
-	SignEvmUserOperationWithBody(ctx context.Context, address string, params *SignEvmUserOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	SignEvmUserOperation(ctx context.Context, address string, params *SignEvmUserOperationParams, body SignEvmUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// RequestEvmFaucetWithBody request with any body
 	RequestEvmFaucetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -901,30 +859,6 @@ func (c *CDPClient) SignEvmTransactionWithBody(ctx context.Context, address stri
 
 func (c *CDPClient) SignEvmTransaction(ctx context.Context, address string, params *SignEvmTransactionParams, body SignEvmTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSignEvmTransactionRequest(c.Server, address, params, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) SignEvmUserOperationWithBody(ctx context.Context, address string, params *SignEvmUserOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSignEvmUserOperationRequestWithBody(c.Server, address, params, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) SignEvmUserOperation(ctx context.Context, address string, params *SignEvmUserOperationParams, body SignEvmUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewSignEvmUserOperationRequest(c.Server, address, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1657,79 +1591,6 @@ func NewSignEvmTransactionRequestWithBody(server string, address string, params 
 	}
 
 	operationPath := fmt.Sprintf("/v2/evm/accounts/%s/sign/transaction", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	if params != nil {
-
-		if params.XWalletAuth != nil {
-			var headerParam0 string
-
-			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
-			if err != nil {
-				return nil, err
-			}
-
-			req.Header.Set("X-Wallet-Auth", headerParam0)
-		}
-
-		if params.XIdempotencyKey != nil {
-			var headerParam1 string
-
-			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
-			if err != nil {
-				return nil, err
-			}
-
-			req.Header.Set("X-Idempotency-Key", headerParam1)
-		}
-
-	}
-
-	return req, nil
-}
-
-// NewSignEvmUserOperationRequest calls the generic SignEvmUserOperation builder with application/json body
-func NewSignEvmUserOperationRequest(server string, address string, params *SignEvmUserOperationParams, body SignEvmUserOperationJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewSignEvmUserOperationRequestWithBody(server, address, params, "application/json", bodyReader)
-}
-
-// NewSignEvmUserOperationRequestWithBody generates requests for SignEvmUserOperation with any type of body
-func NewSignEvmUserOperationRequestWithBody(server string, address string, params *SignEvmUserOperationParams, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/evm/accounts/%s/sign/user-operation", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -2637,11 +2498,6 @@ type ClientWithResponsesInterface interface {
 
 	SignEvmTransactionWithResponse(ctx context.Context, address string, params *SignEvmTransactionParams, body SignEvmTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmTransactionResponse, error)
 
-	// SignEvmUserOperationWithBodyWithResponse request with any body
-	SignEvmUserOperationWithBodyWithResponse(ctx context.Context, address string, params *SignEvmUserOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignEvmUserOperationResponse, error)
-
-	SignEvmUserOperationWithResponse(ctx context.Context, address string, params *SignEvmUserOperationParams, body SignEvmUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmUserOperationResponse, error)
-
 	// RequestEvmFaucetWithBodyWithResponse request with any body
 	RequestEvmFaucetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RequestEvmFaucetResponse, error)
 
@@ -2928,35 +2784,6 @@ func (r SignEvmTransactionResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SignEvmTransactionResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type SignEvmUserOperationResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *struct {
-		// Signature The signed user operation, as a 0x-prefixed hex string.
-		Signature string `json:"signature"`
-	}
-	JSON401 *Error
-	JSON404 *Error
-	JSON422 *IdempotencyError
-	JSON500 *InternalServerError
-}
-
-// Status returns HTTPResponse.Status
-func (r SignEvmUserOperationResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r SignEvmUserOperationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -3486,23 +3313,6 @@ func (c *ClientWithResponses) SignEvmTransactionWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseSignEvmTransactionResponse(rsp)
-}
-
-// SignEvmUserOperationWithBodyWithResponse request with arbitrary body returning *SignEvmUserOperationResponse
-func (c *ClientWithResponses) SignEvmUserOperationWithBodyWithResponse(ctx context.Context, address string, params *SignEvmUserOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignEvmUserOperationResponse, error) {
-	rsp, err := c.SignEvmUserOperationWithBody(ctx, address, params, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseSignEvmUserOperationResponse(rsp)
-}
-
-func (c *ClientWithResponses) SignEvmUserOperationWithResponse(ctx context.Context, address string, params *SignEvmUserOperationParams, body SignEvmUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmUserOperationResponse, error) {
-	rsp, err := c.SignEvmUserOperation(ctx, address, params, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseSignEvmUserOperationResponse(rsp)
 }
 
 // RequestEvmFaucetWithBodyWithResponse request with arbitrary body returning *RequestEvmFaucetResponse
@@ -4162,63 +3972,6 @@ func ParseSignEvmTransactionResponse(rsp *http.Response) (*SignEvmTransactionRes
 			return nil, err
 		}
 		response.JSON409 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
-		var dest IdempotencyError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON422 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest InternalServerError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseSignEvmUserOperationResponse parses an HTTP response from a SignEvmUserOperationWithResponse call
-func ParseSignEvmUserOperationResponse(rsp *http.Response) (*SignEvmUserOperationResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &SignEvmUserOperationResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest struct {
-			// Signature The signed user operation, as a 0x-prefixed hex string.
-			Signature string `json:"signature"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
 		var dest IdempotencyError
