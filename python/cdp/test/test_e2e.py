@@ -147,7 +147,43 @@ async def test_send_wait_and_get_user_operation(cdp_client):
     assert user_op is not None
     assert user_op.status == "complete"
 
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_list_evm_token_balances(cdp_client):
+    """Test listing evm token balances."""
+    address = "0x5b76f5B8fc9D700624F78208132f91AD4e61a1f0"
 
+    first_page = await cdp_client.evm.list_token_balances(
+        address=address,
+        network="base-sepolia", 
+        page_size=1
+    )
+
+    assert first_page is not None
+    assert len(first_page.balances) == 1
+    assert first_page.balances[0].token is not None
+    assert first_page.balances[0].token.contract_address is not None
+    assert first_page.balances[0].token.network == "base-sepolia"
+    assert first_page.balances[0].amount is not None
+    assert first_page.balances[0].amount.amount is not None
+    assert first_page.balances[0].amount.decimals is not None
+
+    second_page = await cdp_client.evm.list_token_balances(
+        address=address,
+        network="base-sepolia",
+        page_size=1,
+        page_token=first_page.next_page_token
+    )
+
+    assert second_page is not None
+    assert len(second_page.balances) == 1
+    assert second_page.balances[0].token is not None
+    assert second_page.balances[0].token.contract_address is not None
+    assert second_page.balances[0].token.network == "base-sepolia"
+    assert second_page.balances[0].amount is not None
+    assert second_page.balances[0].amount.amount is not None
+    assert second_page.balances[0].amount.decimals is not None
+    
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_create_get_and_list_solana_accounts(cdp_client):
