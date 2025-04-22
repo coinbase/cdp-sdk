@@ -28,6 +28,28 @@ type ErrorEventData = {
 
 type EventData = ErrorEventData;
 
+// This is a public client id for the analytics service
+const publicClientId = "54f2ee2fb3d2b901a829940d70fbfc13";
+
+/**
+ * AnalyticsConfig singleton class for holding the API key ID
+ */
+export class AnalyticsConfig {
+  /**
+   * The API key ID
+   */
+  public static apiKeyId: string;
+
+  /**
+   * Sets the API key ID
+   *
+   * @param apiKeyId - The API key ID
+   */
+  public static set(apiKeyId: string): void {
+    AnalyticsConfig.apiKeyId = apiKeyId;
+  }
+}
+
 /**
  * Sends an analytics event to the default endpoint
  *
@@ -38,12 +60,12 @@ export async function sendEvent(event: EventData): Promise<void> {
   const timestamp = Date.now();
 
   const enhancedEvent = {
+    user_id: AnalyticsConfig.apiKeyId,
     event_type: event.name,
     platform: "server",
+    timestamp,
     event_properties: {
-      platform: "server",
       project_name: "cdp-sdk",
-      time_start: timestamp,
       cdp_sdk_language: "typescript",
       ...event,
     },
@@ -56,6 +78,7 @@ export async function sendEvent(event: EventData): Promise<void> {
   const checksum = md5(stringifiedEventData + uploadTime);
 
   const analyticsServiceData = {
+    client: publicClientId,
     e: stringifiedEventData,
     checksum,
   };
@@ -64,7 +87,7 @@ export async function sendEvent(event: EventData): Promise<void> {
   const eventPath = "/amp";
   const eventEndPoint = `${apiEndpoint}${eventPath}`;
 
-  const response = await fetch(eventEndPoint, {
+  await fetch(eventEndPoint, {
     method: "POST",
     mode: "no-cors",
     headers: {
@@ -72,10 +95,6 @@ export async function sendEvent(event: EventData): Promise<void> {
     },
     body: JSON.stringify(analyticsServiceData),
   });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
 }
 
 /**

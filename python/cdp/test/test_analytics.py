@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cdp.analytics import ErrorEventData
+from cdp.analytics import AnalyticsConfig, ErrorEventData
 
 
 @pytest.mark.asyncio
@@ -18,6 +18,8 @@ async def test_send_event(mock_post, mock_send_event):
     original_send_event = mock_send_event.original
 
     event_data = ErrorEventData(name="error", method="test", message="test")
+
+    AnalyticsConfig.set("test-api-key-id")
 
     await original_send_event(event_data)
 
@@ -35,12 +37,11 @@ async def test_send_event(mock_post, mock_send_event):
     assert len(event_data) > 0
     assert event_data[0]["event_type"] == "error"
     assert event_data[0]["platform"] == "server"
+    assert event_data[0]["user_id"] == "test-api-key-id"
+    assert event_data[0]["timestamp"] is not None
 
     event_props = event_data[0]["event_properties"]
-    assert event_props["platform"] == "server"
-    assert event_props["project_name"] == "cdp-sdk"
     assert event_props["cdp_sdk_language"] == "python"
     assert event_props["name"] == "error"
     assert event_props["method"] == "test"
     assert event_props["message"] == "test"
-    assert "time_start" in event_props

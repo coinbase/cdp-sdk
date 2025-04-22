@@ -108,6 +108,7 @@ export function withAuth(axiosClient: AxiosInstance, options: AuthInterceptorOpt
           headers: error.response?.headers,
           data: error.response?.data,
           message: error.message,
+          cause: error.cause,
         };
 
         console.error("Response Error:", errorDetails);

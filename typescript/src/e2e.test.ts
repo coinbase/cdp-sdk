@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, vi } from "vitest";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { serializeTransaction, parseEther, Hex } from "viem";
 import { baseSepolia } from "viem/chains";
@@ -6,6 +6,14 @@ import { CdpClient } from "./client/cdp.js";
 import dotenv from "dotenv";
 
 dotenv.config();
+
+vi.mock("./analytics.js", () => {
+  return {
+    AnalyticsConfig: {
+      set: vi.fn(),
+    },
+  };
+});
 
 describe("CDP Client E2E Tests", () => {
   let cdp: CdpClient;

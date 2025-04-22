@@ -1,5 +1,6 @@
 import os
 
+import cdp.analytics
 from cdp.__version__ import __version__
 from cdp.api_clients import ApiClients
 from cdp.constants import SDK_DEFAULT_SOURCE
@@ -85,6 +86,9 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
             source_version,
         )
         self.api_clients = ApiClients(self.cdp_api_client)
+
+        cdp.analytics.AnalyticsConfig.set(api_key_id)
+
         self._evm = EvmClient(self.api_clients)
         self._solana = SolanaClient(self.api_clients)
 

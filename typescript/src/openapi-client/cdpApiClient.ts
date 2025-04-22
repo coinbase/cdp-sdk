@@ -1,9 +1,15 @@
 // eslint-disable-next-line import/no-named-as-default
-import Axios, { AxiosInstance, AxiosRequestConfig, HttpStatusCode } from "axios";
+import Axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
-import { APIError, isOpenAPIError, HttpErrorType } from "./errors.js";
 import { withAuth } from "../auth/hooks/axios/index.js";
 import { ERROR_DOCS_PAGE_URL } from "../constants.js";
+import {
+  isOpenAPIError,
+  APIError,
+  HttpErrorType,
+  UnknownApiError,
+  UnknownError,
+} from "./errors.js";
 
 /**
  * The options for the CDP API.
@@ -116,6 +122,15 @@ export const cdpApiClient = async <T>(
     return response.data as T;
   } catch (error) {
     // eslint-disable-next-line import/no-named-as-default-member
+    if (Axios.isAxiosError(error) && !error.response) {
+      throw new UnknownApiError(
+        HttpErrorType.unknown,
+        error.cause instanceof Error ? error.cause.message : error.message,
+        error.cause,
+      );
+    }
+
+    // eslint-disable-next-line import/no-named-as-default-member
     if (Axios.isAxiosError(error) && error.response) {
       if (isOpenAPIError(error.response.data)) {
         throw new APIError(
@@ -124,6 +139,7 @@ export const cdpApiClient = async <T>(
           error.response.data.errorMessage,
           error.response.data.correlationId,
           error.response.data.errorLink,
+          error.cause,
         );
       } else {
         const statusCode = error.response.status;
@@ -135,6 +151,7 @@ export const cdpApiClient = async <T>(
               "Unauthorized.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}#unauthorized`,
+              error.cause,
             );
           case 404:
             throw new APIError(
@@ -143,6 +160,7 @@ export const cdpApiClient = async <T>(
               "API not found.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}#not_found`,
+              error.cause,
             );
           case 502:
             throw new APIError(
@@ -151,6 +169,7 @@ export const cdpApiClient = async <T>(
               "Bad gateway.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}`,
+              error.cause,
             );
           case 503:
             throw new APIError(
@@ -159,6 +178,7 @@ export const cdpApiClient = async <T>(
               "Service unavailable. Please try again later.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}`,
+              error.cause,
             );
           default:
             throw new APIError(
@@ -167,29 +187,16 @@ export const cdpApiClient = async <T>(
               "An unexpected error occurred.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}`,
+              error.cause,
             );
         }
       }
-      // eslint-disable-next-line import/no-named-as-default-member
-    } else if (Axios.isAxiosError(error) && error.request) {
-      throw new APIError(
-        HttpStatusCode.ServiceUnavailable,
-        HttpErrorType.service_unavailable,
-        "Network error, unable to reach the service.",
-        undefined,
-        `${ERROR_DOCS_PAGE_URL}`,
-      );
-    } else {
-      throw new APIError(
-        HttpStatusCode.InternalServerError,
-        HttpErrorType.unexpected_error,
-        error instanceof Error
-          ? error.message
-          : `An unexpected error occurred: ${JSON.stringify(error, Object.getOwnPropertyNames(error))}`,
-        undefined,
-        `${ERROR_DOCS_PAGE_URL}`,
-      );
     }
+
+    throw new UnknownError(
+      "Something went wrong. Please reach out at https://discord.com/channels/1220414409550336183/1271495764580896789 for help.",
+      error instanceof Error ? error : undefined,
+    );
   }
 };
 

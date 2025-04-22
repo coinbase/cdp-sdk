@@ -1,3 +1,4 @@
+import { AnalyticsConfig } from "../analytics.js";
 import { CdpOpenApiClient } from "../openapi-client/index.js";
 import { version } from "../version.js";
 import { EvmClient } from "./evm/evm.js";
@@ -106,6 +107,8 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/typescr
       source: "sdk",
       sourceVersion: version,
     });
+
+    AnalyticsConfig.set(apiKeyId);
 
     this.evm = new EvmClient();
     this.solana = new SolanaClient();

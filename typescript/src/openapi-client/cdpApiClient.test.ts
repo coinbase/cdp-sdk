@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, Mocked } from "vitest";
 import Axios, { AxiosInstance } from "axios";
 import { configure, cdpApiClient, CdpOptions } from "./cdpApiClient.js"; // Adjust import path as needed
 import { HttpErrorType } from "./errors.js";
@@ -13,12 +13,14 @@ describe("cdpApiClient", () => {
     apiKeyId: "test-api-key-id",
     apiKeySecret: "test-api-key-secret",
   };
-  let mockAxiosInstance: AxiosInstance;
+  let mockAxiosInstance: Mocked<AxiosInstance>;
 
   beforeEach(() => {
-    mockAxiosInstance = vi.fn().mockImplementation(config => {
+    vi.clearAllMocks().resetAllMocks();
+
+    mockAxiosInstance = vi.fn().mockResolvedValue(config => {
       return Promise.resolve({ data: "mocked response" });
-    }) as unknown as AxiosInstance;
+    }) as unknown as Mocked<AxiosInstance>;
 
     mockAxiosInstance.getUri = vi.fn(() => "https://api.cdp.coinbase.com/platform");
 
@@ -183,7 +185,7 @@ describe("cdpApiClient", () => {
       };
 
       (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
-      (Axios.isAxiosError as any).mockReturnValueOnce(true);
+      (Axios.isAxiosError as any).mockReturnValue(true);
 
       await expect(
         cdpApiClient({
@@ -211,7 +213,7 @@ describe("cdpApiClient", () => {
       };
 
       (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
-      (Axios.isAxiosError as any).mockReturnValueOnce(true);
+      (Axios.isAxiosError as any).mockReturnValue(true);
 
       await expect(
         cdpApiClient({
@@ -236,7 +238,7 @@ describe("cdpApiClient", () => {
       };
 
       (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
-      (Axios.isAxiosError as any).mockReturnValueOnce(true);
+      (Axios.isAxiosError as any).mockReturnValue(true);
 
       await expect(
         cdpApiClient({
@@ -261,7 +263,7 @@ describe("cdpApiClient", () => {
       };
 
       (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
-      (Axios.isAxiosError as any).mockReturnValueOnce(true);
+      (Axios.isAxiosError as any).mockReturnValue(true);
 
       await expect(
         cdpApiClient({
@@ -286,7 +288,7 @@ describe("cdpApiClient", () => {
       };
 
       (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
-      (Axios.isAxiosError as any).mockReturnValueOnce(true);
+      (Axios.isAxiosError as any).mockReturnValue(true);
 
       await expect(
         cdpApiClient({
@@ -311,7 +313,7 @@ describe("cdpApiClient", () => {
       };
 
       (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
-      (Axios.isAxiosError as any).mockReturnValueOnce(true);
+      (Axios.isAxiosError as any).mockReturnValue(true);
 
       await expect(
         cdpApiClient({
@@ -325,7 +327,7 @@ describe("cdpApiClient", () => {
       });
     });
 
-    it("should handle network error with no response", async () => {
+    it("should handle network error with no response by rethrowing the error", async () => {
       const axiosError = {
         request: {},
         response: undefined,
@@ -333,57 +335,45 @@ describe("cdpApiClient", () => {
       };
 
       (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
-      (Axios.isAxiosError as any).mockImplementation(err => {
-        return err === axiosError;
-      });
-      await expect(
+      (Axios.isAxiosError as any).mockReturnValue(true);
+      await expect(() =>
         cdpApiClient({
           url: "/test-endpoint",
           method: "GET",
         }),
-      ).rejects.toMatchObject({
-        statusCode: 503,
-        errorType: HttpErrorType.service_unavailable,
-        errorMessage: "Network error, unable to reach the service.",
-      });
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`[UnknownApiError]`);
     });
 
-    it("should handle non-Axios errors", async () => {
+    it("should handle non-Axios errors by rethrowing the error", async () => {
       const error = new Error("Something random went wrong.");
 
       (mockAxiosInstance as any).mockRejectedValueOnce(error);
-      (Axios.isAxiosError as any).mockReturnValueOnce(false);
+      (Axios.isAxiosError as any).mockReturnValue(false);
 
       await expect(
         cdpApiClient({
           url: "/test-endpoint",
           method: "GET",
         }),
-      ).rejects.toMatchObject({
-        name: "APIError",
-        message: "Something random went wrong.",
-        statusCode: 500,
-        errorType: HttpErrorType.unexpected_error,
-        errorMessage: "Something random went wrong.",
-      });
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[UnknownError: Something went wrong. Please reach out at https://discord.com/channels/1220414409550336183/1271495764580896789 for help.]`,
+      );
     });
 
     it("should handle non-Error objects", async () => {
       const error = "Just a string error";
 
       (mockAxiosInstance as any).mockRejectedValueOnce(error);
-      (Axios.isAxiosError as any).mockReturnValueOnce(false);
+      (Axios.isAxiosError as any).mockReturnValue(false);
 
       await expect(
         cdpApiClient({
           url: "/test-endpoint",
           method: "GET",
         }),
-      ).rejects.toMatchObject({
-        statusCode: 500,
-        errorType: HttpErrorType.unexpected_error,
-        errorMessage: `An unexpected error occurred: "${error}"`,
-      });
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[UnknownError: Something went wrong. Please reach out at https://discord.com/channels/1220414409550336183/1271495764580896789 for help.]`,
+      );
     });
 
     it("should include idempotency key when provided", async () => {

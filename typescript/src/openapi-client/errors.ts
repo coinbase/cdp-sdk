@@ -9,6 +9,7 @@ export const HttpErrorType = {
   not_found: "not_found",
   bad_gateway: "bad_gateway",
   service_unavailable: "service_unavailable",
+  unknown: "unknown",
 } as const;
 
 export type HttpErrorType = (typeof HttpErrorType)[keyof typeof HttpErrorType];
@@ -36,6 +37,7 @@ export class APIError extends Error {
    * @param errorMessage - The error message
    * @param correlationId - The correlation ID
    * @param errorLink - URL to documentation about this error
+   * @param cause - The cause of the error
    */
   constructor(
     statusCode: number,
@@ -43,8 +45,9 @@ export class APIError extends Error {
     errorMessage: string,
     correlationId?: string,
     errorLink?: string,
+    cause?: Error,
   ) {
-    super(errorMessage);
+    super(errorMessage, { cause });
     this.name = "APIError";
     this.statusCode = statusCode;
     this.errorType = errorType;
@@ -75,6 +78,39 @@ export class APIError extends Error {
       ...(this.correlationId && { correlationId: this.correlationId }),
       ...(this.errorLink && { errorLink: this.errorLink }),
     };
+  }
+}
+
+/**
+ * Error thrown when an Axios request is made but no response is received
+ */
+export class UnknownApiError extends APIError {
+  /**
+   * Constructor for the UnknownApiError class
+   *
+   * @param errorType - The type of error
+   * @param errorMessage - The error message
+   * @param cause - The cause of the error
+   */
+  constructor(errorType: APIErrorType, errorMessage: string, cause?: Error) {
+    super(0, errorType, errorMessage, undefined, undefined, cause);
+    this.name = "UnknownApiError";
+  }
+}
+
+/**
+ * Error thrown when an error is not known
+ */
+export class UnknownError extends Error {
+  /**
+   * Constructor for the UnknownError class
+   *
+   * @param message - The error message
+   * @param cause - The cause of the error
+   */
+  constructor(message: string, cause?: Error) {
+    super(message, { cause });
+    this.name = "UnknownError";
   }
 }
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { sendEvent } from "./analytics.js";
+import { AnalyticsConfig, sendEvent } from "./analytics.js";
 
 describe("sendEvent", () => {
   it("should use the actual implementation", async () => {
@@ -7,6 +7,8 @@ describe("sendEvent", () => {
       ok: true,
       status: 200,
     });
+
+    AnalyticsConfig.set("test-api-key-id");
 
     await sendEvent({ name: "error", method: "test", message: "test" });
 
@@ -29,14 +31,14 @@ describe("sendEvent", () => {
     expect(eventData[0]).toHaveProperty("event_type", "error");
     expect(eventData[0]).toHaveProperty("platform", "server");
     expect(eventData[0]).toHaveProperty("event_properties");
+    expect(eventData[0]).toHaveProperty("user_id", "test-api-key-id");
+    expect(eventData[0]).toHaveProperty("timestamp");
     expect(eventData[0].event_properties).toMatchObject({
-      platform: "server",
       project_name: "cdp-sdk",
       cdp_sdk_language: "typescript",
       name: "error",
       method: "test",
       message: "test",
     });
-    expect(eventData[0].event_properties).toHaveProperty("time_start");
   });
 });

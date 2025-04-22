@@ -14,6 +14,25 @@ from cdp.cdp_client import CdpClient
 from cdp.evm_client import EvmClient
 from cdp.solana_client import SolanaClient
 
+# This is a public client id for the analytics service
+public_client_id = "54f2ee2fb3d2b901a829940d70fbfc13"
+
+
+class AnalyticsConfig:
+    """AnalyticsConfig singleton class for holding the API key ID."""
+
+    api_key_id = None
+
+    @classmethod
+    def set(cls, api_key_id: str) -> None:
+        """Set the API key ID.
+
+        Args:
+            api_key_id: The API key ID
+
+        """
+        cls.api_key_id = api_key_id
+
 
 class ErrorEventData(BaseModel):
     """The data in an error event."""
@@ -40,12 +59,12 @@ async def send_event(event: EventData) -> None:
     timestamp = int(time.time() * 1000)
 
     enhanced_event = {
+        "user_id": AnalyticsConfig.api_key_id,
         "event_type": event.name,
         "platform": "server",
+        "timestamp": timestamp,
         "event_properties": {
-            "platform": "server",
             "project_name": "cdp-sdk",
-            "time_start": timestamp,
             "cdp_sdk_language": "python",
             **event.model_dump(),
         },
@@ -57,18 +76,21 @@ async def send_event(event: EventData) -> None:
 
     checksum = hashlib.md5((stringified_event_data + upload_time).encode("utf-8")).hexdigest()
 
-    analytics_service_data = {"e": stringified_event_data, "checksum": checksum}
+    analytics_service_data = {
+        "client": public_client_id,
+        "e": stringified_event_data,
+        "checksum": checksum,
+    }
 
     api_endpoint = "https://cca-lite.coinbase.com"
     event_path = "/amp"
     event_endpoint = f"{api_endpoint}{event_path}"
 
-    response = requests.post(
+    requests.post(
         event_endpoint,
         headers={"Content-Type": "application/json"},
         json=analytics_service_data,
     )
-    response.raise_for_status()
 
 
 def wrap_with_error_tracking(func):
