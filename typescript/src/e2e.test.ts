@@ -247,7 +247,7 @@ describe("CDP Client E2E Tests", () => {
     expect(secondPage.balances[0].amount).toBeDefined();
     expect(secondPage.balances[0].amount.amount).toBeDefined();
     expect(secondPage.balances[0].amount.decimals).toBeDefined();
-  })
+  });
 });
 
 // Helper function to generate random name matching the required pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
