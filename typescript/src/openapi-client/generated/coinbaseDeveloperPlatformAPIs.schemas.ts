@@ -315,35 +315,6 @@ export type SignEvmHash200 = {
   signature: string;
 };
 
-/**
- * The network to sign the user operation for.
- */
-export type SignEvmUserOperationBodyNetwork =
-  (typeof SignEvmUserOperationBodyNetwork)[keyof typeof SignEvmUserOperationBodyNetwork];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const SignEvmUserOperationBodyNetwork = {
-  "base-sepolia": "base-sepolia",
-  base: "base",
-} as const;
-
-export type SignEvmUserOperationBody = {
-  /** The network to sign the user operation for. */
-  network: SignEvmUserOperationBodyNetwork;
-  /**
-   * The address of the Smart Account to sign the user operation for.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  smartAccountAddress: string;
-  /** The hash of the user operation, as a 0x-prefixed hex string. */
-  userOpHash: string;
-};
-
-export type SignEvmUserOperation200 = {
-  /** The signed user operation, as a 0x-prefixed hex string. */
-  signature: string;
-};
-
 export type SignEvmMessageBody = {
   /** The message to sign. */
   message: string;

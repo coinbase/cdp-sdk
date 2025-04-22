@@ -16,7 +16,6 @@ import type {
   SignEvmHash200,
   SignEvmMessage200,
   SignEvmTransaction200,
-  SignEvmUserOperation200,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 export const getListEvmAccountsResponseMock = (): ListEvmAccounts200 => ({
@@ -78,10 +77,6 @@ export const getSignEvmTransactionResponseMock = (
 export const getSignEvmHashResponseMock = (
   overrideResponse: Partial<SignEvmHash200> = {},
 ): SignEvmHash200 => ({ signature: faker.string.alpha(20), ...overrideResponse });
-
-export const getSignEvmUserOperationResponseMock = (
-  overrideResponse: Partial<SignEvmUserOperation200> = {},
-): SignEvmUserOperation200 => ({ signature: faker.string.alpha(20), ...overrideResponse });
 
 export const getSignEvmMessageResponseMock = (
   overrideResponse: Partial<SignEvmMessage200> = {},
@@ -242,29 +237,6 @@ export const getSignEvmHashMockHandler = (
   });
 };
 
-export const getSignEvmUserOperationMockHandler = (
-  overrideResponse?:
-    | SignEvmUserOperation200
-    | ((
-        info: Parameters<Parameters<typeof http.post>[1]>[0],
-      ) => Promise<SignEvmUserOperation200> | SignEvmUserOperation200),
-) => {
-  return http.post("*/v2/evm/accounts/:address/sign/user-operation", async info => {
-    await delay(0);
-
-    return new HttpResponse(
-      JSON.stringify(
-        overrideResponse !== undefined
-          ? typeof overrideResponse === "function"
-            ? await overrideResponse(info)
-            : overrideResponse
-          : getSignEvmUserOperationResponseMock(),
-      ),
-      { status: 200, headers: { "Content-Type": "application/json" } },
-    );
-  });
-};
-
 export const getSignEvmMessageMockHandler = (
   overrideResponse?:
     | SignEvmMessage200
@@ -295,6 +267,5 @@ export const getEvmAccountsMock = () => [
   getSendEvmTransactionMockHandler(),
   getSignEvmTransactionMockHandler(),
   getSignEvmHashMockHandler(),
-  getSignEvmUserOperationMockHandler(),
   getSignEvmMessageMockHandler(),
 ];
