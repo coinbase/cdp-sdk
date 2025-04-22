@@ -1,4 +1,3 @@
-import pytest
 from cdp.evm_token_balances import (
     EvmToken,
     EvmTokenAmount,

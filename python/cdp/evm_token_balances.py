@@ -1,5 +1,6 @@
+
 from pydantic import BaseModel, Field
-from typing import Optional
+
 from cdp.openapi_client.models.list_evm_token_balances_network import ListEvmTokenBalancesNetwork
 
 
@@ -12,11 +13,11 @@ class EvmToken(BaseModel):
         "this is the contract address where the token is deployed."
     )
     network: ListEvmTokenBalancesNetwork = Field(description="The network the token is on.")
-    symbol: Optional[str] = Field(
+    symbol: str | None = Field(
         None,
         description='The symbol of the token, which is optional and non-unique (e.g. "ETH" for Ether).',
     )
-    name: Optional[str] = Field(
+    name: str | None = Field(
         None,
         description='The name of the token, which is optional and non-unique (e.g. "Ether" for Ether).',
     )
@@ -42,7 +43,7 @@ class ListTokenBalancesResult(BaseModel):
     """The result of listing EVM token balances."""
 
     balances: list[EvmTokenBalance] = Field(description="The token balances.")
-    next_page_token: Optional[str] = Field(
+    next_page_token: str | None = Field(
         None,
         description="The next page token to paginate through the token balances. "
         "If None, there are no more token balances to paginate through.",

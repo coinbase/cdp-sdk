@@ -4,9 +4,14 @@ from cdp.actions.evm.send_user_operation import send_user_operation
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall, EncodedCall
-from cdp.evm_token_balances import EvmToken, EvmTokenAmount, EvmTokenBalance, ListTokenBalancesResult
 from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_smart_account import EvmSmartAccount
+from cdp.evm_token_balances import (
+    EvmToken,
+    EvmTokenAmount,
+    EvmTokenBalance,
+    ListTokenBalancesResult,
+)
 from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccountRequest
 from cdp.openapi_client.models.create_evm_smart_account_request import (
     CreateEvmSmartAccountRequest,
@@ -323,13 +328,16 @@ class EvmClient:
         page_token: str | None = None,
     ):
         """List the token balances for an address on the given network.
+
         Args:
             address (str): The address to list the token balances for.
             network (str): The network to list the token balances for.
             page_size (int, optional): The number of token balances to return per page. Defaults to None.
             page_token (str, optional): The token for the next page of token balances, if any. Defaults to None.
+
         Returns:
             [ListTokenBalancesResult]: The token balances for the address on the network.
+
         """
         response = await self.api_clients.evm_token_balances.list_evm_token_balances(
             address=address, network=network, page_size=page_size, page_token=page_token
