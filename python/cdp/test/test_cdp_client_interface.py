@@ -6,6 +6,7 @@ import pytest
 from cdp.evm_client import EvmClient
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
+from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
 from cdp.solana_client import SolanaClient
@@ -47,7 +48,13 @@ async def test_cdp_client_wraps_all_api_methods():
     evm_methods = get_public_methods(EvmClient)
     solana_methods = get_public_methods(SolanaClient)
 
-    api_classes = [EVMAccountsApi, EVMSmartAccountsApi, FaucetsApi, SolanaAccountsApi]
+    api_classes = [
+        EVMAccountsApi,
+        EVMSmartAccountsApi,
+        EVMTokenBalancesApi,
+        FaucetsApi,
+        SolanaAccountsApi,
+    ]
 
     for api_class in api_classes:
         api_methods = get_public_methods(api_class)

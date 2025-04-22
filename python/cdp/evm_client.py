@@ -136,6 +136,10 @@ class EvmClient:
             x_idempotency_key=idempotency_key,
         )
 
+    async def send_transaction(self, transaction: str, network: str):
+        """Send an EVM transaction. Currently unimplemented."""
+        raise NotImplementedError("Sending transactions is not yet implemented")
+
     async def create_smart_account(self, owner: BaseAccount):
         """Create an EVM smart account.
 
@@ -248,6 +252,10 @@ class EvmClient:
             paymaster_url,
         )
 
+    async def sign_user_operation(self, user_op: EvmUserOperation):
+        """Sign a user operation. Currently unimplemented."""
+        raise NotImplementedError("Signing user operations is not yet implemented")
+
     async def wait_for_user_operation(
         self,
         smart_account_address: str,
@@ -305,3 +313,7 @@ class EvmClient:
             )
         )
         return response.transaction_hash
+
+    async def list_token_balances(self, address: str, network: str):
+        """List the token balances for an address. Currently unimplemented."""
+        raise NotImplementedError("Listing token balances is not yet implemented")
