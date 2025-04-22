@@ -18,8 +18,6 @@ import type {
   SignEvmMessageBody,
   SignEvmTransaction200,
   SignEvmTransactionBody,
-  SignEvmUserOperation200,
-  SignEvmUserOperationBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -146,9 +144,6 @@ export const signEvmTransaction = (
 };
 /**
  * Signs an arbitrary 32 byte hash with the given EVM account.
-
-
-**WARNING: This API will likely be deprecated in the future.** It is recommended not to depend on it. Never sign a hash that you didn't generate, as it can be an arbitrary transaction. For example, it might send all of your funds to an attacker.
  * @summary Sign a hash
  */
 export const signEvmHash = (
@@ -162,25 +157,6 @@ export const signEvmHash = (
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: signEvmHashBody,
-    },
-    options,
-  );
-};
-/**
- * Signs an [EIP-4337](https://eips.ethereum.org/EIPS/eip-4337) User Operation with the given EVM account.
- * @summary Sign an EIP-4337 User Operation
- */
-export const signEvmUserOperation = (
-  address: string,
-  signEvmUserOperationBody: SignEvmUserOperationBody,
-  options?: SecondParameter<typeof cdpApiClient>,
-) => {
-  return cdpApiClient<SignEvmUserOperation200>(
-    {
-      url: `/v2/evm/accounts/${address}/sign/user-operation`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      data: signEvmUserOperationBody,
     },
     options,
   );
@@ -215,7 +191,4 @@ export type GetEvmAccountByNameResult = NonNullable<
 export type SendEvmTransactionResult = NonNullable<Awaited<ReturnType<typeof sendEvmTransaction>>>;
 export type SignEvmTransactionResult = NonNullable<Awaited<ReturnType<typeof signEvmTransaction>>>;
 export type SignEvmHashResult = NonNullable<Awaited<ReturnType<typeof signEvmHash>>>;
-export type SignEvmUserOperationResult = NonNullable<
-  Awaited<ReturnType<typeof signEvmUserOperation>>
->;
 export type SignEvmMessageResult = NonNullable<Awaited<ReturnType<typeof signEvmMessage>>>;
