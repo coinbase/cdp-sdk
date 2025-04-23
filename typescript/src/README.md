@@ -12,6 +12,7 @@
 - [License](#license)
 - [Support](#support)
 - [Security](#security)
+- [FAQ](#faq)
 
 > [!TIP]
 >
@@ -297,3 +298,19 @@ For feature requests, feedback, or questions, please reach out to us in the **#c
 ## Security
 
 If you discover a security vulnerability within this SDK, please see our [Security Policy](https://github.com/coinbase/cdp-sdk/tree/main/SECURITY.md) for disclosure information.
+
+## FAQ
+
+Common errors and their solutions.
+
+### AggregateError [ETIMEDOUT]
+
+This is an issue in Node.js itself: https://github.com/nodejs/node/issues/54359. While [the fix](https://github.com/nodejs/node/pull/56738) is implemented, the workaround is to set the environment variable:
+
+```bash
+export NODE_OPTIONS="--network-family-autoselection-attempt-timeout=500"
+```
+
+### Error [ERR_REQUIRE_ESM]: require() of ES modules is not supported.
+
+Use Node v20.19.0 or higher. CDP SDK depends on [jose](https://github.com/panva/jose) v6, which ships only ESM. Jose supports CJS style imports in Node.js versions where the require(esm) feature is enabled by default (^20.19.0 || ^22.12.0 || >= 23.0.0). [See here for more info](https://github.com/panva/jose?tab=readme-ov-file#user-content-fn-cjs-705c79d785ca9bc0f9ec1e8ce0825c74).
