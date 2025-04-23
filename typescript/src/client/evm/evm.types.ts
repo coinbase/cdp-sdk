@@ -330,9 +330,15 @@ export interface EvmToken {
   contractAddress: Address;
   /** The network the token is on. */
   network: ListEvmTokenBalancesNetwork;
-  /** The symbol of the token, which is optional and non-unique (e.g. "ETH" for Ether). */
+  /**
+   * The symbol of the token, which is optional and non-unique. Note: This field
+   * may not be present for most tokens while the API is still under development.
+   */
   symbol?: string;
-  /** The name of the token, which is optional and non-unique (e.g. "Ether" for Ether). */
+  /**
+   * The name of the token, which is optional and non-unique. Note: This field
+   * may not be present for most tokens while the API is still under development.
+   */
   name?: string;
 }
 

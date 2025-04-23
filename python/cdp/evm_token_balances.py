@@ -14,11 +14,13 @@ class EvmToken(BaseModel):
     network: ListEvmTokenBalancesNetwork = Field(description="The network the token is on.")
     symbol: str | None = Field(
         None,
-        description='The symbol of the token, which is optional and non-unique (e.g. "ETH" for Ether).',
+        description="The symbol of the token, which is optional and non-unique. Note: "
+        "this field may not be present for most tokens while the API is still under development."
     )
     name: str | None = Field(
         None,
-        description='The name of the token, which is optional and non-unique (e.g. "Ether" for Ether).',
+        description="The name of the token, which is optional and non-unique. Note: "
+        "this field may not be present for most tokens while the API is still under development.",
     )
 
 
