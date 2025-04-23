@@ -25,6 +25,7 @@ Follow these steps to publish a new version of the TypeScript CDP SDK.
 1. Tag the new version with `git tag -s @coinbase/cdp-sdk@v{NEW_VERSION} -m "Release @coinbase/cdp-sdk {NEW_VERSION}"`
 1. Push the tag with `git push origin @coinbase/cdp-sdk@v{NEW_VERSION}`
 1. Delete your release branch
+1. Trigger the [Deploy CDP SDK documentation to GitHub Pages](https://github.com/coinbase/cdp-sdk/actions/workflows/deploy-gh-pages.yml) action. Select `typescript` as the language to deploy
 
 ## Python
 
@@ -45,8 +46,9 @@ Follow these steps to publish a new version of the Python CDP SDK.
 1. Add and commit all the changes with the message: `chore: bump cdp-sdk to {NEW_VERSION}`
 1. Push your branch, create a PR and get an approval
 1. Once approved, merge your PR
-1. Once merged, manually trigger the [Publish cdp-sdk](https://github.com/coinbase/poc-cdp-sdk/actions/workflows/python_publish.yml) workflow
+1. Once merged, manually trigger the [Publish cdp-sdk](https://github.com/coinbase/cdp-sdk/actions/workflows/python_publish.yml) workflow
 1. Once the workflow has completed, go back to the `main` branch and pull the latest changes
 1. Tag the new version with `git tag -s cdp-sdk@v{NEW_VERSION} -m "Release cdp-sdk {NEW_VERSION}"`
 1. Push the tag with `git push origin cdp-sdk@v{NEW_VERSION}`
 1. Delete your release branch
+1. Trigger the [Deploy CDP SDK documentation to GitHub Pages](https://github.com/coinbase/cdp-sdk/actions/workflows/deploy-gh-pages.yml) action. Select `python` as the language to deploy
