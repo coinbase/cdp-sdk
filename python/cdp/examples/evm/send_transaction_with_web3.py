@@ -7,8 +7,6 @@ from web3 import Web3
 
 from cdp import CdpClient
 
-w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
-
 
 async def main():
     """Contains main function for the EVM transaction script."""
@@ -22,6 +20,7 @@ async def main():
             address=evm_account.address, network="base-sepolia", token="eth"
         )
 
+        w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
         w3.eth.wait_for_transaction_receipt(faucet_hash)
         print(f"Received funds from faucet for address: {evm_account.address}")
 
@@ -39,22 +38,21 @@ async def main():
         max_priority_fee = w3.eth.max_priority_fee
         max_fee = w3.eth.gas_price + max_priority_fee
 
-        tx_hash = await cdp.evm.send_transaction(
-            address=evm_account.address,
-            transaction={
+        signed_tx = await evm_account.sign_transaction(
+            transaction_dict={
                 "to": zero_address,
                 "value": amount_to_send,
                 "chainId": 84532,
                 "gas": gas_estimate,
-                "maxFeePerGas": max_fee,
+                "maxFeePerGas": max_fee,  # Use maxFeePerGas instead of gasPrice
                 "maxPriorityFeePerGas": max_priority_fee,
                 "nonce": nonce,
-                "type": "0x2",
-            },
-            network="base-sepolia",
+                "type": "0x2",  # EIP-1559 transaction type
+            }
         )
 
-        print(f"Transaction sent! Hash: {tx_hash}")
+        tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+        print(f"Transaction sent! Hash: {tx_hash.hex()}")
 
         print("Waiting for transaction confirmation...")
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)

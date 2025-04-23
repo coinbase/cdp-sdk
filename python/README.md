@@ -166,8 +166,79 @@ asyncio.run(main())
 
 ### Sending transactions
 
-For EVM, we recommend using viem to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/python/cdp/examples/send_evm_tx.py).
-For Solana, we recommend using the `@solana/web3.js` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/python/cdp/examples/send_sol_tx.py).
+#### EVM
+
+You can use CDP SDK to send transactions on EVM networks.
+
+Note that while the CDP API can handle nonce and gas management, this function relies on TypedTransaction from eth-account to serialize the transaction, and TypedTransaction requires you to pass in the nonce and gas parameters.
+
+```python
+import asyncio
+
+from dotenv import load_dotenv
+from web3 import Web3
+
+from cdp import CdpClient
+
+w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
+
+
+async def main():
+    load_dotenv()
+
+    async with CdpClient() as cdp:
+        evm_account = await cdp.evm.create_account()
+
+        faucet_hash = await cdp.evm.request_faucet(
+            address=evm_account.address, network="base-sepolia", token="eth"
+        )
+
+        w3.eth.wait_for_transaction_receipt(faucet_hash)
+
+        zero_address = "0x0000000000000000000000000000000000000000"
+
+        amount_to_send = w3.to_wei(0.000001, "ether")
+
+        nonce = w3.eth.get_transaction_count(evm_account.address)
+
+        gas_estimate = w3.eth.estimate_gas(
+            {"to": zero_address, "from": evm_account.address, "value": amount_to_send}
+        )
+
+        # Get max fee and priority fee
+        max_priority_fee = w3.eth.max_priority_fee
+        max_fee = w3.eth.gas_price + max_priority_fee
+
+        tx_hash = await cdp.evm.send_transaction(
+            address=evm_account.address,
+            transaction={
+                "to": zero_address,
+                "value": amount_to_send,
+                "chainId": 84532,
+                # Gas and nonce management are all required to satisfy eth-account
+                "gas": gas_estimate,
+                "maxFeePerGas": max_fee,
+                "maxPriorityFeePerGas": max_priority_fee,
+                "nonce": nonce,
+                "type": "0x2",
+            },
+            network="base-sepolia",
+        )
+
+        print(f"Transaction sent! Hash: {tx_hash}")
+
+        print("Waiting for transaction confirmation...")
+        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        print(f"Transaction confirmed in block {tx_receipt.blockNumber}")
+        print(f"Transaction status: {'Success' if tx_receipt.status == 1 else 'Failed'}")
+
+
+asyncio.run(main())
+```
+
+#### Solana
+
+For Solana, we recommend using the `solana` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/python/cdp/examples/solana/send_transaction.py).
 
 ### EVM Smart Accounts
 

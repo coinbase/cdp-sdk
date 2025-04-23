@@ -6,11 +6,14 @@ import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
+from web3 import Web3
 
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
 
 load_dotenv()
+
+w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 
 
 @pytest_asyncio.fixture(scope="function")
@@ -146,6 +149,52 @@ async def test_send_wait_and_get_user_operation(cdp_client):
     )
     assert user_op is not None
     assert user_op.status == "complete"
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_send_transaction(cdp_client):
+    """Test sending a transaction."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    faucet_hash = await cdp_client.evm.request_faucet(
+        address=account.address, network="base-sepolia", token="eth"
+    )
+
+    w3.eth.wait_for_transaction_receipt(faucet_hash)
+
+    zero_address = "0x0000000000000000000000000000000000000000"
+
+    amount_to_send = w3.to_wei(0.000001, "ether")
+
+    nonce = w3.eth.get_transaction_count(account.address)
+
+    gas_estimate = w3.eth.estimate_gas(
+        {"to": zero_address, "from": account.address, "value": amount_to_send}
+    )
+
+    # Get max fee and priority fee
+    max_priority_fee = w3.eth.max_priority_fee
+    max_fee = w3.eth.gas_price + max_priority_fee
+
+    tx_hash = await cdp_client.evm.send_transaction(
+        address=account.address,
+        transaction={
+            "to": zero_address,
+            "value": amount_to_send,
+            "chainId": 84532,
+            "gas": gas_estimate,
+            "maxFeePerGas": max_fee,
+            "maxPriorityFeePerGas": max_priority_fee,
+            "nonce": nonce,
+            "type": "0x2",
+        },
+        network="base-sepolia",
+    )
+
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    assert tx_receipt is not None
 
 
 @pytest.mark.e2e

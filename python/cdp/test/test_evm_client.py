@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from web3 import Web3
 
 from cdp.api_clients import ApiClients
 from cdp.evm_client import EvmClient
@@ -16,6 +17,8 @@ from cdp.openapi_client.models.create_evm_smart_account_request import (
     CreateEvmSmartAccountRequest,
 )
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
+from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
+from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
 from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageRequest
 from cdp.openapi_client.models.sign_evm_transaction_request import (
@@ -205,6 +208,78 @@ async def test_send_user_operation(mock_send_user_operation, smart_account_model
     )
 
     assert result == mock_user_operation
+
+
+@pytest.mark.asyncio
+async def test_send_transaction_serialized():
+    """Test sending a serialized transaction."""
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+    mock_evm_accounts_api.send_evm_transaction = AsyncMock(
+        return_value=SendEvmTransaction200Response(transaction_hash="0x123")
+    )
+    client = EvmClient(api_clients=mock_api_clients)
+
+    test_address = "0x1234567890123456789012345678901234567890"
+    test_network = "base-sepolia"
+    test_transaction = "0xabcdef"
+
+    result = await client.send_transaction(
+        address=test_address, network=test_network, transaction=test_transaction
+    )
+
+    mock_evm_accounts_api.send_evm_transaction.assert_called_once_with(
+        address=test_address,
+        send_evm_transaction_request=SendEvmTransactionRequest(
+            transaction=test_transaction, network=test_network
+        ),
+        x_idempotency_key=None,
+    )
+
+    assert result == "0x123"
+
+
+@pytest.mark.asyncio
+async def test_send_transaction_typed():
+    """Test sending a typed transaction."""
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+    mock_evm_accounts_api.send_evm_transaction = AsyncMock(
+        return_value=SendEvmTransaction200Response(transaction_hash="0x123")
+    )
+    client = EvmClient(api_clients=mock_api_clients)
+
+    w3 = Web3()
+
+    test_address = "0x1234567890123456789012345678901234567890"
+    test_network = "base-sepolia"
+    test_transaction = {
+        "to": "0x1234567890123456789012345678901234567890",
+        "value": w3.to_wei(0.000001, "ether"),
+        "chainId": 84532,
+        "gas": 21000,
+        "nonce": 1,
+        "maxFeePerGas": 1000000000000000000,
+        "maxPriorityFeePerGas": 1000000000000000000,
+        "type": "0x2",
+    }
+
+    result = await client.send_transaction(
+        address=test_address, network=test_network, transaction=test_transaction
+    )
+
+    mock_evm_accounts_api.send_evm_transaction.assert_called_once_with(
+        address=test_address,
+        send_evm_transaction_request=SendEvmTransactionRequest(
+            transaction="0x02f83a83014a3401880de0b6b3a7640000880de0b6b3a764000082520894123456789012345678901234567890123456789085e8d4a5100080c0808080",
+            network=test_network,
+        ),
+        x_idempotency_key=None,
+    )
+
+    assert result == "0x123"
 
 
 @pytest.mark.asyncio
