@@ -3,6 +3,7 @@
 ## Table of Contents
 
 - [CDP SDK](#cdp-sdk)
+- [Documentation](#documentation)
 - [Installation](#installation)
 - [API Keys](#api-keys)
 - [Usage](#usage)
@@ -18,6 +19,15 @@
 ## CDP SDK
 
 This module contains the Python CDP SDK, which is a library that provides a client for interacting with the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). It includes a CDP Client for interacting with EVM and Solana APIs to create accounts and send transactions, as well as authentication tools for interacting directly with the CDP APIs.
+
+## Documentation
+
+CDP SDK has [auto-generated docs for the Python SDK](https://coinbase.github.io/cdp-sdk/python).
+
+Further documentation is also available on the CDP docs website:
+
+- [Wallet API v2](https://docs.cdp.coinbase.com/wallet-api-v2/docs/welcome)
+- [API Reference](https://docs.cdp.coinbase.com/api-v2/docs/welcome)
 
 ## Installation
 
