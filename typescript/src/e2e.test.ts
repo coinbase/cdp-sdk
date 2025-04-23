@@ -1,11 +1,28 @@
 import { describe, it, expect, beforeAll, vi } from "vitest";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
-import { serializeTransaction, parseEther, Hex } from "viem";
+import {
+  serializeTransaction,
+  parseEther,
+  createPublicClient,
+  http,
+  type Hex,
+  type PublicClient,
+  type Transport,
+  type Chain,
+} from "viem";
 import { baseSepolia } from "viem/chains";
 import { CdpClient } from "./client/cdp.js";
 import dotenv from "dotenv";
 
 dotenv.config();
+
+const logger = {
+  log: (...args: any[]) => {
+    if (process.env.E2E_LOGGING) {
+      console.log(...args);
+    }
+  },
+};
 
 vi.mock("./analytics.js", () => {
   return {
@@ -17,9 +34,14 @@ vi.mock("./analytics.js", () => {
 
 describe("CDP Client E2E Tests", () => {
   let cdp: CdpClient;
+  let publicClient: PublicClient<Transport, Chain>;
 
   beforeAll(() => {
     cdp = new CdpClient();
+    publicClient = createPublicClient<Transport, Chain>({
+      chain: baseSepolia,
+      transport: http(),
+    });
   });
 
   it("should create, get, and list accounts", async () => {
@@ -153,6 +175,41 @@ describe("CDP Client E2E Tests", () => {
     expect(userOp).toBeDefined();
     expect(userOp.status).toBe("complete");
     expect(userOp.transactionHash).toBeDefined();
+  });
+
+  it("should send a transaction", async () => {
+    logger.log("Calling cdp.evm.createAccount");
+    const account = await cdp.evm.createAccount();
+    logger.log("Account created. Response:", JSON.stringify(account, null, 2));
+
+    logger.log("Calling cdp.evm.requestFaucet");
+    const faucetResp = await cdp.evm.requestFaucet({
+      address: account.address,
+      network: "base-sepolia",
+      token: "eth",
+    });
+    logger.log("Faucet requested. Response:", JSON.stringify(faucetResp, null, 2));
+
+    logger.log("Waiting for faucet transaction");
+    await publicClient.waitForTransactionReceipt({
+      hash: faucetResp.transactionHash,
+    });
+    logger.log("Faucet transaction complete");
+
+    logger.log("Calling cdp.evm.sendTransaction");
+    const txResult = await cdp.evm.sendTransaction({
+      address: account.address,
+      network: "base-sepolia",
+      transaction: {
+        to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+        value: parseEther("0.000001"),
+      },
+    });
+    logger.log("Transaction sent. Response:", JSON.stringify(txResult, null, 2));
+
+    logger.log("Waiting for transaction receipt");
+    await publicClient.waitForTransactionReceipt({ hash: txResult.transactionHash });
+    logger.log("Transaction receipt received");
   });
 
   it("should create, get, and list solana accounts", async () => {

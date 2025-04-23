@@ -41,6 +41,7 @@ vi.mock("../../openapi-client", () => {
       listEvmTokenBalances: vi.fn(),
       prepareUserOperation: vi.fn(),
       requestEvmFaucet: vi.fn(),
+      sendEvmTransaction: vi.fn(),
       sendUserOperation: vi.fn(),
       signEvmHash: vi.fn(),
       signEvmMessage: vi.fn(),
@@ -463,6 +464,43 @@ describe("EvmClient", () => {
       requestFaucetMock.mockResolvedValue({ transactionHash });
 
       const result = await client.requestFaucet({ address, network, token });
+
+      expect(result).toEqual({ transactionHash });
+    });
+  });
+
+  describe("sendTransaction", () => {
+    it("should send a serialized transaction", async () => {
+      const address = "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8";
+      const network = "base-sepolia" as const;
+      const transaction = "0xtransactionserialized";
+      const transactionHash = "0xhash";
+
+      const sendEvmTransactionMock = CdpOpenApiClient.sendEvmTransaction as MockedFunction<
+        typeof CdpOpenApiClient.sendEvmTransaction
+      >;
+      sendEvmTransactionMock.mockResolvedValue({ transactionHash });
+
+      const result = await client.sendTransaction({ address, network, transaction });
+
+      expect(result).toEqual({ transactionHash });
+    });
+
+    it("should handle an unserialized transaction", async () => {
+      const address = "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8";
+      const network = "base-sepolia" as const;
+      const transaction = {
+        to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8" as Address,
+        value: 1n,
+      };
+      const transactionHash = "0xhash";
+
+      const sendEvmTransactionMock = CdpOpenApiClient.sendEvmTransaction as MockedFunction<
+        typeof CdpOpenApiClient.sendEvmTransaction
+      >;
+      sendEvmTransactionMock.mockResolvedValue({ transactionHash });
+
+      const result = await client.sendTransaction({ address, network, transaction });
 
       expect(result).toEqual({ transactionHash });
     });

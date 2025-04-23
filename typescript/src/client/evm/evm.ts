@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address, serializeTransaction } from "viem";
 
 import {
   CreateServerAccountOptions,
@@ -25,6 +25,8 @@ import {
   ListSmartAccountsOptions,
   ListTokenBalancesOptions,
   ListTokenBalancesResult,
+  SendTransactionOptions,
+  TransactionResult,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
@@ -471,6 +473,76 @@ export class EvmClient implements EvmClientInterface {
 
     return {
       transactionHash: transactionHash as Hex,
+    };
+  }
+
+  /**
+   * Signs an EVM transaction and sends it to the specified network using the Coinbase API.
+   * This method handles nonce management and gas estimation automatically.
+   *
+   * @param {SendTransactionOptions} options - Configuration options for sending the transaction.
+   * @returns A promise that resolves to the transaction hash.
+   *
+   * @example
+   * **Sending an RLP-encoded transaction**
+   * ```ts
+   * import { parseEther, serializeTransaction } from "viem";
+   * import { baseSepolia } from "viem/chains";
+   *
+   * const { transactionHash } = await cdp.evm.sendTransaction({
+   *   address: account.address,
+   *   transaction: serializeTransaction({
+   *     to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+   *     value: parseEther("0.000001"),
+   *     chainId: baseSepolia.id,
+   *     // Fields below are optional, CDP API will populate them if omitted.
+   *     // nonce
+   *     // maxPriorityFeePerGas
+   *     // maxFeePerGas
+   *     // gas
+   *   }),
+   *   network: "base-sepolia",
+   * });
+   * ```
+   * @example
+   * **Sending an EIP-1559 transaction request object**
+   * ```ts
+   * const { transactionHash } = await cdp.evm.sendTransaction({
+   *   address: account.address,
+   *   transaction: {
+   *     to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+   *     value: parseEther("0.000001"),
+   *     // Fields below are optional, CDP API will populate them if omitted.
+   *     // nonce
+   *     // maxPriorityFeePerGas
+   *     // maxFeePerGas
+   *     // gas
+   *   },
+   *   network: "base-sepolia",
+   * });
+   * ```
+   */
+  async sendTransaction(options: SendTransactionOptions): Promise<TransactionResult> {
+    const { address, network, idempotencyKey } = options;
+    let transaction = options.transaction;
+
+    if (typeof transaction !== "string") {
+      transaction = serializeTransaction({
+        ...transaction,
+        // chainId is ignored in favor of network
+        chainId: 1,
+        type: "eip1559",
+      });
+    }
+
+    const result = await CdpOpenApiClient.sendEvmTransaction(
+      address,
+      { transaction, network },
+      idempotencyKey,
+    );
+
+    return {
+      transactionHash: result.transactionHash as Hex,
     };
   }
 

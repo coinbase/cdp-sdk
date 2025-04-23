@@ -124,7 +124,94 @@ const faucetResp = await cdp.solana.requestFaucet({
 
 ### Sending transactions
 
-For EVM, we recommend using viem to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/typescript/src/examples/evm/sendTransaction.ts). For Solana, we recommend using the `@solana/web3.js` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/typescript/src/examples/solana/signAndSendTransaction.ts).
+#### EVM
+
+You can use CDP SDK to send transactions on EVM networks.
+
+```typescript
+import { CdpClient } from "@coinbase/cdp-sdk";
+import { parseEther, createPublicClient, http } from "viem";
+import { baseSepolia } from "viem/chains";
+
+const publicClient = createPublicClient({
+  chain: baseSepolia,
+  transport: http(),
+});
+
+const cdp = new CdpClient();
+
+const account = await cdp.evm.createAccount();
+
+const faucetResp = await cdp.evm.requestFaucet({
+  address: account.address,
+  network: "base-sepolia",
+  token: "eth",
+});
+
+const faucetTxReceipt = await publicClient.waitForTransactionReceipt({
+  hash: faucetResp.transactionHash,
+});
+
+const { transactionHash } = await cdp.evm.sendTransaction({
+  address: account.address,
+  network: "base-sepolia",
+  transaction: {
+    to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+    value: parseEther("0.000001"),
+  },
+});
+
+await publicClient.waitForTransactionReceipt({ hash: transactionHash });
+
+console.log(
+  `Transaction confirmed! Explorer link: https://sepolia.basescan.org/tx/${transactionHash}`,
+);
+```
+
+CDP SDK is fully viem-compatible, so you can optionally use a `walletClient` to send transactions.
+
+```typescript
+import { CdpClient } from "@coinbase/cdp-sdk";
+import { parseEther, createPublicClient, http, createWalletClient, toAccount } from "viem";
+import { baseSepolia } from "viem/chains";
+
+const publicClient = createPublicClient({
+  chain: baseSepolia,
+  transport: http(),
+});
+
+const cdp = new CdpClient();
+
+const account = await cdp.evm.createAccount();
+
+const faucetResp = await cdp.evm.requestFaucet({
+  address: account.address,
+  network: "base-sepolia",
+  token: "eth",
+});
+
+const faucetTxReceipt = await publicClient.waitForTransactionReceipt({
+  hash: faucetResp.transactionHash,
+});
+
+const walletClient = createWalletClient({
+  account: toAccount(serverAccount),
+  chain: baseSepolia,
+  transport: http(),
+});
+
+// Step 3: Sign the transaction with CDP and broadcast it using the wallet client.
+const hash = await walletClient.sendTransaction({
+  to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+  value: parseEther("0.000001"),
+});
+
+console.log(`Transaction confirmed! Explorer link: https://sepolia.basescan.org/tx/${hash}`);
+```
+
+#### Solana
+
+For Solana, we recommend using the `@solana/web3.js` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/typescript/src/examples/solana/signAndSendTransaction.ts).
 
 ### EVM Smart Accounts
 

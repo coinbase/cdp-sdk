@@ -4,16 +4,16 @@ import {
   EvmSmartAccount as SmartAccount,
 } from "../../accounts/types.js";
 import { SendUserOperationReturnType } from "../../actions/evm/sendUserOperation.js";
-import { Call, Calls } from "../../types/calls.js";
-import { Address, Hex } from "../../types/misc.js";
-import { WaitOptions } from "../../utils/wait.js";
-
-import type {
+import {
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
   ListEvmTokenBalancesNetwork,
+  SendEvmTransactionBodyNetwork,
 } from "../../openapi-client/index.js";
+import { Call, Calls } from "../../types/calls.js";
+import { Address, Hex, TransactionRequestEIP1559 } from "../../types/misc.js";
+import { WaitOptions } from "../../utils/wait.js";
 
 /**
  * The EvmClient type, where all OpenApiEvmMethods methods are wrapped.
@@ -35,7 +35,7 @@ export type EvmClientInterface = Omit<
   | "signEvmHash" // mapped to signHash
   | "signEvmMessage" // mapped to signMessage
   | "signEvmTransaction" // mapped to signTransaction
-  | "sendEvmTransaction" // to be implemented soon
+  | "sendEvmTransaction" // mapped to sendTransaction
 > & {
   createAccount: (options: CreateServerAccountOptions) => Promise<ServerAccount>;
   createSmartAccount: (options: CreateSmartAccountOptions) => Promise<SmartAccount>;
@@ -47,6 +47,7 @@ export type EvmClientInterface = Omit<
   listTokenBalances: (options: ListTokenBalancesOptions) => Promise<ListTokenBalancesResult>;
   prepareUserOperation: (options: PrepareUserOperationOptions) => Promise<UserOperation>;
   requestFaucet: (options: RequestFaucetOptions) => Promise<RequestFaucetResult>;
+  sendTransaction: (options: SendTransactionOptions) => Promise<TransactionResult>;
   sendUserOperation: (options: SendUserOperationOptions) => Promise<SendUserOperationReturnType>;
   signHash: (options: SignHashOptions) => Promise<SignatureResult>;
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
@@ -234,6 +235,29 @@ export interface RequestFaucetResult {
 }
 
 /**
+ * Options for sending an EVM transaction.
+ */
+export interface SendTransactionOptions {
+  /** The address of the account. */
+  address: Address;
+  /**
+   * The transaction to send. The chainId is ignored in favor of the `network` field.
+   *
+   * This can be either:
+   * - An RLP-encoded transaction to sign and send, as a 0x-prefixed hex string, or
+   * - An EIP-1559 transaction request object.
+   */
+  transaction: Hex | TransactionRequestEIP1559;
+  /**
+   * The network to send the transaction to.
+   * The chainId in the `transaction` field is ignored in favor of this field.
+   */
+  network: SendEvmTransactionBodyNetwork;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+}
+
+/**
  * Options for sending a user operation.
  */
 export interface SendUserOperationOptions {
@@ -291,6 +315,14 @@ export interface SignTransactionOptions {
 export interface SignatureResult {
   /** The signature. */
   signature: Hex;
+}
+
+/**
+ * Result of a transaction
+ */
+export interface TransactionResult {
+  /** The hash of the transaction. */
+  transactionHash: Hex;
 }
 
 /**
