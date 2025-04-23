@@ -15,7 +15,7 @@ class EvmToken(BaseModel):
     symbol: str | None = Field(
         None,
         description="The symbol of the token, which is optional and non-unique. Note: "
-        "this field may not be present for most tokens while the API is still under development."
+        "this field may not be present for most tokens while the API is still under development.",
     )
     name: str | None = Field(
         None,
