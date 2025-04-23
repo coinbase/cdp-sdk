@@ -1,5 +1,17 @@
 # CDP SDK Changelog
 
+## 1.3.0
+
+### Minor Changes
+
+- [#55](https://github.com/coinbase/cdp-sdk/pull/55) [`7692260`](https://github.com/coinbase/cdp-sdk/commit/7692260e465d5887629519b75e7d27d26bd372f0) Thanks [@yuga-cb](https://github.com/yuga-cb)! - Added listTokenBalances to the EVM client to retrieve ERC-20 and native token balances for an address on a given network.
+
+- [#58](https://github.com/coinbase/cdp-sdk/pull/58) [`29765e8`](https://github.com/coinbase/cdp-sdk/commit/29765e8146ef3b44985a5dbbe9d23023a2acffc1) Thanks [@0xRAG](https://github.com/0xRAG)! - Added sendTransaction to the EVM client to sign and send a transaction on a given network.
+
+### Patch Changes
+
+- [#56](https://github.com/coinbase/cdp-sdk/pull/56) [`381c430`](https://github.com/coinbase/cdp-sdk/commit/381c43039013cec7799d02df00247fa8256d16b1) Thanks [@0xRAG](https://github.com/0xRAG)! - Improved error handling and reporting.
+
 ## 1.2.0
 
 ### Minor Changes
