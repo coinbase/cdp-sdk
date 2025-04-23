@@ -49,6 +49,58 @@ class EvmClient:
         )
         return EvmServerAccount(evm_account, self.api_clients.evm_accounts)
 
+    async def create_smart_account(self, owner: BaseAccount):
+        """Create an EVM smart account.
+
+        Args:
+            owner (BaseAccount): The owner of the smart account.
+
+        """
+        evm_smart_account = await self.api_clients.evm_smart_accounts.create_evm_smart_account(
+            CreateEvmSmartAccountRequest(owners=[owner.address]),
+        )
+        return EvmSmartAccount(evm_smart_account.address, owner, evm_smart_account.name)
+
+    async def get_account(self, address: str | None = None, name: str | None = None):
+        """Get an EVM account by address.
+
+        Args:
+            address (str, optional): The address of the account.
+            name (str, optional): The name of the account.
+
+        Returns:
+            EvmServerAccount: The EVM server account.
+
+        """
+        if address:
+            evm_account = await self.api_clients.evm_accounts.get_evm_account(address)
+        elif name:
+            evm_account = await self.api_clients.evm_accounts.get_evm_account_by_name(name)
+        else:
+            raise ValueError("Either address or name must be provided")
+        return EvmServerAccount(evm_account, self.api_clients.evm_accounts)
+
+    async def get_smart_account(self, address: str, owner: BaseAccount | None = None):
+        """Get an EVM smart account by address.
+
+        Args:
+            address (str): The address of the smart account.
+            owner (BaseAccount, optional): The owner of the smart account. Defaults to None.
+
+        """
+        evm_smart_account = await self.api_clients.evm_smart_accounts.get_evm_smart_account(address)
+        return EvmSmartAccount(evm_smart_account.address, owner, evm_smart_account.name)
+
+    async def get_user_operation(self, address: str, user_op_hash: str):
+        """Get a user operation by address and hash.
+
+        Args:
+            address (str): The address of the smart account that sent the operation.
+            user_op_hash (str): The hash of the user operation to get.
+
+        """
+        return await self.api_clients.evm_smart_accounts.get_user_operation(address, user_op_hash)
+
     async def list_accounts(
         self,
         page_size: int | None = None,
@@ -76,98 +128,46 @@ class EvmClient:
             "next_page_token": response.next_page_token,
         }
 
-    async def get_account(self, address: str | None = None, name: str | None = None):
-        """Get an EVM account by address.
+    async def list_token_balances(
+        self,
+        address: str,
+        network: str,
+        page_size: int | None = None,
+        page_token: str | None = None,
+    ):
+        """List the token balances for an address on the given network.
 
         Args:
-            address (str, optional): The address of the account.
-            name (str, optional): The name of the account.
+            address (str): The address to list the token balances for.
+            network (str): The network to list the token balances for.
+            page_size (int, optional): The number of token balances to return per page. Defaults to None.
+            page_token (str, optional): The token for the next page of token balances, if any. Defaults to None.
 
         Returns:
-            EvmServerAccount: The EVM server account.
+            [ListTokenBalancesResult]: The token balances for the address on the network.
 
         """
-        if address:
-            evm_account = await self.api_clients.evm_accounts.get_evm_account(address)
-        elif name:
-            evm_account = await self.api_clients.evm_accounts.get_evm_account_by_name(name)
-        else:
-            raise ValueError("Either address or name must be provided")
-        return EvmServerAccount(evm_account, self.api_clients.evm_accounts)
-
-    async def sign_hash(self, address: str, hash: str, idempotency_key: str | None = None):
-        """Sign an EVM hash.
-
-        Args:
-            address (str): The address of the account.
-            hash (str): The hash to sign.
-            idempotency_key (str, optional): The idempotency key. Defaults to None.
-
-        """
-        return await self.api_clients.evm_accounts.sign_evm_hash(
-            address=address,
-            sign_evm_hash_request=SignEvmHashRequest(hash=hash),
-            x_idempotency_key=idempotency_key,
+        response = await self.api_clients.evm_token_balances.list_evm_token_balances(
+            address=address, network=network, page_size=page_size, page_token=page_token
         )
-
-    async def sign_message(self, address: str, message: str, idempotency_key: str | None = None):
-        """Sign an EVM message.
-
-        Args:
-            address (str): The address of the account.
-            message (str): The message to sign.
-            idempotency_key (str, optional): The idempotency key. Defaults to None.
-
-        """
-        return await self.api_clients.evm_accounts.sign_evm_message(
-            address=address,
-            sign_evm_message_request=SignEvmMessageRequest(message=message),
-            x_idempotency_key=idempotency_key,
+        return ListTokenBalancesResult(
+            balances=[
+                EvmTokenBalance(
+                    token=EvmToken(
+                        contract_address=balance.token.contract_address,
+                        network=balance.token.network,
+                        symbol=balance.token.symbol,
+                        name=balance.token.name,
+                    ),
+                    amount=EvmTokenAmount(
+                        amount=int(balance.amount.amount),
+                        decimals=balance.amount.decimals,
+                    ),
+                )
+                for balance in response.balances
+            ],
+            next_page_token=response.next_page_token,
         )
-
-    async def sign_transaction(
-        self, address: str, transaction: str, idempotency_key: str | None = None
-    ):
-        """Sign an EVM transaction.
-
-        Args:
-            address (str): The address of the account.
-            transaction (str): The transaction to sign.
-            idempotency_key (str, optional): The idempotency key. Defaults to None.
-
-        """
-        return await self.api_clients.evm_accounts.sign_evm_transaction(
-            address=address,
-            sign_evm_transaction_request=SignEvmTransactionRequest(transaction=transaction),
-            x_idempotency_key=idempotency_key,
-        )
-
-    async def send_transaction(self, transaction: str, network: str):
-        """Send an EVM transaction. Currently unimplemented."""
-        raise NotImplementedError("Sending transactions is not yet implemented")
-
-    async def create_smart_account(self, owner: BaseAccount):
-        """Create an EVM smart account.
-
-        Args:
-            owner (BaseAccount): The owner of the smart account.
-
-        """
-        evm_smart_account = await self.api_clients.evm_smart_accounts.create_evm_smart_account(
-            CreateEvmSmartAccountRequest(owners=[owner.address]),
-        )
-        return EvmSmartAccount(evm_smart_account.address, owner, evm_smart_account.name)
-
-    async def get_smart_account(self, address: str, owner: BaseAccount | None = None):
-        """Get an EVM smart account by address.
-
-        Args:
-            address (str): The address of the smart account.
-            owner (BaseAccount, optional): The owner of the smart account. Defaults to None.
-
-        """
-        evm_smart_account = await self.api_clients.evm_smart_accounts.get_evm_smart_account(address)
-        return EvmSmartAccount(evm_smart_account.address, owner, evm_smart_account.name)
 
     async def list_smart_accounts(
         self,
@@ -231,6 +231,81 @@ class EvmClient:
             ),
         )
 
+    async def request_faucet(
+        self,
+        address: str,
+        network: str,
+        token: str,
+    ) -> str:
+        """Request a token from the faucet in the test network.
+
+        Args:
+            address (str): The address to request the faucet for.
+            network (str): The network to request the faucet for.
+            token (str): The token to request the faucet for.
+
+        Returns:
+            str: The transaction hash of the faucet request.
+
+        """
+        response = await self.api_clients.faucets.request_evm_faucet(
+            request_evm_faucet_request=RequestEvmFaucetRequest(
+                address=address, network=network, token=token
+            )
+        )
+        return response.transaction_hash
+
+    async def sign_hash(self, address: str, hash: str, idempotency_key: str | None = None):
+        """Sign an EVM hash.
+
+        Args:
+            address (str): The address of the account.
+            hash (str): The hash to sign.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        """
+        return await self.api_clients.evm_accounts.sign_evm_hash(
+            address=address,
+            sign_evm_hash_request=SignEvmHashRequest(hash=hash),
+            x_idempotency_key=idempotency_key,
+        )
+
+    async def sign_message(self, address: str, message: str, idempotency_key: str | None = None):
+        """Sign an EVM message.
+
+        Args:
+            address (str): The address of the account.
+            message (str): The message to sign.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        """
+        return await self.api_clients.evm_accounts.sign_evm_message(
+            address=address,
+            sign_evm_message_request=SignEvmMessageRequest(message=message),
+            x_idempotency_key=idempotency_key,
+        )
+
+    async def sign_transaction(
+        self, address: str, transaction: str, idempotency_key: str | None = None
+    ):
+        """Sign an EVM transaction.
+
+        Args:
+            address (str): The address of the account.
+            transaction (str): The transaction to sign.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        """
+        return await self.api_clients.evm_accounts.sign_evm_transaction(
+            address=address,
+            sign_evm_transaction_request=SignEvmTransactionRequest(transaction=transaction),
+            x_idempotency_key=idempotency_key,
+        )
+
+    async def send_transaction(self, transaction: str, network: str):
+        """Send an EVM transaction. Currently unimplemented."""
+        raise NotImplementedError("Sending transactions is not yet implemented")
+
     async def send_user_operation(
         self,
         smart_account: EvmSmartAccount,
@@ -258,10 +333,6 @@ class EvmClient:
             paymaster_url,
         )
 
-    async def sign_user_operation(self, user_op: EvmUserOperation):
-        """Sign a user operation. Currently unimplemented."""
-        raise NotImplementedError("Signing user operations is not yet implemented")
-
     async def wait_for_user_operation(
         self,
         smart_account_address: str,
@@ -284,79 +355,4 @@ class EvmClient:
             user_op_hash,
             timeout_seconds,
             interval_seconds,
-        )
-
-    async def get_user_operation(self, address: str, user_op_hash: str):
-        """Get a user operation by address and hash.
-
-        Args:
-            address (str): The address of the smart account that sent the operation.
-            user_op_hash (str): The hash of the user operation to get.
-
-        """
-        return await self.api_clients.evm_smart_accounts.get_user_operation(address, user_op_hash)
-
-    async def request_faucet(
-        self,
-        address: str,
-        network: str,
-        token: str,
-    ) -> str:
-        """Request a token from the faucet in the test network.
-
-        Args:
-            address (str): The address to request the faucet for.
-            network (str): The network to request the faucet for.
-            token (str): The token to request the faucet for.
-
-        Returns:
-            str: The transaction hash of the faucet request.
-
-        """
-        response = await self.api_clients.faucets.request_evm_faucet(
-            request_evm_faucet_request=RequestEvmFaucetRequest(
-                address=address, network=network, token=token
-            )
-        )
-        return response.transaction_hash
-
-    async def list_token_balances(
-        self,
-        address: str,
-        network: str,
-        page_size: int | None = None,
-        page_token: str | None = None,
-    ):
-        """List the token balances for an address on the given network.
-
-        Args:
-            address (str): The address to list the token balances for.
-            network (str): The network to list the token balances for.
-            page_size (int, optional): The number of token balances to return per page. Defaults to None.
-            page_token (str, optional): The token for the next page of token balances, if any. Defaults to None.
-
-        Returns:
-            [ListTokenBalancesResult]: The token balances for the address on the network.
-
-        """
-        response = await self.api_clients.evm_token_balances.list_evm_token_balances(
-            address=address, network=network, page_size=page_size, page_token=page_token
-        )
-        return ListTokenBalancesResult(
-            balances=[
-                EvmTokenBalance(
-                    token=EvmToken(
-                        contract_address=balance.token.contract_address,
-                        network=balance.token.network,
-                        symbol=balance.token.symbol,
-                        name=balance.token.name,
-                    ),
-                    amount=EvmTokenAmount(
-                        amount=int(balance.amount.amount),
-                        decimals=balance.amount.decimals,
-                    ),
-                )
-                for balance in response.balances
-            ],
-            next_page_token=response.next_page_token,
         )
