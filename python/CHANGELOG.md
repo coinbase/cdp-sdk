@@ -2,6 +2,18 @@
 
 <!-- towncrier release notes start -->
 
+## [1.2.0] - 2025-04-23
+
+### Features
+
+- Added list_token_balances to the evm client to retrieve ERC-20 and native token balances for an address on a given network. ([#55](https://github.com/coinbase/cdp-sdk/pull/55))
+- Added send_transaction to the evm client to sign and send a transaction on a given network. ([#58](https://github.com/coinbase/cdp-sdk/pull/58))
+
+### Misc
+
+- [#56](https://github.com/coinbase/cdp-sdk/pull/56)
+
+
 ## [1.1.1] - 2025-04-17
 
 ### Bugfixes
