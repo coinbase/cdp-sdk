@@ -91,12 +91,12 @@ async def test_list_accounts(server_account_model_factory):
 
     mock_evm_accounts_api.list_evm_accounts.assert_called_once_with(page_size=None, page_token=None)
 
-    assert len(result["evm_accounts"]) == 2
-    assert result["evm_accounts"][0].address == evm_server_account_model_1.address
-    assert result["evm_accounts"][0].name == evm_server_account_model_1.name
-    assert result["evm_accounts"][1].address == evm_server_account_model_2.address
-    assert result["evm_accounts"][1].name == evm_server_account_model_2.name
-    assert result["next_page_token"] == "next-page-token"
+    assert len(result.accounts) == 2
+    assert result.accounts[0].address == evm_server_account_model_1.address
+    assert result.accounts[0].name == evm_server_account_model_1.name
+    assert result.accounts[1].address == evm_server_account_model_2.address
+    assert result.accounts[1].name == evm_server_account_model_2.name
+    assert result.next_page_token == "next-page-token"
 
 
 @pytest.mark.asyncio
@@ -246,7 +246,9 @@ async def test_sign_hash():
     mock_evm_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.evm_accounts = mock_evm_accounts_api
-    mock_evm_accounts_api.sign_evm_hash = AsyncMock(return_value="0x123")
+    mock_response = AsyncMock()
+    mock_response.signature = "0x123"
+    mock_evm_accounts_api.sign_evm_hash = AsyncMock(return_value=mock_response)
     client = EvmClient(api_clients=mock_api_clients)
     test_address = "0x1234567890123456789012345678901234567890"
     test_hash = "0xabcdef"
@@ -271,7 +273,9 @@ async def test_sign_message():
     mock_evm_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.evm_accounts = mock_evm_accounts_api
-    mock_evm_accounts_api.sign_evm_message = AsyncMock(return_value="0x123")
+    mock_response = AsyncMock()
+    mock_response.signature = "0x123"
+    mock_evm_accounts_api.sign_evm_message = AsyncMock(return_value=mock_response)
     client = EvmClient(api_clients=mock_api_clients)
     test_address = "0x1234567890123456789012345678901234567890"
     test_message = "0xabcdef"
@@ -296,7 +300,9 @@ async def test_sign_transaction():
     mock_evm_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.evm_accounts = mock_evm_accounts_api
-    mock_evm_accounts_api.sign_evm_transaction = AsyncMock(return_value="0x123")
+    mock_response = AsyncMock()
+    mock_response.signed_transaction = "0x123"
+    mock_evm_accounts_api.sign_evm_transaction = AsyncMock(return_value=mock_response)
     client = EvmClient(api_clients=mock_api_clients)
     test_address = "0x1234567890123456789012345678901234567890"
     test_transaction = "0xabcdef"
@@ -376,18 +382,15 @@ async def test_get_smart_account(smart_account_model_factory):
 
 
 @pytest.mark.asyncio
-async def test_list_smart_accounts():
+async def test_list_smart_accounts(smart_account_model_factory):
     """Test listing EVM smart accounts."""
     mock_evm_smart_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
 
-    mock_account_1 = AsyncMock()
-    mock_account_1.address = "0x1234567890123456789012345678901234567890"
-    mock_account_1.name = "test-smart-account-1"
-    mock_account_2 = AsyncMock()
-    mock_account_2.address = "0x2345678901234567890123456789012345678901"
-    mock_account_2.name = "test-smart-account-2"
+    # Create proper model instances instead of mocks
+    mock_account_1 = smart_account_model_factory()
+    mock_account_2 = smart_account_model_factory()
 
     mock_response = AsyncMock()
     mock_response.accounts = [mock_account_1, mock_account_2]
@@ -402,10 +405,12 @@ async def test_list_smart_accounts():
         page_size=10, page_token="page-token"
     )
 
-    assert len(result["evm_smart_accounts"]) == 2
-    assert result["evm_smart_accounts"][0] == mock_account_1
-    assert result["evm_smart_accounts"][1] == mock_account_2
-    assert result["next_page_token"] == "next-page-token"
+    assert len(result.accounts) == 2
+    assert result.accounts[0].address == mock_account_1.address
+    assert result.accounts[0].name == mock_account_1.name
+    assert result.accounts[1].address == mock_account_2.address
+    assert result.accounts[1].name == mock_account_2.name
+    assert result.next_page_token == "next-page-token"
 
 
 @pytest.mark.asyncio

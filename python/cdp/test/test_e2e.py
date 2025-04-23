@@ -33,9 +33,9 @@ async def test_create_get_and_list_accounts(cdp_client):
     server_account = await cdp_client.evm.create_account(name=random_name)
     assert server_account is not None
 
-    accounts = await cdp_client.evm.list_accounts()
-    assert accounts is not None
-    assert len(accounts) > 0
+    response = await cdp_client.evm.list_accounts()
+    assert response is not None
+    assert len(response.accounts) > 0
 
     account = await cdp_client.evm.get_account(server_account.address)
     assert account is not None
@@ -76,9 +76,9 @@ async def test_create_get_and_list_smart_accounts(cdp_client):
     smart_account = await cdp_client.evm.create_smart_account(owner=owner)
     assert smart_account is not None
 
-    smart_accounts = await cdp_client.evm.list_smart_accounts()
-    assert smart_accounts is not None
-    assert len(smart_accounts) > 0
+    response = await cdp_client.evm.list_smart_accounts()
+    assert response is not None
+    assert len(response.accounts) > 0
 
     smart_account = await cdp_client.evm.get_smart_account(smart_account.address, owner)
     assert smart_account is not None

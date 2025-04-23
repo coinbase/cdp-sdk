@@ -1,4 +1,7 @@
 from eth_account.signers.base import BaseAccount
+from pydantic import BaseModel, ConfigDict, Field
+
+from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount as EvmSmartAccountModel
 
 
 class EvmSmartAccount:
@@ -89,3 +92,15 @@ class EvmSmartAccount:
 
         """
         return cls(address, owner, name)
+
+
+class ListEvmSmartAccountsResponse(BaseModel):
+    """Response model for listing EVM smart accounts."""
+
+    accounts: list[EvmSmartAccountModel] = Field(description="List of EVM smart accounts models.")
+    next_page_token: str | None = Field(
+        None,
+        description="Token for the next page of results. If None, there are no more results.",
+    )
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)

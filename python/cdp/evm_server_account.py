@@ -15,6 +15,7 @@ from eth_typing import (
     Hash32,
 )
 from hexbytes import HexBytes
+from pydantic import BaseModel, ConfigDict, Field
 from web3 import Web3
 
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
@@ -227,3 +228,15 @@ class EvmServerAccount(BaseAccount):
 
         """
         return cls(address, name)
+
+
+class ListEvmAccountsResponse(BaseModel):
+    """Response model for listing EVM accounts."""
+
+    accounts: list[EvmServerAccount] = Field(description="List of EVM server accounts.")
+    next_page_token: str | None = Field(
+        None,
+        description="Token for the next page of results. If None, there are no more results.",
+    )
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)

@@ -4,8 +4,8 @@ from cdp.actions.evm.send_user_operation import send_user_operation
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall, EncodedCall
-from cdp.evm_server_account import EvmServerAccount
-from cdp.evm_smart_account import EvmSmartAccount
+from cdp.evm_server_account import EvmServerAccount, ListEvmAccountsResponse
+from cdp.evm_smart_account import EvmSmartAccount, ListEvmSmartAccountsResponse
 from cdp.evm_token_balances import (
     EvmToken,
     EvmTokenAmount,
@@ -17,7 +17,7 @@ from cdp.openapi_client.models.create_evm_smart_account_request import (
     CreateEvmSmartAccountRequest,
 )
 from cdp.openapi_client.models.evm_call import EvmCall
-from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
+from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
 from cdp.openapi_client.models.prepare_user_operation_request import (
     PrepareUserOperationRequest,
 )
@@ -35,12 +35,17 @@ class EvmClient:
     def __init__(self, api_clients: ApiClients):
         self.api_clients = api_clients
 
-    async def create_account(self, name: str | None = None, idempotency_key: str | None = None):
+    async def create_account(
+        self, name: str | None = None, idempotency_key: str | None = None
+    ) -> EvmServerAccount:
         """Create an EVM account.
 
         Args:
             name (str, optional): The name. Defaults to None.
             idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        Returns:
+            EvmServerAccount: The EVM server account.
 
         """
         evm_account = await self.api_clients.evm_accounts.create_evm_account(
@@ -49,11 +54,14 @@ class EvmClient:
         )
         return EvmServerAccount(evm_account, self.api_clients.evm_accounts)
 
-    async def create_smart_account(self, owner: BaseAccount):
+    async def create_smart_account(self, owner: BaseAccount) -> EvmSmartAccount:
         """Create an EVM smart account.
 
         Args:
             owner (BaseAccount): The owner of the smart account.
+
+        Returns:
+            EvmSmartAccount: The EVM smart account.
 
         """
         evm_smart_account = await self.api_clients.evm_smart_accounts.create_evm_smart_account(
@@ -61,7 +69,9 @@ class EvmClient:
         )
         return EvmSmartAccount(evm_smart_account.address, owner, evm_smart_account.name)
 
-    async def get_account(self, address: str | None = None, name: str | None = None):
+    async def get_account(
+        self, address: str | None = None, name: str | None = None
+    ) -> EvmServerAccount:
         """Get an EVM account by address.
 
         Args:
@@ -80,23 +90,31 @@ class EvmClient:
             raise ValueError("Either address or name must be provided")
         return EvmServerAccount(evm_account, self.api_clients.evm_accounts)
 
-    async def get_smart_account(self, address: str, owner: BaseAccount | None = None):
+    async def get_smart_account(
+        self, address: str, owner: BaseAccount | None = None
+    ) -> EvmSmartAccount:
         """Get an EVM smart account by address.
 
         Args:
             address (str): The address of the smart account.
             owner (BaseAccount, optional): The owner of the smart account. Defaults to None.
 
+        Returns:
+            EvmSmartAccount: The EVM smart account.
+
         """
         evm_smart_account = await self.api_clients.evm_smart_accounts.get_evm_smart_account(address)
         return EvmSmartAccount(evm_smart_account.address, owner, evm_smart_account.name)
 
-    async def get_user_operation(self, address: str, user_op_hash: str):
+    async def get_user_operation(self, address: str, user_op_hash: str) -> EvmUserOperationModel:
         """Get a user operation by address and hash.
 
         Args:
             address (str): The address of the smart account that sent the operation.
             user_op_hash (str): The hash of the user operation to get.
+
+        Returns:
+            EvmUserOperationModel: The user operation model.
 
         """
         return await self.api_clients.evm_smart_accounts.get_user_operation(address, user_op_hash)
@@ -105,7 +123,7 @@ class EvmClient:
         self,
         page_size: int | None = None,
         page_token: str | None = None,
-    ):
+    ) -> ListEvmAccountsResponse:
         """List all EVM accounts.
 
         Args:
@@ -113,7 +131,7 @@ class EvmClient:
             page_token (str, optional): The token for the next page of accounts, if any. Defaults to None.
 
         Returns:
-            List[EvmServerAccount]: List of EVM server accounts.
+            ListEvmAccountsResponse: The list of EVM accounts.
 
         """
         response = await self.api_clients.evm_accounts.list_evm_accounts(
@@ -123,10 +141,10 @@ class EvmClient:
             EvmServerAccount(account, self.api_clients.evm_accounts)
             for account in response.accounts
         ]
-        return {
-            "evm_accounts": evm_server_accounts,
-            "next_page_token": response.next_page_token,
-        }
+        return ListEvmAccountsResponse(
+            accounts=evm_server_accounts,
+            next_page_token=response.next_page_token,
+        )
 
     async def list_token_balances(
         self,
@@ -134,7 +152,7 @@ class EvmClient:
         network: str,
         page_size: int | None = None,
         page_token: str | None = None,
-    ):
+    ) -> ListTokenBalancesResult:
         """List the token balances for an address on the given network.
 
         Args:
@@ -173,7 +191,7 @@ class EvmClient:
         self,
         page_size: int | None = None,
         page_token: str | None = None,
-    ):
+    ) -> ListEvmSmartAccountsResponse:
         """List all EVM smart accounts.
 
         Args:
@@ -181,18 +199,18 @@ class EvmClient:
             page_token (str, optional): The token for the next page of accounts, if any. Defaults to None.
 
         Returns:
-            List[EvmSmartAccount]: List of EVM smart accounts. These are not wrapped in the EvmSmartAccount class
-            so these cannot be used to send user operations. Call get_evm_smart_account with an owner to get an EvmSmartAccount
-            instance that can be used to send user operations.
+            ListEvmSmartAccountsResponse: The list of EVM smart accounts. The smart accounts are not wrapped
+            in the EvmSmartAccount class so these cannot be used to send user operations. Call get_smart_account
+            with an owner to get an EvmSmartAccount instance that can be used to send user operations.
 
         """
         response = await self.api_clients.evm_smart_accounts.list_evm_smart_accounts(
             page_size=page_size, page_token=page_token
         )
-        return {
-            "evm_smart_accounts": response.accounts,
-            "next_page_token": response.next_page_token,
-        }
+        return ListEvmSmartAccountsResponse(
+            accounts=response.accounts,
+            next_page_token=response.next_page_token,
+        )
 
     async def prepare_user_operation(
         self,
@@ -200,7 +218,7 @@ class EvmClient:
         calls: list[EncodedCall],
         network: str,
         paymaster_url: str | None = None,
-    ) -> EvmUserOperation:
+    ) -> EvmUserOperationModel:
         """Prepare a user operation for a smart account.
 
         Args:
@@ -210,7 +228,7 @@ class EvmClient:
             paymaster_url (str, optional): The paymaster URL. Defaults to None.
 
         Returns:
-            EvmUserOperation: The user operation object.
+            EvmUserOperationModel: The user operation model.
 
         """
         evm_calls = [
@@ -255,7 +273,7 @@ class EvmClient:
         )
         return response.transaction_hash
 
-    async def sign_hash(self, address: str, hash: str, idempotency_key: str | None = None):
+    async def sign_hash(self, address: str, hash: str, idempotency_key: str | None = None) -> str:
         """Sign an EVM hash.
 
         Args:
@@ -263,14 +281,20 @@ class EvmClient:
             hash (str): The hash to sign.
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
+        Returns:
+            str: The signed hash.
+
         """
-        return await self.api_clients.evm_accounts.sign_evm_hash(
+        response = await self.api_clients.evm_accounts.sign_evm_hash(
             address=address,
             sign_evm_hash_request=SignEvmHashRequest(hash=hash),
             x_idempotency_key=idempotency_key,
         )
+        return response.signature
 
-    async def sign_message(self, address: str, message: str, idempotency_key: str | None = None):
+    async def sign_message(
+        self, address: str, message: str, idempotency_key: str | None = None
+    ) -> str:
         """Sign an EVM message.
 
         Args:
@@ -278,16 +302,20 @@ class EvmClient:
             message (str): The message to sign.
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
+        Returns:
+            str: The signed message.
+
         """
-        return await self.api_clients.evm_accounts.sign_evm_message(
+        response = await self.api_clients.evm_accounts.sign_evm_message(
             address=address,
             sign_evm_message_request=SignEvmMessageRequest(message=message),
             x_idempotency_key=idempotency_key,
         )
+        return response.signature
 
     async def sign_transaction(
         self, address: str, transaction: str, idempotency_key: str | None = None
-    ):
+    ) -> str:
         """Sign an EVM transaction.
 
         Args:
@@ -295,12 +323,16 @@ class EvmClient:
             transaction (str): The transaction to sign.
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
+        Returns:
+            str: The signed transaction.
+
         """
-        return await self.api_clients.evm_accounts.sign_evm_transaction(
+        response = await self.api_clients.evm_accounts.sign_evm_transaction(
             address=address,
             sign_evm_transaction_request=SignEvmTransactionRequest(transaction=transaction),
             x_idempotency_key=idempotency_key,
         )
+        return response.signed_transaction
 
     async def send_transaction(self, transaction: str, network: str):
         """Send an EVM transaction. Currently unimplemented."""
@@ -312,7 +344,7 @@ class EvmClient:
         calls: list[ContractCall],
         network: str,
         paymaster_url: str | None = None,
-    ) -> EvmUserOperation:
+    ) -> EvmUserOperationModel:
         """Send a user operation for a smart account.
 
         Args:
@@ -322,7 +354,7 @@ class EvmClient:
             paymaster_url (str): The paymaster URL.
 
         Returns:
-            UserOperation: The user operation object.
+            EvmUserOperationModel: The user operation model.
 
         """
         return await send_user_operation(
@@ -339,7 +371,7 @@ class EvmClient:
         user_op_hash: str,
         timeout_seconds: float = 20,
         interval_seconds: float = 0.2,
-    ):
+    ) -> EvmUserOperationModel:
         """Wait for a user operation to be processed.
 
         Args:
@@ -347,6 +379,9 @@ class EvmClient:
             user_op_hash (str): The hash of the user operation to wait for.
             timeout_seconds (float, optional): Maximum time to wait in seconds. Defaults to 20.
             interval_seconds (float, optional): Time between checks in seconds. Defaults to 0.2.
+
+        Returns:
+            EvmUserOperationModel: The user operation model.
 
         """
         return await wait_for_user_operation(
