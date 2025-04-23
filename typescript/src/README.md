@@ -13,7 +13,9 @@
 - [Support](#support)
 - [Security](#security)
 
-> [!TIP] If you're looking to contribute to the SDK, please see the [Contributing Guide](https://github.com/coinbase/cdp-sdk/blob/main/typescript/CONTRIBUTING.md).
+> [!TIP]
+>
+> If you're looking to contribute to the SDK, please see the [Contributing Guide](https://github.com/coinbase/cdp-sdk/blob/main/typescript/CONTRIBUTING.md).
 
 ## CDP SDK
 
