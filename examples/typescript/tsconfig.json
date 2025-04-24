@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "baseUrl": ".",
+    "strict": true,
+    "types": ["node"],
+    "paths": {
+      "@coinbase/cdp-sdk": ["../../typescript/src"]
+    }
+  }
+}

@@ -1,0 +1,18 @@
+// Usage: pnpm tsx solana/signMessage.ts
+
+import { CdpClient } from "@coinbase/cdp-sdk";
+
+const cdp = new CdpClient();
+
+const account = await cdp.solana.createAccount();
+console.log(
+  "Successfully created Solana account:",
+  JSON.stringify(account, null, 2)
+);
+
+const signature = await cdp.solana.signMessage({
+  address: account.address,
+  message: "Hello, world!",
+});
+
+console.log("Successfully signed message:", signature);

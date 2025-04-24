@@ -223,7 +223,7 @@ console.log(`Transaction confirmed! Explorer link: https://sepolia.basescan.org/
 
 #### Solana
 
-For Solana, we recommend using the `@solana/web3.js` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/typescript/src/examples/solana/signAndSendTransaction.ts).
+For Solana, we recommend using the `@solana/web3.js` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/examples/typescript/solana/signAndSendTransaction.ts).
 
 ### EVM Smart Accounts
 
