@@ -109,7 +109,7 @@ async def send_transaction(
     print("Signing transaction...")
 
     try:
-        signed_tx_response = await cdp.solana.sign_transaction(
+        signed_tx = await cdp.solana.sign_transaction(
             sender_address, transaction=serialized_tx
         )
         print("Transaction signed successfully")
@@ -120,7 +120,7 @@ async def send_transaction(
         raise
 
     # Decode the signed transaction from base64
-    decoded_signed_tx = base64.b64decode(signed_tx_response.signed_transaction)
+    decoded_signed_tx = base64.b64decode(signed_tx)
 
     print("Sending transaction to network...")
     tx_resp = connection.send_raw_transaction(
