@@ -1,0 +1,15 @@
+[project]
+name = "examples"
+version = "0.0.0"
+requires-python = ">=3.10"
+dependencies = [
+    "cdp-sdk",
+    "solana>=0.36.6",
+    "web3>=7.6.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+cdp-sdk = { path = "../../python", editable = true }
