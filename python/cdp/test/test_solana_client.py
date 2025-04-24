@@ -8,6 +8,9 @@ from cdp.openapi_client.models.create_solana_account_request import (
 from cdp.openapi_client.models.list_solana_accounts200_response import (
     ListSolanaAccounts200Response,
 )
+from cdp.openapi_client.models.request_solana_faucet200_response import (
+    RequestSolanaFaucet200Response,
+)
 from cdp.openapi_client.models.request_solana_faucet_request import (
     RequestSolanaFaucetRequest,
 )
@@ -168,7 +171,7 @@ async def test_sign_message():
         x_idempotency_key=test_idempotency_key,
     )
 
-    assert result == mock_response.signature
+    assert result == mock_response
 
 
 @pytest.mark.asyncio
@@ -198,7 +201,7 @@ async def test_sign_transaction():
         x_idempotency_key=test_idempotency_key,
     )
 
-    assert result == mock_response.signed_transaction
+    assert result == mock_response
 
 
 @pytest.mark.asyncio
@@ -208,8 +211,7 @@ async def test_request_faucet():
     mock_api_clients = AsyncMock()
     mock_api_clients.faucets = mock_faucets_api
 
-    mock_response = AsyncMock()
-    mock_response.transaction_signature = "solana_faucet_tx_hash"
+    mock_response = RequestSolanaFaucet200Response(transaction_signature="solana_faucet_tx_hash")
     mock_faucets_api.request_solana_faucet = AsyncMock(return_value=mock_response)
 
     client = SolanaClient(api_clients=mock_api_clients)
@@ -228,4 +230,4 @@ async def test_request_faucet():
         )
     )
 
-    assert result == "solana_faucet_tx_hash"
+    assert result == mock_response

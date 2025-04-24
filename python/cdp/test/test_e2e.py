@@ -301,5 +301,6 @@ async def test_solana_sign_fns(cdp_client):
     )
 
     base64_tx = base64.b64encode(unsigned_tx_bytes).decode("utf-8")
-    signed_transaction = await cdp_client.solana.sign_transaction(account.address, base64_tx)
-    assert signed_transaction is not None
+    response = await cdp_client.solana.sign_transaction(account.address, base64_tx)
+    assert response is not None
+    assert response.signed_transaction is not None

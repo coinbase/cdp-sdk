@@ -27,7 +27,8 @@ async def request_faucet(cdp: CdpClient, address: str):
     """Request SOL from the faucet."""
     print(f"Requesting SOL from faucet for {address}...")
     try:
-        transaction_signature = await cdp.solana.request_faucet(address=address, token="sol")
+        response = await cdp.solana.request_faucet(address=address, token="sol")
+        transaction_signature = response.transaction_signature
         print(f"Successfully requested SOL from faucet: {transaction_signature}")
         return transaction_signature
     except Exception as e:
@@ -109,9 +110,8 @@ async def send_transaction(
     print("Signing transaction...")
 
     try:
-        signed_tx = await cdp.solana.sign_transaction(
-            sender_address, transaction=serialized_tx
-        )
+        response = await cdp.solana.sign_transaction(sender_address, transaction=serialized_tx)
+        signed_tx = response.signed_transaction
         print("Transaction signed successfully")
     except Exception as e:
         print(f"Error signing transaction: {e}")

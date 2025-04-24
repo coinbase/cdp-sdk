@@ -3,11 +3,20 @@ from cdp.openapi_client.models.create_solana_account_request import (
     CreateSolanaAccountRequest,
 )
 from cdp.openapi_client.models.list_solana_accounts200_response import ListSolanaAccounts200Response
+from cdp.openapi_client.models.request_solana_faucet200_response import (
+    RequestSolanaFaucet200Response,
+)
 from cdp.openapi_client.models.request_solana_faucet_request import (
     RequestSolanaFaucetRequest,
 )
+from cdp.openapi_client.models.sign_solana_message200_response import (
+    SignSolanaMessage200Response,
+)
 from cdp.openapi_client.models.sign_solana_message_request import (
     SignSolanaMessageRequest,
+)
+from cdp.openapi_client.models.sign_solana_transaction200_response import (
+    SignSolanaTransaction200Response,
 )
 from cdp.openapi_client.models.sign_solana_transaction_request import (
     SignSolanaTransactionRequest,
@@ -82,7 +91,7 @@ class SolanaClient:
 
     async def sign_message(
         self, address: str, message: str, idempotency_key: str | None = None
-    ) -> str:
+    ) -> SignSolanaMessage200Response:
         """Sign a Solana message.
 
         Args:
@@ -91,19 +100,18 @@ class SolanaClient:
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
         Returns:
-            str: The signed message.
+            SignSolanaMessage200Response: The response containing the signature.
 
         """
-        response = await self.api_clients.solana_accounts.sign_solana_message(
+        return await self.api_clients.solana_accounts.sign_solana_message(
             address=address,
             sign_solana_message_request=SignSolanaMessageRequest(message=message),
             x_idempotency_key=idempotency_key,
         )
-        return response.signature
 
     async def sign_transaction(
         self, address: str, transaction: str, idempotency_key: str | None = None
-    ) -> str:
+    ) -> SignSolanaTransaction200Response:
         """Sign a Solana transaction.
 
         Args:
@@ -112,21 +120,20 @@ class SolanaClient:
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
         Returns:
-            str: The signed transaction.
+            SignSolanaTransaction200Response: The response containing the signed transaction.
 
         """
-        response = await self.api_clients.solana_accounts.sign_solana_transaction(
+        return await self.api_clients.solana_accounts.sign_solana_transaction(
             address=address,
             sign_solana_transaction_request=SignSolanaTransactionRequest(transaction=transaction),
             x_idempotency_key=idempotency_key,
         )
-        return response.signed_transaction
 
     async def request_faucet(
         self,
         address: str,
         token: str,
-    ) -> str:
+    ) -> RequestSolanaFaucet200Response:
         """Request a token from the faucet.
 
         Args:
@@ -134,10 +141,9 @@ class SolanaClient:
             token (str): The token to request the faucet for.
 
         Returns:
-            str: The transaction signature of the faucet request.
+            RequestSolanaFaucet200Response: The response containing the transaction hash.
 
         """
-        response = await self.api_clients.faucets.request_solana_faucet(
+        return await self.api_clients.faucets.request_solana_faucet(
             request_solana_faucet_request=RequestSolanaFaucetRequest(address=address, token=token)
         )
-        return response.transaction_signature
