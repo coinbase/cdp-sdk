@@ -2,6 +2,12 @@
 
 <!-- towncrier release notes start -->
 
+## [1.2.1] - 2025-04-24
+
+### Patch Changes
+
+- This patch contains a README update to accomodate the new home for CDP SDK examples.
+
 ## [1.2.0] - 2025-04-23
 
 ### Features
@@ -13,13 +19,11 @@
 
 - [#56](https://github.com/coinbase/cdp-sdk/pull/56)
 
-
 ## [1.1.1] - 2025-04-17
 
 ### Bugfixes
 
 - Correctly implement aenter and aexit on CdpClient ([#43](https://github.com/coinbase/cdp-sdk/pull/43))
-
 
 ## [1.1.0] - 2025-04-16
 
