@@ -92,12 +92,7 @@ Run `pnpm test` to run all tests in the SDK.
 
 ## Example Scripts
 
-The CDP SDK includes several runnable examples. To run an example, ensure your `.env` file is set up correctly. Then run `pnpm tsx <path-to-example>`.
-
-- `src/examples/createEthAccount.ts` is a simple example that creates an Ethereum account.
-- `src/examples/sendEthTx.ts` is an example that sends a transaction to the Ethereum blockchain.
-- `src/examples/createSolAccount.ts` is a simple example that creates a Solana account.
-- `src/examples/sendSolTx.ts` is an example that sends a transaction to the Solana blockchain.
+The CDP SDK includes several runnable examples. See [examples/README.md](../examples/typescript/README.md) for more information. When you make a change to the SDK code, your change will automatically take effect when you run an example.
 
 ## Code Style
 

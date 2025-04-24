@@ -72,10 +72,7 @@ Run `make test` to run all unit tests in the SDK. If you want to run e2e tests, 
 
 ## Example Scripts
 
-The CDP SDK includes several runnable examples. To run an example, ensure your `.env` file is set up correctly. Then run `uv run <path-to-example>`.
-
-- `cdp/examples/create_evm_account.py` is a simple example that creates an EVM account.
-- `cdp/examples/create_sol_account.py` is a simple example that creates a Solana account
+The CDP SDK includes several runnable examples. See [examples/README.md](../examples/python/README.md) for more information. When you make a change to the SDK code, your change will automatically take effect when you run an example.
 
 ## Code Style
 

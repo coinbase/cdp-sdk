@@ -36,7 +36,7 @@ To start, [create a CDP API Key](https://portal.cdp.coinbase.com/access/api). Sa
 
 ## Usage
 
-See [example.go](https://github.com/coinbase/cdp-sdk/tree/main/go/examples/example.go) for an end-to-end example of how to use the CDP SDK.
+See [example.go](https://github.com/coinbase/cdp-sdk/tree/main/examples/go/example.go) for an end-to-end example of how to use the CDP SDK.
 
 ### Initialization
 

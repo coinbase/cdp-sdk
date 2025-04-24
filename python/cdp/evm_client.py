@@ -358,7 +358,7 @@ class EvmClient:
                 this function relies on TypedTransaction from eth-account to serialize the transaction, and TypedTransaction
                 requires you to pass in the nonce and gas parameters.
 
-                Refer to https://github.com/coinbase/cdp-sdk/blob/main/python/cdp/examples/evm/send_transaction.py for a full example.
+                Refer to https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/send_transaction.py for a full example.
 
                 These are the fields that can be contained in the transaction object:
 

@@ -248,7 +248,7 @@ asyncio.run(main())
 
 #### Solana
 
-For Solana, we recommend using the `solana` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/python/cdp/examples/solana/send_transaction.py).
+For Solana, we recommend using the `solana` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/examples/python/solana/send_transaction.py).
 
 ### EVM Smart Accounts
 

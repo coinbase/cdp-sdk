@@ -31,8 +31,7 @@
   "license": "MIT",
   "files": [
     "*",
-    "!**/*.test.ts",
-    "!examples"
+    "!**/*.test.ts"
   ],
   "keywords": [
     "coinbase",
