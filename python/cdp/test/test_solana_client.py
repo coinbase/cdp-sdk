@@ -6,22 +6,22 @@ from cdp.openapi_client.models.create_solana_account_request import (
     CreateSolanaAccountRequest,
 )
 from cdp.openapi_client.models.list_solana_accounts200_response import (
-    ListSolanaAccounts200Response,
+    ListSolanaAccounts200Response as ListSolanaAccountsResponse,
 )
 from cdp.openapi_client.models.request_solana_faucet200_response import (
-    RequestSolanaFaucet200Response,
+    RequestSolanaFaucet200Response as RequestSolanaFaucetResponse,
 )
 from cdp.openapi_client.models.request_solana_faucet_request import (
     RequestSolanaFaucetRequest,
 )
 from cdp.openapi_client.models.sign_solana_message200_response import (
-    SignSolanaMessage200Response,
+    SignSolanaMessage200Response as SignSolanaMessageResponse,
 )
 from cdp.openapi_client.models.sign_solana_message_request import (
     SignSolanaMessageRequest,
 )
 from cdp.openapi_client.models.sign_solana_transaction200_response import (
-    SignSolanaTransaction200Response,
+    SignSolanaTransaction200Response as SignSolanaTransactionResponse,
 )
 from cdp.openapi_client.models.sign_solana_transaction_request import (
     SignSolanaTransactionRequest,
@@ -125,7 +125,7 @@ async def test_list_accounts():
         address="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", name="test-sol-account-2"
     )
 
-    mock_response = ListSolanaAccounts200Response(
+    mock_response = ListSolanaAccountsResponse(
         accounts=[mock_sol_account_1, mock_sol_account_2], next_page_token="next-page-token"
     )
     mock_solana_accounts_api.list_solana_accounts = AsyncMock(return_value=mock_response)
@@ -150,7 +150,7 @@ async def test_sign_message():
     mock_solana_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.solana_accounts = mock_solana_accounts_api
-    mock_response = SignSolanaMessage200Response(signature="test_signature")
+    mock_response = SignSolanaMessageResponse(signature="test_signature")
     mock_solana_accounts_api.sign_solana_message = AsyncMock(return_value=mock_response)
 
     client = SolanaClient(api_clients=mock_api_clients)
@@ -180,7 +180,7 @@ async def test_sign_transaction():
     mock_solana_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.solana_accounts = mock_solana_accounts_api
-    mock_response = SignSolanaTransaction200Response(signed_transaction="test_signed_transaction")
+    mock_response = SignSolanaTransactionResponse(signed_transaction="test_signed_transaction")
     mock_solana_accounts_api.sign_solana_transaction = AsyncMock(return_value=mock_response)
 
     client = SolanaClient(api_clients=mock_api_clients)
@@ -211,7 +211,7 @@ async def test_request_faucet():
     mock_api_clients = AsyncMock()
     mock_api_clients.faucets = mock_faucets_api
 
-    mock_response = RequestSolanaFaucet200Response(transaction_signature="solana_faucet_tx_hash")
+    mock_response = RequestSolanaFaucetResponse(transaction_signature="solana_faucet_tx_hash")
     mock_faucets_api.request_solana_faucet = AsyncMock(return_value=mock_response)
 
     client = SolanaClient(api_clients=mock_api_clients)

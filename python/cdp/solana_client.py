@@ -2,21 +2,23 @@ from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_solana_account_request import (
     CreateSolanaAccountRequest,
 )
-from cdp.openapi_client.models.list_solana_accounts200_response import ListSolanaAccounts200Response
+from cdp.openapi_client.models.list_solana_accounts200_response import (
+    ListSolanaAccounts200Response as ListSolanaAccountsResponse,
+)
 from cdp.openapi_client.models.request_solana_faucet200_response import (
-    RequestSolanaFaucet200Response,
+    RequestSolanaFaucet200Response as RequestSolanaFaucetResponse,
 )
 from cdp.openapi_client.models.request_solana_faucet_request import (
     RequestSolanaFaucetRequest,
 )
 from cdp.openapi_client.models.sign_solana_message200_response import (
-    SignSolanaMessage200Response,
+    SignSolanaMessage200Response as SignSolanaMessageResponse,
 )
 from cdp.openapi_client.models.sign_solana_message_request import (
     SignSolanaMessageRequest,
 )
 from cdp.openapi_client.models.sign_solana_transaction200_response import (
-    SignSolanaTransaction200Response,
+    SignSolanaTransaction200Response as SignSolanaTransactionResponse,
 )
 from cdp.openapi_client.models.sign_solana_transaction_request import (
     SignSolanaTransactionRequest,
@@ -74,7 +76,7 @@ class SolanaClient:
         self,
         page_size: int | None = None,
         page_token: str | None = None,
-    ) -> ListSolanaAccounts200Response:
+    ) -> ListSolanaAccountsResponse:
         """List all Solana accounts.
 
         Args:
@@ -82,7 +84,7 @@ class SolanaClient:
             page_token (str, optional): The token for the next page of accounts, if any. Defaults to None.
 
         Returns:
-            ListSolanaAccounts200Response: The list of Solana accounts, and an optional next page token.
+            ListSolanaAccountsResponse: The list of Solana accounts, and an optional next page token.
 
         """
         return await self.api_clients.solana_accounts.list_solana_accounts(
@@ -91,7 +93,7 @@ class SolanaClient:
 
     async def sign_message(
         self, address: str, message: str, idempotency_key: str | None = None
-    ) -> SignSolanaMessage200Response:
+    ) -> SignSolanaMessageResponse:
         """Sign a Solana message.
 
         Args:
@@ -100,7 +102,7 @@ class SolanaClient:
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
         Returns:
-            SignSolanaMessage200Response: The response containing the signature.
+            SignSolanaMessageResponse: The response containing the signature.
 
         """
         return await self.api_clients.solana_accounts.sign_solana_message(
@@ -111,7 +113,7 @@ class SolanaClient:
 
     async def sign_transaction(
         self, address: str, transaction: str, idempotency_key: str | None = None
-    ) -> SignSolanaTransaction200Response:
+    ) -> SignSolanaTransactionResponse:
         """Sign a Solana transaction.
 
         Args:
@@ -120,7 +122,7 @@ class SolanaClient:
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
         Returns:
-            SignSolanaTransaction200Response: The response containing the signed transaction.
+            SignSolanaTransactionResponse: The response containing the signed transaction.
 
         """
         return await self.api_clients.solana_accounts.sign_solana_transaction(
@@ -133,7 +135,7 @@ class SolanaClient:
         self,
         address: str,
         token: str,
-    ) -> RequestSolanaFaucet200Response:
+    ) -> RequestSolanaFaucetResponse:
         """Request a token from the faucet.
 
         Args:
@@ -141,7 +143,7 @@ class SolanaClient:
             token (str): The token to request the faucet for.
 
         Returns:
-            RequestSolanaFaucet200Response: The response containing the transaction hash.
+            RequestSolanaFaucetResponse: The response containing the transaction hash.
 
         """
         return await self.api_clients.faucets.request_solana_faucet(
