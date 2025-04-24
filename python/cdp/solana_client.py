@@ -2,6 +2,7 @@ from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_solana_account_request import (
     CreateSolanaAccountRequest,
 )
+from cdp.openapi_client.models.list_solana_accounts200_response import ListSolanaAccounts200Response
 from cdp.openapi_client.models.request_solana_faucet_request import (
     RequestSolanaFaucetRequest,
 )
@@ -12,7 +13,6 @@ from cdp.openapi_client.models.sign_solana_transaction_request import (
     SignSolanaTransactionRequest,
 )
 from cdp.openapi_client.models.solana_account import SolanaAccount as SolanaAccountModel
-from cdp.solana_types import ListSolanaAccountsResponse
 
 
 class SolanaClient:
@@ -65,7 +65,7 @@ class SolanaClient:
         self,
         page_size: int | None = None,
         page_token: str | None = None,
-    ) -> ListSolanaAccountsResponse:
+    ) -> ListSolanaAccounts200Response:
         """List all Solana accounts.
 
         Args:
@@ -73,15 +73,11 @@ class SolanaClient:
             page_token (str, optional): The token for the next page of accounts, if any. Defaults to None.
 
         Returns:
-            ListSolanaAccountsResponse: The list of Solana accounts, and an optional next page token.
+            ListSolanaAccounts200Response: The list of Solana accounts, and an optional next page token.
 
         """
-        response = await self.api_clients.solana_accounts.list_solana_accounts(
+        return await self.api_clients.solana_accounts.list_solana_accounts(
             page_size=page_size, page_token=page_token
-        )
-        return ListSolanaAccountsResponse(
-            accounts=response.accounts,
-            next_page_token=response.next_page_token,
         )
 
     async def sign_message(

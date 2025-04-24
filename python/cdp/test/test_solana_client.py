@@ -5,15 +5,25 @@ import pytest
 from cdp.openapi_client.models.create_solana_account_request import (
     CreateSolanaAccountRequest,
 )
+from cdp.openapi_client.models.list_solana_accounts200_response import (
+    ListSolanaAccounts200Response,
+)
 from cdp.openapi_client.models.request_solana_faucet_request import (
     RequestSolanaFaucetRequest,
+)
+from cdp.openapi_client.models.sign_solana_message200_response import (
+    SignSolanaMessage200Response,
 )
 from cdp.openapi_client.models.sign_solana_message_request import (
     SignSolanaMessageRequest,
 )
+from cdp.openapi_client.models.sign_solana_transaction200_response import (
+    SignSolanaTransaction200Response,
+)
 from cdp.openapi_client.models.sign_solana_transaction_request import (
     SignSolanaTransactionRequest,
 )
+from cdp.openapi_client.models.solana_account import SolanaAccount as SolanaAccountModel
 from cdp.solana_client import SolanaClient
 
 
@@ -105,17 +115,16 @@ async def test_list_accounts():
     mock_api_clients = AsyncMock()
     mock_api_clients.solana_accounts = mock_solana_accounts_api
 
-    mock_sol_account_1 = AsyncMock()
-    mock_sol_account_1.address = "test_sol_address_1"
-    mock_sol_account_1.name = "test-sol-account-1"
+    mock_sol_account_1 = SolanaAccountModel(
+        address="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", name="test-sol-account-1"
+    )
+    mock_sol_account_2 = SolanaAccountModel(
+        address="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", name="test-sol-account-2"
+    )
 
-    mock_sol_account_2 = AsyncMock()
-    mock_sol_account_2.address = "test_sol_address_2"
-    mock_sol_account_2.name = "test-sol-account-2"
-
-    mock_response = AsyncMock()
-    mock_response.accounts = [mock_sol_account_1, mock_sol_account_2]
-    mock_response.next_page_token = "next-page-token"
+    mock_response = ListSolanaAccounts200Response(
+        accounts=[mock_sol_account_1, mock_sol_account_2], next_page_token="next-page-token"
+    )
     mock_solana_accounts_api.list_solana_accounts = AsyncMock(return_value=mock_response)
 
     client = SolanaClient(api_clients=mock_api_clients)
@@ -126,10 +135,10 @@ async def test_list_accounts():
         page_size=None, page_token=None
     )
 
-    assert len(result["accounts"]) == 2
-    assert result["next_page_token"] == "next-page-token"
-    assert result["accounts"][0].address == "test_sol_address_1"
-    assert result["accounts"][1].address == "test_sol_address_2"
+    assert len(result.accounts) == 2
+    assert result.next_page_token == "next-page-token"
+    assert result.accounts[0].address == "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    assert result.accounts[1].address == "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
 
 
 @pytest.mark.asyncio
@@ -138,7 +147,8 @@ async def test_sign_message():
     mock_solana_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.solana_accounts = mock_solana_accounts_api
-    mock_solana_accounts_api.sign_solana_message = AsyncMock(return_value="test_signature")
+    mock_response = SignSolanaMessage200Response(signature="test_signature")
+    mock_solana_accounts_api.sign_solana_message = AsyncMock(return_value=mock_response)
 
     client = SolanaClient(api_clients=mock_api_clients)
 
@@ -158,7 +168,7 @@ async def test_sign_message():
         x_idempotency_key=test_idempotency_key,
     )
 
-    assert result == "test_signature"
+    assert result == mock_response.signature
 
 
 @pytest.mark.asyncio
@@ -167,7 +177,8 @@ async def test_sign_transaction():
     mock_solana_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.solana_accounts = mock_solana_accounts_api
-    mock_solana_accounts_api.sign_solana_transaction = AsyncMock(return_value="test_signature")
+    mock_response = SignSolanaTransaction200Response(signed_transaction="test_signed_transaction")
+    mock_solana_accounts_api.sign_solana_transaction = AsyncMock(return_value=mock_response)
 
     client = SolanaClient(api_clients=mock_api_clients)
 
@@ -187,7 +198,7 @@ async def test_sign_transaction():
         x_idempotency_key=test_idempotency_key,
     )
 
-    assert result == "test_signature"
+    assert result == mock_response.signed_transaction
 
 
 @pytest.mark.asyncio

@@ -244,7 +244,7 @@ async def test_create_get_and_list_solana_accounts(cdp_client):
 
     solana_accounts = await cdp_client.solana.list_accounts()
     assert solana_accounts is not None
-    assert len(solana_accounts) > 0
+    assert len(solana_accounts.accounts) > 0
 
     solana_account = await cdp_client.solana.get_account(solana_account.address)
     assert solana_account is not None
