@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.3.1
+
+### Patch Changes
+
+- This patch contains a README update to accomodate the new home for CDP SDK examples.
+
 ## 1.3.0
 
 ### Minor Changes
