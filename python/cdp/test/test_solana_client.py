@@ -26,7 +26,7 @@ from cdp.openapi_client.models.sign_solana_transaction200_response import (
 from cdp.openapi_client.models.sign_solana_transaction_request import (
     SignSolanaTransactionRequest,
 )
-from cdp.openapi_client.models.solana_account import SolanaAccount as SolanaAccountModel
+from cdp.openapi_client.models.solana_account import SolanaAccount
 from cdp.solana_client import SolanaClient
 
 
@@ -118,10 +118,10 @@ async def test_list_accounts():
     mock_api_clients = AsyncMock()
     mock_api_clients.solana_accounts = mock_solana_accounts_api
 
-    mock_sol_account_1 = SolanaAccountModel(
+    mock_sol_account_1 = SolanaAccount(
         address="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", name="test-sol-account-1"
     )
-    mock_sol_account_2 = SolanaAccountModel(
+    mock_sol_account_2 = SolanaAccount(
         address="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", name="test-sol-account-2"
     )
 

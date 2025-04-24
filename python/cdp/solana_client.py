@@ -23,7 +23,7 @@ from cdp.openapi_client.models.sign_solana_transaction200_response import (
 from cdp.openapi_client.models.sign_solana_transaction_request import (
     SignSolanaTransactionRequest,
 )
-from cdp.openapi_client.models.solana_account import SolanaAccount as SolanaAccountModel
+from cdp.openapi_client.models.solana_account import SolanaAccount
 
 
 class SolanaClient:
@@ -36,7 +36,7 @@ class SolanaClient:
         self,
         name: str | None = None,
         idempotency_key: str | None = None,
-    ) -> SolanaAccountModel:
+    ) -> SolanaAccount:
         """Create a Solana account.
 
         Args:
@@ -44,7 +44,7 @@ class SolanaClient:
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
         Returns:
-            SolanaAccountModel: The Solana account model.
+            SolanaAccount: The Solana account model.
 
         """
         return await self.api_clients.solana_accounts.create_solana_account(
@@ -54,7 +54,7 @@ class SolanaClient:
 
     async def get_account(
         self, address: str | None = None, name: str | None = None
-    ) -> SolanaAccountModel:
+    ) -> SolanaAccount:
         """Get a Solana account by address.
 
         Args:
@@ -62,7 +62,7 @@ class SolanaClient:
             name (str, optional): The name of the account.
 
         Returns:
-            SolanaAccountModel: The Solana account model.
+            SolanaAccount: The Solana account model.
 
         """
         if address:
