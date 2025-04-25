@@ -1,9 +1,5 @@
 import md5 from "md5";
 
-import { CdpClient } from "./client/cdp.js";
-import { EvmClient } from "./client/evm/evm.js";
-import { SolanaClient } from "./client/solana/solana.js";
-
 /**
  * The data in an error event
  */
@@ -26,29 +22,12 @@ type ErrorEventData = {
   name: "error";
 };
 
-type EventData = ErrorEventData;
+type EventData = ErrorEventData & {
+  apiKeyId: string;
+};
 
 // This is a public client id for the analytics service
 const publicClientId = "54f2ee2fb3d2b901a829940d70fbfc13";
-
-/**
- * AnalyticsConfig singleton class for holding the API key ID
- */
-export class AnalyticsConfig {
-  /**
-   * The API key ID
-   */
-  public static apiKeyId: string;
-
-  /**
-   * Sets the API key ID
-   *
-   * @param apiKeyId - The API key ID
-   */
-  public static set(apiKeyId: string): void {
-    AnalyticsConfig.apiKeyId = apiKeyId;
-  }
-}
 
 /**
  * Sends an analytics event to the default endpoint
@@ -60,7 +39,7 @@ export async function sendEvent(event: EventData): Promise<void> {
   const timestamp = Date.now();
 
   const enhancedEvent = {
-    user_id: AnalyticsConfig.apiKeyId,
+    user_id: event.apiKeyId,
     event_type: event.name,
     platform: "server",
     timestamp,
@@ -101,16 +80,17 @@ export async function sendEvent(event: EventData): Promise<void> {
  * Wraps all methods of a class with error tracking.
  *
  * @param ClassToWrap - The class whose prototype methods should be wrapped.
+ * @param apiKeyId - The API key ID to use for the error tracking.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function wrapClassWithErrorTracking(ClassToWrap: any): void {
-  const methodNames = Object.getOwnPropertyNames(ClassToWrap.prototype).filter(
+export function wrapClassWithErrorTracking(ClassToWrap: any, apiKeyId: string): void {
+  const methods = Object.getOwnPropertyNames(ClassToWrap.prototype).filter(
     name => name !== "constructor" && typeof ClassToWrap.prototype[name] === "function",
   );
 
-  for (const methodName of methodNames) {
-    const originalMethod = ClassToWrap.prototype[methodName];
-    ClassToWrap.prototype[methodName] = async function (...args: unknown[]) {
+  for (const method of methods) {
+    const originalMethod = ClassToWrap.prototype[method];
+    ClassToWrap.prototype[method] = async function (...args: unknown[]) {
       try {
         return await originalMethod.apply(this, args);
       } catch (error) {
@@ -120,23 +100,18 @@ function wrapClassWithErrorTracking(ClassToWrap: any): void {
 
         const { message, stack } = error;
 
-        if (process.env.DISABLE_CDP_ERROR_REPORTING !== "true") {
-          sendEvent({
-            method: String(methodName),
-            message,
-            stack,
-            name: "error",
-          }).catch(() => {
-            // ignore error
-          });
-        }
+        sendEvent({
+          apiKeyId,
+          method,
+          message,
+          stack,
+          name: "error",
+        }).catch(() => {
+          // ignore error
+        });
 
         throw error;
       }
     };
   }
 }
-
-wrapClassWithErrorTracking(CdpClient);
-wrapClassWithErrorTracking(EvmClient);
-wrapClassWithErrorTracking(SolanaClient);
