@@ -91,6 +91,58 @@ describe("JWT Authentication", () => {
     expect(payload.exp - payload.nbf).toBe(120); // Default expiration
   });
 
+  it("should generate a valid JWT token for WebSocket with null request parameters", async () => {
+    const webSocketOptions: JwtOptions = {
+      apiKeyId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      apiKeySecret: testECPrivateKey,
+      // All request parameters are null for WebSocket
+      requestMethod: null,
+      requestHost: null,
+      requestPath: null,
+    };
+
+    const token = await generateJwt(webSocketOptions);
+    expect(token).toBeTruthy();
+    expect(typeof token).toBe("string");
+    expect(token.split(".").length).toBe(3);
+
+    // Check payload doesn't have uris claim
+    const payload = decodeJwt(token);
+    expect(payload.iss).toBe("cdp");
+    expect(payload.sub).toBe(webSocketOptions.apiKeyId);
+    expect(payload.aud).toEqual(["cdp_service"]);
+    expect(payload.uris).toBeUndefined(); // uris claim should not be present
+    expect(typeof payload.nbf).toBe("number");
+    expect(typeof payload.exp).toBe("number");
+  });
+
+  it("should generate a valid JWT token for WebSocket with undefined request parameters", async () => {
+    const webSocketOptions: JwtOptions = {
+      apiKeyId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      apiKeySecret: testECPrivateKey,
+      // All request parameters are undefined for WebSocket
+    };
+
+    const token = await generateJwt(webSocketOptions);
+    expect(token).toBeTruthy();
+    const payload = decodeJwt(token);
+    expect(payload.uris).toBeUndefined(); // uris claim should not be present
+  });
+
+  it("should reject mixed null and non-null request parameters", async () => {
+    const invalidOptions: JwtOptions = {
+      apiKeyId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      apiKeySecret: testECPrivateKey,
+      requestMethod: "GET",
+      requestHost: null, // Mixed: method is set but host is null
+      requestPath: "/platform/v1/wallets",
+    };
+
+    await expect(generateJwt(invalidOptions)).rejects.toThrow(
+      "Either all request details (method, host, path) must be provided, or all must be null"
+    );
+  });
+
   it("should respect custom expiration time", async () => {
     const customExpiration = 300;
     const token = await generateJwt({

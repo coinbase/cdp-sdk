@@ -32,19 +32,19 @@ export interface JwtOptions {
   apiKeySecret: string;
 
   /**
-   * The HTTP method for the request (e.g. 'GET', 'POST')
+   * The HTTP method for the request (e.g. 'GET', 'POST'), or null for JWTs intended for websocket connections
    */
-  requestMethod: string;
+  requestMethod?: string | null;
 
   /**
-   * The host for the request (e.g. 'api.cdp.coinbase.com')
+   * The host for the request (e.g. 'api.cdp.coinbase.com'), or null for JWTs intended for websocket connections
    */
-  requestHost: string;
+  requestHost?: string | null;
 
   /**
-   * The path for the request (e.g. '/platform/v1/wallets')
+   * The path for the request (e.g. '/platform/v1/wallets'), or null for JWTs intended for websocket connections
    */
-  requestPath: string;
+  requestPath?: string | null;
 
   /**
    * Optional expiration time in seconds (defaults to 120)
@@ -88,7 +88,9 @@ export interface WalletJwtOptions {
 
 /**
  * Generates a JWT (also known as a Bearer token) for authenticating with Coinbase's REST APIs.
- * Supports both EC (ES256) and Ed25519 (EdDSA) keys.
+ * Supports both EC (ES256) and Ed25519 (EdDSA) keys. Also supports JWTs meant for
+ * websocket connections by allowing requestMethod, requestHost, and requestPath to all be
+ * null, in which case the 'uris' claim is omitted from the JWT.
  *
  * @param options - The configuration options for generating the JWT
  * @returns The generated JWT (Bearer token) string
@@ -102,21 +104,37 @@ export async function generateJwt(options: JwtOptions): Promise<string> {
   if (!options.apiKeySecret) {
     throw new Error("Private key is required");
   }
-  if (!options.requestMethod || !options.requestHost || !options.requestPath) {
-    throw new Error("Request details (method, host, path) are required");
+
+  // Check if we have a REST API request or a websocket connection
+  const hasAllRequestParams = Boolean(
+    options.requestMethod && options.requestHost && options.requestPath
+  );
+  const hasNoRequestParams = 
+    (options.requestMethod === undefined || options.requestMethod === null) &&
+    (options.requestHost === undefined || options.requestHost === null) &&
+    (options.requestPath === undefined || options.requestPath === null);
+
+  // Ensure we either have all request parameters or none (for websocket)
+  if (!hasAllRequestParams && !hasNoRequestParams) {
+    throw new Error(
+      "Either all request details (method, host, path) must be provided, or all must be null for JWTs intended for websocket connections"
+    );
   }
 
   const now = Math.floor(Date.now() / 1000);
   const expiresIn = options.expiresIn || 120; // Default to 120 seconds if not specified
-  const uri = `${options.requestMethod} ${options.requestHost}${options.requestPath}`;
 
   // Prepare the JWT payload
-  const claims = {
+  const claims: JWTPayload = {
     sub: options.apiKeyId,
     iss: "cdp",
     aud: ["cdp_service"],
-    uris: [uri],
   };
+
+  // Add the uris claim only for REST API requests
+  if (hasAllRequestParams) {
+    claims.uris = [`${options.requestMethod} ${options.requestHost}${options.requestPath}`];
+  }
 
   // Generate random nonce for the header
   const randomNonce = nonce();
