@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.3.2
+
+### Patch Changes
+
+- [#76](https://github.com/coinbase/cdp-sdk/pull/76) [`24463f0`](https://github.com/coinbase/cdp-sdk/commit/24463f0e5a3c4463a287cc5305bcc0d07f4f9654) Thanks [@0xRAG](https://github.com/0xRAG)! - Fix circular dependency when importing @coinbase/cdp-sdk
+
 ## 1.3.1
 
 ### Patch Changes
