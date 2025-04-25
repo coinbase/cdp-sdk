@@ -73,6 +73,24 @@ def jwt_options():
     )
 
 
+@pytest.fixture
+def websocket_jwt_options():
+    """Fixture that provides JWT options for WebSocket testing with null request parameters.
+
+    Returns:
+        JwtOptions: JWT options for WebSocket testing
+
+    """
+    return JwtOptions(
+        api_key_id="test-key-id",
+        api_key_secret="dummy-secret",  # Will be replaced in tests
+        request_method=None,
+        request_host=None,
+        request_path=None,
+        expires_in=120,
+    )
+
+
 def test_parse_private_key_ec(ec_private_key_factory):
     """Test parsing an EC private key."""
     # Setup
@@ -154,6 +172,60 @@ def test_generate_jwt_ed25519(ed25519_private_key_factory, jwt_options_factory):
     assert decoded["sub"] == options.api_key_id
     assert decoded["iss"] == "cdp"
     assert "uris" in decoded
+
+
+def test_generate_websocket_jwt_ec(ec_private_key_factory, websocket_jwt_options_factory):
+    """Test WebSocket JWT generation with EC key and null request parameters."""
+    # Setup
+    key_data = ec_private_key_factory()
+    options = websocket_jwt_options_factory(api_key_secret=key_data)
+
+    # Execute
+    token = generate_jwt(options)
+
+    # Verify
+    decoded = jwt_lib.decode(token, options={"verify_signature": False})
+    assert decoded["sub"] == options.api_key_id
+    assert decoded["iss"] == "cdp"
+    assert decoded["aud"] == ["cdp_service"]
+    assert isinstance(decoded["nbf"], int)
+    assert isinstance(decoded["exp"], int)
+    assert decoded["exp"] - decoded["nbf"] == options.expires_in
+    # WebSocket JWTs should not have uris claim
+    assert "uris" not in decoded
+
+
+def test_generate_websocket_jwt_ed25519(ed25519_private_key_factory, websocket_jwt_options_factory):
+    """Test WebSocket JWT generation with Ed25519 key and null request parameters."""
+    # Setup
+    key_data = ed25519_private_key_factory()
+    options = websocket_jwt_options_factory(api_key_secret=key_data)
+
+    # Execute
+    token = generate_jwt(options)
+
+    # Verify
+    decoded = jwt_lib.decode(token, options={"verify_signature": False})
+    assert decoded["sub"] == options.api_key_id
+    assert decoded["iss"] == "cdp"
+    # WebSocket JWTs should not have uris claim
+    assert "uris" not in decoded
+
+
+def test_invalid_request_parameters_mix():
+    """Test that having a mix of null and non-null request parameters raises an error."""
+    # Setup
+    options = JwtOptions(
+        api_key_id="test-key-id",
+        api_key_secret="dummy-secret",
+        request_method="GET",  # Specified
+        request_host=None,  # Null
+        request_path="/test",  # Specified
+    )
+
+    # Execute & Verify
+    with pytest.raises(ValueError, match="Either all request details.*must be provided, or all must be None"):
+        generate_jwt(options)
 
 
 @pytest.mark.parametrize(

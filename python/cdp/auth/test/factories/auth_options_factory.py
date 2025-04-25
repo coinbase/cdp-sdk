@@ -30,3 +30,29 @@ def auth_options_factory():
         )
 
     return _create_options
+
+
+@pytest.fixture
+def websocket_auth_options_factory():
+    """Create and return a factory for WebSocket GetAuthHeadersOptions fixtures.
+
+    Returns:
+        callable: A factory function that creates GetAuthHeadersOptions instances for WebSocket
+
+    """
+
+    def _create_options(
+        api_key_id="test-key",
+        api_key_secret="test-secret",
+        wallet_secret=None,
+    ):
+        return GetAuthHeadersOptions(
+            api_key_id=api_key_id,
+            api_key_secret=api_key_secret,
+            request_method=None,
+            request_host=None,
+            request_path=None,
+            wallet_secret=wallet_secret,
+        )
+
+    return _create_options
