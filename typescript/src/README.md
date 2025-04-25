@@ -314,3 +314,29 @@ export NODE_OPTIONS="--network-family-autoselection-attempt-timeout=500"
 ### Error [ERR_REQUIRE_ESM]: require() of ES modules is not supported.
 
 Use Node v20.19.0 or higher. CDP SDK depends on [jose](https://github.com/panva/jose) v6, which ships only ESM. Jose supports CJS style imports in Node.js versions where the require(esm) feature is enabled by default (^20.19.0 || ^22.12.0 || >= 23.0.0). [See here for more info](https://github.com/panva/jose?tab=readme-ov-file#user-content-fn-cjs-705c79d785ca9bc0f9ec1e8ce0825c74).
+
+### Jest encountered an unexpected token
+
+If you're using Jest and see an error like this:
+
+```
+Details:
+
+/Users/.../node_modules/jose/dist/webapi/index.js:1
+({"Object.<anonymous>":function(module,exports,require,__dirname,__filename,jest){export { compactDecrypt } from './jwe/compact/decrypt.js';
+                                                                                  ^^^^^^
+
+SyntaxError: Unexpected token 'export'
+```
+
+Add a file called `jest.setup.ts` next to your `jest.config` file with the following content:
+
+```typescript
+jest.mock("jose", () => {});
+```
+
+Then, add the following line to your `jest.config` file:
+
+```typescript
+setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+```
