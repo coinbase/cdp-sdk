@@ -123,6 +123,64 @@ func TestGenerateJWT(t *testing.T) {
 		assert.Equal(t, int64(300), exp-nbf)
 	})
 
+	t.Run("generates valid JWT for WebSocket without URI", func(t *testing.T) {
+		options := JwtOptions{
+			KeyID:         "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+			KeySecret:     ecKey,
+			RequestMethod: "", // Empty for WebSocket
+			RequestHost:   "", // Empty for WebSocket
+			RequestPath:   "", // Empty for WebSocket
+			ExpiresIn:     300,
+		}
+
+		token, err := GenerateJWT(options)
+		require.NoError(t, err)
+		assert.NotEmpty(t, token)
+
+		// Parse token without verification
+		parsedToken, err := jwt.Parse(token, func(_ *jwt.Token) (interface{}, error) {
+			return nil, jwt.ErrInvalidKeyType
+		})
+		require.Error(t, err) // Error is expected since we're not verifying
+
+		claims, ok := parsedToken.Claims.(jwt.MapClaims)
+		require.True(t, ok, "expected claims to be jwt.MapClaims")
+
+		// Check standard claims are present
+		assert.Equal(t, "cdp", claims["iss"])
+		assert.Equal(t, options.KeyID, claims["sub"])
+		assert.Equal(t, []interface{}{"cdp_service"}, claims["aud"])
+
+		// Check uris claim is NOT present for WebSocket JWTs
+		_, hasUris := claims["uris"]
+		assert.False(t, hasUris, "uris claim should not be present for WebSocket JWTs")
+
+		// Check expiry
+		expFloat, ok := claims["exp"].(float64)
+		require.True(t, ok, "expected exp to be float64")
+		exp := int64(expFloat)
+
+		nbfFloat, ok := claims["nbf"].(float64)
+		require.True(t, ok, "expected nbf to be float64")
+		nbf := int64(nbfFloat)
+
+		assert.Equal(t, int64(300), exp-nbf)
+	})
+
+	t.Run("rejects mixed empty and non-empty request parameters", func(t *testing.T) {
+		options := JwtOptions{
+			KeyID:         "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+			KeySecret:     ecKey,
+			RequestMethod: "GET",
+			RequestHost:   "", // Empty
+			RequestPath:   "/platform/v1/wallets",
+		}
+
+		_, err := GenerateJWT(options)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "either all request details")
+	})
+
 	t.Run("validates required parameters", func(t *testing.T) {
 		options := defaultOptions
 		options.KeySecret = ecKey
