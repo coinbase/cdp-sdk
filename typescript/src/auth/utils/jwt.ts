@@ -107,9 +107,9 @@ export async function generateJwt(options: JwtOptions): Promise<string> {
 
   // Check if we have a REST API request or a websocket connection
   const hasAllRequestParams = Boolean(
-    options.requestMethod && options.requestHost && options.requestPath
+    options.requestMethod && options.requestHost && options.requestPath,
   );
-  const hasNoRequestParams = 
+  const hasNoRequestParams =
     (options.requestMethod === undefined || options.requestMethod === null) &&
     (options.requestHost === undefined || options.requestHost === null) &&
     (options.requestPath === undefined || options.requestPath === null);
@@ -117,7 +117,7 @@ export async function generateJwt(options: JwtOptions): Promise<string> {
   // Ensure we either have all request parameters or none (for websocket)
   if (!hasAllRequestParams && !hasNoRequestParams) {
     throw new Error(
-      "Either all request details (method, host, path) must be provided, or all must be null for JWTs intended for websocket connections"
+      "Either all request details (method, host, path) must be provided, or all must be null for JWTs intended for websocket connections",
     );
   }
 

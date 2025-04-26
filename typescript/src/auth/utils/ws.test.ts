@@ -49,7 +49,7 @@ describe("WebSocket utils", () => {
     expect(generateJwt).toHaveBeenCalledWith(
       expect.objectContaining({
         expiresIn: customExpiration,
-      })
+      }),
     );
   });
 
@@ -72,4 +72,4 @@ describe("WebSocket utils", () => {
       `sdk_version=${version},sdk_language=typescript,source=custom-source,source_version=1.0.0`,
     );
   });
-}); 
+});

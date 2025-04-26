@@ -139,7 +139,7 @@ describe("JWT Authentication", () => {
     };
 
     await expect(generateJwt(invalidOptions)).rejects.toThrow(
-      "Either all request details (method, host, path) must be provided, or all must be null"
+      "Either all request details (method, host, path) must be provided, or all must be null",
     );
   });
 
