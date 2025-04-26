@@ -1,4 +1,4 @@
-import { AnalyticsConfig } from "../analytics.js";
+import { wrapClassWithErrorTracking } from "../analytics.js";
 import { CdpOpenApiClient } from "../openapi-client/index.js";
 import { version } from "../version.js";
 import { EvmClient } from "./evm/evm.js";
@@ -108,7 +108,11 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/typescr
       sourceVersion: version,
     });
 
-    AnalyticsConfig.set(apiKeyId);
+    if (process.env.DISABLE_CDP_ERROR_REPORTING !== "true") {
+      wrapClassWithErrorTracking(CdpClient, apiKeyId);
+      wrapClassWithErrorTracking(EvmClient, apiKeyId);
+      wrapClassWithErrorTracking(SolanaClient, apiKeyId);
+    }
 
     this.evm = new EvmClient();
     this.solana = new SolanaClient();
