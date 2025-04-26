@@ -26,9 +26,7 @@ const logger = {
 
 vi.mock("./analytics.js", () => {
   return {
-    AnalyticsConfig: {
-      set: vi.fn(),
-    },
+    wrapClassWithErrorTracking: vi.fn(),
   };
 });
 

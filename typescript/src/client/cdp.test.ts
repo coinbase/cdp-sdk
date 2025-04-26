@@ -13,14 +13,6 @@ vi.mock("../openapi-client", () => {
   };
 });
 
-vi.mock("../analytics.js", () => {
-  return {
-    AnalyticsConfig: {
-      set: vi.fn(),
-    },
-  };
-});
-
 describe("CdpClient", () => {
   const options = {
     apiKeyId: "test-api-key-id",

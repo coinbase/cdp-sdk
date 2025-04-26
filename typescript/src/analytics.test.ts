@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { AnalyticsConfig, sendEvent } from "./analytics.js";
+import { sendEvent } from "./analytics.js";
 
 describe("sendEvent", () => {
   it("should use the actual implementation", async () => {
@@ -8,9 +8,12 @@ describe("sendEvent", () => {
       status: 200,
     });
 
-    AnalyticsConfig.set("test-api-key-id");
-
-    await sendEvent({ name: "error", method: "test", message: "test" });
+    await sendEvent({
+      apiKeyId: "test-api-key-id",
+      name: "error",
+      method: "test",
+      message: "test",
+    });
 
     expect(fetch).toHaveBeenCalledWith(
       "https://cca-lite.coinbase.com/amp",
