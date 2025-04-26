@@ -1,0 +1,5 @@
+---
+"@coinbase/cdp-sdk": minor
+---
+
+Added the ability to generate JWTs intended for Websocket connections
