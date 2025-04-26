@@ -16,9 +16,9 @@ class GetAuthHeadersOptions(BaseModel):
     Attributes:
         api_key_id - The API key ID
         api_key_secret - The API key secret
-        request_method - The HTTP method, or None for WebSocket connections
-        request_host - The request host, or None for WebSocket connections
-        request_path - The request path, or None for WebSocket connections
+        request_method - The HTTP method
+        request_host - The request host
+        request_path - The request path
         [request_body] - Optional request body
         [wallet_secret] - Optional wallet secret for wallet authentication
         [source] - Optional source identifier
@@ -29,9 +29,9 @@ class GetAuthHeadersOptions(BaseModel):
 
     api_key_id: str = Field(..., description="The API key ID")
     api_key_secret: str = Field(..., description="The API key secret")
-    request_method: str | None = Field(..., description="The HTTP method, or None for WebSocket connections")
-    request_host: str | None = Field(..., description="The request host, or None for WebSocket connections")
-    request_path: str | None = Field(..., description="The request path, or None for WebSocket connections")
+    request_method: str = Field(..., description="The HTTP method")
+    request_host: str = Field(..., description="The request host")
+    request_path: str = Field(..., description="The request path")
     request_body: dict[str, Any] | None = Field(None, description="Optional request body")
     wallet_secret: str | None = Field(None, description="Optional wallet secret")
     source: str | None = Field(None, description="Optional source identifier")
@@ -66,8 +66,8 @@ def get_auth_headers(options: GetAuthHeadersOptions) -> dict[str, str]:
     headers["Authorization"] = f"Bearer {jwt_token}"
     headers["Content-Type"] = "application/json"
 
-    # Add wallet auth if needed (REST API calls only)
-    if options.request_method is not None and options.request_path is not None and _requires_wallet_auth(options.request_method, options.request_path):
+    # Add wallet auth if needed
+    if _requires_wallet_auth(options.request_method, options.request_path):
         if not options.wallet_secret:
             raise ValueError(
                 "Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",

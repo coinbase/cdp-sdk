@@ -224,7 +224,9 @@ def test_invalid_request_parameters_mix():
     )
 
     # Execute & Verify
-    with pytest.raises(ValueError, match="Either all request details.*must be provided, or all must be None"):
+    with pytest.raises(
+        ValueError, match="Either all request details.*must be provided, or all must be None"
+    ):
         generate_jwt(options)
 
 

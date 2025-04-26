@@ -37,9 +37,18 @@ class JwtOptions(BaseModel):
 
     api_key_id: str = Field(..., description="The API key ID")
     api_key_secret: str = Field(..., description="The API key secret")
-    request_method: str | None = Field(None, description="The HTTP method for the request or None for JWTs intended for websocket connections")
-    request_host: str | None = Field(None, description="The host for the request or None for JWTs intended for websocket connections")
-    request_path: str | None = Field(None, description="The path for the request or None for JWTs intended for websocket connections")
+    request_method: str | None = Field(
+        None,
+        description="The HTTP method for the request or None for JWTs intended for websocket connections",
+    )
+    request_host: str | None = Field(
+        None,
+        description="The host for the request or None for JWTs intended for websocket connections",
+    )
+    request_path: str | None = Field(
+        None,
+        description="The path for the request or None for JWTs intended for websocket connections",
+    )
     expires_in: int | None = Field(120, description="Optional expiration time in seconds")
 
     @field_validator("request_method")
@@ -135,11 +144,16 @@ def generate_jwt(options: JwtOptions) -> str:
 
     # Check if we have a REST API request or a websocket connection
     has_all_uri_params = all([options.request_method, options.request_host, options.request_path])
-    has_no_uri_params = all(param is None for param in [options.request_method, options.request_host, options.request_path])
+    has_no_uri_params = all(
+        param is None
+        for param in [options.request_method, options.request_host, options.request_path]
+    )
 
     # Ensure we either have all request parameters or none (for websocket)
     if not (has_all_uri_params or has_no_uri_params):
-        raise ValueError("Either all request details (method, host, path) must be provided, or all must be None for JWTs intended for websocket connections")
+        raise ValueError(
+            "Either all request details (method, host, path) must be provided, or all must be None for JWTs intended for websocket connections"
+        )
 
     try:
         # Parse the private key

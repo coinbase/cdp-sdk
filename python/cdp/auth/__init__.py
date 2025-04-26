@@ -11,6 +11,10 @@ from .utils.jwt import (
     generate_jwt,
     generate_wallet_jwt,
 )
+from .utils.ws import (
+    GetWebSocketAuthHeadersOptions,
+    get_websocket_auth_headers,
+)
 
 __all__ = [
     # JWT utils exports
@@ -24,6 +28,9 @@ __all__ = [
     # HTTP utils exports
     "get_auth_headers",
     "GetAuthHeadersOptions",
+    # WebSocket utils exports
+    "get_websocket_auth_headers",
+    "GetWebSocketAuthHeadersOptions",
 ]
 
 """CDP SDK Auth package."""

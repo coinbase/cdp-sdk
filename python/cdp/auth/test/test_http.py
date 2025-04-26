@@ -26,27 +26,6 @@ def test_get_auth_headers(mock_jwt, auth_options_factory):
 
 
 @patch("cdp.auth.utils.http.generate_jwt")
-def test_get_auth_headers_for_websocket(mock_jwt, websocket_auth_options_factory):
-    """Test getting authentication headers for WebSocket connections."""
-    # Setup
-    mock_jwt.return_value = "mock.websocket.token"
-    options = websocket_auth_options_factory()
-
-    # Execute
-    headers = get_auth_headers(options)
-
-    # Verify
-    assert headers["Authorization"] == "Bearer mock.websocket.token"
-    assert headers["Content-Type"] == "application/json"
-    assert "X-Wallet-Auth" not in headers
-    # Verify the JWT was created with null request parameters
-    mock_jwt.assert_called_once()
-    assert mock_jwt.call_args[0][0].request_method is None
-    assert mock_jwt.call_args[0][0].request_host is None
-    assert mock_jwt.call_args[0][0].request_path is None
-
-
-@patch("cdp.auth.utils.http.generate_jwt")
 @patch("cdp.auth.utils.http.generate_wallet_jwt")
 def test_get_auth_headers_with_wallet_auth(mock_wallet_jwt, mock_jwt, auth_options_factory):
     """Test creating headers with wallet authentication."""
