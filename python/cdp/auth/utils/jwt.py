@@ -3,7 +3,7 @@ import random
 import time
 import uuid
 from datetime import datetime
-from typing import Any, list
+from typing import Any
 from urllib.parse import urlparse
 
 import jwt
