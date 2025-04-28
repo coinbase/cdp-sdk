@@ -45,12 +45,10 @@ def websocket_auth_options_factory():
     def _create_options(
         api_key_id="test-key",
         api_key_secret="test-secret",
-        wallet_secret=None,
     ):
         return GetWebSocketAuthHeadersOptions(
             api_key_id=api_key_id,
             api_key_secret=api_key_secret,
-            wallet_secret=wallet_secret,
         )
 
     return _create_options

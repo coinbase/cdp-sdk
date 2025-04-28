@@ -24,6 +24,7 @@ class GetAuthHeadersOptions(BaseModel):
         [source] - Optional source identifier
         [source_version] - Optional source version
         [expires_in] - Optional JWT expiration time in seconds
+        [audience] - Optional audience claim for the JWT
 
     """
 
@@ -37,6 +38,7 @@ class GetAuthHeadersOptions(BaseModel):
     source: str | None = Field(None, description="Optional source identifier")
     source_version: str | None = Field(None, description="Optional source version")
     expires_in: int | None = Field(None, description="Optional JWT expiration time in seconds")
+    audience: list[str] | None = Field(None, description="Optional audience claim for the JWT")
 
 
 def get_auth_headers(options: GetAuthHeadersOptions) -> dict[str, str]:
@@ -59,6 +61,7 @@ def get_auth_headers(options: GetAuthHeadersOptions) -> dict[str, str]:
         request_host=options.request_host,
         request_path=options.request_path,
         expires_in=options.expires_in,
+        audience=options.audience,
     )
 
     # Generate and add JWT token

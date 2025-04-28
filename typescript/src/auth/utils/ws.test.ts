@@ -32,6 +32,7 @@ describe("WebSocket utils", () => {
       requestHost: null,
       requestPath: null,
       expiresIn: undefined,
+      audience: undefined,
     });
 
     expect(headers["Authorization"]).toBe(`Bearer ${mockJWT}`);

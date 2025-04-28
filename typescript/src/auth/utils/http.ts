@@ -62,6 +62,11 @@ export interface GetAuthHeadersOptions {
    * Optional expiration time in seconds (defaults to 120)
    */
   expiresIn?: number;
+
+  /**
+   * Optional audience claim for the JWT
+   */
+  audience?: string[];
 }
 
 /**
@@ -83,6 +88,7 @@ export async function getAuthHeaders(
     requestHost: options.requestHost,
     requestPath: options.requestPath,
     expiresIn: options.expiresIn,
+    audience: options.audience,
   });
   headers["Authorization"] = `Bearer ${jwt}`;
   headers["Content-Type"] = "application/json";
