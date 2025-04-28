@@ -131,7 +131,7 @@ function requiresWalletAuth(requestMethod: string, requestPath: string): boolean
  * @param sourceVersion - The version of the source making the request
  * @returns Encoded correlation data as a query string
  */
-function getCorrelationData(source?: string, sourceVersion?: string): string {
+export function getCorrelationData(source?: string, sourceVersion?: string): string {
   const data = {
     sdk_version: version,
     sdk_language: "typescript",

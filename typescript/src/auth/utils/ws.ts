@@ -1,5 +1,5 @@
+import { getCorrelationData } from "./http.js";
 import { generateJwt } from "./jwt.js";
-import { version } from "../../version.js";
 
 /**
  * Options for generating WebSocket authentication headers.
@@ -67,25 +67,4 @@ export async function getWebSocketAuthHeaders(
   headers["Correlation-Context"] = getCorrelationData(options.source, options.sourceVersion);
 
   return headers;
-}
-
-/**
- * Returns encoded correlation data including the SDK version and language.
- *
- * @param source - The source identifier for the request
- * @param sourceVersion - The version of the source making the request
- * @returns Encoded correlation data as a query string
- */
-function getCorrelationData(source?: string, sourceVersion?: string): string {
-  const data = {
-    sdk_version: version,
-    sdk_language: "typescript",
-    source: source || "sdk-auth",
-  };
-  if (sourceVersion) {
-    data["source_version"] = sourceVersion;
-  }
-  return Object.keys(data)
-    .map(key => `${key}=${encodeURIComponent(data[key])}`)
-    .join(",");
 }

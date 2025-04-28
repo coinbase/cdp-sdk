@@ -51,9 +51,7 @@ class JwtOptions(BaseModel):
         description="The path for the request or None for JWTs intended for websocket connections",
     )
     expires_in: int | None = Field(120, description="Optional expiration time in seconds")
-    audience: list[str] | None = Field(
-        None, description="Optional audience claim for the JWT"
-    )
+    audience: list[str] | None = Field(None, description="Optional audience claim for the JWT")
 
     @field_validator("request_method")
     @classmethod

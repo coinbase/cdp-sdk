@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+from cdp.auth.utils.http import _get_correlation_data
 from cdp.auth.utils.jwt import JwtOptions, generate_jwt
 
 
@@ -56,29 +57,3 @@ def get_websocket_auth_headers(options: GetWebSocketAuthHeadersOptions) -> dict[
     )
 
     return headers
-
-
-def _get_correlation_data(source: str | None = None, source_version: str | None = None) -> str:
-    """Return encoded correlation data including the SDK version and language.
-
-    Args:
-        source: Optional source identifier
-        source_version: Optional source version
-
-    Returns:
-        Encoded correlation data as a query string
-
-    """
-    from importlib.metadata import version
-
-    sdk_version = version("cdp-sdk")
-
-    data = {
-        "sdk_version": sdk_version,
-        "sdk_language": "python",
-        "source": source or "sdk-auth",
-    }
-    if source_version:
-        data["source_version"] = source_version
-
-    return ",".join(f"{key}={value}" for key, value in data.items())

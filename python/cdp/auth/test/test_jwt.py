@@ -56,39 +56,25 @@ def ed25519_private_key():
 
 
 @pytest.fixture
-def jwt_options():
+def jwt_options(jwt_options_factory):
     """Fixture that provides basic JWT options for testing.
 
     Returns:
         JwtOptions: Basic JWT options for testing
 
     """
-    return JwtOptions(
-        api_key_id="test-key-id",
-        api_key_secret="dummy-secret",  # Will be replaced in tests
-        request_method="GET",
-        request_host="https://api.cdp.coinbase.com",
-        request_path="/v1/test",
-        expires_in=120,
-    )
+    return jwt_options_factory()
 
 
 @pytest.fixture
-def websocket_jwt_options():
+def websocket_jwt_options(websocket_jwt_options_factory):
     """Fixture that provides JWT options for WebSocket testing with null request parameters.
 
     Returns:
         JwtOptions: JWT options for WebSocket testing
 
     """
-    return JwtOptions(
-        api_key_id="test-key-id",
-        api_key_secret="dummy-secret",  # Will be replaced in tests
-        request_method=None,
-        request_host=None,
-        request_path=None,
-        expires_in=120,
-    )
+    return websocket_jwt_options_factory()
 
 
 def test_parse_private_key_ec(ec_private_key_factory):

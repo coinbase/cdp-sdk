@@ -1,6 +1,7 @@
 import pytest
 
 from cdp.auth.utils.http import GetAuthHeadersOptions
+from cdp.auth.utils.ws import GetWebSocketAuthHeadersOptions
 
 
 @pytest.fixture
@@ -37,7 +38,7 @@ def websocket_auth_options_factory():
     """Create and return a factory for WebSocket GetAuthHeadersOptions fixtures.
 
     Returns:
-        callable: A factory function that creates GetAuthHeadersOptions instances for WebSocket
+        callable: A factory function that creates GetWebSocketAuthHeadersOptions instances for WebSocket
 
     """
 
@@ -46,12 +47,9 @@ def websocket_auth_options_factory():
         api_key_secret="test-secret",
         wallet_secret=None,
     ):
-        return GetAuthHeadersOptions(
+        return GetWebSocketAuthHeadersOptions(
             api_key_id=api_key_id,
             api_key_secret=api_key_secret,
-            request_method=None,
-            request_host=None,
-            request_path=None,
             wallet_secret=wallet_secret,
         )
 

@@ -1,32 +1,8 @@
 from unittest.mock import patch
 
-import pytest
-
 from cdp.auth.utils.ws import (
-    GetWebSocketAuthHeadersOptions,
     get_websocket_auth_headers,
 )
-
-
-@pytest.fixture
-def websocket_auth_options_factory():
-    """Create and return a factory for WebSocket GetAuthHeadersOptions fixtures.
-
-    Returns:
-        callable: A factory function that creates GetWebSocketAuthHeadersOptions instances
-
-    """
-
-    def _create_options(
-        api_key_id="test-key",
-        api_key_secret="test-secret",
-    ):
-        return GetWebSocketAuthHeadersOptions(
-            api_key_id=api_key_id,
-            api_key_secret=api_key_secret,
-        )
-
-    return _create_options
 
 
 @patch("cdp.auth.utils.ws.generate_jwt")
