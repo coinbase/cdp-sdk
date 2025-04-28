@@ -64,11 +64,6 @@ lint-fix: clean validation_deps
 	@ printf "\nFixing lint issues\n"
 	@golangci-lint run --timeout=5m --config=.golangci.yaml --fix ./...
 
-.PHONY: lint-yaml
-lint-yaml:
-	@printf "\nLint yaml files\n"
-	@yamlfmt -lint -conf .yamlfmt.yaml
-
 .PHONY: docs
 docs:
 	@printf "\nGenerating docs\n"
