@@ -3,40 +3,20 @@ import functools
 import hashlib
 import inspect
 import json
-import os
 import time
 import traceback
 
 import requests
 from pydantic import BaseModel
 
-from cdp.cdp_client import CdpClient
-from cdp.evm_client import EvmClient
-from cdp.solana_client import SolanaClient
-
 # This is a public client id for the analytics service
 public_client_id = "54f2ee2fb3d2b901a829940d70fbfc13"
-
-
-class AnalyticsConfig:
-    """AnalyticsConfig singleton class for holding the API key ID."""
-
-    api_key_id = None
-
-    @classmethod
-    def set(cls, api_key_id: str) -> None:
-        """Set the API key ID.
-
-        Args:
-            api_key_id: The API key ID
-
-        """
-        cls.api_key_id = api_key_id
 
 
 class ErrorEventData(BaseModel):
     """The data in an error event."""
 
+    api_key_id: str  # The API key ID
     method: str  # The API method where the error occurred, e.g. createAccount, getAccount
     message: str  # The error message
     name: str  # The name of the event. This should match the name in AEC
@@ -59,7 +39,7 @@ async def send_event(event: EventData) -> None:
     timestamp = int(time.time() * 1000)
 
     enhanced_event = {
-        "user_id": AnalyticsConfig.api_key_id,
+        "user_id": event.api_key_id,
         "event_type": event.name,
         "platform": "server",
         "timestamp": timestamp,
@@ -93,11 +73,12 @@ async def send_event(event: EventData) -> None:
     )
 
 
-def wrap_with_error_tracking(func):
+def wrap_with_error_tracking(func, api_key_id: str):
     """Wrap a method with error tracking.
 
     Args:
         func: The function to wrap.
+        api_key_id: The API key ID
 
     Returns:
         The wrapped function.
@@ -110,26 +91,27 @@ def wrap_with_error_tracking(func):
             return await func(*args, **kwargs)
         except Exception as error:
             event_data = ErrorEventData(
+                api_key_id=api_key_id,
                 method=func.__name__,
                 message=str(error),
                 stack=traceback.format_exc(),
                 name="error",
             )
 
-            if os.getenv("DISABLE_CDP_ERROR_REPORTING") != "true":
-                with contextlib.suppress(Exception):
-                    await send_event(event_data)
+            with contextlib.suppress(Exception):
+                await send_event(event_data)
 
-            raise
+            raise error
 
     return wrapper
 
 
-def wrap_class_with_error_tracking(cls):
+def wrap_class_with_error_tracking(cls, api_key_id: str):
     """Wrap all methods of a class with error tracking.
 
     Args:
         cls: The class to wrap.
+        api_key_id: The API key ID
 
     Returns:
         The class with wrapped methods.
@@ -137,10 +119,5 @@ def wrap_class_with_error_tracking(cls):
     """
     for name, method in inspect.getmembers(cls, inspect.isfunction):
         if not name.startswith("__"):
-            setattr(cls, name, wrap_with_error_tracking(method))
+            setattr(cls, name, wrap_with_error_tracking(method, api_key_id))
     return cls
-
-
-wrap_class_with_error_tracking(CdpClient)
-wrap_class_with_error_tracking(EvmClient)
-wrap_class_with_error_tracking(SolanaClient)

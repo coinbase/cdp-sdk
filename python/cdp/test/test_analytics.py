@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cdp.analytics import AnalyticsConfig, ErrorEventData
+from cdp.analytics import ErrorEventData
 
 
 @pytest.mark.asyncio
@@ -17,9 +17,9 @@ async def test_send_event(mock_post, mock_send_event):
 
     original_send_event = mock_send_event.original
 
-    event_data = ErrorEventData(name="error", method="test", message="test")
-
-    AnalyticsConfig.set("test-api-key-id")
+    event_data = ErrorEventData(
+        name="error", method="test", message="test", api_key_id="test-api-key-id"
+    )
 
     await original_send_event(event_data)
 
