@@ -7,9 +7,9 @@ import { baseSepolia } from "viem/chains";
 
 const cdp = new CdpClient();
 
-const ethAccount = await cdp.evm.createAccount({});
+const account = await cdp.evm.createAccount();
 
-console.log("EVM Account Address: ", ethAccount.address);
+console.log("Created account:", account.address);
 
 const serializedTx = serializeTransaction({
   chainId: baseSepolia.id,
@@ -20,8 +20,8 @@ const serializedTx = serializeTransaction({
 });
 
 const signature = await cdp.evm.signTransaction({
-  address: ethAccount.address,
+  address: account.address,
   transaction: serializedTx,
 });
 
-console.log("Signature: ", signature);
+console.log("Signature:", signature);

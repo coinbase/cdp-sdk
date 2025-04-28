@@ -4,7 +4,9 @@ import { CdpClient } from "@coinbase/cdp-sdk";
 
 const cdp = new CdpClient();
 
-let account = await cdp.solana.createAccount({ name: "Account1" });
+let account = await cdp.solana.createAccount({
+  name: `Account-${Math.floor(Math.random() * 100)}`,
+});
 console.log(
   "Successfully created Solana account:",
   JSON.stringify(account, null, 2)

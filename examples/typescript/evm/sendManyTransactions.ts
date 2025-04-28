@@ -31,12 +31,12 @@ async function main() {
   });
 
   // Step 1: Create a new EVM account
-  const serverAccount = await cdp.evm.createAccount();
-  console.log("Successfully created EVM account:", serverAccount.address);
+  const account = await cdp.evm.createAccount();
+  console.log("Successfully created EVM account:", account.address);
 
   // Step 2: Request ETH from the faucet
   const { transactionHash } = await cdp.evm.requestFaucet({
-    address: serverAccount.address,
+    address: account.address,
     network: "base-sepolia",
     token: "eth",
   });
@@ -71,7 +71,7 @@ async function main() {
       while (true) {
         try {
           const txResult = await cdp.evm.sendTransaction({
-            address: serverAccount.address,
+            address: account.address,
             network: "base-sepolia",
             transaction: serializedTx,
           });

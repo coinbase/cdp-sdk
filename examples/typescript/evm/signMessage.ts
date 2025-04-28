@@ -4,13 +4,13 @@ import { CdpClient } from "@coinbase/cdp-sdk";
 
 const cdp = new CdpClient();
 
-const ethAccount = await cdp.evm.createAccount({});
+const account = await cdp.evm.createAccount();
 
-console.log("EVM Account Address: ", ethAccount.address);
+console.log("Created account:", account.address);
 
 const signature = await cdp.evm.signMessage({
-  address: ethAccount.address,
+  address: account.address,
   message: "Hello, world!",
 });
 
-console.log("Signature: ", signature);
+console.log("Signature:", signature);

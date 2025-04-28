@@ -24,6 +24,15 @@ const logger = {
   },
 };
 
+// Helper function to stringify objects with bigint values
+function safeStringify(obj: any) {
+  return JSON.stringify(
+    obj,
+    (_, value) => (typeof value === "bigint" ? value.toString() : value),
+    2,
+  );
+}
+
 vi.mock("./analytics.js", () => {
   return {
     wrapClassWithErrorTracking: vi.fn(),
@@ -140,9 +149,12 @@ describe("CDP Client E2E Tests", () => {
     const privateKey = generatePrivateKey();
     const owner = privateKeyToAccount(privateKey);
 
+    logger.log("calling cdp.evm.createSmartAccount");
     const smartAccount = await cdp.evm.createSmartAccount({ owner });
     expect(smartAccount).toBeDefined();
+    logger.log("Smart Account created. Response:", safeStringify(smartAccount));
 
+    logger.log("calling cdp.evm.sendUserOperation");
     const userOperation = await cdp.evm.sendUserOperation({
       smartAccount: smartAccount,
       network: "base-sepolia",
@@ -157,7 +169,9 @@ describe("CDP Client E2E Tests", () => {
 
     expect(userOperation).toBeDefined();
     expect(userOperation.userOpHash).toBeDefined();
+    logger.log("User Operation sent. Response:", safeStringify(userOperation));
 
+    logger.log("calling cdp.evm.waitForUserOperation");
     const userOpResult = await cdp.evm.waitForUserOperation({
       smartAccountAddress: smartAccount.address,
       userOpHash: userOperation.userOpHash,
@@ -165,7 +179,9 @@ describe("CDP Client E2E Tests", () => {
 
     expect(userOpResult).toBeDefined();
     expect(userOpResult.status).toBe("complete");
+    logger.log("User Operation completed. Response:", safeStringify(userOpResult));
 
+    logger.log("calling cdp.evm.getUserOperation");
     const userOp = await cdp.evm.getUserOperation({
       smartAccount: smartAccount,
       userOpHash: userOperation.userOpHash,
@@ -173,12 +189,13 @@ describe("CDP Client E2E Tests", () => {
     expect(userOp).toBeDefined();
     expect(userOp.status).toBe("complete");
     expect(userOp.transactionHash).toBeDefined();
+    logger.log("User Operation retrieved. Response:", safeStringify(userOp));
   });
 
   it("should send a transaction", async () => {
     logger.log("Calling cdp.evm.createAccount");
     const account = await cdp.evm.createAccount();
-    logger.log("Account created. Response:", JSON.stringify(account, null, 2));
+    logger.log("Account created. Response:", safeStringify(account));
 
     logger.log("Calling cdp.evm.requestFaucet");
     const faucetResp = await cdp.evm.requestFaucet({
@@ -186,7 +203,7 @@ describe("CDP Client E2E Tests", () => {
       network: "base-sepolia",
       token: "eth",
     });
-    logger.log("Faucet requested. Response:", JSON.stringify(faucetResp, null, 2));
+    logger.log("Faucet requested. Response:", safeStringify(faucetResp));
 
     logger.log("Waiting for faucet transaction");
     await publicClient.waitForTransactionReceipt({
@@ -203,7 +220,7 @@ describe("CDP Client E2E Tests", () => {
         value: parseEther("0.000001"),
       },
     });
-    logger.log("Transaction sent. Response:", JSON.stringify(txResult, null, 2));
+    logger.log("Transaction sent. Response:", safeStringify(txResult));
 
     logger.log("Waiting for transaction receipt");
     await publicClient.waitForTransactionReceipt({ hash: txResult.transactionHash });

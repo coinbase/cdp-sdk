@@ -13,18 +13,18 @@ const publicClient = createPublicClient({
 });
 
 // Step 1: Create a new EVM account.
-const serverAccount = await cdp.evm.createAccount();
-console.log("Successfully created EVM account:", serverAccount.address);
+const account = await cdp.evm.createAccount();
+console.log("Successfully created EVM account:", account.address);
 
 // Step 2: Request ETH from the faucet.
-const faucetResp = await cdp.evm.requestFaucet({
-  address: serverAccount.address,
+const { transactionHash: faucetTransactionHash } = await cdp.evm.requestFaucet({
+  address: account.address,
   network: "base-sepolia",
   token: "eth",
 });
 
 const faucetTxReceipt = await publicClient.waitForTransactionReceipt({
-  hash: faucetResp.transactionHash,
+  hash: faucetTransactionHash,
 });
 console.log(
   "Successfully requested ETH from faucet:",
@@ -32,7 +32,7 @@ console.log(
 );
 
 const walletClient = createWalletClient({
-  account: toAccount(serverAccount),
+  account: toAccount(account),
   chain: baseSepolia,
   transport: http(),
 });
