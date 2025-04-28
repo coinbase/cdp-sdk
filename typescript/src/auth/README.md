@@ -25,6 +25,7 @@ npm install @coinbase/cdp-sdk
 ```typescript
 import { generateJwt } from "@coinbase/cdp-sdk/auth";
 
+// For REST (HTTP) requests
 const jwt = await generateJwt({
   apiKeyId: "YOUR_API_KEY_ID",
   apiKeySecret: "YOUR_API_KEY_SECRET",
@@ -35,6 +36,18 @@ const jwt = await generateJwt({
 });
 
 console.log(jwt);
+
+// For websocket connections
+const websocketJwt = await generateJwt({
+  apiKeyId: "YOUR_API_KEY_ID",
+  apiKeySecret: "YOUR_API_KEY_SECRET",
+  requestMethod: null,
+  requestHost: null,
+  requestPath: null,
+  expiresIn: 120, // optional (defaults to 120 seconds)
+});
+
+console.log(websocketJwt);
 ```
 
 For information about the above parameters, please refer to the [Authentication parameters](#authentication-parameters) section.
@@ -138,8 +151,10 @@ The following table provides more context of many of the authentication paramete
 | :-- | :-- | :-- |
 | `apiKeyId` | true | The unique identifier for your API key. Supported formats are:<br/>- `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`<br/>- `organizations/{orgId}/apiKeys/{keyId}` |
 | `apiKeySecret` | true | Your API key secret. Supported formats are:<br/>- Edwards key (Ed25519): `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==`<br/>- Elliptic Curve key (ES256): `-----BEGIN EC PRIVATE KEY-----\n...\n...\n...==\n-----END EC PRIVATE KEY-----\n` |
-| `requestMethod` | true | The HTTP method for the API request you're authenticating (ie, `GET`, `POST`, `PUT`, `DELETE`). |
-| `requestHost` | true | The API host you're calling (ie, `api.cdp.coinbase.com`). |
-| `requestPath` | true | The path of the specific API endpoint you're calling (ie, `/platform/v1/wallets`). |
+| `requestMethod` | true* | The HTTP method for the API request you're authenticating (ie, `GET`, `POST`, `PUT`, `DELETE`). Can be `null` for JWTs intended for websocket connections. |
+| `requestHost` | true* | The API host you're calling (ie, `api.cdp.coinbase.com`). Can be `null` for JWTs intended for websocket connections. |
+| `requestPath` | true* | The path of the specific API endpoint you're calling (ie, `/platform/v1/wallets`). Can be `null` for JWTs intended for websocket connections. |
 | `requestBody` | false | Optional request body data. |
 | `expiresIn` | false | The JWT expiration time in seconds. After this time, the JWT will no longer be valid, and a new one must be generated. Defaults to `120` (ie, 2 minutes) if not specified. |
+
+\* Either all three request parameters (`requestMethod`, `requestHost`, and `requestPath`) must be provided for REST API requests, or all three must be `null` for JWTs intended for websocket connections.

@@ -25,6 +25,7 @@ pip install cdp-sdk
 ```python
 from cdp.auth.utils.jwt import generate_jwt, JwtOptions
 
+# For REST (HTTP) requests
 jwt = generate_jwt(JwtOptions(
     api_key_id="YOUR_API_KEY_ID",
     api_key_secret="YOUR_API_KEY_SECRET",
@@ -35,6 +36,18 @@ jwt = generate_jwt(JwtOptions(
 ))
 
 print(jwt)
+
+# For websocket connections
+websocket_jwt = generate_jwt(JwtOptions(
+    api_key_id="YOUR_API_KEY_ID",
+    api_key_secret="YOUR_API_KEY_SECRET",
+    request_method=None,
+    request_host=None,
+    request_path=None,
+    expires_in=120  # optional (defaults to 120 seconds)
+))
+
+print(websocket_jwt)
 ```
 
 For information about the above parameters, please refer to the [Authentication parameters](#authentication-parameters) section.
@@ -142,7 +155,9 @@ The following table provides more context of many of the authentication paramete
 | :--------------- | :------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `api_key_id`     | true     | The unique identifier for your API key. Supported formats are:<br/>- `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`<br/>- `organizations/{orgId}/apiKeys/{keyId}`                                                                                                                               |
 | `api_key_secret` | true     | Your API key secret. Supported formats are:<br/>- Edwards key (Ed25519): `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==`<br/>- Elliptic Curve key (ES256): `-----BEGIN EC PRIVATE KEY-----\n...\n...\n...==\n-----END EC PRIVATE KEY-----\n` |
-| `request_method` | true     | The HTTP method for the API request you're authenticating (ie, `GET`, `POST`, `PUT`, `DELETE`).                                                                                                                                                                                         |
-| `request_host`   | true     | The API host you're calling (ie, `api.cdp.coinbase.com`).                                                                                                                                                                                                                               |
-| `request_path`   | true     | The path of the specific API endpoint you're calling (ie, `/platform/v1/wallets`).                                                                                                                                                                                                      |
+| `request_method` | true*   | The HTTP method for the API request you're authenticating (ie, `GET`, `POST`, `PUT`, `DELETE`). Can be `None` for JWTs intended for websocket connections.                                                                                                                               |
+| `request_host`   | true*   | The API host you're calling (ie, `api.cdp.coinbase.com`). Can be `None` for JWTs intended for websocket connections.                                                                                                                                                                     |
+| `request_path`   | true*   | The path of the specific API endpoint you're calling (ie, `/platform/v1/wallets`). Can be `None` for JWTs intended for websocket connections.                                                                                                                                            |
 | `expires_in`     | false    | The JWT expiration time in seconds. After this time, the JWT will no longer be valid, and a new one must be generated. Defaults to `120` (ie, 2 minutes) if not specified.                                                                                                              |
+
+\* Either all three request parameters (`request_method`, `request_host`, and `request_path`) must be provided for REST API requests, or all three must be `None` for JWTs intended for websocket connections.
