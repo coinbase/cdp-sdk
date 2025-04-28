@@ -50,6 +50,11 @@ export interface JwtOptions {
    * Optional expiration time in seconds (defaults to 120)
    */
   expiresIn?: number;
+
+  /**
+   * Optional audience claim for the JWT
+   */
+  audience?: string[];
 }
 
 /**
@@ -128,7 +133,7 @@ export async function generateJwt(options: JwtOptions): Promise<string> {
   const claims: JWTPayload = {
     sub: options.apiKeyId,
     iss: "cdp",
-    aud: ["cdp_service"],
+    aud: options.audience || ["cdp_service"],
   };
 
   // Add the uris claim only for REST API requests

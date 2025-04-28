@@ -3,7 +3,7 @@ import random
 import time
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, list
 from urllib.parse import urlparse
 
 import jwt
@@ -32,6 +32,7 @@ class JwtOptions(BaseModel):
         request_host - The host for the request (e.g. 'api.cdp.coinbase.com'), or None for JWTs intended for websocket connections
         request_path - The path for the request (e.g. '/platform/v1/wallets'), or None for JWTs intended for websocket connections
         expires_in - Optional expiration time in seconds (defaults to 120)
+        audience - Optional audience claim for the JWT
 
     """
 
@@ -50,6 +51,9 @@ class JwtOptions(BaseModel):
         description="The path for the request or None for JWTs intended for websocket connections",
     )
     expires_in: int | None = Field(120, description="Optional expiration time in seconds")
+    audience: list[str] | None = Field(
+        None, description="Optional audience claim for the JWT"
+    )
 
     @field_validator("request_method")
     @classmethod
@@ -182,7 +186,7 @@ def generate_jwt(options: JwtOptions) -> str:
         claims = {
             "sub": options.api_key_id,
             "iss": "cdp",
-            "aud": ["cdp_service"],
+            "aud": options.audience if options.audience is not None else ["cdp_service"],
             "nbf": now,
             "exp": now + expires_in,
         }

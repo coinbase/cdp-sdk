@@ -167,10 +167,16 @@ func buildECJWT(options JwtOptions, uri string, now time.Time, nonce []byte) (st
 	claims := jwt.MapClaims{
 		"sub": options.KeyID,
 		"iss": "cdp",
-		"aud": []string{"cdp_service"},
 		"nbf": now.Unix(),
 		"iat": now.Unix(),
 		"exp": now.Add(time.Duration(options.ExpiresIn) * time.Second).Unix(),
+	}
+
+	// Use provided audience if available, otherwise default to ["cdp_service"]
+	if len(options.Audience) > 0 {
+		claims["aud"] = options.Audience
+	} else {
+		claims["aud"] = []string{"cdp_service"}
 	}
 
 	// Add the uris claim only for REST API requests, not for websocket connections
@@ -211,10 +217,16 @@ func buildEdwardsJWT(options JwtOptions, uri string, now time.Time, nonce []byte
 	claims := jwt.MapClaims{
 		"sub": options.KeyID,
 		"iss": "cdp",
-		"aud": []string{"cdp_service"},
 		"nbf": now.Unix(),
 		"iat": now.Unix(),
 		"exp": now.Add(time.Duration(options.ExpiresIn) * time.Second).Unix(),
+	}
+
+	// Use provided audience if available, otherwise default to ["cdp_service"]
+	if len(options.Audience) > 0 {
+		claims["aud"] = options.Audience
+	} else {
+		claims["aud"] = []string{"cdp_service"}
 	}
 
 	// Add the uris claim only for REST API requests, not for websocket connections

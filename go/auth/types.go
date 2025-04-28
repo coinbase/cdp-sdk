@@ -33,6 +33,9 @@ type JwtOptions struct {
 
 	// ExpiresIn is the optional expiration time in seconds (defaults to 120)
 	ExpiresIn int64
+
+	// Audience is the optional audience claim for the JWT
+	Audience []string
 }
 
 // WalletJwtOptions represents the configuration options for generating the JWT.
