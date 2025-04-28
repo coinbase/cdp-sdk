@@ -8,11 +8,12 @@ const cdp = new CdpClient();
 const privateKey = generatePrivateKey();
 const owner = privateKeyToAccount(privateKey);
 
-const smartAccount = await cdp.evm.createSmartAccount({ owner });
+let smartAccount = await cdp.evm.createSmartAccount({ owner });
+console.log("Created smart account:", smartAccount.address);
 
-const retrievedSmartAccount = await cdp.evm.getSmartAccount({
+smartAccount = await cdp.evm.getSmartAccount({
   address: smartAccount.address,
   owner,
 });
 
-console.log("Retrieved Smart Account: ", retrievedSmartAccount);
+console.log("Retrieved smart account: ", smartAccount);

@@ -12,19 +12,19 @@ const publicClient = createPublicClient({
 });
 
 // Step 1: Create a new EVM account
-const serverAccount = await cdp.evm.createAccount();
-console.log("Successfully created EVM account:", serverAccount.address);
+const account = await cdp.evm.createAccount();
+console.log("Successfully created EVM account:", account.address);
 
 // Step 2: Request ETH from the faucet
-const faucetResp = await cdp.evm.requestFaucet({
-  address: serverAccount.address,
+const { transactionHash: faucetTransactionHash } = await cdp.evm.requestFaucet({
+  address: account.address,
   network: "base-sepolia",
   token: "eth",
 });
 
 // Wait for the faucet transaction to be confirmed onchain.
 const faucetTxReceipt = await publicClient.waitForTransactionReceipt({
-  hash: faucetResp.transactionHash,
+  hash: faucetTransactionHash,
 });
 
 console.log(
@@ -34,7 +34,7 @@ console.log(
 
 // Step 3: Sign and send the transaction in a single step with sendTransaction.
 const txResult = await cdp.evm.sendTransaction({
-  address: serverAccount.address,
+  address: account.address,
   network: "base-sepolia",
   transaction: {
     to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8", // recipient address

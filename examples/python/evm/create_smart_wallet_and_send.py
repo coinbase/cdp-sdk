@@ -7,25 +7,30 @@ from eth_account import Account
 from web3 import Web3
 
 from cdp import CdpClient
-from cdp.call_types import EncodedCall
+from cdp.evm_call_types import EncodedCall
 
 
 async def main():
+    w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
+
     async with CdpClient() as cdp:
         private_key = Account.create().key
         owner = Account.from_key(private_key)
 
         smart_account = await cdp.evm.create_smart_account(owner)
-        print("Smart account address:", smart_account.address)
+        print("Created smart account:", smart_account.address)
 
         print("Requesting faucet")
-        await cdp.evm.request_faucet(
+        faucet_hash = await cdp.evm.request_faucet(
             address=smart_account.address, network="base-sepolia", token="eth"
         )
-        print("Waiting for faucet")
-        await asyncio.sleep(10)
 
-        print("Faucet received")
+        w3.eth.wait_for_transaction_receipt(faucet_hash)
+        print(
+            "Faucet funds received. Transaction explorer link:",
+            f"https://sepolia.basescan.org/tx/{faucet_hash}",
+        )
+
         print("Sending user operation")
         user_operation = await cdp.evm.send_user_operation(
             smart_account=smart_account,
@@ -43,8 +48,10 @@ async def main():
             smart_account_address=smart_account.address,
             user_op_hash=user_operation.user_op_hash,
         )
-        print("User operation sent")
-        print("Transaction hash:", user_operation.transaction_hash)
+        print(
+            "User operation sent. Transaction explorer link:",
+            f"https://sepolia.basescan.org/tx/{user_operation.transaction_hash}",
+        )
 
 
 asyncio.run(main())

@@ -2,21 +2,30 @@
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 
-import { parseEther } from "viem";
+import { createPublicClient, http, parseEther } from "viem";
+import { baseSepolia } from "viem/chains";
 
 const cdp = new CdpClient();
 
 const account = await cdp.evm.createAccount();
 const smartAccount = await cdp.evm.createSmartAccount({ owner: account });
+console.log("Created smart account:", smartAccount.address);
 
-await cdp.evm.requestFaucet({
+const { transactionHash } = await cdp.evm.requestFaucet({
   address: smartAccount.address,
   network: "base-sepolia",
   token: "eth",
 });
 
-console.log("Sleeping for 5 seconds to allow for faucet to be processed");
-await new Promise((resolve) => setTimeout(resolve, 5000));
+const publicClient = createPublicClient({
+  chain: baseSepolia,
+  transport: http(),
+});
+
+const faucetTxReceipt = await publicClient.waitForTransactionReceipt({
+  hash: transactionHash,
+});
+console.log("Faucet transaction confirmed:", faucetTxReceipt.transactionHash);
 
 const { userOpHash } = await cdp.evm.sendUserOperation({
   smartAccount,
@@ -35,4 +44,4 @@ const userOperationResult = await cdp.evm.waitForUserOperation({
   smartAccountAddress: smartAccount.address,
 });
 
-console.log("User Operation Result: ", userOperationResult);
+console.log("User Operation Result:", userOperationResult);

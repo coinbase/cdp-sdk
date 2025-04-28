@@ -10,4 +10,6 @@ const smartAccount = await cdp.evm.createSmartAccount({
   owner: account,
 });
 
-console.log("EVM Smart Account Address: ", smartAccount.address);
+console.log(
+  `Created smart account: ${smartAccount.address}. Owner address: ${account.address}`
+);

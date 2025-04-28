@@ -4,9 +4,13 @@ import { CdpClient } from "@coinbase/cdp-sdk";
 
 const cdp = new CdpClient();
 
-const newAccount = await cdp.evm.createAccount({ name: "Account1" });
-let account = await cdp.evm.getAccount({ address: newAccount.address });
+let account = await cdp.evm.createAccount({
+  name: `Account-${Math.floor(Math.random() * 100)}`,
+});
+console.log("Created account:", account.address);
 
-console.log("EVM Account Address: ", account.address);
-account = await cdp.evm.getAccount({ name: newAccount.name });
-console.log("EVM Account Name: ", account.name);
+account = await cdp.evm.getAccount({ address: account.address });
+console.log("Retrieved account by address:", account.address);
+
+account = await cdp.evm.getAccount({ name: account.name });
+console.log("Retrieved account by name:", account.name);
