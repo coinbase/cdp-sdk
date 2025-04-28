@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.2.2] - 2025-04-28
+
+### Bugfixes
+
+- Fix circular dependency when importing cdp-sdk ([#82](https://github.com/coinbase/cdp-sdk/pull/82))
+
+
 ## [1.2.1] - 2025-04-24
 
 ### Patch Changes
