@@ -2,14 +2,29 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toEvmSmartAccount } from "./toEvmSmartAccount.js";
 import { EvmAccount } from "../types.js";
 import { Address } from "../../types/misc.js";
-import { EvmSmartAccount as EvmSmartAccountModel } from "../../openapi-client/index.js";
+import {
+  CdpOpenApiClientType,
+  EvmSmartAccount as EvmSmartAccountModel,
+} from "../../openapi-client/index.js";
+import { transfer } from "../../actions/evm/transfer/transfer.js";
+import type { TransferOptions } from "../../actions/evm/transfer/types.js";
+import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
+vi.mock("../../actions/evm/transfer/transfer.js", () => ({
+  ...vi.importActual("../../actions/evm/transfer/transfer.js"),
+  transfer: vi.fn().mockResolvedValue({ transactionHash: "0xmocktransactionhash" }),
+}));
 
 describe("toEvmSmartAccount", () => {
+  let mockApiClient: CdpOpenApiClientType;
   let mockOwner: EvmAccount;
   let mockAddress: Address;
   let mockSmartAccount: EvmSmartAccountModel;
 
   beforeEach(() => {
+    mockApiClient = {
+      signEvmTransaction: vi.fn().mockResolvedValue({ signedTransaction: "0xmocktransaction" }),
+    } as unknown as CdpOpenApiClientType;
+
     mockAddress = "0x123456789abcdef" as Address;
     mockOwner = {
       address: "0xabcdef123456789" as Address,
@@ -26,7 +41,7 @@ describe("toEvmSmartAccount", () => {
   });
 
   it("should create an EvmSmartAccount with the correct structure", () => {
-    const result = toEvmSmartAccount({
+    const result = toEvmSmartAccount(mockApiClient, {
       smartAccount: mockSmartAccount,
       owner: mockOwner,
     });
@@ -36,11 +51,12 @@ describe("toEvmSmartAccount", () => {
       owners: [mockOwner],
       name: "Test Account",
       type: "evm-smart",
+      transfer: expect.any(Function),
     });
   });
 
   it("should use the address from the provided smartAccount", () => {
-    const result = toEvmSmartAccount({
+    const result = toEvmSmartAccount(mockApiClient, {
       smartAccount: mockSmartAccount,
       owner: mockOwner,
     });
@@ -49,7 +65,7 @@ describe("toEvmSmartAccount", () => {
   });
 
   it("should set the owner in the owners array", () => {
-    const result = toEvmSmartAccount({
+    const result = toEvmSmartAccount(mockApiClient, {
       smartAccount: mockSmartAccount,
       owner: mockOwner,
     });
@@ -62,7 +78,7 @@ describe("toEvmSmartAccount", () => {
     const customName = "My Custom Smart Account";
     mockSmartAccount.name = customName;
 
-    const result = toEvmSmartAccount({
+    const result = toEvmSmartAccount(mockApiClient, {
       smartAccount: mockSmartAccount,
       owner: mockOwner,
     });
@@ -71,11 +87,34 @@ describe("toEvmSmartAccount", () => {
   });
 
   it("should have the correct type property", () => {
-    const result = toEvmSmartAccount({
+    const result = toEvmSmartAccount(mockApiClient, {
       smartAccount: mockSmartAccount,
       owner: mockOwner,
     });
 
     expect(result.type).toBe("evm-smart");
+  });
+
+  it("should call transfer action when transfer is called", async () => {
+    const smartAccount = toEvmSmartAccount(mockApiClient, {
+      smartAccount: mockSmartAccount,
+      owner: mockOwner,
+    });
+
+    const transferArgs: TransferOptions = {
+      to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d" as Address,
+      amount: "0.000001",
+      token: "usdc",
+      network: "base-sepolia",
+    };
+
+    await smartAccount.transfer(transferArgs);
+
+    expect(transfer).toHaveBeenCalledWith(
+      mockApiClient,
+      smartAccount,
+      transferArgs,
+      smartAccountTransferStrategy,
+    );
   });
 });

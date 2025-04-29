@@ -145,7 +145,7 @@ export class EvmClient implements EvmClientInterface {
       options.idempotencyKey,
     );
 
-    return toEvmSmartAccount({
+    return toEvmSmartAccount(CdpOpenApiClient, {
       smartAccount,
       owner: options.owner,
     });
@@ -216,7 +216,7 @@ export class EvmClient implements EvmClientInterface {
   async getSmartAccount(options: GetSmartAccountOptions): Promise<SmartAccount> {
     const smartAccount = await CdpOpenApiClient.getEvmSmartAccount(options.address);
 
-    return toEvmSmartAccount({
+    return toEvmSmartAccount(CdpOpenApiClient, {
       smartAccount,
       owner: options.owner,
     });

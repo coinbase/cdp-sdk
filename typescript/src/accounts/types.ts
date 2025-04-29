@@ -1,5 +1,6 @@
 import { SignableMessage, TransactionSerializable, TypedData, TypedDataDefinition } from "viem";
 
+import { Actions } from "../actions/evm/types.js";
 import { Prettify } from "../types/utils.js";
 
 import type { Hash, Hex, Address } from "../types/misc.js";
@@ -30,24 +31,27 @@ export type EvmAccount = {
  * Server-managed ethereum account
  */
 export type EvmServerAccount = Prettify<
-  EvmAccount & {
-    /** Optional name for the server account. */
-    name?: string;
-    /** Indicates this is a server-managed account. */
-    type: "evm-server";
-  }
+  EvmAccount &
+    Actions & {
+      /** Optional name for the server account. */
+      name?: string;
+      /** Indicates this is a server-managed account. */
+      type: "evm-server";
+    }
 >;
 
 /**
  * Ethereum smart account which supports account abstraction features like user operations, batch transactions, and paymaster.
  */
-export type EvmSmartAccount = {
-  /** The smart account's address. */
-  address: Address;
-  /** The name of the smart account. */
-  name?: string;
-  /** Array of accounts that own and can sign for the smart account (currently only supports one owner but will be extended to support multiple owners in the future). */
-  owners: EvmAccount[];
-  /** Identifier for the smart account type. */
-  type: "evm-smart";
-};
+export type EvmSmartAccount = Prettify<
+  {
+    /** The smart account's address. */
+    address: Address;
+    /** The name of the smart account. */
+    name?: string;
+    /** Array of accounts that own and can sign for the smart account (currently only supports one owner but will be extended to support multiple owners in the future). */
+    owners: EvmAccount[];
+    /** Identifier for the smart account type. */
+    type: "evm-smart";
+  } & Actions
+>;

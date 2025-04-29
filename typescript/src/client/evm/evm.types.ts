@@ -4,6 +4,7 @@ import {
   EvmSmartAccount as SmartAccount,
 } from "../../accounts/types.js";
 import { SendUserOperationReturnType } from "../../actions/evm/sendUserOperation.js";
+import { Actions } from "../../actions/evm/types.js";
 import {
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
@@ -159,7 +160,7 @@ export interface ListServerAccountsOptions {
 /**
  * A smart account that only contains the owner address.
  */
-export interface ReadonlySmartAccount extends Omit<SmartAccount, "owners"> {
+export interface ReadonlySmartAccount extends Omit<SmartAccount, "owners" | keyof Actions> {
   /** The owners of the smart account. */
   owners: Address[];
 }

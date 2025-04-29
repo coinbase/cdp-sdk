@@ -1,9 +1,12 @@
-import { serializeTransaction, TransactionSerializable } from "viem";
+import { type Hex, type TransactionSerializable, serializeTransaction } from "viem";
 
-import { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
-import { EvmServerAccount } from "../types.js";
+import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
+import { transfer } from "../../actions/evm/transfer/transfer.js";
 
+import type { TransferResult } from "../../actions/evm/transfer/types.js";
+import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
 import type { Address, Hash } from "../../types/misc.js";
+import type { EvmServerAccount } from "../types.js";
 
 /**
  * Options for converting a pre-existing EvmAccount to a EvmServerAccount.
@@ -32,25 +35,28 @@ export function toEvmServerAccount(
       const result = await apiClient.signEvmMessage(options.account.address, {
         message: message.toString(),
       });
-      return result.signature as `0x${string}`;
+      return result.signature as Hex;
     },
 
     async sign(parameters: { hash: Hash }) {
       const result = await apiClient.signEvmHash(options.account.address, {
         hash: parameters.hash,
       });
-      return result.signature as `0x${string}`;
+      return result.signature as Hex;
     },
 
     async signTransaction(transaction: TransactionSerializable) {
       const result = await apiClient.signEvmTransaction(options.account.address, {
         transaction: serializeTransaction(transaction),
       });
-      return result.signedTransaction as `0x${string}`;
+      return result.signedTransaction as Hex;
     },
 
     async signTypedData() {
       throw new Error("Not implemented");
+    },
+    async transfer(transferArgs): Promise<TransferResult> {
+      return transfer(apiClient, account, transferArgs, accountTransferStrategy);
     },
     name: options.account.name,
     type: "evm-server",
