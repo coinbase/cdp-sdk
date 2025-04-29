@@ -236,12 +236,13 @@ wheels = [
 
 [[package]]
 name = "cdp-sdk"
-version = "1.2.1"
+version = "1.2.2"
 source = { editable = "../../python" }
 dependencies = [
     { name = "aiohttp" },
     { name = "aiohttp-retry" },
     { name = "cryptography" },
+    { name = "eth-account" },
     { name = "pydantic" },
     { name = "pyjwt" },
     { name = "python-dateutil" },
@@ -254,6 +255,7 @@ requires-dist = [
     { name = "aiohttp", specifier = "==3.11.16" },
     { name = "aiohttp-retry", specifier = "==2.9.1" },
     { name = "cryptography", specifier = ">=42.0.0" },
+    { name = "eth-account", specifier = ">=0.13.6" },
     { name = "myst-parser", marker = "extra == 'dev'", specifier = ">=4.0.1" },
     { name = "pydantic", specifier = "==2.10.3" },
     { name = "pyjwt", specifier = ">=2.10.1" },

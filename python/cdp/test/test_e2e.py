@@ -6,10 +6,12 @@ import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
+from eth_account.typed_transactions import DynamicFeeTransaction
 from web3 import Web3
 
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
+from cdp.evm_transaction_types import TransactionRequestEIP1559
 
 load_dotenv()
 
@@ -168,6 +170,23 @@ async def test_send_transaction(cdp_client):
 
     amount_to_send = w3.to_wei(0.000001, "ether")
 
+    # test that user can use TransactionRequestEIP1559
+    tx_hash = await cdp_client.evm.send_transaction(
+        address=account.address,
+        transaction=TransactionRequestEIP1559(
+            to=zero_address,
+            value=amount_to_send,
+        ),
+        network="base-sepolia",
+    )
+
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    assert tx_receipt is not None
+
+    """
+    Test that user can use TransactionRequestEIP1559 with own nonce and gas params
+    """
+
     nonce = w3.eth.get_transaction_count(account.address)
 
     gas_estimate = w3.eth.estimate_gas(
@@ -180,16 +199,48 @@ async def test_send_transaction(cdp_client):
 
     tx_hash = await cdp_client.evm.send_transaction(
         address=account.address,
-        transaction={
-            "to": zero_address,
-            "value": amount_to_send,
-            "chainId": 84532,
-            "gas": gas_estimate,
-            "maxFeePerGas": max_fee,
-            "maxPriorityFeePerGas": max_priority_fee,
-            "nonce": nonce,
-            "type": "0x2",
-        },
+        transaction=TransactionRequestEIP1559(
+            to=zero_address,
+            value=amount_to_send,
+            nonce=nonce,
+            gas=gas_estimate,
+            max_fee_per_gas=max_fee,
+            max_priority_fee_per_gas=max_priority_fee,
+        ),
+        network="base-sepolia",
+    )
+
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    assert tx_receipt is not None
+
+    """
+    Test that user can use DynamicFeeTransaction
+    """
+
+    nonce = w3.eth.get_transaction_count(account.address)
+
+    gas_estimate = w3.eth.estimate_gas(
+        {"to": zero_address, "from": account.address, "value": amount_to_send}
+    )
+
+    # Get max fee and priority fee
+    max_priority_fee = w3.eth.max_priority_fee
+    max_fee = w3.eth.gas_price + max_priority_fee
+
+    tx_hash = await cdp_client.evm.send_transaction(
+        address=account.address,
+        transaction=DynamicFeeTransaction.from_dict(
+            {
+                "to": zero_address,
+                "value": amount_to_send,
+                "chainId": 84532,
+                "gas": gas_estimate,
+                "maxFeePerGas": max_fee,
+                "maxPriorityFeePerGas": max_priority_fee,
+                "nonce": nonce,
+                "type": "0x2",
+            }
+        ),
         network="base-sepolia",
     )
 

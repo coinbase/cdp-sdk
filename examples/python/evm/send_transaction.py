@@ -5,6 +5,7 @@ import asyncio
 from web3 import Web3
 
 from cdp import CdpClient
+from cdp.evm_transaction_types import TransactionRequestEIP1559
 
 w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 
@@ -21,34 +22,15 @@ async def main():
         w3.eth.wait_for_transaction_receipt(faucet_hash)
         print(f"Received funds from faucet for address: {account.address}")
 
-        zero_address = "0x0000000000000000000000000000000000000000"
-
-        amount_to_send = w3.to_wei(0.000001, "ether")
-
-        nonce = w3.eth.get_transaction_count(account.address)
-
-        gas_estimate = w3.eth.estimate_gas(
-            {"to": zero_address, "from": account.address, "value": amount_to_send}
-        )
-
-        # Get max fee and priority fee
-        max_priority_fee = w3.eth.max_priority_fee
-        max_fee = w3.eth.gas_price + max_priority_fee
-
         tx_hash = await cdp.evm.send_transaction(
             address=account.address,
-            transaction={
-                "to": zero_address,
-                "value": amount_to_send,
-                "chainId": 84532,
-                "gas": gas_estimate,
-                "maxFeePerGas": max_fee,
-                "maxPriorityFeePerGas": max_priority_fee,
-                "nonce": nonce,
-                "type": "0x2",
-            },
+            transaction=TransactionRequestEIP1559(
+                to="0x0000000000000000000000000000000000000000",
+                value=w3.to_wei(0.000001, "ether"),
+            ),
             network="base-sepolia",
         )
+
 
         print(f"Transaction sent! Hash: {tx_hash}")
 
