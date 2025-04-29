@@ -2,6 +2,14 @@
 
 <!-- towncrier release notes start -->
 
+## [1.3.0] - 2025-04-28
+
+### Features
+
+- Added the ability to generate JWTs intended for Websocket connections
+  Added the ability to pass "audience" JWT claim as an optional param ([#75](https://github.com/coinbase/cdp-sdk/pull/75))
+
+
 ## [1.2.2] - 2025-04-28
 
 ### Bugfixes
