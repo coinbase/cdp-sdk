@@ -3,6 +3,7 @@ from cdp.cdp_client import CdpClient
 from cdp.evm_call_types import ContractCall, EncodedCall, FunctionCall
 from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_smart_account import EvmSmartAccount
+from cdp.evm_transaction_types import TransactionRequestEIP1559
 
 __all__ = [
     "__version__",
@@ -12,4 +13,5 @@ __all__ = [
     "ContractCall",
     "EncodedCall",
     "FunctionCall",
+    "TransactionRequestEIP1559",
 ]
