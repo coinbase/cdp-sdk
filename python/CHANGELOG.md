@@ -2,12 +2,13 @@
 
 <!-- towncrier release notes start -->
 
-## [1.3.0] - 2025-04-28
+## [1.3.0] - 2025-04-29
 
 ### Features
 
+- Updated send_transaction to allow omission of nonce and gas parameters, deferring to Coinbase API to fill these in ([#86](https://github.com/coinbase/cdp-sdk/pull/86))
 - Added the ability to generate JWTs intended for Websocket connections
-  Added the ability to pass "audience" JWT claim as an optional param ([#75](https://github.com/coinbase/cdp-sdk/pull/75))
+- Added the ability to pass "audience" JWT claim as an optional param ([#75](https://github.com/coinbase/cdp-sdk/pull/75))
 
 
 ## [1.2.2] - 2025-04-28
