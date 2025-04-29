@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.4.0
+
+### Minor Changes
+
+- [#75](https://github.com/coinbase/cdp-sdk/pull/75) [`bb056f6`](https://github.com/coinbase/cdp-sdk/commit/bb056f60c3873a399f8721a953edeaed2a868d76) Thanks [@derek-cb](https://github.com/derek-cb)! - Added the ability to generate JWTs intended for Websocket connections Added the ability to pass the "audience" JWT claim as an optional param
+
 ## 1.3.2
 
 ### Patch Changes
