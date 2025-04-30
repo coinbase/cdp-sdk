@@ -271,6 +271,75 @@ const userOperation = await cdp.sendUserOperation({
 });
 ```
 
+### Tranferring tokens
+
+For complete examples, check out [transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/transfer.ts) and [transferWithSmartWallet.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/transferWithSmartWallet.ts).
+
+You can transfer tokens between accounts using the `transfer` function:
+
+```typescript
+const sender = await cdp.evm.createAccount({ name: "Sender" });
+
+const { status } = await sender.transfer({
+  to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+  amount: "0.01",
+  token: "usdc",
+  network: "base-sepolia",
+});
+```
+
+Smart Accounts also have a `transfer` function:
+
+```typescript
+const sender = await cdp.evm.createSmartAccount({
+  owner: privateKeyToAccount(generatePrivateKey()),
+});
+console.log("Created smart account", sender);
+
+const { status } = await sender.transfer({
+  to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+  amount: "0.01",
+  token: "usdc",
+  network: "base-sepolia",
+});
+```
+
+If you pass a decimal amount in a string, the SDK will parse it into a bigint based on the token's decimals. You can also pass a bigint directly:
+
+```typescript
+const { status } = await sender.transfer({
+  to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+  amount: 10000n, // equivalent to 0.01 usdc
+  token: "usdc",
+  network: "base-sepolia",
+});
+```
+
+You can pass `usdc` or `eth` as the token to transfer, or you can pass a contract address directly:
+
+```typescript
+const { status } = await sender.transfer({
+  to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+  amount: "0.000001",
+  token: "0x4200000000000000000000000000000000000006", // WETH on Base Sepolia
+  network: "base-sepolia",
+});
+```
+
+You can also pass another account as the `to` parameter:
+
+```typescript
+const sender = await cdp.evm.createAccount({ name: "Sender" });
+const receiver = await cdp.evm.createAccount({ name: "Receiver" });
+
+const { status } = await sender.transfer({
+  to: receiver,
+  amount: "0.01",
+  token: "usdc",
+  network: "base-sepolia",
+});
+```
+
 ## Authentication tools
 
 This SDK also contains simple tools for authenticating REST API requests to the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). See the [Auth README](src/auth/README.md) for more details.
