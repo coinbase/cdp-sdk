@@ -69,6 +69,7 @@ describe("CDP Client E2E Tests", () => {
     expect(account).toBeDefined();
     expect(account.address).toBe(serverAccount.address);
     expect(account.name).toBe(randomName);
+    console.log("hi");
   });
 
   it("should test evm sign functions", async () => {
