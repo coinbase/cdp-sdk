@@ -13,8 +13,12 @@ import {
 import { baseSepolia } from "viem/chains";
 import { CdpClient } from "./client/cdp.js";
 import dotenv from "dotenv";
+import type { ServerAccount as Account, SmartAccount } from "./client/evm/evm.types.js";
 
 dotenv.config();
+
+const testSmartAccountAddress = "0x0A32E0DFb3eb262A7e03B9B880956264D6aCf755";
+const testAccountName = "E2ETestAccount";
 
 const logger = {
   log: (...args: any[]) => {
@@ -43,11 +47,20 @@ describe("CDP Client E2E Tests", () => {
   let cdp: CdpClient;
   let publicClient: PublicClient<Transport, Chain>;
 
-  beforeAll(() => {
+  let testAccount: Account;
+  let testSmartAccount: SmartAccount;
+
+  beforeAll(async () => {
     cdp = new CdpClient();
     publicClient = createPublicClient<Transport, Chain>({
       chain: baseSepolia,
       transport: http(),
+    });
+
+    testAccount = await cdp.evm.getAccount({ name: testAccountName });
+    testSmartAccount = await cdp.evm.getSmartAccount({
+      address: testSmartAccountAddress,
+      owner: testAccount,
     });
   });
 
@@ -193,31 +206,13 @@ describe("CDP Client E2E Tests", () => {
   });
 
   it("should send a transaction", async () => {
-    logger.log("Calling cdp.evm.createAccount");
-    const account = await cdp.evm.createAccount();
-    logger.log("Account created. Response:", safeStringify(account));
-
-    logger.log("Calling cdp.evm.requestFaucet");
-    const faucetResp = await cdp.evm.requestFaucet({
-      address: account.address,
-      network: "base-sepolia",
-      token: "eth",
-    });
-    logger.log("Faucet requested. Response:", safeStringify(faucetResp));
-
-    logger.log("Waiting for faucet transaction");
-    await publicClient.waitForTransactionReceipt({
-      hash: faucetResp.transactionHash,
-    });
-    logger.log("Faucet transaction complete");
-
     logger.log("Calling cdp.evm.sendTransaction");
     const txResult = await cdp.evm.sendTransaction({
-      address: account.address,
+      address: testAccount.address,
       network: "base-sepolia",
       transaction: {
         to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
-        value: parseEther("0.000001"),
+        value: parseEther("0"),
       },
     });
     logger.log("Transaction sent. Response:", safeStringify(txResult));
@@ -327,6 +322,58 @@ describe("CDP Client E2E Tests", () => {
     expect(secondPage.balances[0].amount).toBeDefined();
     expect(secondPage.balances[0].amount.amount).toBeDefined();
     expect(secondPage.balances[0].amount.decimals).toBeDefined();
+  });
+
+  describe("server account actions", () => {
+    describe("transfer", () => {
+      it("should transfer eth", async () => {
+        const { status } = await testAccount.transfer({
+          to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+          amount: "0",
+          token: "eth",
+          network: "base-sepolia",
+        });
+
+        expect(status).toBe("success");
+      });
+
+      it("should transfer usdc", async () => {
+        const { status } = await testAccount.transfer({
+          to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+          amount: "0",
+          token: "usdc",
+          network: "base-sepolia",
+        });
+
+        expect(status).toBe("success");
+      });
+    });
+  });
+
+  describe("smart account actions", () => {
+    describe("transfer", () => {
+      it("should transfer eth", async () => {
+        const { status } = await testSmartAccount.transfer({
+          to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+          amount: "0",
+          token: "eth",
+          network: "base-sepolia",
+        });
+
+        expect(status).toBe("success");
+      });
+
+      it("should transfer usdc", async () => {
+        const { status } = await testSmartAccount.transfer({
+          to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+          amount: "0",
+          token: "usdc",
+          network: "base-sepolia",
+        });
+
+        expect(status).toBe("success");
+      });
+    });
   });
 });
 
