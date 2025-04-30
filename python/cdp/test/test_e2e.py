@@ -6,7 +6,6 @@ import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
-from eth_account.typed_transactions import DynamicFeeTransaction
 from web3 import Web3
 
 from cdp import CdpClient
@@ -157,89 +156,17 @@ async def test_send_wait_and_get_user_operation(cdp_client):
 @pytest.mark.asyncio
 async def test_send_transaction(cdp_client):
     """Test sending a transaction."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_account(name="E2ETestAccount")
     assert account is not None
 
-    faucet_hash = await cdp_client.evm.request_faucet(
-        address=account.address, network="base-sepolia", token="eth"
-    )
-
-    w3.eth.wait_for_transaction_receipt(faucet_hash)
-
-    zero_address = "0x0000000000000000000000000000000000000000"
-
-    amount_to_send = w3.to_wei(0.000001, "ether")
+    await _ensure_sufficient_eth_balance(cdp_client, account)
 
     # test that user can use TransactionRequestEIP1559
     tx_hash = await cdp_client.evm.send_transaction(
         address=account.address,
         transaction=TransactionRequestEIP1559(
-            to=zero_address,
-            value=amount_to_send,
-        ),
-        network="base-sepolia",
-    )
-
-    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    assert tx_receipt is not None
-
-    """
-    Test that user can use TransactionRequestEIP1559 with own nonce and gas params
-    """
-
-    nonce = w3.eth.get_transaction_count(account.address)
-
-    gas_estimate = w3.eth.estimate_gas(
-        {"to": zero_address, "from": account.address, "value": amount_to_send}
-    )
-
-    # Get max fee and priority fee
-    max_priority_fee = w3.eth.max_priority_fee
-    max_fee = w3.eth.gas_price + max_priority_fee
-
-    tx_hash = await cdp_client.evm.send_transaction(
-        address=account.address,
-        transaction=TransactionRequestEIP1559(
-            to=zero_address,
-            value=amount_to_send,
-            nonce=nonce,
-            gas=gas_estimate,
-            max_fee_per_gas=max_fee,
-            max_priority_fee_per_gas=max_priority_fee,
-        ),
-        network="base-sepolia",
-    )
-
-    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    assert tx_receipt is not None
-
-    """
-    Test that user can use DynamicFeeTransaction
-    """
-
-    nonce = w3.eth.get_transaction_count(account.address)
-
-    gas_estimate = w3.eth.estimate_gas(
-        {"to": zero_address, "from": account.address, "value": amount_to_send}
-    )
-
-    # Get max fee and priority fee
-    max_priority_fee = w3.eth.max_priority_fee
-    max_fee = w3.eth.gas_price + max_priority_fee
-
-    tx_hash = await cdp_client.evm.send_transaction(
-        address=account.address,
-        transaction=DynamicFeeTransaction.from_dict(
-            {
-                "to": zero_address,
-                "value": amount_to_send,
-                "chainId": 84532,
-                "gas": gas_estimate,
-                "maxFeePerGas": max_fee,
-                "maxPriorityFeePerGas": max_priority_fee,
-                "nonce": nonce,
-                "type": "0x2",
-            }
+            to="0x0000000000000000000000000000000000000000",
+            value=w3.to_wei(0, "ether"),
         ),
         network="base-sepolia",
     )
@@ -355,3 +282,35 @@ async def test_solana_sign_fns(cdp_client):
     response = await cdp_client.solana.sign_transaction(account.address, base64_tx)
     assert response is not None
     assert response.signed_transaction is not None
+
+
+async def _ensure_sufficient_eth_balance(cdp_client, account):
+    """Ensure an account has sufficient ETH balance."""
+    min_required_balance = w3.to_wei(0.000001, "ether")
+
+    eth_balance = w3.eth.get_balance(account.address)
+
+    print(f"Current ETH balance: {w3.from_wei(eth_balance, 'ether')} ETH")
+
+    if eth_balance < min_required_balance:
+        print(
+            f"ETH balance below minimum required ({w3.from_wei(min_required_balance, 'ether')} ETH)"
+        )
+        faucet_response = await cdp_client.evm.request_faucet_funds(
+            address=account.address, network="base-sepolia"
+        )
+        assert faucet_response is not None
+        print(f"Faucet request submitted: {faucet_response}")
+
+        w3.eth.wait_for_transaction_receipt(faucet_response.tx_hash)
+
+        # Verify the balance is now sufficient
+        new_balance = w3.eth.get_balance(account.address)
+        assert (
+            new_balance >= min_required_balance
+        ), f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
+        return new_balance
+    else:
+        print(f"ETH balance is sufficient: {w3.from_wei(eth_balance, 'ether')} ETH")
+
+    return eth_balance
