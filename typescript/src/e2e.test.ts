@@ -59,7 +59,7 @@ describe("CDP Client E2E Tests", () => {
 
     testAccount = await cdp.evm.getOrCreateAccount({ name: testAccountName });
     testSmartAccount = await cdp.evm.getSmartAccount({
-      address: '0x4a743D054E357592E02065Cfe54db95D66B7575b',
+      address: testSmartAccountAddress,
       owner: testAccount,
     });
   });
@@ -375,7 +375,7 @@ describe("CDP Client E2E Tests", () => {
       });
     });
   });
-  
+
   describe("get or create account", () => {
     it("should get or create an evm account", async () => {
       const randomName = generateRandomName();
