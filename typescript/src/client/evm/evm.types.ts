@@ -42,6 +42,7 @@ export type EvmClientInterface = Omit<
   createSmartAccount: (options: CreateSmartAccountOptions) => Promise<SmartAccount>;
   getAccount: (options: GetServerAccountOptions) => Promise<ServerAccount>;
   getSmartAccount: (options: GetSmartAccountOptions) => Promise<SmartAccount>;
+  getOrCreateAccount: (options: GetOrCreateServerAccountOptions) => Promise<ServerAccount>;
   getUserOperation: (options: GetUserOperationOptions) => Promise<UserOperation>;
   listAccounts: (options: ListServerAccountsOptions) => Promise<ListServerAccountResult>;
   listSmartAccounts: (options: ListSmartAccountsOptions) => Promise<ListSmartAccountResult>;
@@ -145,6 +146,14 @@ export interface GetSmartAccountOptions {
   address: Address;
   /** The owner of the account. */
   owner: Account;
+}
+
+/**
+ * Options for getting an EVM account, or creating one if it doesn't exist.
+ */
+export interface GetOrCreateServerAccountOptions {
+  /** The name of the account. */
+  name: string;
 }
 
 /**

@@ -17,6 +17,7 @@ export type SolanaClientInterface = Omit<
 > & {
   createAccount: (options: CreateAccountOptions) => Promise<Account>;
   getAccount: (options: GetAccountOptions) => Promise<Account>;
+  getOrCreateAccount: (options: GetOrCreateAccountOptions) => Promise<Account>;
   listAccounts: (options: ListAccountsOptions) => Promise<ListAccountsResult>;
   requestFaucet: (options: RequestFaucetOptions) => Promise<SignatureResult>;
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
@@ -45,6 +46,14 @@ export interface GetAccountOptions {
   address?: string;
   /** The name of the account. */
   name?: string;
+}
+
+/**
+ * Options for getting a Solana account.
+ */
+export interface GetOrCreateAccountOptions {
+  /** The name of the account. */
+  name: string;
 }
 
 /**

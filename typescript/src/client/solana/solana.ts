@@ -9,7 +9,9 @@ import {
   SignatureResult,
   SignMessageOptions,
   SignTransactionOptions,
+  GetOrCreateAccountOptions,
 } from "./solana.types.js";
+import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 
 /**
@@ -85,6 +87,36 @@ export class SolanaClient implements SolanaClientInterface {
     }
 
     throw new Error("Either address or name must be provided");
+  }
+
+  /**
+   * Gets a Solana account by its address.
+   *
+   * @param {GetOrCreateAccountOptions} options - Parameters for getting or creating the Solana account.
+   * @param {string} options.name - The name of the account.
+   *
+   * @returns A promise that resolves to the account.
+   *
+   * @example
+   * ```ts
+   * const account = await cdp.solana.getOrCreateAccount({
+   *   name: "MyAccount",
+   * });
+   * ```
+   */
+  async getOrCreateAccount(options: GetOrCreateAccountOptions): Promise<Account> {
+    try {
+      const account = await this.getAccount(options);
+      return account;
+    } catch (error) {
+      // If it failed because the account doesn't exist, create it
+      const doesAccountNotExist = error instanceof APIError && error.statusCode === 404;
+      if (doesAccountNotExist) {
+        return await this.createAccount(options);
+      }
+
+      throw error;
+    }
   }
 
   /**

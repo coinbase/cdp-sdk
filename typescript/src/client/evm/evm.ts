@@ -27,6 +27,7 @@ import {
   ListTokenBalancesResult,
   SendTransactionOptions,
   TransactionResult,
+  GetOrCreateServerAccountOptions,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
@@ -38,6 +39,7 @@ import {
   waitForUserOperation,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
+import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 import { Hex } from "../../types/misc.js";
 
@@ -220,6 +222,36 @@ export class EvmClient implements EvmClientInterface {
       smartAccount,
       owner: options.owner,
     });
+  }
+
+  /**
+   * Gets a CDP EVM account, or creates one if it doesn't exist.
+   *
+   * @param {GetOrCreateServerAccountOptions} options - Parameters for getting or creating the account.
+   * @param {string} [options.name] - The name of the account to get or create.
+   *
+   * @returns A promise that resolves to the account.
+   *
+   * @example
+   * ```ts
+   * const account = await cdp.evm.getOrCreateAccount({
+   *   name: "MyAccount",
+   * });
+   * ```
+   */
+  async getOrCreateAccount(options: GetOrCreateServerAccountOptions): Promise<ServerAccount> {
+    try {
+      const account = await this.getAccount(options);
+      return account;
+    } catch (error) {
+      // If it failed because the account doesn't exist, create it
+      const doesAccountNotExist = error instanceof APIError && error.statusCode === 404;
+      if (doesAccountNotExist) {
+        return await this.createAccount(options);
+      }
+
+      throw error;
+    }
   }
 
   /**

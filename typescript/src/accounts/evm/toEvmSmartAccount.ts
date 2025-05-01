@@ -30,7 +30,6 @@ export type ToEvmSmartAccountOptions = {
  * @param {EvmSmartAccount} options.smartAccount - The deployed evm smart account.
  * @param {EvmAccount} options.owner - The owner which signs for the smart account.
  * @returns {EvmSmartAccount} A configured EvmSmartAccount instance ready for user operation submission.
- * @throws {Error} If the account is not an original owner of the smart account.
  */
 export function toEvmSmartAccount(
   apiClient: CdpOpenApiClientType,
