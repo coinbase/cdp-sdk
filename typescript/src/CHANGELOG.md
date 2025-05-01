@@ -1,5 +1,13 @@
 # CDP SDK Changelog
 
+## 1.5.0
+
+### Minor Changes
+
+- [#94](https://github.com/coinbase/cdp-sdk/pull/94) [`071515e`](https://github.com/coinbase/cdp-sdk/commit/071515e5c8222ba277e207e1c5507d73379ebe5e) Thanks [@sddioulde](https://github.com/sddioulde)! - Added a getOrCreateAccount function to the EVM and Solana clients
+
+- [#90](https://github.com/coinbase/cdp-sdk/pull/90) [`2bf3dfb`](https://github.com/coinbase/cdp-sdk/commit/2bf3dfbd60a5a6b2f127454a5ce67ade5463eff9) Thanks [@0xRAG](https://github.com/0xRAG)! - Added transfer methods EvmAccount and EvmSmartAccount
+
 ## 1.4.0
 
 ### Minor Changes
