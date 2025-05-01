@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach, MockedFunction } from "vitest";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 
 import { SolanaClient } from "./solana.js";
+import { APIError } from "../../openapi-client/errors.js";
 
 vi.mock("../../openapi-client/index.js", () => {
   return {
@@ -69,6 +70,33 @@ describe("SolanaClient", () => {
       await expect(client.getAccount({})).rejects.toThrow(
         "Either address or name must be provided",
       );
+    });
+  });
+
+  describe("getOrCreateAccount", () => {
+    it("should return a Solana account", async () => {
+      const getSolanaAccountByNameMock = CdpOpenApiClient.getSolanaAccountByName as MockedFunction<
+        typeof CdpOpenApiClient.getSolanaAccountByName
+      >;
+      getSolanaAccountByNameMock
+        .mockRejectedValueOnce(new APIError(404, "not_found", "Account not found"))
+        .mockResolvedValueOnce({
+          address: "cdpSolanaAccount",
+        });
+
+      const createSolanaAccountMock = CdpOpenApiClient.createSolanaAccount as MockedFunction<
+        typeof CdpOpenApiClient.createSolanaAccount
+      >;
+      createSolanaAccountMock.mockResolvedValue({
+        address: "cdpSolanaAccount",
+      });
+
+      const result = await client.getOrCreateAccount({ name: "cdpSolanaAccount" });
+      const result2 = await client.getOrCreateAccount({ name: "cdpSolanaAccount" });
+      expect(result).toEqual({ address: "cdpSolanaAccount" });
+      expect(result2).toEqual({ address: "cdpSolanaAccount" });
+      expect(getSolanaAccountByNameMock).toHaveBeenCalledTimes(2);
+      expect(createSolanaAccountMock).toHaveBeenCalledTimes(1);
     });
   });
 

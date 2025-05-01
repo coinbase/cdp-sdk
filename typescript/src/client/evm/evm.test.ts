@@ -25,8 +25,9 @@ import {
   UserOperation,
   WaitForUserOperationOptions,
   EvmCall,
+  GetOrCreateServerAccountOptions,
 } from "./evm.types.js";
-
+import { APIError } from "../../openapi-client/errors.js";
 vi.mock("../../openapi-client", () => {
   return {
     CdpOpenApiClient: {
@@ -275,6 +276,48 @@ describe("EvmClient", () => {
         owner,
       });
       expect(result).toBe(smartAccount);
+    });
+  });
+
+  describe("getOrCreateAccount", () => {
+    it("should return a server account", async () => {
+      const getOrCreateOptions: GetOrCreateServerAccountOptions = {
+        name: "test-account",
+      };
+      const mockServerAccount: EvmServerAccount = {
+        address: "0x123",
+        sign: vi.fn().mockResolvedValue("0xsignature"),
+        signMessage: vi.fn().mockResolvedValue("0xsignature"),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature"),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+        type: "evm-server",
+        transfer: vi.fn(),
+      };
+
+      const getEvmAccountMock = CdpOpenApiClient.getEvmAccountByName as MockedFunction<
+        typeof CdpOpenApiClient.getEvmAccountByName
+      >;
+      getEvmAccountMock
+        .mockRejectedValueOnce(new APIError(404, "not_found", "Account not found"))
+        .mockResolvedValueOnce(mockServerAccount);
+
+      const createEvmAccountMock = CdpOpenApiClient.createEvmAccount as MockedFunction<
+        typeof CdpOpenApiClient.createEvmAccount
+      >;
+      createEvmAccountMock.mockResolvedValue(mockServerAccount);
+
+      const toEvmServerAccountMock = toEvmServerAccount as MockedFunction<
+        typeof toEvmServerAccount
+      >;
+      toEvmServerAccountMock.mockReturnValue(mockServerAccount);
+
+      const result = await client.getOrCreateAccount(getOrCreateOptions);
+      const result2 = await client.getOrCreateAccount(getOrCreateOptions);
+      expect(result).toBe(mockServerAccount);
+      expect(result2).toBe(mockServerAccount);
+      expect(getEvmAccountMock).toHaveBeenCalledTimes(2);
+      expect(createEvmAccountMock).toHaveBeenCalledTimes(1);
+      expect(toEvmServerAccountMock).toHaveBeenCalledTimes(2);
     });
   });
 
