@@ -17,8 +17,9 @@ console.log("Are accounts equal? ", areAccountsEqual);
 
 const accountPromise1 = cdp.evm.getOrCreateAccount({ name: 'Account' });
 const accountPromise2 = cdp.evm.getOrCreateAccount({ name: 'Account' });
-
-Promise.all([accountPromise1, accountPromise2]).then(([account1, account2]) => {
+const accountPromise3 = cdp.evm.getOrCreateAccount({ name: 'Account' });
+Promise.all([accountPromise1, accountPromise2, accountPromise3]).then(([account1, account2, account3]) => {
   console.log("EVM Account Address 1: ", account1.address);
   console.log("EVM Account Address 2: ", account2.address);
+  console.log("EVM Account Address 3: ", account3.address);
 });

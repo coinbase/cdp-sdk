@@ -24,8 +24,9 @@ console.log("Are accounts equal? ", areAccountsEqual);
 
 const accountPromise1 = cdp.solana.getOrCreateAccount({ name: 'Account' });
 const accountPromise2 = cdp.solana.getOrCreateAccount({ name: 'Account' });
-
-Promise.all([accountPromise1, accountPromise2]).then(([account1, account2]) => {
+const accountPromise3 = cdp.solana.getOrCreateAccount({ name: 'Account' });
+Promise.all([accountPromise1, accountPromise2, accountPromise3]).then(([account1, account2, account3]) => {
   console.log("Solana Account Address 1: ", account1.address);
   console.log("Solana Account Address 2: ", account2.address);
+  console.log("Solana Account Address 3: ", account3.address);
 });

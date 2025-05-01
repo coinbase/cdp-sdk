@@ -119,7 +119,8 @@ export class SolanaClient implements SolanaClientInterface {
           // If it failed because the account already exists, throw an error
           const doesAccountAlreadyExist = error instanceof APIError && error.statusCode === 409;
           if (doesAccountAlreadyExist) {
-            throw new Error("Failed to create account");
+            const account = await this.getAccount(options);
+            return account;
           }
           throw error;
         }

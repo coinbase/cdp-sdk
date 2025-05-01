@@ -57,9 +57,9 @@ describe("CDP Client E2E Tests", () => {
       transport: http(),
     });
 
-    testAccount = await cdp.evm.getAccount({ name: testAccountName });
+    testAccount = await cdp.evm.getOrCreateAccount({ name: testAccountName });
     testSmartAccount = await cdp.evm.getSmartAccount({
-      address: testSmartAccountAddress,
+      address: '0x4a743D054E357592E02065Cfe54db95D66B7575b',
       owner: testAccount,
     });
   });
@@ -373,6 +373,34 @@ describe("CDP Client E2E Tests", () => {
 
         expect(status).toBe("success");
       });
+    });
+  });
+  
+  describe("get or create account", () => {
+    it("should get or create an evm account", async () => {
+      const randomName = generateRandomName();
+      const account = await cdp.evm.getOrCreateAccount({ name: randomName });
+      expect(account.name).toBe(randomName);
+      const account2 = await cdp.evm.getOrCreateAccount({ name: randomName });
+      expect(account2.name).toBe(randomName);
+      expect(account.address).toBe(account2.address);
+    });
+
+    it("should get or create a solana account", async () => {
+      const randomName = generateRandomName();
+      const account = await cdp.solana.getOrCreateAccount({ name: randomName });
+      expect(account.name).toBe(randomName);
+      const account2 = await cdp.solana.getOrCreateAccount({ name: randomName });
+      expect(account2.name).toBe(randomName);
+      expect(account.address).toBe(account2.address);
+    });
+
+    it("should handle race condition", async () => {
+      const randomName = generateRandomName();
+      const accountPromise1 = cdp.evm.getOrCreateAccount({ name: randomName });
+      const accountPromise2 = cdp.evm.getOrCreateAccount({ name: randomName });
+      const [account1, account2] = await Promise.all([accountPromise1, accountPromise2]);
+      expect(account1.address).toBe(account2.address);
     });
   });
 });
