@@ -291,7 +291,7 @@ requires-dist = [
     { name = "aiohttp-retry", specifier = "==2.9.1" },
     { name = "cryptography", specifier = ">=42.0.0" },
     { name = "myst-parser", marker = "extra == 'dev'", specifier = ">=4.0.1" },
-    { name = "pydantic", specifier = "==2.10.3" },
+    { name = "pydantic", specifier = ">=2.10.3,<=2.10.4" },
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.26.0" },
@@ -306,8 +306,8 @@ requires-dist = [
     { name = "sphinx-autodoc-typehints", marker = "extra == 'dev'", specifier = ">=3.0.1" },
     { name = "sphinxcontrib-napoleon", marker = "extra == 'dev'", specifier = ">=0.7" },
     { name = "towncrier", marker = "extra == 'dev'", specifier = ">=24.8.0,<25" },
-    { name = "urllib3", specifier = "==2.2.3" },
-    { name = "web3", specifier = "==7.6.0" },
+    { name = "urllib3", specifier = ">=2.2.3,<=2.3.0" },
+    { name = "web3", specifier = ">=7.6.0,<=7.10.0" },
 ]
 provides-extras = ["dev"]
 
