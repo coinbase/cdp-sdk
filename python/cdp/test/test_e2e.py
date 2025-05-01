@@ -9,6 +9,7 @@ from eth_account.account import Account
 from web3 import Web3
 
 from cdp import CdpClient
+from cdp.actions.evm.transfer.types import TransferOptions
 from cdp.evm_call_types import EncodedCall
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 
@@ -284,6 +285,94 @@ async def test_solana_sign_fns(cdp_client):
     assert response.signed_transaction is not None
 
 
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_transfer_eth(cdp_client):
+    """Test transferring ETH."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    await _ensure_sufficient_eth_balance(cdp_client, account)
+
+    transfer_result = await account.transfer(
+        TransferOptions(
+            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            amount="0",
+            token="eth",
+            network="base-sepolia",
+        )
+    )
+
+    assert transfer_result is not None
+    assert transfer_result.status == "success"
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_transfer_usdc(cdp_client):
+    """Test transferring USDC tokens."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    await _ensure_sufficient_eth_balance(cdp_client, account)
+
+    transfer_result = await account.transfer(
+        TransferOptions(
+            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            amount="0",
+            token="usdc",
+            network="base-sepolia",
+        )
+    )
+
+    assert transfer_result is not None
+    assert transfer_result.status == "success"
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_transfer_eth_smart_account(cdp_client):
+    """Test transferring ETH with a smart account."""
+    account = await cdp_client.evm.create_smart_account(owner=Account.create())
+    assert account is not None
+
+    await _ensure_sufficient_eth_balance(cdp_client, account)
+
+    transfer_result = await account.transfer(
+        TransferOptions(
+            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            amount="0",
+            token="eth",
+            network="base-sepolia",
+        )
+    )
+
+    assert transfer_result is not None
+    assert transfer_result.status == "success"
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_transfer_usdc_smart_account(cdp_client):
+    """Test transferring USDC tokens with a smart account."""
+    account = await cdp_client.evm.create_smart_account(owner=Account.create())
+    assert account is not None
+
+    await _ensure_sufficient_eth_balance(cdp_client, account)
+
+    transfer_result = await account.transfer(
+        TransferOptions(
+            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            amount="0",
+            token="usdc",
+            network="base-sepolia",
+        )
+    )
+
+    assert transfer_result is not None
+    assert transfer_result.status == "success"
+
+
 async def _ensure_sufficient_eth_balance(cdp_client, account):
     """Ensure an account has sufficient ETH balance."""
     min_required_balance = w3.to_wei(0.000001, "ether")
@@ -296,13 +385,13 @@ async def _ensure_sufficient_eth_balance(cdp_client, account):
         print(
             f"ETH balance below minimum required ({w3.from_wei(min_required_balance, 'ether')} ETH)"
         )
-        faucet_response = await cdp_client.evm.request_faucet_funds(
-            address=account.address, network="base-sepolia"
+        faucet_hash = await cdp_client.evm.request_faucet(
+            address=account.address, network="base-sepolia", token="eth"
         )
-        assert faucet_response is not None
-        print(f"Faucet request submitted: {faucet_response}")
 
-        w3.eth.wait_for_transaction_receipt(faucet_response.tx_hash)
+        print(f"Faucet request submitted: {faucet_hash}")
+
+        w3.eth.wait_for_transaction_receipt(faucet_hash)
 
         # Verify the balance is now sufficient
         new_balance = w3.eth.get_balance(account.address)

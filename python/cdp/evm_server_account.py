@@ -18,6 +18,7 @@ from hexbytes import HexBytes
 from pydantic import BaseModel, ConfigDict, Field
 from web3 import Web3
 
+from cdp.api_clients import ApiClients
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.models.evm_account import EvmAccount as EvmServerAccountModel
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
@@ -27,24 +28,31 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
 )
 
 
-class EvmServerAccount(BaseAccount):
+class EvmServerAccount(BaseAccount, BaseModel):
     """A class representing an EVM server account."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __init__(
         self,
         evm_server_account_model: EvmServerAccountModel,
         evm_accounts_api: EVMAccountsApi,
+        api_clients: ApiClients,
     ) -> None:
         """Initialize the EvmServerAccount class.
 
         Args:
             evm_server_account_model (EvmServerAccountModel): The EVM server account model.
             evm_accounts_api (EVMAccountsApi): The EVM accounts API.
+            api_clients (ApiClients): The API client.
 
         """
+        super().__init__()
+
         self.__address = evm_server_account_model.address
         self.__name = evm_server_account_model.name
         self.__evm_accounts_api = evm_accounts_api
+        self.__api_clients = api_clients
 
     @property
     def address(self) -> str:
@@ -192,6 +200,102 @@ class EvmServerAccount(BaseAccount):
             r=r,
             s=s,
             v=v,
+        )
+
+    async def transfer(self, transfer_args):
+        """Transfer an amount of a token from an account to another account.
+
+        Args:
+            transfer_args: The options for the transfer.
+                transfer_args.to: The account or 0x-prefixed address to transfer the token to.
+                transfer_args.amount: The amount of the token to transfer.
+                transfer_args.token: The token to transfer.
+                transfer_args.network: The network to transfer the token on.
+
+        Returns:
+            The result of the transfer.
+
+        Examples:
+            >>> status = await sender.transfer(
+            ...     TransferOptions(
+            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            ...         amount="0.01",
+            ...         token="usdc",
+            ...         network="base-sepolia",
+            ...     )
+            ... )
+
+            **Pass an int value**
+            >>> status = await sender.transfer(
+            ...     TransferOptions(
+            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            ...         amount=10000,  # equivalent to 0.01 usdc
+            ...         token="usdc",
+            ...         network="base-sepolia",
+            ...     )
+            ... )
+
+            **Transfer from a smart account**
+            >>> sender = await cdp.evm.create_smart_account(
+            ...     owner=await cdp.evm.create_account(name="Owner"),
+            ... )
+            >>>
+            >>> status = await sender.transfer(
+            ...     TransferOptions(
+            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            ...         amount="0.01",
+            ...         token="usdc",
+            ...         network="base-sepolia",
+            ...     )
+            ... )
+
+            **Transfer ETH**
+            >>> status = await sender.transfer(
+            ...     TransferOptions(
+            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            ...         amount="0.000001",
+            ...         token="eth",
+            ...         network="base-sepolia",
+            ...     )
+            ... )
+
+            **Using a contract address**
+            >>> status = await sender.transfer(
+            ...     TransferOptions(
+            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            ...         amount="0.000001",
+            ...         token="0x4200000000000000000000000000000000000006",  # WETH on Base Sepolia
+            ...         network="base-sepolia",
+            ...     )
+            ... )
+
+            **Transfer to another account**
+            >>> sender = await cdp.evm.create_account(name="Sender")
+            >>> receiver = await cdp.evm.create_account(name="Receiver")
+            >>>
+            >>> status = await sender.transfer({
+            ...     "to": receiver,
+            ...     "amount": "0.01",
+            ...     "token": "usdc",
+            ...     "network": "base-sepolia",
+            ... })
+
+        """
+        from cdp.actions.evm.transfer import (
+            TransferOptions,
+            account_transfer_strategy,
+            transfer,
+        )
+
+        # Convert to TransferOptions if it's not already
+        if not isinstance(transfer_args, TransferOptions):
+            transfer_args = TransferOptions(**transfer_args)
+
+        return await transfer(
+            api_clients=self.__api_clients,
+            from_account=self,
+            transfer_args=transfer_args,
+            transfer_strategy=account_transfer_strategy,
         )
 
     def __str__(self) -> str:

@@ -39,11 +39,11 @@ install:
 
 .PHONY: test
 test:
-	uv pip install ".[dev]" && uv run pytest -k "not test_e2e.py" || (echo "Error: Tests failed" && exit 1)
+	uv pip install ".[dev]" && DISABLE_CDP_ERROR_REPORTING=true uv run pytest -k "not test_e2e.py" || (echo "Error: Tests failed" && exit 1)
 
 .PHONY: e2e
 e2e:
-	uv pip install ".[dev]" && uv run pytest cdp/test/test_e2e.py -v || (echo "Error: E2E Tests failed" && exit 1)
+	uv pip install ".[dev]" && DISABLE_CDP_ERROR_REPORTING=true uv run pytest cdp/test/test_e2e.py -v || (echo "Error: E2E Tests failed" && exit 1)
 
 .PHONY: setup
 setup:

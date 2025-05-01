@@ -56,7 +56,7 @@ class EvmClient:
             x_idempotency_key=idempotency_key,
             create_evm_account_request=CreateEvmAccountRequest(name=name),
         )
-        return EvmServerAccount(evm_account, self.api_clients.evm_accounts)
+        return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
 
     async def create_smart_account(self, owner: BaseAccount) -> EvmSmartAccount:
         """Create an EVM smart account.
@@ -71,7 +71,9 @@ class EvmClient:
         evm_smart_account = await self.api_clients.evm_smart_accounts.create_evm_smart_account(
             CreateEvmSmartAccountRequest(owners=[owner.address]),
         )
-        return EvmSmartAccount(evm_smart_account.address, owner, evm_smart_account.name)
+        return EvmSmartAccount(
+            evm_smart_account.address, owner, evm_smart_account.name, self.api_clients
+        )
 
     async def get_account(
         self, address: str | None = None, name: str | None = None
@@ -92,7 +94,7 @@ class EvmClient:
             evm_account = await self.api_clients.evm_accounts.get_evm_account_by_name(name)
         else:
             raise ValueError("Either address or name must be provided")
-        return EvmServerAccount(evm_account, self.api_clients.evm_accounts)
+        return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
 
     async def get_smart_account(
         self, address: str, owner: BaseAccount | None = None
@@ -108,7 +110,9 @@ class EvmClient:
 
         """
         evm_smart_account = await self.api_clients.evm_smart_accounts.get_evm_smart_account(address)
-        return EvmSmartAccount(evm_smart_account.address, owner, evm_smart_account.name)
+        return EvmSmartAccount(
+            evm_smart_account.address, owner, evm_smart_account.name, self.api_clients
+        )
 
     async def get_user_operation(self, address: str, user_op_hash: str) -> EvmUserOperationModel:
         """Get a user operation by address and hash.
@@ -142,7 +146,7 @@ class EvmClient:
             page_size=page_size, page_token=page_token
         )
         evm_server_accounts = [
-            EvmServerAccount(account, self.api_clients.evm_accounts)
+            EvmServerAccount(account, self.api_clients.evm_accounts, self.api_clients)
             for account in response.accounts
         ]
         return ListEvmAccountsResponse(

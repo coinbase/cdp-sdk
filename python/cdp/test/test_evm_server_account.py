@@ -20,7 +20,7 @@ def test_initialization(mock_api, server_account_model_factory):
     name = "test-account"
 
     server_account_model = server_account_model_factory(address, name)
-    server_account = EvmServerAccount(server_account_model, mock_api)
+    server_account = EvmServerAccount(server_account_model, mock_api, mock_api)
 
     assert server_account.address == address
     assert server_account.name == name
@@ -32,7 +32,7 @@ def test_str_representation(mock_api, server_account_model_factory):
     address = "0x1234567890123456789012345678901234567890"
 
     server_account_model = server_account_model_factory(address)
-    server_account = EvmServerAccount(server_account_model, mock_api)
+    server_account = EvmServerAccount(server_account_model, mock_api, mock_api)
 
     expected = f"Ethereum Account Address: {address}"
     assert str(server_account) == expected
@@ -43,7 +43,7 @@ def test_repr_representation(mock_api, server_account_model_factory):
     """Test the repr representation of EvmServerAccount."""
     address = "0x1234567890123456789012345678901234567890"
     server_account_model = server_account_model_factory(address)
-    server_account = EvmServerAccount(server_account_model, mock_api)
+    server_account = EvmServerAccount(server_account_model, mock_api, mock_api)
 
     expected = f"Ethereum Account Address: {address}"
     assert repr(server_account) == expected
@@ -59,7 +59,7 @@ async def test_sign_message_with_bytes(mock_api, server_account_model_factory):
 
     # Create a real mock instance, not just the class
     mock_api_instance = mock_api.return_value
-    server_account = EvmServerAccount(server_account_model, mock_api_instance)
+    server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
 
     message = b"Test message"
     signable_message = encode_defunct(message)
@@ -96,7 +96,7 @@ async def test_unsafe_sign_hash(mock_api, server_account_model_factory):
     server_account_model = server_account_model_factory(address, name)
 
     mock_api_instance = mock_api.return_value
-    server_account = EvmServerAccount(server_account_model, mock_api_instance)
+    server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
 
     message_hash = Hash32(bytes.fromhex("abcd" * 16))
 
@@ -132,7 +132,7 @@ async def test_sign_transaction(mock_api, mock_typed_tx, mock_web3, server_accou
     server_account_model = server_account_model_factory(address, name)
 
     mock_api_instance = mock_api.return_value
-    server_account = EvmServerAccount(server_account_model, mock_api_instance)
+    server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
 
     transaction_dict = {
         "maxFeePerGas": 2000000000,
