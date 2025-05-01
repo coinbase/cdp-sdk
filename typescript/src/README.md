@@ -102,13 +102,29 @@ const cdp = new CdpClient({
 #### Create an EVM account as follows:
 
 ```typescript
-const evmAccount = await cdp.evm.createAccount();
+const account = await cdp.evm.createAccount();
 ```
 
 #### Create a Solana account as follows:
 
 ```typescript
-const solanaAccount = await cdp.solana.createAccount();
+const account = await cdp.solana.createAccount();
+```
+
+#### Get or Create an EVM account as follows:
+
+```typescript
+const account = await cdp.evm.getOrCreateAccount({
+  name: 'Account1'
+});
+```
+
+#### Get or Create a Solana account as follows:
+
+```typescript
+const account = await cdp.solana.getOrCreateAccount({
+  name: 'Account1'
+});
 ```
 
 ### Testnet faucet
