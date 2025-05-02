@@ -52,6 +52,10 @@ describe("toEvmSmartAccount", () => {
       name: "Test Account",
       type: "evm-smart",
       transfer: expect.any(Function),
+      listTokenBalances: expect.any(Function),
+      sendUserOperation: expect.any(Function),
+      waitForUserOperation: expect.any(Function),
+      requestFaucet: expect.any(Function),
     });
   });
 

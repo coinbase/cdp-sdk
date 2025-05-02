@@ -348,6 +348,42 @@ describe("CDP Client E2E Tests", () => {
         expect(status).toBe("success");
       });
     });
+
+    describe("list token balances", () => {
+      it("should list token balances", async () => {
+        const balances = await testAccount.listTokenBalances({
+          network: "base-sepolia",
+        });
+
+        expect(balances).toBeDefined();
+        expect(balances.balances.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe("request faucet", () => {
+      it("should request faucet", async () => {
+        const { transactionHash } = await testAccount.requestFaucet({
+          network: "base-sepolia",
+          token: "eth",
+        });
+
+        expect(transactionHash).toBeDefined();
+      });
+    });
+
+    describe("send transaction", () => {
+      it("should send a transaction", async () => {
+        const { transactionHash } = await testAccount.sendTransaction({
+          network: "base-sepolia",
+          transaction: {
+            to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+            value: parseEther("0"),
+          },
+        });
+
+        expect(transactionHash).toBeDefined();
+      });
+    });
   });
 
   describe("smart account actions", () => {
@@ -374,8 +410,39 @@ describe("CDP Client E2E Tests", () => {
         expect(status).toBe("success");
       });
     });
-  });
 
+    describe("list token balances", () => {
+      it("should list token balances", async () => {
+        const balances = await testSmartAccount.listTokenBalances({
+          network: "base-sepolia",
+        });
+
+        expect(balances).toBeDefined();
+        expect(balances.balances.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe("wait for user operation", () => {
+      it("should wait for a user operation", async () => {
+        const { userOpHash } = await testSmartAccount.sendUserOperation({
+          network: "base-sepolia",
+          calls: [
+            {
+              to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+              value: parseEther("0"),
+            },
+          ],
+        });
+
+        const userOpResult = await testSmartAccount.waitForUserOperation({
+          userOpHash,
+        });
+
+        expect(userOpResult).toBeDefined();
+        expect(userOpResult.status).toBe("complete");
+      });
+    });
+  });
   describe("get or create account", () => {
     it("should get or create an evm account", async () => {
       const randomName = generateRandomName();

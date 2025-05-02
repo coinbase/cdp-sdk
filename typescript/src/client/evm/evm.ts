@@ -1,14 +1,11 @@
-import { Address, serializeTransaction } from "viem";
+import { Address } from "viem";
 
 import {
   CreateServerAccountOptions,
   GetServerAccountOptions,
   ListServerAccountsOptions,
   CreateSmartAccountOptions,
-  RequestFaucetOptions,
-  SendUserOperationOptions,
   WaitForUserOperationOptions,
-  RequestFaucetResult,
   SignHashOptions,
   SignatureResult,
   SignMessageOptions,
@@ -23,16 +20,24 @@ import {
   GetUserOperationOptions,
   ListSmartAccountResult,
   ListSmartAccountsOptions,
-  ListTokenBalancesOptions,
-  ListTokenBalancesResult,
-  SendTransactionOptions,
-  TransactionResult,
   GetOrCreateServerAccountOptions,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
 import {
+  listTokenBalances,
+  ListTokenBalancesResult,
+  ListTokenBalancesOptions,
+} from "../../actions/evm/listTokenBalances.js";
+import {
+  RequestFaucetOptions,
+  RequestFaucetResult,
+  requestFaucet,
+} from "../../actions/evm/requestFaucet.js";
+import { sendTransaction } from "../../actions/evm/sendTransaction.js";
+import {
   sendUserOperation,
+  SendUserOperationOptions,
   SendUserOperationReturnType,
 } from "../../actions/evm/sendUserOperation.js";
 import {
@@ -43,6 +48,10 @@ import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 import { Hex } from "../../types/misc.js";
 
+import type {
+  TransactionResult,
+  SendTransactionOptions,
+} from "../../actions/evm/sendTransaction.js";
 /**
  * The namespace containing all EVM methods.
  */
@@ -376,28 +385,7 @@ export class EvmClient implements EvmClientInterface {
    * }
    */
   async listTokenBalances(options: ListTokenBalancesOptions): Promise<ListTokenBalancesResult> {
-    const response = await CdpOpenApiClient.listEvmTokenBalances(options.network, options.address, {
-      pageSize: options.pageSize,
-      pageToken: options.pageToken,
-    });
-
-    const balances = response.balances.map(balance => {
-      return {
-        token: {
-          network: balance.token.network,
-          contractAddress: balance.token.contractAddress as Address,
-        },
-        amount: {
-          amount: BigInt(balance.amount.amount),
-          decimals: BigInt(balance.amount.decimals),
-        },
-      };
-    });
-
-    return {
-      balances,
-      nextPageToken: response.nextPageToken,
-    };
+    return listTokenBalances(CdpOpenApiClient, options);
   }
 
   /**
@@ -509,14 +497,7 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async requestFaucet(options: RequestFaucetOptions): Promise<RequestFaucetResult> {
-    const { transactionHash } = await CdpOpenApiClient.requestEvmFaucet(
-      { address: options.address, network: options.network, token: options.token },
-      options.idempotencyKey,
-    );
-
-    return {
-      transactionHash: transactionHash as Hex,
-    };
+    return requestFaucet(CdpOpenApiClient, options);
   }
 
   /**
@@ -566,27 +547,7 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async sendTransaction(options: SendTransactionOptions): Promise<TransactionResult> {
-    const { address, network, idempotencyKey } = options;
-    let transaction = options.transaction;
-
-    if (typeof transaction !== "string") {
-      transaction = serializeTransaction({
-        ...transaction,
-        // chainId is ignored in favor of network
-        chainId: 1,
-        type: "eip1559",
-      });
-    }
-
-    const result = await CdpOpenApiClient.sendEvmTransaction(
-      address,
-      { transaction, network },
-      idempotencyKey,
-    );
-
-    return {
-      transactionHash: result.transactionHash as Hex,
-    };
+    return sendTransaction(CdpOpenApiClient, options);
   }
 
   /**
@@ -617,8 +578,11 @@ export class EvmClient implements EvmClientInterface {
    * });
    * ```
    */
-  async sendUserOperation(options: SendUserOperationOptions): Promise<SendUserOperationReturnType> {
-    return sendUserOperation(CdpOpenApiClient, options.smartAccount, {
+  async sendUserOperation(
+    options: SendUserOperationOptions<unknown[]>,
+  ): Promise<SendUserOperationReturnType> {
+    return sendUserOperation(CdpOpenApiClient, {
+      smartAccount: options.smartAccount,
       network: options.network,
       calls: options.calls,
       paymasterUrl: options.paymasterUrl,

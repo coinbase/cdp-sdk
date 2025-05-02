@@ -90,6 +90,9 @@ describe("EvmClient", () => {
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
         type: "evm-server" as const,
         transfer: vi.fn(),
+        requestFaucet: vi.fn(),
+        sendTransaction: vi.fn(),
+        listTokenBalances: vi.fn(),
       };
 
       const createEvmAccountMock = CdpOpenApiClient.createEvmAccount as MockedFunction<
@@ -138,6 +141,10 @@ describe("EvmClient", () => {
         owners: [owner],
         type: "evm-smart",
         transfer: vi.fn(),
+        listTokenBalances: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
       };
 
       const createEvmSmartAccountMock = CdpOpenApiClient.createEvmSmartAccount as MockedFunction<
@@ -178,6 +185,9 @@ describe("EvmClient", () => {
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
         type: "evm-server",
         transfer: vi.fn(),
+        requestFaucet: vi.fn(),
+        sendTransaction: vi.fn(),
+        listTokenBalances: vi.fn(),
       };
 
       const getEvmAccountMock = CdpOpenApiClient.getEvmAccount as MockedFunction<
@@ -212,6 +222,9 @@ describe("EvmClient", () => {
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
         type: "evm-server",
         transfer: vi.fn(),
+        requestFaucet: vi.fn(),
+        sendTransaction: vi.fn(),
+        listTokenBalances: vi.fn(),
       };
 
       const getEvmAccountByNameMock = CdpOpenApiClient.getEvmAccountByName as MockedFunction<
@@ -258,6 +271,10 @@ describe("EvmClient", () => {
         owners: [owner],
         type: "evm-smart" as const,
         transfer: vi.fn(),
+        listTokenBalances: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
       };
 
       const getEvmSmartAccountMock = CdpOpenApiClient.getEvmSmartAccount as MockedFunction<
@@ -292,6 +309,9 @@ describe("EvmClient", () => {
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
         type: "evm-server",
         transfer: vi.fn(),
+        requestFaucet: vi.fn(),
+        sendTransaction: vi.fn(),
+        listTokenBalances: vi.fn(),
       };
 
       const getEvmAccountMock = CdpOpenApiClient.getEvmAccountByName as MockedFunction<
@@ -336,6 +356,10 @@ describe("EvmClient", () => {
         ],
         type: "evm-smart",
         transfer: vi.fn(),
+        listTokenBalances: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
       };
       const userOpHash = "0xhash";
       const transactionHash = "0xtransactionhash" as Hex;
@@ -378,6 +402,9 @@ describe("EvmClient", () => {
           signTypedData: vi.fn().mockResolvedValue("0xsignature"),
           type: "evm-server",
           transfer: vi.fn(),
+          requestFaucet: vi.fn(),
+          sendTransaction: vi.fn(),
+          listTokenBalances: vi.fn(),
         },
         {
           address: "0x456",
@@ -387,6 +414,9 @@ describe("EvmClient", () => {
           signTypedData: vi.fn().mockResolvedValue("0xsignature"),
           type: "evm-server",
           transfer: vi.fn(),
+          requestFaucet: vi.fn(),
+          sendTransaction: vi.fn(),
+          listTokenBalances: vi.fn(),
         },
       ];
 
@@ -470,6 +500,10 @@ describe("EvmClient", () => {
         owners: [owner],
         type: "evm-smart",
         transfer: vi.fn(),
+        listTokenBalances: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
       };
 
       const network = "sepolia" as EvmUserOperationNetwork;
@@ -573,6 +607,10 @@ describe("EvmClient", () => {
         owners: [owner],
         type: "evm-smart",
         transfer: vi.fn(),
+        listTokenBalances: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
       };
 
       const network = "sepolia" as EvmUserOperationNetwork;
@@ -596,7 +634,8 @@ describe("EvmClient", () => {
 
       const result = await client.sendUserOperation(sendOptions);
 
-      expect(sendUserOperation).toHaveBeenCalledWith(CdpOpenApiClient, smartAccount, {
+      expect(sendUserOperation).toHaveBeenCalledWith(CdpOpenApiClient, {
+        smartAccount,
         network,
         calls,
         paymasterUrl,

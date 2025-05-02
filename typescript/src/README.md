@@ -115,7 +115,7 @@ const account = await cdp.solana.createAccount();
 
 ```typescript
 const account = await cdp.evm.getOrCreateAccount({
-  name: 'Account1'
+  name: "Account1",
 });
 ```
 
@@ -123,7 +123,7 @@ const account = await cdp.evm.getOrCreateAccount({
 
 ```typescript
 const account = await cdp.solana.getOrCreateAccount({
-  name: 'Account1'
+  name: "Account1",
 });
 ```
 
@@ -287,7 +287,7 @@ const userOperation = await cdp.sendUserOperation({
 });
 ```
 
-### Tranferring tokens
+### Transferring tokens
 
 For complete examples, check out [transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/transfer.ts) and [transferWithSmartWallet.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/transferWithSmartWallet.ts).
 
@@ -355,6 +355,42 @@ const { status } = await sender.transfer({
   network: "base-sepolia",
 });
 ```
+
+## Account Actions
+
+Account objects have actions that can be used to interact with the account. These can be used in place of the `cdp` client.
+
+For example, instead of:
+
+```typescript
+const balances = await cdp.evm.listTokenBalances({
+  address: account.address,
+  network: "base-sepolia",
+});
+```
+
+You can use the `listTokenBalances` action:
+
+```typescript
+const account = await cdp.evm.createAccount();
+const balances = await account.listTokenBalances({ network: "base-sepolia" });
+```
+
+EvmAccount supports the following actions:
+
+- `listTokenBalances`
+- `requestFaucet`
+- `signTransaction`
+- `sendTransaction`
+- `transfer`
+
+EvmSmartAccount supports the following actions:
+
+- `listTokenBalances`
+- `requestFaucet`
+- `sendUserOperation`
+- `waitForUserOperation`
+- `transfer`
 
 ## Authentication tools
 

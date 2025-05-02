@@ -40,7 +40,8 @@ describe("sendUserOperation", () => {
 
   it("should throw error if calls array is empty", async () => {
     await expect(
-      sendUserOperation(mockClient, mockSmartAccount, {
+      sendUserOperation(mockClient, {
+        smartAccount: mockSmartAccount,
         calls: [],
         network: "base-sepolia",
       }),
@@ -48,7 +49,8 @@ describe("sendUserOperation", () => {
   });
 
   it("should handle calls with abi and functionName", async () => {
-    const result = await sendUserOperation(mockClient, mockSmartAccount, {
+    const result = await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
       calls: [
         {
           to: "0xrecipient",
@@ -98,7 +100,8 @@ describe("sendUserOperation", () => {
   });
 
   it("should handle direct calls with to, value and data", async () => {
-    const result = await sendUserOperation(mockClient, mockSmartAccount, {
+    const result = await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
       calls: [
         {
           to: "0xrecipient",
@@ -129,7 +132,8 @@ describe("sendUserOperation", () => {
   });
 
   it("should pass paymasterUrl when provided", async () => {
-    await sendUserOperation(mockClient, mockSmartAccount, {
+    await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
       calls: [{ to: "0xrecipient", data: "0x" }],
       network: "base-sepolia",
       paymasterUrl: "https://paymaster.example.com",
@@ -144,7 +148,8 @@ describe("sendUserOperation", () => {
   });
 
   it("should handle multiple calls in one operation", async () => {
-    await sendUserOperation(mockClient, mockSmartAccount, {
+    await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
       calls: [
         {
           to: "0xrecipient1",

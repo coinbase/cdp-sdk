@@ -32,7 +32,7 @@ export type EvmAccount = {
  */
 export type EvmServerAccount = Prettify<
   EvmAccount &
-    Actions & {
+    Omit<Actions, "sendUserOperation" | "waitForUserOperation"> & {
       /** Optional name for the server account. */
       name?: string;
       /** Indicates this is a server-managed account. */
@@ -53,5 +53,5 @@ export type EvmSmartAccount = Prettify<
     owners: EvmAccount[];
     /** Identifier for the smart account type. */
     type: "evm-smart";
-  } & Actions
+  } & Omit<Actions, "sendTransaction">
 >;

@@ -55,6 +55,10 @@ describe("smartAccountTransferStrategy", () => {
       owners: [mockOwnerAccount],
       type: "evm-smart",
       transfer: vi.fn(),
+      listTokenBalances: vi.fn(),
+      requestFaucet: vi.fn(),
+      sendUserOperation: vi.fn(),
+      waitForUserOperation: vi.fn(),
     };
 
     mockApiClient = {} as unknown as CdpOpenApiClientType;
@@ -101,7 +105,8 @@ describe("smartAccountTransferStrategy", () => {
         value,
       });
 
-      expect(sendUserOperation).toHaveBeenCalledWith(mockApiClient, mockSmartAccount, {
+      expect(sendUserOperation).toHaveBeenCalledWith(mockApiClient, {
+        smartAccount: mockSmartAccount,
         network: "base",
         calls: [
           {
@@ -145,7 +150,8 @@ describe("smartAccountTransferStrategy", () => {
         args: [toAddress, value],
       });
 
-      expect(sendUserOperation).toHaveBeenCalledWith(mockApiClient, mockSmartAccount, {
+      expect(sendUserOperation).toHaveBeenCalledWith(mockApiClient, {
+        smartAccount: mockSmartAccount,
         network: "base",
         calls: [
           {
@@ -182,9 +188,9 @@ describe("smartAccountTransferStrategy", () => {
 
       expect(sendUserOperation).toHaveBeenCalledWith(
         mockApiClient,
-        mockSmartAccount,
         expect.objectContaining({
           network: "base",
+          smartAccount: mockSmartAccount,
         }),
       );
 

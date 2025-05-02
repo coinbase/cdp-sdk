@@ -1,8 +1,20 @@
 import { type Hex, type TransactionSerializable, serializeTransaction } from "viem";
 
+import {
+  listTokenBalances,
+  type ListTokenBalancesResult,
+  type ListTokenBalancesOptions,
+} from "../../actions/evm/listTokenBalances.js";
+import {
+  requestFaucet,
+  type RequestFaucetOptions,
+  type RequestFaucetResult,
+} from "../../actions/evm/requestFaucet.js";
+import { sendTransaction } from "../../actions/evm/sendTransaction.js";
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 
+import type { SendTransactionOptions } from "../../actions/evm/sendTransaction.js";
 import type { TransferResult } from "../../actions/evm/transfer/types.js";
 import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
 import type { Address, Hash } from "../../types/misc.js";
@@ -57,6 +69,28 @@ export function toEvmServerAccount(
     },
     async transfer(transferArgs): Promise<TransferResult> {
       return transfer(apiClient, account, transferArgs, accountTransferStrategy);
+    },
+    async listTokenBalances(
+      options: Omit<ListTokenBalancesOptions, "address">,
+    ): Promise<ListTokenBalancesResult> {
+      return listTokenBalances(apiClient, {
+        ...options,
+        address: this.address,
+      });
+    },
+    async requestFaucet(
+      options: Omit<RequestFaucetOptions, "address">,
+    ): Promise<RequestFaucetResult> {
+      return requestFaucet(apiClient, {
+        ...options,
+        address: this.address,
+      });
+    },
+    async sendTransaction(options: Omit<SendTransactionOptions, "address">) {
+      return sendTransaction(apiClient, {
+        ...options,
+        address: this.address,
+      });
     },
     name: options.account.name,
     type: "evm-server",

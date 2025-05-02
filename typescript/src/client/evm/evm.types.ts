@@ -1,20 +1,30 @@
-import {
+import type {
   EvmAccount as Account,
   EvmServerAccount as ServerAccount,
   EvmSmartAccount as SmartAccount,
 } from "../../accounts/types.js";
-import { SendUserOperationReturnType } from "../../actions/evm/sendUserOperation.js";
-import { Actions } from "../../actions/evm/types.js";
-import {
+import type {
+  ListTokenBalancesOptions,
+  ListTokenBalancesResult,
+} from "../../actions/evm/listTokenBalances.js";
+import type { RequestFaucetOptions, RequestFaucetResult } from "../../actions/evm/requestFaucet.js";
+import type {
+  TransactionResult,
+  SendTransactionOptions,
+} from "../../actions/evm/sendTransaction.js";
+import type {
+  SendUserOperationOptions,
+  SendUserOperationReturnType,
+} from "../../actions/evm/sendUserOperation.js";
+import type { Actions } from "../../actions/evm/types.js";
+import type {
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
-  ListEvmTokenBalancesNetwork,
-  SendEvmTransactionBodyNetwork,
 } from "../../openapi-client/index.js";
-import { Call, Calls } from "../../types/calls.js";
-import { Address, Hex, TransactionRequestEIP1559 } from "../../types/misc.js";
-import { WaitOptions } from "../../utils/wait.js";
+import type { Calls } from "../../types/calls.js";
+import type { Address, Hex } from "../../types/misc.js";
+import type { WaitOptions } from "../../utils/wait.js";
 
 /**
  * The EvmClient type, where all OpenApiEvmMethods methods are wrapped.
@@ -50,7 +60,9 @@ export type EvmClientInterface = Omit<
   prepareUserOperation: (options: PrepareUserOperationOptions) => Promise<UserOperation>;
   requestFaucet: (options: RequestFaucetOptions) => Promise<RequestFaucetResult>;
   sendTransaction: (options: SendTransactionOptions) => Promise<TransactionResult>;
-  sendUserOperation: (options: SendUserOperationOptions) => Promise<SendUserOperationReturnType>;
+  sendUserOperation: (
+    options: SendUserOperationOptions<unknown[]>,
+  ) => Promise<SendUserOperationReturnType>;
   signHash: (options: SignHashOptions) => Promise<SignatureResult>;
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
   signTransaction: (options: SignTransactionOptions) => Promise<SignatureResult>;
@@ -223,67 +235,6 @@ export interface CreateSmartAccountOptions {
 }
 
 /**
- * Options for requesting funds from an EVM faucet.
- */
-export interface RequestFaucetOptions {
-  /** The address of the account. */
-  address: string;
-  /** The network to request funds from. */
-  network: "base-sepolia" | "ethereum-sepolia";
-  /** The token to request funds for. */
-  token: "eth" | "usdc" | "eurc" | "cbbtc";
-  /** The idempotency key. */
-  idempotencyKey?: string;
-}
-
-/**
- * The result of requesting funds from an EVM faucet.
- */
-export interface RequestFaucetResult {
-  /** The transaction hash. */
-  transactionHash: Hex;
-}
-
-/**
- * Options for sending an EVM transaction.
- */
-export interface SendTransactionOptions {
-  /** The address of the account. */
-  address: Address;
-  /**
-   * The transaction to send. The chainId is ignored in favor of the `network` field.
-   *
-   * This can be either:
-   * - An RLP-encoded transaction to sign and send, as a 0x-prefixed hex string, or
-   * - An EIP-1559 transaction request object.
-   */
-  transaction: Hex | TransactionRequestEIP1559;
-  /**
-   * The network to send the transaction to.
-   * The chainId in the `transaction` field is ignored in favor of this field.
-   */
-  network: SendEvmTransactionBodyNetwork;
-  /** The idempotency key. */
-  idempotencyKey?: string;
-}
-
-/**
- * Options for sending a user operation.
- */
-export interface SendUserOperationOptions {
-  /** The smart account. */
-  smartAccount: SmartAccount;
-  /** The network. */
-  network: EvmUserOperationNetwork;
-  /** The calls. */
-  calls: Call[];
-  /** The paymaster URL. */
-  paymasterUrl?: string;
-  /** The idempotency key. */
-  idempotencyKey?: string;
-}
-
-/**
  * Options for signing an EVM hash.
  */
 export interface SignHashOptions {
@@ -328,14 +279,6 @@ export interface SignatureResult {
 }
 
 /**
- * Result of a transaction
- */
-export interface TransactionResult {
-  /** The hash of the transaction. */
-  transactionHash: Hex;
-}
-
-/**
  * Options for waiting for a user operation.
  */
 export interface WaitForUserOperationOptions {
@@ -345,74 +288,4 @@ export interface WaitForUserOperationOptions {
   userOpHash: Hex;
   /** The wait options. */
   waitOptions?: WaitOptions;
-}
-
-/**
- * Options for listing EVM token balances.
- */
-export interface ListTokenBalancesOptions {
-  /** The address of the account. */
-  address: Address;
-  /** The network. */
-  network: ListEvmTokenBalancesNetwork;
-  /** The page size to paginate through the token balances. */
-  pageSize?: number;
-  /** The page token to paginate through the token balances. */
-  pageToken?: string;
-}
-
-/**
- * A token on an EVM network, which is either an ERC-20 or a native token (i.e. ETH).
- */
-export interface EvmToken {
-  /**
-   * The contract address of the token. For Ether, the contract address is 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE
-   * per EIP-7528. For ERC-20 tokens, this is the contract address where the token is deployed.
-   */
-  contractAddress: Address;
-  /** The network the token is on. */
-  network: ListEvmTokenBalancesNetwork;
-  /**
-   * The symbol of the token, which is optional and non-unique. Note: This field
-   * may not be present for most tokens while the API is still under development.
-   */
-  symbol?: string;
-  /**
-   * The name of the token, which is optional and non-unique. Note: This field
-   * may not be present for most tokens while the API is still under development.
-   */
-  name?: string;
-}
-
-/**
- * A token amount on an EVM network.
- */
-export interface EvmTokenAmount {
-  /** The amount of the token in the smallest indivisible unit of the token. */
-  amount: bigint;
-  /** The number of decimals in the token. */
-  decimals: bigint;
-}
-
-/**
- * An EVM token balance.
- */
-export interface EvmTokenBalance {
-  /** The token. */
-  token: EvmToken;
-  /** The amount of the token. */
-  amount: EvmTokenAmount;
-}
-
-/**
- * The result of listing EVM token balances.
- */
-export interface ListTokenBalancesResult {
-  /** The token balances. */
-  balances: EvmTokenBalance[];
-  /**
-   * The next page token to paginate through the token balances.
-   * If undefined, there are no more token balances to paginate through.
-   */
-  nextPageToken?: string;
 }

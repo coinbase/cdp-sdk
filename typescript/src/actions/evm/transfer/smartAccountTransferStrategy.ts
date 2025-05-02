@@ -10,7 +10,8 @@ export const smartAccountTransferStrategy: TransferExecutionStrategy<EvmSmartAcc
   executeTransfer: async ({ apiClient, from, transferArgs, to, value }) => {
     const userOpHash = await (async () => {
       if (transferArgs.token === "eth") {
-        const result = await sendUserOperation(apiClient, from, {
+        const result = await sendUserOperation(apiClient, {
+          smartAccount: from,
           network: transferArgs.network,
           calls: [
             {
@@ -24,7 +25,8 @@ export const smartAccountTransferStrategy: TransferExecutionStrategy<EvmSmartAcc
       } else {
         const erc20Address = getErc20Address(transferArgs.token, transferArgs.network);
 
-        const result = await sendUserOperation(apiClient, from, {
+        const result = await sendUserOperation(apiClient, {
+          smartAccount: from,
           network: transferArgs.network,
           calls: [
             {
