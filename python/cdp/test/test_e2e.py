@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import random
 import string
@@ -351,3 +352,53 @@ async def test_solana_get_or_create_account(cdp_client):
     assert account.address == account2.address
     assert account.name == account2.name
     assert account.name == random_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_get_or_create_account_race_condition(cdp_client):
+    """Test getting or creating an EVM account with a race condition."""
+    random_name = "".join(
+        [random.choice(string.ascii_letters + string.digits)]
+        + [random.choice(string.ascii_letters + string.digits + "-") for _ in range(34)]
+        + [random.choice(string.ascii_letters + string.digits)]
+    )
+    account_coros = [
+        cdp_client.evm.get_or_create_account(name=random_name),
+        cdp_client.evm.get_or_create_account(name=random_name),
+        cdp_client.evm.get_or_create_account(name=random_name)
+    ]
+    accounts = await asyncio.gather(*account_coros)
+    assert len(accounts) == 3
+    assert accounts[0] is not None
+    assert accounts[1] is not None
+    assert accounts[2] is not None
+    assert accounts[0].address == accounts[1].address
+    assert accounts[0].name == accounts[1].name
+    assert accounts[0].address == accounts[2].address
+    assert accounts[0].name == accounts[2].name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_solana_get_or_create_account_race_condition(cdp_client):
+    """Test getting or creating a Solana account with a race condition."""
+    random_name = "".join(
+        [random.choice(string.ascii_letters + string.digits)]
+        + [random.choice(string.ascii_letters + string.digits + "-") for _ in range(34)]
+        + [random.choice(string.ascii_letters + string.digits)]
+    )
+    account_coros = [
+        cdp_client.solana.get_or_create_account(name=random_name),
+        cdp_client.solana.get_or_create_account(name=random_name),
+        cdp_client.solana.get_or_create_account(name=random_name)
+    ]
+    accounts = await asyncio.gather(*account_coros)
+    assert len(accounts) == 3
+    assert accounts[0] is not None
+    assert accounts[1] is not None
+    assert accounts[2] is not None
+    assert accounts[0].address == accounts[1].address
+    assert accounts[0].name == accounts[1].name
+    assert accounts[0].address == accounts[2].address
+    assert accounts[0].name == accounts[2].name
