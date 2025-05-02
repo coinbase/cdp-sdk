@@ -314,3 +314,40 @@ async def _ensure_sufficient_eth_balance(cdp_client, account):
         print(f"ETH balance is sufficient: {w3.from_wei(eth_balance, 'ether')} ETH")
 
     return eth_balance
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_get_or_create_account(cdp_client):
+    """Test getting or creating an EVM account."""
+    random_name = "".join(
+        [random.choice(string.ascii_letters + string.digits)]
+        + [random.choice(string.ascii_letters + string.digits + "-") for _ in range(34)]
+        + [random.choice(string.ascii_letters + string.digits)]
+    )
+    account = await cdp_client.evm.get_or_create_account(name=random_name)
+    assert account is not None
+
+    account2 = await cdp_client.evm.get_or_create_account(name=random_name)
+    assert account2 is not None
+    assert account.address == account2.address
+    assert account.name == account2.name
+    assert account.name == random_name
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_solana_get_or_create_account(cdp_client):
+    """Test getting or creating a Solana account."""
+    random_name = "".join(
+        [random.choice(string.ascii_letters + string.digits)]
+        + [random.choice(string.ascii_letters + string.digits + "-") for _ in range(34)]
+        + [random.choice(string.ascii_letters + string.digits)]
+    )
+    account = await cdp_client.solana.get_or_create_account(name=random_name)
+    assert account is not None
+
+    account2 = await cdp_client.solana.get_or_create_account(name=random_name)
+    assert account2 is not None
+    assert account.address == account2.address
+    assert account.name == account2.name
+    assert account.name == random_name
