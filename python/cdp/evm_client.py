@@ -31,6 +31,7 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
 from cdp.utils import serialize_unsigned_transaction
+from cdp.openapi_client.errors import ApiError
 
 
 class EvmClient:
@@ -93,6 +94,33 @@ class EvmClient:
         else:
             raise ValueError("Either address or name must be provided")
         return EvmServerAccount(evm_account, self.api_clients.evm_accounts)
+
+    async def get_or_create_account(
+        self, name: str | None = None
+    ) -> EvmServerAccount:
+        """Get an EVM account, or create one if it doesn't exist.
+
+        Args:
+            name (str, optional): The name of the account to get or create.
+
+        Returns:
+            EvmServerAccount: The EVM server account.
+
+        """
+        try:
+            account = await self.get_account(name=name)
+            return account
+        except ApiError as e:
+            if e.http_code == 404:
+                try:
+                    account = await self.create_account(name=name)
+                    return account
+                except ApiError as e:
+                    if e.http_code == 409:
+                        account = await self.get_account(name=name)
+                        return account
+                    raise e
+            raise e
 
     async def get_smart_account(
         self, address: str, owner: BaseAccount | None = None
