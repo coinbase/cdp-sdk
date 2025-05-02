@@ -335,6 +335,7 @@ async def test_evm_get_or_create_account(cdp_client):
     assert account.name == account2.name
     assert account.name == random_name
 
+
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_solana_get_or_create_account(cdp_client):
@@ -366,7 +367,7 @@ async def test_evm_get_or_create_account_race_condition(cdp_client):
     account_coros = [
         cdp_client.evm.get_or_create_account(name=random_name),
         cdp_client.evm.get_or_create_account(name=random_name),
-        cdp_client.evm.get_or_create_account(name=random_name)
+        cdp_client.evm.get_or_create_account(name=random_name),
     ]
     accounts = await asyncio.gather(*account_coros)
     assert len(accounts) == 3
@@ -391,7 +392,7 @@ async def test_solana_get_or_create_account_race_condition(cdp_client):
     account_coros = [
         cdp_client.solana.get_or_create_account(name=random_name),
         cdp_client.solana.get_or_create_account(name=random_name),
-        cdp_client.solana.get_or_create_account(name=random_name)
+        cdp_client.solana.get_or_create_account(name=random_name),
     ]
     accounts = await asyncio.gather(*account_coros)
     assert len(accounts) == 3
