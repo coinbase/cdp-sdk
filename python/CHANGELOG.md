@@ -2,6 +2,14 @@
 
 <!-- towncrier release notes start -->
 
+## [1.4.0] - 2025-05-02
+
+### Features
+
+- Added transfer methods to EvmAccount and EvmSmartAccount ([#95](https://github.com/coinbase/cdp-sdk/pull/95))
+- Added a get_or_create_account function to the EVM and Solana clients ([#98](https://github.com/coinbase/cdp-sdk/pull/98))
+
+
 ## [1.3.0] - 2025-04-29
 
 ### Features
