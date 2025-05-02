@@ -287,7 +287,7 @@ const userOperation = await cdp.sendUserOperation({
 });
 ```
 
-### Tranferring tokens
+### Transferring tokens
 
 For complete examples, check out [transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/transfer.ts) and [transferWithSmartWallet.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/transferWithSmartWallet.ts).
 
