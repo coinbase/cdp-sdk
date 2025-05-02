@@ -14,6 +14,7 @@ from cdp.evm_token_balances import (
 )
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.cdp_api_client import CdpApiClient
+from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccountRequest
 from cdp.openapi_client.models.create_evm_smart_account_request import (
     CreateEvmSmartAccountRequest,
@@ -152,6 +153,41 @@ async def test_get_account_throws_error_if_neither_address_nor_name_is_provided(
     client = EvmClient(api_clients=AsyncMock())
     with pytest.raises(ValueError):
         await client.get_account()
+
+
+@pytest.mark.asyncio
+async def test_get_or_create_account(server_account_model_factory):
+    """Test getting or creating an EVM account."""
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+
+    evm_server_account_model = server_account_model_factory()
+    client = EvmClient(api_clients=mock_api_clients)
+
+    mock_evm_accounts_api.get_evm_account_by_name = AsyncMock(
+        side_effect=[
+            ApiError(404, "not_found", "Account not found"),
+            evm_server_account_model,
+        ]
+    )
+
+    mock_evm_accounts_api.create_evm_account = AsyncMock(return_value=evm_server_account_model)
+
+    test_name = "test-account"
+    result = await client.get_or_create_account(name=test_name)
+    result2 = await client.get_or_create_account(name=test_name)
+
+    assert mock_evm_accounts_api.get_evm_account_by_name.call_count == 2
+    mock_evm_accounts_api.create_evm_account.assert_called_once_with(
+        x_idempotency_key=None,
+        create_evm_account_request=CreateEvmAccountRequest(name=test_name),
+    )
+
+    assert result.address == evm_server_account_model.address
+    assert result.name == evm_server_account_model.name
+    assert result2.address == evm_server_account_model.address
+    assert result2.name == evm_server_account_model.name
 
 
 @pytest.mark.asyncio

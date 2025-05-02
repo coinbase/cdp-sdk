@@ -1,4 +1,5 @@
 from cdp.api_clients import ApiClients
+from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.create_solana_account_request import (
     CreateSolanaAccountRequest,
 )
@@ -24,7 +25,6 @@ from cdp.openapi_client.models.sign_solana_transaction_request import (
     SignSolanaTransactionRequest,
 )
 from cdp.openapi_client.models.solana_account import SolanaAccount
-from cdp.openapi_client.errors import ApiError
 
 
 class SolanaClient:
