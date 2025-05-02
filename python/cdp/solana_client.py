@@ -24,6 +24,7 @@ from cdp.openapi_client.models.sign_solana_transaction_request import (
     SignSolanaTransactionRequest,
 )
 from cdp.openapi_client.models.solana_account import SolanaAccount
+from cdp.openapi_client.errors import ApiError
 
 
 class SolanaClient:
@@ -71,6 +72,34 @@ class SolanaClient:
             return await self.api_clients.solana_accounts.get_solana_account_by_name(name)
         else:
             raise ValueError("Either address or name must be provided")
+
+    async def get_or_create_account(
+        self,
+        name: str | None = None,
+    ) -> SolanaAccount:
+        """Get a Solana account, or create one if it doesn't exist.
+
+        Args:
+            name (str, optional): The name of the account to get or create.
+
+        Returns:
+            SolanaAccount: The Solana account model.
+
+        """
+        try:
+            account = await self.get_account(name=name)
+            return account
+        except ApiError as e:
+            if e.http_code == 404:
+                try:
+                    account = await self.create_account(name=name)
+                    return account
+                except ApiError as e:
+                    if e.http_code == 409:
+                        account = await self.get_account(name=name)
+                        return account
+                    raise e
+            raise e
 
     async def list_accounts(
         self,
