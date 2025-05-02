@@ -122,7 +122,7 @@ from cdp import CdpClient
 
 async def main():
     async with CdpClient() as cdp:
-        evm_account = await cdp.evm.create_account()
+        account = await cdp.evm.create_account()
 
 asyncio.run(main())
 ```
@@ -135,7 +135,33 @@ from cdp import CdpClient
 
 async def main():
     async with CdpClient() as cdp:
-        solana_account = await cdp.solana.create_account()
+        account = await cdp.solana.create_account()
+
+asyncio.run(main())
+```
+
+#### Get or create an EVM account as follows:
+
+```python
+import asyncio
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        account = await cdp.evm.get_or_create_account()
+
+asyncio.run(main())
+```
+
+#### Get or create a Solana account as follows:
+
+```python
+import asyncio
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        account = await cdp.solana.get_or_create_account()
 
 asyncio.run(main())
 ```
