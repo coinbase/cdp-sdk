@@ -1,5 +1,17 @@
 # CDP SDK Changelog
 
+## 1.6.0
+
+### Minor Changes
+
+- [#99](https://github.com/coinbase/cdp-sdk/pull/99) [`0fd6d2b`](https://github.com/coinbase/cdp-sdk/commit/0fd6d2ba56b2da52c96eb19278dc782560b7680b) Thanks [@0xRAG](https://github.com/0xRAG)! - Added actions to EvmAccount and EvmSmartAccount:
+
+  - listTokenBalances
+  - requestFaucet
+  - sendTransaction (EvmAccount only)
+  - sendUserOperation (EvmSmartAccount only)
+  - waitForUserOperation (EvmSmartAccount only)
+
 ## 1.5.0
 
 ### Minor Changes
