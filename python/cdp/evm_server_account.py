@@ -7,7 +7,7 @@ from eth_account.messages import (
     _hash_eip191_message,
 )
 from eth_account.signers.base import BaseAccount
-from eth_account.typed_transactions import TypedTransaction
+from eth_account.typed_transactions import DynamicFeeTransaction, TypedTransaction
 from eth_account.types import (
     TransactionDictType,
 )
@@ -18,7 +18,9 @@ from hexbytes import HexBytes
 from pydantic import BaseModel, ConfigDict, Field
 from web3 import Web3
 
+from cdp.actions.evm.send_transaction import send_transaction
 from cdp.api_clients import ApiClients
+from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.models.evm_account import EvmAccount as EvmServerAccountModel
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
@@ -296,6 +298,53 @@ class EvmServerAccount(BaseAccount, BaseModel):
             from_account=self,
             transfer_args=transfer_args,
             transfer_strategy=account_transfer_strategy,
+        )
+
+    async def send_transaction(
+        self,
+        transaction: str | TransactionRequestEIP1559 | DynamicFeeTransaction,
+        network: str,
+        idempotency_key: str | None = None,
+    ) -> str:
+        """Send an EVM transaction.
+
+        Args:
+            address (str): The address of the account.
+            transaction (str | TransactionDictType | DynamicFeeTransaction): The transaction to send.
+
+                This can be either an RLP-encoded transaction to sign and send, as a 0x-prefixed hex string, or an EIP-1559 transaction request object.
+
+                Use TransactionRequestEIP1559 if you would like Coinbase to manage the nonce and gas parameters.
+
+                You can also use DynamicFeeTransaction from eth-account, but you will have to set the nonce and gas parameters manually.
+
+                These are the fields that can be contained in the transaction object:
+
+                    - `to`: (Required) The address of the contract or account to send the transaction to.
+                    - `value`: (Optional) The amount of ETH, in wei, to send with the transaction.
+                    - `data`: (Optional) The data to send with the transaction; only used for contract calls.
+                    - `gas`: (Optional) The amount of gas to use for the transaction.
+                    - `nonce`: (Optional) The nonce to use for the transaction. If not provided, the API will assign a nonce to the transaction based on the current state of the account.
+                    - `maxFeePerGas`: (Optional) The maximum fee per gas to use for the transaction. If not provided, the API will estimate a value based on current network conditions.
+                    - `maxPriorityFeePerGas`: (Optional) The maximum priority fee per gas to use for the transaction. If not provided, the API will estimate a value based on current network conditions.
+                    - `accessList`: (Optional) The access list to use for the transaction.
+                    - `chainId`: (Ignored) The value of the `chainId` field in the transaction is ignored.
+                    - `from`: (Ignored) Ignored in favor of the account address that is sending the transaction.
+                    - `type`: (Ignored) The transaction type must always be 0x2 (EIP-1559).
+
+            network (str): The network.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        Returns:
+            str: The transaction hash.
+
+        """
+        return await send_transaction(
+            evm_accounts=self.__evm_accounts_api,
+            address=self.address,
+            transaction=transaction,
+            network=network,
+            idempotency_key=idempotency_key,
         )
 
     def __str__(self) -> str:

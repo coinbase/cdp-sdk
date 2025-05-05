@@ -2,10 +2,15 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from eth_account.messages import _hash_eip191_message, encode_defunct
+from eth_account.typed_transactions import DynamicFeeTransaction
 from eth_typing import Hash32
 from hexbytes import HexBytes
+from web3 import Web3
 
 from cdp.evm_server_account import EvmServerAccount
+from cdp.evm_transaction_types import TransactionRequestEIP1559
+from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
+from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
 from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageRequest
 from cdp.openapi_client.models.sign_evm_transaction_request import (
@@ -200,3 +205,115 @@ async def test_sign_transaction(mock_api, mock_typed_tx, mock_web3, server_accou
     assert result.r == int.from_bytes(mock_signature[0:32], byteorder="big")
     assert result.s == int.from_bytes(mock_signature[32:64], byteorder="big")
     assert result.v == mock_signature[64]
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_server_account.EVMAccountsApi")
+async def test_send_transaction_serialized(mock_api, server_account_model_factory):
+    """Test send_transaction method with serialized transaction."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    server_account_model = server_account_model_factory(address, name)
+    mock_api_instance = mock_api.return_value
+    mock_api_instance.send_evm_transaction = AsyncMock(
+        return_value=SendEvmTransaction200Response(transaction_hash="0x123")
+    )
+    server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
+
+    test_network = "base-sepolia"
+    test_transaction = "0xabcdef"
+
+    result = await server_account.send_transaction(
+        network=test_network,
+        transaction=test_transaction,
+    )
+
+    mock_api_instance.send_evm_transaction.assert_called_once_with(
+        address=server_account.address,
+        send_evm_transaction_request=SendEvmTransactionRequest(
+            transaction=test_transaction, network=test_network
+        ),
+        x_idempotency_key=None,
+    )
+    assert result == "0x123"
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_server_account.EVMAccountsApi")
+async def test_send_transaction_eip1559(mock_api, server_account_model_factory):
+    """Test send_transaction method with EIP-1559 transaction."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    server_account_model = server_account_model_factory(address, name)
+    mock_api_instance = mock_api.return_value
+    mock_api_instance.send_evm_transaction = AsyncMock(
+        return_value=SendEvmTransaction200Response(transaction_hash="0x456")
+    )
+    server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
+
+    w3 = Web3()
+
+    test_network = "base-sepolia"
+    test_transaction = TransactionRequestEIP1559(
+        to="0x1234567890123456789012345678901234567890",
+        value=w3.to_wei(0.000001, "ether"),
+    )
+
+    result = await server_account.send_transaction(
+        network=test_network,
+        transaction=test_transaction,
+    )
+
+    mock_api_instance.send_evm_transaction.assert_called_once_with(
+        address=server_account.address,
+        send_evm_transaction_request=SendEvmTransactionRequest(
+            transaction="0x02e5808080808094123456789012345678901234567890123456789085e8d4a5100080c0808080",
+            network=test_network,
+        ),
+        x_idempotency_key=None,
+    )
+    assert result == "0x456"
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_server_account.EVMAccountsApi")
+async def test_send_transaction_dynamic_fee(mock_api, server_account_model_factory):
+    """Test send_transaction method with dynamic fee transaction."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    server_account_model = server_account_model_factory(address, name)
+    mock_api_instance = mock_api.return_value
+    mock_api_instance.send_evm_transaction = AsyncMock(
+        return_value=SendEvmTransaction200Response(transaction_hash="0x789")
+    )
+    server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
+
+    w3 = Web3()
+
+    test_network = "base-sepolia"
+    test_transaction = DynamicFeeTransaction.from_dict(
+        {
+            "to": "0x1234567890123456789012345678901234567890",
+            "value": w3.to_wei(0.000001, "ether"),
+            "gas": 21000,
+            "maxFeePerGas": 1000000000000000000,
+            "maxPriorityFeePerGas": 1000000000000000000,
+            "nonce": 1,
+            "type": "0x2",
+        }
+    )
+
+    result = await server_account.send_transaction(
+        network=test_network,
+        transaction=test_transaction,
+    )
+
+    mock_api_instance.send_evm_transaction.assert_called_once_with(
+        address=server_account.address,
+        send_evm_transaction_request=SendEvmTransactionRequest(
+            transaction="0x02f78001880de0b6b3a7640000880de0b6b3a764000082520894123456789012345678901234567890123456789085e8d4a5100080c0808080",
+            network=test_network,
+        ),
+        x_idempotency_key=None,
+    )
+    assert result == "0x789"

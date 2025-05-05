@@ -1,6 +1,7 @@
 from eth_account.signers.base import BaseAccount
 from eth_account.typed_transactions import DynamicFeeTransaction
 
+from cdp.actions.evm.send_transaction import send_transaction
 from cdp.actions.evm.send_user_operation import send_user_operation
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.api_clients import ApiClients
@@ -25,13 +26,11 @@ from cdp.openapi_client.models.prepare_user_operation_request import (
     PrepareUserOperationRequest,
 )
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
-from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
 from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageRequest
 from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
-from cdp.utils import serialize_unsigned_transaction
 
 
 class EvmClient:
@@ -408,44 +407,13 @@ class EvmClient:
             str: The transaction hash.
 
         """
-        if isinstance(transaction, str):
-            return (
-                await self.api_clients.evm_accounts.send_evm_transaction(
-                    address=address,
-                    send_evm_transaction_request=SendEvmTransactionRequest(
-                        transaction=transaction, network=network
-                    ),
-                    x_idempotency_key=idempotency_key,
-                )
-            ).transaction_hash
-        elif isinstance(transaction, TransactionRequestEIP1559):
-            typed_tx = DynamicFeeTransaction.from_dict(transaction.as_dict())
-            serialized_tx = serialize_unsigned_transaction(typed_tx)
-
-            send_evm_transaction_request = SendEvmTransactionRequest(
-                transaction=serialized_tx, network=network
-            )
-
-            return (
-                await self.api_clients.evm_accounts.send_evm_transaction(
-                    address=address,
-                    send_evm_transaction_request=send_evm_transaction_request,
-                    x_idempotency_key=idempotency_key,
-                )
-            ).transaction_hash
-        else:
-            serialized_tx = serialize_unsigned_transaction(transaction)
-            send_evm_transaction_request = SendEvmTransactionRequest(
-                transaction=serialized_tx, network=network
-            )
-
-            return (
-                await self.api_clients.evm_accounts.send_evm_transaction(
-                    address=address,
-                    send_evm_transaction_request=send_evm_transaction_request,
-                    x_idempotency_key=idempotency_key,
-                )
-            ).transaction_hash
+        return await send_transaction(
+            self.api_clients.evm_accounts,
+            address,
+            transaction,
+            network,
+            idempotency_key,
+        )
 
     async def send_user_operation(
         self,
