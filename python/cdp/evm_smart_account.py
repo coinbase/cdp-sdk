@@ -2,6 +2,7 @@ from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, ConfigDict, Field
 
 from cdp.actions.evm.list_token_balances import list_token_balances
+from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_user_operation import send_user_operation
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.api_clients import ApiClients
@@ -9,7 +10,6 @@ from cdp.evm_call_types import ContractCall
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount as EvmSmartAccountModel
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
-from cdp.actions.evm.request_faucet import request_faucet
 
 
 class EvmSmartAccount(BaseModel):
