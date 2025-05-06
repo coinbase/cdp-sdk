@@ -530,6 +530,45 @@ async def main():
 asyncio.run(main())
 ```
 
+## Account Actions
+
+Account objects have actions that can be used to interact with the account. These can be used in place of the `cdp` client.
+
+For example, instead of:
+
+```python
+token_balances = await cdp.evm.list_token_balances(
+    address=account.address,
+    network="base-sepolia"
+)
+```
+
+You can use the `list_token_balances` action:
+
+```python
+balances = await account.list_token_balances(
+    network="base-sepolia",
+)
+```
+
+EvmAccount supports the following actions:
+
+- `list_token_balances`
+- `request_faucet`
+- `sign_transaction`
+- `send_transaction`
+- `transfer`
+
+EvmSmartAccount supports the following actions:
+
+- `list_token_balances`
+- `request_faucet`
+- `send_user_operation`
+- `wait_for_user_operation`
+- `get_user_operation`
+- `transfer`
+
+
 ## Authentication tools
 
 This SDK also contains simple tools for authenticating REST API requests to the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). See the [Auth README](cdp/auth/README.md) for more details.
