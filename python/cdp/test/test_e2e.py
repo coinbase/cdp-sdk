@@ -157,8 +157,8 @@ async def test_send_wait_and_get_user_operation(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_send_and_wait_for_user_operation_with_smart_account(cdp_client):
-    """Test sending and waiting for a user operation with a smart account."""
+async def test_send_wait_and_get_user_operation_with_smart_account(cdp_client):
+    """Test sending, waiting for, and getting a user operation with a smart account."""
     private_key = Account.create().key
     owner = Account.from_key(private_key)
 
@@ -186,8 +186,7 @@ async def test_send_and_wait_for_user_operation_with_smart_account(cdp_client):
     assert user_op_result is not None
     assert user_op_result.status == "complete"
 
-    user_op = await cdp_client.evm.get_user_operation(
-        address=smart_account.address,
+    user_op = await smart_account.get_user_operation(
         user_op_hash=user_operation.user_op_hash,
     )
     assert user_op is not None

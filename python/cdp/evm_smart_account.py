@@ -241,6 +241,20 @@ class EvmSmartAccount(BaseModel):
             interval_seconds,
         )
 
+    async def get_user_operation(self, user_op_hash: str) -> EvmUserOperationModel:
+        """Get a user operation for the smart account by hash.
+
+        Args:
+            user_op_hash (str): The hash of the user operation to get.
+
+        Returns:
+            EvmUserOperationModel: The user operation model.
+
+        """
+        return await self.__api_clients.evm_smart_accounts.get_user_operation(
+            self.address, user_op_hash
+        )
+
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.
 

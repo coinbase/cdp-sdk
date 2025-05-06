@@ -188,3 +188,31 @@ async def test_wait_for_user_operation(
     )
 
     assert result == mock_user_op
+
+
+@pytest.mark.asyncio
+@patch("cdp.cdp_client.ApiClients")
+async def test_get_user_operation(
+    mock_api_clients,
+    smart_account_model_factory,
+    local_account_factory,
+):
+    """Test get_user_operation method."""
+    mock_user_op = MagicMock(spec=EvmUserOperation)
+    mock_user_op.user_op_hash = "0xuserhash123"
+    mock_user_op.status = "complete"
+
+    mock_api_clients.evm_smart_accounts.get_user_operation = AsyncMock(return_value=mock_user_op)
+
+    smart_account_model = smart_account_model_factory()
+    owner = local_account_factory()
+
+    smart_account = EvmSmartAccount(
+        smart_account_model.address, owner, smart_account_model.name, mock_api_clients
+    )
+
+    result = await smart_account.get_user_operation(
+        user_op_hash=mock_user_op.user_op_hash,
+    )
+
+    assert result == mock_user_op
