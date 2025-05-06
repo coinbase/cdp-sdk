@@ -3,6 +3,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.send_user_operation import send_user_operation
+from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall
 from cdp.evm_token_balances import ListTokenBalancesResult
@@ -213,6 +214,31 @@ class EvmSmartAccount(BaseModel):
             calls,
             network,
             paymaster_url,
+        )
+
+    async def wait_for_user_operation(
+        self,
+        user_op_hash: str,
+        timeout_seconds: float = 20,
+        interval_seconds: float = 0.2,
+    ) -> EvmUserOperationModel:
+        """Wait for a user operation to be processed.
+
+        Args:
+            user_op_hash (str): The hash of the user operation to wait for.
+            timeout_seconds (float, optional): Maximum time to wait in seconds. Defaults to 20.
+            interval_seconds (float, optional): Time between checks in seconds. Defaults to 0.2.
+
+        Returns:
+            EvmUserOperationModel: The user operation model.
+
+        """
+        return await wait_for_user_operation(
+            self.__api_clients,
+            self.address,
+            user_op_hash,
+            timeout_seconds,
+            interval_seconds,
         )
 
     def __str__(self) -> str:
