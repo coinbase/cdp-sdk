@@ -1,4 +1,8 @@
-# Usage: uv run python solana/send_transaction.py
+# Usage: 
+# uv run python solana/send_transaction.py
+#   [--sender <sender_address>] - optional, if not provided, a new account will be created and funded from the faucet
+#   [--destination <destination_address>] - optional, if not provided, a default destination address will be used
+#   [--amount <amount_in_lamports>] - optional, if not provided, a default amount of 1000 lamports will be used
 
 import argparse
 import asyncio
