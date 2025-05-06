@@ -118,6 +118,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -198,6 +200,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -278,6 +282,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -427,6 +433,8 @@ class EVMAccountsApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -497,6 +505,8 @@ class EVMAccountsApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -567,6 +577,8 @@ class EVMAccountsApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -697,6 +709,8 @@ class EVMAccountsApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -767,6 +781,8 @@ class EVMAccountsApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -837,6 +853,8 @@ class EVMAccountsApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -969,6 +987,8 @@ class EVMAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListEvmAccounts200Response",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1041,6 +1061,8 @@ class EVMAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListEvmAccounts200Response",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1113,6 +1135,8 @@ class EVMAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ListEvmAccounts200Response",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1266,6 +1290,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1352,6 +1378,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1438,6 +1466,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1604,6 +1634,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1688,6 +1720,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1772,6 +1806,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1938,6 +1974,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -2022,6 +2060,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -2106,6 +2146,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -2274,6 +2316,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -2360,6 +2404,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -2446,6 +2492,8 @@ class EVMAccountsApi:
             '409': "Error",
             '422': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,

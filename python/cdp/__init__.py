@@ -7,14 +7,14 @@ from cdp.evm_smart_account import EvmSmartAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 
 __all__ = [
-    "__version__",
     "CdpClient",
-    "EvmServerAccount",
-    "EvmSmartAccount",
     "ContractCall",
     "EncodedCall",
+    "EvmServerAccount",
+    "EvmSmartAccount",
     "FunctionCall",
     "TransactionRequestEIP1559",
     "TransferOptions",
     "TransferResult",
+    "__version__",
 ]
