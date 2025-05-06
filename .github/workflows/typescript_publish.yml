@@ -63,3 +63,6 @@ jobs:
     with:
       language: typescript
     secrets: inherit
+    permissions:
+      pages: write
+      actions: read
