@@ -47,6 +47,7 @@ jobs:
         uses: changesets/action@746c25e23caa47dceb6a48ee85b4cbc5a9f5f293 # v1.5.0
         with:
           commit: "chore: bump @coinbase/cdp-sdk"
+          cwd: ./typescript
           title: "chore: bump @coinbase/cdp-sdk"
           commitMode: "github-api"
           publish: pnpm run changeset:publish
