@@ -70,6 +70,110 @@ tags:
   - name: Faucets
     x-audience: public
     description: The Faucet APIs enable you to request funds on supported test networks. Faucets are for testing purposes and make development easier by providing a source of funds.
+  - name: Policy Engine
+    x-audience: public
+    description: |-
+      The Policy Engine APIs evaluate policies (a set of rules) to govern the behavior of accounts or projects, such as enforce allowlists and denylists.
+      - A **policy** is a collection of `rules` with defined criteria.
+      - Each **rule** contains a specified `action`, `operation`, and `criteria`:
+        - An `action` can either `accept` or `reject` a transaction if the criteria in the rule are met.
+        - `criteria` is an array of logical expressions. All parameters must evaluate to true for the action to be applied.
+        - An `operation` corresponds to a CDP v2 API:
+            - `signEvmTransaction` or `signSolTransaction` for signing transactions (to set a transaction limit)
+      - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected. Only `signEvmTransaction` and `signSolTransaction` operations are currently supported. 
+      ## Policy Scope
+      Policies can be applied at the project and/or account level:
+      - **Project-level policy**: A `project`-level policy applies to all accounts in a CDP Project. Only one project-level policy can be applied to accounts within a CDP Project at any given time.
+      - **Account-level policy**: An `account`-level policy applies to one or more accounts. An account
+        can have at most one account-level policy at any given time.
+
+      Thus, a single account can be assigned at most two policies at any given time: one project-level policy and one account-level policy.
+
+      Scope is specified in the `scope` field of a policy:
+      ```json {
+        "description": "Project-level policy",
+        "scope": "account", 
+        ...
+      ```
+      ## Policy Evaluation
+      **Project-level policies** are evaluated first, followed by **account-level policies**.
+      The Policy Engine will process the request against each rule in the order it is defined within the `rules` array:
+
+        1. If the rule's `criteria` (processed as a logical **AND** operation applied to a list of independently evaluated boolean expressions) are met, `accept` or `reject` behavior is applied immediately and the engine stops further evaluation of the policy.
+        1. If after policy evaluation, no rule's `criteria` are met, the engine moves to processing the next policy (i.e., an `account`-level policy).
+        1. If no further policies exist, the request is rejected.
+
+      For example, the following policy is a project-level policy with two rules. The Policy Engine will:
+
+         1. **Evaluate the first rule:** For a `signEvmTransaction` request, accept the request if the transaction is less than or equal to 1000000000000000000 wei OR
+         1. **Evaluate the second rule:** if the request is a `signEvmTransaction` request, accept the request if the transaction is less than or equal to 2000000000000000000 wei AND the request is made to the address `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`.
+         1. **If the request does not meet the criteria of either rule**, the engine will move on to evaluate an `account`-level policy (if one exists).
+         1. Otherwise, the request is rejected.
+
+      Rules are processed in the order they are defined. Once a rule applies to an operation, subsequent rules are ignored.
+      ```json
+      {
+        "description": "Project-level policy",
+        "scope": "project",
+        "rules": [
+          {
+            "action": "accept",
+            "operation": "signEvmTransaction",
+            "criteria": [
+              {
+                "type": "ethValue",
+                "ethValue": "1000000000000000000",
+                "operator": "<="
+              }
+            ]
+          },
+          {
+            "action": "accept",
+            "operation": "signEvmTransaction",
+            "criteria": [
+              {
+                "type": "ethValue",
+                "ethValue": "2000000000000000000",
+                "operator": "<="
+              },
+              {
+                "type": "evmAddress",
+                "addresses": [
+                  "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+                ],
+                "operator": "in"
+              }
+            ]
+          }
+        ]
+      }
+      ```
+
+      ## Policy Application
+
+      Project-level policies are applied to all accounts in a CDP Project. They will apply retroactively even if the project-level policy is created after the account was created. To disable a project-level policy, you must remove the project-level policy from the CDP Project using the `deletePolicy` operation.
+
+      Account-level policies can be applied in two ways:
+      - By specifying the `policies` field in the request body of the `createEvmAccount` and
+        `createSolAccount` operations.
+
+      - By specifying the `policies` field in the request body of the `updateEvmAccount` and
+        `updateSolAccount` operations.
+
+
+      ## Criteria
+
+      The following criteria are supported:
+
+      ### SignEvmTransaction Criteria
+      #### ethValue
+      A criterion based on the value of the transaction. The transaction's `value` field is compared to the criterion's `ethValue` field using the `operator` field.
+      #### evmAddress
+      A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
+
+      ### SignSolTransaction Criteria
+      #### solAddress
+      A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
   - name: Solana Accounts
     x-audience: public
     description: |-
@@ -100,6 +204,14 @@ tags:
 
 
       :::
+  - name: x402 Facilitator
+    x-audience: public
+    description: |-
+      The x402 payment protocol is an HTTP-based payment protocol that enables developers running resource servers to accept payments from users using a variety of payment methods.
+      For more details on the x402 payment protocol, please see the [x402 specification](https://www.x402.org/).
+      The x402 Facilitator APIs enable you to facilitate payments using the x402 payment protocol by exposing two APIs:
+      - `POST /v2/x402/verify`: Verify a payment with a supported scheme and network.
+      - `POST /v2/x402/settle`: Settle a payment with a supported scheme and network.
 paths:
   /v2/evm/accounts:
     get:
@@ -146,6 +258,10 @@ paths:
                   - $ref: '#/components/schemas/ListResponse'
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
     post:
       x-audience: public
       summary: Create an EVM account
@@ -215,6 +331,10 @@ paths:
           $ref: '#/components/responses/IdempotencyError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/accounts/{address}:
     get:
       x-audience: public
@@ -263,6 +383,10 @@ paths:
                     errorMessage: EVM account with the given address not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/accounts/by-name/{name}:
     get:
       x-audience: public
@@ -310,9 +434,13 @@ paths:
                     errorMessage: EVM account with the given address not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/accounts/{address}/send/transaction:
-    x-audience: public
     post:
+      x-audience: public
       summary: Send a transaction
       description: |-
         Signs a transaction with the given EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
@@ -439,6 +567,10 @@ paths:
           $ref: '#/components/responses/IdempotencyError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/accounts/{address}/sign/transaction:
     post:
       x-audience: public
@@ -538,12 +670,15 @@ paths:
           $ref: '#/components/responses/IdempotencyError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/accounts/{address}/sign:
     post:
       x-audience: public
       summary: Sign a hash
-      description: |-
-        Signs an arbitrary 32 byte hash with the given EVM account.
+      description: Signs an arbitrary 32 byte hash with the given EVM account.
       operationId: signEvmHash
       tags:
         - EVM Accounts
@@ -612,6 +747,10 @@ paths:
           $ref: '#/components/responses/IdempotencyError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/accounts/{address}/sign/message:
     post:
       x-audience: public
@@ -688,6 +827,10 @@ paths:
           $ref: '#/components/responses/IdempotencyError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/smart-accounts:
     get:
       summary: List Smart Accounts
@@ -743,6 +886,10 @@ paths:
                     errorMessage: Invalid request. Please check the request body and parameters.
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
     post:
       summary: Create a Smart Account
       description: Creates a new Smart Account.
@@ -785,6 +932,10 @@ paths:
                     errorMessage: Invalid owner address or account name provided.
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/smart-accounts/{address}:
     get:
       summary: Get a Smart Account by address
@@ -832,6 +983,10 @@ paths:
                     errorMessage: Smart Account with the given address not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/smart-accounts/{address}/user-operations:
     post:
       summary: Prepare a user operation
@@ -904,6 +1059,10 @@ paths:
                     errorMessage: EVM smart account with the given address not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/smart-accounts/{address}/user-operations/{userOpHash}:
     get:
       summary: Get a user operation
@@ -959,6 +1118,10 @@ paths:
                     errorMessage: User operation not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/smart-accounts/{address}/user-operations/{userOpHash}/send:
     post:
       summary: Send a user operation
@@ -1028,6 +1191,10 @@ paths:
                     errorMessage: User operation not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/token-balances/{network}/{address}:
     get:
       summary: List EVM token balances
@@ -1128,6 +1295,10 @@ paths:
                     errorMessage: Address not found, or no balances found for the given address on this chain.
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/faucet:
     post:
       x-audience: public
@@ -1232,6 +1403,305 @@ paths:
                     errorMessage: Faucet limit reached for this address. Please try again later.
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/policy-engine/policies:
+    get:
+      summary: List policies
+      x-audience: public
+      description: |-
+        Lists the policies belonging to the developer's CDP Project. Use the `scope` parameter to filter the policies by scope.
+        The response is paginated, and by default, returns 20 policies per page.
+      operationId: listPolicies
+      tags:
+        - Policy Engine
+      parameters:
+        - name: pageSize
+          description: The number of policies to return per page.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          example: 10
+        - name: pageToken
+          description: The token for the next page of policies, if any.
+          in: query
+          required: false
+          schema:
+            type: string
+          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - name: scope
+          description: The scope of the policies to return. If `project`, the response will include exactly one policy, which is the project-level policy. If `account`, the response will include all account-level policies for the developer's CDP Project.
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - project
+              - account
+          example: project
+      responses:
+        '200':
+          description: Successfully listed policies.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      policies:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Policy'
+                        description: The list of policies.
+                    required:
+                      - policies
+                  - $ref: '#/components/schemas/ListResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+    post:
+      summary: Create a policy
+      x-audience: public
+      description: Create a policy that can be used to govern the behavior of accounts.
+      operationId: createPolicy
+      tags:
+        - Policy Engine
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scope:
+                  type: string
+                  description: The scope of the policy.
+                  enum:
+                    - project
+                    - account
+                  example: project
+                description:
+                  type: string
+                  description: |-
+                    An optional human-readable description for the policy.
+                    Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.
+                  pattern: ^[A-Za-z0-9 ,.]{1,50}$
+                  example: Default policy
+                rules:
+                  type: array
+                  description: A list of rules that comprise the policy. There is a limit of 10 rules per policy.
+                  items:
+                    $ref: '#/components/schemas/Rule'
+              required:
+                - scope
+                - rules
+      responses:
+        '201':
+          description: Successfully created policy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Policy name must be between 1 and 50 characters
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/policy-engine/policies/{policyId}:
+    get:
+      summary: Get a policy by ID
+      x-audience: public
+      description: Get a policy by its ID.
+      operationId: getPolicyById
+      tags:
+        - Policy Engine
+      parameters:
+        - name: policyId
+          description: The ID of the policy to get.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: Successfully retrieved policy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+        '404':
+          description: Policy not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Policy not found
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+    delete:
+      summary: Delete a policy
+      x-audience: public
+      description: Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
+      operationId: deletePolicy
+      tags:
+        - Policy Engine
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: policyId
+          description: The ID of the policy to delete.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '204':
+          description: Successfully deleted policy.
+        '400':
+          description: Unable to delete policy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: policy_in_use
+                    errorMessage: Policy in use
+        '404':
+          description: Policy not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Policy not found
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+    put:
+      summary: Update a policy
+      x-audience: public
+      description: Updates a policy by its ID. This will have the effect of applying the updated policy to all accounts that are currently using it.
+      operationId: updatePolicy
+      tags:
+        - Policy Engine
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: policyId
+          description: The ID of the policy to update.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example: 123e4567-e89b-12d3-a456-426614174000
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  description: |-
+                    An optional human-readable description for the policy.
+                    Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.
+                  pattern: ^[A-Za-z0-9 ,.]{1,50}$
+                  example: Default policy
+                rules:
+                  type: array
+                  description: A list of rules that comprise the policy. There is a limit of 10 rules per policy.
+                  items:
+                    $ref: '#/components/schemas/Rule'
+              required:
+                - rules
+      responses:
+        '200':
+          description: Successfully updated policy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Policy name must be between 1 and 50 characters
+        '404':
+          description: Policy not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Policy not found
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/solana/accounts:
     get:
       x-audience: public
@@ -1279,6 +1749,10 @@ paths:
                   - $ref: '#/components/schemas/ListResponse'
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
     post:
       x-audience: public
       summary: Create a Solana account
@@ -1348,6 +1822,10 @@ paths:
           $ref: '#/components/responses/IdempotencyError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/solana/accounts/{address}:
     get:
       x-audience: public
@@ -1396,6 +1874,10 @@ paths:
                     errorMessage: Solana account with the given address not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/solana/accounts/by-name/{name}:
     get:
       x-audience: public
@@ -1443,6 +1925,10 @@ paths:
                     errorMessage: Solana account with the given name not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/solana/accounts/{address}/sign/transaction:
     post:
       x-audience: public
@@ -1548,6 +2034,10 @@ paths:
           $ref: '#/components/responses/IdempotencyError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/solana/accounts/{address}/sign/message:
     post:
       x-audience: public
@@ -1635,6 +2125,10 @@ paths:
           $ref: '#/components/responses/IdempotencyError'
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/solana/faucet:
     post:
       x-audience: public
@@ -1729,6 +2223,10 @@ paths:
                     errorMessage: Faucet limit reached for this address. Please try again later.
         '500':
           $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
 components:
   securitySchemes:
     bearerAuth:
@@ -1768,6 +2266,7 @@ components:
       example: invalid_request
       enum:
         - already_exists
+        - bad_gateway
         - faucet_limit_exceeded
         - forbidden
         - idempotency_error
@@ -1778,9 +2277,11 @@ components:
         - not_found
         - rate_limit_exceeded
         - request_canceled
+        - service_unavailable
         - timed_out
         - unauthorized
         - policy_violation
+        - policy_in_use
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -1788,7 +2289,18 @@ components:
           **Steps to resolve:**
           1. Check if the resource exists before creation
           2. Use GET endpoints to verify resource state
-          4. Use unique identifiers/names for resources
+          3. Use unique identifiers/names for resources
+        bad_gateway: |-
+          This error occurs when the CDP API is unable to connect to the backend service.
+
+          **Steps to resolve:**
+          1. Retry your request after a short delay
+          2. If persistent, contact CDP support with:
+             - The timestamp of the error
+             - Request details
+          3. Consider implementing retry logic with an exponential backoff
+
+          **Note:** These errors are automatically logged and monitored by CDP.
         faucet_limit_exceeded: |-
           This error occurs when you've exceeded the faucet request limits.
 
@@ -1820,9 +2332,9 @@ components:
           }
           ```
         internal_server_error: |-
-          This indicates an unexpected error that occurred on the CDP servers. 
+          This indicates an unexpected error that occurred on the CDP servers.
 
-          **Important**: If you encounter this error, please note that your operation's status should be treated as unknown by your application, as it could have been a success within the CDP back-end.          
+          **Important**: If you encounter this error, please note that your operation's status should be treated as unknown by your application, as it could have been a success within the CDP back-end.
 
           **Steps to resolve:**
           1. Retry your request after a short delay
@@ -1873,14 +2385,14 @@ components:
              - **Solana**: Validate base64 encoding
           2. Ensure all required transaction fields are present
           3. Validate transaction parameters are within acceptable ranges
-          4. Check that the transaction type is supported on the target network (see our [Supported Networks](./networks.mdx) page for more details)
+          4. Check that the transaction type is supported on the target network (see our [Supported Networks](https://docs.cdp.coinbase.com/cdp-apis/docs/networks) page for more details)
 
           **Common causes:**
           - Invalid hex encoding for EVM transactions
           - Missing required transaction fields
           - Incorrect parameter formats
           - Unsupported transaction types
-          - Network-specific transaction format mismatches 
+          - Network-specific transaction format mismatches
         not_found: |-
           This error occurs when the resource specified in your request doesn't exist or you don't have access to it.
 
@@ -1946,6 +2458,17 @@ components:
             }
           }
           ```
+        service_unavailable: |-
+          This error occurs when the CDP API is temporarily unable to handle requests due to maintenance or high load.
+
+          **Steps to resolve:**
+          1. Retry your request after a short delay
+          2. If persistent, contact CDP support with:
+             - The timestamp of the error
+             - Request details
+          3. Consider implementing retry logic with an exponential backoff
+
+          **Note:** These errors are automatically logged and monitored by CDP.
         timed_out: |-
           This error occurs when a request exceeds the maximum allowed processing time.
 
@@ -1966,7 +2489,7 @@ components:
               try {
                 return await Promise.race([
                   operation(),
-                  new Promise((_, reject) => 
+                  new Promise((_, reject) =>
                     setTimeout(() => reject(new Error("Timeout")), timeout)
                   ),
                 ]);
@@ -1974,7 +2497,7 @@ components:
                 attempts++;
                 if (attempts === maxRetries) throw error;
                 // Exponential backoff
-                await new Promise(resolve => 
+                await new Promise(resolve =>
                   setTimeout(resolve, Math.pow(2, attempts) * 1000)
                 );
               }
@@ -1998,6 +2521,12 @@ components:
              - X-Wallet-Auth header included when required
 
           **Security note:** Never share your Wallet Secret or API keys.
+        policy_in_use: |-
+          This error occurs when trying to delete a Policy that is currently in use by at least one project or account.
+
+          **Steps to resolve:**
+          1. Update project or accounts to remove references to the Policy in question.
+          2. Retry your delete request.
     Error:
       description: An error response including the code for the type of error and a human-readable message describing the error.
       type: object
@@ -2199,6 +2728,200 @@ components:
       required:
         - amount
         - token
+    EthValueCriterion:
+      type: object
+      description: A schema for specifying a criterion for the `value` field of an EVM transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `ethValue`.
+          example: ethValue
+          enum:
+            - ethValue
+        ethValue:
+          type: string
+          pattern: ^[0-9]+$
+          description: The amount of ETH, in wei, that the transaction's `value` field should be compared to.
+          example: '1000000000000000000'
+        operator:
+          type: string
+          description: The operator to use for the comparison. The transaction's `value` field will be on the left-hand side of the operator, and the `ethValue` field will be on the right-hand side.
+          enum:
+            - '>'
+            - '>='
+            - <
+            - <=
+            - '=='
+          example: <=
+      required:
+        - type
+        - ethValue
+        - operator
+    EvmAddressCriterion:
+      type: object
+      x-audience: public
+      description: A schema for specifying a criterion for the `to` field of an EVM transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `evmAddress`.
+          example: evmAddress
+          enum:
+            - evmAddress
+        addresses:
+          type: array
+          description: A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 100 addresses per criterion.
+          items:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+            description: The 0x-prefixed EVM address that the transaction's `to` field should be compared to.
+          example:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            - '0x1234567890123456789012345678901234567890'
+        operator:
+          type: string
+          description: The operator to use for the comparison. The transaction's `to` field will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+      required:
+        - type
+        - addresses
+        - operator
+    SignEvmTransactionCriteria:
+      type: array
+      description: A schema for specifying the rejection criteria for the SignEvmTransaction operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EthValueCriterion'
+          - $ref: '#/components/schemas/EvmAddressCriterion'
+    SolAddressCriterion:
+      type: object
+      description: The criterion for the recipient addresses of a Solana transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `solAddress`.
+          example: solAddress
+          enum:
+            - solAddress
+        addresses:
+          type: array
+          description: The Solana addresses that are compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+          items:
+            type: string
+            pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+            description: The Solana address that is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+          example:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+        operator:
+          type: string
+          description: The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+      required:
+        - type
+        - addresses
+        - operator
+    SignSolTransactionCriteria:
+      type: array
+      x-audience: public
+      description: A schema for specifying the rejection criteria for the SignSolTransaction operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/SolAddressCriterion'
+    Rule:
+      type: object
+      description: A rule that limits the behavior of an account.
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: signEvmTransaction
+          enum:
+            - signEvmTransaction
+            - signSolTransaction
+        criteria:
+          description: The set of criteria for the rule. There is a limit of 10 criteria per rule.
+          oneOf:
+            - $ref: '#/components/schemas/SignEvmTransactionCriteria'
+            - $ref: '#/components/schemas/SignSolTransactionCriteria'
+          example:
+            - type: ethValue
+              ethValue: '1000000000000000000'
+              operator: <=
+            - type: evmAddress
+              addresses:
+                - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                - '0x1234567890123456789012345678901234567890'
+              operator: in
+      required:
+        - action
+        - operation
+        - criteria
+    Policy:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the policy.
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example: 123e4567-e89b-12d3-a456-426614174000
+        description:
+          type: string
+          description: |-
+            An optional human-readable description of the policy. 
+            Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.
+          pattern: ^[A-Za-z0-9 ,.]{1,50}$
+          example: Default policy
+        scope:
+          type: string
+          description: The scope of the policy. Only one project-level policy can exist at any time.
+          enum:
+            - project
+            - account
+          example: project
+        rules:
+          type: array
+          description: A list of rules that comprise the policy.
+          items:
+            $ref: '#/components/schemas/Rule'
+          example:
+            - action: accept
+              operation: signEvmTransaction
+              criteria:
+                - type: ethValue
+                  ethValue: '1000000000000000000'
+                  operator: <=
+                - type: evmAddress
+                  addresses:
+                    - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                    - '0x1234567890123456789012345678901234567890'
+                  operator: in
+        createdAt:
+          type: string
+          description: The ISO 8601 timestamp at which the Policy was created.
+          example: '2025-03-25T12:00:00Z'
+        updatedAt:
+          type: string
+          description: The ISO 8601 timestamp at which the Policy was last updated.
+          example: '2025-03-26T12:00:00Z'
+      required:
+        - id
+        - scope
+        - rules
+        - createdAt
+        - updatedAt
     SolanaAccount:
       type: object
       properties:
@@ -2229,6 +2952,28 @@ components:
               value:
                 errorType: internal_server_error
                 errorMessage: An internal server error occurred. Please try again later.
+    BadGatewayError:
+      description: Bad gateway.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            bad_gateway:
+              value:
+                errorType: bad_gateway
+                errorMessage: Bad gateway. Please try again later.
+    ServiceUnavailableError:
+      description: Service unavailable.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            service_unavailable:
+              value:
+                errorType: service_unavailable
+                errorMessage: Service unavailable. Please try again later.
     IdempotencyError:
       description: Idempotency key conflict.
       content:
