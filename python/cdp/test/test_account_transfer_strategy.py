@@ -8,7 +8,7 @@ from cdp.actions.evm.transfer.account_transfer_strategy import (
     AccountTransferStrategy,
     account_transfer_strategy,
 )
-from cdp.actions.evm.transfer.types import TransferOptions
+from cdp.actions.evm.transfer.types import TransferOptions, WaitOptions
 from cdp.api_clients import ApiClients
 from cdp.evm_server_account import EvmServerAccount
 from cdp.openapi_client.models.send_evm_transaction200_response import (
@@ -48,9 +48,10 @@ async def test_execute_transfer_eth():
         result = await strategy.execute_transfer(
             api_clients=mock_api_clients,
             from_account=mock_from_account,
-            transfer_args=transfer_args,
             to=to_address,
             value=value,
+            token="eth",
+            network="base-sepolia",
         )
 
         # Assert
@@ -84,21 +85,15 @@ async def test_execute_transfer_erc20():
     to_address = "0x2345678901234567890123456789012345678901"
     value = 1000000  # 1 USDC (6 decimals)
 
-    transfer_args = TransferOptions(
-        to=to_address,
-        amount=value,
-        token="usdc",
-        network="base-sepolia",
-    )
-
     # Act
     strategy = AccountTransferStrategy()
     result = await strategy.execute_transfer(
         api_clients=mock_api_clients,
         from_account=mock_from_account,
-        transfer_args=transfer_args,
         to=to_address,
         value=value,
+        token="usdc",
+        network="base-sepolia",
     )
 
     # Assert
@@ -133,7 +128,46 @@ async def test_wait_for_result_success():
     )
 
     # Assert
-    mock_w3.eth.wait_for_transaction_receipt.assert_called_once_with(tx_hash)
+    mock_w3.eth.wait_for_transaction_receipt.assert_called_once_with(
+        tx_hash, timeout=120, poll_latency=0.1
+    )
+    assert result.status == "success"
+    assert result.transaction_hash == tx_hash
+
+
+@pytest.mark.asyncio
+async def test_wait_for_result_success_with_wait_options():
+    """Test waiting for a successful transaction result with wait options."""
+    # Arrange
+    mock_api_clients = MagicMock(spec=ApiClients)
+    mock_from_account = MagicMock(spec=EvmServerAccount)
+
+    mock_w3 = MagicMock()
+    mock_w3.eth = MagicMock()
+    mock_receipt = MagicMock()
+    mock_receipt.status = 1
+    mock_w3.eth.wait_for_transaction_receipt.return_value = mock_receipt
+    mock_w3.eth.chain_id = 1  # Ethereum mainnet
+
+    tx_hash = HexStr("0xabc123")
+
+    # Act
+    strategy = AccountTransferStrategy()
+    result = await strategy.wait_for_result(
+        api_clients=mock_api_clients,
+        from_account=mock_from_account,
+        w3=mock_w3,
+        hash=tx_hash,
+        wait_options=WaitOptions(
+            timeout_seconds=10,
+            interval_seconds=2,
+        ),
+    )
+
+    # Assert
+    mock_w3.eth.wait_for_transaction_receipt.assert_called_once_with(
+        tx_hash, timeout=10, poll_latency=2
+    )
     assert result.status == "success"
     assert result.transaction_hash == tx_hash
 

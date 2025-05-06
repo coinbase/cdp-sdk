@@ -7,8 +7,8 @@ from web3 import Web3
 
 async def main():
     async with CdpClient() as cdp:
-        sender = await cdp.evm.create_account(name="Sender")
-        receiver = await cdp.evm.create_account(name="Receiver")
+        sender = await cdp.evm.get_or_create_account(name="Sender")
+        receiver = await cdp.evm.get_or_create_account(name="Receiver")
 
         print("Requesting USDC and ETH from faucet...")
 

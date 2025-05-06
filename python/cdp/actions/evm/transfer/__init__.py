@@ -1,7 +1,7 @@
 from .account_transfer_strategy import account_transfer_strategy
 from .smart_account_transfer_strategy import smart_account_transfer_strategy
 from .transfer import transfer
-from .types import TransferOptions, TransferResult
+from .types import TransferOptions, TransferResult, WaitOptions
 
 __all__ = [
     "TransferOptions",
@@ -9,4 +9,7 @@ __all__ = [
     "account_transfer_strategy",
     "smart_account_transfer_strategy",
     "transfer",
+    "TransferOptions",
+    "TransferResult",
+    "WaitOptions",
 ]

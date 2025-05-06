@@ -15,7 +15,7 @@ async def main():
         sender = await cdp.evm.create_smart_account(owner=owner)
 
         # Create receiver account
-        receiver = await cdp.evm.create_account(name="Receiver")
+        receiver = await cdp.evm.get_or_create_account(name="Receiver")
 
         print(f"Transferring 0 USDC from {sender.address} to {receiver.address}...")
 

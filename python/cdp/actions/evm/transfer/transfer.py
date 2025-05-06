@@ -48,18 +48,27 @@ async def transfer(
     # Calculate the value to transfer
     value = await _calculate_value(w3, transfer_args)
 
-    # Execute the transfer using the provided strategy
-    tx_hash = await transfer_strategy.execute_transfer(
-        api_clients=api_clients,
-        from_account=from_account,
-        transfer_args=transfer_args,
-        to=to_address,
-        value=value,
-    )
+    kwargs = {
+        "api_clients": api_clients,
+        "from_account": from_account,
+        "to": to_address,
+        "value": value,
+        "token": transfer_args.token,
+        "network": transfer_args.network,
+    }
+
+    if isinstance(from_account, EvmSmartAccount):
+        kwargs["paymaster_url"] = transfer_args.paymaster_url
+
+    tx_hash = await transfer_strategy.execute_transfer(**kwargs)
 
     # Wait for the result of the transfer
     result = await transfer_strategy.wait_for_result(
-        api_clients=api_clients, w3=w3, from_account=from_account, hash=tx_hash
+        api_clients=api_clients,
+        w3=w3,
+        from_account=from_account,
+        hash=tx_hash,
+        wait_options=transfer_args.wait_options,
     )
 
     return result
