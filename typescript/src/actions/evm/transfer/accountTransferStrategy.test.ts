@@ -13,7 +13,7 @@ import { EvmAccount } from "../../../accounts/types.js";
 import { serializeEIP1559Transaction } from "../../../utils/serializeTransaction.js";
 import { Address } from "../../../types/misc.js";
 import { CdpOpenApiClientType } from "../../../openapi-client/index.js";
-import { TransferOptions } from "./types.js";
+import type { AccountTransferOptions } from "./types.js";
 
 vi.mock("viem", () => ({
   encodeFunctionData: vi.fn().mockReturnValue("0xmockedEncodedData"),
@@ -43,7 +43,7 @@ describe("accountTransferStrategy", () => {
   let mockApiClient: CdpOpenApiClientType;
   let mockPublicClient: any;
   let mockAccount: EvmAccount;
-  let mockTransferArgs: TransferOptions;
+  let mockTransferArgs: AccountTransferOptions;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -89,12 +89,9 @@ describe("accountTransferStrategy", () => {
       });
 
       const result = await accountTransferStrategy.executeTransfer({
+        ...mockTransferArgs,
         apiClient: mockApiClient,
         from: mockAccount,
-        transferArgs: {
-          ...mockTransferArgs,
-          token: "eth",
-        },
         to: toAddress,
         value,
       });
@@ -126,13 +123,11 @@ describe("accountTransferStrategy", () => {
         });
 
       const result = await accountTransferStrategy.executeTransfer({
+        ...mockTransferArgs,
         apiClient: mockApiClient,
         from: mockAccount,
-        transferArgs: {
-          ...mockTransferArgs,
-          token: "usdc",
-        },
         to: toAddress,
+        token: "usdc",
         value,
       });
 
@@ -178,12 +173,10 @@ describe("accountTransferStrategy", () => {
         });
 
       const result = await accountTransferStrategy.executeTransfer({
+        ...mockTransferArgs,
         apiClient: mockApiClient,
         from: mockAccount,
-        transferArgs: {
-          ...mockTransferArgs,
-          token: customTokenAddress,
-        },
+        token: customTokenAddress,
         to: toAddress,
         value,
       });
@@ -213,6 +206,31 @@ describe("accountTransferStrategy", () => {
       expect(result).toEqual({
         status: "success",
         transactionHash: hash,
+      });
+    });
+
+    it("should pass waitOptions to waitForTransactionReceipt", async () => {
+      const waitOptions = {
+        timeoutSeconds: 1000,
+        intervalSeconds: 100,
+      };
+
+      mockPublicClient.waitForTransactionReceipt.mockResolvedValue({
+        status: "success",
+      } as TransactionReceipt);
+
+      await accountTransferStrategy.waitForResult({
+        apiClient: mockApiClient,
+        publicClient: mockPublicClient,
+        from: mockAccount,
+        hash: "0xsuccesshash" as Hex,
+        waitOptions,
+      });
+
+      expect(mockPublicClient.waitForTransactionReceipt).toHaveBeenCalledWith({
+        hash: "0xsuccesshash" as Hex,
+        pollingInterval: waitOptions.intervalSeconds * 1000,
+        timeout: waitOptions.timeoutSeconds * 1000,
       });
     });
 

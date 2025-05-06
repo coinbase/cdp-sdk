@@ -7,12 +7,13 @@ import { sendUserOperation } from "../sendUserOperation.js";
 import { waitForUserOperation } from "../waitForUserOperation.js";
 
 export const smartAccountTransferStrategy: TransferExecutionStrategy<EvmSmartAccount> = {
-  executeTransfer: async ({ apiClient, from, transferArgs, to, value }) => {
+  executeTransfer: async ({ apiClient, from, to, value, token, network, paymasterUrl }) => {
     const userOpHash = await (async () => {
-      if (transferArgs.token === "eth") {
+      if (token === "eth") {
         const result = await sendUserOperation(apiClient, {
           smartAccount: from,
-          network: transferArgs.network,
+          paymasterUrl,
+          network,
           calls: [
             {
               to,
@@ -23,11 +24,12 @@ export const smartAccountTransferStrategy: TransferExecutionStrategy<EvmSmartAcc
         });
         return result.userOpHash;
       } else {
-        const erc20Address = getErc20Address(transferArgs.token, transferArgs.network);
+        const erc20Address = getErc20Address(token, network);
 
         const result = await sendUserOperation(apiClient, {
           smartAccount: from,
-          network: transferArgs.network,
+          paymasterUrl,
+          network,
           calls: [
             {
               to: erc20Address,
@@ -55,10 +57,11 @@ export const smartAccountTransferStrategy: TransferExecutionStrategy<EvmSmartAcc
     return userOpHash;
   },
 
-  waitForResult: async ({ apiClient, publicClient, from, hash }) => {
+  waitForResult: async ({ apiClient, publicClient, from, hash, waitOptions }) => {
     const result = await waitForUserOperation(apiClient, {
       smartAccountAddress: from.address,
       userOpHash: hash,
+      waitOptions,
     });
 
     if (result.status === "complete") {

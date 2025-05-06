@@ -8,7 +8,7 @@ import { sendUserOperation } from "../sendUserOperation.js";
 import { waitForUserOperation } from "../waitForUserOperation.js";
 import { Address } from "../../../types/misc.js";
 import { CdpOpenApiClientType } from "../../../openapi-client/index.js";
-import { TransferOptions } from "./types.js";
+import type { SmartAccountTransferOptions } from "./types.js";
 
 vi.mock("viem", () => ({
   encodeFunctionData: vi.fn().mockReturnValue("0xmockedEncodedData"),
@@ -37,7 +37,7 @@ describe("smartAccountTransferStrategy", () => {
   let mockPublicClient: any;
   let mockSmartAccount: EvmSmartAccount;
   let mockOwnerAccount: EvmAccount;
-  let mockTransferArgs: TransferOptions;
+  let mockTransferArgs: SmartAccountTransferOptions;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -95,12 +95,9 @@ describe("smartAccountTransferStrategy", () => {
       const value = 100000000000000000n; // 0.1 ETH
 
       const result = await smartAccountTransferStrategy.executeTransfer({
+        ...mockTransferArgs,
         apiClient: mockApiClient,
         from: mockSmartAccount,
-        transferArgs: {
-          ...mockTransferArgs,
-          token: "eth",
-        },
         to: toAddress,
         value,
       });
@@ -126,12 +123,10 @@ describe("smartAccountTransferStrategy", () => {
       const erc20Address = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
       const result = await smartAccountTransferStrategy.executeTransfer({
+        ...mockTransferArgs,
         apiClient: mockApiClient,
         from: mockSmartAccount,
-        transferArgs: {
-          ...mockTransferArgs,
-          token: "usdc",
-        },
+        token: "usdc",
         to: toAddress,
         value,
       });
@@ -174,12 +169,10 @@ describe("smartAccountTransferStrategy", () => {
       const customTokenAddress = "0x4200000000000000000000000000000000000006" as Hex;
 
       const result = await smartAccountTransferStrategy.executeTransfer({
+        ...mockTransferArgs,
         apiClient: mockApiClient,
         from: mockSmartAccount,
-        transferArgs: {
-          ...mockTransferArgs,
-          token: customTokenAddress,
-        },
+        token: customTokenAddress,
         to: toAddress,
         value,
       });
@@ -191,6 +184,30 @@ describe("smartAccountTransferStrategy", () => {
         expect.objectContaining({
           network: "base",
           smartAccount: mockSmartAccount,
+        }),
+      );
+
+      expect(result).toBe("0xuserophash");
+    });
+
+    it("should pass paymasterUrl to sendUserOperation", async () => {
+      const paymasterUrl = "https://some-paymaster-url.com";
+
+      const result = await smartAccountTransferStrategy.executeTransfer({
+        ...mockTransferArgs,
+        apiClient: mockApiClient,
+        from: mockSmartAccount,
+        to: "0x1234567890123456789012345678901234567890" as Address,
+        value: 100000000000000000n,
+        paymasterUrl,
+      });
+
+      expect(sendUserOperation).toHaveBeenCalledWith(
+        mockApiClient,
+        expect.objectContaining({
+          network: "base",
+          smartAccount: mockSmartAccount,
+          paymasterUrl,
         }),
       );
 
@@ -221,6 +238,31 @@ describe("smartAccountTransferStrategy", () => {
       expect(result).toEqual({
         status: "success",
         transactionHash: hash,
+      });
+    });
+
+    it("should pass waitOptions to waitForUserOperation", async () => {
+      const waitOptions = {
+        timeoutSeconds: 1000,
+        intervalSeconds: 100,
+      };
+
+      (waitForUserOperation as any).mockResolvedValue({
+        status: "complete",
+      });
+
+      await smartAccountTransferStrategy.waitForResult({
+        apiClient: mockApiClient,
+        publicClient: mockPublicClient,
+        from: mockSmartAccount,
+        hash: "0xsuccesshash" as Hex,
+        waitOptions,
+      });
+
+      expect(waitForUserOperation).toHaveBeenCalledWith(mockApiClient, {
+        smartAccountAddress: mockSmartAccount.address,
+        userOpHash: "0xsuccesshash" as Hex,
+        waitOptions,
       });
     });
 

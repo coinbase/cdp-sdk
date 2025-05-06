@@ -6,8 +6,8 @@ import { baseSepolia } from "viem/chains";
 
 const cdp = new CdpClient();
 
-const sender = await cdp.evm.createAccount({ name: "Sender" });
-const receiver = await cdp.evm.createAccount({ name: "Receiver" });
+const sender = await cdp.evm.getOrCreateAccount({ name: "Sender" });
+const receiver = await cdp.evm.getOrCreateAccount({ name: "Receiver" });
 
 console.log("Requesting USDC and ETH from faucet...");
 

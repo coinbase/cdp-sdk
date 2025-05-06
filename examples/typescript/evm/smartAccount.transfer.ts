@@ -9,7 +9,7 @@ const sender = await cdp.evm.createSmartAccount({
   owner: privateKeyToAccount(generatePrivateKey()),
 });
 
-const receiver = await cdp.evm.createAccount({ name: "Receiver" });
+const receiver = await cdp.evm.getOrCreateAccount({ name: "Receiver" });
 
 console.log(
   `Transferring 0 USDC from ${sender.address} to ${receiver.address}...`

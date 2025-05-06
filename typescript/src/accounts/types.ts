@@ -1,8 +1,8 @@
 import { SignableMessage, TransactionSerializable, TypedData, TypedDataDefinition } from "viem";
 
-import { Actions } from "../actions/evm/types.js";
 import { Prettify } from "../types/utils.js";
 
+import type { AccountActions, SmartAccountActions } from "../actions/evm/types.js";
 import type { Hash, Hex, Address } from "../types/misc.js";
 
 /**
@@ -32,7 +32,7 @@ export type EvmAccount = {
  */
 export type EvmServerAccount = Prettify<
   EvmAccount &
-    Omit<Actions, "sendUserOperation" | "waitForUserOperation"> & {
+    AccountActions & {
       /** Optional name for the server account. */
       name?: string;
       /** Indicates this is a server-managed account. */
@@ -53,5 +53,5 @@ export type EvmSmartAccount = Prettify<
     owners: EvmAccount[];
     /** Identifier for the smart account type. */
     type: "evm-smart";
-  } & Omit<Actions, "sendTransaction">
+  } & SmartAccountActions
 >;

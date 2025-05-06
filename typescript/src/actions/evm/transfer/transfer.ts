@@ -1,9 +1,15 @@
 import { createPublicClient, http, erc20Abi, parseUnits, Address, Chain, Transport } from "viem";
 
-import { TransferResult, TransferOptions, TransferExecutionStrategy } from "./types.js";
 import { mapNetworkToChain } from "./utils.js";
 import { EvmAccount, EvmSmartAccount } from "../../../accounts/types.js";
 import { CdpOpenApiClientType } from "../../../openapi-client/index.js";
+
+import type {
+  TransferResult,
+  TransferExecutionStrategy,
+  SmartAccountTransferOptions,
+  AccountTransferOptions,
+} from "./types.js";
 
 /**
  * Transfer an amount of a token from an account to another account.
@@ -17,7 +23,7 @@ import { CdpOpenApiClientType } from "../../../openapi-client/index.js";
 export async function transfer<T extends EvmAccount | EvmSmartAccount>(
   apiClient: CdpOpenApiClientType,
   from: T,
-  transferArgs: TransferOptions,
+  transferArgs: T extends EvmSmartAccount ? SmartAccountTransferOptions : AccountTransferOptions,
   transferStrategy: TransferExecutionStrategy<T>,
 ): Promise<TransferResult> {
   const publicClient = createPublicClient<Transport, Chain>({
@@ -52,19 +58,24 @@ export async function transfer<T extends EvmAccount | EvmSmartAccount>(
     return parseUnits(transferArgs.amount, decimals);
   })();
 
-  const hash = await transferStrategy.executeTransfer({
+  const transfer = {
     apiClient,
     from,
-    transferArgs,
     to,
     value,
-  });
+    token: transferArgs.token,
+    network: transferArgs.network,
+    paymasterUrl: "paymasterUrl" in transferArgs ? transferArgs.paymasterUrl : undefined,
+  };
+
+  const hash = await transferStrategy.executeTransfer(transfer);
 
   const result = await transferStrategy.waitForResult({
     apiClient,
     publicClient,
     from,
     hash,
+    waitOptions: transferArgs.waitOptions,
   });
 
   return result;

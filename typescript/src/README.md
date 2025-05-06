@@ -320,6 +320,22 @@ const { status } = await sender.transfer({
 });
 ```
 
+Using Smart Accounts, you can also specify a paymaster URL and wait options:
+
+```typescript
+const { status } = await sender.transfer({
+  to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+  amount: "0.01",
+  token: "usdc",
+  network: "base-sepolia",
+  paymasterUrl: "https://some-paymaster-url.com",
+  waitOptions: {
+    timeout: 30,
+    interval: 2,
+  },
+});
+```
+
 If you pass a decimal amount in a string, the SDK will parse it into a bigint based on the token's decimals. You can also pass a bigint directly:
 
 ```typescript
@@ -353,6 +369,21 @@ const { status } = await sender.transfer({
   amount: "0.01",
   token: "usdc",
   network: "base-sepolia",
+});
+```
+
+You can also pass wait options to the `transfer` function:
+
+```typescript
+const { status } = await sender.transfer({
+  to: receiver,
+  amount: "0.01",
+  token: "usdc",
+  network: "base-sepolia",
+  waitOptions: {
+    timeout: 30,
+    interval: 2,
+  },
 });
 ```
 

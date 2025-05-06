@@ -1,14 +1,20 @@
 import { SendUserOperationReturnType, SendUserOperationOptions } from "./sendUserOperation.js";
+import { EvmAccount, EvmSmartAccount } from "../../openapi-client/index.js";
 
 import type { ListTokenBalancesResult, ListTokenBalancesOptions } from "./listTokenBalances.js";
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
 import type { SendTransactionOptions, TransactionResult } from "./sendTransaction.js";
-import type { TransferOptions, TransferResult } from "./transfer/types.js";
+import type {
+  TransferResult,
+  SmartAccountTransferOptions,
+  AccountTransferOptions,
+} from "./transfer/types.js";
 import type {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "./waitForUserOperation.js";
-export type Actions = {
+
+type Actions<T extends EvmAccount | EvmSmartAccount> = {
   /**
    * Transfer an amount of a token from an account to another account.
    *
@@ -92,7 +98,9 @@ export type Actions = {
    * });
    * ```
    */
-  transfer: (options: TransferOptions) => Promise<TransferResult>;
+  transfer: (
+    options: T extends EvmSmartAccount ? SmartAccountTransferOptions : AccountTransferOptions,
+  ) => Promise<TransferResult>;
 
   /**
    * List the token balances of an account.
@@ -132,7 +140,9 @@ export type Actions = {
    * ```
    */
   requestFaucet: (options: Omit<RequestFaucetOptions, "address">) => Promise<RequestFaucetResult>;
+};
 
+export type AccountActions = Actions<EvmAccount> & {
   /**
    * Signs an EVM transaction and sends it to the specified network using the Coinbase API.
    * This method handles nonce management and gas estimation automatically.
@@ -178,7 +188,9 @@ export type Actions = {
    * ```
    */
   sendTransaction: (options: Omit<SendTransactionOptions, "address">) => Promise<TransactionResult>;
+};
 
+export type SmartAccountActions = Actions<EvmSmartAccount> & {
   /**
    * Sends a user operation.
    *
