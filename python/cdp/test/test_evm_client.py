@@ -239,7 +239,8 @@ async def test_send_user_operation(mock_send_user_operation, smart_account_model
 
     mock_send_user_operation.assert_called_once_with(
         client.api_clients,
-        smart_account_model,
+        smart_account_model.address,
+        smart_account_model.owners[0],
         mock_calls,
         test_network,
         test_paymaster_url,

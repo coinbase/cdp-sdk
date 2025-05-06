@@ -45,7 +45,8 @@ class SmartAccountTransferStrategy(TransferExecutionStrategy):
             # For ETH transfers, we send directly to the recipient
             result = await send_user_operation(
                 api_clients=api_clients,
-                smart_account=from_account,
+                address=from_account.address,
+                owner=from_account.owners[0],
                 calls=[EncodedCall(to=to, value=str(value), data="0x")],
                 network=transfer_args.network,
                 paymaster_url=None,
@@ -68,7 +69,8 @@ class SmartAccountTransferStrategy(TransferExecutionStrategy):
             # Send user operation with both calls
             result = await send_user_operation(
                 api_clients=api_clients,
-                smart_account=from_account,
+                address=from_account.address,
+                owner=from_account.owners[0],
                 calls=[
                     EncodedCall(to=erc20_address, data=approve_data),
                     EncodedCall(to=erc20_address, data=transfer_data),

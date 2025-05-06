@@ -415,7 +415,8 @@ class EvmClient:
         """
         return await send_user_operation(
             self.api_clients,
-            smart_account,
+            smart_account.address,
+            smart_account.owners[0],
             calls,
             network,
             paymaster_url,

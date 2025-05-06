@@ -2,9 +2,12 @@ from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, ConfigDict, Field
 
 from cdp.actions.evm.list_token_balances import list_token_balances
+from cdp.actions.evm.send_user_operation import send_user_operation
 from cdp.api_clients import ApiClients
+from cdp.evm_call_types import ContractCall
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount as EvmSmartAccountModel
+from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
 
 
 class EvmSmartAccount(BaseModel):
@@ -184,6 +187,32 @@ class EvmSmartAccount(BaseModel):
             network,
             page_size,
             page_token,
+        )
+
+    async def send_user_operation(
+        self,
+        calls: list[ContractCall],
+        network: str,
+        paymaster_url: str | None = None,
+    ) -> EvmUserOperationModel:
+        """Send a user operation for the smart account.
+
+        Args:
+            calls (List[ContractCall]): The calls to send.
+            network (str): The network.
+            paymaster_url (str): The paymaster URL.
+
+        Returns:
+            EvmUserOperationModel: The user operation model.
+
+        """
+        return await send_user_operation(
+            self.__api_clients,
+            self.address,
+            self.owners[0],
+            calls,
+            network,
+            paymaster_url,
         )
 
     def __str__(self) -> str:
