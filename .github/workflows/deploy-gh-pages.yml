@@ -1,15 +1,9 @@
 name: Deploy CDP SDK documentation to GitHub Pages
 
 on:
-  workflow_call:
-    inputs:
-      language:
-        required: true
-        type: string
-
   workflow_dispatch:
     inputs:
-      language:
+      choice:
         description: "SDK language to deploy"
         required: true
         type: choice
@@ -26,7 +20,7 @@ permissions:
 
 jobs:
   deploy-typescript-docs:
-    if: inputs.language == 'typescript'
+    if: inputs.choice == 'typescript'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -101,7 +95,7 @@ jobs:
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
 
   deploy-python-docs:
-    if: inputs.language == 'python'
+    if: inputs.choice == 'python'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -181,7 +175,7 @@ jobs:
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
 
   deploy-go-docs:
-    if: inputs.language == 'go'
+    if: inputs.choice == 'go'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
