@@ -2,20 +2,26 @@ name: Publish @coinbase/cdp-sdk
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
   id-token: write
+  pull-requests: write
 
 defaults:
   run:
     working-directory: ./typescript
 
 jobs:
-  publish:
-    name: Publish
+  changeset:
+    name: Version or Publish
     runs-on: ubuntu-latest
     environment: npm
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -36,12 +42,24 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build
-        run: pnpm run build
-
-      - name: Publish
-        run: |
-          pnpm run prepublish
-          pnpm publish --recursive --no-git-checks --provenance --access public
+      - name: Version or Publish
+        id: changesets
+        uses: changesets/action@746c25e23caa47dceb6a48ee85b4cbc5a9f5f293 # v1.5.0
+        with:
+          commit: "chore: bump @coinbase/cdp-sdk"
+          title: "chore: bump @coinbase/cdp-sdk"
+          commitMode: "github-api"
+          publish: pnpm run changeset:publish
+          version: pnpm run changeset:version
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  deploy-docs:
+    name: Deploy docs
+    needs: changeset
+    if: needs.changeset.outputs.published == 'true'
+    uses: ./.github/workflows/deploy-gh-pages.yml
+    with:
+      language: typescript
+    secrets: inherit

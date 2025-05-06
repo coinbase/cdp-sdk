@@ -8,7 +8,8 @@
     "build:esm": "tsc --project ./tsconfig.esm.json && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
     "build:types": "tsc --project ./tsconfig.types.json",
     "changeset": "changeset",
-    "changeset:version": "changeset version",
+    "changeset:publish": "pnpm build && pnpm prepublish && changeset publish",
+    "changeset:version": "changeset version && pnpm version:update",
     "clean": "rm -rf src/_esm src/_cjs src/_types",
     "docs": "typedoc --entryPoints ./src --entryPointStrategy expand --exclude ./src/tests/**/*.ts",
     "format": "prettier -c .prettierrc --write \"**/*.{ts,js,cjs,json,md}\"",
@@ -21,7 +22,8 @@
     "test:coverage": "vitest --config=./vitest.config.ts run --coverage",
     "test:e2e": "pnpm build && vitest --config=./vitest.e2e.config.ts run",
     "test:e2e:watch": "vitest --config=./vitest.e2e.config.ts",
-    "test:watch": "vitest --config=./vitest.config.ts"
+    "test:watch": "vitest --config=./vitest.config.ts",
+    "version:update": "pnpm tsx scripts/updateVersion.ts"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.1",

@@ -15,30 +15,14 @@ This section contains step-by-step instructions for publishing new versions of t
 
 ### TypeScript
 
-#### First time setup
-
-For PR linking and author attribution, you'll need a GitHub Personal Access Token.
-
-1. Go to https://github.com/settings/tokens and create a GitHub PAT with `read:user` and `repo:status` scopes. This is for author attribution
-2. Export your token in your shell (`export GITHUB_TOKEN={YOUR_TOKEN}`), and optionally save it to your shell profile (`echo "\nexport GITHUB_TOKEN={YOUR_TOKEN}" >> ~/.zshrc`)
-
-#### Publishing
-
 Follow these steps to publish a new version of the TypeScript CDP SDK.
 
-1. Ensure you are on the `main` branch and have the latest changes
-1. Create a new branch for your changes, e.g. `bump/ts`. The branch name doesn't matter, and you will delete this branch after the release
-1. From the `typescript` folder, run `pnpm changeset:version` to automatically bump the version and create a new changelog. Make note of the new version, as this will be used in subsequent steps
-1. Manually update `src/version.ts` with the new version
-1. Add and commit the changes with the message: `chore: bump @coinbase/cdp-sdk to {NEW_VERSION}`
-1. Push your branch, create a PR and get an approval
-1. Once approved, merge your PR
-1. Once merged, manually trigger the [Publish @coinbase/cdp-sdk](https://github.com/coinbase/cdp-sdk/actions/workflows/typescript_publish.yml) workflow
-1. Once the workflow has completed, go back to the `main` branch and pull the latest changes
-1. Tag the new version with `git tag -s @coinbase/cdp-sdk@v{NEW_VERSION} -m "Release @coinbase/cdp-sdk {NEW_VERSION}"`
-1. Push the tag with `git push origin @coinbase/cdp-sdk@v{NEW_VERSION}`
-1. Delete your release branch
-1. Trigger the [Deploy CDP SDK documentation to GitHub Pages](https://github.com/coinbase/cdp-sdk/actions/workflows/deploy-gh-pages.yml) action. Select `typescript` as the language to deploy
+1. Look for the auto-generated version bump PR titled `chore: bump @coinbase/cdp-sdk`
+1. Approve and merge the PR. The [publish workflow](https://github.com/coinbase/cdp-sdk/actions/workflows/typescript_publish.yml) will automatically kick off
+1. Done! The publish workflow takes care of everything. To verify, you can check the following:
+   - The [new package is on NPM](https://www.npmjs.com/package/@coinbase/cdp-sdk)
+   - The [deploy docs workflow](https://github.com/coinbase/cdp-sdk/actions/workflows/deploy-gh-pages.yml) has completed successfully
+   - The version is [tagged](https://github.com/coinbase/cdp-sdk/tags) and [released](https://github.com/coinbase/cdp-sdk/releases)
 
 ### Python
 

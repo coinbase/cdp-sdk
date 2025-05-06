@@ -18,7 +18,6 @@
     "sourceType": "module"
   },
   "rules": {
-    "multiline-comment-style": ["error", "starred-block"],
     "prettier/prettier": "error",
     "@typescript-eslint/member-ordering": "error",
     "jsdoc/tag-lines": ["error", "any", { "startLines": 1 }],
