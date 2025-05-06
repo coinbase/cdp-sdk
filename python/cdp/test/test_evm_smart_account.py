@@ -11,6 +11,7 @@ from cdp.evm_token_balances import (
     ListTokenBalancesResult,
 )
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
+from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 
 
 class TestEvmSmartAccount:
@@ -216,3 +217,36 @@ async def test_get_user_operation(
     )
 
     assert result == mock_user_op
+
+
+@pytest.mark.asyncio
+async def test_request_faucet(smart_account_model_factory):
+    """Test request_faucet method."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    smart_account_model = smart_account_model_factory(address, name)
+
+    mock_faucets_api = AsyncMock()
+    mock_api_instance = AsyncMock()
+    mock_api_instance.faucets = mock_faucets_api
+
+    mock_response = AsyncMock()
+    mock_response.transaction_hash = "0x123"
+    mock_faucets_api.request_evm_faucet = AsyncMock(return_value=mock_response)
+    smart_account = EvmSmartAccount(
+        smart_account_model.address,
+        smart_account_model.owners[0],
+        smart_account_model.name,
+        mock_api_instance,
+    )
+
+    result = await smart_account.request_faucet(network="base-sepolia", token="eth")
+
+    mock_faucets_api.request_evm_faucet.assert_called_once_with(
+        request_evm_faucet_request=RequestEvmFaucetRequest(
+            network="base-sepolia",
+            token="eth",
+            address=address,
+        ),
+    )
+    assert result == "0x123"

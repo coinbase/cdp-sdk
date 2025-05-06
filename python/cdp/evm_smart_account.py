@@ -9,6 +9,7 @@ from cdp.evm_call_types import ContractCall
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount as EvmSmartAccountModel
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
+from cdp.actions.evm.request_faucet import request_faucet
 
 
 class EvmSmartAccount(BaseModel):
@@ -188,6 +189,28 @@ class EvmSmartAccount(BaseModel):
             network,
             page_size,
             page_token,
+        )
+
+    async def request_faucet(
+        self,
+        network: str,
+        token: str,
+    ) -> str:
+        """Request a token from the faucet.
+
+        Args:
+            network (str): The network to request the faucet for.
+            token (str): The token to request the faucet for.
+
+        Returns:
+            str: The transaction hash of the faucet request.
+
+        """
+        return await request_faucet(
+            self.__api_clients.faucets,
+            self.address,
+            network,
+            token,
         )
 
     async def send_user_operation(

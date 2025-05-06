@@ -275,7 +275,7 @@ async def test_send_transaction_from_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_evm_request_faucet_from_account(cdp_client):
+async def test_evm_request_faucet_for_account(cdp_client):
     """Test requesting a faucet for an EVM account."""
     account = await cdp_client.evm.create_account()
     assert account is not None
@@ -297,6 +297,20 @@ async def test_list_evm_token_balances_for_account(cdp_client):
     first_page = await account.list_token_balances(network="base-sepolia", page_size=1)
     assert first_page is not None
     assert len(first_page.balances) > 0
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_request_faucet_for_smart_account(cdp_client):
+    """Test requesting a faucet for an EVM smart account."""
+    smart_account = await cdp_client.evm.create_smart_account(owner=Account.create())
+    assert smart_account is not None
+
+    faucet_hash = await smart_account.request_faucet(network="base-sepolia", token="eth")
+    assert faucet_hash is not None
+
+    tx_receipt = w3.eth.wait_for_transaction_receipt(faucet_hash)
+    assert tx_receipt is not None
 
 
 @pytest.mark.e2e
