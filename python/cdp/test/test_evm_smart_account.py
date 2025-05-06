@@ -1,4 +1,15 @@
+
+from unittest.mock import AsyncMock
+
+import pytest
+
 from cdp.evm_smart_account import EvmSmartAccount
+from cdp.evm_token_balances import (
+    EvmToken,
+    EvmTokenAmount,
+    EvmTokenBalance,
+    ListTokenBalancesResult,
+)
 
 
 class TestEvmSmartAccount:
@@ -50,3 +61,46 @@ class TestEvmSmartAccount:
         assert account_no_name.address == address
         assert account_no_name.owners == smart_account.owners
         assert account_no_name.name is None
+
+
+@pytest.mark.asyncio
+async def test_list_token_balances(smart_account_factory, evm_token_balances_model_factory):
+    """Test list_token_balances method."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    smart_account = smart_account_factory(address, name)
+
+    mock_evm_token_balances_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_token_balances = mock_evm_token_balances_api
+
+    mock_token_balances = evm_token_balances_model_factory()
+
+    mock_evm_token_balances_api.list_evm_token_balances = AsyncMock(
+        return_value=mock_token_balances
+    )
+
+    expected_result = ListTokenBalancesResult(
+        balances=[
+            EvmTokenBalance(
+                token=EvmToken(
+                    contract_address="0x1234567890123456789012345678901234567890",
+                    network="base-sepolia",
+                    symbol="TEST",
+                    name="Test Token",
+                ),
+                amount=EvmTokenAmount(amount=1000000000000000000, decimals=18),
+            ),
+        ],
+        next_page_token="next-page-token",
+    )
+
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+
+    result = await smart_account.list_token_balances(network="base-sepolia")
+
+    mock_evm_token_balances_api.list_evm_token_balances.assert_called_once_with(
+        address=address, network="base-sepolia", page_size=None, page_token=None
+    )
+
+    assert result == expected_result

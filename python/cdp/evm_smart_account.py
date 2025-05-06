@@ -1,7 +1,9 @@
 from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, ConfigDict, Field
 
+from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.api_clients import ApiClients
+from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount as EvmSmartAccountModel
 
 
@@ -157,6 +159,31 @@ class EvmSmartAccount(BaseModel):
             from_account=self,
             transfer_args=transfer_args,
             transfer_strategy=smart_account_transfer_strategy,
+        )
+
+    async def list_token_balances(
+        self,
+        network: str,
+        page_size: int | None = None,
+        page_token: str | None = None,
+    ) -> ListTokenBalancesResult:
+        """List the token balances for the smart account on the given network.
+
+        Args:
+            network (str): The network to list the token balances for.
+            page_size (int, optional): The number of token balances to return per page. Defaults to None.
+            page_token (str, optional): The token for the next page of token balances, if any. Defaults to None.
+
+        Returns:
+            [ListTokenBalancesResult]: The token balances for the smart account on the network.
+
+        """
+        return await list_token_balances(
+            self.__api_clients.evm_token_balances,
+            self.address,
+            network,
+            page_size,
+            page_token,
         )
 
     def __str__(self) -> str:
