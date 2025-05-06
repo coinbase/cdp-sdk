@@ -1,5 +1,14 @@
 # CDP SDK Changelog
 
+## 1.7.0
+
+### Minor Changes
+
+- [#103](https://github.com/coinbase/cdp-sdk/pull/103) [`2777cde`](https://github.com/coinbase/cdp-sdk/commit/2777cde93e4f10579a4ca31e140720067799cf66) Thanks [@0xRAG](https://github.com/0xRAG)! - Added additional options to transfer methods:
+
+  - Added `paymasterUrl` and `waitOptions` to EvmSmartAccount.transfer
+  - Added `waitOptions` to EvmAccount.transfer
+
 ## 1.6.0
 
 ### Minor Changes
