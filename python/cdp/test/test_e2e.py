@@ -289,8 +289,8 @@ async def test_evm_request_faucet_from_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_list_evm_token_balances_from_account(cdp_client):
-    """Test listing evm token balances from a server account."""
+async def test_list_evm_token_balances_for_account(cdp_client):
+    """Test listing evm token balances for a server account."""
     account = await cdp_client.evm.get_or_create_account(name="E2ETestAccount")
     assert account is not None
 
@@ -301,19 +301,14 @@ async def test_list_evm_token_balances_from_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_list_evm_token_balances_from_smart_account(cdp_client):
-    """Test listing evm token balances from a smart account."""
+async def test_list_evm_token_balances_for_smart_account(cdp_client):
+    """Test listing evm token balances for a smart account."""
     smart_account = await cdp_client.evm.create_smart_account(owner=Account.create())
     assert smart_account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, smart_account)
 
-    faucet_hash = await cdp_client.evm.request_faucet(
-        address=smart_account.address, network="base-sepolia", token="usdc"
-    )
-    w3.eth.wait_for_transaction_receipt(faucet_hash)
-
-    first_page = await smart_account.list_token_balances(network="base-sepolia", page_size=1)
+    first_page = await smart_account.list_token_balances(network="base-sepolia")
     assert first_page is not None
     print(f"First page: {first_page}")
     assert len(first_page.balances) > 0
