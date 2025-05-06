@@ -7,7 +7,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
   pull-requests: write
 
@@ -49,7 +49,6 @@ jobs:
           commit: "chore: bump @coinbase/cdp-sdk"
           cwd: ./typescript
           title: "chore: bump @coinbase/cdp-sdk"
-          commitMode: "github-api"
           publish: pnpm run changeset:publish
           version: pnpm run changeset:version
         env:
