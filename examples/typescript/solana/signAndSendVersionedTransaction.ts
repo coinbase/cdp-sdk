@@ -167,10 +167,6 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-if (require.main === module) {
-  const sourceAddress = process.argv[2];
+const sourceAddress = process.argv.length > 2 ? process.argv[2] : undefined;
 
-  main(sourceAddress).catch(console.error);
-}
-
-export { main };
+main(sourceAddress).catch(console.error);
