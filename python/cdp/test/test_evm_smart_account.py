@@ -1,7 +1,8 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from cdp.evm_call_types import FunctionCall
 from cdp.evm_smart_account import EvmSmartAccount
 from cdp.evm_token_balances import (
     EvmToken,
@@ -9,6 +10,7 @@ from cdp.evm_token_balances import (
     EvmTokenBalance,
     ListTokenBalancesResult,
 )
+from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
 
 
 class TestEvmSmartAccount:
@@ -103,3 +105,58 @@ async def test_list_token_balances(smart_account_factory, evm_token_balances_mod
     )
 
     assert result == expected_result
+
+
+@pytest.mark.asyncio
+@patch("cdp.actions.evm.send_user_operation.Web3")
+@patch("cdp.actions.evm.send_user_operation.ensure_awaitable")
+@patch("cdp.cdp_client.ApiClients")
+async def test_send_user_operation(
+    mock_api_clients,
+    mock_ensure_awaitable,
+    mock_web3,
+    smart_account_model_factory,
+    local_account_factory,
+):
+    """Test send_user_operation method."""
+    mock_contract = MagicMock()
+    mock_contract.encode_abi.return_value = "0x1234abcd"
+
+    mock_web3_instance = MagicMock()
+    mock_web3_instance.eth.contract.return_value = mock_contract
+    mock_web3.return_value = mock_web3_instance
+
+    mock_user_op = MagicMock(spec=EvmUserOperation)
+    mock_user_op.user_op_hash = "0xuserhash123"
+
+    mock_signed_payload = MagicMock()
+    mock_signed_payload.signature = bytes.fromhex("aabbcc")
+    mock_ensure_awaitable.return_value = mock_signed_payload
+
+    mock_api_clients.evm_smart_accounts.prepare_user_operation = AsyncMock(
+        return_value=mock_user_op
+    )
+    mock_api_clients.evm_smart_accounts.send_user_operation = AsyncMock(return_value=mock_user_op)
+
+    smart_account_model = smart_account_model_factory()
+    owner = local_account_factory()
+
+    smart_account = EvmSmartAccount(
+        smart_account_model.address, owner, smart_account_model.name, mock_api_clients
+    )
+
+    function_call = FunctionCall(
+        to="0x2345678901234567890123456789012345678901",
+        abi=[{"name": "transfer", "inputs": [{"type": "address"}, {"type": "uint256"}]}],
+        function_name="transfer",
+        args=["0x3456789012345678901234567890123456789012", 100],
+        value=None,
+    )
+
+    result = await smart_account.send_user_operation(
+        calls=[function_call],
+        network="base-sepolia",
+        paymaster_url="https://paymaster.example.com",
+    )
+
+    assert result == mock_user_op
