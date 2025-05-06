@@ -8,6 +8,12 @@ from hexbytes import HexBytes
 from web3 import Web3
 
 from cdp.evm_server_account import EvmServerAccount
+from cdp.evm_token_balances import (
+    EvmToken,
+    EvmTokenAmount,
+    EvmTokenBalance,
+    ListTokenBalancesResult,
+)
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
@@ -346,3 +352,46 @@ async def test_send_transaction_dynamic_fee(mock_api, server_account_model_facto
         x_idempotency_key=None,
     )
     assert result == "0x789"
+
+
+@pytest.mark.asyncio
+async def test_list_token_balances(server_account_model_factory, evm_token_balances_model_factory):
+    """Test list_token_balances method."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    server_account_model = server_account_model_factory(address, name)
+
+    mock_evm_token_balances_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_token_balances = mock_evm_token_balances_api
+
+    mock_token_balances = evm_token_balances_model_factory()
+
+    mock_evm_token_balances_api.list_evm_token_balances = AsyncMock(
+        return_value=mock_token_balances
+    )
+
+    expected_result = ListTokenBalancesResult(
+        balances=[
+            EvmTokenBalance(
+                token=EvmToken(
+                    contract_address="0x1234567890123456789012345678901234567890",
+                    network="base-sepolia",
+                    symbol="TEST",
+                    name="Test Token",
+                ),
+                amount=EvmTokenAmount(amount=1000000000000000000, decimals=18),
+            ),
+        ],
+        next_page_token="next-page-token",
+    )
+
+    server_account = EvmServerAccount(server_account_model, mock_api_clients, mock_api_clients)
+
+    result = await server_account.list_token_balances(network="base-sepolia")
+
+    mock_evm_token_balances_api.list_evm_token_balances.assert_called_once_with(
+        address=address, network="base-sepolia", page_size=None, page_token=None
+    )
+
+    assert result == expected_result

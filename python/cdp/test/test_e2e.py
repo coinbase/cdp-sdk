@@ -251,6 +251,18 @@ async def test_evm_request_faucet_from_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_list_evm_token_balances_from_account(cdp_client):
+    """Test listing evm token balances from an account."""
+    account = await cdp_client.evm.get_or_create_account(name="E2ETestAccount")
+    assert account is not None
+
+    first_page = await account.list_token_balances(network="base-sepolia", page_size=1)
+    assert first_page is not None
+    assert len(first_page.balances) > 0
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_list_evm_token_balances(cdp_client):
     """Test listing evm token balances."""
     address = "0x5b76f5B8fc9D700624F78208132f91AD4e61a1f0"

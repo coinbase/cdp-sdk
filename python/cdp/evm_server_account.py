@@ -18,9 +18,11 @@ from hexbytes import HexBytes
 from pydantic import BaseModel, ConfigDict, Field
 from web3 import Web3
 
+from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.api_clients import ApiClients
+from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.models.evm_account import EvmAccount as EvmServerAccountModel
@@ -323,6 +325,31 @@ class EvmServerAccount(BaseAccount, BaseModel):
             token,
         )
 
+    async def list_token_balances(
+        self,
+        network: str,
+        page_size: int | None = None,
+        page_token: str | None = None,
+    ) -> ListTokenBalancesResult:
+        """List the token balances for the account on the given network.
+
+        Args:
+            network (str): The network to list the token balances for.
+            page_size (int, optional): The number of token balances to return per page. Defaults to None.
+            page_token (str, optional): The token for the next page of token balances, if any. Defaults to None.
+
+        Returns:
+            [ListTokenBalancesResult]: The token balances for the account on the network.
+
+        """
+        return await list_token_balances(
+            self.__api_clients.evm_token_balances,
+            self.address,
+            network,
+            page_size,
+            page_token,
+        )
+
     async def send_transaction(
         self,
         transaction: str | TransactionRequestEIP1559 | DynamicFeeTransaction,
@@ -332,7 +359,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
         """Send an EVM transaction.
 
         Args:
-            address (str): The address of the account.
             transaction (str | TransactionDictType | DynamicFeeTransaction): The transaction to send.
 
                 This can be either an RLP-encoded transaction to sign and send, as a 0x-prefixed hex string, or an EIP-1559 transaction request object.

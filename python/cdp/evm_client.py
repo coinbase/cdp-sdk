@@ -1,6 +1,7 @@
 from eth_account.signers.base import BaseAccount
 from eth_account.typed_transactions import DynamicFeeTransaction
 
+from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.actions.evm.send_user_operation import send_user_operation
@@ -10,9 +11,6 @@ from cdp.evm_call_types import ContractCall, EncodedCall
 from cdp.evm_server_account import EvmServerAccount, ListEvmAccountsResponse
 from cdp.evm_smart_account import EvmSmartAccount, ListEvmSmartAccountsResponse
 from cdp.evm_token_balances import (
-    EvmToken,
-    EvmTokenAmount,
-    EvmTokenBalance,
     ListTokenBalancesResult,
 )
 from cdp.evm_transaction_types import TransactionRequestEIP1559
@@ -198,26 +196,12 @@ class EvmClient:
             [ListTokenBalancesResult]: The token balances for the address on the network.
 
         """
-        response = await self.api_clients.evm_token_balances.list_evm_token_balances(
-            address=address, network=network, page_size=page_size, page_token=page_token
-        )
-        return ListTokenBalancesResult(
-            balances=[
-                EvmTokenBalance(
-                    token=EvmToken(
-                        contract_address=balance.token.contract_address,
-                        network=balance.token.network,
-                        symbol=balance.token.symbol,
-                        name=balance.token.name,
-                    ),
-                    amount=EvmTokenAmount(
-                        amount=int(balance.amount.amount),
-                        decimals=balance.amount.decimals,
-                    ),
-                )
-                for balance in response.balances
-            ],
-            next_page_token=response.next_page_token,
+        return await list_token_balances(
+            self.api_clients.evm_token_balances,
+            address,
+            network,
+            page_size,
+            page_token,
         )
 
     async def list_smart_accounts(
