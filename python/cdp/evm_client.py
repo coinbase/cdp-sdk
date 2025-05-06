@@ -1,6 +1,7 @@
 from eth_account.signers.base import BaseAccount
 from eth_account.typed_transactions import DynamicFeeTransaction
 
+from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.actions.evm.send_user_operation import send_user_operation
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
@@ -25,7 +26,6 @@ from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as Evm
 from cdp.openapi_client.models.prepare_user_operation_request import (
     PrepareUserOperationRequest,
 )
-from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
 from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageRequest
 from cdp.openapi_client.models.sign_evm_transaction_request import (
@@ -299,12 +299,7 @@ class EvmClient:
             str: The transaction hash of the faucet request.
 
         """
-        response = await self.api_clients.faucets.request_evm_faucet(
-            request_evm_faucet_request=RequestEvmFaucetRequest(
-                address=address, network=network, token=token
-            )
-        )
-        return response.transaction_hash
+        return await request_faucet(self.api_clients.faucets, address, network, token)
 
     async def sign_hash(self, address: str, hash: str, idempotency_key: str | None = None) -> str:
         """Sign an EVM hash.

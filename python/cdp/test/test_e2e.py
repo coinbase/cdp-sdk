@@ -7,13 +7,13 @@ import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
+from eth_account.typed_transactions import DynamicFeeTransaction
 from web3 import Web3
 
 from cdp import CdpClient
 from cdp.actions.evm.transfer.types import TransferOptions
 from cdp.evm_call_types import EncodedCall
 from cdp.evm_transaction_types import TransactionRequestEIP1559
-from eth_account.typed_transactions import DynamicFeeTransaction
 
 load_dotenv()
 
@@ -177,10 +177,13 @@ async def test_send_transaction(cdp_client):
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     assert tx_receipt is not None
 
+
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_send_transaction_from_account(cdp_client):
-    """Test sending:
+    """Test sending transactions from an account.
+
+    This test covers:
     1. a serialized transaction from an account
     2. an EIP-1559 transaction from an account
     3. a dynamic fee transaction from an account
@@ -230,6 +233,21 @@ async def test_send_transaction_from_account(cdp_client):
 
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     assert tx_receipt is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_request_faucet_from_account(cdp_client):
+    """Test requesting a faucet for an EVM account."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    faucet_hash = await account.request_faucet(network="base-sepolia", token="eth")
+    assert faucet_hash is not None
+
+    tx_receipt = w3.eth.wait_for_transaction_receipt(faucet_hash)
+    assert tx_receipt is not None
+
 
 @pytest.mark.e2e
 @pytest.mark.asyncio

@@ -9,6 +9,7 @@ from web3 import Web3
 
 from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
+from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
 from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
@@ -205,6 +206,34 @@ async def test_sign_transaction(mock_api, mock_typed_tx, mock_web3, server_accou
     assert result.r == int.from_bytes(mock_signature[0:32], byteorder="big")
     assert result.s == int.from_bytes(mock_signature[32:64], byteorder="big")
     assert result.v == mock_signature[64]
+
+
+@pytest.mark.asyncio
+async def test_request_faucet(server_account_model_factory):
+    """Test request_faucet method."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    server_account_model = server_account_model_factory(address, name)
+
+    mock_faucets_api = AsyncMock()
+    mock_api_instance = AsyncMock()
+    mock_api_instance.faucets = mock_faucets_api
+
+    mock_response = AsyncMock()
+    mock_response.transaction_hash = "0x123"
+    mock_faucets_api.request_evm_faucet = AsyncMock(return_value=mock_response)
+    server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
+
+    result = await server_account.request_faucet(network="base-sepolia", token="eth")
+
+    mock_faucets_api.request_evm_faucet.assert_called_once_with(
+        request_evm_faucet_request=RequestEvmFaucetRequest(
+            network="base-sepolia",
+            token="eth",
+            address=address,
+        ),
+    )
+    assert result == "0x123"
 
 
 @pytest.mark.asyncio

@@ -18,6 +18,7 @@ from hexbytes import HexBytes
 from pydantic import BaseModel, ConfigDict, Field
 from web3 import Web3
 
+from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.api_clients import ApiClients
 from cdp.evm_transaction_types import TransactionRequestEIP1559
@@ -298,6 +299,28 @@ class EvmServerAccount(BaseAccount, BaseModel):
             from_account=self,
             transfer_args=transfer_args,
             transfer_strategy=account_transfer_strategy,
+        )
+
+    async def request_faucet(
+        self,
+        network: str,
+        token: str,
+    ) -> str:
+        """Request a token from the faucet.
+
+        Args:
+            network (str): The network to request the faucet for.
+            token (str): The token to request the faucet for.
+
+        Returns:
+            str: The transaction hash of the faucet request.
+
+        """
+        return await request_faucet(
+            self.__api_clients.faucets,
+            self.address,
+            network,
+            token,
         )
 
     async def send_transaction(
