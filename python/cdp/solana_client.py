@@ -1,6 +1,7 @@
 from cdp.actions.solana.request_faucet import request_faucet
 from cdp.actions.solana.sign_message import sign_message
 from cdp.actions.solana.sign_transaction import sign_transaction
+from cdp.analytics import wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.create_solana_account_request import (
@@ -23,6 +24,7 @@ class SolanaClient:
 
     def __init__(self, api_clients: ApiClients):
         self.api_clients = api_clients
+        wrap_class_with_error_tracking(SolanaAccount)
 
     async def create_account(
         self,

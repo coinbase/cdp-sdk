@@ -1,47 +1,58 @@
 import json
+import os
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cdp.analytics import ErrorEventData
+from cdp.analytics import Analytics, ErrorEventData
 
 
 @pytest.mark.asyncio
 @patch("requests.post")
 async def test_send_event(mock_post, mock_send_event):
     """Test sending an error event."""
-    mock_response = MagicMock()
-    mock_response.ok = True
-    mock_response.status_code = 200
-    mock_post.return_value = mock_response
+    # Temporarily disable the environment variable
+    original_env = os.environ.get("DISABLE_CDP_ERROR_REPORTING")
+    os.environ["DISABLE_CDP_ERROR_REPORTING"] = "false"
 
-    original_send_event = mock_send_event.original
+    try:
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.status_code = 200
+        mock_post.return_value = mock_response
 
-    event_data = ErrorEventData(
-        name="error", method="test", message="test", api_key_id="test-api-key-id"
-    )
+        original_send_event = mock_send_event.original
 
-    await original_send_event(event_data)
+        Analytics["identifier"] = "test-api-key-id"
+        event_data = ErrorEventData(name="error", method="test", message="test")
 
-    mock_post.assert_called_once()
+        await original_send_event(event_data)
 
-    args, kwargs = mock_post.call_args
-    assert args[0] == "https://cca-lite.coinbase.com/amp"
+        mock_post.assert_called_once()
 
-    assert kwargs["headers"] == {"Content-Type": "application/json"}
+        args, kwargs = mock_post.call_args
+        assert args[0] == "https://cca-lite.coinbase.com/amp"
 
-    data = kwargs["json"]
-    assert "e" in data
+        assert kwargs["headers"] == {"Content-Type": "application/json"}
 
-    event_data = json.loads(data["e"])
-    assert len(event_data) > 0
-    assert event_data[0]["event_type"] == "error"
-    assert event_data[0]["platform"] == "server"
-    assert event_data[0]["user_id"] == "test-api-key-id"
-    assert event_data[0]["timestamp"] is not None
+        data = kwargs["json"]
+        assert "e" in data
 
-    event_props = event_data[0]["event_properties"]
-    assert event_props["cdp_sdk_language"] == "python"
-    assert event_props["name"] == "error"
-    assert event_props["method"] == "test"
-    assert event_props["message"] == "test"
+        event_data = json.loads(data["e"])
+        assert len(event_data) > 0
+        assert event_data[0]["event_type"] == "error"
+        assert event_data[0]["platform"] == "server"
+        assert event_data[0]["user_id"] == "test-api-key-id"
+        assert event_data[0]["timestamp"] is not None
+
+        event_props = event_data[0]["event_properties"]
+        assert event_props["cdp_sdk_language"] == "python"
+        assert event_props["name"] == "error"
+        assert event_props["method"] == "test"
+        assert event_props["message"] == "test"
+    finally:
+        # Restore the original environment variable
+        if original_env is not None:
+            os.environ["DISABLE_CDP_ERROR_REPORTING"] = original_env
+        else:
+            del os.environ["DISABLE_CDP_ERROR_REPORTING"]

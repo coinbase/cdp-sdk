@@ -8,6 +8,7 @@ from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.actions.evm.send_user_operation import send_user_operation
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
+from cdp.analytics import wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall, EncodedCall
 from cdp.evm_server_account import EvmServerAccount, ListEvmAccountsResponse
@@ -40,6 +41,8 @@ class EvmClient:
 
     def __init__(self, api_clients: ApiClients):
         self.api_clients = api_clients
+        wrap_class_with_error_tracking(EvmServerAccount)
+        wrap_class_with_error_tracking(EvmSmartAccount)
 
     async def create_account(
         self, name: str | None = None, idempotency_key: str | None = None
