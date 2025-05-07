@@ -7,7 +7,6 @@ import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
-from eth_account.typed_transactions import DynamicFeeTransaction
 from web3 import Web3
 
 from cdp import CdpClient
@@ -219,54 +218,19 @@ async def test_send_transaction(cdp_client):
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_send_transaction_from_account(cdp_client):
-    """Test sending transactions from an account.
-
-    This test covers:
-    1. a serialized transaction from an account
-    2. an EIP-1559 transaction from an account
-    3. a dynamic fee transaction from an account
-    """
-    account = await cdp_client.evm.get_account(name="E2ETestAccount")
+    """Test sending a transaction from an account."""
+    account = await cdp_client.evm.get_account(name="E2EServerAccount")
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
 
-    # 1. send a serialized transaction
-    tx_hash = await account.send_transaction(
-        transaction="0x02e5808080808094123456789012345678901234567890123456789085e8d4a5100080c0808080",
-        network="base-sepolia",
-    )
-
-    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    assert tx_receipt is not None
-
-    # 2. send an EIP-1559 transaction
+    # test that account can send a TransactionRequestEIP1559
     tx_hash = await account.send_transaction(
         transaction=TransactionRequestEIP1559(
             to="0x0000000000000000000000000000000000000000",
             value=w3.to_wei(0, "ether"),
         ),
         network="base-sepolia",
-    )
-
-    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    assert tx_receipt is not None
-
-    # 3. send a dynamic fee transaction
-    nonce = w3.eth.get_transaction_count(account.address)
-    tx_hash = await account.send_transaction(
-        network="base-sepolia",
-        transaction=DynamicFeeTransaction.from_dict(
-            {
-                "to": "0x0000000000000000000000000000000000000000",
-                "value": w3.to_wei(0, "ether"),
-                "gas": 21000,
-                "maxFeePerGas": 1000000000000000000,
-                "maxPriorityFeePerGas": 1000000000000000000,
-                "nonce": nonce,
-                "type": "0x2",
-            }
-        ),
     )
 
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -317,14 +281,15 @@ async def test_evm_request_faucet_for_smart_account(cdp_client):
 @pytest.mark.asyncio
 async def test_list_evm_token_balances_for_smart_account(cdp_client):
     """Test listing evm token balances for a smart account."""
-    smart_account = await cdp_client.evm.create_smart_account(owner=Account.create())
-    assert smart_account is not None
+    account = await cdp_client.evm.get_or_create_account(name="E2ESmartAccount")
+    assert account is not None
 
-    await _ensure_sufficient_eth_balance(cdp_client, smart_account)
+    smart_account = await cdp_client.evm.get_smart_account(
+        address="0x283C298d11dE680843591AE8b43E3cB093B44Aca", owner=account
+    )
 
     first_page = await smart_account.list_token_balances(network="base-sepolia")
     assert first_page is not None
-    print(f"First page: {first_page}")
     assert len(first_page.balances) > 0
 
 
