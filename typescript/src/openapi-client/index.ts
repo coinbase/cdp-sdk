@@ -4,6 +4,7 @@ export * from "./generated/evm-smart-accounts/evm-smart-accounts.js";
 export * from "./generated/evm-token-balances/evm-token-balances.js";
 export * from "./generated/solana-accounts/solana-accounts.js";
 export * from "./generated/faucets/faucets.js";
+export * from "./generated/policy-engine/policy-engine.js";
 
 import { configure } from "./cdpApiClient.js";
 import * as evm from "./generated/evm-accounts/evm-accounts.js";
