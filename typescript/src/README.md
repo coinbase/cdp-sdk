@@ -468,16 +468,16 @@ This policy will reject any transaction from any account sending Ether to the ad
 const policy = await cdp.policies.createPolicy({
   policy: {
     scope: 'project',
-    description: 'Project-wide Policy',
+    description: 'Project-wide Allowlist Policy',
     rules: [
       {
-        action: 'reject',
+        action: 'accept',
         operation: 'signEvmTransaction',
         criteria: [
           {
             type: 'ethValue',
-            ethValue: '0',
-            operator: '>='
+            ethValue: '1000000000000000000',
+            operator: '<='
           },
           {
             type: 'evmAddress',
@@ -499,7 +499,7 @@ This policy will accept any transaction with a value less than or equal to 1 ETH
 const policy = await cdp.policies.createPolicy({
   policy: {
     scope: 'account',
-    description: 'Account Policy',
+    description: 'Account Allowlist Policy',
     rules: [
       {
         action: 'accept',
@@ -510,6 +510,11 @@ const policy = await cdp.policies.createPolicy({
             ethValue: '1000000000000000000',
             operator: '<='
           },
+          {
+            type: 'evmAddress',
+            addresses: ["0x000000000000000000000000000000000000dEaD"],
+            operator: 'in'
+          }
         ]
       }
     ]
@@ -551,17 +556,17 @@ This policy will update an existing policy to reject any transaction with a valu
 const policy = await cdp.policies.updatePolicy({
   policyId: '__POLICY_ID__',
   policy: {
-    description: 'Updated Account Policy',
+    description: 'Updated Account Allowlist Policy',
     rules: [
       {
-        action: 'reject',
+        action: 'accept',
         operation: 'signEvmTransaction',
         criteria: [
           {
-            type: 'ethValue',
-            ethValue: '1000000000000000000',
-            operator: '>'
-          },
+            type: 'evmAddress',
+            addresses: ["0x000000000000000000000000000000000000dEaD"],
+            operator: 'in'
+          }
         ]
       }
     ]
@@ -572,8 +577,7 @@ const policy = await cdp.policies.updatePolicy({
 ### Delete a Policy
 
 > [!WARNING]
-> You cannot delete a project-level policy once set.
-> Also, attempting to delete an account-level policy in-use by at least one account will fail.
+> Attempting to delete an account-level policy in-use by at least one account will fail.
 
 ```typescript
 const policy = await cdp.policies.deletePolicy({

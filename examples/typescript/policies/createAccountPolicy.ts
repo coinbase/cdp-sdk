@@ -6,16 +6,16 @@ const cdp = new CdpClient();
 const policy = await cdp.policies.createPolicy({
   policy: {
     scope: 'account',
-    description: 'Account Policy',
+    description: 'Account Allowlist Example',
     rules: [
       {
-        action: 'reject',
+        action: 'accept',
         operation: 'signEvmTransaction',
         criteria: [
           {
             type: 'ethValue',
-            ethValue: '0',
-            operator: '>='
+            ethValue: '1000000000000000000',
+            operator: '<='
           },
           {
             type: 'evmAddress',

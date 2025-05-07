@@ -9,13 +9,13 @@ const policy = await cdp.policies.createPolicy({
     description: 'Temporary Policy',
     rules: [
       {
-        action: 'reject',
+        action: 'accept',
         operation: 'signEvmTransaction',
         criteria: [
           {
             type: 'ethValue',
-            ethValue: '0',
-            operator: '>='
+            ethValue: '1000000000000000000',
+            operator: '<='
           },
           {
             type: 'evmAddress',

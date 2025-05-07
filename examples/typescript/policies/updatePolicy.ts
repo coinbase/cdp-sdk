@@ -6,17 +6,17 @@ const cdp = new CdpClient();
 const policy = await cdp.policies.createPolicy({
   policy: {
     scope: 'account',
-    description: 'Temporary Policy',
+    description: 'Initial Allowlist Policy',
     rules: [
       {
-        action: 'reject',
+        action: 'accept',
         operation: 'signEvmTransaction',
         criteria: [
           {
-            type: 'ethValue',
-            ethValue: '0',
-            operator: '>='
-          },
+            type: 'evmAddress',
+            addresses: ["0x000000000000000000000000000000000000dEaD"],
+            operator: 'in'
+          }
         ]
       }
     ]
@@ -26,15 +26,15 @@ const policy = await cdp.policies.createPolicy({
 const updatedPolicy = await cdp.policies.updatePolicy({
   policyId: policy.id,
   policy: {
-    description: 'Updated Policy',
+    description: 'Updated Allowlist Policy',
     rules: [
       {
-        action: 'reject',
+        action: 'accept',
         operation: 'signEvmTransaction',
         criteria: [
           {
             type: 'evmAddress',
-            addresses: ["0x000000000000000000000000000000000000dEaD"],
+            addresses: [],
             operator: 'in'
           }
         ]
