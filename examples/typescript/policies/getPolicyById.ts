@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/getPolicyById.ts
+// Usage: pnpm tsx policies/getPolicyById.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 

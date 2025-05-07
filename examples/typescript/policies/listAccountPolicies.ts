@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/listAccountPolicies.ts
+// Usage: pnpm tsx policies/listAccountPolicies.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 

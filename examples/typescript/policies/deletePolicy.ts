@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/deletePolicy.ts
+// Usage: pnpm tsx policies/deletePolicy.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 
