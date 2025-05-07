@@ -1,3 +1,4 @@
+import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import {
   listTokenBalances,
   type ListTokenBalancesOptions,
@@ -21,6 +22,7 @@ import {
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
 
+import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 import type { TransferResult } from "../../actions/evm/transfer/types.js";
 import type {
   CdpOpenApiClientType,
@@ -83,6 +85,14 @@ export function toEvmSmartAccount(
       return waitForUserOperation(apiClient, {
         ...options,
         smartAccountAddress: account.address,
+      });
+    },
+    async getUserOperation(
+      options: Omit<GetUserOperationOptions, "smartAccount">,
+    ): Promise<UserOperation> {
+      return getUserOperation(apiClient, {
+        ...options,
+        smartAccount: account,
       });
     },
     async requestFaucet(

@@ -1,13 +1,14 @@
-import { SendUserOperationReturnType, SendUserOperationOptions } from "./sendUserOperation.js";
+import { SendUserOperationOptions, SendUserOperationReturnType } from "./sendUserOperation.js";
+import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 import { EvmAccount, EvmSmartAccount } from "../../openapi-client/index.js";
 
-import type { ListTokenBalancesResult, ListTokenBalancesOptions } from "./listTokenBalances.js";
+import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTokenBalances.js";
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
 import type { SendTransactionOptions, TransactionResult } from "./sendTransaction.js";
 import type {
-  TransferResult,
-  SmartAccountTransferOptions,
   AccountTransferOptions,
+  SmartAccountTransferOptions,
+  TransferResult,
 } from "./transfer/types.js";
 import type {
   WaitForUserOperationOptions,
@@ -253,4 +254,23 @@ export type SmartAccountActions = Actions<EvmSmartAccount> & {
   waitForUserOperation: (
     options: Omit<WaitForUserOperationOptions, "smartAccountAddress">,
   ) => Promise<WaitForUserOperationReturnType>;
+
+  /**
+   * Gets a user operation by its hash.
+   *
+   * @param {GetUserOperationOptions} options - Parameters for getting the user operation.
+   * @param {string} options.userOpHash - The user operation hash.
+   *
+   * @returns A promise that resolves to the user operation.
+   *
+   * @example
+   * ```ts
+   * const userOp = await smartAccount.getUserOperation({
+   *   userOpHash: "0x1234567890123456789012345678901234567890",
+   * });
+   * ```
+   */
+  getUserOperation: (
+    options: Omit<GetUserOperationOptions, "smartAccount">,
+  ) => Promise<UserOperation>;
 };

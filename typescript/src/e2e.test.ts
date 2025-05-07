@@ -442,6 +442,31 @@ describe("CDP Client E2E Tests", () => {
         expect(userOpResult.status).toBe("complete");
       });
     });
+
+    describe("get user operation", () => {
+      it("should get a user operation", async () => {
+        const { userOpHash } = await testSmartAccount.sendUserOperation({
+          network: "base-sepolia",
+          calls: [
+            {
+              to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+              value: parseEther("0"),
+            },
+          ],
+        });
+
+        await testSmartAccount.waitForUserOperation({
+          userOpHash,
+        });
+
+        const userOpResult = await testSmartAccount.getUserOperation({
+          userOpHash,
+        });
+
+        expect(userOpResult).toBeDefined();
+        expect(userOpResult.status).toBe("complete");
+      });
+    });
   });
   describe("get or create account", () => {
     it("should get or create an evm account", async () => {

@@ -52,6 +52,8 @@ import type {
   TransactionResult,
   SendTransactionOptions,
 } from "../../actions/evm/sendTransaction.js";
+import { getUserOperation } from "../../actions/evm/getUserOperation.js";
+
 /**
  * The namespace containing all EVM methods.
  */
@@ -292,22 +294,7 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async getUserOperation(options: GetUserOperationOptions): Promise<UserOperation> {
-    const userOp = await CdpOpenApiClient.getUserOperation(
-      options.smartAccount.address,
-      options.userOpHash,
-    );
-
-    return {
-      calls: userOp.calls.map(call => ({
-        to: call.to as Address,
-        value: BigInt(call.value),
-        data: call.data as Hex,
-      })),
-      network: userOp.network,
-      status: userOp.status,
-      transactionHash: userOp.transactionHash as Hex | undefined,
-      userOpHash: userOp.userOpHash as Hex,
-    };
+    return getUserOperation(CdpOpenApiClient, options);
   }
 
   /**

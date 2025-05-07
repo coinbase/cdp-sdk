@@ -9,6 +9,7 @@ import {
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import type { TransferOptions } from "../../actions/evm/transfer/types.js";
 import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
+import { UserOperation } from "../../client/evm/evm.types.js";
 vi.mock("../../actions/evm/transfer/transfer.js", () => ({
   ...vi.importActual("../../actions/evm/transfer/transfer.js"),
   transfer: vi.fn().mockResolvedValue({ transactionHash: "0xmocktransactionhash" }),
@@ -19,10 +20,20 @@ describe("toEvmSmartAccount", () => {
   let mockOwner: EvmAccount;
   let mockAddress: Address;
   let mockSmartAccount: EvmSmartAccountModel;
+  let mockUserOp: UserOperation;
 
   beforeEach(() => {
+    mockUserOp = {
+      userOpHash: "0xuserophash",
+      network: "base-sepolia",
+      calls: [],
+      status: "complete",
+      transactionHash: "0xtransactionhash",
+    };
+
     mockApiClient = {
       signEvmTransaction: vi.fn().mockResolvedValue({ signedTransaction: "0xmocktransaction" }),
+      getUserOperation: vi.fn().mockResolvedValue(mockUserOp),
     } as unknown as CdpOpenApiClientType;
 
     mockAddress = "0x123456789abcdef" as Address;
@@ -55,6 +66,7 @@ describe("toEvmSmartAccount", () => {
       listTokenBalances: expect.any(Function),
       sendUserOperation: expect.any(Function),
       waitForUserOperation: expect.any(Function),
+      getUserOperation: expect.any(Function),
       requestFaucet: expect.any(Function),
     });
   });
@@ -120,5 +132,23 @@ describe("toEvmSmartAccount", () => {
       transferArgs,
       smartAccountTransferStrategy,
     );
+  });
+
+  it("should call apiClient.getUserOperation when getUserOperation is called", async () => {
+    const smartAccount = toEvmSmartAccount(mockApiClient, {
+      smartAccount: mockSmartAccount,
+      owner: mockOwner,
+    });
+
+    const userOp = await smartAccount.getUserOperation({
+      userOpHash: "0xuserophash",
+    });
+
+    expect(mockApiClient.getUserOperation).toHaveBeenCalledWith(
+      mockAddress,
+      "0xuserophash",
+    );
+
+    expect(userOp).toEqual(mockUserOp);
   });
 });
