@@ -220,11 +220,13 @@ describe("PoliciesClient", () => {
         ],
       };
 
-      await expect(client.updatePolicy({
-        policyId: "policy-123",
-        // @ts-expect-error Intentionally using incorrect criteria structure for test
-        policy: invalidPolicy
-      })).rejects.toThrow(ZodError);
+      await expect(
+        client.updatePolicy({
+          policyId: "policy-123",
+          // @ts-expect-error Intentionally using incorrect criteria structure for test
+          policy: invalidPolicy,
+        }),
+      ).rejects.toThrow(ZodError);
 
       expect(updatePolicyMock).not.toHaveBeenCalled();
     });
@@ -269,7 +271,7 @@ describe("PoliciesClient", () => {
             criteria: [
               {
                 type: "ethAddress" as const,
-                addreses: 'not an array of addresses',
+                addreses: "not an array of addresses",
                 operator: "not in" as const,
               },
             ],
@@ -278,7 +280,9 @@ describe("PoliciesClient", () => {
       };
 
       // @ts-expect-error Intentionally using invalid operation for test
-      await expect(client.createPolicy({ policy: invalidEthAddressPolicy })).rejects.toThrow(ZodError);
+      await expect(client.createPolicy({ policy: invalidEthAddressPolicy })).rejects.toThrow(
+        ZodError,
+      );
       expect(createPolicyMock).not.toHaveBeenCalled();
 
       let invalidEthAddressPolicy2 = {
@@ -290,7 +294,7 @@ describe("PoliciesClient", () => {
             criteria: [
               {
                 type: "ethAddress" as const,
-                addreses: ['not an array of addresses'],
+                addreses: ["not an array of addresses"],
                 operator: "not in" as const,
               },
             ],
@@ -299,7 +303,9 @@ describe("PoliciesClient", () => {
       };
 
       // @ts-expect-error Intentionally using invalid operation for test
-      await expect(client.createPolicy({ policy: invalidEthAddressPolicy2 })).rejects.toThrow(ZodError);
+      await expect(client.createPolicy({ policy: invalidEthAddressPolicy2 })).rejects.toThrow(
+        ZodError,
+      );
       expect(createPolicyMock).not.toHaveBeenCalled();
 
       let invalidEthAddressPolicy3 = {
@@ -311,7 +317,7 @@ describe("PoliciesClient", () => {
             criteria: [
               {
                 type: "ethAddress" as const,
-                addreses: ['0x000000000000000000000000000000000000dead'],
+                addreses: ["0x000000000000000000000000000000000000dead"],
                 operator: ">" as const,
               },
             ],
@@ -320,7 +326,9 @@ describe("PoliciesClient", () => {
       };
 
       // @ts-expect-error Intentionally using invalid operation for test
-      await expect(client.createPolicy({ policy: invalidEthAddressPolicy3 })).rejects.toThrow(ZodError);
+      await expect(client.createPolicy({ policy: invalidEthAddressPolicy3 })).rejects.toThrow(
+        ZodError,
+      );
       expect(createPolicyMock).not.toHaveBeenCalled();
     });
   });
@@ -344,7 +352,7 @@ describe("PoliciesClient", () => {
       getPolicyByIdMock.mockRejectedValue(new APIError(404, "not_found", "Policy not found"));
 
       await expect(client.getPolicyById({ policyId: "non-existent" })).rejects.toThrow(
-        "Policy not found"
+        "Policy not found",
       );
       expect(getPolicyByIdMock).toHaveBeenCalledWith("non-existent");
     });
@@ -385,11 +393,13 @@ describe("PoliciesClient", () => {
           {
             action: "accept" as const,
             operation: "signEvmTransaction" as const,
-            criteria: [{
-              type: "ethValue" as const,
-              ethValue: "1000000000000000000",
-              operator: ">" as const,
-            }],
+            criteria: [
+              {
+                type: "ethValue" as const,
+                ethValue: "1000000000000000000",
+                operator: ">" as const,
+              },
+            ],
           },
         ],
       };
@@ -415,11 +425,13 @@ describe("PoliciesClient", () => {
           {
             action: "accept" as const,
             operation: "signEvmTransaction" as const,
-            criteria: [{
-              type: "ethValue" as const,
-              ethValue: "1000000000000000000",
-              operator: ">" as const,
-            }],
+            criteria: [
+              {
+                type: "ethValue" as const,
+                ethValue: "1000000000000000000",
+                operator: ">" as const,
+              },
+            ],
           },
         ],
       };
@@ -439,14 +451,17 @@ describe("PoliciesClient", () => {
       >;
 
       const invalidPolicy = {
-        description: "Invalid description with special characters: @#$%^&*!- also very long, way too long",
+        description:
+          "Invalid description with special characters: @#$%^&*!- also very long, way too long",
         rules: [],
       };
 
-      await expect(client.updatePolicy({
-        policyId: "policy-123",
-        policy: invalidPolicy
-      })).rejects.toThrow(ZodError);
+      await expect(
+        client.updatePolicy({
+          policyId: "policy-123",
+          policy: invalidPolicy,
+        }),
+      ).rejects.toThrow(ZodError);
 
       expect(updatePolicyMock).not.toHaveBeenCalled();
     });
@@ -466,11 +481,13 @@ describe("PoliciesClient", () => {
         ],
       };
 
-      await expect(client.updatePolicy({
-        policyId: "policy-123",
-        // @ts-expect-error Intentionally using invalid operation for test
-        policy: invalidPolicy
-      })).rejects.toThrow(ZodError);
+      await expect(
+        client.updatePolicy({
+          policyId: "policy-123",
+          // @ts-expect-error Intentionally using invalid operation for test
+          policy: invalidPolicy,
+        }),
+      ).rejects.toThrow(ZodError);
 
       expect(updatePolicyMock).not.toHaveBeenCalled();
     });
@@ -496,11 +513,13 @@ describe("PoliciesClient", () => {
         ],
       };
 
-      await expect(client.updatePolicy({
-        policyId: "policy-123",
-        // @ts-expect-error Intentionally using incorrect criteria structure for test
-        policy: invalidPolicy
-      })).rejects.toThrow(ZodError);
+      await expect(
+        client.updatePolicy({
+          policyId: "policy-123",
+          // @ts-expect-error Intentionally using incorrect criteria structure for test
+          policy: invalidPolicy,
+        }),
+      ).rejects.toThrow(ZodError);
 
       expect(updatePolicyMock).not.toHaveBeenCalled();
     });

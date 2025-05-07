@@ -708,7 +708,7 @@ describe("CDP Client E2E Tests", () => {
                   type: "evmAddress",
                   addresses: ["0x0000000000000000000000000000000000000000"],
                   operator: "in",
-                }
+                },
               ],
             },
           ],
