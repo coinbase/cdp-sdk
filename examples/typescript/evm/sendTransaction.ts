@@ -42,13 +42,14 @@ const txResult = await cdp.evm.sendTransaction({
   },
 });
 
-console.log("Transaction sent successfully!");
 console.log(
-  `Transaction explorer link: https://sepolia.basescan.org/tx/${txResult.transactionHash}`
+  `Transaction hash: ${txResult.transactionHash}. Waiting for confirmation...`
 );
 
 await publicClient.waitForTransactionReceipt({
   hash: txResult.transactionHash,
 });
 
-console.log("Transaction confirmed!");
+console.log(
+  `Transaction confirmed! link: https://sepolia.basescan.org/tx/${txResult.transactionHash}`
+);
