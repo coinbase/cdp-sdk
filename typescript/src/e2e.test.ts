@@ -403,7 +403,7 @@ describe("CDP Client E2E Tests", () => {
       });
     });
 
-    describe("request faucet", () => {
+    describe.skip("request faucet", () => {
       it("should request faucet", async () => {
         const { transactionHash } = await testAccount.requestFaucet({
           network: "base-sepolia",

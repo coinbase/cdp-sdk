@@ -290,7 +290,7 @@ async def test_solana_sign_fns(cdp_client):
 @pytest.mark.asyncio
 async def test_transfer_eth(cdp_client):
     """Test transferring ETH."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_account(name="E2EServerAccount")
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
@@ -312,7 +312,7 @@ async def test_transfer_eth(cdp_client):
 @pytest.mark.asyncio
 async def test_transfer_usdc(cdp_client):
     """Test transferring USDC tokens."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_account(name="E2EServerAccount")
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
@@ -337,8 +337,6 @@ async def test_transfer_eth_smart_account(cdp_client):
     account = await cdp_client.evm.create_smart_account(owner=Account.create())
     assert account is not None
 
-    await _ensure_sufficient_eth_balance(cdp_client, account)
-
     transfer_result = await account.transfer(
         TransferOptions(
             to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
@@ -358,8 +356,6 @@ async def test_transfer_usdc_smart_account(cdp_client):
     """Test transferring USDC tokens with a smart account."""
     account = await cdp_client.evm.create_smart_account(owner=Account.create())
     assert account is not None
-
-    await _ensure_sufficient_eth_balance(cdp_client, account)
 
     transfer_result = await account.transfer(
         TransferOptions(
