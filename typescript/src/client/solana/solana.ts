@@ -5,6 +5,7 @@ import {
   ListAccountsOptions,
   ListAccountsResult,
   RequestFaucetOptions,
+  SignatureResult,
   SignMessageOptions,
   SignTransactionOptions,
   SolanaAccount,
@@ -12,7 +13,7 @@ import {
 } from "./solana.types.js";
 import { toSolanaAccount } from "../../accounts/solana/toSolanaAccount.js";
 import { requestFaucet } from "../../actions/solana/requestFaucet.js";
-import { SignatureResult } from "../../actions/solana/types.js";
+import { signMessage } from "../../actions/solana/signMessage.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 
@@ -231,13 +232,7 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async signMessage(options: SignMessageOptions): Promise<SignatureResult> {
-    return CdpOpenApiClient.signSolanaMessage(
-      options.address,
-      {
-        message: options.message,
-      },
-      options.idempotencyKey,
-    );
+    return signMessage(CdpOpenApiClient, options);
   }
 
   /**

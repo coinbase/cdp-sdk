@@ -40,6 +40,7 @@ describe("SolanaClient", () => {
       expect(result).toEqual({
         address: "cdpSolanaAccount",
         requestFaucet: expect.any(Function),
+        signMessage: expect.any(Function),
       });
     });
   });
@@ -57,6 +58,7 @@ describe("SolanaClient", () => {
       expect(result).toEqual({
         address: "cdpSolanaAccount",
         requestFaucet: expect.any(Function),
+        signMessage: expect.any(Function),
       });
     });
 
@@ -72,6 +74,7 @@ describe("SolanaClient", () => {
       expect(result).toEqual({
         address: "cdpSolanaAccount",
         requestFaucet: expect.any(Function),
+        signMessage: expect.any(Function),
       });
     });
 
@@ -102,8 +105,16 @@ describe("SolanaClient", () => {
 
       const result = await client.getOrCreateAccount({ name: "cdpSolanaAccount" });
       const result2 = await client.getOrCreateAccount({ name: "cdpSolanaAccount" });
-      expect(result).toEqual({ address: "cdpSolanaAccount", requestFaucet: expect.any(Function) });
-      expect(result2).toEqual({ address: "cdpSolanaAccount", requestFaucet: expect.any(Function) });
+      expect(result).toEqual({
+        address: "cdpSolanaAccount",
+        requestFaucet: expect.any(Function),
+        signMessage: expect.any(Function),
+      });
+      expect(result2).toEqual({
+        address: "cdpSolanaAccount",
+        requestFaucet: expect.any(Function),
+        signMessage: expect.any(Function),
+      });
       expect(getSolanaAccountByNameMock).toHaveBeenCalledTimes(2);
       expect(createSolanaAccountMock).toHaveBeenCalledTimes(1);
     });
@@ -120,7 +131,13 @@ describe("SolanaClient", () => {
 
       const result = await client.listAccounts();
       expect(result).toEqual({
-        accounts: [{ address: "cdpSolanaAccount", requestFaucet: expect.any(Function) }],
+        accounts: [
+          {
+            address: "cdpSolanaAccount",
+            requestFaucet: expect.any(Function),
+            signMessage: expect.any(Function),
+          },
+        ],
       });
     });
   });

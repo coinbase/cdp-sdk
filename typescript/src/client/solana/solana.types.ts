@@ -1,7 +1,7 @@
-import { AccountActions, SignatureResult } from "../../actions/solana/types.js";
+import { AccountActions } from "../../actions/solana/types.js";
 import {
-  OpenApiSolanaMethods,
   SolanaAccount as OpenAPISolanaAccount,
+  OpenApiSolanaMethods,
 } from "../../openapi-client/index.js";
 import { Prettify } from "../../types/utils.js";
 
@@ -36,6 +36,14 @@ export type Account = OpenAPISolanaAccount;
  * A Solana account with actions.
  */
 export type SolanaAccount = Prettify<OpenAPISolanaAccount & AccountActions>;
+
+/**
+ * A Solana signature result.
+ */
+export interface SignatureResult {
+  /** The signature. */
+  signature: string;
+}
 
 /**
  * Options for creating a Solana account.
