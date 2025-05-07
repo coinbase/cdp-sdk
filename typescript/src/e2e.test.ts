@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeAll, vi, beforeEach } from "vitest";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
+import dotenv from "dotenv";
 import {
-  serializeTransaction,
-  parseEther,
   createPublicClient,
   http,
+  parseEther,
+  serializeTransaction,
   type Hex,
   type PublicClient,
   type Transport,
@@ -14,8 +15,16 @@ import {
 } from "viem";
 import { baseSepolia } from "viem/chains";
 import { CdpClient } from "./client/cdp.js";
-import dotenv from "dotenv";
 import type { ServerAccount as Account, SmartAccount } from "./client/evm/evm.types.js";
+import { SolanaAccount } from "./client/solana/solana.types.js";
+import {
+  Keypair,
+  PublicKey,
+  LAMPORTS_PER_SOL,
+  SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
 
 dotenv.config();
 
@@ -78,6 +87,7 @@ describe("CDP Client E2E Tests", () => {
 
   let testAccount: Account;
   let testSmartAccount: SmartAccount;
+  let testSolanaAccount: SolanaAccount;
 
   beforeAll(async () => {
     cdp = new CdpClient();
@@ -101,6 +111,7 @@ describe("CDP Client E2E Tests", () => {
         });
       }
     })();
+    testSolanaAccount = await cdp.solana.getOrCreateAccount({ name: testAccountName });
   });
 
   beforeEach(async () => {
@@ -367,6 +378,34 @@ describe("CDP Client E2E Tests", () => {
     expect(secondPage.balances[0].amount.decimals).toBeDefined();
   });
 
+  describe("get or create account", () => {
+    it("should get or create an evm account", async () => {
+      const randomName = generateRandomName();
+      const account = await cdp.evm.getOrCreateAccount({ name: randomName });
+      expect(account.name).toBe(randomName);
+      const account2 = await cdp.evm.getOrCreateAccount({ name: randomName });
+      expect(account2.name).toBe(randomName);
+      expect(account.address).toBe(account2.address);
+    });
+
+    it("should get or create a solana account", async () => {
+      const randomName = generateRandomName();
+      const account = await cdp.solana.getOrCreateAccount({ name: randomName });
+      expect(account.name).toBe(randomName);
+      const account2 = await cdp.solana.getOrCreateAccount({ name: randomName });
+      expect(account2.name).toBe(randomName);
+      expect(account.address).toBe(account2.address);
+    });
+
+    it("should handle race condition", async () => {
+      const randomName = generateRandomName();
+      const accountPromise1 = cdp.evm.getOrCreateAccount({ name: randomName });
+      const accountPromise2 = cdp.evm.getOrCreateAccount({ name: randomName });
+      const [account1, account2] = await Promise.all([accountPromise1, accountPromise2]);
+      expect(account1.address).toBe(account2.address);
+    });
+  });
+
   describe("server account actions", () => {
     describe("transfer", () => {
       it("should transfer eth", async () => {
@@ -511,31 +550,36 @@ describe("CDP Client E2E Tests", () => {
       });
     });
   });
-  describe("get or create account", () => {
-    it("should get or create an evm account", async () => {
-      const randomName = generateRandomName();
-      const account = await cdp.evm.getOrCreateAccount({ name: randomName });
-      expect(account.name).toBe(randomName);
-      const account2 = await cdp.evm.getOrCreateAccount({ name: randomName });
-      expect(account2.name).toBe(randomName);
-      expect(account.address).toBe(account2.address);
+
+  describe("solana account actions", () => {
+    describe("request faucet", () => {
+      it("should request faucet", async () => {
+        const { signature } = await testSolanaAccount.requestFaucet({
+          token: "sol",
+        });
+
+        expect(signature).toBeDefined();
+      });
     });
 
-    it("should get or create a solana account", async () => {
-      const randomName = generateRandomName();
-      const account = await cdp.solana.getOrCreateAccount({ name: randomName });
-      expect(account.name).toBe(randomName);
-      const account2 = await cdp.solana.getOrCreateAccount({ name: randomName });
-      expect(account2.name).toBe(randomName);
-      expect(account.address).toBe(account2.address);
+    describe("sign message", () => {
+      it("should sign a message", async () => {
+        const { signature } = await testSolanaAccount.signMessage({
+          message: "Hello, world!",
+        });
+
+        expect(signature).toBeDefined();
+      });
     });
 
-    it("should handle race condition", async () => {
-      const randomName = generateRandomName();
-      const accountPromise1 = cdp.evm.getOrCreateAccount({ name: randomName });
-      const accountPromise2 = cdp.evm.getOrCreateAccount({ name: randomName });
-      const [account1, account2] = await Promise.all([accountPromise1, accountPromise2]);
-      expect(account1.address).toBe(account2.address);
+    describe("sign transaction", () => {
+      it("should sign a transaction", async () => {
+        const { signature } = await testSolanaAccount.signTransaction({
+          transaction: createAndEncodeTransaction(testSolanaAccount.address),
+        });
+
+        expect(signature).toBeDefined();
+      });
     });
   });
 });
@@ -555,4 +599,31 @@ function generateRandomName(): string {
 
   const lastChar = chars.charAt(Math.floor(Math.random() * chars.length));
   return firstChar + middlePart + lastChar;
+}
+
+// Helper function to create and encode a Solana transaction
+function createAndEncodeTransaction(address: string) {
+  const recipientKeypair = Keypair.generate();
+  const recipientAddress = recipientKeypair.publicKey;
+
+  const fromPubkey = new PublicKey(address);
+
+  const transferAmount = 0.01 * LAMPORTS_PER_SOL;
+
+  const transaction = new Transaction().add(
+    SystemProgram.transfer({
+      fromPubkey,
+      toPubkey: recipientAddress,
+      lamports: transferAmount,
+    }),
+  );
+
+  transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
+  transaction.feePayer = fromPubkey;
+
+  const serializedTransaction = transaction.serialize({
+    requireAllSignatures: false,
+  });
+
+  return Buffer.from(serializedTransaction).toString("base64");
 }
