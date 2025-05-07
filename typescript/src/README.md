@@ -421,6 +421,7 @@ EvmSmartAccount supports the following actions:
 - `requestFaucet`
 - `sendUserOperation`
 - `waitForUserOperation`
+- `getUserOperation`
 - `transfer`
 
 ## Authentication tools
