@@ -462,7 +462,7 @@ You can use the policies SDK to manage sets of rules that govern the behavior of
 
 ### Create a Project-level policy that applies to all accounts
 
-This policy will reject any transaction from any account sending Ether to the address `0x000000000000000000000000000000000000dEaD`.
+This policy will accept any account sending less than a specific amount of ETH to a specific address.
 
 ```typescript
 const policy = await cdp.policies.createPolicy({
@@ -493,7 +493,7 @@ const policy = await cdp.policies.createPolicy({
 
 ### Create an Account-level policy
 
-This policy will accept any transaction with a value less than or equal to 1 ETH.
+This policy will accept any transaction with a value less than or equal to 1 ETH to a specific address.
 
 ```typescript
 const policy = await cdp.policies.createPolicy({
@@ -550,13 +550,13 @@ const policy = await cdp.policies.getPolicyById({
 
 ### Update a Policy
 
-This policy will update an existing policy to reject any transaction with a value greater than 1 ETH.
+This policy will update an existing policy to accept transactions to any address except one.
 
 ```typescript
 const policy = await cdp.policies.updatePolicy({
   policyId: '__POLICY_ID__',
   policy: {
-    description: 'Updated Account Allowlist Policy',
+    description: 'Updated Account Denylist Policy',
     rules: [
       {
         action: 'accept',
@@ -565,7 +565,7 @@ const policy = await cdp.policies.updatePolicy({
           {
             type: 'evmAddress',
             addresses: ["0x000000000000000000000000000000000000dEaD"],
-            operator: 'in'
+            operator: 'not in'
           }
         ]
       }
