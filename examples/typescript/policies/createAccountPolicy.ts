@@ -27,4 +27,4 @@ const policy = await cdp.policies.createPolicy({
     ]
   }
 });
-console.log("Created project policy: ", policy.id);
+console.log("Created account policy: ", policy.id);
