@@ -23,13 +23,13 @@ import {
 } from "../../actions/evm/waitForUserOperation.js";
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 
+import type { EvmAccount, EvmSmartAccount } from "./types.js";
 import type { TransferResult } from "../../actions/evm/transfer/types.js";
 import type {
   CdpOpenApiClientType,
   EvmSmartAccount as EvmSmartAccountModel,
 } from "../../openapi-client/index.js";
 import type { Address } from "../../types/misc.js";
-import type { EvmAccount, EvmSmartAccount } from "../types.js";
 
 /**
  * Options for converting a pre-existing EvmSmartAccount and owner to a EvmSmartAccount

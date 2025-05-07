@@ -8,7 +8,7 @@ import {
 
 import { TransferExecutionStrategy } from "./types.js";
 import { getErc20Address } from "./utils.js";
-import { EvmAccount } from "../../../accounts/types.js";
+import { EvmAccount } from "../../../accounts/evm/types.js";
 import { serializeEIP1559Transaction } from "../../../utils/serializeTransaction.js";
 
 export const accountTransferStrategy: TransferExecutionStrategy<EvmAccount> = {

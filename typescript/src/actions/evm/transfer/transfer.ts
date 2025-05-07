@@ -1,7 +1,7 @@
 import { createPublicClient, http, erc20Abi, parseUnits, Address, Chain, Transport } from "viem";
 
 import { mapNetworkToChain } from "./utils.js";
-import { EvmAccount, EvmSmartAccount } from "../../../accounts/types.js";
+import { EvmAccount, EvmSmartAccount } from "../../../accounts/evm/types.js";
 import { CdpOpenApiClientType } from "../../../openapi-client/index.js";
 
 import type {

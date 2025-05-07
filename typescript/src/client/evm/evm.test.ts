@@ -10,7 +10,7 @@ import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount";
 import { sendUserOperation } from "../../actions/evm/sendUserOperation";
 import { waitForUserOperation } from "../../actions/evm/waitForUserOperation";
-import type { EvmAccount, EvmServerAccount, EvmSmartAccount } from "../../accounts/types";
+import type { EvmAccount, EvmServerAccount, EvmSmartAccount } from "../../accounts/evm/types.js";
 import type { EvmUserOperationNetwork, ListEvmTokenBalancesNetwork } from "../../openapi-client";
 import type { WaitOptions } from "../../utils/wait";
 import { Address, Hex } from "../../types/misc";

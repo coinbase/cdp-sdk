@@ -1,16 +1,14 @@
+import { Account, SolanaAccount } from "./types.js";
 import { requestFaucet } from "../../actions/solana/requestFaucet.js";
 import { signMessage } from "../../actions/solana/signMessage.js";
 import { signTransaction } from "../../actions/solana/signTransaction.js";
 import {
-  Account,
   RequestFaucetOptions,
   SignatureResult,
   SignMessageOptions,
   SignTransactionOptions,
-  SolanaAccount,
 } from "../../client/solana/solana.types.js";
 import { CdpOpenApiClientType } from "../../openapi-client/index.js";
-
 /**
  * Options for converting a pre-existing EvmAccount to a EvmServerAccount.
  */

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toEvmServerAccount } from "./toEvmServerAccount.js";
-import { EvmAccount, EvmServerAccount } from "../types.js";
+import { EvmAccount, EvmServerAccount } from "./types.js";
 import { Address, Hash } from "../../types/misc.js";
 import { Transaction } from "viem";
 import { transfer } from "../../actions/evm/transfer/transfer.js";

@@ -1,9 +1,5 @@
-import { AccountActions } from "../../actions/solana/types.js";
-import {
-  SolanaAccount as OpenAPISolanaAccount,
-  OpenApiSolanaMethods,
-} from "../../openapi-client/index.js";
-import { Prettify } from "../../types/utils.js";
+import { Account, SolanaAccount } from "../../accounts/solana/types.js";
+import { OpenApiSolanaMethods } from "../../openapi-client/index.js";
 
 /**
  * The SolanaClient type, where all OpenApiSolanaMethods methods are wrapped.
@@ -26,16 +22,6 @@ export type SolanaClientInterface = Omit<
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
   signTransaction: (options: SignTransactionOptions) => Promise<SignatureResult>;
 };
-
-/**
- * A base Solana account.
- */
-export type Account = OpenAPISolanaAccount;
-
-/**
- * A Solana account with actions.
- */
-export type SolanaAccount = Prettify<OpenAPISolanaAccount & AccountActions>;
 
 /**
  * A Solana signature result.

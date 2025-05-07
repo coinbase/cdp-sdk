@@ -16,7 +16,6 @@ import {
 import { baseSepolia } from "viem/chains";
 import { CdpClient } from "./client/cdp.js";
 import type { ServerAccount as Account, SmartAccount } from "./client/evm/evm.types.js";
-import { SolanaAccount } from "./client/solana/solana.types.js";
 import {
   Keypair,
   PublicKey,
@@ -25,6 +24,7 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
+import { SolanaAccount } from "./accounts/solana/types.js";
 
 dotenv.config();
 

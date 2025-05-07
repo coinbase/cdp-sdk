@@ -14,7 +14,7 @@ import {
   SendEvmTransactionBodyNetwork,
 } from "../../../openapi-client/index.js";
 
-import type { EvmAccount, EvmSmartAccount } from "../../../accounts/types.js";
+import type { EvmAccount, EvmSmartAccount } from "../../../accounts/evm/types.js";
 import type { WaitForUserOperationOptions } from "../waitForUserOperation.js";
 
 /**

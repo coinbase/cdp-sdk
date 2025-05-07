@@ -8,10 +8,10 @@ import {
   SignatureResult,
   SignMessageOptions,
   SignTransactionOptions,
-  SolanaAccount,
   SolanaClientInterface,
 } from "./solana.types.js";
 import { toSolanaAccount } from "../../accounts/solana/toSolanaAccount.js";
+import { SolanaAccount } from "../../accounts/solana/types.js";
 import { requestFaucet } from "../../actions/solana/requestFaucet.js";
 import { signMessage } from "../../actions/solana/signMessage.js";
 import { signTransaction } from "../../actions/solana/signTransaction.js";

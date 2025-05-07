@@ -2,7 +2,7 @@ import type {
   EvmAccount as Account,
   EvmServerAccount as ServerAccount,
   EvmSmartAccount as SmartAccount,
-} from "../../accounts/types.js";
+} from "../../accounts/evm/types.js";
 import type {
   ListTokenBalancesOptions,
   ListTokenBalancesResult,

@@ -14,11 +14,11 @@ import { sendTransaction } from "../../actions/evm/sendTransaction.js";
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 
+import type { EvmServerAccount } from "./types.js";
 import type { SendTransactionOptions } from "../../actions/evm/sendTransaction.js";
 import type { TransferResult } from "../../actions/evm/transfer/types.js";
 import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
 import type { Address, Hash } from "../../types/misc.js";
-import type { EvmServerAccount } from "../types.js";
 
 /**
  * Options for converting a pre-existing EvmAccount to a EvmServerAccount.

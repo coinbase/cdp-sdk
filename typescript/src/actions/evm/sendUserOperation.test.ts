@@ -3,7 +3,7 @@ import { sendUserOperation } from "./sendUserOperation.js";
 import { encodeFunctionData } from "viem";
 import { EvmUserOperationStatus, CdpOpenApiClientType } from "../../openapi-client/index.js";
 import { parseEther } from "viem";
-import { EvmSmartAccount } from "../../accounts/types.js";
+import { EvmSmartAccount } from "../../accounts/evm/types.js";
 
 vi.mock("viem", () => ({
   encodeFunctionData: vi.fn().mockReturnValue("0xmockedEncodedData"),

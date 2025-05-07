@@ -2,7 +2,7 @@ import { encodeFunctionData, erc20Abi } from "viem";
 
 import { TransferExecutionStrategy } from "./types.js";
 import { getErc20Address } from "./utils.js";
-import { EvmSmartAccount } from "../../../accounts/types.js";
+import { EvmSmartAccount } from "../../../accounts/evm/types.js";
 import { sendUserOperation } from "../sendUserOperation.js";
 import { waitForUserOperation } from "../waitForUserOperation.js";
 

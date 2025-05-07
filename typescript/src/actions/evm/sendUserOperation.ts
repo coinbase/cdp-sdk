@@ -6,7 +6,7 @@ import {
   CdpOpenApiClientType,
 } from "../../openapi-client/index.js";
 
-import type { EvmSmartAccount } from "../../accounts/types.js";
+import type { EvmSmartAccount } from "../../accounts/evm/types.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, Hex } from "../../types/misc.js";
 

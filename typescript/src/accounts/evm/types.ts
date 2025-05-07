@@ -1,9 +1,9 @@
 import { SignableMessage, TransactionSerializable, TypedData, TypedDataDefinition } from "viem";
 
-import { Prettify } from "../types/utils.js";
+import { Prettify } from "../../types/utils.js";
 
-import type { AccountActions, SmartAccountActions } from "../actions/evm/types.js";
-import type { Hash, Hex, Address } from "../types/misc.js";
+import type { AccountActions, SmartAccountActions } from "../../actions/evm/types.js";
+import type { Hash, Hex, Address } from "../../types/misc.js";
 
 /**
  * Base type for any Ethereum account with signing capabilities.
