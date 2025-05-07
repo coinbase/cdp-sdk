@@ -6,7 +6,7 @@ const cdp = new CdpClient();
 const policy = await cdp.policies.createPolicy({
   policy: {
     scope: 'account',
-    description: 'Project Policy',
+    description: 'Account Policy',
     rules: [
       {
         action: 'reject',
