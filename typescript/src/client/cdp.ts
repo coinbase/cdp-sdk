@@ -2,6 +2,7 @@ import { wrapClassWithErrorTracking } from "../analytics.js";
 import { CdpOpenApiClient } from "../openapi-client/index.js";
 import { version } from "../version.js";
 import { EvmClient } from "./evm/evm.js";
+import { PoliciesClient } from "./policies/policies.js";
 import { SolanaClient } from "./solana/solana.js";
 
 interface CdpClientOptions {
@@ -26,6 +27,9 @@ export class CdpClient {
 
   /** Namespace containing all Solana methods. */
   public solana: SolanaClient;
+
+  /** Namespace containing all Policies methods. */
+  public policies: PoliciesClient;
 
   /**
    * The CdpClient is the main class for interacting with the CDP API.
@@ -116,5 +120,6 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/typescr
 
     this.evm = new EvmClient();
     this.solana = new SolanaClient();
+    this.policies = new PoliciesClient();
   }
 }

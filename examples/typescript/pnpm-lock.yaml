@@ -22,7 +22,7 @@ importers:
         version: 4.19.3
       viem:
         specifier: ^2.21.26
-        version: 2.28.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)
+        version: 2.28.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.4)
 
   ../../typescript/src:
     dependencies:
@@ -31,7 +31,7 @@ importers:
         version: 1.98.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)
       abitype:
         specifier: 1.0.6
-        version: 1.0.6(typescript@5.8.3)
+        version: 1.0.6(typescript@5.8.3)(zod@3.24.4)
       axios:
         specifier: ^1.8.2
         version: 1.8.4
@@ -43,7 +43,10 @@ importers:
         version: 2.3.0
       viem:
         specifier: ^2.21.26
-        version: 2.28.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)
+        version: 2.28.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.4)
+      zod:
+        specifier: ^3.24.4
+        version: 3.24.4
 
 packages:
 
@@ -614,6 +617,9 @@ packages:
       utf-8-validate:
         optional: true
 
+  zod@3.24.4:
+    resolution: {integrity: sha512-OdqJE9UDRPwWsrHjLN2F8bPxvwJBK22EHLWtanu0LSYr5YqzsaaW3RMgmjwr8Rypg5k+meEJdSPXJZXE/yqOMg==}
+
 snapshots:
 
   '@adraffy/ens-normalize@1.11.0': {}
@@ -790,13 +796,15 @@ snapshots:
     dependencies:
       '@types/node': 22.14.1
 
-  abitype@1.0.6(typescript@5.8.3):
+  abitype@1.0.6(typescript@5.8.3)(zod@3.24.4):
     optionalDependencies:
       typescript: 5.8.3
+      zod: 3.24.4
 
-  abitype@1.0.8(typescript@5.8.3):
+  abitype@1.0.8(typescript@5.8.3)(zod@3.24.4):
     optionalDependencies:
       typescript: 5.8.3
+      zod: 3.24.4
 
   agentkeepalive@4.6.0:
     dependencies:
@@ -1033,14 +1041,14 @@ snapshots:
   node-gyp-build@4.8.4:
     optional: true
 
-  ox@0.6.9(typescript@5.8.3):
+  ox@0.6.9(typescript@5.8.3)(zod@3.24.4):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/curves': 1.9.0
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.6.2
       '@scure/bip39': 1.5.4
-      abitype: 1.0.6(typescript@5.8.3)
+      abitype: 1.0.6(typescript@5.8.3)(zod@3.24.4)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.8.3
@@ -1100,15 +1108,15 @@ snapshots:
 
   uuid@8.3.2: {}
 
-  viem@2.28.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10):
+  viem@2.28.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.24.4):
     dependencies:
       '@noble/curves': 1.8.2
       '@noble/hashes': 1.7.2
       '@scure/bip32': 1.6.2
       '@scure/bip39': 1.5.4
-      abitype: 1.0.8(typescript@5.8.3)
+      abitype: 1.0.8(typescript@5.8.3)(zod@3.24.4)
       isows: 1.0.6(ws@8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))
-      ox: 0.6.9(typescript@5.8.3)
+      ox: 0.6.9(typescript@5.8.3)(zod@3.24.4)
       ws: 8.18.1(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     optionalDependencies:
       typescript: 5.8.3
@@ -1133,3 +1141,5 @@ snapshots:
     optionalDependencies:
       bufferutil: 4.0.9
       utf-8-validate: 5.0.10
+
+  zod@3.24.4: {}

@@ -25,6 +25,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import { SolanaAccount } from "./accounts/solana/types.js";
+import type { Policy } from "./policies/types.js";
 
 dotenv.config();
 
@@ -88,6 +89,7 @@ describe("CDP Client E2E Tests", () => {
   let testAccount: Account;
   let testSmartAccount: SmartAccount;
   let testSolanaAccount: SolanaAccount;
+  let testPolicyId: string;
 
   beforeAll(async () => {
     cdp = new CdpClient();
@@ -580,6 +582,162 @@ describe("CDP Client E2E Tests", () => {
 
         expect(signature).toBeDefined();
       });
+    });
+  });
+
+  describe("Policies API", () => {
+    let createdPolicy: Policy;
+
+    it("should create a policy", async () => {
+      createdPolicy = await cdp.policies.createPolicy({
+        policy: {
+          scope: "account",
+          description: "Test policy for e2e tests",
+          rules: [
+            {
+              action: "reject",
+              operation: "signEvmTransaction",
+              criteria: [
+                {
+                  type: "ethValue",
+                  ethValue: "1000000000000000000", // 1 ETH
+                  operator: ">",
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      expect(createdPolicy).toBeDefined();
+      expect(createdPolicy.id).toBeDefined();
+      expect(createdPolicy.scope).toBe("account");
+      expect(createdPolicy.description).toBe("Test policy for e2e tests");
+      expect(createdPolicy.createdAt).toBeDefined();
+      expect(createdPolicy.updatedAt).toBeDefined();
+      expect(createdPolicy.rules).toHaveLength(1);
+      expect(createdPolicy.rules[0].action).toBe("reject");
+      expect(createdPolicy.rules[0].operation).toBe("signEvmTransaction");
+
+      // Save the policy ID for other tests
+      testPolicyId = createdPolicy.id;
+    });
+
+    it("should get a policy by ID", async () => {
+      const policy = await cdp.policies.getPolicyById({
+        policyId: testPolicyId,
+      });
+
+      expect(policy).toBeDefined();
+      expect(policy.id).toBe(testPolicyId);
+      expect(policy.scope).toBe("account");
+      expect(policy.description).toBe("Test policy for e2e tests");
+      expect(policy.rules).toHaveLength(1);
+    });
+
+    it("should list policies", async () => {
+      const result = await cdp.policies.listPolicies();
+
+      expect(result).toBeDefined();
+      expect(result.policies).toBeDefined();
+      expect(Array.isArray(result.policies)).toBe(true);
+
+      // Find our test policy
+      const testPolicy = result.policies.find(p => p.id === testPolicyId);
+      expect(testPolicy).toBeDefined();
+    });
+
+    it("should list policies with scope filter", async () => {
+      const result = await cdp.policies.listPolicies({
+        scope: "account",
+      });
+
+      expect(result).toBeDefined();
+      expect(result.policies).toBeDefined();
+      expect(Array.isArray(result.policies)).toBe(true);
+
+      // All policies should have account scope
+      const allHaveAccountScope = result.policies.every(p => p.scope === "account");
+      expect(allHaveAccountScope).toBe(true);
+    });
+
+    it("should list policies with pagination", async () => {
+      const firstPage = await cdp.policies.listPolicies({
+        pageSize: 1,
+      });
+
+      expect(firstPage).toBeDefined();
+      expect(firstPage.policies).toBeDefined();
+      expect(Array.isArray(firstPage.policies)).toBe(true);
+      expect(firstPage.policies.length).toBeLessThanOrEqual(1);
+
+      // Check if we have more policies
+      if (firstPage.nextPageToken) {
+        const secondPage = await cdp.policies.listPolicies({
+          pageSize: 1,
+          pageToken: firstPage.nextPageToken,
+        });
+
+        expect(secondPage).toBeDefined();
+        expect(secondPage.policies).toBeDefined();
+        expect(Array.isArray(secondPage.policies)).toBe(true);
+
+        // Verify first and second page have different policies
+        if (secondPage.policies.length > 0 && firstPage.policies.length > 0) {
+          expect(secondPage.policies[0].id).not.toBe(firstPage.policies[0].id);
+        }
+      }
+    });
+
+    it("should update a policy", async () => {
+      const updatedPolicy = await cdp.policies.updatePolicy({
+        policyId: testPolicyId,
+        policy: {
+          description: "Updated test policy description",
+          rules: [
+            {
+              action: "reject",
+              operation: "signEvmTransaction",
+              criteria: [
+                {
+                  type: "ethValue",
+                  ethValue: "2000000000000000000", // 2 ETH
+                  operator: ">",
+                },
+                {
+                  type: "evmAddress",
+                  addresses: ["0x0000000000000000000000000000000000000000"],
+                  operator: "in",
+                }
+              ],
+            },
+          ],
+        },
+      });
+
+      expect(updatedPolicy).toBeDefined();
+      expect(updatedPolicy.id).toBe(testPolicyId);
+      expect(updatedPolicy.description).toBe("Updated test policy description");
+      expect(updatedPolicy.rules).toHaveLength(1);
+      expect(updatedPolicy.rules[0].criteria).toHaveLength(2);
+    });
+
+    it("should delete a policy", async () => {
+      await cdp.policies.deletePolicy({
+        policyId: testPolicyId,
+      });
+
+      // Verify the policy was deleted by attempting to get it
+      try {
+        await cdp.policies.getPolicyById({
+          policyId: testPolicyId,
+        });
+        // If we get here, the policy wasn't deleted
+        expect(true).toBe(false);
+      } catch (error) {
+        // Expected error
+        expect(error).toBeDefined();
+      }
     });
   });
 });

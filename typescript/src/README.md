@@ -7,6 +7,7 @@
 - [Installation](#installation)
 - [API Keys](#api-keys)
 - [Usage](#usage)
+- [Policy Management](#policy-management)
 - [Authentication tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
 - [License](#license)
@@ -20,7 +21,7 @@
 
 ## CDP SDK
 
-This module contains the TypeScript CDP SDK, which is a library that provides a client for interacting with the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). It includes a CDP Client for interacting with EVM and Solana APIs to create accounts and send transactions, as well as authentication tools for interacting directly with the CDP APIs.
+This module contains the TypeScript CDP SDK, which is a library that provides a client for interacting with the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). It includes a CDP Client for interacting with EVM and Solana APIs to create accounts and send transactions, policy APIs to govern transaction permissions, as well as authentication tools for interacting directly with the CDP APIs.
 
 ## Documentation
 
@@ -453,6 +454,132 @@ SolanaAccount supports the following actions:
 - `requestFaucet`
 - `signMessage`
 - `signTransaction`
+
+
+## Policy Management
+
+You can use the policies SDK to manage sets of rules that govern the behavior of accounts and projects, such as enforce allowlists and denylists.
+
+### Create a Project-level policy that applies to all accounts
+
+This policy will reject any transaction from any account sending Ether to the address `0x000000000000000000000000000000000000dEaD`.
+
+```typescript
+const policy = await cdp.policies.createPolicy({
+  policy: {
+    scope: 'project',
+    description: 'Project-wide Policy',
+    rules: [
+      {
+        action: 'reject',
+        operation: 'signEvmTransaction',
+        criteria: [
+          {
+            type: 'ethValue',
+            ethValue: '0',
+            operator: '>='
+          },
+          {
+            type: 'evmAddress',
+            addresses: ["0x000000000000000000000000000000000000dEaD"],
+            operator: 'in'
+          }
+        ]
+      }
+    ]
+  }
+});
+```
+
+### Create an Account-level policy
+
+This policy will accept any transaction with a value less than or equal to 1 ETH.
+
+```typescript
+const policy = await cdp.policies.createPolicy({
+  policy: {
+    scope: 'account',
+    description: 'Account Policy',
+    rules: [
+      {
+        action: 'accept',
+        operation: 'signEvmTransaction',
+        criteria: [
+          {
+            type: 'ethValue',
+            ethValue: '1000000000000000000',
+            operator: '<='
+          },
+        ]
+      }
+    ]
+  }
+});
+```
+
+### List Policies
+
+You can filter by account:
+
+```typescript
+const policy = await cdp.policies.listPolicies({
+  scope: 'account'
+});
+```
+
+You can also filter by project:
+
+```typescript
+const policy = await cdp.policies.listPolicies({
+  scope: 'project'
+});
+```
+
+### Retrieve a Policy
+
+```typescript
+const policy = await cdp.policies.getPolicyById({
+  policyId: '__POLICY_ID__'
+});
+```
+
+### Update a Policy
+
+This policy will update an existing policy to reject any transaction with a value greater than 1 ETH.
+
+```typescript
+const policy = await cdp.policies.updatePolicy({
+  policyId: '__POLICY_ID__',
+  policy: {
+    description: 'Updated Account Policy',
+    rules: [
+      {
+        action: 'reject',
+        operation: 'signEvmTransaction',
+        criteria: [
+          {
+            type: 'ethValue',
+            ethValue: '1000000000000000000',
+            operator: '>'
+          },
+        ]
+      }
+    ]
+  }
+});
+```
+
+### Delete a Policy
+
+> [!WARNING]
+> You cannot delete a project-level policy once set.
+> Also, attempting to delete an account-level policy in-use by at least one account will fail.
+
+```typescript
+const policy = await cdp.policies.deletePolicy({
+  policyId: '__POLICY_ID__'
+});
+```
 
 ## Authentication tools
 

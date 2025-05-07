@@ -11,6 +11,7 @@ import * as evm from "./generated/evm-accounts/evm-accounts.js";
 import * as evmSmartAccounts from "./generated/evm-smart-accounts/evm-smart-accounts.js";
 import * as evmTokenBalances from "./generated/evm-token-balances/evm-token-balances.js";
 import * as faucets from "./generated/faucets/faucets.js";
+import * as policies from "./generated/policy-engine/policy-engine.js";
 import * as solana from "./generated/solana-accounts/solana-accounts.js";
 
 export const CdpOpenApiClient = {
@@ -19,6 +20,7 @@ export const CdpOpenApiClient = {
   ...evmTokenBalances,
   ...solana,
   ...faucets,
+  ...policies,
   configure,
 };
 
@@ -32,6 +34,10 @@ export const OpenApiEvmMethods = {
 export const OpenApiSolanaMethods = {
   ...solana,
   requestSolanaFaucet: faucets.requestSolanaFaucet,
+};
+
+export const OpenApiPoliciesMethods = {
+  ...policies,
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
