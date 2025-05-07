@@ -15,6 +15,7 @@ import { SolanaAccount } from "../../accounts/solana/types.js";
 import { requestFaucet } from "../../actions/solana/requestFaucet.js";
 import { signMessage } from "../../actions/solana/signMessage.js";
 import { signTransaction } from "../../actions/solana/signTransaction.js";
+import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 
@@ -53,11 +54,18 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async createAccount(options: CreateAccountOptions = {}): Promise<SolanaAccount> {
-    const account = await CdpOpenApiClient.createSolanaAccount(options, options.idempotencyKey);
+    const openApiAccount = await CdpOpenApiClient.createSolanaAccount(
+      options,
+      options.idempotencyKey,
+    );
 
-    return toSolanaAccount(CdpOpenApiClient, {
-      account,
+    const account = toSolanaAccount(CdpOpenApiClient, {
+      account: openApiAccount,
     });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
   }
 
   /**
@@ -86,21 +94,25 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async getAccount(options: GetAccountOptions): Promise<SolanaAccount> {
-    if (options.address) {
-      const account = await CdpOpenApiClient.getSolanaAccount(options.address);
-      return toSolanaAccount(CdpOpenApiClient, {
-        account,
-      });
-    }
+    const openApiAccount = await (() => {
+      if (options.address) {
+        return CdpOpenApiClient.getSolanaAccount(options.address);
+      }
 
-    if (options.name) {
-      const account = await CdpOpenApiClient.getSolanaAccountByName(options.name);
-      return toSolanaAccount(CdpOpenApiClient, {
-        account,
-      });
-    }
+      if (options.name) {
+        return CdpOpenApiClient.getSolanaAccountByName(options.name);
+      }
 
-    throw new Error("Either address or name must be provided");
+      throw new Error("Either address or name must be provided");
+    })();
+
+    const account = toSolanaAccount(CdpOpenApiClient, {
+      account: openApiAccount,
+    });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
   }
 
   /**
@@ -179,11 +191,15 @@ export class SolanaClient implements SolanaClientInterface {
     });
 
     return {
-      accounts: solAccounts.accounts.map(account =>
-        toSolanaAccount(CdpOpenApiClient, {
+      accounts: solAccounts.accounts.map(account => {
+        const solanaAccount = toSolanaAccount(CdpOpenApiClient, {
           account,
-        }),
-      ),
+        });
+
+        Analytics.wrapObjectMethodsWithErrorTracking(solanaAccount);
+
+        return solanaAccount;
+      }),
       nextPageToken: solAccounts.nextPageToken,
     };
   }

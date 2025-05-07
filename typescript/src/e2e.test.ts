@@ -48,12 +48,6 @@ function safeStringify(obj: any) {
   );
 }
 
-vi.mock("./analytics.js", () => {
-  return {
-    wrapClassWithErrorTracking: vi.fn(),
-  };
-});
-
 async function ensureSufficientEthBalance(cdp: CdpClient, account: Account) {
   const publicClient = createPublicClient<Transport, Chain>({
     chain: baseSepolia,

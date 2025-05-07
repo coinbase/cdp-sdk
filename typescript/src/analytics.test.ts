@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { sendEvent } from "./analytics.js";
+import { Analytics } from "./analytics.js";
 
 describe("sendEvent", () => {
   it("should use the actual implementation", async () => {
@@ -8,8 +8,9 @@ describe("sendEvent", () => {
       status: 200,
     });
 
-    await sendEvent({
-      apiKeyId: "test-api-key-id",
+    Analytics.identifier = "test-api-key-id";
+
+    await Analytics.sendEvent({
       name: "error",
       method: "test",
       message: "test",

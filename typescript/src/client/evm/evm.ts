@@ -45,6 +45,7 @@ import {
   waitForUserOperation,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
+import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 import { Hex } from "../../types/misc.js";
@@ -93,16 +94,20 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async createAccount(options: CreateServerAccountOptions = {}): Promise<ServerAccount> {
-    const account = await CdpOpenApiClient.createEvmAccount(
+    const openApiAccount = await CdpOpenApiClient.createEvmAccount(
       {
         name: options.name,
       },
       options.idempotencyKey,
     );
 
-    return toEvmServerAccount(CdpOpenApiClient, {
-      account,
+    const account = toEvmServerAccount(CdpOpenApiClient, {
+      account: openApiAccount,
     });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
   }
 
   /**
@@ -151,17 +156,21 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async createSmartAccount(options: CreateSmartAccountOptions): Promise<SmartAccount> {
-    const smartAccount = await CdpOpenApiClient.createEvmSmartAccount(
+    const openApiSmartAccount = await CdpOpenApiClient.createEvmSmartAccount(
       {
         owners: [options.owner.address],
       },
       options.idempotencyKey,
     );
 
-    return toEvmSmartAccount(CdpOpenApiClient, {
-      smartAccount,
+    const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
+      smartAccount: openApiSmartAccount,
       owner: options.owner,
     });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
+
+    return smartAccount;
   }
 
   /**
@@ -190,7 +199,7 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async getAccount(options: GetServerAccountOptions): Promise<ServerAccount> {
-    const account = await (() => {
+    const openApiAccount = await (() => {
       if (options.address) {
         return CdpOpenApiClient.getEvmAccount(options.address);
       }
@@ -202,9 +211,13 @@ export class EvmClient implements EvmClientInterface {
       throw new Error("Either address or name must be provided");
     })();
 
-    return toEvmServerAccount(CdpOpenApiClient, {
-      account,
+    const account = toEvmServerAccount(CdpOpenApiClient, {
+      account: openApiAccount,
     });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
   }
 
   /**
@@ -227,12 +240,16 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async getSmartAccount(options: GetSmartAccountOptions): Promise<SmartAccount> {
-    const smartAccount = await CdpOpenApiClient.getEvmSmartAccount(options.address);
+    const openApiSmartAccount = await CdpOpenApiClient.getEvmSmartAccount(options.address);
 
-    return toEvmSmartAccount(CdpOpenApiClient, {
-      smartAccount,
+    const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
+      smartAccount: openApiSmartAccount,
       owner: options.owner,
     });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
+
+    return smartAccount;
   }
 
   /**
@@ -328,11 +345,15 @@ export class EvmClient implements EvmClientInterface {
     });
 
     return {
-      accounts: ethAccounts.accounts.map(account =>
-        toEvmServerAccount(CdpOpenApiClient, {
-          account: account,
-        }),
-      ),
+      accounts: ethAccounts.accounts.map(account => {
+        const evmAccount = toEvmServerAccount(CdpOpenApiClient, {
+          account,
+        });
+
+        Analytics.wrapObjectMethodsWithErrorTracking(evmAccount);
+
+        return evmAccount;
+      }),
       nextPageToken: ethAccounts.nextPageToken,
     };
   }

@@ -1,5 +1,7 @@
 import md5 from "md5";
 
+import { APIError } from "./openapi-client/errors.js";
+
 /**
  * The data in an error event
  */
@@ -22,12 +24,17 @@ type ErrorEventData = {
   name: "error";
 };
 
-type EventData = ErrorEventData & {
-  apiKeyId: string;
-};
+type EventData = ErrorEventData;
 
 // This is a public client id for the analytics service
 const publicClientId = "54f2ee2fb3d2b901a829940d70fbfc13";
+
+export const Analytics = {
+  identifier: "", // set in cdp.ts
+  wrapClassWithErrorTracking,
+  wrapObjectMethodsWithErrorTracking,
+  sendEvent,
+};
 
 /**
  * Sends an analytics event to the default endpoint
@@ -35,11 +42,15 @@ const publicClientId = "54f2ee2fb3d2b901a829940d70fbfc13";
  * @param event - The event data containing event-specific fields
  * @returns Promise that resolves when the event is sent
  */
-export async function sendEvent(event: EventData): Promise<void> {
+async function sendEvent(event: EventData): Promise<void> {
+  if (process.env.DISABLE_CDP_ERROR_REPORTING === "true") {
+    return;
+  }
+
   const timestamp = Date.now();
 
   const enhancedEvent = {
-    user_id: event.apiKeyId,
+    user_id: Analytics.identifier,
     event_type: event.name,
     platform: "server",
     timestamp,
@@ -80,10 +91,13 @@ export async function sendEvent(event: EventData): Promise<void> {
  * Wraps all methods of a class with error tracking.
  *
  * @param ClassToWrap - The class whose prototype methods should be wrapped.
- * @param apiKeyId - The API key ID to use for the error tracking.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function wrapClassWithErrorTracking(ClassToWrap: any, apiKeyId: string): void {
+function wrapClassWithErrorTracking(ClassToWrap: any): void {
+  if (process.env.DISABLE_CDP_ERROR_REPORTING === "true") {
+    return;
+  }
+
   const methods = Object.getOwnPropertyNames(ClassToWrap.prototype).filter(
     name => name !== "constructor" && typeof ClassToWrap.prototype[name] === "function",
   );
@@ -94,14 +108,13 @@ export function wrapClassWithErrorTracking(ClassToWrap: any, apiKeyId: string): 
       try {
         return await originalMethod.apply(this, args);
       } catch (error) {
-        if (!(error instanceof Error)) {
-          return;
+        if (!shouldTrackError(error)) {
+          throw error;
         }
 
-        const { message, stack } = error;
+        const { message, stack } = error as Error;
 
         sendEvent({
-          apiKeyId,
           method,
           message,
           stack,
@@ -114,4 +127,64 @@ export function wrapClassWithErrorTracking(ClassToWrap: any, apiKeyId: string): 
       }
     };
   }
+}
+
+/**
+ * Wraps all methods of an object with error tracking.
+ *
+ * @param object - The object whose methods should be wrapped.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function wrapObjectMethodsWithErrorTracking(object: any): void {
+  if (process.env.DISABLE_CDP_ERROR_REPORTING === "true") {
+    return;
+  }
+
+  const methods = Object.getOwnPropertyNames(object).filter(
+    name => name !== "constructor" && typeof object[name] === "function",
+  );
+
+  for (const method of methods) {
+    const originalMethod = object[method];
+    object[method] = async function (...args: unknown[]) {
+      try {
+        return await originalMethod.apply(this, args);
+      } catch (error) {
+        if (!shouldTrackError(error)) {
+          throw error;
+        }
+
+        const { message, stack } = error as Error;
+
+        sendEvent({
+          method,
+          message,
+          stack,
+          name: "error",
+        }).catch(() => {
+          // ignore error
+        });
+
+        throw error;
+      }
+    };
+  }
+}
+
+/**
+ * Filters out non-errors and API errors
+ *
+ * @param error - The error to check.
+ * @returns True if the error should be tracked, false otherwise.
+ */
+function shouldTrackError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  if (error instanceof APIError) {
+    return false;
+  }
+
+  return true;
 }
