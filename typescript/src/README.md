@@ -585,6 +585,46 @@ const policy = await cdp.policies.deletePolicy({
 });
 ```
 
+### Validate a Policy
+
+If you're integrating policy editing into your application, you may find it useful to validate policies ahead of time to provide a user with feedback. The `CreatePolicyBodySchema` and `UpdatePolicyBodySchema` can be used to get actionable structured information about any issues with a policy. Read more about [handling ZodErrors](https://zod.dev/ERROR_HANDLING).
+
+```ts
+import { CreatePolicyBodySchema, UpdatePolicyBodySchema } from "@coinbase/cdp-sdk";
+
+// Validate a new Policy with many issues, will throw a ZodError with actionable validation errors
+try {
+  CreatePolicyBodySchema.parse({
+    description: 'Bad description with !#@ characters, also is wayyyyy toooooo long!!',
+    rules: [
+      {
+        action: 'acept',
+        operation: 'unknownOperation',
+        criteria: [
+          {
+            type: 'ethValue',
+            ethValue: 'not a number',
+            operator: '<='
+          },
+          {
+            type: 'evmAddress',
+            addresses: ["not an address"],
+            operator: 'in'
+          },
+          {
+            type: 'evmAddress',
+            addresses: ["not an address"],
+            operator: 'invalid operator'
+          }
+        ]
+      },
+    ]
+  })
+} catch(e) {
+  console.error(e)
+}
+````
+
 ## Authentication tools
 
 This SDK also contains simple tools for authenticating REST API requests to the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). See the [Auth README](src/auth/README.md) for more details.
