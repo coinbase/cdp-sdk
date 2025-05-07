@@ -391,6 +391,10 @@ const { status } = await sender.transfer({
 
 Account objects have actions that can be used to interact with the account. These can be used in place of the `cdp` client.
 
+### EVM account actions
+
+Here are some examples for actions on EVM accounts.
+
 For example, instead of:
 
 ```typescript
@@ -423,6 +427,32 @@ EvmSmartAccount supports the following actions:
 - `waitForUserOperation`
 - `getUserOperation`
 - `transfer`
+
+### Solana account actions
+
+Here are some examples for actions on Solana accounts.
+
+```typescript
+const balances = await cdp.solana.signMessage({
+  address: account.address,
+  message: "Hello, world!",
+});
+```
+
+You can use the `signMessage` action:
+
+```typescript
+const account = await cdp.solana.createAccount();
+const { signature } = await account.signMessage({
+  message: "Hello, world!"
+});
+```
+
+SolanaAccount supports the following actions:
+
+- `requestFaucet`
+- `signMessage`
+- `signTransaction`
 
 ## Authentication tools
 

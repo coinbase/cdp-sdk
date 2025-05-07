@@ -44,7 +44,7 @@ export type AccountActions = {
    * const account = await cdp.solana.createAccount();
    *
    * // Sign a message
-   * const signature = await account.signMessage({
+   * const { signature } = await account.signMessage({
    *   message: "Hello, world!",
    * });
    * ```
@@ -78,7 +78,7 @@ export type AccountActions = {
    * const transaction = Buffer.from(serializedTransaction).toString("base64");
    *
    * // When you want to sign a transaction, you can do so by address and base64 encoded transaction
-   * const signature = await account.signTransaction({
+   * const { signature } = await account.signTransaction({
    *   transaction,
    * });
    * ```
