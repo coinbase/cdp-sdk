@@ -133,14 +133,14 @@ export class PoliciesClient implements PoliciesClientInterface {
    * Retrieves a policy by its unique identifier.
    *
    * @param {GetPolicyByIdOptions} options - Options containing the policy ID to retrieve
-   * @param {string} options.policyId - The unique identifier of the policy to retrieve
+   * @param {string} options.id - The unique identifier of the policy to retrieve
    *
    * @returns {Promise<Policy>} The requested policy
    *
    * @example **Retrieving a policy by ID**
    *          ```ts
    *          const policy = await cdp.policies.getPolicyById({
-   *            policyId: "__ID__"
+   *            id: "__ID__"
    *          });
    *
    *          console.log(policy.name);
@@ -148,7 +148,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    */
   async getPolicyById(options: GetPolicyByIdOptions): Promise<Policy> {
-    return CdpOpenApiClient.getPolicyById(options.policyId) as Promise<Policy>;
+    return CdpOpenApiClient.getPolicyById(options.id) as Promise<Policy>;
   }
 
   /**
@@ -156,7 +156,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    * If a policy is referenced by an active project or account, this operation will fail.
    *
    * @param {DeletePolicyOptions} options - Options containing the policy ID to delete
-   * @param {string} options.policyId - The unique identifier of the policy to delete
+   * @param {string} options.id - The unique identifier of the policy to delete
    * @param {string} [options.idempotencyKey] - An idempotency key to prevent duplicate deletion
    *
    * @returns {Promise<void>} Void on successful deletion
@@ -164,7 +164,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    * @example **Deleting a policy**
    *          ```ts
    *          await cdp.policies.deletePolicy({
-   *            policyId: "__ID__"
+   *            id: "__ID__"
    *          });
    *          ```
    *
@@ -174,13 +174,13 @@ export class PoliciesClient implements PoliciesClientInterface {
    *
    *          // This operation is idempotent with the key
    *          await cdp.policies.deletePolicy({
-   *            policyId: "__ID__",
+   *            id: "__ID__",
    *            idempotencyKey
    *          });
    *          ```
    */
   async deletePolicy(options: DeletePolicyOptions): Promise<void> {
-    return CdpOpenApiClient.deletePolicy(options.policyId, options.idempotencyKey);
+    return CdpOpenApiClient.deletePolicy(options.id, options.idempotencyKey);
   }
 
   /**
@@ -188,7 +188,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    * This will apply the updated policy to any project or accounts that are currently using it.
    *
    * @param {UpdatePolicyOptions} options - Options containing the policy ID and updated policy data
-   * @param {string} options.policyId - The unique identifier of the policy to update
+   * @param {string} options.id - The unique identifier of the policy to update
    * @param {UpdatePolicyBody} options.policy - The updated policy configuration
    * @param {string} [options.policy.description] - Updated description of the policy's purpose
    * @param {Rule[]} [options.policy.rules] - Updated rules that define the policy behavior
@@ -200,7 +200,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    * @example **Updating a policy**
    *          ```ts
    *          const updatedPolicy = await cdp.policies.updatePolicy({
-   *            policyId: "__ID__",
+   *            id: "__ID__",
    *            policy: {
    *              description: "Now with lower transaction limits",
    *              rules: [
@@ -226,7 +226,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    *
    *          // This operation is idempotent with the key
    *          await cdp.policies.updatePolicy({
-   *            policyId: "__ID__",
+   *            id: "__ID__",
    *            policy: {
    *              description: "Modified Policy",
    *              rules: { ... }
@@ -238,7 +238,7 @@ export class PoliciesClient implements PoliciesClientInterface {
   async updatePolicy(options: UpdatePolicyOptions): Promise<Policy> {
     UpdatePolicyBodySchema.parse(options.policy);
     return CdpOpenApiClient.updatePolicy(
-      options.policyId,
+      options.id,
       options.policy,
       options.idempotencyKey,
     ) as Promise<Policy>;

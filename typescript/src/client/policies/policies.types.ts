@@ -68,7 +68,7 @@ export interface GetPolicyByIdOptions {
    * The unique identifier of the policy to retrieve.
    * This is a UUID that's generated when the policy is created.
    */
-  policyId: string;
+  id: string;
 }
 
 /**
@@ -79,7 +79,7 @@ export interface DeletePolicyOptions {
    * The unique identifier of the policy to delete.
    * This is a UUID that's generated when the policy is created.
    */
-  policyId: string;
+  id: string;
   /**
    * The idempotency key to ensure the request is processed exactly once.
    * Used to safely retry requests without accidentally performing the same operation twice.
@@ -95,7 +95,7 @@ export interface UpdatePolicyOptions {
    * The unique identifier of the policy to update.
    * This is a UUID that's generated when the policy is created.
    */
-  policyId: string;
+  id: string;
   /**
    * The updated policy definition.
    * Contains the description and rules for the policy.

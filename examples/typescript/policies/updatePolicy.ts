@@ -24,7 +24,7 @@ const policy = await cdp.policies.createPolicy({
 });
 
 const updatedPolicy = await cdp.policies.updatePolicy({
-  policyId: policy.id,
+  id: policy.id,
   policy: {
     description: 'Updated Denylist Policy',
     rules: [

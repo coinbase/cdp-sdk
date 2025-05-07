@@ -29,6 +29,6 @@ const policy = await cdp.policies.createPolicy({
 });
 
 const retrievedPolicy = await cdp.policies.getPolicyById({
-  policyId: policy.id
+  id: policy.id
 });
 console.log("Retrieved policy: ", JSON.stringify(retrievedPolicy, null, 2));

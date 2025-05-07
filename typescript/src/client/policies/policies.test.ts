@@ -222,7 +222,7 @@ describe("PoliciesClient", () => {
 
       await expect(
         client.updatePolicy({
-          policyId: "policy-123",
+          id: "policy-123",
           // @ts-expect-error Intentionally using incorrect criteria structure for test
           policy: invalidPolicy,
         }),
@@ -340,7 +340,7 @@ describe("PoliciesClient", () => {
       >;
       getPolicyByIdMock.mockResolvedValue(mockPolicy);
 
-      const result = await client.getPolicyById({ policyId: "policy-123" });
+      const result = await client.getPolicyById({ id: "policy-123" });
       expect(result).toEqual(mockPolicy);
       expect(getPolicyByIdMock).toHaveBeenCalledWith("policy-123");
     });
@@ -351,7 +351,7 @@ describe("PoliciesClient", () => {
       >;
       getPolicyByIdMock.mockRejectedValue(new APIError(404, "not_found", "Policy not found"));
 
-      await expect(client.getPolicyById({ policyId: "non-existent" })).rejects.toThrow(
+      await expect(client.getPolicyById({ id: "non-existent" })).rejects.toThrow(
         "Policy not found",
       );
       expect(getPolicyByIdMock).toHaveBeenCalledWith("non-existent");
@@ -365,7 +365,7 @@ describe("PoliciesClient", () => {
       >;
       deletePolicyMock.mockResolvedValue(undefined);
 
-      await client.deletePolicy({ policyId: "policy-123", idempotencyKey: "idem-key" });
+      await client.deletePolicy({ id: "policy-123", idempotencyKey: "idem-key" });
       expect(deletePolicyMock).toHaveBeenCalledWith("policy-123", "idem-key");
     });
 
@@ -375,7 +375,7 @@ describe("PoliciesClient", () => {
       >;
       deletePolicyMock.mockResolvedValue(undefined);
 
-      await client.deletePolicy({ policyId: "policy-123" });
+      await client.deletePolicy({ id: "policy-123" });
       expect(deletePolicyMock).toHaveBeenCalledWith("policy-123", undefined);
     });
   });
@@ -405,7 +405,7 @@ describe("PoliciesClient", () => {
       };
 
       const result = await client.updatePolicy({
-        policyId: "policy-123",
+        id: "policy-123",
         policy: policyUpdate,
         idempotencyKey: "idem-key",
       });
@@ -437,7 +437,7 @@ describe("PoliciesClient", () => {
       };
 
       const result = await client.updatePolicy({
-        policyId: "policy-123",
+        id: "policy-123",
         policy: policyUpdate,
       });
 
@@ -458,7 +458,7 @@ describe("PoliciesClient", () => {
 
       await expect(
         client.updatePolicy({
-          policyId: "policy-123",
+          id: "policy-123",
           policy: invalidPolicy,
         }),
       ).rejects.toThrow(ZodError);
@@ -483,7 +483,7 @@ describe("PoliciesClient", () => {
 
       await expect(
         client.updatePolicy({
-          policyId: "policy-123",
+          id: "policy-123",
           // @ts-expect-error Intentionally using invalid operation for test
           policy: invalidPolicy,
         }),
@@ -515,7 +515,7 @@ describe("PoliciesClient", () => {
 
       await expect(
         client.updatePolicy({
-          policyId: "policy-123",
+          id: "policy-123",
           // @ts-expect-error Intentionally using incorrect criteria structure for test
           policy: invalidPolicy,
         }),

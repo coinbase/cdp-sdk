@@ -28,5 +28,5 @@ const policy = await cdp.policies.createPolicy({
   }
 });
 
-await cdp.policies.deletePolicy({ policyId: policy.id })
+await cdp.policies.deletePolicy({ id: policy.id })
 console.log("Deleted policy: ", policy.id);

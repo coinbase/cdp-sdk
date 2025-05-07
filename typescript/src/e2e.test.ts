@@ -625,7 +625,7 @@ describe("CDP Client E2E Tests", () => {
 
     it("should get a policy by ID", async () => {
       const policy = await cdp.policies.getPolicyById({
-        policyId: testPolicyId,
+        id: testPolicyId,
       });
 
       expect(policy).toBeDefined();
@@ -691,7 +691,7 @@ describe("CDP Client E2E Tests", () => {
 
     it("should update a policy", async () => {
       const updatedPolicy = await cdp.policies.updatePolicy({
-        policyId: testPolicyId,
+        id: testPolicyId,
         policy: {
           description: "Updated test policy description",
           rules: [
@@ -724,13 +724,13 @@ describe("CDP Client E2E Tests", () => {
 
     it("should delete a policy", async () => {
       await cdp.policies.deletePolicy({
-        policyId: testPolicyId,
+        id: testPolicyId,
       });
 
       // Verify the policy was deleted by attempting to get it
       try {
         await cdp.policies.getPolicyById({
-          policyId: testPolicyId,
+          id: testPolicyId,
         });
         // If we get here, the policy wasn't deleted
         expect(true).toBe(false);

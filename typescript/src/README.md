@@ -544,7 +544,7 @@ const policy = await cdp.policies.listPolicies({
 
 ```typescript
 const policy = await cdp.policies.getPolicyById({
-  policyId: '__POLICY_ID__'
+  id: '__POLICY_ID__'
 });
 ```
 
@@ -554,7 +554,7 @@ This policy will update an existing policy to accept transactions to any address
 
 ```typescript
 const policy = await cdp.policies.updatePolicy({
-  policyId: '__POLICY_ID__',
+  id: '__POLICY_ID__',
   policy: {
     description: 'Updated Account Denylist Policy',
     rules: [
@@ -581,7 +581,7 @@ const policy = await cdp.policies.updatePolicy({
 
 ```typescript
 const policy = await cdp.policies.deletePolicy({
-  policyId: '__POLICY_ID__'
+  id: '__POLICY_ID__'
 });
 ```
 

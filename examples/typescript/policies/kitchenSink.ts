@@ -30,7 +30,7 @@ const policy = await cdp.policies.createPolicy({
 console.log("Created account policy: ", policy.id);
 
 const updatedPolicy = await cdp.policies.updatePolicy({
-  policyId: policy.id,
+  id: policy.id,
   policy: {
     description: 'Updated to Denylist Policy',
     rules: [
@@ -56,9 +56,9 @@ const updatedPolicy = await cdp.policies.updatePolicy({
 console.log("Updated policy: ", updatedPolicy.id);
 
 const retrievedPolicy = await cdp.policies.getPolicyById({
-  policyId: policy.id
+  id: policy.id
 });
 console.log("Retrieved policy: ", JSON.stringify(retrievedPolicy, null, 2));
 
-await cdp.policies.deletePolicy({ policyId: retrievedPolicy.id })
+await cdp.policies.deletePolicy({ id: retrievedPolicy.id })
 console.log("Deleted policy: ", retrievedPolicy.id);
