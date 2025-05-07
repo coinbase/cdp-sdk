@@ -14,6 +14,7 @@ import {
 import { toSolanaAccount } from "../../accounts/solana/toSolanaAccount.js";
 import { requestFaucet } from "../../actions/solana/requestFaucet.js";
 import { signMessage } from "../../actions/solana/signMessage.js";
+import { signTransaction } from "../../actions/solana/signTransaction.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 
@@ -269,16 +270,6 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async signTransaction(options: SignTransactionOptions): Promise<SignatureResult> {
-    const signature = await CdpOpenApiClient.signSolanaTransaction(
-      options.address,
-      {
-        transaction: options.transaction,
-      },
-      options.idempotencyKey,
-    );
-
-    return {
-      signature: signature.signedTransaction,
-    };
+    return signTransaction(CdpOpenApiClient, options);
   }
 }

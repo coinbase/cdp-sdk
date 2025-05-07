@@ -1,11 +1,13 @@
 import { requestFaucet } from "../../actions/solana/requestFaucet.js";
 import { signMessage } from "../../actions/solana/signMessage.js";
+import { signTransaction } from "../../actions/solana/signTransaction.js";
 import {
   Account,
-  SolanaAccount,
   RequestFaucetOptions,
   SignatureResult,
   SignMessageOptions,
+  SignTransactionOptions,
+  SolanaAccount,
 } from "../../client/solana/solana.types.js";
 import { CdpOpenApiClientType } from "../../openapi-client/index.js";
 
@@ -41,6 +43,14 @@ export function toSolanaAccount(
     },
     async signMessage(options: Omit<SignMessageOptions, "address">): Promise<SignatureResult> {
       return signMessage(apiClient, {
+        ...options,
+        address: account.address,
+      });
+    },
+    async signTransaction(
+      options: Omit<SignTransactionOptions, "address">,
+    ): Promise<SignatureResult> {
+      return signTransaction(apiClient, {
         ...options,
         address: account.address,
       });

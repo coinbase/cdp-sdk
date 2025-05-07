@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach, MockedFunction } from "vitest";
+import { beforeEach, describe, expect, it, MockedFunction, vi } from "vitest";
 
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 
-import { SolanaClient } from "./solana.js";
 import { APIError } from "../../openapi-client/errors.js";
+import { SolanaClient } from "./solana.js";
 
 vi.mock("../../openapi-client/index.js", () => {
   return {
@@ -41,6 +41,7 @@ describe("SolanaClient", () => {
         address: "cdpSolanaAccount",
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
+        signTransaction: expect.any(Function),
       });
     });
   });
@@ -59,6 +60,7 @@ describe("SolanaClient", () => {
         address: "cdpSolanaAccount",
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
+        signTransaction: expect.any(Function),
       });
     });
 
@@ -75,6 +77,7 @@ describe("SolanaClient", () => {
         address: "cdpSolanaAccount",
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
+        signTransaction: expect.any(Function),
       });
     });
 
@@ -109,11 +112,13 @@ describe("SolanaClient", () => {
         address: "cdpSolanaAccount",
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
+        signTransaction: expect.any(Function),
       });
       expect(result2).toEqual({
         address: "cdpSolanaAccount",
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
+        signTransaction: expect.any(Function),
       });
       expect(getSolanaAccountByNameMock).toHaveBeenCalledTimes(2);
       expect(createSolanaAccountMock).toHaveBeenCalledTimes(1);
@@ -136,6 +141,7 @@ describe("SolanaClient", () => {
             address: "cdpSolanaAccount",
             requestFaucet: expect.any(Function),
             signMessage: expect.any(Function),
+            signTransaction: expect.any(Function),
           },
         ],
       });
@@ -209,6 +215,38 @@ describe("SolanaClient", () => {
         token: "sol",
       });
       expect(result).toEqual({ signature: "someTransactionSignature" });
+    });
+
+    it("should sign a Solana message", async () => {
+      const signSolanaMessageMock = CdpOpenApiClient.signSolanaMessage as MockedFunction<
+        typeof CdpOpenApiClient.signSolanaMessage
+      >;
+
+      signSolanaMessageMock.mockResolvedValue({
+        signature: "someSignature",
+      });
+
+      const result = await client.signMessage({
+        address: "cdpSolanaAccount",
+        message: "someMessage",
+      });
+      expect(result).toEqual({ signature: "someSignature" });
+    });
+
+    it("should sign a Solana transaction", async () => {
+      const signSolanaTransactionMock = CdpOpenApiClient.signSolanaTransaction as MockedFunction<
+        typeof CdpOpenApiClient.signSolanaTransaction
+      >;
+
+      signSolanaTransactionMock.mockResolvedValue({
+        signedTransaction: "someSignature",
+      });
+
+      const result = await client.signTransaction({
+        address: "cdpSolanaAccount",
+        transaction: "someTransaction",
+      });
+      expect(result).toEqual({ signature: "someSignature" });
     });
   });
 });

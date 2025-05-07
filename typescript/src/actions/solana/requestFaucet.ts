@@ -1,4 +1,4 @@
-import { RequestFaucetOptions, SignatureResult } from "./types.js";
+import { RequestFaucetOptions, SignatureResult } from "../../client/solana/solana.types.js";
 import { CdpOpenApiClientType } from "../../openapi-client/index.js";
 
 /**
