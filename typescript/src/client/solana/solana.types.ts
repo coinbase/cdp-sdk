@@ -1,7 +1,10 @@
+import { AccountActions, SignatureResult } from "../../actions/solana/types.js";
 import {
   OpenApiSolanaMethods,
   SolanaAccount as OpenAPISolanaAccount,
 } from "../../openapi-client/index.js";
+import { Prettify } from "../../types/utils.js";
+
 /**
  * The SolanaClient type, where all OpenApiSolanaMethods methods are wrapped.
  */
@@ -23,10 +26,16 @@ export type SolanaClientInterface = Omit<
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
   signTransaction: (options: SignTransactionOptions) => Promise<SignatureResult>;
 };
+
 /**
- * A Solana account.
+ * A base Solana account.
  */
 export type Account = OpenAPISolanaAccount;
+
+/**
+ * A Solana account with actions.
+ */
+export type SolanaAccount = Prettify<OpenAPISolanaAccount & AccountActions>;
 
 /**
  * Options for creating a Solana account.
@@ -71,7 +80,7 @@ export interface ListAccountsOptions {
  */
 export interface ListAccountsResult {
   /** The accounts. */
-  accounts: Account[];
+  accounts: SolanaAccount[];
   /**
    * The token for the next page of accounts, if any.
    */
@@ -112,12 +121,4 @@ export interface SignTransactionOptions {
   transaction: string;
   /** The idempotency key. */
   idempotencyKey?: string;
-}
-
-/**
- * A Solana signature result.
- */
-export interface SignatureResult {
-  /** The signature. */
-  signature: string;
 }
