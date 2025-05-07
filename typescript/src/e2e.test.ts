@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, vi } from "vitest";
+import { describe, it, expect, beforeAll, vi, beforeEach } from "vitest";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import {
   serializeTransaction,
@@ -9,6 +9,8 @@ import {
   type PublicClient,
   type Transport,
   type Chain,
+  type Address,
+  formatEther,
 } from "viem";
 import { baseSepolia } from "viem/chains";
 import { CdpClient } from "./client/cdp.js";
@@ -17,8 +19,7 @@ import type { ServerAccount as Account, SmartAccount } from "./client/evm/evm.ty
 
 dotenv.config();
 
-const testSmartAccountAddress = "0x0A32E0DFb3eb262A7e03B9B880956264D6aCf755";
-const testAccountName = "E2ETestAccount";
+const testAccountName = "E2EServerAccount";
 
 const logger = {
   log: (...args: any[]) => {
@@ -43,6 +44,34 @@ vi.mock("./analytics.js", () => {
   };
 });
 
+async function ensureSufficientEthBalance(cdp: CdpClient, account: Account) {
+  const publicClient = createPublicClient<Transport, Chain>({
+    chain: baseSepolia,
+    transport: http(),
+  });
+
+  const ethBalance = await publicClient.getBalance({
+    address: account.address,
+  });
+
+  const minRequiredBalance = parseEther("0.000001");
+  if (ethBalance < minRequiredBalance) {
+    logger.log(
+      `ETH balance (${formatEther(ethBalance)}) too low for ${account.address}. Requesting funds...`,
+    );
+    const { transactionHash } = await cdp.evm.requestFaucet({
+      address: account.address,
+      network: "base-sepolia",
+      token: "eth",
+    });
+
+    await publicClient.waitForTransactionReceipt({ hash: transactionHash });
+    logger.log(
+      `Funds requested. New balance: ${await publicClient.getBalance({ address: account.address })}`,
+    );
+  }
+}
+
 describe("CDP Client E2E Tests", () => {
   let cdp: CdpClient;
   let publicClient: PublicClient<Transport, Chain>;
@@ -58,10 +87,24 @@ describe("CDP Client E2E Tests", () => {
     });
 
     testAccount = await cdp.evm.getOrCreateAccount({ name: testAccountName });
-    testSmartAccount = await cdp.evm.getSmartAccount({
-      address: testSmartAccountAddress,
-      owner: testAccount,
-    });
+    testSmartAccount = await (async () => {
+      if (process.env.CDP_E2E_SMART_ACCOUNT_ADDRESS) {
+        logger.log("CDP_E2E_SMART_ACCOUNT_ADDRESS is set. Using existing smart account.");
+        return cdp.evm.getSmartAccount({
+          address: process.env.CDP_E2E_SMART_ACCOUNT_ADDRESS as Address,
+          owner: testAccount,
+        });
+      } else {
+        logger.log("CDP_E2E_SMART_ACCOUNT_ADDRESS is not set. Creating a new smart account.");
+        return cdp.evm.createSmartAccount({
+          owner: testAccount,
+        });
+      }
+    })();
+  });
+
+  beforeEach(async () => {
+    await ensureSufficientEthBalance(cdp, testAccount);
   });
 
   it("should create, get, and list accounts", async () => {

@@ -158,7 +158,7 @@ async def test_send_wait_and_get_user_operation(cdp_client):
 @pytest.mark.asyncio
 async def test_send_transaction(cdp_client):
     """Test sending a transaction."""
-    account = await cdp_client.evm.get_account(name="E2ETestAccount")
+    account = await cdp_client.evm.get_account(name="E2EServerAccount")
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)

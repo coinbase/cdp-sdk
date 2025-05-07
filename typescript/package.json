@@ -19,7 +19,7 @@
     "prepublish": "pnpm tsx scripts/prepublish.ts",
     "test": "vitest --config=./vitest.config.ts run",
     "test:coverage": "vitest --config=./vitest.config.ts run --coverage",
-    "test:e2e": "pnpm build && vitest --config=./vitest.e2e.config.ts run",
+    "test:e2e": "pnpm build && DISABLE_CDP_ERROR_REPORTING=true vitest --config=./vitest.e2e.config.ts run",
     "test:e2e:watch": "vitest --config=./vitest.e2e.config.ts",
     "test:watch": "vitest --config=./vitest.config.ts"
   },
