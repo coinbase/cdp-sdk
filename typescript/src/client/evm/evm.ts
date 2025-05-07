@@ -24,6 +24,7 @@ import {
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
+import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import {
   listTokenBalances,
   ListTokenBalancesResult,
@@ -52,7 +53,6 @@ import type {
   TransactionResult,
   SendTransactionOptions,
 } from "../../actions/evm/sendTransaction.js";
-import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 
 /**
  * The namespace containing all EVM methods.

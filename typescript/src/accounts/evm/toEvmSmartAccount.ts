@@ -21,8 +21,8 @@ import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
-
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
+
 import type { TransferResult } from "../../actions/evm/transfer/types.js";
 import type {
   CdpOpenApiClientType,

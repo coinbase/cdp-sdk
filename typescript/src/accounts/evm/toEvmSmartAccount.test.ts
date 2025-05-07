@@ -144,10 +144,7 @@ describe("toEvmSmartAccount", () => {
       userOpHash: "0xuserophash",
     });
 
-    expect(mockApiClient.getUserOperation).toHaveBeenCalledWith(
-      mockAddress,
-      "0xuserophash",
-    );
+    expect(mockApiClient.getUserOperation).toHaveBeenCalledWith(mockAddress, "0xuserophash");
 
     expect(userOp).toEqual(mockUserOp);
   });
