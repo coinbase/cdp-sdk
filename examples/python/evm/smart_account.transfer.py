@@ -1,4 +1,4 @@
-# Usage: uv run python evm/smartAccount.transfer.py
+# Usage: uv run python evm/smart_account.transfer.py
 
 import asyncio
 from cdp import CdpClient

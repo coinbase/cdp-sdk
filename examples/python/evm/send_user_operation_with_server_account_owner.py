@@ -1,9 +1,8 @@
-# Usage: uv run python evm/create_smart_wallet_and_send.py
+# Usage: uv run python evm/send_user_operation_with_server_account_owner.py
 
 import asyncio
 from decimal import Decimal
 
-from eth_account import Account
 from web3 import Web3
 
 from cdp import CdpClient
@@ -14,10 +13,10 @@ async def main():
     w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 
     async with CdpClient() as cdp:
-        private_key = Account.create().key
-        owner = Account.from_key(private_key)
+        account = await cdp.evm.create_account()
+        print("Created account:", account.address)
 
-        smart_account = await cdp.evm.create_smart_account(owner)
+        smart_account = await cdp.evm.create_smart_account(account)
         print("Created smart account:", smart_account.address)
 
         print("Requesting faucet")
