@@ -1,11 +1,11 @@
 import {
   Hex,
-  TransactionReceipt,
   Address,
   PublicClient,
   Chain,
   Transport,
   WaitForTransactionReceiptParameters,
+  TransactionReceipt,
 } from "viem";
 
 import {
@@ -29,10 +29,9 @@ type TransferOptions = {
   /** The account to transfer the token to. */
   to: EvmAccount | Address;
   /**
-   * The amount of the token to transfer.
-   * If a string is provided, it will be parsed into a bigint based on the token's decimals.
+   * The amount of the token to transfer, represented as a whole unit (e.g. "0.01").
    */
-  amount: bigint | string;
+  amount: string;
   /** The token to transfer. Can be a contract address or a predefined token name. */
   token: "eth" | "usdc" | Hex;
   /** The network to transfer the token on. */
@@ -69,11 +68,11 @@ export type SmartAccountTransferOptions = TransferOptions & {
 /**
  * The result of the transfer.
  */
-export type TransferResult = {
-  /** The status of the transaction. */
-  status: TransactionReceipt["status"];
+export type Transfer = {
   /** The transaction hash of the transfer. */
   transactionHash: Hex;
+  /** The status of the transaction. */
+  status?: TransactionReceipt["status"];
 };
 
 /**
@@ -120,5 +119,5 @@ export interface TransferExecutionStrategy<T extends EvmAccount | EvmSmartAccoun
     from: T;
     hash: Hex;
     waitOptions?: WaitForUserOperationOptions["waitOptions"];
-  }): Promise<TransferResult>;
+  }): Promise<Transfer>;
 }

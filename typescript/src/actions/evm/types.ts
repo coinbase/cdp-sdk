@@ -1,4 +1,5 @@
 import { SendUserOperationOptions, SendUserOperationReturnType } from "./sendUserOperation.js";
+import { WaitForTransferReceiptOptions } from "./transfer/waitForTransferReceipt.js";
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 import { EvmAccount, EvmSmartAccount } from "../../openapi-client/index.js";
 
@@ -8,7 +9,7 @@ import type { SendTransactionOptions, TransactionResult } from "./sendTransactio
 import type {
   AccountTransferOptions,
   SmartAccountTransferOptions,
-  TransferResult,
+  Transfer,
 } from "./transfer/types.js";
 import type {
   WaitForUserOperationOptions,
@@ -101,7 +102,17 @@ type Actions<T extends EvmAccount | EvmSmartAccount> = {
    */
   transfer: (
     options: T extends EvmSmartAccount ? SmartAccountTransferOptions : AccountTransferOptions,
-  ) => Promise<TransferResult>;
+  ) => Promise<Transfer>;
+
+  /**
+   * Waits for the result of a transfer.
+   *
+   * @param options - The options for the wait.
+   * @param options.timeoutSeconds - The timeout in seconds.
+   * @param options.intervalSeconds - The interval in seconds.
+   * @returns The result of the transfer.
+   */
+  waitForTransferReceipt: (options: WaitForTransferReceiptOptions) => Promise<Transfer>;
 
   /**
    * List the token balances of an account.

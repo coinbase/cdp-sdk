@@ -6,7 +6,7 @@ import type {
   SmartAccountTransferOptions,
   TransferExecutionStrategy,
 } from "./types.js";
-import { EvmAccount, EvmSmartAccount } from "../../../accounts/types.js";
+import { EvmAccount, EvmSmartAccount } from "../../../accounts/evm/types.js";
 import { CdpOpenApiClientType } from "../../../openapi-client/index.js";
 import { Address, Hex } from "../../../types/misc.js";
 
@@ -66,15 +66,7 @@ describe("transfer", () => {
       token: transferArgs.token,
     });
 
-    expect(mockTransferStrategy.waitForResult).toHaveBeenCalledWith({
-      apiClient: mockApiClient,
-      publicClient: expect.any(Object),
-      from: mockAccount,
-      hash: "0xhash",
-    });
-
     expect(result).toEqual({
-      status: "success",
       transactionHash: "0xhash",
     });
   });
@@ -99,7 +91,6 @@ describe("transfer", () => {
     });
 
     expect(result).toEqual({
-      status: "success",
       transactionHash: "0xhash",
     });
   });
@@ -124,33 +115,6 @@ describe("transfer", () => {
     });
 
     expect(result).toEqual({
-      status: "success",
-      transactionHash: "0xhash",
-    });
-  });
-
-  it("should transfer using bigint amount without conversion", async () => {
-    const bigintAmount = BigInt("1000000000000000000"); // 1 ETH
-    const transferArgs: AccountTransferOptions = {
-      to: "0x1234567890123456789012345678901234567890" as Address,
-      amount: bigintAmount,
-      token: "eth",
-      network: "base",
-    };
-
-    const result = await transfer(mockApiClient, mockAccount, transferArgs, mockTransferStrategy);
-
-    expect(mockTransferStrategy.executeTransfer).toHaveBeenCalledWith({
-      apiClient: mockApiClient,
-      from: mockAccount,
-      to: transferArgs.to,
-      value: bigintAmount,
-      network: transferArgs.network,
-      token: transferArgs.token,
-    });
-
-    expect(result).toEqual({
-      status: "success",
       transactionHash: "0xhash",
     });
   });
@@ -179,15 +143,7 @@ describe("transfer", () => {
       token: transferArgs.token,
     });
 
-    expect(mockTransferStrategy.waitForResult).toHaveBeenCalledWith({
-      apiClient: mockApiClient,
-      publicClient: expect.any(Object),
-      from: mockSmartAccount,
-      hash: "0xhash",
-    });
-
     expect(result).toEqual({
-      status: "success",
       transactionHash: "0xhash",
     });
   });
@@ -247,7 +203,6 @@ describe("transfer", () => {
     });
 
     expect(result).toEqual({
-      status: "success",
       transactionHash: "0xhash",
     });
   });

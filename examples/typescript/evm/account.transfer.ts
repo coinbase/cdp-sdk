@@ -48,14 +48,20 @@ console.log(
   `Sending 0.01 USDC from ${sender.address} to ${receiver.address}...`
 );
 
-const { status, transactionHash } = await sender.transfer({
+const transfer = await sender.transfer({
   to: receiver,
   amount: "0.01",
   token: "usdc",
   network: "base-sepolia",
 });
 
-console.log(`Transfer status: ${status}`);
+const receipt = await sender.waitForTransferReceipt({
+  hash: transfer.transactionHash,
+  network: "base-sepolia",
+  timeoutSeconds: 10,
+});
+
+console.log(`Transfer status: ${receipt.status}`);
 console.log(
-  `Explorer link: https://sepolia.basescan.org/tx/${transactionHash}`
+  `Explorer link: https://sepolia.basescan.org/tx/${receipt.transactionHash}`
 );

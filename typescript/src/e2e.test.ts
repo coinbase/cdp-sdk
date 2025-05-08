@@ -411,25 +411,35 @@ describe("CDP Client E2E Tests", () => {
   describe("server account actions", () => {
     describe("transfer", () => {
       it("should transfer eth", async () => {
-        const { status } = await testAccount.transfer({
+        const transfer = await testAccount.transfer({
           to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
           amount: "0",
           token: "eth",
           network: "base-sepolia",
         });
 
-        expect(status).toBe("success");
+        const receipt = await testAccount.waitForTransferReceipt({
+          hash: transfer.transactionHash,
+          network: "base-sepolia",
+        });
+
+        expect(receipt.status).toBe("success");
       });
 
       it("should transfer usdc", async () => {
-        const { status } = await testAccount.transfer({
+        const transfer = await testAccount.transfer({
           to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
           amount: "0",
           token: "usdc",
           network: "base-sepolia",
         });
 
-        expect(status).toBe("success");
+        const receipt = await testAccount.waitForTransferReceipt({
+          hash: transfer.transactionHash,
+          network: "base-sepolia",
+        });
+
+        expect(receipt.status).toBe("success");
       });
     });
 
@@ -473,25 +483,35 @@ describe("CDP Client E2E Tests", () => {
   describe("smart account actions", () => {
     describe("transfer", () => {
       it("should transfer eth", async () => {
-        const { status } = await testSmartAccount.transfer({
+        const transfer = await testSmartAccount.transfer({
           to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
           amount: "0",
           token: "eth",
           network: "base-sepolia",
         });
 
-        expect(status).toBe("success");
+        const receipt = await testSmartAccount.waitForTransferReceipt({
+          hash: transfer.transactionHash,
+          network: "base-sepolia",
+        });
+
+        expect(receipt.status).toBe("success");
       });
 
       it("should transfer usdc", async () => {
-        const { status } = await testSmartAccount.transfer({
+        const transfer = await testSmartAccount.transfer({
           to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
           amount: "0",
           token: "usdc",
           network: "base-sepolia",
         });
 
-        expect(status).toBe("success");
+        const receipt = await testSmartAccount.waitForTransferReceipt({
+          hash: transfer.transactionHash,
+          network: "base-sepolia",
+        });
+
+        expect(receipt.status).toBe("success");
       });
     });
 
