@@ -1,6 +1,7 @@
 // Usage: pnpm tsx solana/signTransaction.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
+import "dotenv/config";
 
 import {
   Keypair,

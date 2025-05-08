@@ -2,6 +2,9 @@
 
 import asyncio
 from cdp import CdpClient
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 async def main():
@@ -9,7 +12,7 @@ async def main():
         account = await cdp.evm.get_or_create_account(name="Account1")
         print(f"Account: {account.address}")
 
-        print(f"Listing token balances for account...")
+        print("Listing token balances for account...")
         balances = await account.list_token_balances(
             network="base-sepolia",
             page_size=10,

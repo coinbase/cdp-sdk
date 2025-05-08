@@ -4,6 +4,7 @@ import { CdpClient } from "@coinbase/cdp-sdk";
 
 import { createPublicClient, http, parseEther, Calls } from "viem";
 import { baseSepolia } from "viem/chains";
+import "dotenv/config";
 
 const cdp = new CdpClient();
 
@@ -52,5 +53,8 @@ const userOperationResult = await smartAccount.waitForUserOperation({
 if (userOperationResult.status === "failed") {
   console.log("User operation failed.");
 } else if (userOperationResult.status === "complete") {
-  console.log("User operation completed with transaction hash:", userOperationResult.transactionHash);
+  console.log(
+    "User operation completed with transaction hash:",
+    userOperationResult.transactionHash
+  );
 }

@@ -4,6 +4,9 @@ import asyncio
 import uuid
 
 from cdp import CdpClient
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 async def main():

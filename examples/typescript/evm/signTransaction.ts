@@ -4,6 +4,7 @@ import { CdpClient } from "@coinbase/cdp-sdk";
 
 import { parseEther, serializeTransaction } from "viem";
 import { baseSepolia } from "viem/chains";
+import "dotenv/config";
 
 const cdp = new CdpClient();
 

@@ -1,4 +1,4 @@
-# Usage: 
+# Usage:
 # uv run python evm/wait_user_operation.py
 #   [--owner <owner_address>] - optional address of the owner of the smart account, if not
 #       provided, a new account will be created
@@ -16,9 +16,13 @@ from web3 import Web3
 
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # The static address mapped to ETH when listing token balances
 ETH_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+
 
 async def main():
     parser = argparse.ArgumentParser(description="Solana transfer script")
@@ -59,16 +63,27 @@ async def main():
         else:
             owner = await cdp.evm.get_account(owner_address)
             print("Got owner account:", owner.address)
-            smart_account = await cdp.evm.get_smart_account(smart_account_address, owner)
+            smart_account = await cdp.evm.get_smart_account(
+                smart_account_address, owner
+            )
             print("Got smart account:", smart_account.address)
 
         # Get the ETH balance of the smart account
-        balance_response = await cdp.evm.list_token_balances(smart_account.address, "base-sepolia")
-        eth_balance = next((balance for balance in balance_response.balances if balance.token.contract_address == ETH_ADDRESS), None)
+        balance_response = await cdp.evm.list_token_balances(
+            smart_account.address, "base-sepolia"
+        )
+        eth_balance = next(
+            (
+                balance
+                for balance in balance_response.balances
+                if balance.token.contract_address == ETH_ADDRESS
+            ),
+            None,
+        )
         if eth_balance:
             print(f"ETH balance of smart account in wei: {eth_balance.amount.amount}")
         else:
-            print("No ETH balance found for smart account")        
+            print("No ETH balance found for smart account")
             print("Requesting faucet to smart account")
             faucet_hash = await cdp.evm.request_faucet(
                 address=smart_account.address, network="base-sepolia", token="eth"
@@ -81,11 +96,14 @@ async def main():
             )
 
         # Create the user operation with multiple calls in it
-        calls = [EncodedCall(
-            to=destination,
-            data="0x",
-            value=Web3.to_wei(Decimal(amount), "wei"),
-        ) for destination in destinations]
+        calls = [
+            EncodedCall(
+                to=destination,
+                data="0x",
+                value=Web3.to_wei(Decimal(amount), "wei"),
+            )
+            for destination in destinations
+        ]
 
         print("Sending user operation")
         user_operation = await cdp.evm.send_user_operation(
@@ -103,9 +121,12 @@ async def main():
         )
 
         if user_operation.status == "complete":
-            print("User operation sent. Transaction explorer link:", f"https://sepolia.basescan.org/tx/{user_operation.transaction_hash}")
+            print(
+                "User operation sent. Transaction explorer link:",
+                f"https://sepolia.basescan.org/tx/{user_operation.transaction_hash}",
+            )
         else:
             print("User operation failed.")
 
-asyncio.run(main())
 
+asyncio.run(main())

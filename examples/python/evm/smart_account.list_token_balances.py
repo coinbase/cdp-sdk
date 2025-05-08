@@ -3,6 +3,10 @@
 import asyncio
 from cdp import CdpClient
 from web3 import Web3
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 async def main():
     async with CdpClient() as cdp:

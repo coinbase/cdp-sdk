@@ -8,6 +8,9 @@ from web3 import Web3
 
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 async def main():

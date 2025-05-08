@@ -1,6 +1,7 @@
 // Usage: pnpm tsx solana/requestFaucet.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
+import "dotenv/config";
 
 const cdp = new CdpClient();
 

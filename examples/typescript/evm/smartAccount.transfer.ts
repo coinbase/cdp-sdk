@@ -2,6 +2,7 @@
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
+import "dotenv/config";
 
 const cdp = new CdpClient();
 

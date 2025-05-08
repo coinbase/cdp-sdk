@@ -5,6 +5,9 @@ import asyncio
 from web3 import Web3
 
 from cdp import CdpClient
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 async def main():
@@ -56,7 +59,9 @@ async def main():
 
         print("Waiting for transaction confirmation...")
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-        print(f"Transaction status: {'Success' if tx_receipt.status == 1 else 'Failed'}")
+        print(
+            f"Transaction status: {'Success' if tx_receipt.status == 1 else 'Failed'}"
+        )
 
 
 asyncio.run(main())

@@ -1,6 +1,7 @@
 // Usage: pnpm tsx solana/signAndSendVersionedTransaction.ts [sourceAddress]
 
 import { CdpClient } from "@coinbase/cdp-sdk";
+import "dotenv/config";
 
 import {
   Connection,

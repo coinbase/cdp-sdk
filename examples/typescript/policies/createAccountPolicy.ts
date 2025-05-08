@@ -1,30 +1,31 @@
 // Usage: pnpm tsx policies/createAccountPolicy.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
+import "dotenv/config";
 
 const cdp = new CdpClient();
 const policy = await cdp.policies.createPolicy({
   policy: {
-    scope: 'account',
-    description: 'Account Allowlist Example',
+    scope: "account",
+    description: "Account Allowlist Example",
     rules: [
       {
-        action: 'accept',
-        operation: 'signEvmTransaction',
+        action: "accept",
+        operation: "signEvmTransaction",
         criteria: [
           {
-            type: 'ethValue',
-            ethValue: '1000000000000000000',
-            operator: '<='
+            type: "ethValue",
+            ethValue: "1000000000000000000",
+            operator: "<=",
           },
           {
-            type: 'evmAddress',
+            type: "evmAddress",
             addresses: ["0x000000000000000000000000000000000000dEaD"],
-            operator: 'in'
-          }
-        ]
-      }
-    ]
-  }
+            operator: "in",
+          },
+        ],
+      },
+    ],
+  },
 });
 console.log("Created account policy: ", policy.id);

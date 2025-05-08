@@ -4,6 +4,10 @@ import asyncio
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
 from eth_account import Account
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 async def main():
     async with CdpClient() as cdp:

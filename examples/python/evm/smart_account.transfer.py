@@ -4,6 +4,9 @@ import asyncio
 from cdp import CdpClient
 from eth_account import Account
 from cdp.actions.evm.transfer import TransferOptions
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 async def main():

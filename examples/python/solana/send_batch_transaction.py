@@ -1,4 +1,4 @@
-# Usage: 
+# Usage:
 # uv run python solana/send_batch_transaction.py
 #   [--sender <sender_address>] - optional, if not provided, a new account will be created and funded from the faucet
 #   [--destinations <destination_addresses>] - optional, a comma separated list of destination addresses.
@@ -17,6 +17,9 @@ from solders.pubkey import Pubkey as PublicKey
 from solders.system_program import TransferParams, transfer
 
 from cdp import CdpClient
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 async def create_account(cdp: CdpClient):
@@ -80,7 +83,9 @@ async def send_transaction(
     source_pubkey = PublicKey.from_string(sender_address)
     dest_pubkeys = [PublicKey.from_string(address) for address in destination_addresses]
 
-    print(f"Preparing to send {amount} lamports each to {len(destination_addresses)} addresses from {sender_address}")
+    print(
+        f"Preparing to send {amount} lamports each to {len(destination_addresses)} addresses from {sender_address}"
+    )
 
     blockhash_resp = connection.get_latest_blockhash()
     blockhash = blockhash_resp.value.blockhash
@@ -91,7 +96,9 @@ async def send_transaction(
         )
         for dest_pubkey in dest_pubkeys
     ]
-    transfer_instr_list = [transfer(transfer_param) for transfer_param in transfer_param_list]
+    transfer_instr_list = [
+        transfer(transfer_param) for transfer_param in transfer_param_list
+    ]
 
     message = Message.new_with_blockhash(
         transfer_instr_list,
@@ -144,7 +151,9 @@ async def send_transaction(
     print(
         f"Transaction confirmed: {'failed' if hasattr(confirmation, 'err') and confirmation.err else 'success'}"
     )
-    print(f"Transaction explorer link: https://explorer.solana.com/tx/{signature}?cluster=devnet")
+    print(
+        f"Transaction explorer link: https://explorer.solana.com/tx/{signature}?cluster=devnet"
+    )
 
     return signature
 
@@ -176,7 +185,9 @@ async def main():
 
             # If no sender address is provided, create a new account and faucet it
             if not sender_address:
-                print("No sender address provided. Creating a new account and requesting funds...")
+                print(
+                    "No sender address provided. Creating a new account and requesting funds..."
+                )
                 sender_address = await create_account(cdp)
                 await request_faucet(cdp, sender_address)
                 await wait_for_balance(connection, sender_address)
@@ -186,14 +197,18 @@ async def main():
                 source_pubkey = PublicKey.from_string(sender_address)
                 balance_resp = connection.get_balance(source_pubkey)
                 balance = balance_resp.value
-                print(f"Sender account balance: {balance / 1e9} SOL ({balance} lamports)")
+                print(
+                    f"Sender account balance: {balance / 1e9} SOL ({balance} lamports)"
+                )
 
                 if balance == 0:
                     print("Account has zero balance, requesting funds from faucet...")
                     await request_faucet(cdp, sender_address)
                     await wait_for_balance(connection, sender_address)
 
-            await send_transaction(cdp, sender_address, args.destinations.split(","), args.amount)
+            await send_transaction(
+                cdp, sender_address, args.destinations.split(","), args.amount
+            )
 
         except Exception as error:
             print(f"Error in process: {error}")
