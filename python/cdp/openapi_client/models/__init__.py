@@ -19,6 +19,8 @@ from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccoun
 from cdp.openapi_client.models.create_evm_smart_account_request import CreateEvmSmartAccountRequest
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.create_solana_account_request import CreateSolanaAccountRequest
+from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.error import Error
 from cdp.openapi_client.models.error_type import ErrorType
 from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
@@ -52,6 +54,7 @@ from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageReq
 from cdp.openapi_client.models.sign_evm_transaction200_response import SignEvmTransaction200Response
 from cdp.openapi_client.models.sign_evm_transaction_criteria_inner import SignEvmTransactionCriteriaInner
 from cdp.openapi_client.models.sign_evm_transaction_request import SignEvmTransactionRequest
+from cdp.openapi_client.models.sign_evm_typed_data200_response import SignEvmTypedData200Response
 from cdp.openapi_client.models.sign_sol_transaction_criteria_inner import SignSolTransactionCriteriaInner
 from cdp.openapi_client.models.sign_solana_message200_response import SignSolanaMessage200Response
 from cdp.openapi_client.models.sign_solana_message_request import SignSolanaMessageRequest

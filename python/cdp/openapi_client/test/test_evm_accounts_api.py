@@ -83,6 +83,13 @@ class TestEVMAccountsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_sign_evm_typed_data(self) -> None:
+        """Test case for sign_evm_typed_data
+
+        Sign EIP-712 typed data
+        """
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()
