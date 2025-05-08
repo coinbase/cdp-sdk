@@ -24,7 +24,7 @@ import {
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 
 import type { EvmAccount, EvmSmartAccount } from "./types.js";
-import type { TransferResult } from "../../actions/evm/transfer/types.js";
+import type { Transfer } from "../../actions/evm/transfer/types.js";
 import type {
   CdpOpenApiClientType,
   EvmSmartAccount as EvmSmartAccountModel,
@@ -60,7 +60,7 @@ export function toEvmSmartAccount(
   const account: EvmSmartAccount = {
     address: options.smartAccount.address as Address,
     owners: [options.owner],
-    async transfer(transferArgs): Promise<TransferResult> {
+    async transfer(transferArgs): Promise<Transfer> {
       return transfer(apiClient, account, transferArgs, smartAccountTransferStrategy);
     },
     async listTokenBalances(
