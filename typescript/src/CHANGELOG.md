@@ -1,5 +1,18 @@
 # CDP SDK Changelog
 
+## 1.7.0
+
+### Minor Changes
+
+- [#116](https://github.com/coinbase/cdp-sdk/pull/116) [`97678d6`](https://github.com/coinbase/cdp-sdk/commit/97678d675358bb8d0b6195fd31933a32926cdd44) Thanks [@sddioulde](https://github.com/sddioulde)! - Added getUserOperation smart account action
+
+- [#122](https://github.com/coinbase/cdp-sdk/pull/122) [`ee41d98`](https://github.com/coinbase/cdp-sdk/commit/ee41d986406e3e8666d1d1a1b1525e7ff7435a2b) Thanks [@sddioulde](https://github.com/sddioulde)! - Added account actions to Solana
+
+- [#103](https://github.com/coinbase/cdp-sdk/pull/103) [`2777cde`](https://github.com/coinbase/cdp-sdk/commit/2777cde93e4f10579a4ca31e140720067799cf66) Thanks [@0xRAG](https://github.com/0xRAG)! - Added additional options to transfer methods:
+
+  - Added `paymasterUrl` and `waitOptions` to EvmSmartAccount.transfer
+  - Added `waitOptions` to EvmAccount.transfer
+
 ## 1.6.0
 
 ### Minor Changes
