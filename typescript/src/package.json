@@ -19,6 +19,7 @@
     }
   },
   "dependencies": {
+    "@solana/spl-token": "^0.4.13",
     "@solana/web3.js": "^1.98.1",
     "abitype": "1.0.6",
     "axios": "^1.8.2",

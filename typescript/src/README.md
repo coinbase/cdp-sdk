@@ -137,8 +137,8 @@ const account = await cdp.evm.updateAccount({
   addresss: account.address,
   update: {
     name: "Updated name",
-    accountPolicy: "1622d4b7-9d60-44a2-9a6a-e9bbb167e412"
-  }
+    accountPolicy: "1622d4b7-9d60-44a2-9a6a-e9bbb167e412",
+  },
 });
 ```
 
@@ -149,8 +149,8 @@ const account = await cdp.solana.updateAccount({
   addresss: account.address,
   update: {
     name: "Updated name",
-    accountPolicy: "1622d4b7-9d60-44a2-9a6a-e9bbb167e412"
-  }
+    accountPolicy: "1622d4b7-9d60-44a2-9a6a-e9bbb167e412",
+  },
 });
 ```
 
@@ -316,7 +316,9 @@ const userOperation = await cdp.sendUserOperation({
 
 ### Transferring tokens
 
-For complete examples, check out [transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/transfer.ts) and [transferWithSmartWallet.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/transferWithSmartWallet.ts).
+#### EVM
+
+For complete examples, check out [evm/account.transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.transfer.ts) and [evm/smartAccount.transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.transfer.ts).
 
 You can transfer tokens between accounts using the `transfer` function:
 
@@ -414,6 +416,72 @@ const { status } = await sender.transfer({
 });
 ```
 
+#### Solana
+
+For complete examples, check out [solana/account.transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/account.transfer.ts).
+
+You can transfer tokens between accounts using the `transfer` function, and wait for the transaction to be confirmed using the `confirmTransaction` function from `@solana/web3.js`:
+
+```typescript
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+
+const sender = await cdp.solana.createAccount();
+
+const connection = new Connection("https://api.devnet.solana.com");
+
+const { signature } = await sender.transfer({
+  to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+  amount: 0.01 * LAMPORTS_PER_SOL,
+  token: "sol",
+  network: connection,
+});
+
+const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+const confirmation = await connection.confirmTransaction(
+  {
+    signature,
+    blockhash,
+    lastValidBlockHeight,
+  },
+  "confirmed",
+);
+
+if (confirmation.value.err) {
+  console.log(`Something went wrong! Error: ${confirmation.value.err.toString()}`);
+} else {
+  console.log(
+    `Transaction confirmed: Link: https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+  );
+}
+```
+
+You can also easily send USDC:
+
+```typescript
+const { signature } = await sender.transfer({
+  to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+  amount: "0.01",
+  token: "usdc",
+  network: "devnet",
+});
+```
+
+If you want to use your own Connection, you can pass one to the `network` parameter:
+
+```typescript
+import { Connection } from "@solana/web3.js";
+
+const connection = new Connection("YOUR_RPC_URL");
+
+const { signature } = await sender.transfer({
+  to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+  amount: "0.01",
+  token: "usdc",
+  network: connection,
+});
+```
+
 ## Account Actions
 
 Account objects have actions that can be used to interact with the account. These can be used in place of the `cdp` client.
@@ -471,7 +539,7 @@ You can use the `signMessage` action:
 ```typescript
 const account = await cdp.solana.createAccount();
 const { signature } = await account.signMessage({
-  message: "Hello, world!"
+  message: "Hello, world!",
 });
 ```
 
@@ -480,7 +548,6 @@ SolanaAccount supports the following actions:
 - `requestFaucet`
 - `signMessage`
 - `signTransaction`
-
 
 ## Policy Management
 
@@ -493,27 +560,27 @@ This policy will accept any account sending less than a specific amount of ETH t
 ```typescript
 const policy = await cdp.policies.createPolicy({
   policy: {
-    scope: 'project',
-    description: 'Project-wide Allowlist Policy',
+    scope: "project",
+    description: "Project-wide Allowlist Policy",
     rules: [
       {
-        action: 'accept',
-        operation: 'signEvmTransaction',
+        action: "accept",
+        operation: "signEvmTransaction",
         criteria: [
           {
-            type: 'ethValue',
-            ethValue: '1000000000000000000',
-            operator: '<='
+            type: "ethValue",
+            ethValue: "1000000000000000000",
+            operator: "<=",
           },
           {
-            type: 'evmAddress',
+            type: "evmAddress",
             addresses: ["0x000000000000000000000000000000000000dEaD"],
-            operator: 'in'
-          }
-        ]
-      }
-    ]
-  }
+            operator: "in",
+          },
+        ],
+      },
+    ],
+  },
 });
 ```
 
@@ -524,27 +591,27 @@ This policy will accept any transaction with a value less than or equal to 1 ETH
 ```typescript
 const policy = await cdp.policies.createPolicy({
   policy: {
-    scope: 'account',
-    description: 'Account Allowlist Policy',
+    scope: "account",
+    description: "Account Allowlist Policy",
     rules: [
       {
-        action: 'accept',
-        operation: 'signEvmTransaction',
+        action: "accept",
+        operation: "signEvmTransaction",
         criteria: [
           {
-            type: 'ethValue',
-            ethValue: '1000000000000000000',
-            operator: '<='
+            type: "ethValue",
+            ethValue: "1000000000000000000",
+            operator: "<=",
           },
           {
-            type: 'evmAddress',
+            type: "evmAddress",
             addresses: ["0x000000000000000000000000000000000000dEaD"],
-            operator: 'in'
-          }
-        ]
-      }
-    ]
-  }
+            operator: "in",
+          },
+        ],
+      },
+    ],
+  },
 });
 ```
 
@@ -553,22 +620,22 @@ const policy = await cdp.policies.createPolicy({
 ```typescript
 const policy = await cdp.policies.createPolicy({
   policy: {
-    scope: 'account',
-    description: 'Account Allowlist Policy',
+    scope: "account",
+    description: "Account Allowlist Policy",
     rules: [
       {
-        action: 'accept',
-        operation: 'signSolTransaction',
+        action: "accept",
+        operation: "signSolTransaction",
         criteria: [
           {
-            type: 'solAddress',
+            type: "solAddress",
             addresses: ["DtdSSG8ZJRZVv5Jx7K1MeWp7Zxcu19GD5wQRGRpQ9uMF"],
-            operator: 'in'
-          }
-        ]
-      }
-    ]
-  }
+            operator: "in",
+          },
+        ],
+      },
+    ],
+  },
 });
 ```
 
@@ -578,7 +645,7 @@ You can filter by account:
 
 ```typescript
 const policy = await cdp.policies.listPolicies({
-  scope: 'account'
+  scope: "account",
 });
 ```
 
@@ -586,7 +653,7 @@ You can also filter by project:
 
 ```typescript
 const policy = await cdp.policies.listPolicies({
-  scope: 'project'
+  scope: "project",
 });
 ```
 
@@ -594,7 +661,7 @@ const policy = await cdp.policies.listPolicies({
 
 ```typescript
 const policy = await cdp.policies.getPolicyById({
-  id: '__POLICY_ID__'
+  id: "__POLICY_ID__",
 });
 ```
 
@@ -604,34 +671,33 @@ This policy will update an existing policy to accept transactions to any address
 
 ```typescript
 const policy = await cdp.policies.updatePolicy({
-  id: '__POLICY_ID__',
+  id: "__POLICY_ID__",
   policy: {
-    description: 'Updated Account Denylist Policy',
+    description: "Updated Account Denylist Policy",
     rules: [
       {
-        action: 'accept',
-        operation: 'signEvmTransaction',
+        action: "accept",
+        operation: "signEvmTransaction",
         criteria: [
           {
-            type: 'evmAddress',
+            type: "evmAddress",
             addresses: ["0x000000000000000000000000000000000000dEaD"],
-            operator: 'not in'
-          }
-        ]
-      }
-    ]
-  }
+            operator: "not in",
+          },
+        ],
+      },
+    ],
+  },
 });
 ```
 
 ### Delete a Policy
 
-> [!WARNING]
-> Attempting to delete an account-level policy in-use by at least one account will fail.
+> [!WARNING] Attempting to delete an account-level policy in-use by at least one account will fail.
 
 ```typescript
 const policy = await cdp.policies.deletePolicy({
-  id: '__POLICY_ID__'
+  id: "__POLICY_ID__",
 });
 ```
 
@@ -645,35 +711,35 @@ import { CreatePolicyBodySchema, UpdatePolicyBodySchema } from "@coinbase/cdp-sd
 // Validate a new Policy with many issues, will throw a ZodError with actionable validation errors
 try {
   CreatePolicyBodySchema.parse({
-    description: 'Bad description with !#@ characters, also is wayyyyy toooooo long!!',
+    description: "Bad description with !#@ characters, also is wayyyyy toooooo long!!",
     rules: [
       {
-        action: 'acept',
-        operation: 'unknownOperation',
+        action: "acept",
+        operation: "unknownOperation",
         criteria: [
           {
-            type: 'ethValue',
-            ethValue: 'not a number',
-            operator: '<='
+            type: "ethValue",
+            ethValue: "not a number",
+            operator: "<=",
           },
           {
-            type: 'evmAddress',
+            type: "evmAddress",
             addresses: ["not an address"],
-            operator: 'in'
+            operator: "in",
           },
           {
-            type: 'evmAddress',
+            type: "evmAddress",
             addresses: ["not an address"],
-            operator: 'invalid operator'
-          }
-        ]
+            operator: "invalid operator",
+          },
+        ],
       },
-    ]
-  })
-} catch(e) {
-  console.error(e)
+    ],
+  });
+} catch (e) {
+  console.error(e);
 }
-````
+```
 
 ## Authentication tools
 

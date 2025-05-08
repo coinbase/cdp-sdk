@@ -2,6 +2,7 @@ import { Account, SolanaAccount } from "./types.js";
 import { requestFaucet } from "../../actions/solana/requestFaucet.js";
 import { signMessage } from "../../actions/solana/signMessage.js";
 import { signTransaction } from "../../actions/solana/signTransaction.js";
+import { transfer, type TransferOptions } from "../../actions/solana/transfer.js";
 import {
   RequestFaucetOptions,
   SignatureResult,
@@ -54,6 +55,12 @@ export function toSolanaAccount(
       });
     },
     policies: options.account.policies,
+    async transfer(options: Omit<TransferOptions, "from">): Promise<SignatureResult> {
+      return transfer(apiClient, {
+        ...options,
+        from: account.address,
+      });
+    },
   };
 
   return account;

@@ -23,6 +23,7 @@ import {
   SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
   SystemProgram,
   Transaction,
+  Connection,
 } from "@solana/web3.js";
 import { SolanaAccount } from "./accounts/solana/types.js";
 import type { Policy } from "./policies/types.js";
@@ -76,6 +77,41 @@ async function ensureSufficientEthBalance(cdp: CdpClient, account: Account) {
   }
 }
 
+async function ensureSufficientSolBalance(cdp: CdpClient, account: SolanaAccount) {
+  function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  const connection = new Connection("https://api.devnet.solana.com");
+  let balance = await connection.getBalance(new PublicKey(account.address));
+
+  // 1250000 is the amount the faucet gives, and is plenty to cover gas
+  if (balance >= 1250000) {
+    return;
+  }
+
+  console.log("Balance too low, requesting SOL from faucet...");
+  await account.requestFaucet({
+    token: "sol",
+  });
+
+  let attempts = 0;
+  const maxAttempts = 30;
+
+  while (balance === 0 && attempts < maxAttempts) {
+    balance = await connection.getBalance(new PublicKey(account.address));
+    if (balance === 0) {
+      console.log("Waiting for funds...");
+      await sleep(1000);
+      attempts++;
+    }
+  }
+
+  if (balance === 0) {
+    throw new Error("Account not funded after multiple attempts");
+  }
+}
+
 describe("CDP Client E2E Tests", () => {
   let cdp: CdpClient;
   let publicClient: PublicClient<Transport, Chain>;
@@ -112,6 +148,7 @@ describe("CDP Client E2E Tests", () => {
 
   beforeEach(async () => {
     await ensureSufficientEthBalance(cdp, testAccount);
+    await ensureSufficientSolBalance(cdp, testSolanaAccount);
   });
 
   it("should create, get, and list accounts", async () => {
@@ -690,6 +727,58 @@ describe("CDP Client E2E Tests", () => {
         });
 
         expect(signature).toBeDefined();
+      });
+    });
+
+    describe("transfer", () => {
+      const connection = new Connection("https://api.devnet.solana.com");
+
+      it("should transfer native SOL and wait for confirmation", async () => {
+        const { signature } = await testSolanaAccount.transfer({
+          to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+          amount: 0n,
+          token: "sol",
+          network: "devnet",
+        });
+
+        expect(signature).toBeDefined();
+
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+        const confirmation = await connection.confirmTransaction(
+          {
+            signature,
+            blockhash,
+            lastValidBlockHeight,
+          },
+          "confirmed",
+        );
+
+        expect(confirmation.value.err).toBeNull();
+      });
+
+      it("should transfer USDC and wait for confirmation", async () => {
+        const { signature } = await testSolanaAccount.transfer({
+          to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+          amount: 0n,
+          token: "usdc",
+          network: "devnet",
+        });
+
+        expect(signature).toBeDefined();
+
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+        const confirmation = await connection.confirmTransaction(
+          {
+            signature,
+            blockhash,
+            lastValidBlockHeight,
+          },
+          "confirmed",
+        );
+
+        expect(confirmation.value.err).toBeNull();
       });
     });
   });

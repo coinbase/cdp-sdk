@@ -1,3 +1,4 @@
+import { TransferOptions } from "./transfer.js";
 import {
   RequestFaucetOptions,
   SignatureResult,
@@ -84,4 +85,31 @@ export type AccountActions = {
    * ```
    */
   signTransaction: (options: Omit<SignTransactionOptions, "address">) => Promise<SignatureResult>;
+
+  /**
+   * Transfers SOL or SPL tokens between accounts
+   *
+   * @param {TransferOptions} options - Parameters for the transfer.
+   * @param {string} options.to - The base58 encoded Solana address of the destination account.
+   * @param {sol|usdc|string} options.token - The token to transfer ("sol" or "usdc"), or mint address of the SPL token to transfer.
+   * @param {bigint} options.amount - The amount to transfer in atomic units of the token. For example, 0.01 * LAMPORTS_PER_SOL would transfer 0.01 SOL.
+   * @param {string | Connection} options.network - The network identifier to use, or a Solana Connection object.
+   *
+   * @returns A promise that resolves to the transaction signature, which can be used to wait for the transaction result.
+   *
+   * @example
+   * ```ts
+   * import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+   *
+   * const account = await cdp.solana.getAccount({ name: "Account" });
+   *
+   * const { signature } = await account.transfer({
+   *   token: "sol",
+   *   amount: 5 * LAMPORTS_PER_SOL,
+   *   to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+   *   network: "devnet",
+   * });
+   * ```
+   */
+  transfer: (options: Omit<TransferOptions, "from">) => Promise<SignatureResult>;
 };
