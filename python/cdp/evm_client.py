@@ -19,6 +19,7 @@ from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccoun
 from cdp.openapi_client.models.create_evm_smart_account_request import (
     CreateEvmSmartAccountRequest,
 )
+from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.evm_call import EvmCall
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
 from cdp.openapi_client.models.prepare_user_operation_request import (
@@ -324,6 +325,19 @@ class EvmClient:
             x_idempotency_key=idempotency_key,
         )
         return response.signature
+
+    async def sign_typed_data(
+        self, address: str, message: EIP712Message, idempotency_key: str | None = None
+    ) -> str:
+        """Sign an EVM typed data.
+
+        Args:
+            address (str): The address of the account.
+            message (EIP712Message): The message to sign.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        """
+        raise NotImplementedError("Signing typed data is not yet implemented")
 
     async def sign_transaction(
         self, address: str, transaction: str, idempotency_key: str | None = None
