@@ -7,6 +7,8 @@ import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
+from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.openapi_client.models.eip712_message import EIP712Message
 from web3 import Web3
 
 from cdp import CdpClient
@@ -402,6 +404,71 @@ async def test_solana_sign_fns(cdp_client):
     response = await cdp_client.solana.sign_transaction(account.address, base64_tx)
     assert response is not None
     assert response.signed_transaction is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_sign_typed_data(cdp_client):
+    """Test signing typed data."""
+    account = await cdp_client.evm.get_or_create_account(name="E2EServerAccount")
+    assert account is not None
+
+    signature = await cdp_client.evm.sign_typed_data(
+        address=account.address,
+        message=EIP712Message(
+            domain=EIP712Domain(
+                name="EIP712Domain",
+                chain_id=1,
+                verifying_contract="0x0000000000000000000000000000000000000000",
+            ),
+            types={
+                "EIP712Domain": [
+                    {"name": "name", "type": "string"},
+                    {"name": "chainId", "type": "uint256"},
+                    {"name": "verifyingContract", "type": "address"},
+                ],
+            },
+            primary_type="EIP712Domain",
+            message={
+                "name": "EIP712Domain",
+                "chainId": 1,
+                "verifyingContract": "0x0000000000000000000000000000000000000000",
+            },
+        ),
+    )
+    assert signature is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_sign_typed_data_for_account(cdp_client):
+    """Test signing typed data for an account."""
+    account = await cdp_client.evm.get_or_create_account(name="E2EServerAccount")
+    assert account is not None
+
+    signature = await account.sign_typed_data(
+        message=EIP712Message(
+            domain=EIP712Domain(
+                name="EIP712Domain",
+                chain_id=1,
+                verifying_contract="0x0000000000000000000000000000000000000000",
+            ),
+            types={
+                "EIP712Domain": [
+                    {"name": "name", "type": "string"},
+                    {"name": "chainId", "type": "uint256"},
+                    {"name": "verifyingContract", "type": "address"},
+                ],
+            },
+            primary_type="EIP712Domain",
+            message={
+                "name": "EIP712Domain",
+                "chainId": 1,
+                "verifyingContract": "0x0000000000000000000000000000000000000000",
+            },
+        ),
+    )
+    assert signature is not None
 
 
 @pytest.mark.e2e
