@@ -7,14 +7,14 @@ import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
-from cdp.openapi_client.models.eip712_domain import EIP712Domain
-from cdp.openapi_client.models.eip712_message import EIP712Message
 from web3 import Web3
 
 from cdp import CdpClient
 from cdp.actions.evm.transfer.types import TransferOptions
 from cdp.evm_call_types import EncodedCall
 from cdp.evm_transaction_types import TransactionRequestEIP1559
+from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.openapi_client.models.eip712_message import EIP712Message
 
 load_dotenv()
 
@@ -577,9 +577,9 @@ async def _ensure_sufficient_eth_balance(cdp_client, account):
 
         # Verify the balance is now sufficient
         new_balance = w3.eth.get_balance(account.address)
-        assert new_balance >= min_required_balance, (
-            f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
-        )
+        assert (
+            new_balance >= min_required_balance
+        ), f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
         return new_balance
     else:
         print(f"ETH balance is sufficient: {w3.from_wei(eth_balance, 'ether')} ETH")
