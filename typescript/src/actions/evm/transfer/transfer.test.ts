@@ -2,14 +2,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { transfer } from "./transfer.js";
 import type {
-  AccountTransferOptions,
   SmartAccountTransferOptions,
   TransferExecutionStrategy,
+  TransferOptions,
 } from "./types.js";
-import { EvmAccount, EvmSmartAccount } from "../../../accounts/types.js";
+import { EvmAccount, EvmSmartAccount } from "../../../accounts/evm/types.js";
 import { CdpOpenApiClientType } from "../../../openapi-client/index.js";
 import { Address, Hex } from "../../../types/misc.js";
-
+import { parseEther, parseUnits } from "viem";
 describe("transfer", () => {
   const mockApiClient = {} as CdpOpenApiClientType;
 
@@ -33,24 +33,21 @@ describe("transfer", () => {
     requestFaucet: vi.fn(),
     sendUserOperation: vi.fn(),
     waitForUserOperation: vi.fn(),
+    getUserOperation: vi.fn(),
   };
 
   const mockTransferStrategy: TransferExecutionStrategy<EvmAccount | EvmSmartAccount> = {
     executeTransfer: vi.fn().mockResolvedValue("0xhash" as Hex),
-    waitForResult: vi.fn().mockResolvedValue({
-      status: "success",
-      transactionHash: "0xhash" as Hex,
-    }),
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should transfer ETH using string amount", async () => {
-    const transferArgs: AccountTransferOptions = {
+  it("should transfer ETH", async () => {
+    const transferArgs: TransferOptions = {
       to: "0x1234567890123456789012345678901234567890" as Address,
-      amount: "0.1",
+      amount: parseEther("0.1"),
       token: "eth",
       network: "base",
     };
@@ -66,23 +63,13 @@ describe("transfer", () => {
       token: transferArgs.token,
     });
 
-    expect(mockTransferStrategy.waitForResult).toHaveBeenCalledWith({
-      apiClient: mockApiClient,
-      publicClient: expect.any(Object),
-      from: mockAccount,
-      hash: "0xhash",
-    });
-
-    expect(result).toEqual({
-      status: "success",
-      transactionHash: "0xhash",
-    });
+    expect(result).toEqual("0xhash");
   });
 
-  it("should transfer USDC using string amount", async () => {
-    const transferArgs: AccountTransferOptions = {
+  it("should transfer USDC", async () => {
+    const transferArgs: TransferOptions = {
       to: "0x1234567890123456789012345678901234567890" as Address,
-      amount: "100",
+      amount: parseUnits("100", 6),
       token: "usdc",
       network: "base",
     };
@@ -98,16 +85,13 @@ describe("transfer", () => {
       token: transferArgs.token,
     });
 
-    expect(result).toEqual({
-      status: "success",
-      transactionHash: "0xhash",
-    });
+    expect(result).toEqual("0xhash");
   });
 
-  it("should transfer custom token using string amount", async () => {
-    const transferArgs: AccountTransferOptions = {
+  it("should transfer custom token", async () => {
+    const transferArgs: TransferOptions = {
       to: "0x1234567890123456789012345678901234567890" as Address,
-      amount: "10",
+      amount: parseEther("10"),
       token: "0x4200000000000000000000000000000000000006" as Hex,
       network: "base",
     };
@@ -123,42 +107,13 @@ describe("transfer", () => {
       token: transferArgs.token,
     });
 
-    expect(result).toEqual({
-      status: "success",
-      transactionHash: "0xhash",
-    });
-  });
-
-  it("should transfer using bigint amount without conversion", async () => {
-    const bigintAmount = BigInt("1000000000000000000"); // 1 ETH
-    const transferArgs: AccountTransferOptions = {
-      to: "0x1234567890123456789012345678901234567890" as Address,
-      amount: bigintAmount,
-      token: "eth",
-      network: "base",
-    };
-
-    const result = await transfer(mockApiClient, mockAccount, transferArgs, mockTransferStrategy);
-
-    expect(mockTransferStrategy.executeTransfer).toHaveBeenCalledWith({
-      apiClient: mockApiClient,
-      from: mockAccount,
-      to: transferArgs.to,
-      value: bigintAmount,
-      network: transferArgs.network,
-      token: transferArgs.token,
-    });
-
-    expect(result).toEqual({
-      status: "success",
-      transactionHash: "0xhash",
-    });
+    expect(result).toEqual("0xhash");
   });
 
   it("should work with smart accounts", async () => {
     const transferArgs: SmartAccountTransferOptions = {
       to: "0x1234567890123456789012345678901234567890" as Address,
-      amount: "0.1",
+      amount: parseEther("0.1"),
       token: "eth",
       network: "base",
     };
@@ -179,34 +134,19 @@ describe("transfer", () => {
       token: transferArgs.token,
     });
 
-    expect(mockTransferStrategy.waitForResult).toHaveBeenCalledWith({
-      apiClient: mockApiClient,
-      publicClient: expect.any(Object),
-      from: mockSmartAccount,
-      hash: "0xhash",
-    });
-
-    expect(result).toEqual({
-      status: "success",
-      transactionHash: "0xhash",
-    });
+    expect(result).toEqual("0xhash");
   });
 
   it("should pass paymasterUrl if provided", async () => {
     const transferArgs: SmartAccountTransferOptions = {
       to: "0x1234567890123456789012345678901234567890" as Address,
-      amount: "0.1",
+      amount: parseEther("0.1"),
       token: "eth",
       network: "base",
       paymasterUrl: "https://paymaster.com",
     };
 
-    const result = await transfer(
-      mockApiClient,
-      mockSmartAccount,
-      transferArgs,
-      mockTransferStrategy,
-    );
+    await transfer(mockApiClient, mockSmartAccount, transferArgs, mockTransferStrategy);
 
     expect(mockTransferStrategy.executeTransfer).toHaveBeenCalledWith({
       apiClient: mockApiClient,
@@ -228,9 +168,9 @@ describe("transfer", () => {
       signTypedData: vi.fn(),
     };
 
-    const transferArgs: AccountTransferOptions = {
+    const transferArgs: TransferOptions = {
       to: recipientAccount,
-      amount: "0.1",
+      amount: parseEther("0.1"),
       token: "eth",
       network: "base",
     };
@@ -246,9 +186,6 @@ describe("transfer", () => {
       token: transferArgs.token,
     });
 
-    expect(result).toEqual({
-      status: "success",
-      transactionHash: "0xhash",
-    });
+    expect(result).toEqual("0xhash");
   });
 });

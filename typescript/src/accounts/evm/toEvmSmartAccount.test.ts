@@ -10,6 +10,8 @@ import { transfer } from "../../actions/evm/transfer/transfer.js";
 import type { TransferOptions } from "../../actions/evm/transfer/types.js";
 import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
 import { UserOperation } from "../../client/evm/evm.types.js";
+import { parseUnits } from "viem";
+
 vi.mock("../../actions/evm/transfer/transfer.js", () => ({
   ...vi.importActual("../../actions/evm/transfer/transfer.js"),
   transfer: vi.fn().mockResolvedValue({ transactionHash: "0xmocktransactionhash" }),
@@ -119,7 +121,7 @@ describe("toEvmSmartAccount", () => {
 
     const transferArgs: TransferOptions = {
       to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d" as Address,
-      amount: "0.000001",
+      amount: parseUnits("0.000001", 6),
       token: "usdc",
       network: "base-sepolia",
     };

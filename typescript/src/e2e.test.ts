@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import dotenv from "dotenv";
 import {
@@ -525,31 +525,33 @@ describe("CDP Client E2E Tests", () => {
   describe("server account actions", () => {
     describe("transfer", () => {
       it("should transfer eth", async () => {
-        const sender = await cdp.evm.getOrCreateAccount({ name: "Sender" });
-        const receiver = await cdp.evm.getOrCreateAccount({ name: "Receiver" });
-        await ensureSufficientEthBalance(cdp, sender);
-        const { status } = await sender.transfer({
-          to: receiver.address,
-          amount: "0",
+        const { transactionHash } = await testAccount.transfer({
+          to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+          amount: parseEther("0"),
           token: "eth",
           network: "base-sepolia",
         });
 
-        expect(status).toBe("success");
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: transactionHash,
+        });
+
+        expect(receipt.status).toBe("success");
       });
 
       it("should transfer usdc", async () => {
-        const sender = await cdp.evm.getOrCreateAccount({ name: "Sender" });
-        const receiver = await cdp.evm.getOrCreateAccount({ name: "Receiver" });
-        await ensureSufficientEthBalance(cdp, sender);
-        const { status } = await sender.transfer({
-          to: receiver.address,
-          amount: "0",
+        const { transactionHash } = await testAccount.transfer({
+          to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+          amount: 0n,
           token: "usdc",
           network: "base-sepolia",
         });
 
-        expect(status).toBe("success");
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: transactionHash,
+        });
+
+        expect(receipt.status).toBe("success");
       });
     });
 
@@ -619,25 +621,33 @@ describe("CDP Client E2E Tests", () => {
   describe("smart account actions", () => {
     describe("transfer", () => {
       it("should transfer eth", async () => {
-        const { status } = await testSmartAccount.transfer({
+        const { userOpHash } = await testSmartAccount.transfer({
           to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-          amount: "0",
+          amount: parseEther("0"),
           token: "eth",
           network: "base-sepolia",
         });
 
-        expect(status).toBe("success");
+        const receipt = await testSmartAccount.waitForUserOperation({
+          userOpHash,
+        });
+
+        expect(receipt.status).toBe("complete");
       });
 
       it("should transfer usdc", async () => {
-        const { status } = await testSmartAccount.transfer({
+        const { userOpHash } = await testSmartAccount.transfer({
           to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-          amount: "0",
+          amount: 0n,
           token: "usdc",
           network: "base-sepolia",
         });
 
-        expect(status).toBe("success");
+        const receipt = await testSmartAccount.waitForUserOperation({
+          userOpHash,
+        });
+
+        expect(receipt.status).toBe("complete");
       });
     });
 

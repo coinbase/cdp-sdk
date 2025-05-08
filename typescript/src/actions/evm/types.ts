@@ -1,108 +1,17 @@
 import { SendUserOperationOptions, SendUserOperationReturnType } from "./sendUserOperation.js";
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
-import { EvmAccount, EvmSmartAccount } from "../../openapi-client/index.js";
+import { Hex } from "../../types/misc.js";
 
 import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTokenBalances.js";
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
 import type { SendTransactionOptions, TransactionResult } from "./sendTransaction.js";
-import type {
-  AccountTransferOptions,
-  SmartAccountTransferOptions,
-  TransferResult,
-} from "./transfer/types.js";
+import type { TransferOptions } from "./transfer/types.js";
 import type {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "./waitForUserOperation.js";
 
-type Actions<T extends EvmAccount | EvmSmartAccount> = {
-  /**
-   * Transfer an amount of a token from an account to another account.
-   *
-   * @param options - The options for the transfer.
-   * @param options.to - The account or 0x-prefixed address to transfer the token to.
-   * @param options.amount - The amount of the token to transfer.
-   * @param options.token - The token to transfer.
-   * @param options.network - The network to transfer the token on.
-   *
-   * @returns The result of the transfer.
-   *
-   * @example
-   * ```typescript
-   * const { status } = await sender.transfer({
-   *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-   *   amount: "0.01",
-   *   token: "usdc",
-   *   network: "base-sepolia",
-   * });
-   * ```
-   *
-   * @example
-   * **Pass a bigint value**
-   * ```typescript
-   * const { status } = await sender.transfer({
-   *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-   *   amount: 10000n, // equivalent to 0.01 usdc
-   *   token: "usdc",
-   *   network: "base-sepolia",
-   * });
-   * ```
-   *
-   * @example
-   * **Transfer from a smart account**
-   * ```typescript
-   * const sender = await cdp.evm.createSmartAccount({
-   *   owner: await cdp.evm.createAccount({ name: "Owner" }),
-   * });
-   *
-   * const { status } = await sender.transfer({
-   *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-   *   amount: "0.01",
-   *   token: "usdc",
-   *   network: "base-sepolia",
-   * });
-   * ```
-   *
-   * @example
-   * **Transfer ETH**
-   * ```typescript
-   * const { status } = await sender.transfer({
-   *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-   *   amount: "0.000001",
-   *   token: "eth",
-   *   network: "base-sepolia",
-   * });
-   * ```
-   *
-   * @example
-   * **Using a contract address**
-   * ```typescript
-   * const { status } = await sender.transfer({
-   *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-   *   amount: "0.000001",
-   *   token: "0x4200000000000000000000000000000000000006", // WETH on Base Sepolia
-   *   network: "base-sepolia",
-   * });
-   * ```
-   *
-   * @example
-   * **Transfer to another account**
-   * ```typescript
-   * const sender = await cdp.evm.createAccount({ name: "Sender" });
-   * const receiver = await cdp.evm.createAccount({ name: "Receiver" });
-   *
-   * const { status } = await sender.transfer({
-   *   to: receiver,
-   *   amount: "0.01",
-   *   token: "usdc",
-   *   network: "base-sepolia",
-   * });
-   * ```
-   */
-  transfer: (
-    options: T extends EvmSmartAccount ? SmartAccountTransferOptions : AccountTransferOptions,
-  ) => Promise<TransferResult>;
-
+type Actions = {
   /**
    * List the token balances of an account.
    *
@@ -143,7 +52,85 @@ type Actions<T extends EvmAccount | EvmSmartAccount> = {
   requestFaucet: (options: Omit<RequestFaucetOptions, "address">) => Promise<RequestFaucetResult>;
 };
 
-export type AccountActions = Actions<EvmAccount> & {
+export type AccountActions = Actions & {
+  /**
+   * Transfer an amount of a token from an account to another account.
+   *
+   * @param options - The options for the transfer.
+   * @param options.to - The account or 0x-prefixed address to transfer the token to.
+   * @param options.amount - The amount of the token to transfer represented as an atomic unit.
+   * It's common to use `parseEther` or `parseUnits` utils from viem to convert to atomic units.
+   * Otherwise, you can pass atomic units directly. See examples below.
+   * @param options.token - The token to transfer. This can be 'eth', 'usdc', or a contract address.
+   * @param options.network - The network to transfer the token on.
+   *
+   * @returns An object containing the transaction hash.
+   *
+   * @example
+   * ```typescript
+   * const { transactionHash } = await sender.transfer({
+   *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+   *   amount: 10000n, // equivalent to 0.01 USDC
+   *   token: "usdc",
+   *   network: "base-sepolia",
+   * });
+   * ```
+   *
+   * @example
+   * **Using parseUnits to specify USDC amount**
+   * ```typescript
+   * import { parseUnits } from "viem";
+   *
+   * const { transactionHash } = await sender.transfer({
+   *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+   *   amount: parseUnits("0.01", 6), // USDC uses 6 decimal places
+   *   token: "usdc",
+   *   network: "base-sepolia",
+   * });
+   * ```
+   *
+   * @example
+   * **Transfer ETH**
+   * ```typescript
+   * import { parseEther } from "viem";
+   *
+   * const { transactionHash } = await sender.transfer({
+   *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+   *   amount: parseEther("0.000001"),
+   *   token: "eth",
+   *   network: "base-sepolia",
+   * });
+   * ```
+   *
+   * @example
+   * **Using a contract address**
+   * ```typescript
+   * import { parseEther } from "viem";
+   *
+   * const { transactionHash } = await sender.transfer({
+   *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+   *   amount: parseEther("0.000001"),
+   *   token: "0x4200000000000000000000000000000000000006", // WETH on Base Sepolia
+   *   network: "base-sepolia",
+   * });
+   * ```
+   *
+   * @example
+   * **Transfer to another account**
+   * ```typescript
+   * const sender = await cdp.evm.createAccount({ name: "Sender" });
+   * const receiver = await cdp.evm.createAccount({ name: "Receiver" });
+   *
+   * const { transactionHash } = await sender.transfer({
+   *   to: receiver,
+   *   amount: 10000n, // equivalent to 0.01 USDC
+   *   token: "usdc",
+   *   network: "base-sepolia",
+   * });
+   * ```
+   */
+  transfer: (options: TransferOptions) => Promise<{ transactionHash: Hex }>;
+
   /**
    * Signs an EVM transaction and sends it to the specified network using the Coinbase API.
    * This method handles nonce management and gas estimation automatically.
@@ -191,7 +178,85 @@ export type AccountActions = Actions<EvmAccount> & {
   sendTransaction: (options: Omit<SendTransactionOptions, "address">) => Promise<TransactionResult>;
 };
 
-export type SmartAccountActions = Actions<EvmSmartAccount> & {
+export type SmartAccountActions = Actions & {
+  /**
+   * Transfer an amount of a token from an account to another account.
+   *
+   * @param options - The options for the transfer.
+   * @param options.to - The account or 0x-prefixed address to transfer the token to.
+   * @param options.amount - The amount of the token to transfer represented as an atomic unit.
+   * It's common to use `parseEther` or `parseUnits` utils from viem to convert to atomic units.
+   * Otherwise, you can pass atomic units directly. See examples below.
+   * @param options.token - The token to transfer. This can be 'eth', 'usdc', or a contract address.
+   * @param options.network - The network to transfer the token on.
+   *
+   * @returns The user operation result.
+   *
+   * @example
+   * ```typescript
+   * const { userOpHash } = await sender.transfer({
+   *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+   *   amount: 10000n, // equivalent to 0.01 USDC
+   *   token: "usdc",
+   *   network: "base-sepolia",
+   * });
+   * ```
+   *
+   * @example
+   * **Using parseUnits to specify USDC amount**
+   * ```typescript
+   * import { parseUnits } from "viem";
+   *
+   * const { userOpHash } = await sender.transfer({
+   *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+   *   amount: parseUnits("0.01", 6), // USDC uses 6 decimal places
+   *   token: "usdc",
+   *   network: "base-sepolia",
+   * });
+   * ```
+   *
+   * @example
+   * **Transfer ETH**
+   * ```typescript
+   * import { parseEther } from "viem";
+   *
+   * const { userOpHash } = await sender.transfer({
+   *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+   *   amount: parseEther("0.000001"),
+   *   token: "eth",
+   *   network: "base-sepolia",
+   * });
+   * ```
+   *
+   * @example
+   * **Using a contract address**
+   * ```typescript
+   * import { parseEther } from "viem";
+   *
+   * const { userOpHash } = await sender.transfer({
+   *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+   *   amount: parseEther("0.000001"),
+   *   token: "0x4200000000000000000000000000000000000006", // WETH on Base Sepolia
+   *   network: "base-sepolia",
+   * });
+   * ```
+   *
+   * @example
+   * **Transfer to another account**
+   * ```typescript
+   * const sender = await cdp.evm.createAccount({ name: "Sender" });
+   * const receiver = await cdp.evm.createAccount({ name: "Receiver" });
+   *
+   * const { userOpHash } = await sender.transfer({
+   *   to: receiver,
+   *   amount: 10000n, // equivalent to 0.01 USDC
+   *   token: "usdc",
+   *   network: "base-sepolia",
+   * });
+   * ```
+   */
+  transfer: (options: TransferOptions) => Promise<SendUserOperationReturnType>;
+
   /**
    * Sends a user operation.
    *

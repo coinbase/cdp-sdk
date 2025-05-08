@@ -325,12 +325,26 @@ You can transfer tokens between accounts using the `transfer` function:
 ```typescript
 const sender = await cdp.evm.createAccount({ name: "Sender" });
 
-const { status } = await sender.transfer({
+const { transactionHash } = await sender.transfer({
   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-  amount: "0.01",
+  amount: 10000n, // equivalent to 0.01 USDC
   token: "usdc",
   network: "base-sepolia",
 });
+```
+
+You can then [wait for the transaction receipt with a viem Public Client](https://viem.sh/docs/actions/public/waitForTransactionReceipt#waitfortransactionreceipt):
+
+```typescript
+import { createPublicClient, http } from "viem";
+import { baseSepolia } from "viem/chains";
+
+const publicClient = createPublicClient({
+  chain: baseSepolia,
+  transport: http(),
+});
+
+const receipt = await publicClient.waitForTransactionReceipt({ hash: transactionHash });
 ```
 
 Smart Accounts also have a `transfer` function:
@@ -341,36 +355,48 @@ const sender = await cdp.evm.createSmartAccount({
 });
 console.log("Created smart account", sender);
 
-const { status } = await sender.transfer({
+const { userOpHash } = await sender.transfer({
   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-  amount: "0.01",
+  amount: 10000n, // equivalent to 0.01 USDC
   token: "usdc",
   network: "base-sepolia",
 });
 ```
 
-Using Smart Accounts, you can also specify a paymaster URL and wait options:
+One difference is that the `transfer` function returns the user operation hash, which is different from the transaction hash. You can use the returned user operation hash in a call to `waitForUserOperation` to get the result of the transaction:
 
 ```typescript
-const { status } = await sender.transfer({
+const receipt = await sender.waitForUserOperation({
+  hash: userOpHash,
+});
+
+if (receipt.status === "complete") {
+  console.log(
+    `Transfer successful! Explorer link: https://sepolia.basescan.org/tx/${receipt.userOpHash}`,
+  );
+} else {
+  console.log(`Something went wrong! User operation hash: ${receipt.userOpHash}`);
+}
+```
+
+Using Smart Accounts, you can also specify a paymaster URL:
+
+```typescript
+await sender.transfer({
   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
   amount: "0.01",
   token: "usdc",
   network: "base-sepolia",
   paymasterUrl: "https://some-paymaster-url.com",
-  waitOptions: {
-    timeout: 30,
-    interval: 2,
-  },
 });
 ```
 
-If you pass a decimal amount in a string, the SDK will parse it into a bigint based on the token's decimals. You can also pass a bigint directly:
+Transfer amount must be passed as a bigint. To convert common tokens from whole units, you can use utilities such as [`parseEther`](https://viem.sh/docs/utilities/parseEther#parseether) and [`parseUnits`](https://viem.sh/docs/utilities/parseUnits#parseunits) from viem.
 
 ```typescript
-const { status } = await sender.transfer({
+await sender.transfer({
   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-  amount: 10000n, // equivalent to 0.01 usdc
+  amount: parseUnits("0.01", 6), // USDC has 6 decimals
   token: "usdc",
   network: "base-sepolia",
 });
@@ -379,9 +405,9 @@ const { status } = await sender.transfer({
 You can pass `usdc` or `eth` as the token to transfer, or you can pass a contract address directly:
 
 ```typescript
-const { status } = await sender.transfer({
+await sender.transfer({
   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-  amount: "0.000001",
+  amount: parseUnits("0.000001", 18), // WETH has 18 decimals. equivalent to calling `parseEther("0.000001")`
   token: "0x4200000000000000000000000000000000000006", // WETH on Base Sepolia
   network: "base-sepolia",
 });
@@ -393,26 +419,11 @@ You can also pass another account as the `to` parameter:
 const sender = await cdp.evm.createAccount({ name: "Sender" });
 const receiver = await cdp.evm.createAccount({ name: "Receiver" });
 
-const { status } = await sender.transfer({
+await sender.transfer({
   to: receiver,
-  amount: "0.01",
+  amount: 10000n, // equivalent to 0.01 USDC
   token: "usdc",
   network: "base-sepolia",
-});
-```
-
-You can also pass wait options to the `transfer` function:
-
-```typescript
-const { status } = await sender.transfer({
-  to: receiver,
-  amount: "0.01",
-  token: "usdc",
-  network: "base-sepolia",
-  waitOptions: {
-    timeout: 30,
-    interval: 2,
-  },
 });
 ```
 

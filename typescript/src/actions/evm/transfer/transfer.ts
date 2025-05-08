@@ -1,15 +1,13 @@
-import { createPublicClient, http, erc20Abi, parseUnits, Address, Chain, Transport } from "viem";
-
-import { mapNetworkToChain } from "./utils.js";
-import { EvmAccount, EvmSmartAccount } from "../../../accounts/evm/types.js";
-import { CdpOpenApiClientType } from "../../../openapi-client/index.js";
-
 import type {
-  TransferResult,
   TransferExecutionStrategy,
   SmartAccountTransferOptions,
-  AccountTransferOptions,
+  TransferOptions,
 } from "./types.js";
+import type { EvmAccount, EvmSmartAccount } from "../../../accounts/evm/types.js";
+import type { CdpOpenApiClientType } from "../../../openapi-client/index.js";
+import type { Address } from "../../../types/misc.js";
+import type { TransactionResult } from "../sendTransaction.js";
+import type { SendUserOperationReturnType } from "../sendUserOperation.js";
 
 /**
  * Transfer an amount of a token from an account to another account.
@@ -23,60 +21,21 @@ import type {
 export async function transfer<T extends EvmAccount | EvmSmartAccount>(
   apiClient: CdpOpenApiClientType,
   from: T,
-  transferArgs: T extends EvmSmartAccount ? SmartAccountTransferOptions : AccountTransferOptions,
+  transferArgs: T extends EvmSmartAccount ? SmartAccountTransferOptions : TransferOptions,
   transferStrategy: TransferExecutionStrategy<T>,
-): Promise<TransferResult> {
-  const publicClient = createPublicClient<Transport, Chain>({
-    chain: mapNetworkToChain(transferArgs.network),
-    transport: http(),
-  });
-
+): Promise<T extends EvmSmartAccount ? SendUserOperationReturnType : TransactionResult> {
   const to =
     typeof transferArgs.to === "string" ? transferArgs.to : (transferArgs.to.address as Address);
-
-  const value = await (async () => {
-    // user supplied a bigint. otherwise, we need to convert the amount to a bigint
-    if (typeof transferArgs.amount !== "string") {
-      return transferArgs.amount;
-    }
-
-    const decimals = await (async () => {
-      if (transferArgs.token === "eth") {
-        return 18;
-      } else if (transferArgs.token === "usdc") {
-        return 6;
-      } else {
-        return publicClient.readContract({
-          address: transferArgs.token,
-          abi: erc20Abi,
-          functionName: "decimals",
-          args: [],
-        });
-      }
-    })();
-
-    return parseUnits(transferArgs.amount, decimals);
-  })();
 
   const transfer = {
     apiClient,
     from,
     to,
-    value,
+    value: transferArgs.amount,
     token: transferArgs.token,
     network: transferArgs.network,
     paymasterUrl: "paymasterUrl" in transferArgs ? transferArgs.paymasterUrl : undefined,
   };
 
-  const hash = await transferStrategy.executeTransfer(transfer);
-
-  const result = await transferStrategy.waitForResult({
-    apiClient,
-    publicClient,
-    from,
-    hash,
-    waitOptions: transferArgs.waitOptions,
-  });
-
-  return result;
+  return transferStrategy.executeTransfer(transfer);
 }

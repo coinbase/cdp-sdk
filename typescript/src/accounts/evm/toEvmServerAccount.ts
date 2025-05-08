@@ -1,4 +1,4 @@
-import { type Hex, type TransactionSerializable, serializeTransaction } from "viem";
+import { type TransactionSerializable, serializeTransaction } from "viem";
 
 import {
   listTokenBalances,
@@ -15,10 +15,12 @@ import { accountTransferStrategy } from "../../actions/evm/transfer/accountTrans
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 
 import type { EvmServerAccount } from "./types.js";
-import type { SendTransactionOptions } from "../../actions/evm/sendTransaction.js";
-import type { TransferResult } from "../../actions/evm/transfer/types.js";
+import type {
+  SendTransactionOptions,
+  TransactionResult,
+} from "../../actions/evm/sendTransaction.js";
 import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
-import type { Address, EIP712Message, Hash } from "../../types/misc.js";
+import type { Address, EIP712Message, Hash, Hex } from "../../types/misc.js";
 
 /**
  * Options for converting a pre-existing EvmAccount to a EvmServerAccount.
@@ -68,8 +70,7 @@ export function toEvmServerAccount(
       const result = await apiClient.signEvmTypedData(options.account.address, message);
       return result.signature as Hex;
     },
-
-    async transfer(transferArgs): Promise<TransferResult> {
+    async transfer(transferArgs): Promise<TransactionResult> {
       return transfer(apiClient, account, transferArgs, accountTransferStrategy);
     },
     async listTokenBalances(
