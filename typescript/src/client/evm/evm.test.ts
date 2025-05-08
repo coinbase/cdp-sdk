@@ -47,6 +47,7 @@ vi.mock("../../openapi-client", () => {
       signEvmHash: vi.fn(),
       signEvmMessage: vi.fn(),
       signEvmTransaction: vi.fn(),
+      signEvmTypedData: vi.fn(),
     },
   };
 });
@@ -144,6 +145,7 @@ describe("EvmClient", () => {
         listTokenBalances: vi.fn(),
         sendUserOperation: vi.fn(),
         waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
       };
 
@@ -274,6 +276,7 @@ describe("EvmClient", () => {
         listTokenBalances: vi.fn(),
         sendUserOperation: vi.fn(),
         waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
       };
 
@@ -359,6 +362,7 @@ describe("EvmClient", () => {
         listTokenBalances: vi.fn(),
         sendUserOperation: vi.fn(),
         waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
       };
       const userOpHash = "0xhash";
@@ -503,6 +507,7 @@ describe("EvmClient", () => {
         listTokenBalances: vi.fn(),
         sendUserOperation: vi.fn(),
         waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
       };
 
@@ -610,6 +615,7 @@ describe("EvmClient", () => {
         listTokenBalances: vi.fn(),
         sendUserOperation: vi.fn(),
         waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
       };
 
@@ -677,6 +683,42 @@ describe("EvmClient", () => {
       signMessageMock.mockResolvedValue({ signature });
 
       const result = await client.signMessage({ address, message });
+
+      expect(result).toEqual({ signature });
+    });
+  });
+
+  describe("signTypedData", () => {
+    it("should sign a typed data", async () => {
+      const address = "0x789";
+      const message = {
+        domain: {
+          name: "EIP712Domain",
+          chainId: 1,
+          verifyingContract: "0x0000000000000000000000000000000000000000",
+        },
+        types: {
+          EIP712Domain: [
+            { name: "name", type: "string" },
+            { name: "chainId", type: "uint256" },
+            { name: "verifyingContract", type: "address" },
+          ],
+        },
+        primaryType: "EIP712Domain",
+        message: {
+          name: "EIP712Domain",
+          chainId: 1,
+          verifyingContract: "0x0000000000000000000000000000000000000000",
+        },
+      };
+      const signature = "0xsignature";
+
+      const signTypedDataMock = CdpOpenApiClient.signEvmTypedData as MockedFunction<
+        typeof CdpOpenApiClient.signEvmTypedData
+      >;
+      signTypedDataMock.mockResolvedValue({ signature });
+
+      const result = await client.signTypedData({ address, message });
 
       expect(result).toEqual({ signature });
     });

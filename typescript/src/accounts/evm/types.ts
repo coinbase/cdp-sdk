@@ -1,9 +1,10 @@
-import { SignableMessage, TransactionSerializable, TypedData, TypedDataDefinition } from "viem";
+import { SignableMessage, TransactionSerializable } from "viem";
 
 import { Prettify } from "../../types/utils.js";
 
 import type { AccountActions, SmartAccountActions } from "../../actions/evm/types.js";
-import type { Hash, Hex, Address } from "../../types/misc.js";
+import type { EIP712Message } from "../../openapi-client/generated/coinbaseDeveloperPlatformAPIs.schemas.js";
+import type { Address, Hash, Hex } from "../../types/misc.js";
 
 /**
  * Base type for any Ethereum account with signing capabilities.
@@ -19,12 +20,7 @@ export type EvmAccount = {
   /** Signs a transaction and returns the signed transaction as a hex string. */
   signTransaction: (transaction: TransactionSerializable) => Promise<Hex>;
   /** Signs a typed data and returns the signature as a hex string. */
-  signTypedData: <
-    const typedData extends TypedData | Record<string, unknown>,
-    primaryType extends keyof typedData | "EIP712Domain" = keyof typedData,
-  >(
-    parameters: TypedDataDefinition<typedData, primaryType>,
-  ) => Promise<Hex>;
+  signTypedData: (parameters: { message: EIP712Message }) => Promise<Hex>;
 };
 
 /**

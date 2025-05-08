@@ -64,9 +64,11 @@ export function toEvmServerAccount(
       return result.signedTransaction as Hex;
     },
 
-    async signTypedData() {
-      throw new Error("Not implemented");
+    async signTypedData({ message }) {
+      const result = await apiClient.signEvmTypedData(options.account.address, message);
+      return result.signature as Hex;
     },
+
     async transfer(transferArgs): Promise<TransferResult> {
       return transfer(apiClient, account, transferArgs, accountTransferStrategy);
     },

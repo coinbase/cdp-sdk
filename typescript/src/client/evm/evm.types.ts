@@ -18,6 +18,7 @@ import type {
 } from "../../actions/evm/sendUserOperation.js";
 import type { SmartAccountActions } from "../../actions/evm/types.js";
 import type {
+  EIP712Message,
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
@@ -46,6 +47,7 @@ export type EvmClientInterface = Omit<
   | "signEvmHash" // mapped to signHash
   | "signEvmMessage" // mapped to signMessage
   | "signEvmTransaction" // mapped to signTransaction
+  | "signEvmTypedData" // mapped to signTypedData
   | "sendEvmTransaction" // mapped to sendTransaction
   | "signEvmTypedData" // mapped to signTypedData
   | "updateEvmAccount" // mapped to updateAccount
@@ -67,6 +69,7 @@ export type EvmClientInterface = Omit<
   ) => Promise<SendUserOperationReturnType>;
   signHash: (options: SignHashOptions) => Promise<SignatureResult>;
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
+  signTypedData: (options: SignTypedDataOptions) => Promise<SignatureResult>;
   signTransaction: (options: SignTransactionOptions) => Promise<SignatureResult>;
 };
 
@@ -257,6 +260,18 @@ export interface SignMessageOptions {
   address: Address;
   /** The message to sign. */
   message: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+}
+
+/**
+ * Options for signing an EVM message.
+ */
+export interface SignTypedDataOptions {
+  /** The address of the account. */
+  address: Address;
+  /** The typed data to sign. */
+  message: EIP712Message;
   /** The idempotency key. */
   idempotencyKey?: string;
 }

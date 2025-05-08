@@ -29,6 +29,7 @@ describe("toEvmServerAccount", () => {
       signEvmMessage: vi.fn().mockResolvedValue({ signature: "0xmocksignature" }),
       signEvmHash: vi.fn().mockResolvedValue({ signature: "0xmocksignature" }),
       signEvmTransaction: vi.fn().mockResolvedValue({ signedTransaction: "0xmocktransaction" }),
+      signEvmTypedData: vi.fn().mockResolvedValue({ signature: "0xmocksignature" }),
     } as unknown as CdpOpenApiClientType;
 
     mockAccount = {
@@ -78,8 +79,31 @@ describe("toEvmServerAccount", () => {
     });
   });
 
-  it("should throw an error when signTypedData is called", async () => {
-    await expect(serverAccount.signTypedData({} as any)).rejects.toThrow("Not implemented");
+  it("should call apiClient.signEvmTypedData when signTypedData is called", async () => {
+    const message = {
+      domain: {
+        name: "EIP712Domain",
+        chainId: 1,
+        verifyingContract: "0x0000000000000000000000000000000000000000",
+      },
+      types: {
+        EIP712Domain: [
+          { name: "name", type: "string" },
+          { name: "chainId", type: "uint256" },
+          { name: "verifyingContract", type: "address" },
+        ],
+      },
+      primaryType: "EIP712Domain",
+      message: {
+        name: "EIP712Domain",
+        chainId: 1,
+        verifyingContract: "0x0000000000000000000000000000000000000000",
+      },
+    };
+
+    await serverAccount.signTypedData({ message });
+
+    expect(mockApiClient.signEvmTypedData).toHaveBeenCalledWith(mockAddress, message);
   });
 
   it("should call transfer action when transfer is called", async () => {
