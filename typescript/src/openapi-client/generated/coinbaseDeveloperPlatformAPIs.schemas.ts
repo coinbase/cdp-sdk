@@ -64,6 +64,54 @@ export interface Error {
   errorLink?: string;
 }
 
+/**
+ * The domain of the EIP-712 typed data.
+ */
+export interface EIP712Domain {
+  /** The name of the DApp or protocol. */
+  name?: string;
+  /** The version of the DApp or protocol. */
+  version?: string;
+  /** The chain ID of the EVM network. */
+  chainId?: number;
+  /**
+   * The 0x-prefixed EVM address of the verifying smart contract.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  verifyingContract?: string;
+  /**
+   * The optional 32-byte 0x-prefixed hex salt for domain separation.
+   * @pattern ^0x[a-fA-F0-9]{64}$
+   */
+  salt?: string;
+}
+
+/**
+ * A mapping of struct names to an array of type objects (name + type).
+Each key corresponds to a type name (e.g., "`EIP712Domain`", "`PermitTransferFrom`").
+
+ */
+export interface EIP712Types {
+  [key: string]: unknown;
+}
+
+/**
+ * The message to sign. The structure of this message must match the `primaryType` struct in the `types` object.
+ */
+export type EIP712MessageMessage = { [key: string]: unknown };
+
+/**
+ * The message to sign using EIP-712.
+ */
+export interface EIP712Message {
+  domain: EIP712Domain;
+  types: EIP712Types;
+  /** The primary type of the message. This is the name of the struct in the `types` object that is the root of the message. */
+  primaryType: string;
+  /** The message to sign. The structure of this message must match the `primaryType` struct in the `types` object. */
+  message: EIP712MessageMessage;
+}
+
 export interface EvmSmartAccount {
   /**
    * The 0x-prefixed, checksum address of the Smart Account.
@@ -530,6 +578,11 @@ export type SignEvmMessageBody = {
 
 export type SignEvmMessage200 = {
   /** The signature of the message, as a 0x-prefixed hex string. */
+  signature: string;
+};
+
+export type SignEvmTypedData200 = {
+  /** The signature of the typed data, as a 0x-prefixed hex string. */
   signature: string;
 };
 

@@ -7,6 +7,7 @@
  */
 import type {
   CreateEvmAccountBody,
+  EIP712Message,
   EvmAccount,
   ListEvmAccounts200,
   ListEvmAccountsParams,
@@ -18,6 +19,7 @@ import type {
   SignEvmMessageBody,
   SignEvmTransaction200,
   SignEvmTransactionBody,
+  SignEvmTypedData200,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -182,6 +184,25 @@ export const signEvmMessage = (
     options,
   );
 };
+/**
+ * Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given EVM account.
+ * @summary Sign EIP-712 typed data
+ */
+export const signEvmTypedData = (
+  address: string,
+  eIP712Message: EIP712Message,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SignEvmTypedData200>(
+    {
+      url: `/v2/evm/accounts/${address}/sign/typed-data`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: eIP712Message,
+    },
+    options,
+  );
+};
 export type ListEvmAccountsResult = NonNullable<Awaited<ReturnType<typeof listEvmAccounts>>>;
 export type CreateEvmAccountResult = NonNullable<Awaited<ReturnType<typeof createEvmAccount>>>;
 export type GetEvmAccountResult = NonNullable<Awaited<ReturnType<typeof getEvmAccount>>>;
@@ -192,3 +213,4 @@ export type SendEvmTransactionResult = NonNullable<Awaited<ReturnType<typeof sen
 export type SignEvmTransactionResult = NonNullable<Awaited<ReturnType<typeof signEvmTransaction>>>;
 export type SignEvmHashResult = NonNullable<Awaited<ReturnType<typeof signEvmHash>>>;
 export type SignEvmMessageResult = NonNullable<Awaited<ReturnType<typeof signEvmMessage>>>;
+export type SignEvmTypedDataResult = NonNullable<Awaited<ReturnType<typeof signEvmTypedData>>>;
