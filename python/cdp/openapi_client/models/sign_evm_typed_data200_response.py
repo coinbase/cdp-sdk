@@ -18,37 +18,17 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SolanaAccount(BaseModel):
+class SignEvmTypedData200Response(BaseModel):
     """
-    SolanaAccount
+    SignEvmTypedData200Response
     """ # noqa: E501
-    address: Annotated[str, Field(strict=True)] = Field(description="The base58 encoded Solana address.")
-    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names are guaranteed to be unique across all Solana accounts in the developer's CDP Project.")
-    policies: Optional[List[Annotated[str, Field(strict=True)]]] = Field(default=None, description="The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists.")
-    __properties: ClassVar[List[str]] = ["address", "name", "policies"]
-
-    @field_validator('address')
-    def address_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", value):
-            raise ValueError(r"must validate the regular expression /^[1-9A-HJ-NP-Za-km-z]{32,44}$/")
-        return value
-
-    @field_validator('name')
-    def name_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
-        return value
+    signature: StrictStr = Field(description="The signature of the typed data, as a 0x-prefixed hex string.")
+    __properties: ClassVar[List[str]] = ["signature"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -68,7 +48,7 @@ class SolanaAccount(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SolanaAccount from a JSON string"""
+        """Create an instance of SignEvmTypedData200Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -93,7 +73,7 @@ class SolanaAccount(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SolanaAccount from a dict"""
+        """Create an instance of SignEvmTypedData200Response from a dict"""
         if obj is None:
             return None
 
@@ -101,9 +81,7 @@ class SolanaAccount(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "address": obj.get("address"),
-            "name": obj.get("name"),
-            "policies": obj.get("policies")
+            "signature": obj.get("signature")
         })
         return _obj
 

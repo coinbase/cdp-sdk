@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.solana_account import SolanaAccount
+from cdp.openapi_client.models.eip712_domain import EIP712Domain
 
-class TestSolanaAccount(unittest.TestCase):
-    """SolanaAccount unit test stubs"""
+class TestEIP712Domain(unittest.TestCase):
+    """EIP712Domain unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,28 +26,29 @@ class TestSolanaAccount(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> SolanaAccount:
-        """Test SolanaAccount
+    def make_instance(self, include_optional) -> EIP712Domain:
+        """Test EIP712Domain
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `SolanaAccount`
+        # uncomment below to create an instance of `EIP712Domain`
         """
-        model = SolanaAccount()
+        model = EIP712Domain()
         if include_optional:
-            return SolanaAccount(
-                address = 'HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT',
-                name = 'my-account',
-                policies = ["123e4567-e89b-12d3-a456-426614174000"]
+            return EIP712Domain(
+                name = 'Permit2',
+                version = '1',
+                chain_id = 1,
+                verifying_contract = '0x000000000022D473030F116dDEE9F6B43aC78BA3',
+                salt = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
             )
         else:
-            return SolanaAccount(
-                address = 'HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT',
+            return EIP712Domain(
         )
         """
 
-    def testSolanaAccount(self):
-        """Test SolanaAccount"""
+    def testEIP712Domain(self):
+        """Test EIP712Domain"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

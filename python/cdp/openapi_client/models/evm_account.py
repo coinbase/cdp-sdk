@@ -30,7 +30,8 @@ class EvmAccount(BaseModel):
     """ # noqa: E501
     address: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed, checksum EVM address.")
     name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names are guaranteed to be unique across all EVM accounts in the developer's CDP Project.")
-    __properties: ClassVar[List[str]] = ["address", "name"]
+    policies: Optional[List[Annotated[str, Field(strict=True)]]] = Field(default=None, description="The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists.")
+    __properties: ClassVar[List[str]] = ["address", "name", "policies"]
 
     @field_validator('address')
     def address_validate_regular_expression(cls, value):
@@ -101,7 +102,8 @@ class EvmAccount(BaseModel):
 
         _obj = cls.model_validate({
             "address": obj.get("address"),
-            "name": obj.get("name")
+            "name": obj.get("name"),
+            "policies": obj.get("policies")
         })
         return _obj
 

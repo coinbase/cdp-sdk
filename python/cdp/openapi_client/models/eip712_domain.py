@@ -18,36 +18,41 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SolanaAccount(BaseModel):
+class EIP712Domain(BaseModel):
     """
-    SolanaAccount
+    The domain of the EIP-712 typed data.
     """ # noqa: E501
-    address: Annotated[str, Field(strict=True)] = Field(description="The base58 encoded Solana address.")
-    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names are guaranteed to be unique across all Solana accounts in the developer's CDP Project.")
-    policies: Optional[List[Annotated[str, Field(strict=True)]]] = Field(default=None, description="The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists.")
-    __properties: ClassVar[List[str]] = ["address", "name", "policies"]
+    name: Optional[StrictStr] = Field(default=None, description="The name of the DApp or protocol.")
+    version: Optional[StrictStr] = Field(default=None, description="The version of the DApp or protocol.")
+    chain_id: Optional[StrictInt] = Field(default=None, description="The chain ID of the EVM network.", alias="chainId")
+    verifying_contract: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The 0x-prefixed EVM address of the verifying smart contract.", alias="verifyingContract")
+    salt: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The optional 32-byte 0x-prefixed hex salt for domain separation.")
+    __properties: ClassVar[List[str]] = ["name", "version", "chainId", "verifyingContract", "salt"]
 
-    @field_validator('address')
-    def address_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", value):
-            raise ValueError(r"must validate the regular expression /^[1-9A-HJ-NP-Za-km-z]{32,44}$/")
-        return value
-
-    @field_validator('name')
-    def name_validate_regular_expression(cls, value):
+    @field_validator('verifying_contract')
+    def verifying_contract_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if value is None:
             return value
 
-        if not re.match(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
+        if not re.match(r"^0x[a-fA-F0-9]{40}$", value):
+            raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{40}$/")
+        return value
+
+    @field_validator('salt')
+    def salt_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^0x[a-fA-F0-9]{64}$", value):
+            raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{64}$/")
         return value
 
     model_config = ConfigDict(
@@ -68,7 +73,7 @@ class SolanaAccount(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SolanaAccount from a JSON string"""
+        """Create an instance of EIP712Domain from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -93,7 +98,7 @@ class SolanaAccount(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SolanaAccount from a dict"""
+        """Create an instance of EIP712Domain from a dict"""
         if obj is None:
             return None
 
@@ -101,9 +106,11 @@ class SolanaAccount(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "address": obj.get("address"),
             "name": obj.get("name"),
-            "policies": obj.get("policies")
+            "version": obj.get("version"),
+            "chainId": obj.get("chainId"),
+            "verifyingContract": obj.get("verifyingContract"),
+            "salt": obj.get("salt")
         })
         return _obj
 

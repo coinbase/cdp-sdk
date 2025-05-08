@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.solana_account import SolanaAccount
+from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 
-class TestSolanaAccount(unittest.TestCase):
-    """SolanaAccount unit test stubs"""
+class TestUpdateEvmAccountRequest(unittest.TestCase):
+    """UpdateEvmAccountRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,28 +26,26 @@ class TestSolanaAccount(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> SolanaAccount:
-        """Test SolanaAccount
+    def make_instance(self, include_optional) -> UpdateEvmAccountRequest:
+        """Test UpdateEvmAccountRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `SolanaAccount`
+        # uncomment below to create an instance of `UpdateEvmAccountRequest`
         """
-        model = SolanaAccount()
+        model = UpdateEvmAccountRequest()
         if include_optional:
-            return SolanaAccount(
-                address = 'HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT',
-                name = 'my-account',
-                policies = ["123e4567-e89b-12d3-a456-426614174000"]
+            return UpdateEvmAccountRequest(
+                name = 'my-wallet',
+                account_policy = '123e4567-e89b-12d3-a456-426614174000'
             )
         else:
-            return SolanaAccount(
-                address = 'HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT',
+            return UpdateEvmAccountRequest(
         )
         """
 
-    def testSolanaAccount(self):
-        """Test SolanaAccount"""
+    def testUpdateEvmAccountRequest(self):
+        """Test UpdateEvmAccountRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 
