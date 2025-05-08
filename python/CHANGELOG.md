@@ -2,6 +2,19 @@
 
 <!-- towncrier release notes start -->
 
+## [1.5.0] - 2025-05-07
+
+### Features
+
+- Added additional options to transfer methods ([#105](https://github.com/coinbase/cdp-sdk/pull/105)):
+
+  - Added `paymaster_url` and `wait_options` to EvmSmartAccount.transfer
+  - Added `wait_options` to EvmAccount.transfer
+
+  
+- Added account actions for evm server and smart accounts ([#114](https://github.com/coinbase/cdp-sdk/pull/114))
+
+
 ## [1.4.0] - 2025-05-02
 
 ### Features
