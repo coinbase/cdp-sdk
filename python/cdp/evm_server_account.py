@@ -25,6 +25,7 @@ from cdp.api_clients import ApiClients
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
+from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.evm_account import EvmAccount as EvmServerAccountModel
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
 from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageRequest
@@ -324,6 +325,26 @@ class EvmServerAccount(BaseAccount, BaseModel):
             network,
             token,
         )
+
+    async def sign_typed_data(
+        self, message: EIP712Message, idempotency_key: str | None = None
+    ) -> str:
+        """Sign an EVM typed data.
+
+        Args:
+            message (EIP712Message): The message to sign.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        Returns:
+            str: The signature.
+
+        """
+        response = await self.__evm_accounts_api.sign_evm_typed_data(
+            address=self.address,
+            eip712_message=message,
+            x_idempotency_key=idempotency_key,
+        )
+        return response.signature
 
     async def list_token_balances(
         self,

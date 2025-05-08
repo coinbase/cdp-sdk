@@ -19,6 +19,8 @@ from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccoun
 from cdp.openapi_client.models.create_evm_smart_account_request import (
     CreateEvmSmartAccountRequest,
 )
+from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
 from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
@@ -27,6 +29,7 @@ from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageReq
 from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
+from cdp.openapi_client.models.sign_evm_typed_data200_response import SignEvmTypedData200Response
 
 
 def test_init():
@@ -439,6 +442,55 @@ async def test_sign_message():
     mock_evm_accounts_api.sign_evm_message.assert_called_once_with(
         address=test_address,
         sign_evm_message_request=SignEvmMessageRequest(message=test_message),
+        x_idempotency_key=test_idempotency_key,
+    )
+
+    assert result == "0x123"
+
+
+@pytest.mark.asyncio
+async def test_sign_typed_data():
+    """Test signing an EVM typed data."""
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+
+    test_address = "0x1234567890123456789012345678901234567890"
+    test_message = EIP712Message(
+        domain=EIP712Domain(
+            name="Test",
+            chain_id=1,
+            verifying_contract="0x0000000000000000000000000000000000000000",
+        ),
+        types={
+            "EIP712Domain": [
+                {"name": "name", "type": "string"},
+                {"name": "chainId", "type": "uint256"},
+                {"name": "verifyingContract", "type": "address"},
+            ],
+        },
+        primary_type="EIP712Domain",
+        message={
+            "name": "EIP712Domain",
+            "chainId": 1,
+            "verifyingContract": "0x0000000000000000000000000000000000000000",
+        },
+    )
+    test_idempotency_key = "test-idempotency-key"
+
+    mock_evm_accounts_api.sign_evm_typed_data = AsyncMock(
+        return_value=SignEvmTypedData200Response(signature="0x123")
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    result = await client.sign_typed_data(
+        address=test_address, message=test_message, idempotency_key=test_idempotency_key
+    )
+
+    mock_evm_accounts_api.sign_evm_typed_data.assert_called_once_with(
+        address=test_address,
+        eip712_message=test_message,
         x_idempotency_key=test_idempotency_key,
     )
 

@@ -336,8 +336,16 @@ class EvmClient:
             message (EIP712Message): The message to sign.
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
+        Returns:
+            str: The signature.
+
         """
-        raise NotImplementedError("Signing typed data is not yet implemented")
+        response = await self.api_clients.evm_accounts.sign_evm_typed_data(
+            address=address,
+            eip712_message=message,
+            x_idempotency_key=idempotency_key,
+        )
+        return response.signature
 
     async def sign_transaction(
         self, address: str, transaction: str, idempotency_key: str | None = None
