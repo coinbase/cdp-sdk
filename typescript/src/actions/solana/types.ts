@@ -1,3 +1,8 @@
+import { TransferOptions, TransferResult } from "./transfer.js";
+import {
+  ConfirmationResult,
+  WaitForTransactionConfirmationOptions,
+} from "./waitForTransactionConfirmation.js";
 import {
   RequestFaucetOptions,
   SignatureResult,
@@ -84,4 +89,53 @@ export type AccountActions = {
    * ```
    */
   signTransaction: (options: Omit<SignTransactionOptions, "address">) => Promise<SignatureResult>;
+
+  /**
+   * Transfers SOL or SPL tokens between accounts
+   *
+   * @param {TransferOptions} options - Parameters for the transfer.
+   * @param {string} options.to - The base58 encoded Solana address of the destination account.
+   * @param {sol|usdc|string} options.token - The token to transfer ("sol" or "usdc"), or mint address of the SPL token to transfer.
+   * @param {string} options.amount - The amount to transfer, represented as a whole unit (e.g. "0.01").
+   * @param {string} [options.network] - The network to use. Either network or connection must be provided. Connection takes precedence.
+   * @param {Connection} [options.connection] - The connection to use. Either network or connection must be provided. Connection takes precedence.
+   *
+   * @returns A promise that resolves to the transaction signature, which can be used to wait for the transaction result.
+   * @throws {Error} If neither network nor connection is provided.
+   *
+   * @example
+   * ```ts
+   * const account = await cdp.solana.getAccount({ name: "Account" });
+   *
+   * const { signature } = await account.transfer({
+   *   token: "sol",
+   *   amount: "5",
+   *   to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+   *   network: "devnet",
+   * });
+   * ```
+   */
+  transfer: (options: Omit<TransferOptions, "from">) => Promise<TransferResult>;
+
+  /**
+   * Waits for a transaction to be confirmed
+   *
+   * @param {WaitForTransactionConfirmationOptions} options - The options for the transaction confirmation.
+   * @param {string} options.signature - The signature of the transaction to wait for.
+   * @param {string|Connection} [options.network] - The network to use or a connection.
+   *
+   * @returns A promise that resolves to the transaction signature once the transaction is confirmed.
+   * @throws {Error} If the transaction fails to confirm.
+   *
+   * @example
+   * ```ts
+   * const confirmation = await account.waitForTransactionConfirmation({
+   *   signature,
+   *   network: "devnet",
+   * });
+   * ```
+   */
+  waitForTransactionConfirmation: (
+    options: WaitForTransactionConfirmationOptions,
+  ) => Promise<ConfirmationResult>;
 };
