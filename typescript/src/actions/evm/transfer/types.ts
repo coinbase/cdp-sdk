@@ -25,7 +25,7 @@ export type Network = SendEvmTransactionBodyNetwork | EvmUserOperationNetwork;
 /**
  * The options for the transfer.
  */
-type TransferOptions = {
+export type TransferOptions = {
   /** The account to transfer the token to. */
   to: EvmAccount | Address;
   /**

@@ -6,7 +6,7 @@ import { Transaction } from "viem";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
 import { CdpOpenApiClientType } from "../../openapi-client/index.js";
-import type { TransferOptions } from "../../actions/evm/transfer/types.js";
+import { TransferOptions } from "../../actions/evm/transfer/types.js";
 vi.mock("viem", () => ({
   serializeTransaction: () => "0xserializedtx",
 }));
