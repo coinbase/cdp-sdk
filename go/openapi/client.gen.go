@@ -160,6 +160,44 @@ const (
 	RequestSolanaFaucetJSONBodyTokenUsdc RequestSolanaFaucetJSONBodyToken = "usdc"
 )
 
+// EIP712Domain The domain of the EIP-712 typed data.
+type EIP712Domain struct {
+	// ChainId The chain ID of the EVM network.
+	ChainId *int64 `json:"chainId,omitempty"`
+
+	// Name The name of the DApp or protocol.
+	Name *string `json:"name,omitempty"`
+
+	// Salt The optional 32-byte 0x-prefixed hex salt for domain separation.
+	Salt *string `json:"salt,omitempty"`
+
+	// VerifyingContract The 0x-prefixed EVM address of the verifying smart contract.
+	VerifyingContract *string `json:"verifyingContract,omitempty"`
+
+	// Version The version of the DApp or protocol.
+	Version *string `json:"version,omitempty"`
+}
+
+// EIP712Message The message to sign using EIP-712.
+type EIP712Message struct {
+	// Domain The domain of the EIP-712 typed data.
+	Domain EIP712Domain `json:"domain"`
+
+	// Message The message to sign. The structure of this message must match the `primaryType` struct in the `types` object.
+	Message map[string]interface{} `json:"message"`
+
+	// PrimaryType The primary type of the message. This is the name of the struct in the `types` object that is the root of the message.
+	PrimaryType string `json:"primaryType"`
+
+	// Types A mapping of struct names to an array of type objects (name + type).
+	// Each key corresponds to a type name (e.g., "`EIP712Domain`", "`PermitTransferFrom`").
+	Types EIP712Types `json:"types"`
+}
+
+// EIP712Types A mapping of struct names to an array of type objects (name + type).
+// Each key corresponds to a type name (e.g., "`EIP712Domain`", "`PermitTransferFrom`").
+type EIP712Types = map[string]interface{}
+
 // Error An error response including the code for the type of error and a human-readable message describing the error.
 type Error struct {
 	// CorrelationId A unique identifier for the request that generated the error. This can be used to help debug issues with the API.
@@ -555,6 +593,19 @@ type SignEvmTransactionParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
+// SignEvmTypedDataParams defines parameters for SignEvmTypedData.
+type SignEvmTypedDataParams struct {
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
 // RequestEvmFaucetJSONBody defines parameters for RequestEvmFaucet.
 type RequestEvmFaucetJSONBody struct {
 	// Address The address to request funds to, which is a 0x-prefixed hexadecimal string.
@@ -777,6 +828,9 @@ type SignEvmMessageJSONRequestBody SignEvmMessageJSONBody
 
 // SignEvmTransactionJSONRequestBody defines body for SignEvmTransaction for application/json ContentType.
 type SignEvmTransactionJSONRequestBody SignEvmTransactionJSONBody
+
+// SignEvmTypedDataJSONRequestBody defines body for SignEvmTypedData for application/json ContentType.
+type SignEvmTypedDataJSONRequestBody = EIP712Message
 
 // RequestEvmFaucetJSONRequestBody defines body for RequestEvmFaucet for application/json ContentType.
 type RequestEvmFaucetJSONRequestBody RequestEvmFaucetJSONBody
@@ -1075,6 +1129,11 @@ type ClientInterface interface {
 
 	SignEvmTransaction(ctx context.Context, address string, params *SignEvmTransactionParams, body SignEvmTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// SignEvmTypedDataWithBody request with any body
+	SignEvmTypedDataWithBody(ctx context.Context, address string, params *SignEvmTypedDataParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SignEvmTypedData(ctx context.Context, address string, params *SignEvmTypedDataParams, body SignEvmTypedDataJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// RequestEvmFaucetWithBody request with any body
 	RequestEvmFaucetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1302,6 +1361,30 @@ func (c *CDPClient) SignEvmTransactionWithBody(ctx context.Context, address stri
 
 func (c *CDPClient) SignEvmTransaction(ctx context.Context, address string, params *SignEvmTransactionParams, body SignEvmTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSignEvmTransactionRequest(c.Server, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SignEvmTypedDataWithBody(ctx context.Context, address string, params *SignEvmTypedDataParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignEvmTypedDataRequestWithBody(c.Server, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SignEvmTypedData(ctx context.Context, address string, params *SignEvmTypedDataParams, body SignEvmTypedDataJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSignEvmTypedDataRequest(c.Server, address, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -2118,6 +2201,79 @@ func NewSignEvmTransactionRequestWithBody(server string, address string, params 
 	}
 
 	operationPath := fmt.Sprintf("/v2/evm/accounts/%s/sign/transaction", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewSignEvmTypedDataRequest calls the generic SignEvmTypedData builder with application/json body
+func NewSignEvmTypedDataRequest(server string, address string, params *SignEvmTypedDataParams, body SignEvmTypedDataJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSignEvmTypedDataRequestWithBody(server, address, params, "application/json", bodyReader)
+}
+
+// NewSignEvmTypedDataRequestWithBody generates requests for SignEvmTypedData with any type of body
+func NewSignEvmTypedDataRequestWithBody(server string, address string, params *SignEvmTypedDataParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/evm/accounts/%s/sign/typed-data", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -3306,6 +3462,11 @@ type ClientWithResponsesInterface interface {
 
 	SignEvmTransactionWithResponse(ctx context.Context, address string, params *SignEvmTransactionParams, body SignEvmTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmTransactionResponse, error)
 
+	// SignEvmTypedDataWithBodyWithResponse request with any body
+	SignEvmTypedDataWithBodyWithResponse(ctx context.Context, address string, params *SignEvmTypedDataParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignEvmTypedDataResponse, error)
+
+	SignEvmTypedDataWithResponse(ctx context.Context, address string, params *SignEvmTypedDataParams, body SignEvmTypedDataJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmTypedDataResponse, error)
+
 	// RequestEvmFaucetWithBodyWithResponse request with any body
 	RequestEvmFaucetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RequestEvmFaucetResponse, error)
 
@@ -3627,6 +3788,38 @@ func (r SignEvmTransactionResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r SignEvmTransactionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SignEvmTypedDataResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Signature The signature of the typed data, as a 0x-prefixed hex string.
+		Signature string `json:"signature"`
+	}
+	JSON400 *Error
+	JSON401 *Error
+	JSON404 *Error
+	JSON422 *IdempotencyError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SignEvmTypedDataResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SignEvmTypedDataResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -4328,6 +4521,23 @@ func (c *ClientWithResponses) SignEvmTransactionWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseSignEvmTransactionResponse(rsp)
+}
+
+// SignEvmTypedDataWithBodyWithResponse request with arbitrary body returning *SignEvmTypedDataResponse
+func (c *ClientWithResponses) SignEvmTypedDataWithBodyWithResponse(ctx context.Context, address string, params *SignEvmTypedDataParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignEvmTypedDataResponse, error) {
+	rsp, err := c.SignEvmTypedDataWithBody(ctx, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignEvmTypedDataResponse(rsp)
+}
+
+func (c *ClientWithResponses) SignEvmTypedDataWithResponse(ctx context.Context, address string, params *SignEvmTypedDataParams, body SignEvmTypedDataJSONRequestBody, reqEditors ...RequestEditorFn) (*SignEvmTypedDataResponse, error) {
+	rsp, err := c.SignEvmTypedData(ctx, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSignEvmTypedDataResponse(rsp)
 }
 
 // RequestEvmFaucetWithBodyWithResponse request with arbitrary body returning *RequestEvmFaucetResponse
@@ -5146,6 +5356,84 @@ func ParseSignEvmTransactionResponse(rsp *http.Response) (*SignEvmTransactionRes
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSignEvmTypedDataResponse parses an HTTP response from a SignEvmTypedDataWithResponse call
+func ParseSignEvmTypedDataResponse(rsp *http.Response) (*SignEvmTypedDataResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SignEvmTypedDataResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Signature The signature of the typed data, as a 0x-prefixed hex string.
+			Signature string `json:"signature"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
 		var dest IdempotencyError
