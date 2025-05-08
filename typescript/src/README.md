@@ -128,6 +128,32 @@ const account = await cdp.solana.getOrCreateAccount({
 });
 ```
 
+### Updating EVM or Solana accounts
+
+#### Update an EVM account as follows:
+
+```typescript
+const account = await cdp.evm.updateAccount({
+  addresss: account.address,
+  update: {
+    name: "Updated name",
+    accountPolicy: "1622d4b7-9d60-44a2-9a6a-e9bbb167e412"
+  }
+});
+```
+
+#### Update a Solana account as follows:
+
+```typescript
+const account = await cdp.solana.updateAccount({
+  addresss: account.address,
+  update: {
+    name: "Updated name",
+    accountPolicy: "1622d4b7-9d60-44a2-9a6a-e9bbb167e412"
+  }
+});
+```
+
 ### Testnet faucet
 
 You can use the faucet function to request testnet ETH or SOL from the CDP.

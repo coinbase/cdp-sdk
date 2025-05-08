@@ -1,5 +1,5 @@
 import { Account, SolanaAccount } from "../../accounts/solana/types.js";
-import { OpenApiSolanaMethods } from "../../openapi-client/index.js";
+import { OpenApiSolanaMethods, UpdateSolanaAccountBody } from "../../openapi-client/index.js";
 
 /**
  * The SolanaClient type, where all OpenApiSolanaMethods methods are wrapped.
@@ -9,15 +9,17 @@ export type SolanaClientInterface = Omit<
   | "createSolanaAccount" // mapped to createAccount
   | "getSolanaAccount" // mapped to getAccount
   | "getSolanaAccountByName" // mapped to getAccount
+  | "updateSolanaAccount" // mapped to updateAccount
   | "listSolanaAccounts" // mapped to listAccounts
   | "requestSolanaFaucet" // mapped to requestFaucet
   | "signSolanaMessage" // mapped to signMessage
   | "signSolanaTransaction" // mapped to signTransaction
-  | "updateSolAccount" // mapped to updateAccount
+  | "updateSolanaAccount" // mapped to updateAccount
 > & {
   createAccount: (options: CreateAccountOptions) => Promise<Account>;
   getAccount: (options: GetAccountOptions) => Promise<Account>;
   getOrCreateAccount: (options: GetOrCreateAccountOptions) => Promise<Account>;
+  updateAccount: (options: UpdateSolanaAccountOptions) => Promise<Account>;
   listAccounts: (options: ListAccountsOptions) => Promise<ListAccountsResult>;
   requestFaucet: (options: RequestFaucetOptions) => Promise<SignatureResult>;
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
@@ -58,6 +60,18 @@ export interface GetAccountOptions {
 export interface GetOrCreateAccountOptions {
   /** The name of the account. */
   name: string;
+}
+
+/**
+ * Options for creating a SOL server account.
+ */
+export interface UpdateSolanaAccountOptions {
+  /** The address of the account. */
+  address: string;
+  /** The updates to apply to the account */
+  update: UpdateSolanaAccountBody;
+  /** The idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**

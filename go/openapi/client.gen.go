@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	BearerAuthScopes = "bearerAuth.Scopes"
+	ApiKeyAuthScopes = "apiKeyAuth.Scopes"
 )
 
 // Defines values for ErrorType.
@@ -789,8 +789,8 @@ type CreateSolanaAccountParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
-// UpdateSolAccountJSONBody defines parameters for UpdateSolAccount.
-type UpdateSolAccountJSONBody struct {
+// UpdateSolanaAccountJSONBody defines parameters for UpdateSolanaAccount.
+type UpdateSolanaAccountJSONBody struct {
 	// AccountPolicy The ID of the account-level policy to apply to the account.
 	AccountPolicy *string `json:"accountPolicy,omitempty"`
 
@@ -799,8 +799,8 @@ type UpdateSolAccountJSONBody struct {
 	Name *string `json:"name,omitempty"`
 }
 
-// UpdateSolAccountParams defines parameters for UpdateSolAccount.
-type UpdateSolAccountParams struct {
+// UpdateSolanaAccountParams defines parameters for UpdateSolanaAccount.
+type UpdateSolanaAccountParams struct {
 	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
@@ -899,8 +899,8 @@ type UpdatePolicyJSONRequestBody UpdatePolicyJSONBody
 // CreateSolanaAccountJSONRequestBody defines body for CreateSolanaAccount for application/json ContentType.
 type CreateSolanaAccountJSONRequestBody CreateSolanaAccountJSONBody
 
-// UpdateSolAccountJSONRequestBody defines body for UpdateSolAccount for application/json ContentType.
-type UpdateSolAccountJSONRequestBody UpdateSolAccountJSONBody
+// UpdateSolanaAccountJSONRequestBody defines body for UpdateSolanaAccount for application/json ContentType.
+type UpdateSolanaAccountJSONRequestBody UpdateSolanaAccountJSONBody
 
 // SignSolanaMessageJSONRequestBody defines body for SignSolanaMessage for application/json ContentType.
 type SignSolanaMessageJSONRequestBody SignSolanaMessageJSONBody
@@ -1253,10 +1253,10 @@ type ClientInterface interface {
 	// GetSolanaAccount request
 	GetSolanaAccount(ctx context.Context, address string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	// UpdateSolAccountWithBody request with any body
-	UpdateSolAccountWithBody(ctx context.Context, address string, params *UpdateSolAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	// UpdateSolanaAccountWithBody request with any body
+	UpdateSolanaAccountWithBody(ctx context.Context, address string, params *UpdateSolanaAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	UpdateSolAccount(ctx context.Context, address string, params *UpdateSolAccountParams, body UpdateSolAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	UpdateSolanaAccount(ctx context.Context, address string, params *UpdateSolanaAccountParams, body UpdateSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// SignSolanaMessageWithBody request with any body
 	SignSolanaMessageWithBody(ctx context.Context, address string, params *SignSolanaMessageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -1766,8 +1766,8 @@ func (c *CDPClient) GetSolanaAccount(ctx context.Context, address string, reqEdi
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) UpdateSolAccountWithBody(ctx context.Context, address string, params *UpdateSolAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateSolAccountRequestWithBody(c.Server, address, params, contentType, body)
+func (c *CDPClient) UpdateSolanaAccountWithBody(ctx context.Context, address string, params *UpdateSolanaAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateSolanaAccountRequestWithBody(c.Server, address, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1778,8 +1778,8 @@ func (c *CDPClient) UpdateSolAccountWithBody(ctx context.Context, address string
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) UpdateSolAccount(ctx context.Context, address string, params *UpdateSolAccountParams, body UpdateSolAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateSolAccountRequest(c.Server, address, params, body)
+func (c *CDPClient) UpdateSolanaAccount(ctx context.Context, address string, params *UpdateSolanaAccountParams, body UpdateSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateSolanaAccountRequest(c.Server, address, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -3368,19 +3368,19 @@ func NewGetSolanaAccountRequest(server string, address string) (*http.Request, e
 	return req, nil
 }
 
-// NewUpdateSolAccountRequest calls the generic UpdateSolAccount builder with application/json body
-func NewUpdateSolAccountRequest(server string, address string, params *UpdateSolAccountParams, body UpdateSolAccountJSONRequestBody) (*http.Request, error) {
+// NewUpdateSolanaAccountRequest calls the generic UpdateSolanaAccount builder with application/json body
+func NewUpdateSolanaAccountRequest(server string, address string, params *UpdateSolanaAccountParams, body UpdateSolanaAccountJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewUpdateSolAccountRequestWithBody(server, address, params, "application/json", bodyReader)
+	return NewUpdateSolanaAccountRequestWithBody(server, address, params, "application/json", bodyReader)
 }
 
-// NewUpdateSolAccountRequestWithBody generates requests for UpdateSolAccount with any type of body
-func NewUpdateSolAccountRequestWithBody(server string, address string, params *UpdateSolAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+// NewUpdateSolanaAccountRequestWithBody generates requests for UpdateSolanaAccount with any type of body
+func NewUpdateSolanaAccountRequestWithBody(server string, address string, params *UpdateSolanaAccountParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	var pathParam0 string
@@ -3768,10 +3768,10 @@ type ClientWithResponsesInterface interface {
 	// GetSolanaAccountWithResponse request
 	GetSolanaAccountWithResponse(ctx context.Context, address string, reqEditors ...RequestEditorFn) (*GetSolanaAccountResponse, error)
 
-	// UpdateSolAccountWithBodyWithResponse request with any body
-	UpdateSolAccountWithBodyWithResponse(ctx context.Context, address string, params *UpdateSolAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateSolAccountResponse, error)
+	// UpdateSolanaAccountWithBodyWithResponse request with any body
+	UpdateSolanaAccountWithBodyWithResponse(ctx context.Context, address string, params *UpdateSolanaAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateSolanaAccountResponse, error)
 
-	UpdateSolAccountWithResponse(ctx context.Context, address string, params *UpdateSolAccountParams, body UpdateSolAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateSolAccountResponse, error)
+	UpdateSolanaAccountWithResponse(ctx context.Context, address string, params *UpdateSolanaAccountParams, body UpdateSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateSolanaAccountResponse, error)
 
 	// SignSolanaMessageWithBodyWithResponse request with any body
 	SignSolanaMessageWithBodyWithResponse(ctx context.Context, address string, params *SignSolanaMessageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignSolanaMessageResponse, error)
@@ -4583,7 +4583,7 @@ func (r GetSolanaAccountResponse) StatusCode() int {
 	return 0
 }
 
-type UpdateSolAccountResponse struct {
+type UpdateSolanaAccountResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *SolanaAccount
@@ -4597,7 +4597,7 @@ type UpdateSolAccountResponse struct {
 }
 
 // Status returns HTTPResponse.Status
-func (r UpdateSolAccountResponse) Status() string {
+func (r UpdateSolanaAccountResponse) Status() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Status
 	}
@@ -4605,7 +4605,7 @@ func (r UpdateSolAccountResponse) Status() string {
 }
 
 // StatusCode returns HTTPResponse.StatusCode
-func (r UpdateSolAccountResponse) StatusCode() int {
+func (r UpdateSolanaAccountResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -5065,21 +5065,21 @@ func (c *ClientWithResponses) GetSolanaAccountWithResponse(ctx context.Context, 
 	return ParseGetSolanaAccountResponse(rsp)
 }
 
-// UpdateSolAccountWithBodyWithResponse request with arbitrary body returning *UpdateSolAccountResponse
-func (c *ClientWithResponses) UpdateSolAccountWithBodyWithResponse(ctx context.Context, address string, params *UpdateSolAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateSolAccountResponse, error) {
-	rsp, err := c.UpdateSolAccountWithBody(ctx, address, params, contentType, body, reqEditors...)
+// UpdateSolanaAccountWithBodyWithResponse request with arbitrary body returning *UpdateSolanaAccountResponse
+func (c *ClientWithResponses) UpdateSolanaAccountWithBodyWithResponse(ctx context.Context, address string, params *UpdateSolanaAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateSolanaAccountResponse, error) {
+	rsp, err := c.UpdateSolanaAccountWithBody(ctx, address, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseUpdateSolAccountResponse(rsp)
+	return ParseUpdateSolanaAccountResponse(rsp)
 }
 
-func (c *ClientWithResponses) UpdateSolAccountWithResponse(ctx context.Context, address string, params *UpdateSolAccountParams, body UpdateSolAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateSolAccountResponse, error) {
-	rsp, err := c.UpdateSolAccount(ctx, address, params, body, reqEditors...)
+func (c *ClientWithResponses) UpdateSolanaAccountWithResponse(ctx context.Context, address string, params *UpdateSolanaAccountParams, body UpdateSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateSolanaAccountResponse, error) {
+	rsp, err := c.UpdateSolanaAccount(ctx, address, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
-	return ParseUpdateSolAccountResponse(rsp)
+	return ParseUpdateSolanaAccountResponse(rsp)
 }
 
 // SignSolanaMessageWithBodyWithResponse request with arbitrary body returning *SignSolanaMessageResponse
@@ -6941,15 +6941,15 @@ func ParseGetSolanaAccountResponse(rsp *http.Response) (*GetSolanaAccountRespons
 	return response, nil
 }
 
-// ParseUpdateSolAccountResponse parses an HTTP response from a UpdateSolAccountWithResponse call
-func ParseUpdateSolAccountResponse(rsp *http.Response) (*UpdateSolAccountResponse, error) {
+// ParseUpdateSolanaAccountResponse parses an HTTP response from a UpdateSolanaAccountWithResponse call
+func ParseUpdateSolanaAccountResponse(rsp *http.Response) (*UpdateSolanaAccountResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
 	defer func() { _ = rsp.Body.Close() }()
 	if err != nil {
 		return nil, err
 	}
 
-	response := &UpdateSolAccountResponse{
+	response := &UpdateSolanaAccountResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}

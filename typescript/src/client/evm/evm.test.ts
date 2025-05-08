@@ -48,6 +48,7 @@ vi.mock("../../openapi-client", () => {
       signEvmMessage: vi.fn(),
       signEvmTransaction: vi.fn(),
       signEvmTypedData: vi.fn(),
+      updateEvmAccount: vi.fn(),
     },
   };
 });
@@ -833,6 +834,114 @@ describe("EvmClient", () => {
         balances: clientTokenBalances,
         nextPageToken: undefined,
       });
+    });
+  });
+
+  describe("updateEvmAccount", () => {
+    it("should update an existing account", async () => {
+      const address = "0x123456789abcdef";
+      const updateData = {
+        name: "Updated Account Name",
+        accountPolicy: "550e8400-e29b-41d4-a716-446655440000",
+      };
+      const updatedAccount = {
+        address,
+        name: updateData.name,
+        policies: [updateData.accountPolicy],
+      };
+      const serverAccount: EvmServerAccount = {
+        address: address as Address,
+        name: updateData.name,
+        type: "evm-server",
+        sign: vi.fn(),
+        signMessage: vi.fn(),
+        signTransaction: vi.fn(),
+        signTypedData: vi.fn(),
+        transfer: vi.fn(),
+        listTokenBalances: vi.fn(),
+        requestFaucet: vi.fn(),
+        sendTransaction: vi.fn(),
+        policies: [updateData.accountPolicy],
+      };
+
+      const updateEvmAccountMock = CdpOpenApiClient.updateEvmAccount as MockedFunction<
+        typeof CdpOpenApiClient.updateEvmAccount
+      >;
+      updateEvmAccountMock.mockResolvedValue(updatedAccount);
+
+      const toEvmServerAccountMock = toEvmServerAccount as MockedFunction<
+        typeof toEvmServerAccount
+      >;
+      toEvmServerAccountMock.mockReturnValue(serverAccount);
+
+      const options = {
+        address,
+        update: updateData,
+        idempotencyKey: "idem-key-12345",
+      };
+
+      const result = await client.updateAccount(options);
+
+      expect(CdpOpenApiClient.updateEvmAccount).toHaveBeenCalledWith(
+        address,
+        updateData,
+        "idem-key-12345",
+      );
+      expect(toEvmServerAccount).toHaveBeenCalledWith(CdpOpenApiClient, {
+        account: updatedAccount,
+      });
+      expect(result).toBe(serverAccount);
+    });
+
+    it("should update an account without an idempotency key", async () => {
+      const address = "0x987654321fedcba";
+      const updateData = {
+        name: "Another Updated Name",
+      };
+      const updatedAccount = {
+        address,
+        name: updateData.name,
+      };
+      const serverAccount: EvmServerAccount = {
+        address: address as Address,
+        name: updateData.name,
+        type: "evm-server",
+        sign: vi.fn(),
+        signMessage: vi.fn(),
+        signTransaction: vi.fn(),
+        signTypedData: vi.fn(),
+        transfer: vi.fn(),
+        listTokenBalances: vi.fn(),
+        requestFaucet: vi.fn(),
+        sendTransaction: vi.fn(),
+      };
+
+      const updateEvmAccountMock = CdpOpenApiClient.updateEvmAccount as MockedFunction<
+        typeof CdpOpenApiClient.updateEvmAccount
+      >;
+      updateEvmAccountMock.mockResolvedValue(updatedAccount);
+
+      const toEvmServerAccountMock = toEvmServerAccount as MockedFunction<
+        typeof toEvmServerAccount
+      >;
+      toEvmServerAccountMock.mockReturnValue(serverAccount);
+
+      const options = {
+        address,
+        update: updateData,
+      };
+
+      const result = await client.updateAccount(options);
+
+      expect(CdpOpenApiClient.updateEvmAccount).toHaveBeenCalledWith(
+        address,
+        updateData,
+        undefined,
+      );
+      expect(toEvmServerAccount).toHaveBeenCalledWith(CdpOpenApiClient, {
+        account: updatedAccount,
+      });
+      expect(result).toBe(serverAccount);
     });
   });
 });

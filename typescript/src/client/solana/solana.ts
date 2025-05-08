@@ -9,6 +9,7 @@ import {
   SignMessageOptions,
   SignTransactionOptions,
   SolanaClientInterface,
+  UpdateSolanaAccountOptions,
 } from "./solana.types.js";
 import { toSolanaAccount } from "../../accounts/solana/toSolanaAccount.js";
 import { SolanaAccount } from "../../accounts/solana/types.js";
@@ -287,5 +288,58 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async signTransaction(options: SignTransactionOptions): Promise<SignatureResult> {
     return signTransaction(CdpOpenApiClient, options);
+  }
+
+  /**
+   * Updates a CDP Solana account.
+   *
+   * @param {UpdateSolanaAccountOptions} [options] - Optional parameters for creating the account.
+   * @param {string} options.address - The address of the account to update
+   * @param {UpdateSolanaAccountBody} options.update - An object containing account fields to update.
+   * @param {string} [options.update.name] - The new name for the account.
+   * @param {string} [options.update.accountPolicy] - The ID of a Policy to apply to the account.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
+   * @returns A promise that resolves to the updated account.
+   *
+   * @example **With a name**
+   *          ```ts
+   *          const account = await cdp.sol.updateAccount({ address: "0x...", update: { name: "New Name" } });
+   *          ```
+   *
+   * @example **With an account policy**
+   *          ```ts
+   *          const account = await cdp.sol.updateAccount({ address: "0x...", update: { accountPolicy: "73bcaeeb-d7af-4615-b064-42b5fe83a31e" } });
+   *          ```
+   *
+   * @example **With an idempotency key**
+   *          ```ts
+   *          const idempotencyKey = uuidv4();
+   *
+   *          // First call
+   *          await cdp.sol.updateAccount({
+   *            address: "0x...",
+   *            update: { accountPolicy: "73bcaeeb-d7af-4615-b064-42b5fe83a31e" },
+   *            idempotencyKey,
+   *          });
+   *
+   *          // Second call with the same idempotency key will not update
+   *          await cdp.sol.updateAccount({
+   *            address: '0x...',
+   *            update: { name: "" },
+   *            idempotencyKey,
+   *          });
+   *          ```
+   */
+  async updateAccount(options: UpdateSolanaAccountOptions): Promise<SolanaAccount> {
+    const account = await CdpOpenApiClient.updateSolanaAccount(
+      options.address,
+      options.update,
+      options.idempotencyKey,
+    );
+
+    return toSolanaAccount(CdpOpenApiClient, {
+      account,
+    });
   }
 }

@@ -24,9 +24,9 @@ from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class UpdateSolAccountRequest(BaseModel):
+class UpdateSolanaAccountRequest(BaseModel):
     """
-    UpdateSolAccountRequest
+    UpdateSolanaAccountRequest
     """ # noqa: E501
     name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all Solana accounts in the developer's CDP Project.")
     account_policy: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The ID of the account-level policy to apply to the account.", alias="accountPolicy")
@@ -70,7 +70,7 @@ class UpdateSolAccountRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of UpdateSolAccountRequest from a JSON string"""
+        """Create an instance of UpdateSolanaAccountRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -95,7 +95,7 @@ class UpdateSolAccountRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of UpdateSolAccountRequest from a dict"""
+        """Create an instance of UpdateSolanaAccountRequest from a dict"""
         if obj is None:
             return None
 

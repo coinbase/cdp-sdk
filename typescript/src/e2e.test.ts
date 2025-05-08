@@ -134,6 +134,62 @@ describe("CDP Client E2E Tests", () => {
     expect(account.name).toBe(randomName);
   });
 
+  it("should update a Solana account", async () => {
+    // Create a new account to update
+    const originalName = generateRandomName();
+    const accountToUpdate = await cdp.solana.createAccount({ name: originalName });
+    expect(accountToUpdate).toBeDefined();
+    expect(accountToUpdate.name).toBe(originalName);
+
+    // Update the account with a new name
+    const updatedName = generateRandomName();
+    const updatedAccount = await cdp.solana.updateAccount({
+      address: accountToUpdate.address,
+      update: {
+        name: updatedName,
+      },
+    });
+
+    // Verify the update was successful
+    expect(updatedAccount).toBeDefined();
+    expect(updatedAccount.address).toBe(accountToUpdate.address);
+    expect(updatedAccount.name).toBe(updatedName);
+
+    // Verify we can get the updated account by its new name
+    const retrievedAccount = await cdp.solana.getAccount({ name: updatedName });
+    expect(retrievedAccount).toBeDefined();
+    expect(retrievedAccount.address).toBe(accountToUpdate.address);
+    expect(retrievedAccount.name).toBe(updatedName);
+  });
+
+  it("should update an EVM account", async () => {
+    // Create a new account to update
+    const originalName = generateRandomName();
+    const accountToUpdate = await cdp.evm.createAccount({ name: originalName });
+    expect(accountToUpdate).toBeDefined();
+    expect(accountToUpdate.name).toBe(originalName);
+
+    // Update the account with a new name
+    const updatedName = generateRandomName();
+    const updatedAccount = await cdp.evm.updateAccount({
+      address: accountToUpdate.address,
+      update: {
+        name: updatedName,
+      },
+    });
+
+    // Verify the update was successful
+    expect(updatedAccount).toBeDefined();
+    expect(updatedAccount.address).toBe(accountToUpdate.address);
+    expect(updatedAccount.name).toBe(updatedName);
+
+    // Verify we can get the updated account by its new name
+    const retrievedAccount = await cdp.evm.getAccount({ name: updatedName });
+    expect(retrievedAccount).toBeDefined();
+    expect(retrievedAccount.address).toBe(accountToUpdate.address);
+    expect(retrievedAccount.name).toBe(updatedName);
+  });
+
   it("should test evm sign functions", async () => {
     const account = await cdp.evm.createAccount();
 

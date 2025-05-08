@@ -77,7 +77,7 @@ export const getGetSolanaAccountResponseMock = (
   ...overrideResponse,
 });
 
-export const getUpdateSolAccountResponseMock = (
+export const getUpdateSolanaAccountResponseMock = (
   overrideResponse: Partial<SolanaAccount> = {},
 ): SolanaAccount => ({
   address: faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
@@ -192,7 +192,7 @@ export const getGetSolanaAccountMockHandler = (
   });
 };
 
-export const getUpdateSolAccountMockHandler = (
+export const getUpdateSolanaAccountMockHandler = (
   overrideResponse?:
     | SolanaAccount
     | ((
@@ -208,7 +208,7 @@ export const getUpdateSolAccountMockHandler = (
           ? typeof overrideResponse === "function"
             ? await overrideResponse(info)
             : overrideResponse
-          : getUpdateSolAccountResponseMock(),
+          : getUpdateSolanaAccountResponseMock(),
       ),
       { status: 200, headers: { "Content-Type": "application/json" } },
     );
@@ -287,7 +287,7 @@ export const getSolanaAccountsMock = () => [
   getListSolanaAccountsMockHandler(),
   getCreateSolanaAccountMockHandler(),
   getGetSolanaAccountMockHandler(),
-  getUpdateSolAccountMockHandler(),
+  getUpdateSolanaAccountMockHandler(),
   getGetSolanaAccountByNameMockHandler(),
   getSignSolanaTransactionMockHandler(),
   getSignSolanaMessageMockHandler(),

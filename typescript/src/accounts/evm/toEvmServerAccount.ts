@@ -96,6 +96,7 @@ export function toEvmServerAccount(
     },
     name: options.account.name,
     type: "evm-server",
+    policies: options.account.policies,
   };
 
   return account;

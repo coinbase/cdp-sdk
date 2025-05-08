@@ -329,7 +329,7 @@ class PolicyEngineApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -626,7 +626,7 @@ class PolicyEngineApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -899,7 +899,7 @@ class PolicyEngineApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1205,7 +1205,7 @@ class PolicyEngineApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1530,7 +1530,7 @@ class PolicyEngineApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(

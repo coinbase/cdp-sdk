@@ -27,7 +27,7 @@ from cdp.openapi_client.models.sign_solana_message_request import SignSolanaMess
 from cdp.openapi_client.models.sign_solana_transaction200_response import SignSolanaTransaction200Response
 from cdp.openapi_client.models.sign_solana_transaction_request import SignSolanaTransactionRequest
 from cdp.openapi_client.models.solana_account import SolanaAccount
-from cdp.openapi_client.models.update_sol_account_request import UpdateSolAccountRequest
+from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
 from cdp.openapi_client.api_response import ApiResponse
@@ -351,7 +351,7 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -627,7 +627,7 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -903,7 +903,7 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1192,7 +1192,7 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1535,7 +1535,7 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1881,7 +1881,7 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1903,11 +1903,11 @@ class SolanaAccountsApi:
 
 
     @validate_call
-    async def update_sol_account(
+    async def update_solana_account(
         self,
         address: Annotated[str, Field(strict=True, description="The base58 encoded address of the Solana account.")],
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
-        update_sol_account_request: Optional[UpdateSolAccountRequest] = None,
+        update_solana_account_request: Optional[UpdateSolanaAccountRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1929,8 +1929,8 @@ class SolanaAccountsApi:
         :type address: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param update_sol_account_request:
-        :type update_sol_account_request: UpdateSolAccountRequest
+        :param update_solana_account_request:
+        :type update_solana_account_request: UpdateSolanaAccountRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -1953,10 +1953,10 @@ class SolanaAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._update_sol_account_serialize(
+        _param = self._update_solana_account_serialize(
             address=address,
             x_idempotency_key=x_idempotency_key,
-            update_sol_account_request=update_sol_account_request,
+            update_solana_account_request=update_solana_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -1985,11 +1985,11 @@ class SolanaAccountsApi:
 
 
     @validate_call
-    async def update_sol_account_with_http_info(
+    async def update_solana_account_with_http_info(
         self,
         address: Annotated[str, Field(strict=True, description="The base58 encoded address of the Solana account.")],
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
-        update_sol_account_request: Optional[UpdateSolAccountRequest] = None,
+        update_solana_account_request: Optional[UpdateSolanaAccountRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2011,8 +2011,8 @@ class SolanaAccountsApi:
         :type address: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param update_sol_account_request:
-        :type update_sol_account_request: UpdateSolAccountRequest
+        :param update_solana_account_request:
+        :type update_solana_account_request: UpdateSolanaAccountRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2035,10 +2035,10 @@ class SolanaAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._update_sol_account_serialize(
+        _param = self._update_solana_account_serialize(
             address=address,
             x_idempotency_key=x_idempotency_key,
-            update_sol_account_request=update_sol_account_request,
+            update_solana_account_request=update_solana_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2067,11 +2067,11 @@ class SolanaAccountsApi:
 
 
     @validate_call
-    async def update_sol_account_without_preload_content(
+    async def update_solana_account_without_preload_content(
         self,
         address: Annotated[str, Field(strict=True, description="The base58 encoded address of the Solana account.")],
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
-        update_sol_account_request: Optional[UpdateSolAccountRequest] = None,
+        update_solana_account_request: Optional[UpdateSolanaAccountRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2093,8 +2093,8 @@ class SolanaAccountsApi:
         :type address: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param update_sol_account_request:
-        :type update_sol_account_request: UpdateSolAccountRequest
+        :param update_solana_account_request:
+        :type update_solana_account_request: UpdateSolanaAccountRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2117,10 +2117,10 @@ class SolanaAccountsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._update_sol_account_serialize(
+        _param = self._update_solana_account_serialize(
             address=address,
             x_idempotency_key=x_idempotency_key,
-            update_sol_account_request=update_sol_account_request,
+            update_solana_account_request=update_solana_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2144,11 +2144,11 @@ class SolanaAccountsApi:
         return response_data.response
 
 
-    def _update_sol_account_serialize(
+    def _update_solana_account_serialize(
         self,
         address,
         x_idempotency_key,
-        update_sol_account_request,
+        update_solana_account_request,
         _request_auth,
         _content_type,
         _headers,
@@ -2178,8 +2178,8 @@ class SolanaAccountsApi:
             _header_params['X-Idempotency-Key'] = x_idempotency_key
         # process the form parameters
         # process the body parameter
-        if update_sol_account_request is not None:
-            _body_params = update_sol_account_request
+        if update_solana_account_request is not None:
+            _body_params = update_solana_account_request
 
 
         # set the HTTP header `Accept`
@@ -2206,7 +2206,7 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(

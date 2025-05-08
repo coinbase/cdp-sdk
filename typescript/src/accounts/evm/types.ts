@@ -21,6 +21,8 @@ export type EvmAccount = {
   signTransaction: (transaction: TransactionSerializable) => Promise<Hex>;
   /** Signs a typed data and returns the signature as a hex string. */
   signTypedData: (message: EIP712Message) => Promise<Hex>;
+  /** A list of Policy ID's that apply to the account. */
+  policies?: string[];
 };
 
 /**

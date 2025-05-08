@@ -22,6 +22,7 @@ import {
   ListSmartAccountsOptions,
   GetOrCreateServerAccountOptions,
   SignTypedDataOptions,
+  UpdateEvmAccountOptions,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
@@ -773,6 +774,59 @@ export class EvmClient implements EvmClientInterface {
     return {
       signature: signature.signedTransaction as Hex,
     };
+  }
+
+  /**
+   * Updates a CDP EVM account.
+   *
+   * @param {UpdateEvmAccountOptions} [options] - Optional parameters for creating the account.
+   * @param {string} options.address - The address of the account to update
+   * @param {UpdateEvmAccountBody} options.update - An object containing account fields to update.
+   * @param {string} [options.update.name] - The new name for the account.
+   * @param {string} [options.update.accountPolicy] - The ID of a Policy to apply to the account.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
+   * @returns A promise that resolves to the updated account.
+   *
+   * @example **With a name**
+   *          ```ts
+   *          const account = await cdp.evm.updateAccount({ address: "0x...", update: { name: "New Name" } });
+   *          ```
+   *
+   * @example **With an account policy**
+   *          ```ts
+   *          const account = await cdp.evm.updateAccount({ address: "0x...", update: { accountPolicy: "73bcaeeb-d7af-4615-b064-42b5fe83a31e" } });
+   *          ```
+   *
+   * @example **With an idempotency key**
+   *          ```ts
+   *          const idempotencyKey = uuidv4();
+   *
+   *          // First call
+   *          await cdp.evm.updateAccount({
+   *            address: "0x...",
+   *            update: { accountPolicy: "73bcaeeb-d7af-4615-b064-42b5fe83a31e" },
+   *            idempotencyKey,
+   *          });
+   *
+   *          // Second call with the same idempotency key will not update
+   *          await cdp.evm.updateAccount({
+   *            address: '0x...',
+   *            update: { name: "" },
+   *            idempotencyKey,
+   *          });
+   *          ```
+   */
+  async updateAccount(options: UpdateEvmAccountOptions): Promise<ServerAccount> {
+    const account = await CdpOpenApiClient.updateEvmAccount(
+      options.address,
+      options.update,
+      options.idempotencyKey,
+    );
+
+    return toEvmServerAccount(CdpOpenApiClient, {
+      account,
+    });
   }
 
   /**

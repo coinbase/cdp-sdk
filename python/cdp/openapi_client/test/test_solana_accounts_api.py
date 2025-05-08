@@ -69,8 +69,8 @@ class TestSolanaAccountsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
-    async def test_update_sol_account(self) -> None:
-        """Test case for update_sol_account
+    async def test_update_solana_account(self) -> None:
+        """Test case for update_solana_account
 
         Update a Solana account
         """

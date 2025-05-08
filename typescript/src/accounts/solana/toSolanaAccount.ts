@@ -53,6 +53,7 @@ export function toSolanaAccount(
         address: account.address,
       });
     },
+    policies: options.account.policies,
   };
 
   return account;

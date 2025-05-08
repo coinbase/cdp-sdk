@@ -14,7 +14,7 @@ servers:
   - url: https://api.cdp.coinbase.com/platform
     description: The production server of the CDP APIs.
 security:
-  - bearerAuth: []
+  - apiKeyAuth: []
 tags:
   - name: EVM Accounts
     x-audience: public
@@ -33,7 +33,7 @@ tags:
 
       - **CDP Secret API Key**: This key is used to authenticate all requests to the entire suite of
          REST APIs offered on Coinbase Developer Platform.
-      - **Wallet Secret**: This secret is used specifically to authenticate sensitive wallet operations 
+      - **Wallet Secret**: This secret is used specifically to authenticate sensitive wallet operations
         to `POST` and `DELETE` endpoints in the EVM and Solana Account APIs.
 
 
@@ -80,7 +80,7 @@ tags:
         - `criteria` is an array of logical expressions. All parameters must evaluate to true for the action to be applied.
         - An `operation` corresponds to a CDP v2 API:
             - `signEvmTransaction` or `signSolTransaction` for signing transactions (to set a transaction limit)
-      - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected. Only `signEvmTransaction` and `signSolTransaction` operations are currently supported. 
+      - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected. Only `signEvmTransaction` and `signSolTransaction` operations are currently supported.
       ## Policy Scope
       Policies can be applied at the project and/or account level:
       - **Project-level policy**: A `project`-level policy applies to all accounts in a CDP Project. Only one project-level policy can be applied to accounts within a CDP Project at any given time.
@@ -92,7 +92,7 @@ tags:
       Scope is specified in the `scope` field of a policy:
       ```json {
         "description": "Project-level policy",
-        "scope": "account", 
+        "scope": "account",
         ...
       ```
       ## Policy Evaluation
@@ -158,7 +158,7 @@ tags:
         `createSolAccount` operations.
 
       - By specifying the `policies` field in the request body of the `updateEvmAccount` and
-        `updateSolAccount` operations.
+        `updateSolanaAccount` operations.
 
 
       ## Criteria
@@ -191,7 +191,7 @@ tags:
 
       - **CDP Secret API Key**: This key is used to authenticate all requests to the entire suite of
          REST APIs offered on Coinbase Developer Platform.
-      - **Wallet Secret**: This secret is used specifically to authenticate sensitive wallet operations 
+      - **Wallet Secret**: This secret is used specifically to authenticate sensitive wallet operations
         to `POST` and `DELETE` endpoints in the EVM and Solana Account APIs.
 
 
@@ -2039,7 +2039,7 @@ paths:
       x-audience: public
       summary: Update a Solana account
       description: Updates an existing Solana account. Use this to update the account's name or account-level policy.
-      operationId: updateSolAccount
+      operationId: updateSolanaAccount
       tags:
         - Solana Accounts
       parameters:
@@ -2461,11 +2461,16 @@ paths:
           $ref: '#/components/responses/ServiceUnavailableError'
 components:
   securitySchemes:
-    bearerAuth:
+    apiKeyAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: A JWT signed using your API Key Secret, encoded in base64. Refer to the  [Generate Bearer Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-bearer-token) section of our Authentication docs for information on how to generate your Bearer Token.
+      description: A JWT signed using your CDP API Key Secret, encoded in base64. Refer to the [Generate Bearer Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-bearer-token) section of our Authentication docs for information on how to generate your Bearer Token.
+    endUserAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: A JWT signed using the developer's own JWT private key (in the case of JWT authentication), or an end user JWT signed by CDP, encoded in base64. This is used for End User Account APIs.
   schemas:
     EvmAccount:
       type: object

@@ -810,7 +810,7 @@ Account names must be unique across all Solana accounts in the developer's CDP P
   name?: string;
 };
 
-export type UpdateSolAccountBody = {
+export type UpdateSolanaAccountBody = {
   /**
    * An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
 Account names must be unique across all Solana accounts in the developer's CDP Project.

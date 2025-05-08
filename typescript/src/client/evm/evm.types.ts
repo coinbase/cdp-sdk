@@ -21,6 +21,7 @@ import type {
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
+  UpdateEvmAccountBody,
 } from "../../openapi-client/index.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";
@@ -37,6 +38,7 @@ export type EvmClientInterface = Omit<
   | "getEvmAccountByName" // mapped to getAccount
   | "getEvmSmartAccount" // mapped to getSmartAccount
   | "getUserOperation"
+  | "updateEvmAccount" // mapped to updateAccount
   | "listEvmAccounts" // mapped to listAccounts
   | "listEvmSmartAccounts" // mapped to listSmartAccounts
   | "listEvmTokenBalances" // mapped to listTokenBalances
@@ -57,6 +59,7 @@ export type EvmClientInterface = Omit<
   getSmartAccount: (options: GetSmartAccountOptions) => Promise<SmartAccount>;
   getOrCreateAccount: (options: GetOrCreateServerAccountOptions) => Promise<ServerAccount>;
   getUserOperation: (options: GetUserOperationOptions) => Promise<UserOperation>;
+  updateAccount: (options: UpdateEvmAccountOptions) => Promise<ServerAccount>;
   listAccounts: (options: ListServerAccountsOptions) => Promise<ListServerAccountResult>;
   listSmartAccounts: (options: ListSmartAccountsOptions) => Promise<ListSmartAccountResult>;
   listTokenBalances: (options: ListTokenBalancesOptions) => Promise<ListTokenBalancesResult>;
@@ -189,6 +192,18 @@ export interface ReadonlySmartAccount
   extends Omit<SmartAccount, "owners" | keyof SmartAccountActions> {
   /** The owners of the smart account. */
   owners: Address[];
+}
+
+/**
+ * Options for creating an EVM server account.
+ */
+export interface UpdateEvmAccountOptions {
+  /** The address of the account. */
+  address: string;
+  /** The updates to apply to the account */
+  update: UpdateEvmAccountBody;
+  /** The idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**

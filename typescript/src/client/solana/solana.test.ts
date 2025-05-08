@@ -15,6 +15,7 @@ vi.mock("../../openapi-client/index.js", () => {
       requestSolanaFaucet: vi.fn(),
       signSolanaMessage: vi.fn(),
       signSolanaTransaction: vi.fn(),
+      updateSolanaAccount: vi.fn(),
     },
   };
 });
@@ -247,6 +248,100 @@ describe("SolanaClient", () => {
         transaction: "someTransaction",
       });
       expect(result).toEqual({ signature: "someSignature" });
+    });
+  });
+
+  describe("updateAccount", () => {
+    it("should update a Solana account with a new name", async () => {
+      const updateSolanaAccountMock = CdpOpenApiClient.updateSolanaAccount as MockedFunction<
+        typeof CdpOpenApiClient.updateSolanaAccount
+      >;
+      updateSolanaAccountMock.mockResolvedValue({
+        address: "cdpSolanaAccount",
+        name: "updatedAccountName",
+      });
+
+      const result = await client.updateAccount({
+        address: "cdpSolanaAccount",
+        update: {
+          name: "updatedAccountName",
+        },
+      });
+
+      expect(CdpOpenApiClient.updateSolanaAccount).toHaveBeenCalledWith(
+        "cdpSolanaAccount",
+        { name: "updatedAccountName" },
+        undefined,
+      );
+      expect(result).toEqual({
+        address: "cdpSolanaAccount",
+        name: "updatedAccountName",
+        requestFaucet: expect.any(Function),
+        signMessage: expect.any(Function),
+        signTransaction: expect.any(Function),
+      });
+    });
+
+    it("should update a Solana account with an account policy", async () => {
+      const updateSolanaAccountMock = CdpOpenApiClient.updateSolanaAccount as MockedFunction<
+        typeof CdpOpenApiClient.updateSolanaAccount
+      >;
+      const policyId = "550e8400-e29b-41d4-a716-446655440000";
+      updateSolanaAccountMock.mockResolvedValue({
+        address: "cdpSolanaAccount",
+        policies: [policyId],
+      });
+
+      const result = await client.updateAccount({
+        address: "cdpSolanaAccount",
+        update: {
+          accountPolicy: policyId,
+        },
+      });
+
+      expect(CdpOpenApiClient.updateSolanaAccount).toHaveBeenCalledWith(
+        "cdpSolanaAccount",
+        { accountPolicy: policyId },
+        undefined,
+      );
+      expect(result).toEqual({
+        address: "cdpSolanaAccount",
+        requestFaucet: expect.any(Function),
+        signMessage: expect.any(Function),
+        signTransaction: expect.any(Function),
+        policies: [policyId],
+      });
+    });
+
+    it("should update a Solana account with an idempotency key", async () => {
+      const updateSolanaAccountMock = CdpOpenApiClient.updateSolanaAccount as MockedFunction<
+        typeof CdpOpenApiClient.updateSolanaAccount
+      >;
+      updateSolanaAccountMock.mockResolvedValue({
+        address: "cdpSolanaAccount",
+        name: "updatedWithIdempotencyKey",
+      });
+
+      const result = await client.updateAccount({
+        address: "cdpSolanaAccount",
+        update: {
+          name: "updatedWithIdempotencyKey",
+        },
+        idempotencyKey: "unique-idem-key-12345",
+      });
+
+      expect(CdpOpenApiClient.updateSolanaAccount).toHaveBeenCalledWith(
+        "cdpSolanaAccount",
+        { name: "updatedWithIdempotencyKey" },
+        "unique-idem-key-12345",
+      );
+      expect(result).toEqual({
+        address: "cdpSolanaAccount",
+        name: "updatedWithIdempotencyKey",
+        requestFaucet: expect.any(Function),
+        signMessage: expect.any(Function),
+        signTransaction: expect.any(Function),
+      });
     });
   });
 });
