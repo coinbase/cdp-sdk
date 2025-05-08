@@ -522,6 +522,30 @@ const policy = await cdp.policies.createPolicy({
 });
 ```
 
+### Create a Solana Allowlist Policy
+
+```typescript
+const policy = await cdp.policies.createPolicy({
+  policy: {
+    scope: 'account',
+    description: 'Account Allowlist Policy',
+    rules: [
+      {
+        action: 'accept',
+        operation: 'signSolTransaction',
+        criteria: [
+          {
+            type: 'solAddress',
+            addresses: ["DtdSSG8ZJRZVv5Jx7K1MeWp7Zxcu19GD5wQRGRpQ9uMF"],
+            operator: 'in'
+          }
+        ]
+      }
+    ]
+  }
+});
+```
+
 ### List Policies
 
 You can filter by account:
