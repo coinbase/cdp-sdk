@@ -28,9 +28,8 @@ class TransferOptions(BaseModel):
     # The account or address to transfer the token to
     to: str | EvmServerAccount | EvmSmartAccount
 
-    # The amount of the token to transfer
-    # If a string is provided, it will be parsed into an int based on the token's decimals
-    amount: int | str
+    # The amount of the token to transfer, represented as a whole unit (e.g. "0.01")
+    amount: str
 
     # The token to transfer. Can be a contract address or a predefined token name
     token: TokenType
@@ -41,18 +40,31 @@ class TransferOptions(BaseModel):
     # The paymaster URL to use for the transfer
     paymaster_url: str | None = None
 
-    # The wait options for the transfer
-    wait_options: WaitOptions | None = None
+
+class WaitForTransferReceiptOptions(BaseModel):
+    """The options for waiting for a transfer receipt."""
+
+    # The network to wait for the receipt on
+    network: str
+
+    # The transaction hash to wait for
+    hash: HexStr
+
+    # The timeout for the wait. If using a smart account, defaults to 20 seconds, otherwise defaults to 120 seconds.
+    timeout_seconds: float | None = None
+
+    # The interval for the wait. If using a smart account, defaults to 0.2 seconds, otherwise defaults to 0.1 seconds.
+    interval_seconds: float | None = None
 
 
-class TransferResult(BaseModel):
+class Transfer(BaseModel):
     """The result of a transfer."""
-
-    # The status of the transaction
-    status: str
 
     # The transaction hash of the transfer
     transaction_hash: HexStr
+
+    # The status of the transaction (optional)
+    status: str | None = None
 
 
 class TransferExecutionStrategy(ABC):
@@ -94,7 +106,7 @@ class TransferExecutionStrategy(ABC):
         from_account,
         hash: HexStr,
         wait_options: WaitOptions,
-    ) -> TransferResult:
+    ) -> Transfer:
         """Wait for the result of the transfer.
 
         Args:

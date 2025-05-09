@@ -5,9 +5,9 @@ from web3 import Web3
 
 from cdp.actions.evm.transfer.constants import ERC20_ABI
 from cdp.actions.evm.transfer.types import (
+    Transfer,
     TransferExecutionStrategy,
     TransferOptions,
-    TransferResult,
 )
 from cdp.actions.evm.transfer.utils import get_chain_config
 from cdp.api_clients import ApiClients
@@ -23,7 +23,7 @@ async def transfer(
     from_account: T,
     transfer_args: TransferOptions,
     transfer_strategy: TransferExecutionStrategy,
-) -> TransferResult:
+) -> Transfer:
     """Transfer an amount of a token from an account to another account.
 
     Args:
@@ -62,16 +62,7 @@ async def transfer(
 
     tx_hash = await transfer_strategy.execute_transfer(**kwargs)
 
-    # Wait for the result of the transfer
-    result = await transfer_strategy.wait_for_result(
-        api_clients=api_clients,
-        w3=w3,
-        from_account=from_account,
-        hash=tx_hash,
-        wait_options=transfer_args.wait_options,
-    )
-
-    return result
+    return Transfer(transaction_hash=tx_hash)
 
 
 async def _calculate_value(w3: Web3, transfer_args: TransferOptions) -> int:
@@ -85,11 +76,7 @@ async def _calculate_value(w3: Web3, transfer_args: TransferOptions) -> int:
         The value to transfer
 
     """
-    # If amount is already an integer, return it directly
-    if isinstance(transfer_args.amount, int):
-        return transfer_args.amount
-
-    # Otherwise, convert the string amount to an integer based on the token's decimals
+    # Convert the string amount to an integer based on the token's decimals
     amount_decimal = Decimal(transfer_args.amount)
 
     # Get the token decimals

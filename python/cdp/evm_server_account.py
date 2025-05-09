@@ -23,6 +23,13 @@ from web3 import Web3
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
+from cdp.actions.evm.transfer import (
+    TransferOptions,
+    account_transfer_strategy,
+    transfer,
+    wait_for_transfer_receipt,
+)
+from cdp.actions.evm.transfer.types import Transfer, WaitForTransferReceiptOptions
 from cdp.api_clients import ApiClients
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
@@ -225,55 +232,11 @@ class EvmServerAccount(BaseAccount, BaseModel):
             The result of the transfer.
 
         Examples:
-            >>> status = await sender.transfer(
+            >>> transfer = await sender.transfer(
             ...     TransferOptions(
             ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
             ...         amount="0.01",
             ...         token="usdc",
-            ...         network="base-sepolia",
-            ...     )
-            ... )
-
-            **Pass an int value**
-            >>> status = await sender.transfer(
-            ...     TransferOptions(
-            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            ...         amount=10000,  # equivalent to 0.01 usdc
-            ...         token="usdc",
-            ...         network="base-sepolia",
-            ...     )
-            ... )
-
-            **Transfer from a smart account**
-            >>> sender = await cdp.evm.create_smart_account(
-            ...     owner=await cdp.evm.create_account(name="Owner"),
-            ... )
-            >>>
-            >>> status = await sender.transfer(
-            ...     TransferOptions(
-            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            ...         amount="0.01",
-            ...         token="usdc",
-            ...         network="base-sepolia",
-            ...     )
-            ... )
-
-            **Transfer ETH**
-            >>> status = await sender.transfer(
-            ...     TransferOptions(
-            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            ...         amount="0.000001",
-            ...         token="eth",
-            ...         network="base-sepolia",
-            ...     )
-            ... )
-
-            **Using a contract address**
-            >>> status = await sender.transfer(
-            ...     TransferOptions(
-            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            ...         amount="0.000001",
-            ...         token="0x4200000000000000000000000000000000000006",  # WETH on Base Sepolia
             ...         network="base-sepolia",
             ...     )
             ... )
@@ -282,7 +245,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             >>> sender = await cdp.evm.create_account(name="Sender")
             >>> receiver = await cdp.evm.create_account(name="Receiver")
             >>>
-            >>> status = await sender.transfer({
+            >>> transfer = await sender.transfer({
             ...     "to": receiver,
             ...     "amount": "0.01",
             ...     "token": "usdc",
@@ -290,12 +253,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ... })
 
         """
-        from cdp.actions.evm.transfer import (
-            TransferOptions,
-            account_transfer_strategy,
-            transfer,
-        )
-
         # Convert to TransferOptions if it's not already
         if not isinstance(transfer_args, TransferOptions):
             transfer_args = TransferOptions(**transfer_args)
@@ -304,6 +261,43 @@ class EvmServerAccount(BaseAccount, BaseModel):
             api_clients=self.__api_clients,
             from_account=self,
             transfer_args=transfer_args,
+            transfer_strategy=account_transfer_strategy,
+        )
+
+    async def wait_for_transfer_receipt(self, wait_args: WaitForTransferReceiptOptions) -> Transfer:
+        """Wait for the result of a transfer.
+
+        Args:
+            wait_args: The options for waiting for the receipt.
+                wait_args.network: The network to wait for the receipt on.
+                wait_args.hash: The transaction hash to wait for.
+                wait_args.timeout_seconds: The timeout for the wait.
+                wait_args.interval_seconds: The interval for the wait.
+
+        Returns:
+            The result of the transfer.
+
+        Examples:
+            >>> transfer = await sender.transfer(
+            ...     TransferOptions(
+            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            ...         amount="0.01",
+            ...         token="usdc",
+            ...         network="base-sepolia",
+            ...     )
+            ... )
+            >>> receipt = await sender.wait_for_transfer_receipt(
+            ...     WaitForTransferReceiptOptions(
+            ...         network="base-sepolia",
+            ...         hash=transfer.transaction_hash,
+            ...     )
+            ... )
+
+        """
+        return await wait_for_transfer_receipt(
+            api_clients=self.__api_clients,
+            from_account=self,
+            wait_args=wait_args,
             transfer_strategy=account_transfer_strategy,
         )
 
