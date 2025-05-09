@@ -332,14 +332,18 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async updateAccount(options: UpdateSolanaAccountOptions): Promise<SolanaAccount> {
-    const account = await CdpOpenApiClient.updateSolanaAccount(
+    const openApiAccount = await CdpOpenApiClient.updateSolanaAccount(
       options.address,
       options.update,
       options.idempotencyKey,
     );
 
-    return toSolanaAccount(CdpOpenApiClient, {
-      account,
+    const account = toSolanaAccount(CdpOpenApiClient, {
+      account: openApiAccount,
     });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
   }
 }

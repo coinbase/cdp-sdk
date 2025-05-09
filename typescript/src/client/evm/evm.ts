@@ -818,15 +818,19 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async updateAccount(options: UpdateEvmAccountOptions): Promise<ServerAccount> {
-    const account = await CdpOpenApiClient.updateEvmAccount(
+    const openApiAccount = await CdpOpenApiClient.updateEvmAccount(
       options.address,
       options.update,
       options.idempotencyKey,
     );
 
-    return toEvmServerAccount(CdpOpenApiClient, {
-      account,
+    const account = toEvmServerAccount(CdpOpenApiClient, {
+      account: openApiAccount,
     });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
   }
 
   /**
