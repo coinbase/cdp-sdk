@@ -13,6 +13,7 @@ export type SolanaClientInterface = Omit<
   | "requestSolanaFaucet" // mapped to requestFaucet
   | "signSolanaMessage" // mapped to signMessage
   | "signSolanaTransaction" // mapped to signTransaction
+  | "updateSolAccount" // mapped to updateAccount
 > & {
   createAccount: (options: CreateAccountOptions) => Promise<Account>;
   getAccount: (options: GetAccountOptions) => Promise<Account>;

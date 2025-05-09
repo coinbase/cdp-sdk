@@ -88,6 +88,8 @@ from cdp.openapi_client.models.solana_account import SolanaAccount
 from cdp.openapi_client.models.token import Token
 from cdp.openapi_client.models.token_amount import TokenAmount
 from cdp.openapi_client.models.token_balance import TokenBalance
+from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
+from cdp.openapi_client.models.update_sol_account_request import UpdateSolAccountRequest
 
 

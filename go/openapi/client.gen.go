@@ -243,6 +243,9 @@ type EvmAccount struct {
 	// Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
 	// Account names are guaranteed to be unique across all EVM accounts in the developer's CDP Project.
 	Name *string `json:"name,omitempty"`
+
+	// Policies The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists.
+	Policies *[]string `json:"policies,omitempty"`
 }
 
 // EvmAddressCriterion A schema for specifying a criterion for the `to` field of an EVM transaction.
@@ -413,6 +416,9 @@ type SolanaAccount struct {
 	// Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
 	// Account names are guaranteed to be unique across all Solana accounts in the developer's CDP Project.
 	Name *string `json:"name,omitempty"`
+
+	// Policies The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists.
+	Policies *[]string `json:"policies,omitempty"`
 }
 
 // Token General information about a token. Includes the type, the network, and other identifying information.
@@ -505,6 +511,25 @@ type CreateEvmAccountParams struct {
 	// section of our Authentication docs for more details on how to generate your Wallet Token.
 	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 
+	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// UpdateEvmAccountJSONBody defines parameters for UpdateEvmAccount.
+type UpdateEvmAccountJSONBody struct {
+	// AccountPolicy The ID of the account-level policy to apply to the account.
+	AccountPolicy *string `json:"accountPolicy,omitempty"`
+
+	// Name An optional name for the account.
+	// Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+	// Account names must be unique across all EVM accounts in the developer's CDP Project.
+	Name *string `json:"name,omitempty"`
+}
+
+// UpdateEvmAccountParams defines parameters for UpdateEvmAccount.
+type UpdateEvmAccountParams struct {
 	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
 	// When included, duplicate requests with the same key will return identical responses.
 	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
@@ -764,6 +789,24 @@ type CreateSolanaAccountParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
+// UpdateSolAccountJSONBody defines parameters for UpdateSolAccount.
+type UpdateSolAccountJSONBody struct {
+	// AccountPolicy The ID of the account-level policy to apply to the account.
+	AccountPolicy *string `json:"accountPolicy,omitempty"`
+
+	// Name An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+	// Account names must be unique across all Solana accounts in the developer's CDP Project.
+	Name *string `json:"name,omitempty"`
+}
+
+// UpdateSolAccountParams defines parameters for UpdateSolAccount.
+type UpdateSolAccountParams struct {
+	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
 // SignSolanaMessageJSONBody defines parameters for SignSolanaMessage.
 type SignSolanaMessageJSONBody struct {
 	// Message The arbitrary message to sign.
@@ -817,6 +860,9 @@ type RequestSolanaFaucetJSONBodyToken string
 // CreateEvmAccountJSONRequestBody defines body for CreateEvmAccount for application/json ContentType.
 type CreateEvmAccountJSONRequestBody CreateEvmAccountJSONBody
 
+// UpdateEvmAccountJSONRequestBody defines body for UpdateEvmAccount for application/json ContentType.
+type UpdateEvmAccountJSONRequestBody UpdateEvmAccountJSONBody
+
 // SendEvmTransactionJSONRequestBody defines body for SendEvmTransaction for application/json ContentType.
 type SendEvmTransactionJSONRequestBody SendEvmTransactionJSONBody
 
@@ -852,6 +898,9 @@ type UpdatePolicyJSONRequestBody UpdatePolicyJSONBody
 
 // CreateSolanaAccountJSONRequestBody defines body for CreateSolanaAccount for application/json ContentType.
 type CreateSolanaAccountJSONRequestBody CreateSolanaAccountJSONBody
+
+// UpdateSolAccountJSONRequestBody defines body for UpdateSolAccount for application/json ContentType.
+type UpdateSolAccountJSONRequestBody UpdateSolAccountJSONBody
 
 // SignSolanaMessageJSONRequestBody defines body for SignSolanaMessage for application/json ContentType.
 type SignSolanaMessageJSONRequestBody SignSolanaMessageJSONBody
@@ -1109,6 +1158,11 @@ type ClientInterface interface {
 	// GetEvmAccount request
 	GetEvmAccount(ctx context.Context, address string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// UpdateEvmAccountWithBody request with any body
+	UpdateEvmAccountWithBody(ctx context.Context, address string, params *UpdateEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateEvmAccount(ctx context.Context, address string, params *UpdateEvmAccountParams, body UpdateEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// SendEvmTransactionWithBody request with any body
 	SendEvmTransactionWithBody(ctx context.Context, address string, params *SendEvmTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1199,6 +1253,11 @@ type ClientInterface interface {
 	// GetSolanaAccount request
 	GetSolanaAccount(ctx context.Context, address string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// UpdateSolAccountWithBody request with any body
+	UpdateSolAccountWithBody(ctx context.Context, address string, params *UpdateSolAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateSolAccount(ctx context.Context, address string, params *UpdateSolAccountParams, body UpdateSolAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// SignSolanaMessageWithBody request with any body
 	SignSolanaMessageWithBody(ctx context.Context, address string, params *SignSolanaMessageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -1265,6 +1324,30 @@ func (c *CDPClient) GetEvmAccountByName(ctx context.Context, name string, reqEdi
 
 func (c *CDPClient) GetEvmAccount(ctx context.Context, address string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetEvmAccountRequest(c.Server, address)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) UpdateEvmAccountWithBody(ctx context.Context, address string, params *UpdateEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateEvmAccountRequestWithBody(c.Server, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) UpdateEvmAccount(ctx context.Context, address string, params *UpdateEvmAccountParams, body UpdateEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateEvmAccountRequest(c.Server, address, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -1683,6 +1766,30 @@ func (c *CDPClient) GetSolanaAccount(ctx context.Context, address string, reqEdi
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) UpdateSolAccountWithBody(ctx context.Context, address string, params *UpdateSolAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateSolAccountRequestWithBody(c.Server, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) UpdateSolAccount(ctx context.Context, address string, params *UpdateSolAccountParams, body UpdateSolAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateSolAccountRequest(c.Server, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) SignSolanaMessageWithBody(ctx context.Context, address string, params *SignSolanaMessageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSignSolanaMessageRequestWithBody(c.Server, address, params, contentType, body)
 	if err != nil {
@@ -1949,6 +2056,68 @@ func NewGetEvmAccountRequest(server string, address string) (*http.Request, erro
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateEvmAccountRequest calls the generic UpdateEvmAccount builder with application/json body
+func NewUpdateEvmAccountRequest(server string, address string, params *UpdateEvmAccountParams, body UpdateEvmAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateEvmAccountRequestWithBody(server, address, params, "application/json", bodyReader)
+}
+
+// NewUpdateEvmAccountRequestWithBody generates requests for UpdateEvmAccount with any type of body
+func NewUpdateEvmAccountRequestWithBody(server string, address string, params *UpdateEvmAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/evm/accounts/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
 	}
 
 	return req, nil
@@ -3199,6 +3368,68 @@ func NewGetSolanaAccountRequest(server string, address string) (*http.Request, e
 	return req, nil
 }
 
+// NewUpdateSolAccountRequest calls the generic UpdateSolAccount builder with application/json body
+func NewUpdateSolAccountRequest(server string, address string, params *UpdateSolAccountParams, body UpdateSolAccountJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateSolAccountRequestWithBody(server, address, params, "application/json", bodyReader)
+}
+
+// NewUpdateSolAccountRequestWithBody generates requests for UpdateSolAccount with any type of body
+func NewUpdateSolAccountRequestWithBody(server string, address string, params *UpdateSolAccountParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/solana/accounts/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewSignSolanaMessageRequest calls the generic SignSolanaMessage builder with application/json body
 func NewSignSolanaMessageRequest(server string, address string, params *SignSolanaMessageParams, body SignSolanaMessageJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -3442,6 +3673,11 @@ type ClientWithResponsesInterface interface {
 	// GetEvmAccountWithResponse request
 	GetEvmAccountWithResponse(ctx context.Context, address string, reqEditors ...RequestEditorFn) (*GetEvmAccountResponse, error)
 
+	// UpdateEvmAccountWithBodyWithResponse request with any body
+	UpdateEvmAccountWithBodyWithResponse(ctx context.Context, address string, params *UpdateEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateEvmAccountResponse, error)
+
+	UpdateEvmAccountWithResponse(ctx context.Context, address string, params *UpdateEvmAccountParams, body UpdateEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateEvmAccountResponse, error)
+
 	// SendEvmTransactionWithBodyWithResponse request with any body
 	SendEvmTransactionWithBodyWithResponse(ctx context.Context, address string, params *SendEvmTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendEvmTransactionResponse, error)
 
@@ -3531,6 +3767,11 @@ type ClientWithResponsesInterface interface {
 
 	// GetSolanaAccountWithResponse request
 	GetSolanaAccountWithResponse(ctx context.Context, address string, reqEditors ...RequestEditorFn) (*GetSolanaAccountResponse, error)
+
+	// UpdateSolAccountWithBodyWithResponse request with any body
+	UpdateSolAccountWithBodyWithResponse(ctx context.Context, address string, params *UpdateSolAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateSolAccountResponse, error)
+
+	UpdateSolAccountWithResponse(ctx context.Context, address string, params *UpdateSolAccountParams, body UpdateSolAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateSolAccountResponse, error)
 
 	// SignSolanaMessageWithBodyWithResponse request with any body
 	SignSolanaMessageWithBodyWithResponse(ctx context.Context, address string, params *SignSolanaMessageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignSolanaMessageResponse, error)
@@ -3656,6 +3897,35 @@ func (r GetEvmAccountResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetEvmAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateEvmAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EvmAccount
+	JSON400      *Error
+	JSON404      *Error
+	JSON409      *AlreadyExistsError
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateEvmAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateEvmAccountResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -4313,6 +4583,35 @@ func (r GetSolanaAccountResponse) StatusCode() int {
 	return 0
 }
 
+type UpdateSolAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *SolanaAccount
+	JSON400      *Error
+	JSON404      *Error
+	JSON409      *AlreadyExistsError
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateSolAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateSolAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type SignSolanaMessageResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -4453,6 +4752,23 @@ func (c *ClientWithResponses) GetEvmAccountWithResponse(ctx context.Context, add
 		return nil, err
 	}
 	return ParseGetEvmAccountResponse(rsp)
+}
+
+// UpdateEvmAccountWithBodyWithResponse request with arbitrary body returning *UpdateEvmAccountResponse
+func (c *ClientWithResponses) UpdateEvmAccountWithBodyWithResponse(ctx context.Context, address string, params *UpdateEvmAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateEvmAccountResponse, error) {
+	rsp, err := c.UpdateEvmAccountWithBody(ctx, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateEvmAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateEvmAccountWithResponse(ctx context.Context, address string, params *UpdateEvmAccountParams, body UpdateEvmAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateEvmAccountResponse, error) {
+	rsp, err := c.UpdateEvmAccount(ctx, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateEvmAccountResponse(rsp)
 }
 
 // SendEvmTransactionWithBodyWithResponse request with arbitrary body returning *SendEvmTransactionResponse
@@ -4749,6 +5065,23 @@ func (c *ClientWithResponses) GetSolanaAccountWithResponse(ctx context.Context, 
 	return ParseGetSolanaAccountResponse(rsp)
 }
 
+// UpdateSolAccountWithBodyWithResponse request with arbitrary body returning *UpdateSolAccountResponse
+func (c *ClientWithResponses) UpdateSolAccountWithBodyWithResponse(ctx context.Context, address string, params *UpdateSolAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateSolAccountResponse, error) {
+	rsp, err := c.UpdateSolAccountWithBody(ctx, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateSolAccountResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateSolAccountWithResponse(ctx context.Context, address string, params *UpdateSolAccountParams, body UpdateSolAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateSolAccountResponse, error) {
+	rsp, err := c.UpdateSolAccount(ctx, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateSolAccountResponse(rsp)
+}
+
 // SignSolanaMessageWithBodyWithResponse request with arbitrary body returning *SignSolanaMessageResponse
 func (c *ClientWithResponses) SignSolanaMessageWithBodyWithResponse(ctx context.Context, address string, params *SignSolanaMessageParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SignSolanaMessageResponse, error) {
 	rsp, err := c.SignSolanaMessageWithBody(ctx, address, params, contentType, body, reqEditors...)
@@ -5023,6 +5356,81 @@ func ParseGetEvmAccountResponse(rsp *http.Response) (*GetEvmAccountResponse, err
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateEvmAccountResponse parses an HTTP response from a UpdateEvmAccountWithResponse call
+func ParseUpdateEvmAccountResponse(rsp *http.Response) (*UpdateEvmAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateEvmAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EvmAccount
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AlreadyExistsError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError
@@ -6506,6 +6914,81 @@ func ParseGetSolanaAccountResponse(rsp *http.Response) (*GetSolanaAccountRespons
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateSolAccountResponse parses an HTTP response from a UpdateSolAccountWithResponse call
+func ParseUpdateSolAccountResponse(rsp *http.Response) (*UpdateSolAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateSolAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest SolanaAccount
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest AlreadyExistsError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError

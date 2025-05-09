@@ -48,6 +48,7 @@ export type EvmClientInterface = Omit<
   | "signEvmTransaction" // mapped to signTransaction
   | "sendEvmTransaction" // mapped to sendTransaction
   | "signEvmTypedData" // mapped to signTypedData
+  | "updateEvmAccount" // mapped to updateAccount
 > & {
   createAccount: (options: CreateServerAccountOptions) => Promise<ServerAccount>;
   createSmartAccount: (options: CreateSmartAccountOptions) => Promise<SmartAccount>;

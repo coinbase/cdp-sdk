@@ -178,3 +178,13 @@ class SolanaClient:
         return await self.api_clients.faucets.request_solana_faucet(
             request_solana_faucet_request=RequestSolanaFaucetRequest(address=address, token=token)
         )
+
+    async def update_account(self, address: str, name: str | None = None) -> SolanaAccount:
+        """Update a Solana account.
+
+        Args:
+            address (str): The address of the account.
+            name (str, optional): The name of the account.
+
+        """
+        raise NotImplementedError("Updating a Solana account is not yet implemented")

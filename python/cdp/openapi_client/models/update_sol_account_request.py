@@ -24,21 +24,13 @@ from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SolanaAccount(BaseModel):
+class UpdateSolAccountRequest(BaseModel):
     """
-    SolanaAccount
+    UpdateSolAccountRequest
     """ # noqa: E501
-    address: Annotated[str, Field(strict=True)] = Field(description="The base58 encoded Solana address.")
-    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names are guaranteed to be unique across all Solana accounts in the developer's CDP Project.")
-    policies: Optional[List[Annotated[str, Field(strict=True)]]] = Field(default=None, description="The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists.")
-    __properties: ClassVar[List[str]] = ["address", "name", "policies"]
-
-    @field_validator('address')
-    def address_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", value):
-            raise ValueError(r"must validate the regular expression /^[1-9A-HJ-NP-Za-km-z]{32,44}$/")
-        return value
+    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all Solana accounts in the developer's CDP Project.")
+    account_policy: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The ID of the account-level policy to apply to the account.", alias="accountPolicy")
+    __properties: ClassVar[List[str]] = ["name", "accountPolicy"]
 
     @field_validator('name')
     def name_validate_regular_expression(cls, value):
@@ -48,6 +40,16 @@ class SolanaAccount(BaseModel):
 
         if not re.match(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
             raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
+        return value
+
+    @field_validator('account_policy')
+    def account_policy_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value):
+            raise ValueError(r"must validate the regular expression /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/")
         return value
 
     model_config = ConfigDict(
@@ -68,7 +70,7 @@ class SolanaAccount(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SolanaAccount from a JSON string"""
+        """Create an instance of UpdateSolAccountRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -93,7 +95,7 @@ class SolanaAccount(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SolanaAccount from a dict"""
+        """Create an instance of UpdateSolAccountRequest from a dict"""
         if obj is None:
             return None
 
@@ -101,9 +103,8 @@ class SolanaAccount(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "address": obj.get("address"),
             "name": obj.get("name"),
-            "policies": obj.get("policies")
+            "accountPolicy": obj.get("accountPolicy")
         })
         return _obj
 

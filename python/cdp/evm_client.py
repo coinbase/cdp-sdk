@@ -462,3 +462,13 @@ class EvmClient:
             timeout_seconds,
             interval_seconds,
         )
+
+    async def update_account(self, address: str, name: str | None = None) -> EvmServerAccount:
+        """Update an EVM account.
+
+        Args:
+            address (str): The address of the account.
+            name (str, optional): The name of the account.
+
+        """
+        raise NotImplementedError("Updating an EVM account is not yet implemented")

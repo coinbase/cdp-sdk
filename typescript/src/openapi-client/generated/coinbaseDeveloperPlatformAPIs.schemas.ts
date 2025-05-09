@@ -18,6 +18,8 @@ Account names are guaranteed to be unique across all EVM accounts in the develop
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /** The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists. */
+  policies?: string[];
 }
 
 export interface ListResponse {
@@ -456,6 +458,8 @@ Account names are guaranteed to be unique across all Solana accounts in the deve
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /** The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists. */
+  policies?: string[];
 }
 
 /**
@@ -525,6 +529,21 @@ Account names must be unique across all EVM accounts in the developer's CDP Proj
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+};
+
+export type UpdateEvmAccountBody = {
+  /**
+   * An optional name for the account.
+Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names must be unique across all EVM accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
+  /**
+   * The ID of the account-level policy to apply to the account.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  accountPolicy?: string;
 };
 
 /**
@@ -789,6 +808,20 @@ Account names must be unique across all Solana accounts in the developer's CDP P
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+};
+
+export type UpdateSolAccountBody = {
+  /**
+   * An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names must be unique across all Solana accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
+  /**
+   * The ID of the account-level policy to apply to the account.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  accountPolicy?: string;
 };
 
 export type SignSolanaTransactionBody = {

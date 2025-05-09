@@ -40,7 +40,8 @@ class TestListSolanaAccounts200Response(unittest.TestCase):
                 accounts = [
                     cdp.openapi_client.models.solana_account.SolanaAccount(
                         address = 'HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT', 
-                        name = 'my-account', )
+                        name = 'my-account', 
+                        policies = ["123e4567-e89b-12d3-a456-426614174000"], )
                     ]
             )
         else:
@@ -48,7 +49,8 @@ class TestListSolanaAccounts200Response(unittest.TestCase):
                 accounts = [
                     cdp.openapi_client.models.solana_account.SolanaAccount(
                         address = 'HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT', 
-                        name = 'my-account', )
+                        name = 'my-account', 
+                        policies = ["123e4567-e89b-12d3-a456-426614174000"], )
                     ],
         )
         """

@@ -20,6 +20,7 @@ import type {
   SignEvmTransaction200,
   SignEvmTransactionBody,
   SignEvmTypedData200,
+  UpdateEvmAccountBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -64,6 +65,25 @@ export const createEvmAccount = (
  */
 export const getEvmAccount = (address: string, options?: SecondParameter<typeof cdpApiClient>) => {
   return cdpApiClient<EvmAccount>({ url: `/v2/evm/accounts/${address}`, method: "GET" }, options);
+};
+/**
+ * Updates an existing EVM account. Use this to update the account's name or account-level policy.
+ * @summary Update an EVM account
+ */
+export const updateEvmAccount = (
+  address: string,
+  updateEvmAccountBody: UpdateEvmAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmAccount>(
+    {
+      url: `/v2/evm/accounts/${address}`,
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      data: updateEvmAccountBody,
+    },
+    options,
+  );
 };
 /**
  * Gets an EVM account by its name.
@@ -206,6 +226,7 @@ export const signEvmTypedData = (
 export type ListEvmAccountsResult = NonNullable<Awaited<ReturnType<typeof listEvmAccounts>>>;
 export type CreateEvmAccountResult = NonNullable<Awaited<ReturnType<typeof createEvmAccount>>>;
 export type GetEvmAccountResult = NonNullable<Awaited<ReturnType<typeof getEvmAccount>>>;
+export type UpdateEvmAccountResult = NonNullable<Awaited<ReturnType<typeof updateEvmAccount>>>;
 export type GetEvmAccountByNameResult = NonNullable<
   Awaited<ReturnType<typeof getEvmAccountByName>>
 >;
