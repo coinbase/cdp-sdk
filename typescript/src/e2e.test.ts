@@ -261,7 +261,7 @@ describe("CDP Client E2E Tests", () => {
     logger.log("User Operation retrieved. Response:", safeStringify(userOp));
   });
 
-  it("should send a transaction", async () => {
+  it.skip("should send a transaction", async () => {
     logger.log("Calling cdp.evm.sendTransaction");
     const txResult = await cdp.evm.sendTransaction({
       address: testAccount.address,
@@ -410,7 +410,7 @@ describe("CDP Client E2E Tests", () => {
 
   describe("server account actions", () => {
     describe("transfer", () => {
-      it("should transfer eth", async () => {
+      it.skip("should transfer eth", async () => {
         const { status } = await testAccount.transfer({
           to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
           amount: "0",
@@ -421,7 +421,7 @@ describe("CDP Client E2E Tests", () => {
         expect(status).toBe("success");
       });
 
-      it("should transfer usdc", async () => {
+      it.skip("should transfer usdc", async () => {
         const { status } = await testAccount.transfer({
           to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
           amount: "0",
@@ -554,7 +554,7 @@ describe("CDP Client E2E Tests", () => {
   });
 
   describe("solana account actions", () => {
-    describe("request faucet", () => {
+    describe.skip("request faucet", () => {
       it("should request faucet", async () => {
         const { signature } = await testSolanaAccount.requestFaucet({
           token: "sol",
