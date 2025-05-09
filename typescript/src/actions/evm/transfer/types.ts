@@ -1,11 +1,11 @@
 import {
   Hex,
-  TransactionReceipt,
   Address,
   PublicClient,
   Chain,
   Transport,
   WaitForTransactionReceiptParameters,
+  TransactionReceipt,
 } from "viem";
 
 import {
@@ -13,6 +13,7 @@ import {
   EvmUserOperationNetwork,
   SendEvmTransactionBodyNetwork,
 } from "../../../openapi-client/index.js";
+import { WaitOptions } from "../../../utils/wait.js";
 
 import type { EvmAccount, EvmSmartAccount } from "../../../accounts/evm/types.js";
 import type { WaitForUserOperationOptions } from "../waitForUserOperation.js";
@@ -29,10 +30,9 @@ type TransferOptions = {
   /** The account to transfer the token to. */
   to: EvmAccount | Address;
   /**
-   * The amount of the token to transfer.
-   * If a string is provided, it will be parsed into a bigint based on the token's decimals.
+   * The amount of the token to transfer, represented as a whole unit (e.g. "0.01").
    */
-  amount: bigint | string;
+  amount: string;
   /** The token to transfer. Can be a contract address or a predefined token name. */
   token: "eth" | "usdc" | Hex;
   /** The network to transfer the token on. */
@@ -69,11 +69,24 @@ export type SmartAccountTransferOptions = TransferOptions & {
 /**
  * The result of the transfer.
  */
-export type TransferResult = {
-  /** The status of the transaction. */
-  status: TransactionReceipt["status"];
+export type Transfer = {
   /** The transaction hash of the transfer. */
   transactionHash: Hex;
+  /**
+   * Waits for the result of the transfer.
+   *
+   * @param args - The arguments for the transfer.
+   * @param args.publicClient - The public client to use for the transfer.
+   * @param args.hash - The transaction hash of the transfer.
+   * @param args.waitOptions - The options for waiting for the result of the transfer.
+   * @returns The result of the transfer.
+   */
+  waitForResult: (waitOptions?: WaitOptions) => Promise<FinalizedTransfer>;
+};
+
+export type FinalizedTransfer = Omit<Transfer, "waitForResult"> & {
+  /** The status of the transaction. */
+  status: TransactionReceipt["status"];
 };
 
 /**
@@ -120,5 +133,5 @@ export interface TransferExecutionStrategy<T extends EvmAccount | EvmSmartAccoun
     from: T;
     hash: Hex;
     waitOptions?: WaitForUserOperationOptions["waitOptions"];
-  }): Promise<TransferResult>;
+  }): Promise<FinalizedTransfer>;
 }

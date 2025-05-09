@@ -8,7 +8,7 @@ import type { SendTransactionOptions, TransactionResult } from "./sendTransactio
 import type {
   AccountTransferOptions,
   SmartAccountTransferOptions,
-  TransferResult,
+  Transfer,
 } from "./transfer/types.js";
 import type {
   WaitForUserOperationOptions,
@@ -101,7 +101,7 @@ type Actions<T extends EvmAccount | EvmSmartAccount> = {
    */
   transfer: (
     options: T extends EvmSmartAccount ? SmartAccountTransferOptions : AccountTransferOptions,
-  ) => Promise<TransferResult>;
+  ) => Promise<Transfer>;
 
   /**
    * List the token balances of an account.

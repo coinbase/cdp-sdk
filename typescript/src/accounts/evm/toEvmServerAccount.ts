@@ -16,7 +16,7 @@ import { transfer } from "../../actions/evm/transfer/transfer.js";
 
 import type { EvmServerAccount } from "./types.js";
 import type { SendTransactionOptions } from "../../actions/evm/sendTransaction.js";
-import type { TransferResult } from "../../actions/evm/transfer/types.js";
+import type { Transfer } from "../../actions/evm/transfer/types.js";
 import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
 import type { Address, Hash } from "../../types/misc.js";
 
@@ -67,7 +67,7 @@ export function toEvmServerAccount(
     async signTypedData() {
       throw new Error("Not implemented");
     },
-    async transfer(transferArgs): Promise<TransferResult> {
+    async transfer(transferArgs): Promise<Transfer> {
       return transfer(apiClient, account, transferArgs, accountTransferStrategy);
     },
     async listTokenBalances(
