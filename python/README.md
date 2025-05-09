@@ -384,7 +384,13 @@ async def main():
 asyncio.run(main())
 ```
 
+#### Solana
+
+For Solana, we recommend using the `solana` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/examples/python/solana/send_transaction.py).
+
 ### Transferring tokens
+
+#### EVM
 
 For complete examples, check out [account.transfer.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.transfer.py) and [smartAccount.transfer.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smartAccount.transfer.py).
 
@@ -483,7 +489,61 @@ transfer_result = await sender.transfer(
 
 #### Solana
 
-For Solana, we recommend using the `solana` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/examples/python/solana/send_transaction.py).
+For complete examples, check out [solana/account.transfer.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/solana/account.transfer.py).
+
+You can transfer tokens between accounts using the `transfer` function, and wait for the transaction to be confirmed using the `confirmTransaction` function from `solana`:
+
+```python
+import asyncio
+from cdp import CdpClient
+from solana.rpc.api import Client as SolanaClient
+
+async def main():
+    async with CdpClient() as cdp:
+        sender = await cdp.solana.create_account()
+
+        connection = SolanaClient("https://api.devnet.solana.com")
+
+        signature = await sender.transfer({
+            to="3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+            amount=0.01 * LAMPORTS_PER_SOL,
+            token="sol",
+            network=connection,
+        });
+
+        blockhash, lastValidBlockHeight = await connection.get_latest_blockhash()
+
+        confirmation = await connection.confirm_transaction(
+            {
+                signature,
+                blockhash,
+                lastValidBlockHeight,
+            },
+        )
+
+        if confirmation.value.err:
+            print(f"Something went wrong! Error: {confirmation.value.err.toString()}")
+        else:
+            print(
+                f"Transaction confirmed: Link: https://explorer.solana.com/tx/${signature}?cluster=devnet",
+            )
+```
+
+To send USDC, the SDK exports a helper function to convert a whole number to a bigint:
+
+```python
+from cdp import parse_units
+
+# returns atomic representation of 0.01 USDC, which uses 6 decimal places
+amount = parse_units("0.01", 6)
+
+tx_hash = await sender.transfer(
+    to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+    amount=amount,
+    token="usdc",
+    network="devet",
+)
+```
 
 ### EVM Smart Accounts
 

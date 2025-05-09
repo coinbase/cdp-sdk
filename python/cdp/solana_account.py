@@ -135,6 +135,40 @@ class SolanaAccount(BaseModel):
             idempotency_key,
         )
 
+    async def transfer(
+        self,
+        to: str,
+        amount: int,
+        token: str,
+        network: str,
+    ) -> str:
+        """Transfer a token from the Solana account to a destination address.
+
+        Args:
+            to: The account or 0x-prefixed address to transfer the token to.
+            amount: The amount to transfer in atomic units of the token. For example, 0.01 * LAMPORTS_PER_SOL would transfer 0.01 SOL.
+            token: The token to transfer.
+            network: The network to transfer the token on.
+
+        Returns:
+            str: The signature of the transaction.
+
+        """
+        from cdp.actions.solana.transfer import TransferOptions, transfer
+
+        transfer_args = TransferOptions(
+            from_account=self.__address,
+            to_account=to,
+            amount=amount,
+            token=token,
+            network=network,
+        )
+
+        return await transfer(
+            self.__api_clients,
+            transfer_args,
+        )
+
 
 class ListSolanaAccountsResponse(BaseModel):
     """Response model for listing Solana accounts."""

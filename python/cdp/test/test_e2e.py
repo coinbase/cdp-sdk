@@ -7,6 +7,8 @@ import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
+from solana.rpc.api import Client as SolanaClient
+from solders.pubkey import Pubkey as PublicKey
 from web3 import Web3
 
 from cdp import CdpClient
@@ -26,6 +28,15 @@ async def cdp_client():
     client = CdpClient()
     yield client
     await client.close()
+
+
+@pytest_asyncio.fixture(scope="function")
+async def solana_account():
+    """Create and configure a shared Solana account for all tests."""
+    cdp = CdpClient()
+    account = await cdp.solana.get_or_create_account(name="E2EServerAccount")
+    yield account
+    await cdp.close()
 
 
 @pytest.mark.e2e
@@ -584,6 +595,58 @@ async def _ensure_sufficient_eth_balance(cdp_client, account):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_transfer_sol(solana_account):
+    """Test transferring SOL."""
+    connection = SolanaClient("https://api.devnet.solana.com")
+
+    await _ensure_sufficient_sol_balance(cdp_client, solana_account)
+
+    signature = await solana_account.transfer(
+        to="3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE", amount=0, token="sol", network="devnet"
+    )
+
+    assert signature is not None
+
+    last_valid_block_height = connection.get_latest_blockhash()
+
+    confirmation = connection.confirm_transaction(
+        tx_sig=signature,
+        last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
+        commitment="confirmed",
+    )
+
+    assert confirmation is not None
+    assert confirmation.value[0].err is None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_solana_account_transfer_usdc(solana_account):
+    """Test transferring USDC tokens."""
+    connection = SolanaClient("https://api.devnet.solana.com")
+
+    await _ensure_sufficient_sol_balance(cdp_client, solana_account)
+
+    signature = await solana_account.transfer(
+        to="3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE", amount=0, token="usdc", network="devnet"
+    )
+
+    assert signature is not None
+
+    last_valid_block_height = connection.get_latest_blockhash()
+
+    confirmation = connection.confirm_transaction(
+        tx_sig=signature,
+        last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
+        commitment="confirmed",
+    )
+
+    assert confirmation is not None
+    assert confirmation.value[0].err is None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_evm_get_or_create_account(cdp_client):
     """Test getting or creating an EVM account."""
     random_name = "".join(
@@ -765,3 +828,38 @@ async def _ensure_sufficient_eth_balance(cdp_client, account):
         print(f"ETH balance is sufficient: {w3.from_wei(eth_balance, 'ether')} ETH")
 
     return eth_balance
+
+
+async def _ensure_sufficient_sol_balance(cdp_client, account):
+    """Ensure an account has sufficient SOL balance."""
+    connection = SolanaClient("https://api.devnet.solana.com")
+
+    async def sleep(ms):
+        await asyncio.sleep(ms / 1000)
+
+    # 1250000 is the amount the faucet gives, and is plenty to cover gas
+    min_required_balance = 1250000
+
+    # Get initial balance
+    balance_resp = connection.get_balance(PublicKey.from_string(account.address))
+    balance = balance_resp.value
+
+    if balance >= min_required_balance:
+        return
+
+    print("Balance too low, requesting SOL from faucet...")
+    await cdp_client.solana.request_faucet(address=account.address, token="sol")
+
+    attempts = 0
+    max_attempts = 30
+
+    while balance == 0 and attempts < max_attempts:
+        balance_resp = connection.get_balance(PublicKey.from_string(account.address))
+        balance = balance_resp.value
+        if balance == 0:
+            print("Waiting for funds...")
+            await sleep(1000)
+            attempts += 1
+
+    if balance == 0:
+        raise Exception("Account not funded after multiple attempts")
