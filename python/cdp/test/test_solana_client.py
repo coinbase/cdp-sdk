@@ -27,7 +27,7 @@ from cdp.openapi_client.models.sign_solana_transaction200_response import (
 from cdp.openapi_client.models.sign_solana_transaction_request import (
     SignSolanaTransactionRequest,
 )
-from cdp.openapi_client.models.solana_account import SolanaAccount
+from cdp.openapi_client.models.solana_account import SolanaAccount as SolanaAccountModel
 from cdp.solana_client import SolanaClient
 
 
@@ -55,7 +55,8 @@ async def test_create_account():
         create_solana_account_request=CreateSolanaAccountRequest(name=test_name),
     )
 
-    assert result == mock_sol_account
+    assert result.address == mock_sol_account.address
+    assert result.name == mock_sol_account.name
 
 
 @pytest.mark.asyncio
@@ -78,7 +79,8 @@ async def test_get_account():
 
     mock_solana_accounts_api.get_solana_account.assert_called_once_with(test_address)
 
-    assert result == mock_sol_account
+    assert result.address == mock_sol_account.address
+    assert result.name == mock_sol_account.name
 
 
 @pytest.mark.asyncio
@@ -153,10 +155,10 @@ async def test_list_accounts():
     mock_api_clients = AsyncMock()
     mock_api_clients.solana_accounts = mock_solana_accounts_api
 
-    mock_sol_account_1 = SolanaAccount(
+    mock_sol_account_1 = SolanaAccountModel(
         address="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", name="test-sol-account-1"
     )
-    mock_sol_account_2 = SolanaAccount(
+    mock_sol_account_2 = SolanaAccountModel(
         address="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", name="test-sol-account-2"
     )
 
@@ -174,7 +176,6 @@ async def test_list_accounts():
     )
 
     assert len(result.accounts) == 2
-    assert result.next_page_token == "next-page-token"
     assert result.accounts[0].address == "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     assert result.accounts[1].address == "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
 

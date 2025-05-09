@@ -586,6 +586,11 @@ EvmSmartAccount supports the following actions:
 - `get_user_operation`
 - `transfer`
 
+SolanaAccount supports the following actions:
+
+- `sign_message`
+- `sign_transaction`
+- `request_faucet`
 
 ## Authentication tools
 

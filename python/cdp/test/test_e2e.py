@@ -239,6 +239,7 @@ async def test_send_transaction_from_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="Skipping due to faucet rate limit")
 async def test_evm_request_faucet_for_account(cdp_client):
     """Test requesting a faucet for an EVM account."""
     account = await cdp_client.evm.create_account()
@@ -265,6 +266,7 @@ async def test_list_evm_token_balances_for_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="Skipping due to faucet rate limit")
 async def test_evm_request_faucet_for_smart_account(cdp_client):
     """Test requesting a faucet for an EVM smart account."""
     smart_account = await cdp_client.evm.create_smart_account(owner=Account.create())
@@ -486,38 +488,6 @@ async def test_transfer_usdc_smart_account(cdp_client):
     assert transfer_result.status == "success"
 
 
-async def _ensure_sufficient_eth_balance(cdp_client, account):
-    """Ensure an account has sufficient ETH balance."""
-    min_required_balance = w3.to_wei(0.000001, "ether")
-
-    eth_balance = w3.eth.get_balance(account.address)
-
-    print(f"Current ETH balance: {w3.from_wei(eth_balance, 'ether')} ETH")
-
-    if eth_balance < min_required_balance:
-        print(
-            f"ETH balance below minimum required ({w3.from_wei(min_required_balance, 'ether')} ETH)"
-        )
-        faucet_hash = await cdp_client.evm.request_faucet(
-            address=account.address, network="base-sepolia", token="eth"
-        )
-
-        print(f"Faucet request submitted: {faucet_hash}")
-
-        w3.eth.wait_for_transaction_receipt(faucet_hash)
-
-        # Verify the balance is now sufficient
-        new_balance = w3.eth.get_balance(account.address)
-        assert (
-            new_balance >= min_required_balance
-        ), f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
-        return new_balance
-    else:
-        print(f"ETH balance is sufficient: {w3.from_wei(eth_balance, 'ether')} ETH")
-
-    return eth_balance
-
-
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_evm_get_or_create_account(cdp_client):
@@ -604,3 +574,100 @@ async def test_solana_get_or_create_account_race_condition(cdp_client):
     assert accounts[0].name == accounts[1].name
     assert accounts[0].address == accounts[2].address
     assert accounts[0].name == accounts[2].name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_solana_sign_message(cdp_client):
+    """Test signing a message."""
+    account = await cdp_client.solana.create_account()
+    assert account is not None
+
+    message = "Hello Solana!"
+    response = await account.sign_message(message)
+    assert response is not None
+    assert response.signature is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_solana_sign_transaction(cdp_client):
+    """Test signing a transaction."""
+    account = await cdp_client.solana.create_account()
+    assert account is not None
+
+    response = await account.sign_transaction(transaction=_get_transaction(account.address))
+    assert response is not None
+    assert response.signed_transaction is not None
+
+
+def _get_transaction(address: str):
+    """Help method to create a transaction."""
+    from solana.rpc.api import Client as SolanaClient
+    from solders.message import Message
+    from solders.pubkey import Pubkey as PublicKey
+    from solders.system_program import TransferParams, transfer
+
+    connection = SolanaClient("https://api.devnet.solana.com")
+
+    source_pubkey = PublicKey.from_string(address)
+    dest_pubkey = PublicKey.from_string("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE")
+
+    blockhash_resp = connection.get_latest_blockhash()
+    blockhash = blockhash_resp.value.blockhash
+
+    transfer_params = TransferParams(
+        from_pubkey=source_pubkey, to_pubkey=dest_pubkey, lamports=1000
+    )
+    transfer_instr = transfer(transfer_params)
+
+    message = Message.new_with_blockhash(
+        [transfer_instr],
+        source_pubkey,
+        blockhash,
+    )
+
+    # Create a transaction envelope with signature space
+    sig_count = bytes([1])  # 1 byte for signature count (1)
+    empty_sig = bytes([0] * 64)  # 64 bytes of zeros for the empty signature
+    message_bytes = bytes(message)  # Get the serialized message bytes
+
+    # Concatenate to form the transaction bytes
+    tx_bytes = sig_count + empty_sig + message_bytes
+
+    # Encode to base64 used by CDP API
+    serialized_tx = base64.b64encode(tx_bytes).decode("utf-8")
+
+    return serialized_tx
+
+
+async def _ensure_sufficient_eth_balance(cdp_client, account):
+    """Ensure an account has sufficient ETH balance."""
+    min_required_balance = w3.to_wei(0.000001, "ether")
+
+    eth_balance = w3.eth.get_balance(account.address)
+
+    print(f"Current ETH balance: {w3.from_wei(eth_balance, 'ether')} ETH")
+
+    if eth_balance < min_required_balance:
+        print(
+            f"ETH balance below minimum required ({w3.from_wei(min_required_balance, 'ether')} ETH)"
+        )
+        faucet_hash = await cdp_client.evm.request_faucet(
+            address=account.address, network="base-sepolia", token="eth"
+        )
+
+        print(f"Faucet request submitted: {faucet_hash}")
+
+        w3.eth.wait_for_transaction_receipt(faucet_hash)
+
+        # Verify the balance is now sufficient
+        new_balance = w3.eth.get_balance(account.address)
+        assert (
+            new_balance >= min_required_balance
+        ), f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
+        return new_balance
+    else:
+        print(f"ETH balance is sufficient: {w3.from_wei(eth_balance, 'ether')} ETH")
+
+    return eth_balance

@@ -1,30 +1,21 @@
+from cdp.actions.solana.request_faucet import request_faucet
+from cdp.actions.solana.sign_message import sign_message
+from cdp.actions.solana.sign_transaction import sign_transaction
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.create_solana_account_request import (
     CreateSolanaAccountRequest,
 )
-from cdp.openapi_client.models.list_solana_accounts200_response import (
-    ListSolanaAccounts200Response as ListSolanaAccountsResponse,
-)
 from cdp.openapi_client.models.request_solana_faucet200_response import (
     RequestSolanaFaucet200Response as RequestSolanaFaucetResponse,
-)
-from cdp.openapi_client.models.request_solana_faucet_request import (
-    RequestSolanaFaucetRequest,
 )
 from cdp.openapi_client.models.sign_solana_message200_response import (
     SignSolanaMessage200Response as SignSolanaMessageResponse,
 )
-from cdp.openapi_client.models.sign_solana_message_request import (
-    SignSolanaMessageRequest,
-)
 from cdp.openapi_client.models.sign_solana_transaction200_response import (
     SignSolanaTransaction200Response as SignSolanaTransactionResponse,
 )
-from cdp.openapi_client.models.sign_solana_transaction_request import (
-    SignSolanaTransactionRequest,
-)
-from cdp.openapi_client.models.solana_account import SolanaAccount
+from cdp.solana_account import ListSolanaAccountsResponse, SolanaAccount
 
 
 class SolanaClient:
@@ -48,9 +39,14 @@ class SolanaClient:
             SolanaAccount: The Solana account model.
 
         """
-        return await self.api_clients.solana_accounts.create_solana_account(
+        response = await self.api_clients.solana_accounts.create_solana_account(
             x_idempotency_key=idempotency_key,
             create_solana_account_request=CreateSolanaAccountRequest(name=name),
+        )
+
+        return SolanaAccount(
+            solana_account_model=response,
+            api_clients=self.api_clients,
         )
 
     async def get_account(
@@ -67,11 +63,16 @@ class SolanaClient:
 
         """
         if address:
-            return await self.api_clients.solana_accounts.get_solana_account(address)
+            response = await self.api_clients.solana_accounts.get_solana_account(address)
         elif name:
-            return await self.api_clients.solana_accounts.get_solana_account_by_name(name)
+            response = await self.api_clients.solana_accounts.get_solana_account_by_name(name)
         else:
             raise ValueError("Either address or name must be provided")
+
+        return SolanaAccount(
+            solana_account_model=response,
+            api_clients=self.api_clients,
+        )
 
     async def get_or_create_account(
         self,
@@ -116,8 +117,21 @@ class SolanaClient:
             ListSolanaAccountsResponse: The list of Solana accounts, and an optional next page token.
 
         """
-        return await self.api_clients.solana_accounts.list_solana_accounts(
+        response = await self.api_clients.solana_accounts.list_solana_accounts(
             page_size=page_size, page_token=page_token
+        )
+
+        accounts = [
+            SolanaAccount(
+                solana_account_model=account,
+                api_clients=self.api_clients,
+            )
+            for account in response.accounts
+        ]
+
+        return ListSolanaAccountsResponse(
+            accounts=accounts,
+            next_page_token=response.next_page_token,
         )
 
     async def sign_message(
@@ -134,10 +148,11 @@ class SolanaClient:
             SignSolanaMessageResponse: The response containing the signature.
 
         """
-        return await self.api_clients.solana_accounts.sign_solana_message(
-            address=address,
-            sign_solana_message_request=SignSolanaMessageRequest(message=message),
-            x_idempotency_key=idempotency_key,
+        return await sign_message(
+            self.api_clients.solana_accounts,
+            address,
+            message,
+            idempotency_key,
         )
 
     async def sign_transaction(
@@ -154,10 +169,11 @@ class SolanaClient:
             SignSolanaTransactionResponse: The response containing the signed transaction.
 
         """
-        return await self.api_clients.solana_accounts.sign_solana_transaction(
-            address=address,
-            sign_solana_transaction_request=SignSolanaTransactionRequest(transaction=transaction),
-            x_idempotency_key=idempotency_key,
+        return await sign_transaction(
+            self.api_clients.solana_accounts,
+            address,
+            transaction,
+            idempotency_key,
         )
 
     async def request_faucet(
@@ -175,8 +191,10 @@ class SolanaClient:
             RequestSolanaFaucetResponse: The response containing the transaction hash.
 
         """
-        return await self.api_clients.faucets.request_solana_faucet(
-            request_solana_faucet_request=RequestSolanaFaucetRequest(address=address, token=token)
+        return await request_faucet(
+            self.api_clients.faucets,
+            address,
+            token,
         )
 
     async def update_account(self, address: str, name: str | None = None) -> SolanaAccount:
