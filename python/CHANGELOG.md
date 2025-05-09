@@ -2,6 +2,14 @@
 
 <!-- towncrier release notes start -->
 
+## [1.6.0] - 2025-05-09
+
+### Features
+
+- Added support for eip-712 signing ([#132](https://github.com/coinbase/cdp-sdk/pull/132))
+- Added SolanaAccount with convenience methods to easily perform actions on a returned account ([#135](https://github.com/coinbase/cdp-sdk/pull/135))
+
+
 ## [1.5.0] - 2025-05-07
 
 ### Features
