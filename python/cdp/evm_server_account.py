@@ -1,3 +1,5 @@
+from typing import Any
+
 from eth_account.datastructures import (
     SignedMessage,
     SignedTransaction,
@@ -25,6 +27,7 @@ from cdp.api_clients import ApiClients
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
+from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.evm_account import EvmAccount as EvmServerAccountModel
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
@@ -327,21 +330,35 @@ class EvmServerAccount(BaseAccount, BaseModel):
         )
 
     async def sign_typed_data(
-        self, message: EIP712Message, idempotency_key: str | None = None
+        self,
+        domain: EIP712Domain,
+        types: dict[str, Any],
+        primary_type: str,
+        message: dict[str, Any],
+        idempotency_key: str | None = None,
     ) -> str:
         """Sign an EVM typed data.
 
         Args:
-            message (EIP712Message): The message to sign.
+            domain (EIP712Domain): The domain of the message.
+            types (Dict[str, Any]): The types of the message.
+            primary_type (str): The primary type of the message.
+            message (Dict[str, Any]): The message to sign.
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
         Returns:
             str: The signature.
 
         """
+        eip712_message = EIP712Message(
+            domain=domain,
+            types=types,
+            primary_type=primary_type,
+            message=message,
+        )
         response = await self.__evm_accounts_api.sign_evm_typed_data(
             address=self.address,
-            eip712_message=message,
+            eip712_message=eip712_message,
             x_idempotency_key=idempotency_key,
         )
         return response.signature

@@ -456,26 +456,24 @@ async def test_sign_typed_data():
     mock_api_clients.evm_accounts = mock_evm_accounts_api
 
     test_address = "0x1234567890123456789012345678901234567890"
-    test_message = EIP712Message(
-        domain=EIP712Domain(
-            name="Test",
-            chain_id=1,
-            verifying_contract="0x0000000000000000000000000000000000000000",
-        ),
-        types={
-            "EIP712Domain": [
-                {"name": "name", "type": "string"},
-                {"name": "chainId", "type": "uint256"},
-                {"name": "verifyingContract", "type": "address"},
-            ],
-        },
-        primary_type="EIP712Domain",
-        message={
-            "name": "EIP712Domain",
-            "chainId": 1,
-            "verifyingContract": "0x0000000000000000000000000000000000000000",
-        },
+    domain = EIP712Domain(
+        name="Test",
+        chain_id=1,
+        verifying_contract="0x0000000000000000000000000000000000000000",
     )
+    types = {
+        "EIP712Domain": [
+            {"name": "name", "type": "string"},
+            {"name": "chainId", "type": "uint256"},
+            {"name": "verifyingContract", "type": "address"},
+        ],
+    }
+    primary_type = "EIP712Domain"
+    message = {
+        "name": "EIP712Domain",
+        "chainId": 1,
+        "verifyingContract": "0x0000000000000000000000000000000000000000",
+    }
     test_idempotency_key = "test-idempotency-key"
 
     mock_evm_accounts_api.sign_evm_typed_data = AsyncMock(
@@ -485,12 +483,22 @@ async def test_sign_typed_data():
     client = EvmClient(api_clients=mock_api_clients)
 
     result = await client.sign_typed_data(
-        address=test_address, message=test_message, idempotency_key=test_idempotency_key
+        address=test_address,
+        domain=domain,
+        types=types,
+        primary_type=primary_type,
+        message=message,
+        idempotency_key=test_idempotency_key,
     )
 
     mock_evm_accounts_api.sign_evm_typed_data.assert_called_once_with(
         address=test_address,
-        eip712_message=test_message,
+        eip712_message=EIP712Message(
+            domain=domain,
+            types=types,
+            primary_type=primary_type,
+            message=message,
+        ),
         x_idempotency_key=test_idempotency_key,
     )
 

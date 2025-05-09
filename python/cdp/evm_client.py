@@ -1,3 +1,5 @@
+from typing import Any
+
 from eth_account.signers.base import BaseAccount
 from eth_account.typed_transactions import DynamicFeeTransaction
 
@@ -19,6 +21,7 @@ from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccoun
 from cdp.openapi_client.models.create_evm_smart_account_request import (
     CreateEvmSmartAccountRequest,
 )
+from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.evm_call import EvmCall
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
@@ -327,22 +330,37 @@ class EvmClient:
         return response.signature
 
     async def sign_typed_data(
-        self, address: str, message: EIP712Message, idempotency_key: str | None = None
+        self,
+        address: str,
+        domain: EIP712Domain,
+        types: dict[str, Any],
+        primary_type: str,
+        message: dict[str, Any],
+        idempotency_key: str | None = None,
     ) -> str:
         """Sign an EVM typed data.
 
         Args:
             address (str): The address of the account.
-            message (EIP712Message): The message to sign.
+            domain (EIP712Domain): The domain of the message.
+            types (Dict[str, Any]): The types of the message.
+            primary_type (str): The primary type of the message.
+            message (Dict[str, Any]): The message to sign.
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
         Returns:
             str: The signature.
 
         """
+        eip712_message = EIP712Message(
+            domain=domain,
+            types=types,
+            primary_type=primary_type,
+            message=message,
+        )
         response = await self.api_clients.evm_accounts.sign_evm_typed_data(
             address=address,
-            eip712_message=message,
+            eip712_message=eip712_message,
             x_idempotency_key=idempotency_key,
         )
         return response.signature

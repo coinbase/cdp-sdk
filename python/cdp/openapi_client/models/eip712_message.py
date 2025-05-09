@@ -80,7 +80,7 @@ class EIP712Message(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of EIP712Message from a dict"""
+        """Create an instance of EIP712Message from a dict."""
         if obj is None:
             return None
 

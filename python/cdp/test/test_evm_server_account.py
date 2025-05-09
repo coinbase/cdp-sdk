@@ -110,40 +110,50 @@ async def test_sign_typed_data(mock_api, server_account_model_factory):
     server_account_model = server_account_model_factory(address)
     server_account = EvmServerAccount(server_account_model, mock_api, mock_api)
 
-    message = EIP712Message(
-        domain=EIP712Domain(
-            name="EIP712 Domain",
-            version="1",
-            chain_id=1,
-            verifying_contract="0x1234567890123456789012345678901234567890",
-        ),
-        primary_type="EIP712Message",
-        types={
-            "EIP712Domain": [
-                {"name": "name", "type": "string"},
-                {"name": "chainId", "type": "uint256"},
-                {"name": "verifyingContract", "type": "address"},
-            ],
-        },
-        message={
-            "name": "EIP712Domain",
-            "chainId": 1,
-            "verifyingContract": "0x1234567890123456789012345678901234567890",
-        },
+    domain = EIP712Domain(
+        name="EIP712Domain",
+        version="1",
+        chain_id=1,
+        verifying_contract="0x1234567890123456789012345678901234567890",
     )
+    types = {
+        "EIP712Domain": [
+            {"name": "name", "type": "string"},
+            {"name": "chainId", "type": "uint256"},
+            {"name": "verifyingContract", "type": "address"},
+        ],
+    }
+    primary_type = "EIP712Domain"
+    message = {
+        "name": "EIP712Domain",
+        "chainId": 1,
+        "verifyingContract": "0x1234567890123456789012345678901234567890",
+    }
+    test_idempotency_key = "test-idempotency-key"
 
     signature_response = AsyncMock()
     signature_response.signature = "0xsignature"
     mock_api.sign_evm_typed_data = AsyncMock(return_value=signature_response)
 
-    result = await server_account.sign_typed_data(message)
+    result = await server_account.sign_typed_data(
+        domain=domain,
+        types=types,
+        primary_type=primary_type,
+        message=message,
+        idempotency_key=test_idempotency_key,
+    )
 
     assert result == signature_response.signature
 
     mock_api.sign_evm_typed_data.assert_called_once_with(
         address=address,
-        eip712_message=message,
-        x_idempotency_key=None,
+        eip712_message=EIP712Message(
+            domain=domain,
+            types=types,
+            primary_type=primary_type,
+            message=message,
+        ),
+        x_idempotency_key=test_idempotency_key,
     )
 
 

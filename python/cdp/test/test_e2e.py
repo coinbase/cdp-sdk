@@ -14,7 +14,6 @@ from cdp.actions.evm.transfer.types import TransferOptions
 from cdp.evm_call_types import EncodedCall
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
-from cdp.openapi_client.models.eip712_message import EIP712Message
 
 load_dotenv()
 
@@ -415,26 +414,24 @@ async def test_evm_sign_typed_data(cdp_client):
 
     signature = await cdp_client.evm.sign_typed_data(
         address=account.address,
-        message=EIP712Message(
-            domain=EIP712Domain(
-                name="EIP712Domain",
-                chain_id=1,
-                verifying_contract="0x0000000000000000000000000000000000000000",
-            ),
-            types={
-                "EIP712Domain": [
-                    {"name": "name", "type": "string"},
-                    {"name": "chainId", "type": "uint256"},
-                    {"name": "verifyingContract", "type": "address"},
-                ],
-            },
-            primary_type="EIP712Domain",
-            message={
-                "name": "EIP712Domain",
-                "chainId": 1,
-                "verifyingContract": "0x0000000000000000000000000000000000000000",
-            },
+        domain=EIP712Domain(
+            name="EIP712Domain",
+            chain_id=1,
+            verifying_contract="0x0000000000000000000000000000000000000000",
         ),
+        types={
+            "EIP712Domain": [
+                {"name": "name", "type": "string"},
+                {"name": "chainId", "type": "uint256"},
+                {"name": "verifyingContract", "type": "address"},
+            ],
+        },
+        primary_type="EIP712Domain",
+        message={
+            "name": "EIP712Domain",
+            "chainId": 1,
+            "verifyingContract": "0x0000000000000000000000000000000000000000",
+        },
     )
     assert signature is not None
 
@@ -447,26 +444,24 @@ async def test_evm_sign_typed_data_for_account(cdp_client):
     assert account is not None
 
     signature = await account.sign_typed_data(
-        message=EIP712Message(
-            domain=EIP712Domain(
-                name="EIP712Domain",
-                chain_id=1,
-                verifying_contract="0x0000000000000000000000000000000000000000",
-            ),
-            types={
-                "EIP712Domain": [
-                    {"name": "name", "type": "string"},
-                    {"name": "chainId", "type": "uint256"},
-                    {"name": "verifyingContract", "type": "address"},
-                ],
-            },
-            primary_type="EIP712Domain",
-            message={
-                "name": "EIP712Domain",
-                "chainId": 1,
-                "verifyingContract": "0x0000000000000000000000000000000000000000",
-            },
+        domain=EIP712Domain(
+            name="EIP712Domain",
+            chain_id=1,
+            verifying_contract="0x0000000000000000000000000000000000000000",
         ),
+        types={
+            "EIP712Domain": [
+                {"name": "name", "type": "string"},
+                {"name": "chainId", "type": "uint256"},
+                {"name": "verifyingContract", "type": "address"},
+            ],
+        },
+        primary_type="EIP712Domain",
+        message={
+            "name": "EIP712Domain",
+            "chainId": 1,
+            "verifyingContract": "0x0000000000000000000000000000000000000000",
+        },
     )
     assert signature is not None
 
