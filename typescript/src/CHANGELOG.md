@@ -1,5 +1,15 @@
 # CDP SDK Changelog
 
+## 1.8.0
+
+### Minor Changes
+
+- [#124](https://github.com/coinbase/cdp-sdk/pull/124) [`9b874f8`](https://github.com/coinbase/cdp-sdk/commit/9b874f85b8b21fa8f5ab2b724413cdd41a5423ea) Thanks [@sammccord](https://github.com/sammccord)! - Added all Policy Engine functionality; CRUD operations and zod schemas
+
+- [#130](https://github.com/coinbase/cdp-sdk/pull/130) [`3274e09`](https://github.com/coinbase/cdp-sdk/commit/3274e099612209daf756e0c06857ea29f880318c) Thanks [@sammccord](https://github.com/sammccord)! - Added updateAccount for evm and solana namespaces, as well as account.policies on response types
+
+- [#129](https://github.com/coinbase/cdp-sdk/pull/129) [`b4f6b43`](https://github.com/coinbase/cdp-sdk/commit/b4f6b43d936a9e87eed488ea236bf74851241d65) Thanks [@sddioulde](https://github.com/sddioulde)! - Added support for eip-712 signing
+
 ## 1.7.0
 
 ### Minor Changes
