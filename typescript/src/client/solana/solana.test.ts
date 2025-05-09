@@ -42,6 +42,8 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        transfer: expect.any(Function),
+        waitForTransactionConfirmation: expect.any(Function),
       });
     });
   });
@@ -61,6 +63,8 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        transfer: expect.any(Function),
+        waitForTransactionConfirmation: expect.any(Function),
       });
     });
 
@@ -78,6 +82,8 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        transfer: expect.any(Function),
+        waitForTransactionConfirmation: expect.any(Function),
       });
     });
 
@@ -113,12 +119,16 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        transfer: expect.any(Function),
+        waitForTransactionConfirmation: expect.any(Function),
       });
       expect(result2).toEqual({
         address: "cdpSolanaAccount",
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        transfer: expect.any(Function),
+        waitForTransactionConfirmation: expect.any(Function),
       });
       expect(getSolanaAccountByNameMock).toHaveBeenCalledTimes(2);
       expect(createSolanaAccountMock).toHaveBeenCalledTimes(1);
@@ -142,6 +152,8 @@ describe("SolanaClient", () => {
             requestFaucet: expect.any(Function),
             signMessage: expect.any(Function),
             signTransaction: expect.any(Function),
+            transfer: expect.any(Function),
+            waitForTransactionConfirmation: expect.any(Function),
           },
         ],
       });

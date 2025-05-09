@@ -2,6 +2,12 @@ import { Account, SolanaAccount } from "./types.js";
 import { requestFaucet } from "../../actions/solana/requestFaucet.js";
 import { signMessage } from "../../actions/solana/signMessage.js";
 import { signTransaction } from "../../actions/solana/signTransaction.js";
+import { TransferResult, transfer, TransferOptions } from "../../actions/solana/transfer.js";
+import {
+  waitForTransactionConfirmation,
+  ConfirmationResult,
+  WaitForTransactionConfirmationOptions,
+} from "../../actions/solana/waitForTransactionConfirmation.js";
 import {
   RequestFaucetOptions,
   SignatureResult,
@@ -52,6 +58,17 @@ export function toSolanaAccount(
         ...options,
         address: account.address,
       });
+    },
+    async transfer(options: Omit<TransferOptions, "from">): Promise<TransferResult> {
+      return transfer(apiClient, {
+        ...options,
+        from: account.address,
+      });
+    },
+    async waitForTransactionConfirmation(
+      options: WaitForTransactionConfirmationOptions,
+    ): Promise<ConfirmationResult> {
+      return waitForTransactionConfirmation(options);
     },
   };
 

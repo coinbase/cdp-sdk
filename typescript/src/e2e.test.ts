@@ -636,6 +636,44 @@ describe("CDP Client E2E Tests", () => {
         expect(signature).toBeDefined();
       });
     });
+
+    describe("transfer", () => {
+      it("should transfer native SOL and wait for confirmation", async () => {
+        const { signature } = await testSolanaAccount.transfer({
+          to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+          amount: "0",
+          token: "sol",
+          network: "devnet",
+        });
+
+        expect(signature).toBeDefined();
+
+        const confirmation = await testSolanaAccount.waitForTransactionConfirmation({
+          signature,
+          network: "devnet",
+        });
+
+        expect(confirmation.signature).toBeDefined();
+      });
+
+      it("should transfer USDC and wait for confirmation", async () => {
+        const { signature } = await testSolanaAccount.transfer({
+          to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+          amount: "0",
+          token: "usdc",
+          network: "devnet",
+        });
+
+        expect(signature).toBeDefined();
+
+        const confirmation = await testSolanaAccount.waitForTransactionConfirmation({
+          signature,
+          network: "devnet",
+        });
+
+        expect(confirmation.signature).toBeDefined();
+      });
+    });
   });
 
   describe("Policies API", () => {
