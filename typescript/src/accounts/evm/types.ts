@@ -20,7 +20,7 @@ export type EvmAccount = {
   /** Signs a transaction and returns the signed transaction as a hex string. */
   signTransaction: (transaction: TransactionSerializable) => Promise<Hex>;
   /** Signs a typed data and returns the signature as a hex string. */
-  signTypedData: (parameters: { message: EIP712Message }) => Promise<Hex>;
+  signTypedData: (message: EIP712Message) => Promise<Hex>;
 };
 
 /**

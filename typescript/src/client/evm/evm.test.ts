@@ -691,25 +691,23 @@ describe("EvmClient", () => {
   describe("signTypedData", () => {
     it("should sign a typed data", async () => {
       const address = "0x789";
+      const domain = {
+        name: "EIP712Domain",
+        chainId: 1,
+        verifyingContract: "0x0000000000000000000000000000000000000000",
+      };
+      const types = {
+        EIP712Domain: [
+          { name: "name", type: "string" },
+          { name: "chainId", type: "uint256" },
+          { name: "verifyingContract", type: "address" },
+        ],
+      };
+      const primaryType = "EIP712Domain";
       const message = {
-        domain: {
-          name: "EIP712Domain",
-          chainId: 1,
-          verifyingContract: "0x0000000000000000000000000000000000000000",
-        },
-        types: {
-          EIP712Domain: [
-            { name: "name", type: "string" },
-            { name: "chainId", type: "uint256" },
-            { name: "verifyingContract", type: "address" },
-          ],
-        },
-        primaryType: "EIP712Domain",
-        message: {
-          name: "EIP712Domain",
-          chainId: 1,
-          verifyingContract: "0x0000000000000000000000000000000000000000",
-        },
+        name: "EIP712Domain",
+        chainId: 1,
+        verifyingContract: "0x0000000000000000000000000000000000000000",
       };
       const signature = "0xsignature";
 
@@ -718,7 +716,7 @@ describe("EvmClient", () => {
       >;
       signTypedDataMock.mockResolvedValue({ signature });
 
-      const result = await client.signTypedData({ address, message });
+      const result = await client.signTypedData({ address, domain, types, primaryType, message });
 
       expect(result).toEqual({ signature });
     });

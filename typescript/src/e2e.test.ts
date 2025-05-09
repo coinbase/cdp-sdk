@@ -307,25 +307,23 @@ describe("CDP Client E2E Tests", () => {
   it("should test evm sign typed data", async () => {
     const signature = await cdp.evm.signTypedData({
       address: testAccount.address,
+      domain: {
+        name: "EIP712Domain",
+        chainId: 1,
+        verifyingContract: "0x0000000000000000000000000000000000000000",
+      },
+      types: {
+        EIP712Domain: [
+          { name: "name", type: "string" },
+          { name: "chainId", type: "uint256" },
+          { name: "verifyingContract", type: "address" },
+        ],
+      },
+      primaryType: "EIP712Domain",
       message: {
-        domain: {
-          name: "EIP712Domain",
-          chainId: 1,
-          verifyingContract: "0x0000000000000000000000000000000000000000",
-        },
-        types: {
-          EIP712Domain: [
-            { name: "name", type: "string" },
-            { name: "chainId", type: "uint256" },
-            { name: "verifyingContract", type: "address" },
-          ],
-        },
-        primaryType: "EIP712Domain",
-        message: {
-          name: "EIP712Domain",
-          chainId: 1,
-          verifyingContract: "0x0000000000000000000000000000000000000000",
-        },
+        name: "EIP712Domain",
+        chainId: 1,
+        verifyingContract: "0x0000000000000000000000000000000000000000",
       },
     });
     expect(signature).toBeDefined();
@@ -507,25 +505,23 @@ describe("CDP Client E2E Tests", () => {
     describe("sign typed data", () => {
       it("should sign typed data", async () => {
         const signature = await testAccount.signTypedData({
+          domain: {
+            name: "EIP712Domain",
+            chainId: 1,
+            verifyingContract: "0x0000000000000000000000000000000000000000",
+          },
+          types: {
+            EIP712Domain: [
+              { name: "name", type: "string" },
+              { name: "chainId", type: "uint256" },
+              { name: "verifyingContract", type: "address" },
+            ],
+          },
+          primaryType: "EIP712Domain",
           message: {
-            domain: {
-              name: "EIP712Domain",
-              chainId: 1,
-              verifyingContract: "0x0000000000000000000000000000000000000000",
-            },
-            types: {
-              EIP712Domain: [
-                { name: "name", type: "string" },
-                { name: "chainId", type: "uint256" },
-                { name: "verifyingContract", type: "address" },
-              ],
-            },
-            primaryType: "EIP712Domain",
-            message: {
-              name: "EIP712Domain",
-              chainId: 1,
-              verifyingContract: "0x0000000000000000000000000000000000000000",
-            },
+            name: "EIP712Domain",
+            chainId: 1,
+            verifyingContract: "0x0000000000000000000000000000000000000000",
           },
         });
         expect(signature).toBeDefined();

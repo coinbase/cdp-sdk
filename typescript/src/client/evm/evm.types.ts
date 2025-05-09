@@ -18,13 +18,12 @@ import type {
 } from "../../actions/evm/sendUserOperation.js";
 import type { SmartAccountActions } from "../../actions/evm/types.js";
 import type {
-  EIP712Message,
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
 } from "../../openapi-client/index.js";
 import type { Calls } from "../../types/calls.js";
-import type { Address, Hex } from "../../types/misc.js";
+import type { Address, EIP712Message, Hex } from "../../types/misc.js";
 import type { WaitOptions } from "../../utils/wait.js";
 
 /**
@@ -270,8 +269,14 @@ export interface SignMessageOptions {
 export interface SignTypedDataOptions {
   /** The address of the account. */
   address: Address;
-  /** The typed data to sign. */
-  message: EIP712Message;
+  /** The domain of the message. */
+  domain: EIP712Message["domain"];
+  /** The types of the message. */
+  types: EIP712Message["types"];
+  /** The primary type of the message. This is the name of the struct in the `types` object that is the root of the message. */
+  primaryType: EIP712Message["primaryType"];
+  /** The message to sign. The structure of this message must match the `primaryType` struct in the `types` object. */
+  message: EIP712Message["message"];
   /** The idempotency key. */
   idempotencyKey?: string;
 }

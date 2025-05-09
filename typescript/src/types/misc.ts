@@ -42,3 +42,44 @@ export type TransactionRequestEIP1559 = {
   /** (Ignored) The transaction type is always `eip1559`. */
   type?: "eip1559" | undefined;
 };
+
+/**
+ * The domain of the EIP-712 typed data.
+ */
+export interface EIP712Domain {
+  /** The name of the DApp or protocol. */
+  name?: string;
+  /** The version of the DApp or protocol. */
+  version?: string;
+  /** The chain ID of the EVM network. */
+  chainId?: number;
+  /** The 0x-prefixed EVM address of the verifying smart contract. */
+  verifyingContract?: string;
+  /** The optional 32-byte 0x-prefixed hex salt for domain separation. */
+  salt?: string;
+}
+
+/**
+ * A mapping of struct names to an array of type objects (name + type).
+ * Each key corresponds to a type name (e.g., "`EIP712Domain`", "`PermitTransferFrom`").
+ */
+export interface EIP712Types {
+  [key: string]: unknown;
+}
+
+/**
+ * The message to sign. The structure of this message must match the `primaryType` struct in the `types` object.
+ */
+export type EIP712MessageMessage = { [key: string]: unknown };
+
+/**
+ * The message to sign using EIP-712.
+ */
+export interface EIP712Message {
+  domain: EIP712Domain;
+  types: EIP712Types;
+  /** The primary type of the message. This is the name of the struct in the `types` object that is the root of the message. */
+  primaryType: string;
+  /** The message to sign. The structure of this message must match the `primaryType` struct in the `types` object. */
+  message: EIP712MessageMessage;
+}

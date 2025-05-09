@@ -101,7 +101,7 @@ describe("toEvmServerAccount", () => {
       },
     };
 
-    await serverAccount.signTypedData({ message });
+    await serverAccount.signTypedData(message);
 
     expect(mockApiClient.signEvmTypedData).toHaveBeenCalledWith(mockAddress, message);
   });
