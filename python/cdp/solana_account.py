@@ -135,6 +135,58 @@ class SolanaAccount(BaseModel):
             idempotency_key,
         )
 
+    async def transfer(
+        self,
+        transfer_args,
+    ):
+        """Transfer a token from the Solana account to a destination address.
+
+        Args:
+            transfer_args: The options for the transfer.
+                transfer_args.to: The account or 0x-prefixed address to transfer the token to.
+                transfer_args.amount: The amount of the token to transfer.
+                transfer_args.token: The token to transfer.
+                transfer_args.network: The network to transfer the token on.
+
+        Returns:
+            TransferSolanaResponse: The signature of the transaction.
+
+        """
+        from cdp.actions.solana.transfer import TransferOptions, transfer
+
+        # Convert to TransferOptions if it's not already
+        if not isinstance(transfer_args, TransferOptions):
+            transfer_args = TransferOptions(**transfer_args)
+
+        return await transfer(
+            self.__api_clients,
+            self.__address,
+            transfer_args,
+        )
+
+    async def wait_for_transaction_confirmation(self, args):
+        """Wait for a transaction to be confirmed.
+
+        Args:
+            args: The options for the wait for transaction confirmation.
+                args.signature: The signature of the transaction to wait for.
+                args.network: The network to wait for the transaction on.
+
+        Returns:
+            WaitForTransactionConfirmationResult: The confirmation status of the transaction.
+
+        """
+        from cdp.actions.solana.wait_for_transaction_confirmation import (
+            WaitForTransactionConfirmationOptions,
+            wait_for_transaction_confirmation,
+        )
+
+        # Convert to WaitForTransactionConfirmationOptions if it's not already
+        if not isinstance(args, WaitForTransactionConfirmationOptions):
+            args = WaitForTransactionConfirmationOptions(**args)
+
+        return await wait_for_transaction_confirmation(args)
+
 
 class ListSolanaAccountsResponse(BaseModel):
     """Response model for listing Solana accounts."""
