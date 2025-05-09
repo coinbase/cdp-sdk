@@ -3,8 +3,8 @@
 import asyncio
 from cdp import CdpClient
 from eth_account import Account
-from cdp.actions.evm.transfer import TransferOptions
 from dotenv import load_dotenv
+from web3 import Web3
 
 load_dotenv()
 
@@ -20,21 +20,36 @@ async def main():
         # Create receiver account
         receiver = await cdp.evm.get_or_create_account(name="Receiver")
 
-        print(f"Transferring 0 USDC from {sender.address} to {receiver.address}...")
+        print("Requesting USDC from faucet...")
+
+        faucet_tx_hash = await sender.request_faucet(
+            network="base-sepolia", token="usdc"
+        )
+
+        w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
+        w3.eth.wait_for_transaction_receipt(faucet_tx_hash)
+
+        print(
+            f"Received USDC from faucet. Explorer link: https://sepolia.basescan.org/tx/{faucet_tx_hash}"
+        )
+
+        print(f"Transferring 0.01 USDC from {sender.address} to {receiver.address}...")
 
         # Execute the transfer
         transfer_result = await sender.transfer(
-            TransferOptions(
-                to=receiver,
-                amount="0",
-                token="usdc",
-                network="base-sepolia",
-            )
+            to=receiver,
+            amount=10000,  # equivalent to 0.01 USDC
+            token="usdc",
+            network="base-sepolia",
         )
 
-        print(f"Transfer status: {transfer_result.status}")
+        user_op_result = await sender.wait_for_user_operation(
+            user_op_hash=transfer_result.user_op_hash
+        )
+
+        print(f"Transfer status: {user_op_result.status}")
         print(
-            f"Explorer link: https://sepolia.basescan.org/tx/{transfer_result.transaction_hash}"
+            f"Explorer link: https://sepolia.basescan.org/tx/{user_op_result.transaction_hash}"
         )
 
 

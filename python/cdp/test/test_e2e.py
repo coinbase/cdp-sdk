@@ -12,7 +12,6 @@ from solders.pubkey import Pubkey as PublicKey
 from web3 import Web3
 
 from cdp import CdpClient
-from cdp.actions.evm.transfer.types import TransferOptions
 from cdp.evm_call_types import EncodedCall
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
@@ -486,17 +485,18 @@ async def test_transfer_eth(cdp_client):
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
 
-    transfer_result = await account.transfer(
-        TransferOptions(
-            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            amount="0",
-            token="eth",
-            network="base-sepolia",
-        )
+    tx_hash = await account.transfer(
+        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+        amount=0,
+        token="eth",
+        network="base-sepolia",
     )
 
-    assert transfer_result is not None
-    assert transfer_result.status == "success"
+    assert tx_hash is not None
+
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    assert receipt is not None
+    assert receipt.status == 1
 
 
 @pytest.mark.e2e
@@ -508,17 +508,18 @@ async def test_transfer_usdc(cdp_client):
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
 
-    transfer_result = await account.transfer(
-        TransferOptions(
-            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            amount="0",
-            token="usdc",
-            network="base-sepolia",
-        )
+    tx_hash = await account.transfer(
+        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+        amount=0,
+        token="usdc",
+        network="base-sepolia",
     )
 
-    assert transfer_result is not None
-    assert transfer_result.status == "success"
+    assert tx_hash is not None
+
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    assert receipt is not None
+    assert receipt.status == 1
 
 
 @pytest.mark.e2e
@@ -529,16 +530,19 @@ async def test_transfer_eth_smart_account(cdp_client):
     assert account is not None
 
     transfer_result = await account.transfer(
-        TransferOptions(
-            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            amount="0",
-            token="eth",
-            network="base-sepolia",
-        )
+        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+        amount=0,
+        token="eth",
+        network="base-sepolia",
     )
 
     assert transfer_result is not None
-    assert transfer_result.status == "success"
+
+    user_op_result = await account.wait_for_user_operation(
+        user_op_hash=transfer_result.user_op_hash
+    )
+    assert user_op_result is not None
+    assert user_op_result.status == "complete"
 
 
 @pytest.mark.e2e
@@ -549,16 +553,19 @@ async def test_transfer_usdc_smart_account(cdp_client):
     assert account is not None
 
     transfer_result = await account.transfer(
-        TransferOptions(
-            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            amount="0",
-            token="usdc",
-            network="base-sepolia",
-        )
+        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+        amount=0,
+        token="usdc",
+        network="base-sepolia",
     )
 
     assert transfer_result is not None
-    assert transfer_result.status == "success"
+
+    user_op_result = await account.wait_for_user_operation(
+        user_op_hash=transfer_result.user_op_hash
+    )
+    assert user_op_result is not None
+    assert user_op_result.status == "complete"
 
 
 async def _ensure_sufficient_eth_balance(cdp_client, account):

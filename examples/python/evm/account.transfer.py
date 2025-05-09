@@ -1,7 +1,7 @@
 # Usage: uv run python evm/account.transfer.py
 
 import asyncio
-from cdp import CdpClient, TransferOptions
+from cdp import CdpClient
 from web3 import Web3
 from dotenv import load_dotenv
 
@@ -37,19 +37,17 @@ async def main():
         )
 
         print(f"Sending 0.01 USDC from {sender.address} to {receiver.address}...")
-        transfer_result = await sender.transfer(
-            TransferOptions(
-                to=receiver.address,
-                amount="0.01",
-                token="usdc",
-                network="base-sepolia",
-            )
+        tx_hash = await sender.transfer(
+            to=receiver,
+            amount=10000,  # equivalent to 0.01 USDC
+            token="usdc",
+            network="base-sepolia",
         )
 
-        print(f"Transfer status: {transfer_result.status}")
-        print(
-            f"Explorer link: https://sepolia.basescan.org/tx/{transfer_result.transaction_hash}"
-        )
+        receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+
+        print(f"Transfer status: {receipt.status}")
+        print(f"Explorer link: https://sepolia.basescan.org/tx/{tx_hash}")
 
 
 asyncio.run(main())

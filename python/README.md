@@ -392,69 +392,68 @@ For Solana, we recommend using the `solana` library to send transactions. See th
 
 #### EVM
 
-For complete examples, check out [account.transfer.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.transfer.py) and [smartAccount.transfer.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smartAccount.transfer.py).
+For complete examples, check out [account.transfer.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.transfer.py) and [smart_account.transfer.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart_account.transfer.py).
 
 You can transfer tokens between accounts using the `transfer` function:
 
 ```python
 sender = await cdp.evm.create_account(name="Sender")
 
-transfer_result = await sender.transfer(
-    TransferOptions(
-        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-        amount="0.01",
-        token="usdc",
-        network="base-sepolia",
-    )
+tx_hash = await sender.transfer(
+    to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+    amount=w3.to_wei("0.001", "ether"),
+    token="eth",
+    network="base-sepolia",
+)
+
+w3.eth.wait_for_transaction_receipt(tx_hash)
+```
+
+To send USDC, the SDK exports a helper function to convert a whole number to a bigint:
+
+```python
+from cdp import parse_units
+
+# returns atomic representation of 0.01 USDC, which uses 6 decimal places
+amount = parse_units("0.01", 6)
+
+tx_hash = await sender.transfer(
+    to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+    amount=amount,
+    token="usdc",
+    network="base-sepolia",
 )
 ```
 
 Smart Accounts also have a `transfer` function:
 
 ```python
+from cdp import parse_units
+
 sender = await cdp.evm.create_smart_account(
     owner=privateKeyToAccount(generatePrivateKey()),
 );
 print("Created smart account", sender);
 
 transfer_result = await sender.transfer(
-    TransferOptions(
-        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-        amount="0.01",
-        token="usdc",
-        network="base-sepolia",
-    )
+    to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+    amount=parse_units("0.01", 6),
+    token="usdc",
+    network="base-sepolia",
 )
+
+user_op_result = await sender.wait_for_user_operation(user_op_hash=transfer_result.user_op_hash)
 ```
 
-Using Smart Accounts, you can also specify a paymaster URL and wait options:
+Using Smart Accounts, you can also specify a paymaster URL:
 
 ```python
 transfer_result = await sender.transfer(
-    TransferOptions(
-        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-        amount="0.01",
-        token="usdc",
-        network="base-sepolia",
-        paymaster_url="https://some-paymaster-url.com",
-        wait_options=WaitOptions(
-            timeout_seconds=10,
-            interval_seconds=2,
-        ),
-    )
-)
-```
-
-If you pass a decimal amount in a string, the SDK will parse it into a bigint based on the token's decimals. You can also pass a bigint directly:
-
-```python
-transfer_result = await sender.transfer(
-    TransferOptions(
-        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-        amount=10000n, # equivalent to 0.01 usdc
-        token="usdc",
-        network="base-sepolia",
-    )
+    to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+    amount="0.01",
+    token="usdc",
+    network="base-sepolia",
+    paymaster_url="https://some-paymaster-url.com",
 )
 ```
 
@@ -462,28 +461,26 @@ You can pass `usdc` or `eth` as the token to transfer, or you can pass a contrac
 
 ```python
 transfer_result = await sender.transfer(
-    TransferOptions(
-        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-        amount="0.000001",
-        token="0x4200000000000000000000000000000000000006", # WETH on Base Sepolia
-        network="base-sepolia",
-    )
+    to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+    amount=w3.to_wei("0.000001", "ether"),
+    token="0x4200000000000000000000000000000000000006", # WETH on Base Sepolia
+    network="base-sepolia",
 )
 ```
 
 You can also pass another account as the `to` parameter:
 
 ```python
+from cdp import parse_units
+
 sender = await cdp.evm.create_account(name="Sender")
 receiver = await cdp.evm.create_account(name="Receiver")
 
 transfer_result = await sender.transfer(
-    TransferOptions(
-        to=receiver,
-        amount="0.01",
-        token="usdc",
-        network="base-sepolia",
-    )
+    to=receiver,
+    amount=parse_units("0.01", 6),
+    token="usdc",
+    network="base-sepolia",
 )
 ```
 

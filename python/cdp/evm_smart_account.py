@@ -70,100 +70,73 @@ class EvmSmartAccount(BaseModel):
         """
         return self.__name
 
-    async def transfer(self, transfer_args):
+    async def transfer(
+        self,
+        to: str | BaseAccount,
+        amount: int,
+        token: str,
+        network: str,
+        paymaster_url: str | None = None,
+    ):
         """Transfer an amount of a token from an account to another account.
 
         Args:
-            transfer_args: The options for the transfer.
-                transfer_args.to: The account or 0x-prefixed address to transfer the token to.
-                transfer_args.amount: The amount of the token to transfer.
-                transfer_args.token: The token to transfer.
-                transfer_args.network: The network to transfer the token on.
+            to: The account or 0x-prefixed address to transfer the token to.
+            amount: The amount of the token to transfer, represented as an atomic unit (e.g. 10000 for 0.01 USDC).
+            The cdp module exports a `parse_units` util to convert to atomic units.
+            Otherwise, you can pass atomic units directly. See examples below.
+            token: The token to transfer.
+            network: The network to transfer the token on.
+            paymaster_url: The paymaster URL to use for the transfer.
 
         Returns:
             The result of the transfer.
 
         Examples:
-            >>> status = await sender.transfer(
-            ...     TransferOptions(
-            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            ...         amount="0.01",
-            ...         token="usdc",
-            ...         network="base-sepolia",
-            ...     )
+            >>> transfer = await sender.transfer(
+            ...     to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            ...     amount=10000,  # equivalent to 0.01 USDC
+            ...     token="usdc",
+            ...     network="base-sepolia",
             ... )
 
-            **Pass an int value**
-            >>> status = await sender.transfer(
-            ...     TransferOptions(
-            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            ...         amount=10000,  # equivalent to 0.01 usdc
-            ...         token="usdc",
-            ...         network="base-sepolia",
-            ...     )
-            ... )
-
-            **Transfer from a smart account**
-            >>> sender = await cdp.evm.create_smart_account(
-            ...     owner=await cdp.evm.create_account(name="Owner"),
-            ... )
-            >>>
-            >>> status = await sender.transfer(
-            ...     TransferOptions(
-            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            ...         amount="0.01",
-            ...         token="usdc",
-            ...         network="base-sepolia",
-            ...     )
-            ... )
-
-            **Transfer ETH**
-            >>> status = await sender.transfer(
-            ...     TransferOptions(
-            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            ...         amount="0.000001",
-            ...         token="eth",
-            ...         network="base-sepolia",
-            ...     )
-            ... )
-
-            **Using a contract address**
-            >>> status = await sender.transfer(
-            ...     TransferOptions(
-            ...         to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            ...         amount="0.000001",
-            ...         token="0x4200000000000000000000000000000000000006",  # WETH on Base Sepolia
-            ...         network="base-sepolia",
-            ...     )
+            **Using parse_units to specify USDC amount**
+            >>> from cdp import parse_units
+            >>> transfer = await sender.transfer(
+            ...     to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            ...     amount=parse_units("0.01", 6),  # USDC uses 6 decimal places
+            ...     token="usdc",
+            ...     network="base-sepolia",
             ... )
 
             **Transfer to another account**
-            >>> sender = await cdp.evm.create_account(name="Sender")
+            >>> sender = await cdp.evm.create_smart_account(
+            ...     owner=await cdp.evm.create_account(name="Owner"),
+            ... )
             >>> receiver = await cdp.evm.create_account(name="Receiver")
             >>>
-            >>> status = await sender.transfer({
+            >>> transfer = await sender.transfer({
             ...     "to": receiver,
-            ...     "amount": "0.01",
+            ...     "amount": 10000,  # equivalent to 0.01 USDC
             ...     "token": "usdc",
             ...     "network": "base-sepolia",
             ... })
 
         """
         from cdp.actions.evm.transfer import (
-            TransferOptions,
             smart_account_transfer_strategy,
             transfer,
         )
 
-        # Convert to TransferOptions if it's not already
-        if not isinstance(transfer_args, TransferOptions):
-            transfer_args = TransferOptions(**transfer_args)
-
         return await transfer(
             api_clients=self.__api_clients,
             from_account=self,
-            transfer_args=transfer_args,
+            to=to,
+            amount=amount,
+            token=token,
+            network=network,
             transfer_strategy=smart_account_transfer_strategy,
+            paymaster_url=paymaster_url,
         )
 
     async def list_token_balances(

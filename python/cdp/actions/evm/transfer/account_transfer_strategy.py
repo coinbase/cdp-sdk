@@ -3,14 +3,11 @@ from typing import cast
 from eth_account.typed_transactions import DynamicFeeTransaction
 from eth_typing import HexStr
 from web3 import Web3
-from web3.exceptions import TimeExhausted
 
 from cdp.actions.evm.transfer.constants import ERC20_ABI
 from cdp.actions.evm.transfer.types import (
     TokenType,
     TransferExecutionStrategy,
-    TransferResult,
-    WaitOptions,
 )
 from cdp.actions.evm.transfer.utils import get_erc20_address
 from cdp.api_clients import ApiClients
@@ -104,52 +101,6 @@ class AccountTransferStrategy(TransferExecutionStrategy):
             )
 
             return cast(HexStr, response.transaction_hash)
-
-    async def wait_for_result(
-        self,
-        api_clients: ApiClients,
-        from_account: EvmServerAccount,
-        w3: Web3,
-        hash: HexStr,
-        wait_options: WaitOptions | None = None,
-    ) -> TransferResult:
-        """Wait for the result of a transfer.
-
-        Args:
-            api_clients: The API clients
-            from_account: The account to transfer from
-            w3: The Web3 client
-            hash: The transaction hash
-            wait_options: The wait options
-        Returns:
-            The result of the transfer
-
-        """
-        chain_id = w3.eth.chain_id
-
-        timeout = wait_options.timeout_seconds if wait_options else 120
-        poll_latency = wait_options.interval_seconds if wait_options else 0.1
-        try:
-            receipt = w3.eth.wait_for_transaction_receipt(
-                hash,
-                timeout=timeout,
-                poll_latency=poll_latency,
-            )
-
-            if receipt.status == 1:
-                return TransferResult(status="success", transaction_hash=hash)
-            else:
-                raise Exception(
-                    f"Transaction failed. Check the transaction on a transaction explorer."
-                    f"Chain ID: {chain_id}"
-                    f"Transaction hash: {hash}"
-                )
-        except TimeExhausted:
-            raise TimeoutError(
-                f"Transaction timed out. Check the transaction on a transaction explorer."
-                f"Chain ID: {chain_id}"
-                f"Transaction hash: {hash}"
-            ) from None
 
 
 def _encode_erc20_function_call(address: str, function_name: str, args: list) -> str:
