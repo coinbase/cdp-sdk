@@ -304,12 +304,12 @@ export class SolanaClient implements SolanaClientInterface {
    *
    * @example **With a name**
    *          ```ts
-   *          const account = await cdp.sol.updateAccount({ address: "0x...", update: { name: "New Name" } });
+   *          const account = await cdp.sol.updateAccount({ address: "...", update: { name: "New Name" } });
    *          ```
    *
    * @example **With an account policy**
    *          ```ts
-   *          const account = await cdp.sol.updateAccount({ address: "0x...", update: { accountPolicy: "73bcaeeb-d7af-4615-b064-42b5fe83a31e" } });
+   *          const account = await cdp.sol.updateAccount({ address: "...", update: { accountPolicy: "73bcaeeb-d7af-4615-b064-42b5fe83a31e" } });
    *          ```
    *
    * @example **With an idempotency key**

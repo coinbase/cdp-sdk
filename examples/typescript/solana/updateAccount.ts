@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/updateAccount.ts
+// Usage: pnpm tsx solana/updateAccount.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 
