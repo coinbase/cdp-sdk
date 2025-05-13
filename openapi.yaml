@@ -80,6 +80,7 @@ tags:
         - `criteria` is an array of logical expressions. All parameters must evaluate to true for the action to be applied.
         - An `operation` corresponds to a CDP v2 API:
             - `signEvmTransaction` or `signSolTransaction` for signing transactions (to set a transaction limit)
+            - `sendEvmTransaction` for signing a transaction, and sending it to a supported network
       - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected. Only `signEvmTransaction` and `signSolTransaction` operations are currently supported.
       ## Policy Scope
       Policies can be applied at the project and/or account level:
@@ -3162,6 +3163,109 @@ components:
         oneOf:
           - $ref: '#/components/schemas/EthValueCriterion'
           - $ref: '#/components/schemas/EvmAddressCriterion'
+      example:
+        - type: ethValue
+          ethValue: '1000000'
+          operator: '>='
+        - type: evmAddress
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+    SignEvmTransactionRule:
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: signEvmTransaction
+          enum:
+            - signEvmTransaction
+        criteria:
+          $ref: '#/components/schemas/SignEvmTransactionCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    EvmNetworkCriterion:
+      type: object
+      x-audience: public
+      description: A schema for specifying a criterion for the intended `network` of an EVM transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `evmNetwork`.
+          example: evmNetwork
+          enum:
+            - evmNetwork
+        networks:
+          type: array
+          description: A list of EVM network identifiers that the transaction's intended `network` should be compared to.
+          items:
+            type: string
+            description: The network the transaction is for.
+            enum:
+              - base-sepolia
+              - base
+            example: base-sepolia
+          example:
+            - base
+            - base-sepolia
+        operator:
+          type: string
+          description: The operator to use for the comparison. The transaction's intended `network` will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+      required:
+        - type
+        - networks
+        - operator
+    SendEvmTransactionCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying the rejection criteria for the SignEvmTransaction operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EthValueCriterion'
+          - $ref: '#/components/schemas/EvmAddressCriterion'
+          - $ref: '#/components/schemas/EvmNetworkCriterion'
+      example:
+        - type: ethValue
+          ethValue: '1000000'
+          operator: '>='
+        - type: evmAddress
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+    SendEvmTransactionRule:
+      x-audience: public
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: sendEvmTransaction
+          enum:
+            - sendEvmTransaction
+        criteria:
+          $ref: '#/components/schemas/SendEvmTransactionCriteria'
+      required:
+        - action
+        - operation
+        - criteria
     SolAddressCriterion:
       type: object
       description: The criterion for the recipient addresses of a Solana transaction.
@@ -3199,9 +3303,12 @@ components:
       items:
         oneOf:
           - $ref: '#/components/schemas/SolAddressCriterion'
-    Rule:
-      type: object
-      description: A rule that limits the behavior of an account.
+      example:
+        - type: solAddress
+          addresses:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+          operator: in
+    SignSolTransactionRule:
       properties:
         action:
           type: string
@@ -3213,28 +3320,33 @@ components:
         operation:
           type: string
           description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
-          example: signEvmTransaction
+          example: signSolTransaction
           enum:
-            - signEvmTransaction
             - signSolTransaction
         criteria:
-          description: The set of criteria for the rule. There is a limit of 10 criteria per rule.
-          oneOf:
-            - $ref: '#/components/schemas/SignEvmTransactionCriteria'
-            - $ref: '#/components/schemas/SignSolTransactionCriteria'
-          example:
-            - type: ethValue
-              ethValue: '1000000000000000000'
-              operator: <=
-            - type: evmAddress
-              addresses:
-                - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-                - '0x1234567890123456789012345678901234567890'
-              operator: in
+          $ref: '#/components/schemas/SignSolTransactionCriteria'
       required:
         - action
         - operation
         - criteria
+    Rule:
+      type: object
+      description: A rule that limits the behavior of an account.
+      oneOf:
+        - $ref: '#/components/schemas/SignEvmTransactionRule'
+        - $ref: '#/components/schemas/SendEvmTransactionRule'
+        - $ref: '#/components/schemas/SignSolTransactionRule'
+      example:
+        action: accept
+        operation: signEvmTransaction
+        criteria:
+          - type: ethValue
+            ethValue: '1000000'
+            operator: '>='
+          - type: evmAddress
+            addresses:
+              - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            operator: in
     Policy:
       type: object
       properties:
@@ -3246,7 +3358,7 @@ components:
         description:
           type: string
           description: |-
-            An optional human-readable description of the policy. 
+            An optional human-readable description of the policy.
             Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.
           pattern: ^[A-Za-z0-9 ,.]{1,50}$
           example: Default policy
@@ -3273,6 +3385,13 @@ components:
                   addresses:
                     - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
                     - '0x1234567890123456789012345678901234567890'
+                  operator: in
+            - action: accept
+              operation: signSolTransaction
+              criteria:
+                - type: solAddress
+                  addresses:
+                    - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
                   operator: in
         createdAt:
           type: string

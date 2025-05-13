@@ -22,6 +22,16 @@ export const EvmAddressOperatorEnum = z.enum(["in", "not in"]);
 export type EvmAddressOperator = z.infer<typeof EvmAddressOperatorEnum>;
 
 /**
+ * Enum for EvmNetworkOperator values
+ */
+export const EvmNetworkOperatorEnum = z.enum(["in", "not in"]);
+/**
+ * Type representing the operators that can be used for EVM network comparisons.
+ * These operators determine how the transaction's network is evaluated against a list.
+ */
+export type EvmNetworkOperator = z.infer<typeof EvmNetworkOperatorEnum>;
+
+/**
  * Enum for SolAddressOperator values
  */
 export const SolAddressOperatorEnum = z.enum(["in", "not in"]);
@@ -69,6 +79,35 @@ export const EvmAddressCriterionSchema = z.object({
 export type EvmAddressCriterion = z.infer<typeof EvmAddressCriterionSchema>;
 
 /**
+ * Enum for EVM Network values
+ */
+export const EvmNetworkEnum = z.enum(["base", "base-sepolia"]);
+/**
+ * Type representing the valid networks used with CDP transaction API's.
+ */
+export type EvmNetwork = z.infer<typeof EvmNetworkEnum>;
+
+/**
+ * Schema for EVM network criterions
+ */
+export const EvmNetworkCriterionSchema = z.object({
+  /** The type of criterion, must be "evmAddress" for EVM address-based rules. */
+  type: z.literal("evmNetwork"),
+  /**
+   * Array of EVM network identifiers to compare against.
+   * Either "base" or "base-sepolia"
+   */
+  networks: z.array(EvmNetworkEnum),
+  /**
+   * The operator to use for evaluating transaction network.
+   * "in" checks if a network is in the provided list.
+   * "not in" checks if a network is not in the provided list.
+   */
+  operator: EvmNetworkOperatorEnum,
+});
+export type EvmNetworkCriterion = z.infer<typeof EvmNetworkCriterionSchema>;
+
+/**
  * Schema for Solana address criterions
  */
 export const SolAddressCriterionSchema = z.object({
@@ -100,6 +139,26 @@ export const SignEvmTransactionCriteriaSchema = z
  * Can contain up to 10 individual criterion objects of ETH value or EVM address types.
  */
 export type SignEvmTransactionCriteria = z.infer<typeof SignEvmTransactionCriteriaSchema>;
+
+/**
+ * Schema for criteria used in SendEvmTransaction operations
+ */
+export const SendEvmTransactionCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      EthValueCriterionSchema,
+      EvmAddressCriterionSchema,
+      EvmNetworkCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+
+/**
+ * Type representing a set of criteria for the sendEvmTransaction operation.
+ * Can contain up to 10 individual criterion objects of ETH value or EVM address types.
+ */
+export type SendEvmTransactionCriteria = z.infer<typeof SendEvmTransactionCriteriaSchema>;
 
 /**
  * Schema for criteria used in SignSolTransaction operations
@@ -168,6 +227,29 @@ export const SignEvmTransactionRuleSchema = z.object({
 export type SignEvmTransactionRule = z.infer<typeof SignEvmTransactionRuleSchema>;
 
 /**
+ * Type representing a 'sendEvmTransaction' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SendEvmTransactionRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the transaction, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "sendEvmTransaction".
+   */
+  operation: z.literal("sendEvmTransaction"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SendEvmTransactionCriteriaSchema,
+});
+export type SendEvmTransactionRule = z.infer<typeof SendEvmTransactionRuleSchema>;
+
+/**
  * Type representing a 'signSolTransaction' policy rule that can accept or reject specific operations
  * based on a set of criteria.
  */
@@ -195,6 +277,7 @@ export type SignSolTransactionRule = z.infer<typeof SignSolTransactionRuleSchema
  */
 export const RuleSchema = z.discriminatedUnion("operation", [
   SignEvmTransactionRuleSchema,
+  SendEvmTransactionRuleSchema,
   SignSolTransactionRuleSchema,
 ]);
 

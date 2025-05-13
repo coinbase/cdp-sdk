@@ -25,6 +25,27 @@ const policy = await cdp.policies.createPolicy({
           },
         ],
       },
+      {
+        action: "accept",
+        operation: "sendEvmTransaction",
+        criteria: [
+          {
+            type: "ethValue",
+            ethValue: "1000000000000000000",
+            operator: "<=",
+          },
+          {
+            type: "evmAddress",
+            addresses: ["0x000000000000000000000000000000000000dEaD"],
+            operator: "in",
+          },
+          {
+            type: "evmNetwork",
+            networks: ["base"],
+            operator: "in",
+          },
+        ],
+      },
     ],
   },
 });

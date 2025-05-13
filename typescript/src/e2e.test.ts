@@ -813,6 +813,17 @@ describe("CDP Client E2E Tests", () => {
                 },
               ],
             },
+            {
+              action: "reject",
+              operation: "sendEvmTransaction",
+              criteria: [
+                {
+                  type: "evmNetwork",
+                  networks: ["base"], // 1 ETH
+                  operator: "in",
+                },
+              ],
+            },
           ],
         },
       });
