@@ -853,7 +853,7 @@ describe("CDP Client E2E Tests", () => {
       expect(policy.id).toBe(testPolicyId);
       expect(policy.scope).toBe("account");
       expect(policy.description).toBe("Test policy for e2e tests");
-      expect(policy.rules).toHaveLength(1);
+      expect(policy.rules).toHaveLength(2);
     });
 
     it("should list policies", async () => {
