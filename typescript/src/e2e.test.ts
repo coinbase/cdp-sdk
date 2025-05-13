@@ -30,7 +30,7 @@ import type { Policy } from "./policies/types.js";
 
 dotenv.config();
 
-const testAccountName = "E2EServerAccount";
+const testAccountName = "E2EServerAccount2";
 
 const logger = {
   log: (...args: any[]) => {

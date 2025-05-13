@@ -39,8 +39,9 @@ jobs:
 
       - name: Run E2E tests
         env:
-          CDP_API_KEY_ID: ${{ secrets.CDP_API_KEY_ID_NEW }}
-          CDP_API_KEY_SECRET: ${{ secrets.CDP_API_KEY_SECRET_NEW }}
-          CDP_WALLET_SECRET: ${{ secrets.CDP_WALLET_SECRET_NEW }}
+          CDP_API_KEY_ID: ${{ secrets.CDP_API_KEY_ID }}
+          CDP_API_KEY_SECRET: ${{ secrets.CDP_API_KEY_SECRET }}
+          CDP_WALLET_SECRET: ${{ secrets.CDP_WALLET_SECRET }}
+          CDP_E2E_SMART_ACCOUNT_ADDRESS: ${{ vars.CDP_E2E_SMART_ACCOUNT_ADDRESS }}
           DISABLE_CDP_ERROR_REPORTING: true
         run: uv run pytest cdp/test/test_e2e.py -v

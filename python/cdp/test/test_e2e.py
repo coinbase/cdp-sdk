@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import os
 import random
 import string
 
@@ -20,6 +21,8 @@ load_dotenv()
 
 w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 
+test_account_name = "E2EServerAccount2"
+
 
 @pytest_asyncio.fixture(scope="function")
 async def cdp_client():
@@ -33,7 +36,7 @@ async def cdp_client():
 async def solana_account():
     """Create and configure a shared Solana account for all tests."""
     cdp = CdpClient()
-    account = await cdp.solana.get_or_create_account(name="E2EServerAccount")
+    account = await cdp.solana.get_or_create_account(name=test_account_name)
     yield account
     await cdp.close()
 
@@ -298,7 +301,7 @@ async def test_list_evm_token_balances_for_smart_account(cdp_client):
     assert account is not None
 
     smart_account = await cdp_client.evm.get_smart_account(
-        address="0x283C298d11dE680843591AE8b43E3cB093B44Aca", owner=account
+        address=os.getenv("CDP_E2E_SMART_ACCOUNT_ADDRESS"), owner=account
     )
 
     first_page = await smart_account.list_token_balances(network="base-sepolia")
@@ -419,7 +422,7 @@ async def test_solana_sign_fns(cdp_client):
 @pytest.mark.asyncio
 async def test_evm_sign_typed_data(cdp_client):
     """Test signing typed data."""
-    account = await cdp_client.evm.get_or_create_account(name="E2EServerAccount")
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     signature = await cdp_client.evm.sign_typed_data(
@@ -450,7 +453,7 @@ async def test_evm_sign_typed_data(cdp_client):
 @pytest.mark.asyncio
 async def test_evm_sign_typed_data_for_account(cdp_client):
     """Test signing typed data for an account."""
-    account = await cdp_client.evm.get_or_create_account(name="E2EServerAccount")
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     signature = await account.sign_typed_data(
