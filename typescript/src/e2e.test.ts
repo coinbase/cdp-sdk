@@ -834,9 +834,11 @@ describe("CDP Client E2E Tests", () => {
       expect(createdPolicy.description).toBe("Test policy for e2e tests");
       expect(createdPolicy.createdAt).toBeDefined();
       expect(createdPolicy.updatedAt).toBeDefined();
-      expect(createdPolicy.rules).toHaveLength(1);
+      expect(createdPolicy.rules).toHaveLength(2);
       expect(createdPolicy.rules[0].action).toBe("reject");
       expect(createdPolicy.rules[0].operation).toBe("signEvmTransaction");
+      expect(createdPolicy.rules[1].action).toBe("reject");
+      expect(createdPolicy.rules[1].operation).toBe("sendEvmTransaction");
 
       // Save the policy ID for other tests
       testPolicyId = createdPolicy.id;
