@@ -2,6 +2,14 @@
 
 <!-- towncrier release notes start -->
 
+## [1.7.0] - 2025-05-14
+
+### Features
+
+- Added transfer method to Solana account to easily send tokens on Solana ([#136](https://github.com/coinbase/cdp-sdk/pull/136))
+- Updated Transfer API to allow users to wait for receipt and pass in a parsed amount to transfer ([#137](https://github.com/coinbase/cdp-sdk/pull/137))
+
+
 ## [1.6.0] - 2025-05-09
 
 ### Features
