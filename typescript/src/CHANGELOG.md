@@ -1,5 +1,15 @@
 # CDP SDK Changelog
 
+## 1.9.0
+
+### Minor Changes
+
+- [#128](https://github.com/coinbase/cdp-sdk/pull/128) [`bd4d1d6`](https://github.com/coinbase/cdp-sdk/commit/bd4d1d6855627e24bd4b51937e40df27a2595559) Thanks [@0xRAG](https://github.com/0xRAG)! - Added transfer method to Solana account to easily send tokens on Solana
+
+- [#133](https://github.com/coinbase/cdp-sdk/pull/133) [`438d967`](https://github.com/coinbase/cdp-sdk/commit/438d967401c06469bfc44c581a6c0994f77c0f9e) Thanks [@0xRAG](https://github.com/0xRAG)! - Updated Transfer API to allow users to wait for receipt and pass in a parsed amount to transfer
+
+- [#141](https://github.com/coinbase/cdp-sdk/pull/141) [`c0273f9`](https://github.com/coinbase/cdp-sdk/commit/c0273f96769f74c78cddbbf0b109dc47cc16b7ca) Thanks [@sammccord](https://github.com/sammccord)! - Added SendEvmTransactionRule to Policy Rules
+
 ## 1.8.0
 
 ### Minor Changes

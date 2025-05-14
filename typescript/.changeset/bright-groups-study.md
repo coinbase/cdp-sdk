@@ -1,5 +1,0 @@
----
-"@coinbase/cdp-sdk": minor
----
-
-Added transfer method to Solana account to easily send tokens on Solana
