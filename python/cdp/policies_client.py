@@ -2,25 +2,9 @@ from typing import Any
 
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
-from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
-from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
-from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
-from cdp.openapi_client.models.rule import Rule
-from cdp.openapi_client.models.send_evm_transaction_criteria_inner import (
-    SendEvmTransactionCriteriaInner,
-)
-from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransactionRule
-from cdp.openapi_client.models.sign_evm_transaction_criteria_inner import (
-    SignEvmTransactionCriteriaInner,
-)
-from cdp.openapi_client.models.sign_evm_transaction_rule import SignEvmTransactionRule
-from cdp.openapi_client.models.sign_sol_transaction_criteria_inner import (
-    SignSolTransactionCriteriaInner,
-)
-from cdp.openapi_client.models.sign_sol_transaction_rule import SignSolTransactionRule
-from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.policies.types import ListPoliciesResult, Policy, PolicyScope
+from cdp.policies.utils import create_rules_from_policy
 
 
 class PoliciesClient:
@@ -44,13 +28,12 @@ class PoliciesClient:
             Policy: The created policy.
 
         """
-        policy = {
-            "scope": policy["scope"],
-            "description": policy["description"],
-            "rules": self._create_rules_from_policy(policy),
-        }
         return await self.api_clients.policies.create_policy(
-            create_policy_request=CreatePolicyRequest(**policy),
+            create_policy_request=CreatePolicyRequest(
+                scope=policy["scope"],
+                description=policy["description"],
+                rules=create_rules_from_policy(policy),
+            ),
             x_idempotency_key=idempotency_key,
         )
 
@@ -73,13 +56,12 @@ class PoliciesClient:
             Policy: The updated policy.
 
         """
-        policy = {
-            "description": policy["description"],
-            "rules": self._create_rules_from_policy(policy),
-        }
         return await self.api_clients.policies.update_policy(
             policy_id=id,
-            update_policy_request=UpdatePolicyRequest(**policy),
+            update_policy_request=UpdatePolicyRequest(
+                description=policy["description"],
+                rules=create_rules_from_policy(policy),
+            ),
             x_idempotency_key=idempotency_key,
         )
 
@@ -97,7 +79,7 @@ class PoliciesClient:
             idempotency_key (str | None, optional): The idempotency key. Defaults to None.
 
         """
-        await self.api_clients.policies.delete_policy(
+        return await self.api_clients.policies.delete_policy(
             policy_id=id,
             x_idempotency_key=idempotency_key,
         )
@@ -140,122 +122,3 @@ class PoliciesClient:
             page_token=page_token,
             scope=scope,
         )
-
-    def _create_rules_from_policy(self, policy: dict[str, Any]) -> list[Rule]:
-        rules = []
-        for rule in policy["rules"]:
-            if rule["operation"] == "sendEvmTransaction":
-                criteria = []
-                for criterion in rule["criteria"]:
-                    if criterion["type"] == "ethValue":
-                        criteria.append(
-                            SendEvmTransactionCriteriaInner(
-                                actual_instance=EthValueCriterion(
-                                    eth_value=criterion["ethValue"],
-                                    operator=criterion["operator"],
-                                    type="ethValue",
-                                )
-                            )
-                        )
-                    elif criterion["type"] == "evmAddress":
-                        criteria.append(
-                            SendEvmTransactionCriteriaInner(
-                                actual_instance=EvmAddressCriterion(
-                                    addresses=criterion["addresses"],
-                                    operator=criterion["operator"],
-                                    type="evmAddress",
-                                )
-                            )
-                        )
-                    elif criterion["type"] == "evmNetwork":
-                        criteria.append(
-                            SendEvmTransactionCriteriaInner(
-                                actual_instance=EvmNetworkCriterion(
-                                    networks=criterion["networks"],
-                                    operator=criterion["operator"],
-                                    type="evmNetwork",
-                                )
-                            )
-                        )
-                    else:
-                        raise ValueError(
-                            f"Unknown criterion type {criterion['type']} for operation {rule['operation']}"
-                        )
-
-                rules.append(
-                    Rule(
-                        actual_instance=SendEvmTransactionRule(
-                            action=rule["action"],
-                            operation="sendEvmTransaction",
-                            criteria=criteria,
-                        )
-                    )
-                )
-            elif rule["operation"] == "signEvmTransaction":
-                criteria = []
-                for criterion in rule["criteria"]:
-                    if criterion["type"] == "ethValue":
-                        criteria.append(
-                            SignEvmTransactionCriteriaInner(
-                                actual_instance=EthValueCriterion(
-                                    eth_value=criterion["ethValue"],
-                                    operator=criterion["operator"],
-                                    type="ethValue",
-                                )
-                            )
-                        )
-                    elif criterion["type"] == "evmAddress":
-                        criteria.append(
-                            SignEvmTransactionCriteriaInner(
-                                actual_instance=EvmAddressCriterion(
-                                    addresses=criterion["addresses"],
-                                    operator=criterion["operator"],
-                                    type="evmAddress",
-                                )
-                            )
-                        )
-                    else:
-                        raise ValueError(
-                            f"Unknown criterion type {criterion['type']} for operation {rule['operation']}"
-                        )
-
-                rules.append(
-                    Rule(
-                        actual_instance=SignEvmTransactionRule(
-                            action=rule["action"],
-                            operation="signEvmTransaction",
-                            criteria=criteria,
-                        )
-                    )
-                )
-            elif rule["operation"] == "signSolTransaction":
-                criteria = []
-                for criterion in rule["criteria"]:
-                    if criterion["type"] == "solAddress":
-                        criteria.append(
-                            SignSolTransactionCriteriaInner(
-                                actual_instance=SolAddressCriterion(
-                                    addresses=criterion["addresses"],
-                                    operator=criterion["operator"],
-                                    type="solAddress",
-                                )
-                            )
-                        )
-                    else:
-                        raise ValueError(
-                            f"Unknown criterion type {criterion['type']} for operation {rule['operation']}"
-                        )
-
-                rules.append(
-                    Rule(
-                        actual_instance=SignSolTransactionRule(
-                            action=rule["action"],
-                            operation="signSolTransaction",
-                            criteria=criteria,
-                        )
-                    )
-                )
-            else:
-                raise ValueError(f"Unknown operation {rule['operation']}")
-
-        return rules
