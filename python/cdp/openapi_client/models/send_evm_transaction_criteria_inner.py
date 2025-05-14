@@ -18,27 +18,27 @@ import json
 import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
-from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransactionRule
-from cdp.openapi_client.models.sign_evm_transaction_rule import SignEvmTransactionRule
-from cdp.openapi_client.models.sign_sol_transaction_rule import SignSolTransactionRule
+from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
+from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
+from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-RULE_ONE_OF_SCHEMAS = ["SendEvmTransactionRule", "SignEvmTransactionRule", "SignSolTransactionRule"]
+SENDEVMTRANSACTIONCRITERIAINNER_ONE_OF_SCHEMAS = ["EthValueCriterion", "EvmAddressCriterion", "EvmNetworkCriterion"]
 
-class Rule(BaseModel):
+class SendEvmTransactionCriteriaInner(BaseModel):
     """
-    A rule that limits the behavior of an account.
+    SendEvmTransactionCriteriaInner
     """
-    # data type: SignEvmTransactionRule
-    oneof_schema_1_validator: Optional[SignEvmTransactionRule] = None
-    # data type: SendEvmTransactionRule
-    oneof_schema_2_validator: Optional[SendEvmTransactionRule] = None
-    # data type: SignSolTransactionRule
-    oneof_schema_3_validator: Optional[SignSolTransactionRule] = None
-    actual_instance: Optional[Union[SendEvmTransactionRule, SignEvmTransactionRule, SignSolTransactionRule]] = None
-    one_of_schemas: Set[str] = { "SendEvmTransactionRule", "SignEvmTransactionRule", "SignSolTransactionRule" }
+    # data type: EthValueCriterion
+    oneof_schema_1_validator: Optional[EthValueCriterion] = None
+    # data type: EvmAddressCriterion
+    oneof_schema_2_validator: Optional[EvmAddressCriterion] = None
+    # data type: EvmNetworkCriterion
+    oneof_schema_3_validator: Optional[EvmNetworkCriterion] = None
+    actual_instance: Optional[Union[EthValueCriterion, EvmAddressCriterion, EvmNetworkCriterion]] = None
+    one_of_schemas: Set[str] = { "EthValueCriterion", "EvmAddressCriterion", "EvmNetworkCriterion" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -58,30 +58,30 @@ class Rule(BaseModel):
 
     @field_validator('actual_instance')
     def actual_instance_must_validate_oneof(cls, v):
-        instance = Rule.model_construct()
+        instance = SendEvmTransactionCriteriaInner.model_construct()
         error_messages = []
         match = 0
-        # validate data type: SignEvmTransactionRule
-        if not isinstance(v, SignEvmTransactionRule):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `SignEvmTransactionRule`")
+        # validate data type: EthValueCriterion
+        if not isinstance(v, EthValueCriterion):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `EthValueCriterion`")
         else:
             match += 1
-        # validate data type: SendEvmTransactionRule
-        if not isinstance(v, SendEvmTransactionRule):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `SendEvmTransactionRule`")
+        # validate data type: EvmAddressCriterion
+        if not isinstance(v, EvmAddressCriterion):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `EvmAddressCriterion`")
         else:
             match += 1
-        # validate data type: SignSolTransactionRule
-        if not isinstance(v, SignSolTransactionRule):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `SignSolTransactionRule`")
+        # validate data type: EvmNetworkCriterion
+        if not isinstance(v, EvmNetworkCriterion):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `EvmNetworkCriterion`")
         else:
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in Rule with oneOf schemas: SendEvmTransactionRule, SignEvmTransactionRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in SendEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmNetworkCriterion. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in Rule with oneOf schemas: SendEvmTransactionRule, SignEvmTransactionRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in SendEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmNetworkCriterion. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -96,31 +96,31 @@ class Rule(BaseModel):
         error_messages = []
         match = 0
 
-        # deserialize data into SignEvmTransactionRule
+        # deserialize data into EthValueCriterion
         try:
-            instance.actual_instance = SignEvmTransactionRule.from_json(json_str)
+            instance.actual_instance = EthValueCriterion.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
-        # deserialize data into SendEvmTransactionRule
+        # deserialize data into EvmAddressCriterion
         try:
-            instance.actual_instance = SendEvmTransactionRule.from_json(json_str)
+            instance.actual_instance = EvmAddressCriterion.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
-        # deserialize data into SignSolTransactionRule
+        # deserialize data into EvmNetworkCriterion
         try:
-            instance.actual_instance = SignSolTransactionRule.from_json(json_str)
+            instance.actual_instance = EvmNetworkCriterion.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into Rule with oneOf schemas: SendEvmTransactionRule, SignEvmTransactionRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into SendEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmNetworkCriterion. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into Rule with oneOf schemas: SendEvmTransactionRule, SignEvmTransactionRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into SendEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmNetworkCriterion. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -134,7 +134,7 @@ class Rule(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], SendEvmTransactionRule, SignEvmTransactionRule, SignSolTransactionRule]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], EthValueCriterion, EvmAddressCriterion, EvmNetworkCriterion]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

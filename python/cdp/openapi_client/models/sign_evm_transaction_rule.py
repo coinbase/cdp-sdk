@@ -18,21 +18,34 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.openapi_client.models.sign_evm_transaction_criteria_inner import SignEvmTransactionCriteriaInner
 from typing import Optional, Set
 from typing_extensions import Self
 
-class EIP712Message(BaseModel):
+class SignEvmTransactionRule(BaseModel):
     """
-    The message to sign using EIP-712.
+    SignEvmTransactionRule
     """ # noqa: E501
-    domain: EIP712Domain
-    types: Dict[str, Any] = Field(description="A mapping of struct names to an array of type objects (name + type). Each key corresponds to a type name (e.g., \"`EIP712Domain`\", \"`PermitTransferFrom`\"). ")
-    primary_type: StrictStr = Field(description="The primary type of the message. This is the name of the struct in the `types` object that is the root of the message.", alias="primaryType")
-    message: Dict[str, Any] = Field(description="The message to sign. The structure of this message must match the `primaryType` struct in the `types` object.")
-    __properties: ClassVar[List[str]] = ["domain", "types", "primaryType", "message"]
+    action: StrictStr = Field(description="Whether matching the rule will cause the request to be rejected or accepted.")
+    operation: StrictStr = Field(description="The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.")
+    criteria: List[SignEvmTransactionCriteriaInner] = Field(description="A schema for specifying the rejection criteria for the SignEvmTransaction operation.")
+    __properties: ClassVar[List[str]] = ["action", "operation", "criteria"]
+
+    @field_validator('action')
+    def action_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['reject', 'accept']):
+            raise ValueError("must be one of enum values ('reject', 'accept')")
+        return value
+
+    @field_validator('operation')
+    def operation_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['signEvmTransaction']):
+            raise ValueError("must be one of enum values ('signEvmTransaction')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -52,7 +65,7 @@ class EIP712Message(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of EIP712Message from a JSON string"""
+        """Create an instance of SignEvmTransactionRule from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,14 +86,18 @@ class EIP712Message(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of domain
-        if self.domain:
-            _dict['domain'] = self.domain.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in criteria (list)
+        _items = []
+        if self.criteria:
+            for _item_criteria in self.criteria:
+                if _item_criteria:
+                    _items.append(_item_criteria.to_dict())
+            _dict['criteria'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of EIP712Message from a dict"""
+        """Create an instance of SignEvmTransactionRule from a dict"""
         if obj is None:
             return None
 
@@ -88,10 +105,9 @@ class EIP712Message(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "domain": EIP712Domain.from_dict(obj["domain"]) if obj.get("domain") is not None else None,
-            "types": obj.get("types"),
-            "primaryType": obj.get("primaryType"),
-            "message": obj.get("message")
+            "action": obj.get("action"),
+            "operation": obj.get("operation"),
+            "criteria": [SignEvmTransactionCriteriaInner.from_dict(_item) for _item in obj["criteria"]] if obj.get("criteria") is not None else None
         })
         return _obj
 

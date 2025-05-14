@@ -27,6 +27,7 @@ from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
 from cdp.openapi_client.models.evm_account import EvmAccount
 from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
 from cdp.openapi_client.models.evm_call import EvmCall
+from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
 from cdp.openapi_client.models.list_evm_accounts200_response import ListEvmAccounts200Response
@@ -43,9 +44,10 @@ from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFauce
 from cdp.openapi_client.models.request_solana_faucet200_response import RequestSolanaFaucet200Response
 from cdp.openapi_client.models.request_solana_faucet_request import RequestSolanaFaucetRequest
 from cdp.openapi_client.models.rule import Rule
-from cdp.openapi_client.models.rule_criteria import RuleCriteria
 from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
+from cdp.openapi_client.models.send_evm_transaction_criteria_inner import SendEvmTransactionCriteriaInner
 from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
+from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransactionRule
 from cdp.openapi_client.models.send_user_operation_request import SendUserOperationRequest
 from cdp.openapi_client.models.sign_evm_hash200_response import SignEvmHash200Response
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
@@ -54,8 +56,10 @@ from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageReq
 from cdp.openapi_client.models.sign_evm_transaction200_response import SignEvmTransaction200Response
 from cdp.openapi_client.models.sign_evm_transaction_criteria_inner import SignEvmTransactionCriteriaInner
 from cdp.openapi_client.models.sign_evm_transaction_request import SignEvmTransactionRequest
+from cdp.openapi_client.models.sign_evm_transaction_rule import SignEvmTransactionRule
 from cdp.openapi_client.models.sign_evm_typed_data200_response import SignEvmTypedData200Response
 from cdp.openapi_client.models.sign_sol_transaction_criteria_inner import SignSolTransactionCriteriaInner
+from cdp.openapi_client.models.sign_sol_transaction_rule import SignSolTransactionRule
 from cdp.openapi_client.models.sign_solana_message200_response import SignSolanaMessage200Response
 from cdp.openapi_client.models.sign_solana_message_request import SignSolanaMessageRequest
 from cdp.openapi_client.models.sign_solana_transaction200_response import SignSolanaTransaction200Response
