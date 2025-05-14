@@ -1,9 +1,14 @@
+# flake8: noqa: N815
+# Ignoring mixed case because underlying library type uses camelCase
+# flake8: noqa: N805
+# Ignoring first argument of field_validator named cls
+
 import re
 from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-"""Type representing the action of a policy rule. 
+"""Type representing the action of a policy rule.
 Determines whether matching the rule will cause a request to be rejected or accepted."""
 Action = Literal["reject", "accept"]
 
@@ -25,7 +30,7 @@ class EthValueCriterion(BaseModel):
 
     @field_validator("ethValue")
     def eth_value_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
+        """Validate the regular expression."""
         if not re.match(r"^[0-9]+$", value):
             raise ValueError("ethValue must contain only digits")
         return value
@@ -48,15 +53,14 @@ class EvmAddressCriterion(BaseModel):
 
     @field_validator("addresses")
     def validate_addresses_length(cls, v):
+        """Validate the number of addresses."""
         if len(v) > 100:
             raise ValueError("Maximum of 100 addresses allowed")
         return v
 
 
 class SignEvmTransactionRule(BaseModel):
-    """Type representing a 'signEvmTransaction' policy rule that can accept or reject specific operations
-    based on a set of criteria.
-    """
+    """Type representing a 'signEvmTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
 
     action: Action = Field(
         ...,
@@ -89,17 +93,16 @@ class SolAddressCriterion(BaseModel):
 
     @field_validator("addresses")
     def validate_address_format(cls, v):
-        SOL_ADDRESS_REGEX = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
+        """Validate the address format."""
+        sol_address_regex = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
         for address in v:
-            if not SOL_ADDRESS_REGEX.match(address):
+            if not sol_address_regex.match(address):
                 raise ValueError(f"Invalid address format: {address}")
         return v
 
 
 class SignSolTransactionRule(BaseModel):
-    """Type representing a 'signSolTransaction' policy rule that can accept or reject specific operations
-    based on a set of criteria.
-    """
+    """Type representing a 'signSolTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
 
     action: Action = Field(
         ...,
@@ -114,7 +117,7 @@ class SignSolTransactionRule(BaseModel):
     )
 
 
-"""Type representing the scope of a policy. 
+"""Type representing the scope of a policy.
 Determines whether the policy applies at the project level or account level."""
 PolicyScope = Literal["project", "account"]
 
