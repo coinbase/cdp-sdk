@@ -819,7 +819,7 @@ describe("CDP Client E2E Tests", () => {
               criteria: [
                 {
                   type: "evmNetwork",
-                  networks: ["base"], // 1 ETH
+                  networks: ["base"],
                   operator: "in",
                 },
               ],
