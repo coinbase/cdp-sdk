@@ -1,6 +1,7 @@
 import md5 from "md5";
 
 import { APIError } from "./openapi-client/errors.js";
+import { version } from "./version.js";
 
 /**
  * The data in an error event
@@ -57,6 +58,7 @@ async function sendEvent(event: EventData): Promise<void> {
     event_properties: {
       project_name: "cdp-sdk",
       cdp_sdk_language: "typescript",
+      version,
       ...event,
     },
   };

@@ -10,6 +10,7 @@ import traceback
 import requests
 from pydantic import BaseModel
 
+from cdp.__version__ import __version__
 from cdp.openapi_client.errors import ApiError
 
 # This is a public client id for the analytics service
@@ -55,6 +56,7 @@ async def send_event(event: EventData) -> None:
         "event_properties": {
             "project_name": "cdp-sdk",
             "cdp_sdk_language": "python",
+            "version": __version__,
             **event.model_dump(),
         },
     }
