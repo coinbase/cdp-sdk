@@ -1,0 +1,17 @@
+/**
+ * The public RSA key used to encrypt the private key when importing an EVM account.
+ */
+export const ImportEvmAccountPublicRSAKey = `-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA3DYWsn2T8ONdpA1IGlh/
+6C1af3AbycOBAJkF5XsQMmUrs9tYnrZCI4MxLUP81I/aM4adm+1UTaBn8LSotJ/0
+gXKE3axbgzYInAZJ6nYBHE6Alu2tK5zoQm7jAtyWU35KKnziafHwPE9nEnZMko3J
+JcYkC/h/3LJ2Qp4gxxBqsD+m0yr/w10oE8MqhrNt+LWGpSXW6uHSLVZsWdxqwMoi
+7m/X2Vekk3j8UoAux3k3IuAEjN3OFKLf8SFE6VOLZP+pSiTe9t0hJBJY3EM8d7lS
+V7PmLBR7mwrUOrzDttniAlrnkSztG0gPup+j8BtbeT8zy4QbC9eDeSbsV2zKl1c5
+CH/nuJM3XH9vWnuUOkIAihBvZCcGJwAr9JdMzlznXRitJgl0PkCcDTVhNR9pkrsZ
+uGlohHO9bPucl62sr4xXyLtpznUu3VeuQ3FLsIH0HHFJCrc385ocfLFYRrk0bUx+
+tsM7lLC+iUC7RzAnWSJDq3plz7k6ruv38CaRGOP83aoTeg6ugtOXiaH9krwN6DyM
+y3RFsMBI9O35R5tY1U66FtSIQRJLqGn7IXLhxgrrXErwg0nerWvtuCYQDh03pPt7
+6c08uwtJLxDYvLMMEOofGz0s7+tLE6q1/WPUvjV6eeYcbdfFfDOSAN+Vt5yByf+u
+XjrdVb19uFN5lb005d0BQs8CAwEAAQ==
+-----END PUBLIC KEY-----`;

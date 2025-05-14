@@ -34,6 +34,7 @@ export type EvmClientInterface = Omit<
   typeof OpenApiEvmMethods,
   | "createEvmAccount" // mapped to createAccount
   | "createEvmSmartAccount" // mapped to createSmartAccount
+  | "importEvmAccount" // mapped to importAccount
   | "getEvmAccount" // mapped to getAccount
   | "getEvmAccountByName" // mapped to getAccount
   | "getEvmSmartAccount" // mapped to getSmartAccount
@@ -55,6 +56,7 @@ export type EvmClientInterface = Omit<
 > & {
   createAccount: (options: CreateServerAccountOptions) => Promise<ServerAccount>;
   createSmartAccount: (options: CreateSmartAccountOptions) => Promise<SmartAccount>;
+  importAccount: (options: ImportServerAccountOptions) => Promise<ServerAccount>;
   getAccount: (options: GetServerAccountOptions) => Promise<ServerAccount>;
   getSmartAccount: (options: GetSmartAccountOptions) => Promise<SmartAccount>;
   getOrCreateAccount: (options: GetOrCreateServerAccountOptions) => Promise<ServerAccount>;
@@ -145,6 +147,18 @@ export interface CreateServerAccountOptions {
   name?: string;
   /** The idempotency key. */
   idempotencyKey?: string;
+}
+
+/**
+ * Options for importing an EVM server account.
+ */
+export interface ImportServerAccountOptions {
+  /** The name of the account. */
+  name?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+  /** The private key of the account. */
+  privateKey: string;
 }
 
 /**
