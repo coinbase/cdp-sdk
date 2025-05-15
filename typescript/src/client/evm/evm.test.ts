@@ -1083,7 +1083,7 @@ describe("EvmClient", () => {
       };
 
       await expect(client.importAccount(importOptions)).rejects.toThrow(
-        "Private key cannot be empty",
+        "Private key must be a valid hexadecimal string",
       );
 
       // Verify the API wasn't called

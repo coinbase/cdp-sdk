@@ -170,10 +170,6 @@ export class EvmClient implements EvmClientInterface {
     try {
       const privateKeyBytes = Buffer.from(privateKeyHex, "hex");
 
-      if (privateKeyBytes.length === 0) {
-        throw new Error("Private key cannot be empty");
-      }
-
       const encryptedPrivateKey = publicEncrypt(
         {
           key: ImportEvmAccountPublicRSAKey,
