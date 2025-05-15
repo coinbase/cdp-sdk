@@ -24,8 +24,8 @@ from cdp.policies.types import (
     EvmNetworkCriterion,
     SendEvmTransactionRule,
     SignEvmTransactionRule,
-    SignSolTransactionRule,
-    SolAddressCriterion,
+    SignSolanaTransactionRule,
+    SolanaAddressCriterion,
     UpdatePolicyOptions,
 )
 
@@ -779,10 +779,10 @@ async def test_create_account_policy(cdp_client):
                         ),
                     ],
                 ),
-                SignSolTransactionRule(
+                SignSolanaTransactionRule(
                     action="accept",
                     criteria=[
-                        SolAddressCriterion(
+                        SolanaAddressCriterion(
                             addresses=["123456789abcdef123456789abcdef12"],
                             operator="in",
                         ),

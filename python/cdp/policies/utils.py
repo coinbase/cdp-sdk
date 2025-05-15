@@ -17,8 +17,8 @@ from cdp.openapi_client.models.sign_sol_transaction_rule import SignSolTransacti
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
 
 
-def build_policy_rules(initial_rules: list[Rule]) -> list[Rule]:
-    """Build a properly formatted list of policy rules from a list of initial rules.
+def map_policy_rules_to_openapi_format(initial_rules: list[Rule]) -> list[Rule]:
+    """Build a properly formatted list of OpenAPI policy rules from a list of initial rules.
 
     Args:
         initial_rules (List[Rule]): The initial rules to build from.

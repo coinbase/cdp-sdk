@@ -97,6 +97,7 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
             wrap_class_with_error_tracking(CdpClient)
             wrap_class_with_error_tracking(EvmClient)
             wrap_class_with_error_tracking(SolanaClient)
+            wrap_class_with_error_tracking(PoliciesClient)
 
     @property
     def evm(self) -> EvmClient:

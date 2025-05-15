@@ -13,7 +13,7 @@ from cdp.policies.types import (
     SignEvmTransactionRule,
     UpdatePolicyOptions,
 )
-from cdp.policies.utils import build_policy_rules
+from cdp.policies.utils import map_policy_rules_to_openapi_format
 from cdp.policies_client import PoliciesClient
 
 
@@ -68,7 +68,7 @@ async def test_create_policy(policy_model_factory):
         create_policy_request=CreatePolicyRequest(
             scope="account",
             description="create",
-            rules=build_policy_rules(policy.rules),
+            rules=map_policy_rules_to_openapi_format(policy.rules),
         ),
         x_idempotency_key=None,
     )
@@ -112,7 +112,7 @@ async def test_update_policy(policy_model_factory):
         policy_id=policy_model.id,
         update_policy_request=UpdatePolicyRequest(
             description="update",
-            rules=build_policy_rules(policy.rules),
+            rules=map_policy_rules_to_openapi_format(policy.rules),
         ),
         x_idempotency_key=None,
     )

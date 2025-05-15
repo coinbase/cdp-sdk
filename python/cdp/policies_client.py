@@ -1,8 +1,14 @@
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
-from cdp.policies.types import CreatePolicyOptions, ListPoliciesResult, Policy, PolicyScope, UpdatePolicyOptions
-from cdp.policies.utils import build_policy_rules
+from cdp.policies.types import (
+    CreatePolicyOptions,
+    ListPoliciesResult,
+    Policy,
+    PolicyScope,
+    UpdatePolicyOptions,
+)
+from cdp.policies.utils import map_policy_rules_to_openapi_format
 
 
 class PoliciesClient:
@@ -19,7 +25,7 @@ class PoliciesClient:
         """Create a policy that can be used to govern the behavior of projects and accounts.
 
         Args:
-            policy (dict[str, Any]): The policy to create.
+            policy (CreatePolicyOptions): The policy to create.
             idempotency_key (str | None, optional): The idempotency key. Defaults to None.
 
         Returns:
@@ -30,7 +36,7 @@ class PoliciesClient:
             create_policy_request=CreatePolicyRequest(
                 scope=policy.scope,
                 description=policy.description,
-                rules=build_policy_rules(policy.rules),
+                rules=map_policy_rules_to_openapi_format(policy.rules),
             ),
             x_idempotency_key=idempotency_key,
         )
@@ -47,7 +53,7 @@ class PoliciesClient:
 
         Args:
             id (str): The unique identifier of the policy to update.
-            policy (dict[str, Any]): The updated policy configuration.
+            policy (UpdatePolicyOptions): The updated policy configuration.
             idempotency_key (str | None, optional): The idempotency key. Defaults to None.
 
         Returns:
@@ -58,7 +64,7 @@ class PoliciesClient:
             policy_id=id,
             update_policy_request=UpdatePolicyRequest(
                 description=policy.description,
-                rules=build_policy_rules(policy.rules),
+                rules=map_policy_rules_to_openapi_format(policy.rules),
             ),
             x_idempotency_key=idempotency_key,
         )

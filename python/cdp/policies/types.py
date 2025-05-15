@@ -60,6 +60,14 @@ class EvmAddressCriterion(BaseModel):
             raise ValueError("Maximum of 100 addresses allowed")
         return v
 
+    @field_validator("addresses")
+    def validate_addresses_format(cls, v):
+        """Validate each address has 0x prefix and is correct length and format."""
+        for addr in v:
+            if not re.match(r"^0x[0-9a-fA-F]{40}$", addr):
+                raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{40}$/")
+        return v
+
 
 class EvmNetworkCriterion(BaseModel):
     """Type representing a 'evmNetwork' criterion that can be used to govern the behavior of projects and accounts."""
@@ -112,7 +120,7 @@ class SignEvmTransactionRule(BaseModel):
     )
 
 
-class SolAddressCriterion(BaseModel):
+class SolanaAddressCriterion(BaseModel):
     """Type for Solana address criterions."""
 
     type: Literal["solAddress"] = Field(
@@ -138,7 +146,7 @@ class SolAddressCriterion(BaseModel):
         return v
 
 
-class SignSolTransactionRule(BaseModel):
+class SignSolanaTransactionRule(BaseModel):
     """Type representing a 'signSolTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
 
     action: Action = Field(
@@ -149,7 +157,7 @@ class SignSolTransactionRule(BaseModel):
         "signSolTransaction",
         description="The operation to which this rule applies. Must be 'signSolTransaction'.",
     )
-    criteria: list[SolAddressCriterion] = Field(
+    criteria: list[SolanaAddressCriterion] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
     )
@@ -161,7 +169,7 @@ PolicyScope = Literal["project", "account"]
 
 
 """Type representing a policy rule that can accept or reject specific operations based on a set of criteria."""
-Rule = SendEvmTransactionRule | SignEvmTransactionRule | SignSolTransactionRule
+Rule = SendEvmTransactionRule | SignEvmTransactionRule | SignSolanaTransactionRule
 
 
 class Policy(BaseModel):
@@ -196,7 +204,7 @@ class ListPoliciesResult(BaseModel):
 
 
 class CreatePolicyOptions(BaseModel):
-    """The body to create a policy."""
+    """The options to create a policy."""
 
     scope: PolicyScope = Field(
         ...,
@@ -213,7 +221,7 @@ class CreatePolicyOptions(BaseModel):
 
 
 class UpdatePolicyOptions(BaseModel):
-    """The body to update a policy."""
+    """The options to update a policy."""
 
     description: str | None = Field(
         None,
