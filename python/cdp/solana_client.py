@@ -16,6 +16,7 @@ from cdp.openapi_client.models.sign_solana_message200_response import (
 from cdp.openapi_client.models.sign_solana_transaction200_response import (
     SignSolanaTransaction200Response as SignSolanaTransactionResponse,
 )
+from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
 from cdp.solana_account import ListSolanaAccountsResponse, SolanaAccount
 from cdp.update_account_types import UpdateAccountOptions
 
@@ -216,7 +217,7 @@ class SolanaClient:
         """
         response = await self.api_clients.solana_accounts.update_solana_account(
             address=address,
-            update_solana_account_request=UpdateAccountOptions(
+            update_solana_account_request=UpdateSolanaAccountRequest(
                 name=update.name, account_policy=update.account_policy
             ),
             x_idempotency_key=idempotency_key,

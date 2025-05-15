@@ -3,6 +3,7 @@ import base64
 import os
 import random
 import string
+from math import floor
 
 import pytest
 import pytest_asyncio
@@ -28,6 +29,7 @@ from cdp.policies.types import (
     SolanaAddressCriterion,
     UpdatePolicyOptions,
 )
+from cdp.update_account_types import UpdateAccountOptions
 
 load_dotenv()
 
@@ -1136,9 +1138,9 @@ async def test_update_evm_account(cdp_client):
     updated_name = generate_random_name()
     updated_account = await cdp_client.evm.update_account(
         address=account_to_update.address,
-        update={
-            "name": updated_name,
-        },
+        update=UpdateAccountOptions(
+            name=updated_name,
+        ),
     )
     assert updated_account is not None
     assert updated_account.address == account_to_update.address
@@ -1164,9 +1166,9 @@ async def test_update_solana_account(cdp_client):
     updated_name = generate_random_name()
     updated_account = await cdp_client.solana.update_account(
         address=account_to_update.address,
-        update={
-            "name": updated_name,
-        },
+        update=UpdateAccountOptions(
+            name=updated_name,
+        ),
     )
     assert updated_account is not None
     assert updated_account.address == account_to_update.address
@@ -1288,17 +1290,15 @@ async def _ensure_sufficient_sol_balance(cdp_client, account):
 
 def generate_random_name():
     """Generate a random name."""
-    from math import floor, random
-
     chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     chars_with_hyphen = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
 
-    first_char = chars[floor(random() * len(chars))]
+    first_char = chars[floor(random.random() * len(chars))]
 
-    middle_length = floor(random() * 34)
+    middle_length = floor(random.random() * 34)
     middle_part = ""
     for _ in range(middle_length):
-        middle_part += chars_with_hyphen[floor(random() * len(chars_with_hyphen))]
+        middle_part += chars_with_hyphen[floor(random.random() * len(chars_with_hyphen))]
 
-    last_char = chars[floor(random() * len(chars))]
+    last_char = chars[floor(random.random() * len(chars))]
     return first_char + middle_part + last_char

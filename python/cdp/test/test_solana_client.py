@@ -28,7 +28,9 @@ from cdp.openapi_client.models.sign_solana_transaction_request import (
     SignSolanaTransactionRequest,
 )
 from cdp.openapi_client.models.solana_account import SolanaAccount as SolanaAccountModel
+from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
 from cdp.solana_client import SolanaClient
+from cdp.update_account_types import UpdateAccountOptions
 
 
 @pytest.mark.asyncio
@@ -287,7 +289,6 @@ async def test_update_account(server_account_model_factory):
     test_name = "updated-account-name"
     test_idempotency_key = "test-idempotency-key"
     test_account_policy = "8e03978e-40d5-43e8-bc93-6894a57f9324"
-    from cdp.update_account_types import UpdateAccountOptions
 
     update_options = UpdateAccountOptions(name=test_name, account_policy=test_account_policy)
 
@@ -299,6 +300,9 @@ async def test_update_account(server_account_model_factory):
 
     mock_solana_accounts_api.update_solana_account.assert_called_once_with(
         address=test_address,
-        update_solana_account_request=update_options,
+        update_solana_account_request=UpdateSolanaAccountRequest(
+            name=test_name,
+            account_policy=test_account_policy,
+        ),
         x_idempotency_key=test_idempotency_key,
     )

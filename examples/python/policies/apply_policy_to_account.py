@@ -3,6 +3,16 @@
 import asyncio
 
 from cdp import CdpClient, UpdateAccountOptions
+from cdp.policies.types import (
+    CreatePolicyOptions,
+    EthValueCriterion,
+    EvmAddressCriterion,
+    SignEvmTransactionRule,
+    EvmNetworkCriterion,
+    SendEvmTransactionRule,
+    SolAddressCriterion,
+    SignSolTransactionRule,
+)
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,23 +20,43 @@ load_dotenv()
 
 async def main():
     async with CdpClient() as cdp:
-        policy = {
-            "scope": "account",
-            "description": "Account Allowlist Example",
-            "rules": [
-                {
-                    "action": "accept",
-                    "operation": "signEvmTransaction",
-                    "criteria": [
-                        {
-                            "type": "ethValue",
-                            "ethValue": "1000000000000000000",
-                            "operator": "<=",
-                        },
+        policy = CreatePolicyOptions(
+            scope="account",
+            description="Account Allowlist Example",
+            rules=[
+                SendEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EvmNetworkCriterion(
+                            networks=["base-sepolia", "base"],
+                            operator="in",
+                        ),
                     ],
-                }
+                ),
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                        EvmAddressCriterion(
+                            addresses=["0x1234567890123456789012345678901234567890"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+                SignSolTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolAddressCriterion(
+                            addresses=["123456789abcdef123456789abcdef12"],
+                            operator="in",
+                        ),
+                    ],
+                ),
             ],
-        }
+        )
 
         result = await cdp.policies.create_policy(policy=policy)
 
