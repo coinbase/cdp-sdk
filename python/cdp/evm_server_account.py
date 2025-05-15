@@ -60,6 +60,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
         self.__address = evm_server_account_model.address
         self.__name = evm_server_account_model.name
+        self.__policies = evm_server_account_model.policies
         self.__evm_accounts_api = evm_accounts_api
         self.__api_clients = api_clients
 
@@ -82,6 +83,16 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
         """
         return self.__name
+
+    @property
+    def policies(self) -> list[str]:
+        """Gets the list of policies the apply to this account.
+
+        Returns:
+            str: The list of Policy IDs.
+
+        """
+        return self.__policies
 
     async def sign_message(
         self, signable_message: SignableMessage, idempotency_key: str | None = None

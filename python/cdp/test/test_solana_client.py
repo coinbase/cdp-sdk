@@ -267,3 +267,38 @@ async def test_request_faucet():
     )
 
     assert result == mock_response
+
+
+@pytest.mark.asyncio
+async def test_update_account(server_account_model_factory):
+    """Test updating a Solana account."""
+    mock_solana_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.solana_accounts = mock_solana_accounts_api
+
+    sol_server_account_model = server_account_model_factory()
+    mock_solana_accounts_api.update_solana_account = AsyncMock(
+        return_value=sol_server_account_model
+    )
+
+    client = SolanaClient(api_clients=mock_api_clients)
+
+    test_address = "test_sol_address"
+    test_name = "updated-account-name"
+    test_idempotency_key = "test-idempotency-key"
+    test_account_policy = "test-account-policy"
+    from cdp.update_account_types import UpdateAccountOptions
+
+    update_options = UpdateAccountOptions(name=test_name, account_policy=test_account_policy)
+
+    await client.update_account(
+        address=test_address,
+        update=update_options,
+        idempotency_key=test_idempotency_key,
+    )
+
+    mock_solana_accounts_api.update_solana_account.assert_called_once_with(
+        address=test_address,
+        update_solana_account_request=update_options,
+        x_idempotency_key=test_idempotency_key,
+    )

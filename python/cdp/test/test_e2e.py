@@ -1123,6 +1123,62 @@ async def test_list_policies(cdp_client):
     assert e.value.http_code == 404
 
 
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_update_evm_account(cdp_client):
+    """Test updating an EVM account."""
+    original_name = generate_random_name()
+    account_to_update = await cdp_client.evm.get_or_create_account(name=original_name)
+    assert account_to_update is not None
+    assert account_to_update.name == original_name
+
+    # Update the account with a new name
+    updated_name = generate_random_name()
+    updated_account = await cdp_client.evm.update_account(
+        address=account_to_update.address,
+        update={
+            "name": updated_name,
+        },
+    )
+    assert updated_account is not None
+    assert updated_account.address == account_to_update.address
+    assert updated_account.name == updated_name
+
+    # Verify we can get the updated account by its new name
+    retrieved_account = await cdp_client.evm.get_account(name=updated_name)
+    assert retrieved_account is not None
+    assert retrieved_account.address == account_to_update.address
+    assert retrieved_account.name == updated_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_update_solana_account(cdp_client):
+    """Test updating a Solana account."""
+    original_name = generate_random_name()
+    account_to_update = await cdp_client.solana.create_account(name=original_name)
+    assert account_to_update is not None
+    assert account_to_update.name == original_name
+
+    # Update the account with a new name
+    updated_name = generate_random_name()
+    updated_account = await cdp_client.solana.update_account(
+        address=account_to_update.address,
+        update={
+            "name": updated_name,
+        },
+    )
+    assert updated_account is not None
+    assert updated_account.address == account_to_update.address
+    assert updated_account.name == updated_name
+
+    # Verify we can get the updated account by its new name
+    retrieved_account = await cdp_client.solana.get_account(name=updated_name)
+    assert retrieved_account is not None
+    assert retrieved_account.address == account_to_update.address
+    assert retrieved_account.name == updated_name
+
+
 def _get_transaction(address: str):
     """Help method to create a transaction."""
     from solana.rpc.api import Client as SolanaClient
@@ -1228,3 +1284,21 @@ async def _ensure_sufficient_sol_balance(cdp_client, account):
 
     if balance == 0:
         raise Exception("Account not funded after multiple attempts")
+
+
+def generate_random_name():
+    """Generate a random name."""
+    from math import floor, random
+
+    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    chars_with_hyphen = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
+
+    first_char = chars[floor(random() * len(chars))]
+
+    middle_length = floor(random() * 34)
+    middle_part = ""
+    for _ in range(middle_length):
+        middle_part += chars_with_hyphen[floor(random() * len(chars_with_hyphen))]
+
+    last_char = chars[floor(random() * len(chars))]
+    return first_char + middle_part + last_char
