@@ -19,7 +19,7 @@ async def main():
                     criteria=[
                         EthValueCriterion(
                             ethValue="1000000000000000000",
-                            operator="==",
+                            operator="<=",
                         ),
                         EvmAddressCriterion(
                             addresses=["0x1234567890123456789012345678901234567890"],

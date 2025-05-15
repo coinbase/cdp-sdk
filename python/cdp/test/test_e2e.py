@@ -8,6 +8,7 @@ import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
+from cdp.policies.types import CreatePolicy, EthValueCriterion, EvmAddressCriterion, SignEvmTransactionRule, UpdatePolicy
 from solana.rpc.api import Client as SolanaClient
 from solders.pubkey import Pubkey as PublicKey
 from web3 import Web3
@@ -774,24 +775,25 @@ async def test_solana_sign_transaction(cdp_client):
 async def test_create_account_policy(cdp_client):
     """Test creating an account policy."""
     policy = await cdp_client.policies.create_policy(
-        policy={
-            "scope": "account",
-            "description": "E2E Test Policy",
-            "rules": [
-                {
-                    "action": "accept",
-                    "operation": "signEvmTransaction",
-                    "criteria": [
-                        {"type": "ethValue", "ethValue": "1000000000000000000", "operator": "<="},
-                        {
-                            "type": "evmAddress",
-                            "addresses": ["0x000000000000000000000000000000000000dEaD"],
-                            "operator": "in",
-                        },
+        policy=CreatePolicy(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                        EvmAddressCriterion(
+                            addresses=["0x000000000000000000000000000000000000dEaD"],
+                            operator="in",
+                        ),
                     ],
-                }
+                )
             ],
-        },
+        )
     )
     assert policy is not None
     assert policy.id is not None
@@ -831,23 +833,21 @@ async def test_create_project_policy(cdp_client):
     try:
         # Create the project policy
         policy = await cdp_client.policies.create_policy(
-            policy={
-                "scope": "project",
-                "description": "E2E Test Policy",
-                "rules": [
-                    {
-                        "action": "accept",
-                        "operation": "signEvmTransaction",
-                        "criteria": [
-                            {
-                                "type": "ethValue",
-                                "ethValue": "1000000000000000000",
-                                "operator": "<=",
-                            }
+            policy=CreatePolicy(
+                scope="project",
+                description="E2E Test Policy",
+                rules=[
+                    SignEvmTransactionRule(
+                        action="accept",
+                        criteria=[
+                            EthValueCriterion(
+                                ethValue="1000000000000000000",
+                                operator="<=",
+                            ),
                         ],
-                    }
+                    )
                 ],
-            },
+            )
         )
     except ApiError as e:
         # If a project policy already exists, delete it and create a new one
@@ -862,23 +862,21 @@ async def test_create_project_policy(cdp_client):
 
             # Create the project policy
             policy = await cdp_client.policies.create_policy(
-                policy={
-                    "scope": "project",
-                    "description": "E2E Test Policy",
-                    "rules": [
-                        {
-                            "action": "accept",
-                            "operation": "signEvmTransaction",
-                            "criteria": [
-                                {
-                                    "type": "ethValue",
-                                    "ethValue": "1000000000000000000",
-                                    "operator": "<=",
-                                }
+                policy=CreatePolicy(
+                    scope="project",
+                    description="E2E Test Policy",
+                    rules=[
+                        SignEvmTransactionRule(
+                            action="accept",
+                            criteria=[
+                                EthValueCriterion(
+                                    ethValue="1000000000000000000",
+                                    operator="<=",
+                                ),
                             ],
-                        }
+                        )
                     ],
-                },
+                )
             )
 
     assert policy is not None
@@ -912,45 +910,45 @@ async def test_create_project_policy(cdp_client):
 async def test_update_policy(cdp_client):
     """Test updating a policy."""
     policy = await cdp_client.policies.create_policy(
-        policy={
-            "scope": "account",
-            "description": "E2E Test Policy",
-            "rules": [
-                {
-                    "action": "accept",
-                    "operation": "signEvmTransaction",
-                    "criteria": [
-                        {"type": "ethValue", "ethValue": "1000000000000000000", "operator": "<="}
+        policy=CreatePolicy(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
                     ],
-                }
+                )
             ],
-        },
+        )
     )
     assert policy is not None
 
     # Update the policy
     updated_policy = await cdp_client.policies.update_policy(
         id=policy.id,
-        policy={
-            "description": "Updated test policy description",
-            "rules": [
-                {
-                    "action": "accept",
-                    "operation": "signEvmTransaction",
-                    "criteria": [
-                        {
-                            "type": "evmAddress",
-                            "addresses": ["0x000000000000000000000000000000000000dEaD"],
-                            "operator": "in",
-                        }
+        policy=UpdatePolicy(
+            description="Updated E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EvmAddressCriterion(
+                            addresses=["0x000000000000000000000000000000000000dEaD"],
+                            operator="in",
+                        ),
                     ],
-                }
+                )
             ],
-        },
+        )
     )
     assert updated_policy is not None
     assert updated_policy.id == policy.id
-    assert updated_policy.description == "Updated test policy description"
+    assert updated_policy.description == "Updated E2E Test Policy"
     assert updated_policy.rules is not None
     assert len(updated_policy.rules) == 1
     assert updated_policy.rules[0].actual_instance.action == "accept"
@@ -977,19 +975,21 @@ async def test_update_policy(cdp_client):
 async def test_delete_policy(cdp_client):
     """Test deleting a policy."""
     policy = await cdp_client.policies.create_policy(
-        policy={
-            "scope": "account",
-            "description": "E2E Test Policy",
-            "rules": [
-                {
-                    "action": "accept",
-                    "operation": "signEvmTransaction",
-                    "criteria": [
-                        {"type": "ethValue", "ethValue": "1000000000000000000", "operator": "<="}
+        policy=CreatePolicy(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
                     ],
-                }
+                )
             ],
-        }
+        )
     )
     assert policy is not None
 
@@ -1007,19 +1007,21 @@ async def test_delete_policy(cdp_client):
 async def test_get_policy_by_id(cdp_client):
     """Test getting a policy by ID."""
     policy = await cdp_client.policies.create_policy(
-        policy={
-            "scope": "account",
-            "description": "E2E Test Policy",
-            "rules": [
-                {
-                    "action": "accept",
-                    "operation": "signEvmTransaction",
-                    "criteria": [
-                        {"type": "ethValue", "ethValue": "1000000000000000000", "operator": "<="}
+        policy=CreatePolicy(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
                     ],
-                }
+                )
             ],
-        },
+        )
     )
     assert policy is not None
 
@@ -1043,19 +1045,21 @@ async def test_list_policies(cdp_client):
     """Test listing policies."""
     # Create a new policy
     policy = await cdp_client.policies.create_policy(
-        policy={
-            "scope": "account",
-            "description": "E2E Test Policy",
-            "rules": [
-                {
-                    "action": "accept",
-                    "operation": "signEvmTransaction",
-                    "criteria": [
-                        {"type": "ethValue", "ethValue": "1000000000000000000", "operator": "<="}
+        policy=CreatePolicy(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
                     ],
-                }
+                )
             ],
-        },
+        )
     )
     assert policy is not None
 

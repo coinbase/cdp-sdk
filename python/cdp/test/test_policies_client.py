@@ -6,7 +6,7 @@ from cdp.api_clients import ApiClients
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
-from cdp.policies.types import ListPoliciesResult
+from cdp.policies.types import CreatePolicy, EvmAddressCriterion, ListPoliciesResult, SignEvmTransactionRule, UpdatePolicy
 from cdp.policies.utils import build_policy_rules
 from cdp.policies_client import PoliciesClient
 
@@ -40,23 +40,21 @@ async def test_create_policy(policy_model_factory):
 
     client = PoliciesClient(api_clients=mock_api_clients)
 
-    policy = {
-        "scope": "account",
-        "description": "create",
-        "rules": [
-            {
-                "action": "accept",
-                "operation": "signEvmTransaction",
-                "criteria": [
-                    {
-                        "type": "evmAddress",
-                        "addresses": ["0x000000000000000000000000000000000000dEaD"],
-                        "operator": "in",
-                    }
+    policy = CreatePolicy(
+        scope="account",
+        description="create",
+        rules=[
+            SignEvmTransactionRule(
+                action="accept",
+                criteria=[
+                    EvmAddressCriterion(
+                        addresses=["0x000000000000000000000000000000000000dEaD"],
+                        operator="in",
+                    ),
                 ],
-            }
+            )
         ],
-    }
+    )
 
     result = await client.create_policy(policy)
 
@@ -64,7 +62,7 @@ async def test_create_policy(policy_model_factory):
         create_policy_request=CreatePolicyRequest(
             scope="account",
             description="create",
-            rules=build_policy_rules(policy),
+            rules=build_policy_rules(policy.rules),
         ),
         x_idempotency_key=None,
     )
@@ -87,22 +85,20 @@ async def test_update_policy(policy_model_factory):
 
     client = PoliciesClient(api_clients=mock_api_clients)
 
-    policy = {
-        "description": "update",
-        "rules": [
-            {
-                "action": "accept",
-                "operation": "signEvmTransaction",
-                "criteria": [
-                    {
-                        "type": "evmAddress",
-                        "addresses": ["0x000000000000000000000000000000000000dEaD"],
-                        "operator": "in",
-                    }
+    policy = UpdatePolicy(
+        description="update",
+        rules=[
+            SignEvmTransactionRule(
+                action="accept",
+                criteria=[
+                    EvmAddressCriterion(
+                        addresses=["0x000000000000000000000000000000000000dEaD"],
+                        operator="in",
+                    ),
                 ],
-            }
+            )
         ],
-    }
+    )
 
     result = await client.update_policy(policy_model.id, policy)
 
@@ -110,7 +106,7 @@ async def test_update_policy(policy_model_factory):
         policy_id=policy_model.id,
         update_policy_request=UpdatePolicyRequest(
             description="update",
-            rules=build_policy_rules(policy),
+            rules=build_policy_rules(policy.rules),
         ),
         x_idempotency_key=None,
     )
