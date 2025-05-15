@@ -1,7 +1,7 @@
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
-from cdp.policies.types import CreatePolicy, ListPoliciesResult, Policy, PolicyScope, UpdatePolicy
+from cdp.policies.types import CreatePolicyOptions, ListPoliciesResult, Policy, PolicyScope, UpdatePolicyOptions
 from cdp.policies.utils import build_policy_rules
 
 
@@ -13,7 +13,7 @@ class PoliciesClient:
 
     async def create_policy(
         self,
-        policy: CreatePolicy,
+        policy: CreatePolicyOptions,
         idempotency_key: str | None = None,
     ) -> Policy:
         """Create a policy that can be used to govern the behavior of projects and accounts.
@@ -38,7 +38,7 @@ class PoliciesClient:
     async def update_policy(
         self,
         id: str,
-        policy: UpdatePolicy,
+        policy: UpdatePolicyOptions,
         idempotency_key: str | None = None,
     ) -> Policy:
         """Update an existing policy by its unique identifier.

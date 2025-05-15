@@ -195,7 +195,7 @@ class ListPoliciesResult(BaseModel):
     )
 
 
-class CreatePolicy(BaseModel):
+class CreatePolicyOptions(BaseModel):
     """The body to create a policy."""
 
     scope: PolicyScope = Field(
@@ -212,7 +212,7 @@ class CreatePolicy(BaseModel):
     )
 
 
-class UpdatePolicy(BaseModel):
+class UpdatePolicyOptions(BaseModel):
     """The body to update a policy."""
 
     description: str | None = Field(

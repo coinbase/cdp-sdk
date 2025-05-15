@@ -4,13 +4,13 @@ import asyncio
 
 from cdp import CdpClient
 from dotenv import load_dotenv
-from cdp.policies.types import CreatePolicy, SignEvmTransactionRule, EthValueCriterion, EvmAddressCriterion
+from cdp.policies.types import CreatePolicyOptions, SignEvmTransactionRule, EthValueCriterion, EvmAddressCriterion
 
 load_dotenv()
 
 async def main():
     async with CdpClient() as cdp:
-        policy = CreatePolicy(
+        policy = CreatePolicyOptions(
             scope="project",
             description="Project Allowlist Example",
             rules=[

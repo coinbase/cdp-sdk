@@ -18,7 +18,7 @@ from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.policies.types import (
-    CreatePolicy,
+    CreatePolicyOptions,
     EthValueCriterion,
     EvmAddressCriterion,
     EvmNetworkCriterion,
@@ -26,7 +26,7 @@ from cdp.policies.types import (
     SignEvmTransactionRule,
     SignSolTransactionRule,
     SolAddressCriterion,
-    UpdatePolicy,
+    UpdatePolicyOptions,
 )
 
 load_dotenv()
@@ -753,7 +753,7 @@ async def test_solana_sign_transaction(cdp_client):
 async def test_create_account_policy(cdp_client):
     """Test creating an account policy."""
     policy = await cdp_client.policies.create_policy(
-        policy=CreatePolicy(
+        policy=CreatePolicyOptions(
             scope="account",
             description="E2E Test Policy",
             rules=[
@@ -848,7 +848,7 @@ async def test_create_project_policy(cdp_client):
     try:
         # Create the project policy
         policy = await cdp_client.policies.create_policy(
-            policy=CreatePolicy(
+            policy=CreatePolicyOptions(
                 scope="project",
                 description="E2E Test Policy",
                 rules=[
@@ -877,7 +877,7 @@ async def test_create_project_policy(cdp_client):
 
             # Create the project policy
             policy = await cdp_client.policies.create_policy(
-                policy=CreatePolicy(
+                policy=CreatePolicyOptions(
                     scope="project",
                     description="E2E Test Policy",
                     rules=[
@@ -925,7 +925,7 @@ async def test_create_project_policy(cdp_client):
 async def test_update_policy(cdp_client):
     """Test updating a policy."""
     policy = await cdp_client.policies.create_policy(
-        policy=CreatePolicy(
+        policy=CreatePolicyOptions(
             scope="account",
             description="E2E Test Policy",
             rules=[
@@ -946,7 +946,7 @@ async def test_update_policy(cdp_client):
     # Update the policy
     updated_policy = await cdp_client.policies.update_policy(
         id=policy.id,
-        policy=UpdatePolicy(
+        policy=UpdatePolicyOptions(
             description="Updated E2E Test Policy",
             rules=[
                 SignEvmTransactionRule(
@@ -990,7 +990,7 @@ async def test_update_policy(cdp_client):
 async def test_delete_policy(cdp_client):
     """Test deleting a policy."""
     policy = await cdp_client.policies.create_policy(
-        policy=CreatePolicy(
+        policy=CreatePolicyOptions(
             scope="account",
             description="E2E Test Policy",
             rules=[
@@ -1022,7 +1022,7 @@ async def test_delete_policy(cdp_client):
 async def test_get_policy_by_id(cdp_client):
     """Test getting a policy by ID."""
     policy = await cdp_client.policies.create_policy(
-        policy=CreatePolicy(
+        policy=CreatePolicyOptions(
             scope="account",
             description="E2E Test Policy",
             rules=[
@@ -1060,7 +1060,7 @@ async def test_list_policies(cdp_client):
     """Test listing policies."""
     # Create a new policy
     policy = await cdp_client.policies.create_policy(
-        policy=CreatePolicy(
+        policy=CreatePolicyOptions(
             scope="account",
             description="E2E Test Policy",
             rules=[

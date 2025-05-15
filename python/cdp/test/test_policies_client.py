@@ -7,11 +7,11 @@ from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.policies.types import (
-    CreatePolicy,
+    CreatePolicyOptions,
     EvmAddressCriterion,
     ListPoliciesResult,
     SignEvmTransactionRule,
-    UpdatePolicy,
+    UpdatePolicyOptions,
 )
 from cdp.policies.utils import build_policy_rules
 from cdp.policies_client import PoliciesClient
@@ -46,7 +46,7 @@ async def test_create_policy(policy_model_factory):
 
     client = PoliciesClient(api_clients=mock_api_clients)
 
-    policy = CreatePolicy(
+    policy = CreatePolicyOptions(
         scope="account",
         description="create",
         rules=[
@@ -91,7 +91,7 @@ async def test_update_policy(policy_model_factory):
 
     client = PoliciesClient(api_clients=mock_api_clients)
 
-    policy = UpdatePolicy(
+    policy = UpdatePolicyOptions(
         description="update",
         rules=[
             SignEvmTransactionRule(
