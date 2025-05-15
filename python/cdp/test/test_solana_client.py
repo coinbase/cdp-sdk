@@ -286,7 +286,7 @@ async def test_update_account(server_account_model_factory):
     test_address = "test_sol_address"
     test_name = "updated-account-name"
     test_idempotency_key = "test-idempotency-key"
-    test_account_policy = "test-account-policy"
+    test_account_policy = "8e03978e-40d5-43e8-bc93-6894a57f9324"
     from cdp.update_account_types import UpdateAccountOptions
 
     update_options = UpdateAccountOptions(name=test_name, account_policy=test_account_policy)
