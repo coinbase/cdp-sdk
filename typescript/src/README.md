@@ -105,6 +105,14 @@ const cdp = new CdpClient({
 ```typescript
 const account = await cdp.evm.createAccount();
 ```
+#### Import an EVM account as follows:
+
+```typescript
+const account = await cdp.evm.importAccount({
+  privateKey: "0x123456",
+  name: "MyAccount",
+});
+```
 
 #### Create a Solana account as follows:
 

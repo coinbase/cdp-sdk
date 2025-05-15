@@ -1002,7 +1002,7 @@ describe("EvmClient", () => {
           padding: constants.RSA_PKCS1_OAEP_PADDING,
           oaepHash: "sha256",
         },
-        Buffer.from(importOptions.privateKey, "hex")
+        Buffer.from(importOptions.privateKey, "hex"),
       );
 
       expect(CdpOpenApiClient.importEvmAccount).toHaveBeenCalledWith(
@@ -1010,7 +1010,7 @@ describe("EvmClient", () => {
           name: importOptions.name,
           encryptedPrivateKey: mockEncryptedKey.toString("base64"),
         },
-        importOptions.idempotencyKey
+        importOptions.idempotencyKey,
       );
 
       expect(toEvmServerAccount).toHaveBeenCalledWith(CdpOpenApiClient, {
