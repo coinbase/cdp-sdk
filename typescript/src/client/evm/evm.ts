@@ -170,7 +170,6 @@ export class EvmClient implements EvmClientInterface {
     try {
       const privateKeyBytes = Buffer.from(privateKeyHex, "hex");
 
-      // Additional validation to ensure we have a non-empty buffer
       if (privateKeyBytes.length === 0) {
         throw new Error("Private key cannot be empty");
       }
