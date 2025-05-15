@@ -3,8 +3,8 @@ from typing import Any
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
-from cdp.policies.types import ListPoliciesResult, Policy, PolicyScope
-from cdp.policies.utils import create_rules_from_policy
+from cdp.policies.types import CreatePolicy, ListPoliciesResult, Policy, PolicyScope, UpdatePolicy
+from cdp.policies.utils import build_policy_rules
 
 
 class PoliciesClient:
@@ -15,7 +15,7 @@ class PoliciesClient:
 
     async def create_policy(
         self,
-        policy: dict[str, Any],
+        policy: CreatePolicy,
         idempotency_key: str | None = None,
     ) -> Policy:
         """Create a policy that can be used to govern the behavior of projects and accounts.
@@ -30,9 +30,9 @@ class PoliciesClient:
         """
         return await self.api_clients.policies.create_policy(
             create_policy_request=CreatePolicyRequest(
-                scope=policy["scope"],
-                description=policy["description"],
-                rules=create_rules_from_policy(policy),
+                scope=policy.scope,
+                description=policy.description,
+                rules=build_policy_rules(policy.rules),
             ),
             x_idempotency_key=idempotency_key,
         )
@@ -40,7 +40,7 @@ class PoliciesClient:
     async def update_policy(
         self,
         id: str,
-        policy: dict[str, Any],
+        policy: UpdatePolicy,
         idempotency_key: str | None = None,
     ) -> Policy:
         """Update an existing policy by its unique identifier.
@@ -59,8 +59,8 @@ class PoliciesClient:
         return await self.api_clients.policies.update_policy(
             policy_id=id,
             update_policy_request=UpdatePolicyRequest(
-                description=policy["description"],
-                rules=create_rules_from_policy(policy),
+                description=policy.description,
+                rules=build_policy_rules(policy.rules),
             ),
             x_idempotency_key=idempotency_key,
         )

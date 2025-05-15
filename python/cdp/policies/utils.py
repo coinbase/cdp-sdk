@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
 from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
@@ -19,130 +19,130 @@ from cdp.openapi_client.models.sign_sol_transaction_rule import SignSolTransacti
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
 
 
-def create_rules_from_policy(policy: dict[str, Any]) -> list[Rule]:
-    """Create a list of rules from a policy.
+def build_policy_rules(initial_rules: List[Rule]) -> List[Rule]:
+    """Build a properly formatted list of policy rules from a list of initial rules.
 
     Args:
-        policy (dict[str, Any]): The policy to create rules from.
+        initial_rules (List[Rule]): The initial rules to build from.
 
     Returns:
-        list[Rule]: A list of rules.
+        List[Rule]: A list of rules.
 
     """
     rules = []
-    for rule in policy["rules"]:
-        if rule["operation"] == "sendEvmTransaction":
+    for rule in initial_rules:
+        if rule.operation == "sendEvmTransaction":
             criteria = []
-            for criterion in rule["criteria"]:
-                if criterion["type"] == "ethValue":
+            for criterion in rule.criteria:
+                if criterion.type == "ethValue":
                     criteria.append(
                         SendEvmTransactionCriteriaInner(
                             actual_instance=EthValueCriterion(
-                                eth_value=criterion["ethValue"],
-                                operator=criterion["operator"],
+                                eth_value=criterion.ethValue,
+                                operator=criterion.operator,
                                 type="ethValue",
                             )
                         )
                     )
-                elif criterion["type"] == "evmAddress":
+                elif criterion.type == "evmAddress":
                     criteria.append(
                         SendEvmTransactionCriteriaInner(
                             actual_instance=EvmAddressCriterion(
-                                addresses=criterion["addresses"],
-                                operator=criterion["operator"],
+                                addresses=criterion.addresses,
+                                operator=criterion.operator,
                                 type="evmAddress",
                             )
                         )
                     )
-                elif criterion["type"] == "evmNetwork":
+                elif criterion.type == "evmNetwork":
                     criteria.append(
                         SendEvmTransactionCriteriaInner(
                             actual_instance=EvmNetworkCriterion(
-                                networks=criterion["networks"],
-                                operator=criterion["operator"],
+                                networks=criterion.networks,
+                                operator=criterion.operator,
                                 type="evmNetwork",
                             )
                         )
                     )
                 else:
                     raise ValueError(
-                        f"Unknown criterion type {criterion['type']} for operation {rule['operation']}"
+                        f"Unknown criterion type {criterion.type} for operation {rule.operation}"
                     )
 
             rules.append(
                 Rule(
                     actual_instance=SendEvmTransactionRule(
-                        action=rule["action"],
+                        action=rule.action,
                         operation="sendEvmTransaction",
                         criteria=criteria,
                     )
                 )
             )
-        elif rule["operation"] == "signEvmTransaction":
+        elif rule.operation == "signEvmTransaction":
             criteria = []
-            for criterion in rule["criteria"]:
-                if criterion["type"] == "ethValue":
+            for criterion in rule.criteria:
+                if criterion.type == "ethValue":
                     criteria.append(
                         SignEvmTransactionCriteriaInner(
                             actual_instance=EthValueCriterion(
-                                eth_value=criterion["ethValue"],
-                                operator=criterion["operator"],
+                                eth_value=criterion.ethValue,
+                                operator=criterion.operator,
                                 type="ethValue",
                             )
                         )
                     )
-                elif criterion["type"] == "evmAddress":
+                elif criterion.type == "evmAddress":
                     criteria.append(
                         SignEvmTransactionCriteriaInner(
                             actual_instance=EvmAddressCriterion(
-                                addresses=criterion["addresses"],
-                                operator=criterion["operator"],
+                                addresses=criterion.addresses,
+                                operator=criterion.operator,
                                 type="evmAddress",
                             )
                         )
                     )
                 else:
                     raise ValueError(
-                        f"Unknown criterion type {criterion['type']} for operation {rule['operation']}"
+                        f"Unknown criterion type {criterion.type} for operation {rule.operation}"
                     )
 
             rules.append(
                 Rule(
                     actual_instance=SignEvmTransactionRule(
-                        action=rule["action"],
+                        action=rule.action,
                         operation="signEvmTransaction",
                         criteria=criteria,
                     )
                 )
             )
-        elif rule["operation"] == "signSolTransaction":
+        elif rule.operation == "signSolTransaction":
             criteria = []
-            for criterion in rule["criteria"]:
-                if criterion["type"] == "solAddress":
+            for criterion in rule.criteria:
+                if criterion.type == "solAddress":
                     criteria.append(
                         SignSolTransactionCriteriaInner(
                             actual_instance=SolAddressCriterion(
-                                addresses=criterion["addresses"],
-                                operator=criterion["operator"],
+                                addresses=criterion.addresses,
+                                operator=criterion.operator,
                                 type="solAddress",
                             )
                         )
                     )
                 else:
                     raise ValueError(
-                        f"Unknown criterion type {criterion['type']} for operation {rule['operation']}"
+                        f"Unknown criterion type {criterion.type} for operation {rule.operation}"
                     )
 
             rules.append(
                 Rule(
                     actual_instance=SignSolTransactionRule(
-                        action=rule["action"],
+                        action=rule.action,
                         operation="signSolTransaction",
                         criteria=criteria,
                     )
                 )
             )
         else:
-            raise ValueError(f"Unknown operation {rule['operation']}")
+            raise ValueError(f"Unknown operation {rule.operation}")
 
     return rules

@@ -7,7 +7,7 @@ from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.policies.types import ListPoliciesResult
-from cdp.policies.utils import create_rules_from_policy
+from cdp.policies.utils import build_policy_rules
 from cdp.policies_client import PoliciesClient
 
 
@@ -64,7 +64,7 @@ async def test_create_policy(policy_model_factory):
         create_policy_request=CreatePolicyRequest(
             scope="account",
             description="create",
-            rules=create_rules_from_policy(policy),
+            rules=build_policy_rules(policy),
         ),
         x_idempotency_key=None,
     )
@@ -110,7 +110,7 @@ async def test_update_policy(policy_model_factory):
         policy_id=policy_model.id,
         update_policy_request=UpdatePolicyRequest(
             description="update",
-            rules=create_rules_from_policy(policy),
+            rules=build_policy_rules(policy),
         ),
         x_idempotency_key=None,
     )

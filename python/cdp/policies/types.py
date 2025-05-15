@@ -17,7 +17,7 @@ class EthValueCriterion(BaseModel):
     """Type representing a 'ethValue' criterion that can be used to govern the behavior of projects and accounts."""
 
     type: Literal["ethValue"] = Field(
-        ..., description="The type of criterion, must be 'ethValue' for Ethereum value-based rules."
+        "ethValue", description="The type of criterion, must be 'ethValue' for Ethereum value-based rules."
     )
     ethValue: str = Field(
         ...,
@@ -40,7 +40,7 @@ class EvmAddressCriterion(BaseModel):
     """Type representing a 'evmAddress' criterion that can be used to govern the behavior of projects and accounts."""
 
     type: Literal["evmAddress"] = Field(
-        ..., description="The type of criterion, must be 'evmAddress' for EVM address-based rules."
+        "evmAddress", description="The type of criterion, must be 'evmAddress' for EVM address-based rules."
     )
     addresses: list[str] = Field(
         ...,
@@ -67,7 +67,7 @@ class SignEvmTransactionRule(BaseModel):
         description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the transaction, 'reject' will block it.",
     )
     operation: Literal["signEvmTransaction"] = Field(
-        ..., description="The operation to which this rule applies. Must be 'signEvmTransaction'."
+        "signEvmTransaction", description="The operation to which this rule applies. Must be 'signEvmTransaction'."
     )
     criteria: list[EthValueCriterion | EvmAddressCriterion] = Field(
         ...,
@@ -79,7 +79,7 @@ class SolAddressCriterion(BaseModel):
     """Type for Solana address criterions."""
 
     type: Literal["solAddress"] = Field(
-        ...,
+        "solAddress",
         description="The type of criterion, must be 'solAddress' for Solana address-based rules.",
     )
     addresses: list[str] = Field(
@@ -154,4 +154,34 @@ class ListPoliciesResult(BaseModel):
         None,
         description="The next page token to paginate through the policies. "
         "If None, there are no more policies to paginate through.",
+    )
+
+
+class CreatePolicy(BaseModel):
+    """The body to create a policy."""
+
+    scope: PolicyScope = Field(
+        ...,
+        description="The scope of the policy. Only one project-level policy can exist at any time.",
+    )
+    description: str | None = Field(
+        None,
+        description="An optional human-readable description of the policy.",
+    )
+    rules: list[Rule] = Field(
+        ...,
+        description="A list of rules that comprise the policy.",
+    )
+
+
+class UpdatePolicy(BaseModel):
+    """The body to update a policy."""
+
+    description: str | None = Field(
+        None,
+        description="An optional human-readable description of the policy.",
+    )
+    rules: list[Rule] = Field(
+        ...,
+        description="A list of rules that comprise the policy.",
     )
