@@ -159,32 +159,52 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async importAccount(options: ImportServerAccountOptions): Promise<ServerAccount> {
-    const privateKeyBytes = Buffer.from(options.privateKey, "hex");
+    const privateKeyHex = options.privateKey.startsWith("0x")
+      ? options.privateKey.slice(2)
+      : options.privateKey;
 
-    const encryptedPrivateKey = publicEncrypt(
-      {
-        key: ImportEvmAccountPublicRSAKey,
-        padding: constants.RSA_PKCS1_OAEP_PADDING,
-        oaepHash: "sha256",
-      },
-      privateKeyBytes,
-    );
+    if (!/^[0-9a-fA-F]+$/.test(privateKeyHex)) {
+      throw new Error("Private key must be a valid hexadecimal string");
+    }
 
-    const openApiAccount = await CdpOpenApiClient.importEvmAccount(
-      {
-        name: options.name,
-        encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
-      },
-      options.idempotencyKey,
-    );
+    try {
+      const privateKeyBytes = Buffer.from(privateKeyHex, "hex");
 
-    const account = toEvmServerAccount(CdpOpenApiClient, {
-      account: openApiAccount,
-    });
+      // Additional validation to ensure we have a non-empty buffer
+      if (privateKeyBytes.length === 0) {
+        throw new Error("Private key cannot be empty");
+      }
 
-    Analytics.wrapObjectMethodsWithErrorTracking(account);
+      const encryptedPrivateKey = publicEncrypt(
+        {
+          key: ImportEvmAccountPublicRSAKey,
+          padding: constants.RSA_PKCS1_OAEP_PADDING,
+          oaepHash: "sha256",
+        },
+        privateKeyBytes,
+      );
 
-    return account;
+      const openApiAccount = await CdpOpenApiClient.importEvmAccount(
+        {
+          name: options.name,
+          encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
+        },
+        options.idempotencyKey,
+      );
+
+      const account = toEvmServerAccount(CdpOpenApiClient, {
+        account: openApiAccount,
+      });
+
+      Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+      return account;
+    } catch (error) {
+      if (error instanceof APIError) {
+        throw error;
+      }
+      throw new Error(`Failed to import account: ${String(error)}`);
+    }
   }
 
   /**
