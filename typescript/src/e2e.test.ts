@@ -349,11 +349,8 @@ describe("CDP Client E2E Tests", () => {
   });
 
   it("should send a transaction", async () => {
-    logger.log("Calling cdp.evm.sendTransaction");
-    const account = await cdp.evm.createAccount();
-    await ensureSufficientEthBalance(cdp, account);
-    const txResult = await cdp.evm.sendTransaction({
-      address: account.address,
+    await ensureSufficientEthBalance(cdp, testAccount);
+    const txResult = await testAccount.sendTransaction({
       network: "base-sepolia",
       transaction: {
         to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",

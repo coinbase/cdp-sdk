@@ -3,6 +3,7 @@ import base64
 import os
 import random
 import string
+from math import floor
 
 import pytest
 import pytest_asyncio
@@ -15,7 +16,20 @@ from web3 import Web3
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
 from cdp.evm_transaction_types import TransactionRequestEIP1559
+from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.policies.types import (
+    CreatePolicyOptions,
+    EthValueCriterion,
+    EvmAddressCriterion,
+    EvmNetworkCriterion,
+    SendEvmTransactionRule,
+    SignEvmTransactionRule,
+    SignSolanaTransactionRule,
+    SolanaAddressCriterion,
+    UpdatePolicyOptions,
+)
+from cdp.update_account_types import UpdateAccountOptions
 
 load_dotenv()
 
@@ -210,7 +224,7 @@ async def test_send_wait_and_get_user_operation_with_smart_account(cdp_client):
 @pytest.mark.asyncio
 async def test_send_transaction(cdp_client):
     """Test sending a transaction."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
@@ -233,7 +247,7 @@ async def test_send_transaction(cdp_client):
 @pytest.mark.asyncio
 async def test_send_transaction_from_account(cdp_client):
     """Test sending a transaction from an account."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
@@ -483,7 +497,7 @@ async def test_evm_sign_typed_data_for_account(cdp_client):
 @pytest.mark.asyncio
 async def test_transfer_eth(cdp_client):
     """Test transferring ETH."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
@@ -506,7 +520,7 @@ async def test_transfer_eth(cdp_client):
 @pytest.mark.asyncio
 async def test_transfer_usdc(cdp_client):
     """Test transferring USDC tokens."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
@@ -569,38 +583,6 @@ async def test_transfer_usdc_smart_account(cdp_client):
     )
     assert user_op_result is not None
     assert user_op_result.status == "complete"
-
-
-async def _ensure_sufficient_eth_balance(cdp_client, account):
-    """Ensure an account has sufficient ETH balance."""
-    min_required_balance = w3.to_wei(0.000001, "ether")
-
-    eth_balance = w3.eth.get_balance(account.address)
-
-    print(f"Current ETH balance: {w3.from_wei(eth_balance, 'ether')} ETH")
-
-    if eth_balance < min_required_balance:
-        print(
-            f"ETH balance below minimum required ({w3.from_wei(min_required_balance, 'ether')} ETH)"
-        )
-        faucet_hash = await cdp_client.evm.request_faucet(
-            address=account.address, network="base-sepolia", token="eth"
-        )
-
-        print(f"Faucet request submitted: {faucet_hash}")
-
-        w3.eth.wait_for_transaction_receipt(faucet_hash)
-
-        # Verify the balance is now sufficient
-        new_balance = w3.eth.get_balance(account.address)
-        assert (
-            new_balance >= min_required_balance
-        ), f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
-        return new_balance
-    else:
-        print(f"ETH balance is sufficient: {w3.from_wei(eth_balance, 'ether')} ETH")
-
-    return eth_balance
 
 
 @pytest.mark.e2e
@@ -768,6 +750,437 @@ async def test_solana_sign_transaction(cdp_client):
     assert response.signed_transaction is not None
 
 
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_create_account_policy(cdp_client):
+    """Test creating an account policy."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                        EvmAddressCriterion(
+                            addresses=["0x000000000000000000000000000000000000dEaD"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+                SendEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EvmNetworkCriterion(
+                            networks=["base-sepolia", "base"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+                SignSolanaTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolanaAddressCriterion(
+                            addresses=["123456789abcdef123456789abcdef12"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+            ],
+        )
+    )
+    assert policy is not None
+    assert policy.id is not None
+    assert policy.scope == "account"
+    assert policy.description == "E2E Test Policy"
+    assert policy.rules is not None
+    assert len(policy.rules) == 3
+    assert policy.rules[0].actual_instance.action == "accept"
+    assert policy.rules[0].actual_instance.operation == "signEvmTransaction"
+    assert policy.rules[0].actual_instance.criteria is not None
+    assert len(policy.rules[0].actual_instance.criteria) == 2
+    assert policy.rules[0].actual_instance.criteria[0].actual_instance.type == "ethValue"
+    assert (
+        policy.rules[0].actual_instance.criteria[0].actual_instance.eth_value
+        == "1000000000000000000"
+    )
+    assert policy.rules[0].actual_instance.criteria[0].actual_instance.operator == "<="
+    assert policy.rules[0].actual_instance.criteria[1].actual_instance.type == "evmAddress"
+    assert policy.rules[0].actual_instance.criteria[1].actual_instance.addresses == [
+        "0x000000000000000000000000000000000000dEaD"
+    ]
+    assert policy.rules[0].actual_instance.criteria[1].actual_instance.operator == "in"
+    assert policy.rules[1].actual_instance.action == "accept"
+    assert policy.rules[1].actual_instance.operation == "sendEvmTransaction"
+    assert policy.rules[1].actual_instance.criteria is not None
+    assert len(policy.rules[1].actual_instance.criteria) == 1
+    assert policy.rules[1].actual_instance.criteria[0].actual_instance.type == "evmNetwork"
+    assert policy.rules[1].actual_instance.criteria[0].actual_instance.networks == [
+        "base-sepolia",
+        "base",
+    ]
+    assert policy.rules[1].actual_instance.criteria[0].actual_instance.operator == "in"
+    assert policy.rules[2].actual_instance.action == "accept"
+    assert policy.rules[2].actual_instance.operation == "signSolTransaction"
+    assert policy.rules[2].actual_instance.criteria is not None
+    assert len(policy.rules[2].actual_instance.criteria) == 1
+    assert policy.rules[2].actual_instance.criteria[0].actual_instance.type == "solAddress"
+    assert policy.rules[2].actual_instance.criteria[0].actual_instance.addresses == [
+        "123456789abcdef123456789abcdef12"
+    ]
+    assert policy.rules[2].actual_instance.criteria[0].actual_instance.operator == "in"
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_create_project_policy(cdp_client):
+    """Test creating a project policy."""
+    try:
+        # Create the project policy
+        policy = await cdp_client.policies.create_policy(
+            policy=CreatePolicyOptions(
+                scope="project",
+                description="E2E Test Policy",
+                rules=[
+                    SignEvmTransactionRule(
+                        action="accept",
+                        criteria=[
+                            EthValueCriterion(
+                                ethValue="1000000000000000000",
+                                operator="<=",
+                            ),
+                        ],
+                    )
+                ],
+            )
+        )
+    except ApiError as e:
+        # If a project policy already exists, delete it and create a new one
+        # as there can only be one project-scoped policy
+        if e.http_code == 409:
+            # Get existing project policy
+            policies = await cdp_client.policies.list_policies(scope="project")
+
+            # Delete the existing project policy
+            if policies.policies:
+                await cdp_client.policies.delete_policy(id=policies.policies[0].id)
+
+            # Create the project policy
+            policy = await cdp_client.policies.create_policy(
+                policy=CreatePolicyOptions(
+                    scope="project",
+                    description="E2E Test Policy",
+                    rules=[
+                        SignEvmTransactionRule(
+                            action="accept",
+                            criteria=[
+                                EthValueCriterion(
+                                    ethValue="1000000000000000000",
+                                    operator="<=",
+                                ),
+                            ],
+                        )
+                    ],
+                )
+            )
+
+    assert policy is not None
+    assert policy.id is not None
+    assert policy.scope == "project"
+    assert policy.description == "E2E Test Policy"
+    assert policy.rules is not None
+    assert len(policy.rules) == 1
+    assert policy.rules[0].actual_instance.action == "accept"
+    assert policy.rules[0].actual_instance.operation == "signEvmTransaction"
+    assert policy.rules[0].actual_instance.criteria is not None
+    assert len(policy.rules[0].actual_instance.criteria) == 1
+    assert policy.rules[0].actual_instance.criteria[0].actual_instance.type == "ethValue"
+    assert (
+        policy.rules[0].actual_instance.criteria[0].actual_instance.eth_value
+        == "1000000000000000000"
+    )
+    assert policy.rules[0].actual_instance.criteria[0].actual_instance.operator == "<="
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_update_policy(cdp_client):
+    """Test updating a policy."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+    assert policy is not None
+
+    # Update the policy
+    updated_policy = await cdp_client.policies.update_policy(
+        id=policy.id,
+        policy=UpdatePolicyOptions(
+            description="Updated E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EvmAddressCriterion(
+                            addresses=["0x000000000000000000000000000000000000dEaD"],
+                            operator="in",
+                        ),
+                    ],
+                )
+            ],
+        ),
+    )
+    assert updated_policy is not None
+    assert updated_policy.id == policy.id
+    assert updated_policy.description == "Updated E2E Test Policy"
+    assert updated_policy.rules is not None
+    assert len(updated_policy.rules) == 1
+    assert updated_policy.rules[0].actual_instance.action == "accept"
+    assert updated_policy.rules[0].actual_instance.operation == "signEvmTransaction"
+    assert updated_policy.rules[0].actual_instance.criteria is not None
+    assert len(updated_policy.rules[0].actual_instance.criteria) == 1
+    assert updated_policy.rules[0].actual_instance.criteria[0].actual_instance.type == "evmAddress"
+    assert updated_policy.rules[0].actual_instance.criteria[0].actual_instance.addresses == [
+        "0x000000000000000000000000000000000000dEaD"
+    ]
+    assert updated_policy.rules[0].actual_instance.criteria[0].actual_instance.operator == "in"
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=updated_policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=updated_policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_delete_policy(cdp_client):
+    """Test deleting a policy."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+    assert policy is not None
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_get_policy_by_id(cdp_client):
+    """Test getting a policy by ID."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+    assert policy is not None
+
+    # Get the policy by ID
+    retrieved_policy = await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert retrieved_policy is not None
+    assert retrieved_policy.id == policy.id
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_list_policies(cdp_client):
+    """Test listing policies."""
+    # Create a new policy
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+    assert policy is not None
+
+    # List all policies
+    policies = await cdp_client.policies.list_policies()
+    assert policies is not None
+    assert policies.policies is not None
+    assert len(policies.policies) > 0
+    assert any(p.id == policy.id for p in policies.policies)
+
+    # List policies with scope filter
+    policies = await cdp_client.policies.list_policies(scope="account")
+    assert policies is not None
+    assert policies.policies is not None
+    assert len(policies.policies) > 0
+    assert any(p.id == policy.id for p in policies.policies)
+
+    policies = await cdp_client.policies.list_policies(scope="project")
+    assert policies is not None
+    assert policies.policies is not None
+    assert not any(p.id == policy.id for p in policies.policies)
+
+    # List policies with pagination
+    first_page_policies = await cdp_client.policies.list_policies(page_size=1)
+    assert first_page_policies is not None
+    assert first_page_policies.policies is not None
+    assert len(first_page_policies.policies) == 1
+
+    # Check if we have more policies
+    if policies.next_page_token:
+        policies = await cdp_client.policies.list_policies(
+            page_size=1, page_token=policies.next_page_token
+        )
+        assert policies is not None
+        assert policies.policies is not None
+
+        # Verify that the second page has a different policy
+        assert not any(p.id == first_page_policies.policies[0].id for p in policies.policies)
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_update_evm_account(cdp_client):
+    """Test updating an EVM account."""
+    original_name = generate_random_name()
+    account_to_update = await cdp_client.evm.get_or_create_account(name=original_name)
+    assert account_to_update is not None
+    assert account_to_update.name == original_name
+
+    # Update the account with a new name
+    updated_name = generate_random_name()
+    updated_account = await cdp_client.evm.update_account(
+        address=account_to_update.address,
+        update=UpdateAccountOptions(
+            name=updated_name,
+        ),
+    )
+    assert updated_account is not None
+    assert updated_account.address == account_to_update.address
+    assert updated_account.name == updated_name
+
+    # Verify we can get the updated account by its new name
+    retrieved_account = await cdp_client.evm.get_account(name=updated_name)
+    assert retrieved_account is not None
+    assert retrieved_account.address == account_to_update.address
+    assert retrieved_account.name == updated_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_update_solana_account(cdp_client):
+    """Test updating a Solana account."""
+    original_name = generate_random_name()
+    account_to_update = await cdp_client.solana.create_account(name=original_name)
+    assert account_to_update is not None
+    assert account_to_update.name == original_name
+
+    # Update the account with a new name
+    updated_name = generate_random_name()
+    updated_account = await cdp_client.solana.update_account(
+        address=account_to_update.address,
+        update=UpdateAccountOptions(
+            name=updated_name,
+        ),
+    )
+    assert updated_account is not None
+    assert updated_account.address == account_to_update.address
+    assert updated_account.name == updated_name
+
+    # Verify we can get the updated account by its new name
+    retrieved_account = await cdp_client.solana.get_account(name=updated_name)
+    assert retrieved_account is not None
+    assert retrieved_account.address == account_to_update.address
+    assert retrieved_account.name == updated_name
+
+
 def _get_transaction(address: str):
     """Help method to create a transaction."""
     from solana.rpc.api import Client as SolanaClient
@@ -873,3 +1286,19 @@ async def _ensure_sufficient_sol_balance(cdp_client, account):
 
     if balance == 0:
         raise Exception("Account not funded after multiple attempts")
+
+
+def generate_random_name():
+    """Generate a random name."""
+    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    chars_with_hyphen = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
+
+    first_char = chars[floor(random.random() * len(chars))]
+
+    middle_length = floor(random.random() * 34)
+    middle_part = ""
+    for _ in range(middle_length):
+        middle_part += chars_with_hyphen[floor(random.random() * len(chars_with_hyphen))]
+
+    last_char = chars[floor(random.random() * len(chars))]
+    return first_char + middle_part + last_char

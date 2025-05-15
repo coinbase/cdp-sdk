@@ -39,6 +39,7 @@ class SolanaAccount(BaseModel):
 
         self.__address = solana_account_model.address
         self.__name = solana_account_model.name
+        self.__policies = solana_account_model.policies
         self.__api_clients = api_clients
 
     def __str__(self) -> str:
@@ -78,6 +79,16 @@ class SolanaAccount(BaseModel):
 
         """
         return self.__name
+
+    @property
+    def policies(self) -> list[str]:
+        """Get the list of policies the apply to this account.
+
+        Returns:
+            str: The list of Policy IDs.
+
+        """
+        return self.__policies
 
     async def request_faucet(self, token: Literal["sol", "usdc"]) -> RequestSolanaFaucetResponse:
         """Request a faucet for the Solana account.

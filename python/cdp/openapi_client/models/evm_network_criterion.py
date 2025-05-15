@@ -18,21 +18,41 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from typing import Optional, Set
 from typing_extensions import Self
 
-class EIP712Message(BaseModel):
+class EvmNetworkCriterion(BaseModel):
     """
-    The message to sign using EIP-712.
+    A schema for specifying a criterion for the intended `network` of an EVM transaction.
     """ # noqa: E501
-    domain: EIP712Domain
-    types: Dict[str, Any] = Field(description="A mapping of struct names to an array of type objects (name + type). Each key corresponds to a type name (e.g., \"`EIP712Domain`\", \"`PermitTransferFrom`\"). ")
-    primary_type: StrictStr = Field(description="The primary type of the message. This is the name of the struct in the `types` object that is the root of the message.", alias="primaryType")
-    message: Dict[str, Any] = Field(description="The message to sign. The structure of this message must match the `primaryType` struct in the `types` object.")
-    __properties: ClassVar[List[str]] = ["domain", "types", "primaryType", "message"]
+    type: StrictStr = Field(description="The type of criterion to use. This should be `evmNetwork`.")
+    networks: List[StrictStr] = Field(description="A list of EVM network identifiers that the transaction's intended `network` should be compared to.")
+    operator: StrictStr = Field(description="The operator to use for the comparison. The transaction's intended `network` will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.")
+    __properties: ClassVar[List[str]] = ["type", "networks", "operator"]
+
+    @field_validator('type')
+    def type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['evmNetwork']):
+            raise ValueError("must be one of enum values ('evmNetwork')")
+        return value
+
+    @field_validator('networks')
+    def networks_validate_enum(cls, value):
+        """Validates the enum"""
+        for i in value:
+            if i not in set(['base-sepolia', 'base']):
+                raise ValueError("each list item must be one of ('base-sepolia', 'base')")
+        return value
+
+    @field_validator('operator')
+    def operator_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['in', 'not in']):
+            raise ValueError("must be one of enum values ('in', 'not in')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -52,7 +72,7 @@ class EIP712Message(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of EIP712Message from a JSON string"""
+        """Create an instance of EvmNetworkCriterion from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,14 +93,11 @@ class EIP712Message(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of domain
-        if self.domain:
-            _dict['domain'] = self.domain.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of EIP712Message from a dict"""
+        """Create an instance of EvmNetworkCriterion from a dict"""
         if obj is None:
             return None
 
@@ -88,10 +105,9 @@ class EIP712Message(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "domain": EIP712Domain.from_dict(obj["domain"]) if obj.get("domain") is not None else None,
-            "types": obj.get("types"),
-            "primaryType": obj.get("primaryType"),
-            "message": obj.get("message")
+            "type": obj.get("type"),
+            "networks": obj.get("networks"),
+            "operator": obj.get("operator")
         })
         return _obj
 

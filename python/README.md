@@ -18,7 +18,7 @@
 
 ## CDP SDK
 
-This module contains the Python CDP SDK, which is a library that provides a client for interacting with the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). It includes a CDP Client for interacting with EVM and Solana APIs to create accounts and send transactions, as well as authentication tools for interacting directly with the CDP APIs.
+This module contains the Python CDP SDK, which is a library that provides a client for interacting with the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). It includes a CDP Client for interacting with EVM and Solana APIs to create accounts and send transactions, policy APIs to govern transaction permissions, as well as authentication tools for interacting directly with the CDP APIs.
 
 ## Documentation
 
@@ -164,6 +164,32 @@ async def main():
         account = await cdp.solana.get_or_create_account()
 
 asyncio.run(main())
+```
+
+### Updating EVM or Solana accounts
+
+#### Update an EVM account as follows:
+
+```python
+account = await cdp.evm.update_account(
+  address=account.address,
+  update=UpdateAccountOptions(
+    name="Updated name",
+    account_policy="1622d4b7-9d60-44a2-9a6a-e9bbb167e412",
+  ),
+)
+```
+
+#### Update a Solana account as follows:
+
+```python
+account = await cdp.solana.update_account(
+  address=account.address,
+  update=UpdateAccountOptions(
+    name="Updated name",
+    account_policy="1622d4b7-9d60-44a2-9a6a-e9bbb167e412",
+  ),
+)
 ```
 
 ### Testnet faucet
@@ -648,6 +674,146 @@ SolanaAccount supports the following actions:
 - `sign_message`
 - `sign_transaction`
 - `request_faucet`
+
+## Policy Management
+
+You can use the policies SDK to manage sets of rules that govern the behavior of accounts and projects, such as enforce allowlists and denylists.
+
+### Create a Project-level policy that applies to all accounts
+
+This policy will accept any account sending less than a specific amount of ETH to a specific address.
+
+```python
+policy = await cdp.policies.create_policy(
+    policy=CreatePolicyOptions(
+        scope="project",
+        description="Project-wide Allowlist Example",
+        rules=[
+            SignEvmTransactionRule(
+                action="accept",
+                criteria=[
+                    EthValueCriterion(
+                        ethValue="1000000000000000000",
+                        operator="<=",
+                    ),
+                    EvmAddressCriterion(
+                        addresses=["0x000000000000000000000000000000000000dEaD"],
+                        operator="in",
+                    ),
+                ],
+            ),
+        ],
+    )
+)
+```
+
+### Create an Account-level policy
+
+This policy will accept any transaction with a value less than or equal to 1 ETH to a specific address.
+
+```python
+policy = await cdp.policies.create_policy(
+    policy=CreatePolicyOptions(
+        scope="account",
+        description="Account Allowlist Example",
+        rules=[
+            SignEvmTransactionRule(
+                action="accept",
+                criteria=[
+                    EthValueCriterion(
+                        ethValue="1000000000000000000",
+                        operator="<=",
+                    ),
+                    EvmAddressCriterion(
+                        addresses=["0x000000000000000000000000000000000000dEaD"],
+                        operator="in",
+                    ),
+                ],
+            ),
+        ],
+    )
+)
+```
+
+### Create a Solana Allowlist Policy
+
+```python
+policy = await cdp.policies.create_policy(
+    policy=CreatePolicyOptions(
+        scope="account",
+        description="Account Allowlist Example",
+        rules=[
+            SignSolanaTransactionRule(
+                action="accept",
+                criteria=[
+                    SolanaAddressCriterion(
+                        addresses=["123456789abcdef123456789abcdef12"],
+                        operator="in",
+                    ),
+                ],
+            )
+        ],
+    )
+)
+```
+
+### List Policies
+
+You can filter by account:
+
+```python
+policies = await cdp.policies.list_policies(scope="account")
+```
+
+You can also filter by project:
+
+```python
+policies = await cdp.policies.list_policies(scope="project")
+```
+
+Or you can list all of them without any filter:
+
+```python
+policies = await cdp.policies.list_policies()
+```
+
+### Retrieve a Policy
+
+```python
+policies = await cdp.policies.get_policy_by_id(id="__POLICY_ID__")
+```
+
+### Update a Policy
+
+This policy will update an existing policy to accept transactions to any address except one.
+
+```python
+policy = await cdp.policies.update_policy(
+    id="__POLICY_ID__",
+    policy=UpdatePolicyOptions(
+        description="Updated Denylist Policy",
+        rules=[
+            SignEvmTransactionRule(
+                action="accept",
+                criteria=[
+                    EvmAddressCriterion(
+                        addresses=["0x000000000000000000000000000000000000dEaD"],
+                        operator="not in",
+                    ),
+                ],
+            )
+        ],
+    )
+)
+```
+
+### Delete a Policy
+
+> [!WARNING] Attempting to delete an account-level policy in-use by at least one account will fail.
+
+```python
+policy = await cdp.policies.delete_policy(id="__POLICY_ID__")
+```
 
 ## Authentication tools
 

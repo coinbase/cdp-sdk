@@ -38,19 +38,13 @@ class TestUpdatePolicyRequest(unittest.TestCase):
             return UpdatePolicyRequest(
                 description = 'Default policy',
                 rules = [
-                    cdp.openapi_client.models.rule.Rule(
-                        action = 'accept', 
-                        operation = 'signEvmTransaction', 
-                        criteria = [{"type":"ethValue","ethValue":"1000000000000000000","operator":"<="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e","0x1234567890123456789012345678901234567890"],"operator":"in"}], )
+                    {"action":"accept","operation":"signEvmTransaction","criteria":[{"type":"ethValue","ethValue":"1000000","operator":">="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],"operator":"in"}]}
                     ]
             )
         else:
             return UpdatePolicyRequest(
                 rules = [
-                    cdp.openapi_client.models.rule.Rule(
-                        action = 'accept', 
-                        operation = 'signEvmTransaction', 
-                        criteria = [{"type":"ethValue","ethValue":"1000000000000000000","operator":"<="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e","0x1234567890123456789012345678901234567890"],"operator":"in"}], )
+                    {"action":"accept","operation":"signEvmTransaction","criteria":[{"type":"ethValue","ethValue":"1000000","operator":">="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],"operator":"in"}]}
                     ],
         )
         """

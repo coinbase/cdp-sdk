@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.rule import Rule
+from cdp.openapi_client.models.sign_sol_transaction_rule import SignSolTransactionRule
 
-class TestRule(unittest.TestCase):
-    """Rule unit test stubs"""
+class TestSignSolTransactionRule(unittest.TestCase):
+    """SignSolTransactionRule unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,30 @@ class TestRule(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> Rule:
-        """Test Rule
+    def make_instance(self, include_optional) -> SignSolTransactionRule:
+        """Test SignSolTransactionRule
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `Rule`
+        # uncomment below to create an instance of `SignSolTransactionRule`
         """
-        model = Rule()
+        model = SignSolTransactionRule()
         if include_optional:
-            return Rule(
+            return SignSolTransactionRule(
                 action = 'accept',
                 operation = 'signSolTransaction',
-                criteria = [{type=solAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}]
+                criteria = [{"type":"solAddress","addresses":["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],"operator":"in"}]
             )
         else:
-            return Rule(
+            return SignSolTransactionRule(
                 action = 'accept',
                 operation = 'signSolTransaction',
-                criteria = [{type=solAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}],
+                criteria = [{"type":"solAddress","addresses":["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],"operator":"in"}],
         )
         """
 
-    def testRule(self):
-        """Test Rule"""
+    def testSignSolTransactionRule(self):
+        """Test SignSolTransactionRule"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

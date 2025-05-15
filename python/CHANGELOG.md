@@ -2,6 +2,14 @@
 
 <!-- towncrier release notes start -->
 
+## [1.8.0] - 2025-05-15
+
+### Features
+
+- Added policy CRUD methods ([#145](https://github.com/coinbase/cdp-sdk/pull/145))
+- Added updateAccount to evm and solana clients ([#146](https://github.com/coinbase/cdp-sdk/pull/146))
+
+
 ## [1.7.0] - 2025-05-14
 
 ### Features
