@@ -23,9 +23,15 @@ import {
   GetOrCreateServerAccountOptions,
   SignTypedDataOptions,
   UpdateEvmAccountOptions,
+  GetSwapQuoteOptions,
+  SwapQuote,
+  CreateSwapOptions,
+  Swap,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
+import { createSwap } from "../../actions/evm/createSwap.js";
+import { getSwapQuote } from "../../actions/evm/getSwapQuote.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import {
   listTokenBalances,
@@ -293,6 +299,50 @@ export class EvmClient implements EvmClientInterface {
 
       throw error;
     }
+  }
+
+  /**
+   * Gets a quote for a swap between two tokens on an EVM network.
+   *
+   * @param {GetSwapQuoteOptions} options - The options for getting a swap quote.
+   *
+   * @returns {Promise<SwapQuote>} A promise that resolves to the swap quote result.
+   *
+   * @example
+   * ```ts
+   * const quote = await cdp.evm.getSwapQuote({
+   *   network: "ethereum",
+   *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *   sellAmount: "1000000000000000000", // 1 WETH in wei
+   *   taker: "0x1234567890123456789012345678901234567890"
+   * });
+   * ```
+   */
+  async getSwapQuote(options: GetSwapQuoteOptions): Promise<SwapQuote> {
+    return getSwapQuote(CdpOpenApiClient, options);
+  }
+
+  /**
+   * Creates a swap between two tokens on an EVM network.
+   *
+   * @param {CreateSwapOptions} options - The options for creating a swap.
+   *
+   * @returns {Promise<Swap>} A promise that resolves to the swap result.
+   *
+   * @example
+   * ```ts
+   * const swap = await cdp.evm.createSwap({
+   *   network: "ethereum",
+   *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *   sellAmount: "1000000000000000000", // 1 WETH in wei
+   *   taker: "0x1234567890123456789012345678901234567890"
+   * });
+   * ```
+   */
+  async createSwap(options: CreateSwapOptions): Promise<Swap> {
+    return createSwap(CdpOpenApiClient, options);
   }
 
   /**

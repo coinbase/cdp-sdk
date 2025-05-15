@@ -18,6 +18,7 @@ import type {
 } from "../../actions/evm/sendUserOperation.js";
 import type { SmartAccountActions } from "../../actions/evm/types.js";
 import type {
+  EvmSwapsNetwork,
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
@@ -37,6 +38,8 @@ export type EvmClientInterface = Omit<
   | "getEvmAccount" // mapped to getAccount
   | "getEvmAccountByName" // mapped to getAccount
   | "getEvmSmartAccount" // mapped to getSmartAccount
+  | "getEvmSwapQuote" // mapped to getSwapQuote
+  | "createEvmSwap" // mapped to createSwap
   | "getUserOperation"
   | "updateEvmAccount" // mapped to updateAccount
   | "listEvmAccounts" // mapped to listAccounts
@@ -57,6 +60,8 @@ export type EvmClientInterface = Omit<
   createSmartAccount: (options: CreateSmartAccountOptions) => Promise<SmartAccount>;
   getAccount: (options: GetServerAccountOptions) => Promise<ServerAccount>;
   getSmartAccount: (options: GetSmartAccountOptions) => Promise<SmartAccount>;
+  getSwapQuote: (options: GetSwapQuoteOptions) => Promise<SwapQuote>;
+  createSwap: (options: CreateSwapOptions) => Promise<Swap>;
   getOrCreateAccount: (options: GetOrCreateServerAccountOptions) => Promise<ServerAccount>;
   getUserOperation: (options: GetUserOperationOptions) => Promise<UserOperation>;
   updateAccount: (options: UpdateEvmAccountOptions) => Promise<ServerAccount>;
@@ -76,6 +81,190 @@ export type EvmClientInterface = Omit<
 };
 
 export type { ServerAccount, SmartAccount };
+
+/**
+ * Fee structure for token-based fees.
+ */
+export interface SwapFee {
+  /** The fee amount. */
+  amount: string;
+  /** The token used for the fee. */
+  token: Address;
+}
+
+/**
+ * Options for creating a swap between two tokens on an EVM network.
+ */
+export interface CreateSwapOptions {
+  /** The network to create a swap on. */
+  network: EvmSwapsNetwork;
+  /** The token to buy (destination token). */
+  buyToken: Address;
+  /** The token to sell (source token). */
+  sellToken: Address;
+  /** The amount to sell in atomic units of the token. */
+  sellAmount: string;
+  /** The address that will perform the swap. */
+  taker: Address;
+  /** The signer address (only needed if taker is a smart contract). */
+  signerAddress?: Address;
+  /** The gas price in Wei. */
+  gasPrice?: string;
+  /** The slippage tolerance in basis points (0-10000). */
+  slippageBps?: number;
+}
+
+/**
+ * Transaction details for executing a swap.
+ */
+export interface SwapTransaction {
+  /** The address of the contract to call. */
+  to: Address;
+  /** The hex-encoded call data to send to the contract. */
+  data: Hex;
+  /** The estimated gas limit for the transaction. */
+  gas: string;
+  /** The gas price to use for the transaction. */
+  gasPrice: string;
+  /** The value of the transaction in Wei. */
+  value: string;
+}
+
+/**
+ * Permit2 authorization details for a swap.
+ */
+export interface SwapPermit2 {
+  /** The hash for the approval according to EIP-712. */
+  hash: Hex;
+  /** The EIP-712 typed data to sign. */
+  eip712: EIP712Message;
+}
+
+/**
+ * Result of a successful swap creation.
+ */
+export interface Swap {
+  /** The block number when this swap was generated. */
+  blockNumber: string;
+  /** The amount of the buy token that will be received in atomic units. */
+  buyAmount: string;
+  /** The buy token address. */
+  buyToken: Address;
+  /** The fees associated with the swap. */
+  fees: {
+    /** The gas fee for the swap. */
+    gasFee: SwapFee | null;
+    /** The protocol fee for the swap. */
+    protocolFee: SwapFee | null;
+  };
+  /** Issues that might prevent the swap from executing successfully. */
+  issues: {
+    /** Allowance issues. */
+    allowance: {
+      /** Current allowance. */
+      currentAllowance: string;
+      /** Spender address that needs approval. */
+      spender: Address;
+    } | null;
+    /** Balance issues. */
+    balance: {
+      /** Token with insufficient balance. */
+      token: Address;
+      /** Current balance. */
+      currentBalance: string;
+      /** Required balance. */
+      requiredBalance: string;
+    } | null;
+    /** Whether simulation was incomplete. */
+    simulationIncomplete: boolean;
+  };
+  /** Whether there's enough liquidity to execute the swap. */
+  liquidityAvailable: boolean;
+  /** The minimum amount of buy token to receive considering slippage. */
+  minBuyAmount: string;
+  /** The amount of sell token to sell. */
+  sellAmount: string;
+  /** The sell token address. */
+  sellToken: Address;
+  /** The permit2 authorization details, null for native token swaps. */
+  permit2: SwapPermit2 | null;
+  /** The transaction details to execute the swap. */
+  transaction: SwapTransaction;
+}
+
+/**
+ * Options for getting a swap quote.
+ */
+export interface GetSwapQuoteOptions {
+  /** The network to get a quote from. */
+  network: EvmSwapsNetwork;
+  /** The token to buy (destination token). */
+  buyToken: Address;
+  /** The token to sell (source token). */
+  sellToken: Address;
+  /** The amount to sell in atomic units of the token. */
+  sellAmount: string;
+  /** The address that will perform the swap. */
+  taker: Address;
+  /** The signer address (only needed if taker is a smart contract). */
+  signerAddress?: Address;
+  /** The gas price in Wei. */
+  gasPrice?: string;
+  /** The slippage tolerance in basis points (0-10000). */
+  slippageBps?: number;
+}
+
+/**
+ * Result of a successful swap quote.
+ */
+export interface SwapQuote {
+  /** The block number when this quote was generated. */
+  blockNumber: string;
+  /** The amount of the buy token that will be received in atomic units. */
+  buyAmount: string;
+  /** The buy token address. */
+  buyToken: Address;
+  /** The fees associated with the swap. */
+  fees: {
+    /** The gas fee for the swap. */
+    gasFee: SwapFee | null;
+    /** The protocol fee for the swap. */
+    protocolFee: SwapFee | null;
+  };
+  /** Issues that might prevent the swap from executing successfully. */
+  issues: {
+    /** Allowance issues. */
+    allowance: {
+      /** Current allowance. */
+      currentAllowance: string;
+      /** Spender address that needs approval. */
+      spender: Address;
+    } | null;
+    /** Balance issues. */
+    balance: {
+      /** Token with insufficient balance. */
+      token: Address;
+      /** Current balance. */
+      currentBalance: string;
+      /** Required balance. */
+      requiredBalance: string;
+    } | null;
+    /** Whether simulation was incomplete. */
+    simulationIncomplete: boolean;
+  };
+  /** Whether there's enough liquidity to execute the swap. */
+  liquidityAvailable: boolean;
+  /** The minimum amount of buy token to receive considering slippage. */
+  minBuyAmount: string;
+  /** The amount of sell token to sell. */
+  sellAmount: string;
+  /** The sell token address. */
+  sellToken: Address;
+  /** The estimated gas limit for the transaction. */
+  gas: string | null;
+  /** The gas price that should be used for the transaction. */
+  gasPrice: string;
+}
 
 /**
  * Options for getting a user operation.
