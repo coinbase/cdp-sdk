@@ -130,7 +130,7 @@ describe("createSwap", () => {
 
     // Type assertion to handle the union type
     expect(result.liquidityAvailable).toBe(true);
-    
+
     // Since we've checked liquidityAvailable is true, we know it's a CreateSwapResponse
     const swapResult = result as CreateSwapResponse;
     expect(swapResult).toEqual(mockResponse);
@@ -217,7 +217,7 @@ describe("createSwap", () => {
 
     // Check that it's a CreateSwapResponse with liquidityAvailable = true
     expect(result.liquidityAvailable).toBe(true);
-    
+
     // Type assertion to work with the properties
     const swapResult = result as CreateSwapResponse;
     expect(swapResult.fees).toEqual({

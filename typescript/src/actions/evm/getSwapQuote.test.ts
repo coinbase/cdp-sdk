@@ -24,7 +24,7 @@ describe("getSwapQuote", () => {
     const mockResponse: SwapUnavailableResponse = {
       liquidityAvailable: false,
     };
-    
+
     mockClient.getEvmSwapQuote = vi.fn().mockResolvedValue(mockResponse);
 
     const result = await getSwapQuote(mockClient, {
@@ -97,7 +97,7 @@ describe("getSwapQuote", () => {
 
     // Type assertion to handle the union type
     expect(result.liquidityAvailable).toBe(true);
-    
+
     // Since we've checked liquidityAvailable is true, we know it's a GetQuoteResponse
     const quoteResult = result as GetQuoteResponse;
     expect(quoteResult).toEqual(mockResponse);
@@ -172,7 +172,7 @@ describe("getSwapQuote", () => {
 
     // Check that it's a GetQuoteResponse with liquidityAvailable = true
     expect(result.liquidityAvailable).toBe(true);
-    
+
     // Type assertion to work with the properties
     const quoteResult = result as GetQuoteResponse;
     expect(quoteResult.fees).toEqual({
