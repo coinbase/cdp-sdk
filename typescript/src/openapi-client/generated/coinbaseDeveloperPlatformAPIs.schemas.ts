@@ -744,6 +744,18 @@ export type CreateEvmSmartAccountBody = {
   owners: string[];
 };
 
+export type ImportEvmAccountBody = {
+  /** The base64-encoded, encrypted private key of the EVM account. The private key must be encrypted using the CDP SDK's encryption scheme. */
+  encryptedPrivateKey: string;
+  /**
+   * An optional name for the account.
+Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names must be unique across all EVM accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
+};
+
 /**
  * The network to prepare the user operation for.
  */

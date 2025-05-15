@@ -1092,6 +1092,85 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/accounts/import:
+    post:
+      x-audience: public
+      summary: Import an EVM account
+      description: Import an existing EVM account into the developer's CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
+      operationId: importEvmAccount
+      tags:
+        - EVM Accounts
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                encryptedPrivateKey:
+                  type: string
+                  description: The base64-encoded, encrypted private key of the EVM account. The private key must be encrypted using the CDP SDK's encryption scheme.
+                  example: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+                name:
+                  type: string
+                  description: |-
+                    An optional name for the account.
+                    Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+                    Account names must be unique across all EVM accounts in the developer's CDP Project.
+                  example: my-wallet
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+              required:
+                - encryptedPrivateKey
+      responses:
+        '201':
+          description: Successfully imported EVM account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmAccount'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: The encrypted private key is invalid.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '409':
+          description: Resource already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                already_exists:
+                  value:
+                    errorType: already_exists
+                    errorMessage: EVM account with the given address already exists.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/smart-accounts/{address}:
     get:
       summary: Get a Smart Account by address
