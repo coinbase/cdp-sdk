@@ -8,7 +8,6 @@ import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
-from cdp.openapi_client.errors import ApiError
 from solana.rpc.api import Client as SolanaClient
 from solders.pubkey import Pubkey as PublicKey
 from web3 import Web3
@@ -16,6 +15,7 @@ from web3 import Web3
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
 from cdp.evm_transaction_types import TransactionRequestEIP1559
+from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 
 load_dotenv()
@@ -771,8 +771,8 @@ async def test_solana_sign_transaction(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_create_and_delete_account_policy(cdp_client):
-    """Test creating and deleting an account policy."""
+async def test_create_account_policy(cdp_client):
+    """Test creating an account policy."""
     policy = await cdp_client.policies.create_policy(
         policy={
             "scope": "account",
@@ -782,19 +782,15 @@ async def test_create_and_delete_account_policy(cdp_client):
                     "action": "accept",
                     "operation": "signEvmTransaction",
                     "criteria": [
-                        {
-                            "type": "ethValue",
-                            "ethValue": "1000000000000000000",
-                            "operator": "<="
-                        },
+                        {"type": "ethValue", "ethValue": "1000000000000000000", "operator": "<="},
                         {
                             "type": "evmAddress",
                             "addresses": ["0x000000000000000000000000000000000000dEaD"],
-                            "operator": "in"
-                        }
-                    ]
+                            "operator": "in",
+                        },
+                    ],
                 }
-            ]
+            ],
         },
     )
     assert policy is not None
@@ -808,15 +804,20 @@ async def test_create_and_delete_account_policy(cdp_client):
     assert policy.rules[0].actual_instance.criteria is not None
     assert len(policy.rules[0].actual_instance.criteria) == 2
     assert policy.rules[0].actual_instance.criteria[0].actual_instance.type == "ethValue"
-    assert policy.rules[0].actual_instance.criteria[0].actual_instance.eth_value == "1000000000000000000"
+    assert (
+        policy.rules[0].actual_instance.criteria[0].actual_instance.eth_value
+        == "1000000000000000000"
+    )
     assert policy.rules[0].actual_instance.criteria[0].actual_instance.operator == "<="
     assert policy.rules[0].actual_instance.criteria[1].actual_instance.type == "evmAddress"
-    assert policy.rules[0].actual_instance.criteria[1].actual_instance.addresses == ["0x000000000000000000000000000000000000dEaD"]
+    assert policy.rules[0].actual_instance.criteria[1].actual_instance.addresses == [
+        "0x000000000000000000000000000000000000dEaD"
+    ]
     assert policy.rules[0].actual_instance.criteria[1].actual_instance.operator == "in"
-    
+
     # Delete the policy
     await cdp_client.policies.delete_policy(id=policy.id)
-    
+
     # Verify the policy is deleted
     with pytest.raises(ApiError) as e:
         await cdp_client.policies.get_policy_by_id(id=policy.id)
@@ -825,8 +826,8 @@ async def test_create_and_delete_account_policy(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_create_and_delete_project_policy(cdp_client):
-    """Test creating and deleting a project policy."""
+async def test_create_project_policy(cdp_client):
+    """Test creating a project policy."""
     try:
         # Create the project policy
         policy = await cdp_client.policies.create_policy(
@@ -835,17 +836,17 @@ async def test_create_and_delete_project_policy(cdp_client):
                 "description": "E2E Test Policy",
                 "rules": [
                     {
-                        "action": "accept", 
+                        "action": "accept",
                         "operation": "signEvmTransaction",
                         "criteria": [
                             {
                                 "type": "ethValue",
                                 "ethValue": "1000000000000000000",
-                                "operator": "<="
+                                "operator": "<=",
                             }
-                        ]
+                        ],
                     }
-                ]
+                ],
             },
         )
     except ApiError as e:
@@ -858,7 +859,7 @@ async def test_create_and_delete_project_policy(cdp_client):
             # Delete the existing project policy
             if policies.policies:
                 await cdp_client.policies.delete_policy(id=policies.policies[0].id)
-            
+
             # Create the project policy
             policy = await cdp_client.policies.create_policy(
                 policy={
@@ -872,11 +873,11 @@ async def test_create_and_delete_project_policy(cdp_client):
                                 {
                                     "type": "ethValue",
                                     "ethValue": "1000000000000000000",
-                                    "operator": "<="
+                                    "operator": "<=",
                                 }
-                            ]
+                            ],
                         }
-                    ]
+                    ],
                 },
             )
 
@@ -891,7 +892,10 @@ async def test_create_and_delete_project_policy(cdp_client):
     assert policy.rules[0].actual_instance.criteria is not None
     assert len(policy.rules[0].actual_instance.criteria) == 1
     assert policy.rules[0].actual_instance.criteria[0].actual_instance.type == "ethValue"
-    assert policy.rules[0].actual_instance.criteria[0].actual_instance.eth_value == "1000000000000000000"
+    assert (
+        policy.rules[0].actual_instance.criteria[0].actual_instance.eth_value
+        == "1000000000000000000"
+    )
     assert policy.rules[0].actual_instance.criteria[0].actual_instance.operator == "<="
 
     # Delete the policy
@@ -916,14 +920,10 @@ async def test_update_policy(cdp_client):
                     "action": "accept",
                     "operation": "signEvmTransaction",
                     "criteria": [
-                        {
-                            "type": "ethValue",
-                            "ethValue": "1000000000000000000",
-                            "operator": "<="
-                        }
-                    ]
+                        {"type": "ethValue", "ethValue": "1000000000000000000", "operator": "<="}
+                    ],
                 }
-            ]
+            ],
         },
     )
     assert policy is not None
@@ -941,11 +941,11 @@ async def test_update_policy(cdp_client):
                         {
                             "type": "evmAddress",
                             "addresses": ["0x000000000000000000000000000000000000dEaD"],
-                            "operator": "in"
+                            "operator": "in",
                         }
-                    ]
+                    ],
                 }
-            ]
+            ],
         },
     )
     assert updated_policy is not None
@@ -958,7 +958,9 @@ async def test_update_policy(cdp_client):
     assert updated_policy.rules[0].actual_instance.criteria is not None
     assert len(updated_policy.rules[0].actual_instance.criteria) == 1
     assert updated_policy.rules[0].actual_instance.criteria[0].actual_instance.type == "evmAddress"
-    assert updated_policy.rules[0].actual_instance.criteria[0].actual_instance.addresses == ["0x000000000000000000000000000000000000dEaD"]
+    assert updated_policy.rules[0].actual_instance.criteria[0].actual_instance.addresses == [
+        "0x000000000000000000000000000000000000dEaD"
+    ]
     assert updated_policy.rules[0].actual_instance.criteria[0].actual_instance.operator == "in"
 
     # Delete the policy
@@ -983,14 +985,10 @@ async def test_delete_policy(cdp_client):
                     "action": "accept",
                     "operation": "signEvmTransaction",
                     "criteria": [
-                        {
-                            "type": "ethValue",
-                            "ethValue": "1000000000000000000",
-                            "operator": "<="
-                        }
-                    ]
+                        {"type": "ethValue", "ethValue": "1000000000000000000", "operator": "<="}
+                    ],
                 }
-            ]
+            ],
         }
     )
     assert policy is not None
@@ -1017,14 +1015,10 @@ async def test_get_policy_by_id(cdp_client):
                     "action": "accept",
                     "operation": "signEvmTransaction",
                     "criteria": [
-                        {
-                            "type": "ethValue",
-                            "ethValue": "1000000000000000000",
-                            "operator": "<="
-                        }
-                    ]
+                        {"type": "ethValue", "ethValue": "1000000000000000000", "operator": "<="}
+                    ],
                 }
-            ]
+            ],
         },
     )
     assert policy is not None
@@ -1047,7 +1041,6 @@ async def test_get_policy_by_id(cdp_client):
 @pytest.mark.asyncio
 async def test_list_policies(cdp_client):
     """Test listing policies."""
-
     # Create a new policy
     policy = await cdp_client.policies.create_policy(
         policy={
@@ -1058,14 +1051,10 @@ async def test_list_policies(cdp_client):
                     "action": "accept",
                     "operation": "signEvmTransaction",
                     "criteria": [
-                        {
-                            "type": "ethValue",
-                            "ethValue": "1000000000000000000",
-                            "operator": "<="
-                        }
-                    ]
+                        {"type": "ethValue", "ethValue": "1000000000000000000", "operator": "<="}
+                    ],
                 }
-            ]
+            ],
         },
     )
     assert policy is not None
@@ -1097,7 +1086,9 @@ async def test_list_policies(cdp_client):
 
     # Check if we have more policies
     if policies.next_page_token:
-        policies = await cdp_client.policies.list_policies(page_size=1, page_token=policies.next_page_token)
+        policies = await cdp_client.policies.list_policies(
+            page_size=1, page_token=policies.next_page_token
+        )
         assert policies is not None
         assert policies.policies is not None
 
