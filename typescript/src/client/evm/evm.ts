@@ -24,9 +24,7 @@ import {
   SignTypedDataOptions,
   UpdateEvmAccountOptions,
   GetSwapQuoteOptions,
-  SwapQuote,
   CreateSwapOptions,
-  Swap,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
@@ -55,7 +53,12 @@ import {
 } from "../../actions/evm/waitForUserOperation.js";
 import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
-import { CdpOpenApiClient } from "../../openapi-client/index.js";
+import {
+  CdpOpenApiClient,
+  GetQuoteResponse,
+  CreateSwapResponse,
+  SwapUnavailableResponse,
+} from "../../openapi-client/index.js";
 import { Hex } from "../../types/misc.js";
 
 import type {
@@ -306,7 +309,7 @@ export class EvmClient implements EvmClientInterface {
    *
    * @param {GetSwapQuoteOptions} options - The options for getting a swap quote.
    *
-   * @returns {Promise<SwapQuote>} A promise that resolves to the swap quote result.
+   * @returns {Promise<GetQuoteResponse | SwapUnavailableResponse>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
    *
    * @example
    * ```ts
@@ -319,7 +322,9 @@ export class EvmClient implements EvmClientInterface {
    * });
    * ```
    */
-  async getSwapQuote(options: GetSwapQuoteOptions): Promise<SwapQuote> {
+  async getSwapQuote(
+    options: GetSwapQuoteOptions,
+  ): Promise<GetQuoteResponse | SwapUnavailableResponse> {
     return getSwapQuote(CdpOpenApiClient, options);
   }
 
@@ -328,7 +333,7 @@ export class EvmClient implements EvmClientInterface {
    *
    * @param {CreateSwapOptions} options - The options for creating a swap.
    *
-   * @returns {Promise<Swap>} A promise that resolves to the swap result.
+   * @returns {Promise<CreateSwapResponse | SwapUnavailableResponse>} A promise that resolves to the swap result or a response indicating that liquidity is unavailable.
    *
    * @example
    * ```ts
@@ -341,7 +346,9 @@ export class EvmClient implements EvmClientInterface {
    * });
    * ```
    */
-  async createSwap(options: CreateSwapOptions): Promise<Swap> {
+  async createSwap(
+    options: CreateSwapOptions,
+  ): Promise<CreateSwapResponse | SwapUnavailableResponse> {
     return createSwap(CdpOpenApiClient, options);
   }
 
