@@ -4,8 +4,16 @@ import asyncio
 
 from cdp import CdpClient
 from dotenv import load_dotenv
-from cdp.policies.types import CreatePolicyOptions, EthValueCriterion, EvmAddressCriterion, SignEvmTransactionRule, EvmNetworkCriterion, SendEvmTransactionRule, SolAddressCriterion, SignSolTransactionRule
-
+from cdp.policies.types import (
+    CreatePolicyOptions,
+    EthValueCriterion,
+    EvmAddressCriterion,
+    EvmNetworkCriterion,
+    SendEvmTransactionRule,
+    SignEvmTransactionRule,
+    SignSolanaTransactionRule,
+    SolanaAddressCriterion,
+)
 load_dotenv()
 
 async def main():
@@ -36,10 +44,10 @@ async def main():
                         ),
                     ],
                 ),
-                SignSolTransactionRule(
+                SignSolanaTransactionRule(
                     action="accept",
                     criteria=[
-                        SolAddressCriterion(
+                        SolanaAddressCriterion(
                             addresses=["123456789abcdef123456789abcdef12"],
                             operator="in",
                         ),

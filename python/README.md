@@ -717,10 +717,10 @@ policy = await cdp.policies.create_policy(
         scope="account",
         description="Account Allowlist Example",
         rules=[
-            SignSolTransactionRule(
+            SignSolanaTransactionRule(
                 action="accept",
                 criteria=[
-                    SolAddressCriterion(
+                    SolanaAddressCriterion(
                         addresses=["123456789abcdef123456789abcdef12"],
                         operator="in",
                     ),
