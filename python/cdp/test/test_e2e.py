@@ -211,7 +211,7 @@ async def test_send_wait_and_get_user_operation_with_smart_account(cdp_client):
 @pytest.mark.asyncio
 async def test_send_transaction(cdp_client):
     """Test sending a transaction."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
@@ -234,7 +234,7 @@ async def test_send_transaction(cdp_client):
 @pytest.mark.asyncio
 async def test_send_transaction_from_account(cdp_client):
     """Test sending a transaction from an account."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
@@ -484,7 +484,7 @@ async def test_evm_sign_typed_data_for_account(cdp_client):
 @pytest.mark.asyncio
 async def test_transfer_eth(cdp_client):
     """Test transferring ETH."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
@@ -507,7 +507,7 @@ async def test_transfer_eth(cdp_client):
 @pytest.mark.asyncio
 async def test_transfer_usdc(cdp_client):
     """Test transferring USDC tokens."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
@@ -570,38 +570,6 @@ async def test_transfer_usdc_smart_account(cdp_client):
     )
     assert user_op_result is not None
     assert user_op_result.status == "complete"
-
-
-async def _ensure_sufficient_eth_balance(cdp_client, account):
-    """Ensure an account has sufficient ETH balance."""
-    min_required_balance = w3.to_wei(0.000001, "ether")
-
-    eth_balance = w3.eth.get_balance(account.address)
-
-    print(f"Current ETH balance: {w3.from_wei(eth_balance, 'ether')} ETH")
-
-    if eth_balance < min_required_balance:
-        print(
-            f"ETH balance below minimum required ({w3.from_wei(min_required_balance, 'ether')} ETH)"
-        )
-        faucet_hash = await cdp_client.evm.request_faucet(
-            address=account.address, network="base-sepolia", token="eth"
-        )
-
-        print(f"Faucet request submitted: {faucet_hash}")
-
-        w3.eth.wait_for_transaction_receipt(faucet_hash)
-
-        # Verify the balance is now sufficient
-        new_balance = w3.eth.get_balance(account.address)
-        assert (
-            new_balance >= min_required_balance
-        ), f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
-        return new_balance
-    else:
-        print(f"ETH balance is sufficient: {w3.from_wei(eth_balance, 'ether')} ETH")
-
-    return eth_balance
 
 
 @pytest.mark.e2e
