@@ -1,5 +1,3 @@
-from typing import Any
-
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest

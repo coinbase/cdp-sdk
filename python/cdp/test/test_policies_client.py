@@ -6,7 +6,13 @@ from cdp.api_clients import ApiClients
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
-from cdp.policies.types import CreatePolicy, EvmAddressCriterion, ListPoliciesResult, SignEvmTransactionRule, UpdatePolicy
+from cdp.policies.types import (
+    CreatePolicy,
+    EvmAddressCriterion,
+    ListPoliciesResult,
+    SignEvmTransactionRule,
+    UpdatePolicy,
+)
 from cdp.policies.utils import build_policy_rules
 from cdp.policies_client import PoliciesClient
 

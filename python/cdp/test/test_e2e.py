@@ -8,7 +8,6 @@ import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
-from cdp.policies.types import CreatePolicy, EthValueCriterion, EvmAddressCriterion, SignEvmTransactionRule, UpdatePolicy
 from solana.rpc.api import Client as SolanaClient
 from solders.pubkey import Pubkey as PublicKey
 from web3 import Web3
@@ -18,6 +17,13 @@ from cdp.evm_call_types import EncodedCall
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.policies.types import (
+    CreatePolicy,
+    EthValueCriterion,
+    EvmAddressCriterion,
+    SignEvmTransactionRule,
+    UpdatePolicy,
+)
 
 load_dotenv()
 
@@ -944,7 +950,7 @@ async def test_update_policy(cdp_client):
                     ],
                 )
             ],
-        )
+        ),
     )
     assert updated_policy is not None
     assert updated_policy.id == policy.id

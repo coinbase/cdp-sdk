@@ -17,7 +17,8 @@ class EthValueCriterion(BaseModel):
     """Type representing a 'ethValue' criterion that can be used to govern the behavior of projects and accounts."""
 
     type: Literal["ethValue"] = Field(
-        "ethValue", description="The type of criterion, must be 'ethValue' for Ethereum value-based rules."
+        "ethValue",
+        description="The type of criterion, must be 'ethValue' for Ethereum value-based rules.",
     )
     ethValue: str = Field(
         ...,
@@ -40,7 +41,8 @@ class EvmAddressCriterion(BaseModel):
     """Type representing a 'evmAddress' criterion that can be used to govern the behavior of projects and accounts."""
 
     type: Literal["evmAddress"] = Field(
-        "evmAddress", description="The type of criterion, must be 'evmAddress' for EVM address-based rules."
+        "evmAddress",
+        description="The type of criterion, must be 'evmAddress' for EVM address-based rules.",
     )
     addresses: list[str] = Field(
         ...,
@@ -67,7 +69,8 @@ class SignEvmTransactionRule(BaseModel):
         description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the transaction, 'reject' will block it.",
     )
     operation: Literal["signEvmTransaction"] = Field(
-        "signEvmTransaction", description="The operation to which this rule applies. Must be 'signEvmTransaction'."
+        "signEvmTransaction",
+        description="The operation to which this rule applies. Must be 'signEvmTransaction'.",
     )
     criteria: list[EthValueCriterion | EvmAddressCriterion] = Field(
         ...,

@@ -1,5 +1,3 @@
-from typing import Any, List
-
 from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
 from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
 from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
@@ -19,7 +17,7 @@ from cdp.openapi_client.models.sign_sol_transaction_rule import SignSolTransacti
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
 
 
-def build_policy_rules(initial_rules: List[Rule]) -> List[Rule]:
+def build_policy_rules(initial_rules: list[Rule]) -> list[Rule]:
     """Build a properly formatted list of policy rules from a list of initial rules.
 
     Args:
