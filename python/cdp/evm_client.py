@@ -34,6 +34,8 @@ from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageReq
 from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
+from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
+from cdp.update_account_types import UpdateAccountOptions
 
 
 class EvmClient:
@@ -465,6 +467,32 @@ class EvmClient:
             paymaster_url,
         )
 
+    async def update_account(
+        self,
+        address: str,
+        update: UpdateAccountOptions,
+        idempotency_key: str | None = None,
+    ) -> EvmServerAccount:
+        """Update an EVM account.
+
+        Args:
+            address (str): The address of the account.
+            update (UpdateAccountOptions): The updates to apply to the account.
+            idempotency_key (str, optional): The idempotency key.
+
+        Returns:
+            EvmServerAccount: The updated EVM account.
+
+        """
+        account = await self.api_clients.evm_accounts.update_evm_account(
+            address=address,
+            update_evm_account_request=UpdateEvmAccountRequest(
+                name=update.name, account_policy=update.account_policy
+            ),
+            x_idempotency_key=idempotency_key,
+        )
+        return EvmServerAccount(account, self.api_clients.evm_accounts, self.api_clients)
+
     async def wait_for_user_operation(
         self,
         smart_account_address: str,
@@ -491,13 +519,3 @@ class EvmClient:
             timeout_seconds,
             interval_seconds,
         )
-
-    async def update_account(self, address: str, name: str | None = None) -> EvmServerAccount:
-        """Update an EVM account.
-
-        Args:
-            address (str): The address of the account.
-            name (str, optional): The name of the account.
-
-        """
-        raise NotImplementedError("Updating an EVM account is not yet implemented")

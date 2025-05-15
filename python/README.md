@@ -166,6 +166,32 @@ async def main():
 asyncio.run(main())
 ```
 
+### Updating EVM or Solana accounts
+
+#### Update an EVM account as follows:
+
+```python
+account = await cdp.evm.update_account(
+  address=account.address,
+  update=UpdateAccountOptions(
+    name="Updated name",
+    account_policy="1622d4b7-9d60-44a2-9a6a-e9bbb167e412",
+  ),
+)
+```
+
+#### Update a Solana account as follows:
+
+```python
+account = await cdp.solana.update_account(
+  address=account.address,
+  update=UpdateAccountOptions(
+    name="Updated name",
+    account_policy="1622d4b7-9d60-44a2-9a6a-e9bbb167e412",
+  ),
+)
+```
+
 ### Testnet faucet
 
 You can use the faucet function to request testnet ETH or SOL from the CDP.

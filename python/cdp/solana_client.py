@@ -16,7 +16,9 @@ from cdp.openapi_client.models.sign_solana_message200_response import (
 from cdp.openapi_client.models.sign_solana_transaction200_response import (
     SignSolanaTransaction200Response as SignSolanaTransactionResponse,
 )
+from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
 from cdp.solana_account import ListSolanaAccountsResponse, SolanaAccount
+from cdp.update_account_types import UpdateAccountOptions
 
 
 class SolanaClient:
@@ -199,12 +201,29 @@ class SolanaClient:
             token,
         )
 
-    async def update_account(self, address: str, name: str | None = None) -> SolanaAccount:
+    async def update_account(
+        self, address: str, update: UpdateAccountOptions, idempotency_key: str | None = None
+    ) -> SolanaAccount:
         """Update a Solana account.
 
         Args:
             address (str): The address of the account.
-            name (str, optional): The name of the account.
+            update (UpdateAccountOptions): The updates to apply to the account.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        Returns:
+            SolanaAccount: The updated Solana account.
 
         """
-        raise NotImplementedError("Updating a Solana account is not yet implemented")
+        response = await self.api_clients.solana_accounts.update_solana_account(
+            address=address,
+            update_solana_account_request=UpdateSolanaAccountRequest(
+                name=update.name, account_policy=update.account_policy
+            ),
+            x_idempotency_key=idempotency_key,
+        )
+
+        return SolanaAccount(
+            solana_account_model=response,
+            api_clients=self.api_clients,
+        )
