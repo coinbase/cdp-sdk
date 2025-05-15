@@ -61,6 +61,40 @@ class EvmAddressCriterion(BaseModel):
         return v
 
 
+class EvmNetworkCriterion(BaseModel):
+    """Type representing a 'evmNetwork' criterion that can be used to govern the behavior of projects and accounts."""
+
+    type: Literal["evmNetwork"] = Field(
+        "evmNetwork",
+        description="The type of criterion, must be 'evmNetwork' for EVM network-based rules.",
+    )
+    networks: list[Literal["base-sepolia", "base"]] = Field(
+        ...,
+        description="The list of EVM networks to compare against. Valid networks are 'base-sepolia' and 'base'.",
+    )
+    operator: Literal["in", "not in"] = Field(
+        ...,
+        description="The operator to use for evaluating transaction networks. 'in' checks if a network is in the provided list. 'not in' checks if a network is not in the provided list.",
+    )
+
+
+class SendEvmTransactionRule(BaseModel):
+    """Type representing a 'sendEvmTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the transaction, 'reject' will block it.",
+    )
+    operation: Literal["sendEvmTransaction"] = Field(
+        "sendEvmTransaction",
+        description="The operation to which this rule applies. Must be 'sendEvmTransaction'.",
+    )
+    criteria: list[EthValueCriterion | EvmAddressCriterion | EvmNetworkCriterion] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
 class SignEvmTransactionRule(BaseModel):
     """Type representing a 'signEvmTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
 
@@ -112,7 +146,8 @@ class SignSolTransactionRule(BaseModel):
         description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the transaction, 'reject' will block it.",
     )
     operation: Literal["signSolTransaction"] = Field(
-        ..., description="The operation to which this rule applies. Must be 'signSolTransaction'."
+        "signSolTransaction",
+        description="The operation to which this rule applies. Must be 'signSolTransaction'.",
     )
     criteria: list[SolAddressCriterion] = Field(
         ...,
@@ -126,7 +161,7 @@ PolicyScope = Literal["project", "account"]
 
 
 """Type representing a policy rule that can accept or reject specific operations based on a set of criteria."""
-Rule = SignEvmTransactionRule | SignSolTransactionRule
+Rule = SendEvmTransactionRule | SignEvmTransactionRule | SignSolTransactionRule
 
 
 class Policy(BaseModel):

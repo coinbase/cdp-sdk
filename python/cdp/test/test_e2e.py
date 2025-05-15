@@ -21,7 +21,11 @@ from cdp.policies.types import (
     CreatePolicy,
     EthValueCriterion,
     EvmAddressCriterion,
+    EvmNetworkCriterion,
+    SendEvmTransactionRule,
     SignEvmTransactionRule,
+    SignSolTransactionRule,
+    SolAddressCriterion,
     UpdatePolicy,
 )
 
@@ -797,7 +801,25 @@ async def test_create_account_policy(cdp_client):
                             operator="in",
                         ),
                     ],
-                )
+                ),
+                SendEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EvmNetworkCriterion(
+                            networks=["base-sepolia", "base"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+                SignSolTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolAddressCriterion(
+                            addresses=["123456789abcdef123456789abcdef12"],
+                            operator="in",
+                        ),
+                    ],
+                ),
             ],
         )
     )
@@ -806,7 +828,7 @@ async def test_create_account_policy(cdp_client):
     assert policy.scope == "account"
     assert policy.description == "E2E Test Policy"
     assert policy.rules is not None
-    assert len(policy.rules) == 1
+    assert len(policy.rules) == 3
     assert policy.rules[0].actual_instance.action == "accept"
     assert policy.rules[0].actual_instance.operation == "signEvmTransaction"
     assert policy.rules[0].actual_instance.criteria is not None
@@ -822,6 +844,25 @@ async def test_create_account_policy(cdp_client):
         "0x000000000000000000000000000000000000dEaD"
     ]
     assert policy.rules[0].actual_instance.criteria[1].actual_instance.operator == "in"
+    assert policy.rules[1].actual_instance.action == "accept"
+    assert policy.rules[1].actual_instance.operation == "sendEvmTransaction"
+    assert policy.rules[1].actual_instance.criteria is not None
+    assert len(policy.rules[1].actual_instance.criteria) == 1
+    assert policy.rules[1].actual_instance.criteria[0].actual_instance.type == "evmNetwork"
+    assert policy.rules[1].actual_instance.criteria[0].actual_instance.networks == [
+        "base-sepolia",
+        "base",
+    ]
+    assert policy.rules[1].actual_instance.criteria[0].actual_instance.operator == "in"
+    assert policy.rules[2].actual_instance.action == "accept"
+    assert policy.rules[2].actual_instance.operation == "signSolTransaction"
+    assert policy.rules[2].actual_instance.criteria is not None
+    assert len(policy.rules[2].actual_instance.criteria) == 1
+    assert policy.rules[2].actual_instance.criteria[0].actual_instance.type == "solAddress"
+    assert policy.rules[2].actual_instance.criteria[0].actual_instance.addresses == [
+        "123456789abcdef123456789abcdef12"
+    ]
+    assert policy.rules[2].actual_instance.criteria[0].actual_instance.operator == "in"
 
     # Delete the policy
     await cdp_client.policies.delete_policy(id=policy.id)

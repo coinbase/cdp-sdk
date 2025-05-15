@@ -4,7 +4,7 @@ import asyncio
 
 from cdp import CdpClient
 from dotenv import load_dotenv
-from cdp.policies.types import CreatePolicy, EthValueCriterion, EvmAddressCriterion, SignEvmTransactionRule
+from cdp.policies.types import CreatePolicy, EthValueCriterion, EvmAddressCriterion, SignEvmTransactionRule, EvmNetworkCriterion, SendEvmTransactionRule, SolAddressCriterion, SignSolTransactionRule
 
 load_dotenv()
 
@@ -14,6 +14,15 @@ async def main():
             scope="account",
             description="Account Allowlist Example",
             rules=[
+                SendEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EvmNetworkCriterion(
+                            networks=["base-sepolia", "base"],
+                            operator="in",
+                        ),
+                    ],
+                ),
                 SignEvmTransactionRule(
                     action="accept",
                     criteria=[
@@ -23,6 +32,15 @@ async def main():
                         ),
                         EvmAddressCriterion(
                             addresses=["0x1234567890123456789012345678901234567890"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+                SignSolTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolAddressCriterion(
+                            addresses=["123456789abcdef123456789abcdef12"],
                             operator="in",
                         ),
                     ],
