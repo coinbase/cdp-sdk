@@ -158,7 +158,7 @@ export interface ImportServerAccountOptions {
   /** The idempotency key. */
   idempotencyKey?: string;
   /** The private key of the account. */
-  privateKey: string;
+  privateKey: Hex;
 }
 
 /**
