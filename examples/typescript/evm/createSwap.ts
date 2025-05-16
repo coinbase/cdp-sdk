@@ -66,7 +66,8 @@ async function main() {
     // Handle token allowance check and approval if needed
     await handleTokenAllowance(
       ownerAccount.address as `0x${string}`, 
-      sellToken, 
+      sellToken.address as `0x${string}`,
+      sellToken.symbol,
       sellAmount
     );
     
@@ -97,19 +98,22 @@ async function main() {
 /**
  * Handles token allowance check and approval if needed
  * @param ownerAddress - The address of the token owner
- * @param sellToken - The token to be sold
+ * @param tokenAddress - The address of the token to be sold
+ * @param tokenSymbol - The symbol of the token (e.g., WETH, USDC)
  * @param sellAmount - The amount to be sold
  * @returns A promise that resolves when allowance is sufficient
  */
 async function handleTokenAllowance(
   ownerAddress: `0x${string}`, 
-  sellToken: typeof TOKENS.WETH, 
+  tokenAddress: `0x${string}`,
+  tokenSymbol: string,
   sellAmount: bigint
 ): Promise<void> {
   // Check allowance before attempting the swap
   const currentAllowance = await getAllowance(
     ownerAddress, 
-    sellToken.address as `0x${string}`
+    tokenAddress,
+    tokenSymbol
   );
   
   // If allowance is insufficient, approve tokens
@@ -119,13 +123,13 @@ async function handleTokenAllowance(
     // Set the allowance to the required amount
     await approveTokenAllowance(
       ownerAddress,
-      sellToken.address as `0x${string}`,
+      tokenAddress,
       PERMIT2_ADDRESS as `0x${string}`,
       sellAmount
     );
-    console.log(`Set allowance to ${formatEther(sellAmount)} ${sellToken.symbol}`);
+    console.log(`Set allowance to ${formatEther(sellAmount)} ${tokenSymbol}`);
   } else {
-    console.log(`\nToken allowance sufficient. Current: ${formatEther(currentAllowance)} ${sellToken.symbol}, Required: ${formatEther(sellAmount)} ${sellToken.symbol}`);
+    console.log(`\nToken allowance sufficient. Current: ${formatEther(currentAllowance)} ${tokenSymbol}, Required: ${formatEther(sellAmount)} ${tokenSymbol}`);
   }
 }
 
@@ -396,10 +400,15 @@ async function handlePermit2Signature(
  * Check token allowance for the Permit2 contract
  * @param owner - The token owner's address
  * @param token - The token contract address
+ * @param symbol - The token symbol for logging
  * @returns The current allowance
  */
-async function getAllowance(owner: `0x${string}`, token: `0x${string}`): Promise<bigint> {
-  console.log(`\nChecking allowance for ${token} to Permit2 contract...`);
+async function getAllowance(
+  owner: `0x${string}`, 
+  token: `0x${string}`,
+  symbol: string
+): Promise<bigint> {
+  console.log(`\nChecking allowance for ${symbol} (${token}) to Permit2 contract...`);
   
   try {
     const allowance = await publicClient.readContract({
@@ -409,7 +418,7 @@ async function getAllowance(owner: `0x${string}`, token: `0x${string}`): Promise
       args: [owner, PERMIT2_ADDRESS as `0x${string}`]
     });
     
-    console.log(`Current allowance: ${formatEther(allowance)} tokens`);
+    console.log(`Current allowance: ${formatEther(allowance)} ${symbol}`);
     return allowance;
   } catch (error) {
     console.error("Error checking allowance:", error);
