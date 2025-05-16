@@ -98,13 +98,13 @@ export interface CreateSwapOptions {
   /** The token to sell (source token). */
   sellToken: Address;
   /** The amount to sell in atomic units of the token. */
-  sellAmount: string;
+  sellAmount: bigint;
   /** The address that will perform the swap. */
   taker: Address;
   /** The signer address (only needed if taker is a smart contract). */
   signerAddress?: Address;
   /** The gas price in Wei. */
-  gasPrice?: string;
+  gasPrice?: bigint;
   /** The slippage tolerance in basis points (0-10000). */
   slippageBps?: number;
 }
@@ -120,13 +120,13 @@ export interface GetSwapQuoteOptions {
   /** The token to sell (source token). */
   sellToken: Address;
   /** The amount to sell in atomic units of the token. */
-  sellAmount: string;
+  sellAmount: bigint;
   /** The address that will perform the swap. */
   taker: Address;
   /** The signer address (only needed if taker is a smart contract). */
   signerAddress?: Address;
   /** The gas price in Wei. */
-  gasPrice?: string;
+  gasPrice?: bigint;
   /** The slippage tolerance in basis points (0-10000). */
   slippageBps?: number;
 }
