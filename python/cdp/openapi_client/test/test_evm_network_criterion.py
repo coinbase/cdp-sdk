@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.rule_criteria import RuleCriteria
+from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 
-class TestRuleCriteria(unittest.TestCase):
-    """RuleCriteria unit test stubs"""
+class TestEvmNetworkCriterion(unittest.TestCase):
+    """EvmNetworkCriterion unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,24 +26,30 @@ class TestRuleCriteria(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> RuleCriteria:
-        """Test RuleCriteria
+    def make_instance(self, include_optional) -> EvmNetworkCriterion:
+        """Test EvmNetworkCriterion
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `RuleCriteria`
+        # uncomment below to create an instance of `EvmNetworkCriterion`
         """
-        model = RuleCriteria()
+        model = EvmNetworkCriterion()
         if include_optional:
-            return RuleCriteria(
+            return EvmNetworkCriterion(
+                type = 'evmNetwork',
+                networks = ["base","base-sepolia"],
+                operator = 'in'
             )
         else:
-            return RuleCriteria(
+            return EvmNetworkCriterion(
+                type = 'evmNetwork',
+                networks = ["base","base-sepolia"],
+                operator = 'in',
         )
         """
 
-    def testRuleCriteria(self):
-        """Test RuleCriteria"""
+    def testEvmNetworkCriterion(self):
+        """Test EvmNetworkCriterion"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

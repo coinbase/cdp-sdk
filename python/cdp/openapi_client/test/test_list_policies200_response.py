@@ -42,7 +42,7 @@ class TestListPolicies200Response(unittest.TestCase):
                         id = '123e4567-e89b-12d3-a456-426614174000', 
                         description = 'Default policy', 
                         scope = 'project', 
-                        rules = [{"action":"accept","operation":"signEvmTransaction","criteria":[{"type":"ethValue","ethValue":"1000000000000000000","operator":"<="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e","0x1234567890123456789012345678901234567890"],"operator":"in"}]}], 
+                        rules = [{"action":"accept","operation":"signEvmTransaction","criteria":[{"type":"ethValue","ethValue":"1000000000000000000","operator":"<="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e","0x1234567890123456789012345678901234567890"],"operator":"in"}]},{"action":"accept","operation":"signSolTransaction","criteria":[{"type":"solAddress","addresses":["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],"operator":"in"}]}], 
                         created_at = '2025-03-25T12:00:00Z', 
                         updated_at = '2025-03-26T12:00:00Z', )
                     ]
@@ -54,7 +54,7 @@ class TestListPolicies200Response(unittest.TestCase):
                         id = '123e4567-e89b-12d3-a456-426614174000', 
                         description = 'Default policy', 
                         scope = 'project', 
-                        rules = [{"action":"accept","operation":"signEvmTransaction","criteria":[{"type":"ethValue","ethValue":"1000000000000000000","operator":"<="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e","0x1234567890123456789012345678901234567890"],"operator":"in"}]}], 
+                        rules = [{"action":"accept","operation":"signEvmTransaction","criteria":[{"type":"ethValue","ethValue":"1000000000000000000","operator":"<="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e","0x1234567890123456789012345678901234567890"],"operator":"in"}]},{"action":"accept","operation":"signSolTransaction","criteria":[{"type":"solAddress","addresses":["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],"operator":"in"}]}], 
                         created_at = '2025-03-25T12:00:00Z', 
                         updated_at = '2025-03-26T12:00:00Z', )
                     ],

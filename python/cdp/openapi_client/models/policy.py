@@ -30,7 +30,7 @@ class Policy(BaseModel):
     Policy
     """ # noqa: E501
     id: Annotated[str, Field(strict=True)] = Field(description="The unique identifier for the policy.")
-    description: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional human-readable description of the policy.  Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.")
+    description: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional human-readable description of the policy. Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.")
     scope: StrictStr = Field(description="The scope of the policy. Only one project-level policy can exist at any time.")
     rules: List[Rule] = Field(description="A list of rules that comprise the policy.")
     created_at: StrictStr = Field(description="The ISO 8601 timestamp at which the Policy was created.", alias="createdAt")

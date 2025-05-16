@@ -138,6 +138,25 @@ export const getSignEvmTypedDataResponseMock = (
   overrideResponse: Partial<SignEvmTypedData200> = {},
 ): SignEvmTypedData200 => ({ signature: faker.string.alpha(20), ...overrideResponse });
 
+export const getImportEvmAccountResponseMock = (
+  overrideResponse: Partial<EvmAccount> = {},
+): EvmAccount => ({
+  address: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  policies: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.fromRegExp(
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      ),
+    ),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
+
 export const getListEvmAccountsMockHandler = (
   overrideResponse?:
     | ListEvmAccounts200
@@ -359,6 +378,27 @@ export const getSignEvmTypedDataMockHandler = (
     );
   });
 };
+
+export const getImportEvmAccountMockHandler = (
+  overrideResponse?:
+    | EvmAccount
+    | ((info: Parameters<Parameters<typeof http.post>[1]>[0]) => Promise<EvmAccount> | EvmAccount),
+) => {
+  return http.post("*/v2/evm/accounts/import", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getImportEvmAccountResponseMock(),
+      ),
+      { status: 201, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 export const getEvmAccountsMock = () => [
   getListEvmAccountsMockHandler(),
   getCreateEvmAccountMockHandler(),
@@ -370,4 +410,5 @@ export const getEvmAccountsMock = () => [
   getSignEvmHashMockHandler(),
   getSignEvmMessageMockHandler(),
   getSignEvmTypedDataMockHandler(),
+  getImportEvmAccountMockHandler(),
 ];

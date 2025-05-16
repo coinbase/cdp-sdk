@@ -171,6 +171,36 @@ describe("CDP Client E2E Tests", () => {
     expect(account.name).toBe(randomName);
   });
 
+  it("should import an account from a private key", async () => {
+    const privateKey = generatePrivateKey();
+    const randomName = generateRandomName();
+
+    logger.log("Importing account with private key");
+    const importedAccount = await cdp.evm.importAccount({
+      privateKey: privateKey,
+      name: randomName,
+    });
+
+    expect(importedAccount).toBeDefined();
+    expect(importedAccount.address).toBeDefined();
+    expect(importedAccount.name).toBe(randomName);
+    logger.log(`Imported account with address: ${importedAccount.address}`);
+
+    const accountByAddress = await cdp.evm.getAccount({ address: importedAccount.address });
+    expect(accountByAddress).toBeDefined();
+    expect(accountByAddress.address).toBe(importedAccount.address);
+
+    const accountByName = await cdp.evm.getAccount({ name: randomName });
+    expect(accountByName).toBeDefined();
+    expect(accountByName.address).toBe(importedAccount.address);
+    expect(accountByName.name).toBe(randomName);
+
+    const signedHash = await importedAccount.sign({
+      hash: ("0x" + "1".repeat(64)) as Hex,
+    });
+    expect(signedHash).toBeDefined();
+  });
+
   it("should update a Solana account", async () => {
     // Create a new account to update
     const originalName = generateRandomName();
@@ -349,11 +379,8 @@ describe("CDP Client E2E Tests", () => {
   });
 
   it("should send a transaction", async () => {
-    logger.log("Calling cdp.evm.sendTransaction");
-    const account = await cdp.evm.createAccount();
-    await ensureSufficientEthBalance(cdp, account);
-    const txResult = await cdp.evm.sendTransaction({
-      address: account.address,
+    await ensureSufficientEthBalance(cdp, testAccount);
+    const txResult = await testAccount.sendTransaction({
       network: "base-sepolia",
       transaction: {
         to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",

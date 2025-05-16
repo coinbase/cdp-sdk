@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, MockedFunction } from "vitest";
+import { publicEncrypt, constants } from "crypto";
 
 import {
   CdpOpenApiClient,
@@ -26,8 +27,11 @@ import {
   WaitForUserOperationOptions,
   EvmCall,
   GetOrCreateServerAccountOptions,
+  ImportServerAccountOptions,
 } from "./evm.types.js";
 import { APIError } from "../../openapi-client/errors.js";
+import { ImportEvmAccountPublicRSAKey } from "./constants.js";
+
 vi.mock("../../openapi-client", () => {
   return {
     CdpOpenApiClient: {
@@ -37,6 +41,7 @@ vi.mock("../../openapi-client", () => {
       getEvmAccountByName: vi.fn(),
       getEvmSmartAccount: vi.fn(),
       getUserOperation: vi.fn(),
+      importEvmAccount: vi.fn(),
       listEvmAccounts: vi.fn(),
       listEvmSmartAccounts: vi.fn(),
       listEvmTokenBalances: vi.fn(),
@@ -68,6 +73,15 @@ vi.mock("../../actions/evm/sendUserOperation", () => ({
 vi.mock("../../actions/evm/waitForUserOperation", () => ({
   waitForUserOperation: vi.fn(),
 }));
+
+vi.mock("crypto", () => {
+  return {
+    publicEncrypt: vi.fn(),
+    constants: {
+      RSA_PKCS1_OAEP_PADDING: 4,
+    },
+  };
+});
 
 describe("EvmClient", () => {
   let client: EvmClient;
@@ -942,6 +956,138 @@ describe("EvmClient", () => {
         account: updatedAccount,
       });
       expect(result).toBe(serverAccount);
+    });
+  });
+
+  describe("importAccount", () => {
+    it("should import a server account", async () => {
+      const importOptions: ImportServerAccountOptions = {
+        privateKey: "0x123456",
+        name: "imported-account",
+        idempotencyKey: "import-key",
+      };
+      const account = { address: "0x789" };
+      const mockServerAccount: EvmServerAccount = {
+        address: "0x789" as const,
+        sign: vi.fn().mockResolvedValue("0xsignature"),
+        signMessage: vi.fn().mockResolvedValue("0xsignature"),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature"),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+        type: "evm-server" as const,
+        transfer: vi.fn(),
+        requestFaucet: vi.fn(),
+        sendTransaction: vi.fn(),
+        listTokenBalances: vi.fn(),
+      };
+
+      const mockEncryptedKey = Buffer.from("encrypted-private-key");
+      const publicEncryptMock = publicEncrypt as MockedFunction<typeof publicEncrypt>;
+      publicEncryptMock.mockReturnValue(mockEncryptedKey);
+
+      const importEvmAccountMock = CdpOpenApiClient.importEvmAccount as MockedFunction<
+        typeof CdpOpenApiClient.importEvmAccount
+      >;
+      importEvmAccountMock.mockResolvedValue(account);
+
+      const toEvmServerAccountMock = toEvmServerAccount as MockedFunction<
+        typeof toEvmServerAccount
+      >;
+      toEvmServerAccountMock.mockReturnValue(mockServerAccount);
+
+      const result = await client.importAccount(importOptions);
+
+      expect(publicEncrypt).toHaveBeenCalledWith(
+        {
+          key: ImportEvmAccountPublicRSAKey,
+          padding: constants.RSA_PKCS1_OAEP_PADDING,
+          oaepHash: "sha256",
+        },
+        Buffer.from("123456", "hex"),
+      );
+
+      expect(CdpOpenApiClient.importEvmAccount).toHaveBeenCalledWith(
+        {
+          name: importOptions.name,
+          encryptedPrivateKey: mockEncryptedKey.toString("base64"),
+        },
+        importOptions.idempotencyKey,
+      );
+
+      expect(toEvmServerAccount).toHaveBeenCalledWith(CdpOpenApiClient, {
+        account,
+      });
+
+      expect(result).toBe(mockServerAccount);
+    });
+
+    it("should import a server account with private key without 0x prefix", async () => {
+      const importOptions: ImportServerAccountOptions = {
+        privateKey: "abcdef1234567890",
+        name: "imported-account",
+      };
+      const account = { address: "0x789" };
+      const mockServerAccount: EvmServerAccount = {
+        address: "0x789" as const,
+        sign: vi.fn(),
+        signMessage: vi.fn(),
+        signTransaction: vi.fn(),
+        signTypedData: vi.fn(),
+        type: "evm-server" as const,
+        transfer: vi.fn(),
+        requestFaucet: vi.fn(),
+        sendTransaction: vi.fn(),
+        listTokenBalances: vi.fn(),
+      };
+
+      const mockEncryptedKey = Buffer.from("encrypted-private-key");
+      const publicEncryptMock = publicEncrypt as MockedFunction<typeof publicEncrypt>;
+      publicEncryptMock.mockReturnValue(mockEncryptedKey);
+
+      const importEvmAccountMock = CdpOpenApiClient.importEvmAccount as MockedFunction<
+        typeof CdpOpenApiClient.importEvmAccount
+      >;
+      importEvmAccountMock.mockResolvedValue(account);
+
+      const toEvmServerAccountMock = toEvmServerAccount as MockedFunction<
+        typeof toEvmServerAccount
+      >;
+      toEvmServerAccountMock.mockReturnValue(mockServerAccount);
+
+      const result = await client.importAccount(importOptions);
+
+      expect(publicEncrypt).toHaveBeenCalledWith(
+        expect.any(Object),
+        Buffer.from("abcdef1234567890", "hex"),
+      );
+      expect(result).toBe(mockServerAccount);
+    });
+
+    it("should throw error when private key is not valid hex", async () => {
+      const importOptions: ImportServerAccountOptions = {
+        privateKey: "0xnot-valid-hex!",
+        name: "invalid-key-account",
+      };
+
+      await expect(client.importAccount(importOptions)).rejects.toThrow(
+        "Private key must be a valid hexadecimal string",
+      );
+
+      // Verify the API wasn't called
+      expect(CdpOpenApiClient.importEvmAccount).not.toHaveBeenCalled();
+    });
+
+    it("should throw error when private key is empty", async () => {
+      const importOptions: ImportServerAccountOptions = {
+        privateKey: "",
+        name: "empty-key-account",
+      };
+
+      await expect(client.importAccount(importOptions)).rejects.toThrow(
+        "Private key must be a valid hexadecimal string",
+      );
+
+      // Verify the API wasn't called
+      expect(CdpOpenApiClient.importEvmAccount).not.toHaveBeenCalled();
     });
   });
 });

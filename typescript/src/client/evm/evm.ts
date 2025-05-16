@@ -1,5 +1,8 @@
+import { publicEncrypt, constants } from "crypto";
+
 import { Address } from "viem";
 
+import { ImportEvmAccountPublicRSAKey } from "./constants.js";
 import {
   CreateServerAccountOptions,
   GetServerAccountOptions,
@@ -23,6 +26,7 @@ import {
   GetOrCreateServerAccountOptions,
   SignTypedDataOptions,
   UpdateEvmAccountOptions,
+  ImportServerAccountOptions,
   GetSwapQuoteOptions,
   CreateSwapOptions,
 } from "./evm.types.js";
@@ -119,6 +123,92 @@ export class EvmClient implements EvmClientInterface {
     Analytics.wrapObjectMethodsWithErrorTracking(account);
 
     return account;
+  }
+
+  /**
+   * Imports a CDP EVM account from an external source.
+   *
+   * @param {ImportServerAccountOptions} options - Parameters for importing the account.
+   * @param {string} options.privateKey - The private key of the account to import.
+   * @param {string} [options.name] - A name for the account to import.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
+   * @returns A promise that resolves to the imported account.
+   *
+   * @example **Without arguments**
+   *          ```ts
+   *          const account = await cdp.evm.importAccount({
+   *            privateKey: "0x123456"
+   *          });
+   *          ```
+   *
+   * @example **With a name**
+   *          ```ts
+   *          const account = await cdp.evm.importAccount({
+   *            privateKey: "0x123456",
+   *            name: "MyAccount"
+   *          });
+   *          ```
+   *
+   * @example **With an idempotency key**
+   *          ```ts
+   *          const idempotencyKey = uuidv4();
+   *
+   *          // First call
+   *          await cdp.evm.importAccount({
+   *            privateKey: "0x123456",
+   *            idempotencyKey,
+   *          });
+   *
+   *          // Second call with the same idempotency key will return the same account
+   *          await cdp.evm.importAccount({
+   *            privateKey: "0x123456"
+   *            idempotencyKey,
+   *          });
+   *          ```
+   */
+  async importAccount(options: ImportServerAccountOptions): Promise<ServerAccount> {
+    const privateKeyHex = options.privateKey.startsWith("0x")
+      ? options.privateKey.slice(2)
+      : options.privateKey;
+
+    if (!/^[0-9a-fA-F]+$/.test(privateKeyHex)) {
+      throw new Error("Private key must be a valid hexadecimal string");
+    }
+
+    try {
+      const privateKeyBytes = Buffer.from(privateKeyHex, "hex");
+
+      const encryptedPrivateKey = publicEncrypt(
+        {
+          key: ImportEvmAccountPublicRSAKey,
+          padding: constants.RSA_PKCS1_OAEP_PADDING,
+          oaepHash: "sha256",
+        },
+        privateKeyBytes,
+      );
+
+      const openApiAccount = await CdpOpenApiClient.importEvmAccount(
+        {
+          name: options.name,
+          encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
+        },
+        options.idempotencyKey,
+      );
+
+      const account = toEvmServerAccount(CdpOpenApiClient, {
+        account: openApiAccount,
+      });
+
+      Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+      return account;
+    } catch (error) {
+      if (error instanceof APIError) {
+        throw error;
+      }
+      throw new Error(`Failed to import account: ${String(error)}`);
+    }
   }
 
   /**
