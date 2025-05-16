@@ -8,7 +8,10 @@ from cdp.policies.types import (
     PolicyScope,
     UpdatePolicyOptions,
 )
-from cdp.policies.utils import map_policy_rules_to_openapi_format
+from cdp.policies.utils import (
+    map_openapi_rules_to_response_format,
+    map_request_rules_to_openapi_format,
+)
 
 
 class PoliciesClient:
@@ -32,13 +35,21 @@ class PoliciesClient:
             Policy: The created policy.
 
         """
-        return await self.api_clients.policies.create_policy(
+        openapi_policy = await self.api_clients.policies.create_policy(
             create_policy_request=CreatePolicyRequest(
                 scope=policy.scope,
                 description=policy.description,
-                rules=map_policy_rules_to_openapi_format(policy.rules),
+                rules=map_request_rules_to_openapi_format(policy.rules),
             ),
             x_idempotency_key=idempotency_key,
+        )
+        return Policy(
+            id=openapi_policy.id,
+            description=openapi_policy.description,
+            scope=openapi_policy.scope,
+            rules=map_openapi_rules_to_response_format(openapi_policy.rules),
+            created_at=openapi_policy.created_at,
+            updated_at=openapi_policy.updated_at,
         )
 
     async def update_policy(
@@ -60,13 +71,21 @@ class PoliciesClient:
             Policy: The updated policy.
 
         """
-        return await self.api_clients.policies.update_policy(
+        openapi_policy = await self.api_clients.policies.update_policy(
             policy_id=id,
             update_policy_request=UpdatePolicyRequest(
                 description=policy.description,
-                rules=map_policy_rules_to_openapi_format(policy.rules),
+                rules=map_request_rules_to_openapi_format(policy.rules),
             ),
             x_idempotency_key=idempotency_key,
+        )
+        return Policy(
+            id=openapi_policy.id,
+            description=openapi_policy.description,
+            scope=openapi_policy.scope,
+            rules=map_openapi_rules_to_response_format(openapi_policy.rules),
+            created_at=openapi_policy.created_at,
+            updated_at=openapi_policy.updated_at,
         )
 
     async def delete_policy(
@@ -98,8 +117,16 @@ class PoliciesClient:
             Policy: The requested policy.
 
         """
-        return await self.api_clients.policies.get_policy_by_id(
+        openapi_policy = await self.api_clients.policies.get_policy_by_id(
             policy_id=id,
+        )
+        return Policy(
+            id=openapi_policy.id,
+            description=openapi_policy.description,
+            scope=openapi_policy.scope,
+            rules=map_openapi_rules_to_response_format(openapi_policy.rules),
+            created_at=openapi_policy.created_at,
+            updated_at=openapi_policy.updated_at,
         )
 
     async def list_policies(
@@ -121,8 +148,22 @@ class PoliciesClient:
             ListPoliciesResult: A paginated list of policies.
 
         """
-        return await self.api_clients.policies.list_policies(
+        openapi_policies = await self.api_clients.policies.list_policies(
             page_size=page_size,
             page_token=page_token,
             scope=scope,
+        )
+        return ListPoliciesResult(
+            policies=[
+                Policy(
+                    id=openapi_policy.id,
+                    description=openapi_policy.description,
+                    scope=openapi_policy.scope,
+                    rules=map_openapi_rules_to_response_format(openapi_policy.rules),
+                    created_at=openapi_policy.created_at,
+                    updated_at=openapi_policy.updated_at,
+                )
+                for openapi_policy in openapi_policies.policies
+            ],
+            next_page_token=openapi_policies.next_page_token,
         )

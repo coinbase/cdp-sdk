@@ -15,20 +15,30 @@ from cdp.openapi_client.models.sign_sol_transaction_criteria_inner import (
 )
 from cdp.openapi_client.models.sign_sol_transaction_rule import SignSolTransactionRule
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
+from cdp.policies.types import (
+    EthValueCriterion as EthValueCriterionModel,
+    EvmAddressCriterion as EvmAddressCriterionModel,
+    EvmNetworkCriterion as EvmNetworkCriterionModel,
+    Rule as RuleType,
+    SendEvmTransactionRule as SendEvmTransactionRuleModel,
+    SignEvmTransactionRule as SignEvmTransactionRuleModel,
+    SignSolanaTransactionRule as SignSolanaTransactionRuleModel,
+    SolanaAddressCriterion as SolanaAddressCriterionModel,
+)
 
 
-def map_policy_rules_to_openapi_format(initial_rules: list[Rule]) -> list[Rule]:
-    """Build a properly formatted list of OpenAPI policy rules from a list of initial rules.
+def map_request_rules_to_openapi_format(request_rules: list[RuleType]) -> list[Rule]:
+    """Build a properly formatted list of OpenAPI policy rules from a list of request rules.
 
     Args:
-        initial_rules (List[Rule]): The initial rules to build from.
+        request_rules (List[RuleType]): The request rules to build from.
 
     Returns:
-        List[Rule]: A list of rules.
+        List[Rule]: A list of rules formatted for the OpenAPI policy.
 
     """
     rules = []
-    for rule in initial_rules:
+    for rule in request_rules:
         if rule.operation == "sendEvmTransaction":
             criteria = []
             for criterion in rule.criteria:
@@ -142,5 +152,101 @@ def map_policy_rules_to_openapi_format(initial_rules: list[Rule]) -> list[Rule]:
             )
         else:
             raise ValueError(f"Unknown operation {rule.operation}")
+
+    return rules
+
+
+def map_openapi_rules_to_response_format(openapi_rules: list[Rule]) -> list[RuleType]:
+    """Build a properly formatted list of response rules from a list of OpenAPI policy rules.
+
+    Args:
+        openapi_rules (List[Rule]): The OpenAPI policy rules to build from.
+
+    Returns:
+        List[RuleType]: A list of rules formatted for the response.
+
+    """
+    rules = []
+    for rule in openapi_rules:
+        if rule.actual_instance.operation == "sendEvmTransaction":
+            criteria = []
+            for criterion in rule.actual_instance.criteria:
+                if criterion.actual_instance.type == "ethValue":
+                    criteria.append(
+                        EthValueCriterionModel(
+                            ethValue=criterion.actual_instance.eth_value,
+                            operator=criterion.actual_instance.operator,
+                        )
+                    )
+                elif criterion.actual_instance.type == "evmAddress":
+                    criteria.append(
+                        EvmAddressCriterionModel(
+                            addresses=criterion.actual_instance.addresses,
+                            operator=criterion.actual_instance.operator,
+                        )
+                    )
+                elif criterion.actual_instance.type == "evmNetwork":
+                    criteria.append(
+                        EvmNetworkCriterionModel(
+                            networks=criterion.actual_instance.networks,
+                            operator=criterion.actual_instance.operator,
+                        )
+                    )
+                else:
+                    raise ValueError(f"Unknown criterion type {criterion.actual_instance.type}")
+
+            rules.append(
+                SendEvmTransactionRuleModel(
+                    action=rule.actual_instance.action,
+                    criteria=criteria,
+                )
+            )
+        elif rule.actual_instance.operation == "signEvmTransaction":
+            criteria = []
+            for criterion in rule.actual_instance.criteria:
+                if criterion.actual_instance.type == "ethValue":
+                    criteria.append(
+                        EthValueCriterionModel(
+                            ethValue=criterion.actual_instance.eth_value,
+                            operator=criterion.actual_instance.operator,
+                        )
+                    )
+                elif criterion.actual_instance.type == "evmAddress":
+                    criteria.append(
+                        EvmAddressCriterionModel(
+                            addresses=criterion.actual_instance.addresses,
+                            operator=criterion.actual_instance.operator,
+                        )
+                    )
+                else:
+                    raise ValueError(f"Unknown criterion type {criterion.actual_instance.type}")
+
+            rules.append(
+                SignEvmTransactionRuleModel(
+                    action=rule.actual_instance.action,
+                    criteria=criteria,
+                )
+            )
+        elif rule.actual_instance.operation == "signSolTransaction":
+            criteria = []
+            for criterion in rule.actual_instance.criteria:
+                if criterion.actual_instance.type == "solAddress":
+                    criteria.append(
+                        SolanaAddressCriterionModel(
+                            addresses=criterion.actual_instance.addresses,
+                            operator=criterion.actual_instance.operator,
+                        )
+                    )
+                else:
+                    raise ValueError(f"Unknown criterion type {criterion.actual_instance.type}")
+
+            rules.append(
+                SignSolanaTransactionRuleModel(
+                    action=rule.actual_instance.action,
+                    criteria=criteria,
+                )
+            )
+        else:
+            raise ValueError(f"Unknown operation {rule.actual_instance.operation}")
 
     return rules

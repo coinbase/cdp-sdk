@@ -5,15 +5,13 @@ import pytest
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
+from cdp.openapi_client.models.list_policies200_response import ListPolicies200Response
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.policies.types import (
     CreatePolicyOptions,
-    EvmAddressCriterion,
-    ListPoliciesResult,
-    SignEvmTransactionRule,
     UpdatePolicyOptions,
 )
-from cdp.policies.utils import map_policy_rules_to_openapi_format
+from cdp.policies.utils import map_request_rules_to_openapi_format
 from cdp.policies_client import PoliciesClient
 
 
@@ -36,39 +34,31 @@ def test_init():
 
 
 @pytest.mark.asyncio
-async def test_create_policy(policy_model_factory):
+async def test_create_policy(openapi_policy_model_factory, policy_model_factory):
     """Test the creation of a policy."""
-    policy_model = policy_model_factory()
+    openapi_policy_model = openapi_policy_model_factory()
     mock_policies_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.policies = mock_policies_api
-    mock_policies_api.create_policy = AsyncMock(return_value=policy_model)
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
 
     client = PoliciesClient(api_clients=mock_api_clients)
 
-    policy = CreatePolicyOptions(
-        scope="account",
-        description="create",
-        rules=[
-            SignEvmTransactionRule(
-                action="accept",
-                criteria=[
-                    EvmAddressCriterion(
-                        addresses=["0x000000000000000000000000000000000000dEaD"],
-                        operator="in",
-                    ),
-                ],
-            )
-        ],
+    create_options = CreatePolicyOptions(
+        scope=policy_model.scope,
+        description=policy_model.description,
+        rules=policy_model.rules,
     )
 
-    result = await client.create_policy(policy)
+    result = await client.create_policy(create_options)
 
     mock_policies_api.create_policy.assert_called_once_with(
         create_policy_request=CreatePolicyRequest(
-            scope="account",
-            description="create",
-            rules=map_policy_rules_to_openapi_format(policy.rules),
+            scope=policy_model.scope,
+            description=policy_model.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
         ),
         x_idempotency_key=None,
     )
@@ -81,38 +71,30 @@ async def test_create_policy(policy_model_factory):
 
 
 @pytest.mark.asyncio
-async def test_update_policy(policy_model_factory):
+async def test_update_policy(openapi_policy_model_factory, policy_model_factory):
     """Test the update of a policy."""
-    policy_model = policy_model_factory()
+    openapi_policy_model = openapi_policy_model_factory()
     mock_policies_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.policies = mock_policies_api
-    mock_policies_api.update_policy = AsyncMock(return_value=policy_model)
+    mock_policies_api.update_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
 
     client = PoliciesClient(api_clients=mock_api_clients)
 
-    policy = UpdatePolicyOptions(
-        description="update",
-        rules=[
-            SignEvmTransactionRule(
-                action="accept",
-                criteria=[
-                    EvmAddressCriterion(
-                        addresses=["0x000000000000000000000000000000000000dEaD"],
-                        operator="in",
-                    ),
-                ],
-            )
-        ],
+    update_options = UpdatePolicyOptions(
+        description=policy_model.description,
+        rules=policy_model.rules,
     )
 
-    result = await client.update_policy(policy_model.id, policy)
+    result = await client.update_policy(openapi_policy_model.id, update_options)
 
     mock_policies_api.update_policy.assert_called_once_with(
-        policy_id=policy_model.id,
+        policy_id=openapi_policy_model.id,
         update_policy_request=UpdatePolicyRequest(
-            description="update",
-            rules=map_policy_rules_to_openapi_format(policy.rules),
+            description=policy_model.description,
+            rules=map_request_rules_to_openapi_format(update_options.rules),
         ),
         x_idempotency_key=None,
     )
@@ -144,19 +126,21 @@ async def test_delete_policy():
 
 
 @pytest.mark.asyncio
-async def test_get_policy_by_id(policy_model_factory):
+async def test_get_policy_by_id(openapi_policy_model_factory, policy_model_factory):
     """Test the retrieval of a policy by ID."""
-    policy_model = policy_model_factory()
+    openapi_policy_model = openapi_policy_model_factory()
     mock_policies_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.policies = mock_policies_api
-    mock_policies_api.get_policy_by_id = AsyncMock(return_value=policy_model)
+    mock_policies_api.get_policy_by_id = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
 
     client = PoliciesClient(api_clients=mock_api_clients)
 
-    result = await client.get_policy_by_id(policy_model.id)
+    result = await client.get_policy_by_id(openapi_policy_model.id)
 
-    mock_policies_api.get_policy_by_id.assert_called_once_with(policy_id=policy_model.id)
+    mock_policies_api.get_policy_by_id.assert_called_once_with(policy_id=openapi_policy_model.id)
     assert result.id == policy_model.id
     assert result.scope == policy_model.scope
     assert result.description == policy_model.description
@@ -166,18 +150,20 @@ async def test_get_policy_by_id(policy_model_factory):
 
 
 @pytest.mark.asyncio
-async def test_list_policies(policy_model_factory):
+async def test_list_policies(openapi_policy_model_factory, policy_model_factory):
     """Test the listing of policies."""
-    policy_model = policy_model_factory()
+    openapi_policy_model = openapi_policy_model_factory()
     mock_policies_api = AsyncMock()
     mock_api_clients = AsyncMock()
     mock_api_clients.policies = mock_policies_api
     mock_policies_api.list_policies = AsyncMock(
-        return_value=ListPoliciesResult(
-            policies=[policy_model],
+        return_value=ListPolicies200Response(
+            policies=[openapi_policy_model],
             next_page_token=None,
         )
     )
+
+    policy_model = policy_model_factory()
 
     client = PoliciesClient(api_clients=mock_api_clients)
 
