@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.10.0
+
+### Minor Changes
+
+- [#148](https://github.com/coinbase/cdp-sdk/pull/148) [`c894aba`](https://github.com/coinbase/cdp-sdk/commit/c894aba9facb6c64a6a7e3a5537592ae591ce7e8) Thanks [@marcin-cb](https://github.com/marcin-cb)! - Added an ImportAccount method to the EVM client
+
 ## 1.9.0
 
 ### Minor Changes
