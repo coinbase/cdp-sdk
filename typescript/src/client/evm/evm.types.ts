@@ -18,8 +18,12 @@ import type {
 } from "../../actions/evm/sendUserOperation.js";
 import type { SmartAccountActions } from "../../actions/evm/types.js";
 import type {
+  EvmSwapsNetwork,
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
+  GetQuoteResponse,
+  CreateSwapResponse,
+  SwapUnavailableResponse,
   OpenApiEvmMethods,
   UpdateEvmAccountBody,
 } from "../../openapi-client/index.js";
@@ -38,6 +42,8 @@ export type EvmClientInterface = Omit<
   | "getEvmAccount" // mapped to getAccount
   | "getEvmAccountByName" // mapped to getAccount
   | "getEvmSmartAccount" // mapped to getSmartAccount
+  | "getEvmSwapQuote" // mapped to getSwapQuote
+  | "createEvmSwap" // mapped to createSwap
   | "getUserOperation"
   | "updateEvmAccount" // mapped to updateAccount
   | "listEvmAccounts" // mapped to listAccounts
@@ -59,6 +65,10 @@ export type EvmClientInterface = Omit<
   importAccount: (options: ImportServerAccountOptions) => Promise<ServerAccount>;
   getAccount: (options: GetServerAccountOptions) => Promise<ServerAccount>;
   getSmartAccount: (options: GetSmartAccountOptions) => Promise<SmartAccount>;
+  getSwapQuote: (
+    options: GetSwapQuoteOptions,
+  ) => Promise<GetQuoteResponse | SwapUnavailableResponse>;
+  createSwap: (options: CreateSwapOptions) => Promise<CreateSwapResponse | SwapUnavailableResponse>;
   getOrCreateAccount: (options: GetOrCreateServerAccountOptions) => Promise<ServerAccount>;
   getUserOperation: (options: GetUserOperationOptions) => Promise<UserOperation>;
   updateAccount: (options: UpdateEvmAccountOptions) => Promise<ServerAccount>;
@@ -78,6 +88,50 @@ export type EvmClientInterface = Omit<
 };
 
 export type { ServerAccount, SmartAccount };
+
+/**
+ * Options for creating a swap between two tokens on an EVM network.
+ */
+export interface CreateSwapOptions {
+  /** The network to create a swap on. */
+  network: EvmSwapsNetwork;
+  /** The token to buy (destination token). */
+  buyToken: Address;
+  /** The token to sell (source token). */
+  sellToken: Address;
+  /** The amount to sell in atomic units of the token. */
+  sellAmount: bigint;
+  /** The address that will perform the swap. */
+  taker: Address;
+  /** The signer address (only needed if taker is a smart contract). */
+  signerAddress?: Address;
+  /** The gas price in Wei. */
+  gasPrice?: bigint;
+  /** The slippage tolerance in basis points (0-10000). */
+  slippageBps?: number;
+}
+
+/**
+ * Options for getting a swap quote.
+ */
+export interface GetSwapQuoteOptions {
+  /** The network to get a quote from. */
+  network: EvmSwapsNetwork;
+  /** The token to buy (destination token). */
+  buyToken: Address;
+  /** The token to sell (source token). */
+  sellToken: Address;
+  /** The amount to sell in atomic units of the token. */
+  sellAmount: bigint;
+  /** The address that will perform the swap. */
+  taker: Address;
+  /** The signer address (only needed if taker is a smart contract). */
+  signerAddress?: Address;
+  /** The gas price in Wei. */
+  gasPrice?: bigint;
+  /** The slippage tolerance in basis points (0-10000). */
+  slippageBps?: number;
+}
 
 /**
  * Options for getting a user operation.

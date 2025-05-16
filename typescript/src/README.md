@@ -7,6 +7,15 @@
 - [Installation](#installation)
 - [API Keys](#api-keys)
 - [Usage](#usage)
+  - [Initialization](#initialization)
+  - [Creating Accounts](#creating-evm-or-solana-accounts)
+  - [Updating Accounts](#updating-evm-or-solana-accounts)
+  - [Testnet Faucet](#testnet-faucet)
+  - [Sending Transactions](#sending-transactions)
+  - [EVM Smart Accounts](#evm-smart-accounts)
+  - [EVM Swaps](#evm-swaps)
+  - [Transferring Tokens](#transferring-tokens)
+  - [Account Actions](#account-actions)
 - [Policy Management](#policy-management)
 - [Authentication tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
@@ -320,6 +329,60 @@ const userOperation = await cdp.sendUserOperation({
   ],
   paymasterUrl: "https://some-paymaster-url.com",
 });
+```
+
+### EVM Swaps
+
+You can use the CDP SDK to swap tokens on EVM networks using the `getSwapQuote` and `createSwap` methods.
+
+#### Getting a swap quote
+
+Generates a quote for a swap, which includes an estimation of the total amount of tokens received:
+
+```typescript
+const quote = await cdp.evm.getSwapQuote({
+  network: "ethereum",
+  buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+  sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+  sellAmount: "1000000000000000000", // 1 WETH in wei
+  taker: "0x1234567890123456789012345678901234567890"
+});
+```
+
+#### Creating a swap
+
+Creates a soft commitment for a swap, which includes an estimation of the total amount of tokens that you will receive, plus all of the necessary data to sign and submit the swap transaction on-chain.
+
+```typescript
+const swap = await cdp.evm.createSwap({
+  network: "ethereum",
+  buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+  sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+  sellAmount: "1000000000000000000", // 1 WETH in wei
+  taker: "0x1234567890123456789012345678901234567890"
+});
+```
+
+After creating a swap, you'll need to execute it by signing and submitting the relevant transaction. To do this, you can use the `evm.sendTransaction` method:
+
+```typescript
+
+import { mainnet } from "viem/chains";
+
+const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+});
+
+// Use the data from the swap response
+const { transactionHash } = await cdp.evm.sendTransaction({
+  address: account.address,
+  network: "ethereum",
+  transaction: swap.transaction // The transaction data from the swap response
+});
+
+// Wait for the transaction to be confirmed
+const receipt = await publicClient.waitForTransactionReceipt({ hash: transactionHash });
 ```
 
 ### Transferring tokens
