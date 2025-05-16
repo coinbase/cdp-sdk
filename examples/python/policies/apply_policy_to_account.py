@@ -10,8 +10,8 @@ from cdp.policies.types import (
     SignEvmTransactionRule,
     EvmNetworkCriterion,
     SendEvmTransactionRule,
-    SolAddressCriterion,
-    SignSolTransactionRule,
+    SolanaAddressCriterion,
+    SignSolanaTransactionRule,
 )
 from dotenv import load_dotenv
 
@@ -46,10 +46,10 @@ async def main():
                         ),
                     ],
                 ),
-                SignSolTransactionRule(
+                SignSolanaTransactionRule(
                     action="accept",
                     criteria=[
-                        SolAddressCriterion(
+                        SolanaAddressCriterion(
                             addresses=["123456789abcdef123456789abcdef12"],
                             operator="in",
                         ),
