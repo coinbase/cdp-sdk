@@ -22,8 +22,8 @@ const TOKENS = {
 
 async function main() {
   // Get or create an account to use for the swap
-  const account = await cdp.evm.getOrCreateAccount({ name: "SwapAccount" });
-  console.log(`Using account: ${account.address}`);
+  const ownerAccount = await cdp.evm.getOrCreateAccount({ name: "SwapAccount" });
+  console.log(`Using account: ${ownerAccount.address}`);
 
   try {
     // Define the tokens we're working with
@@ -33,11 +33,11 @@ async function main() {
     // Get a quote for swapping WETH to USDC on Ethereum mainnet
     const swapQuote = await cdp.evm.getSwapQuote({
       network: "ethereum",
-      buyToken: buyToken.address,
-      sellToken: sellToken.address,
+      buyToken: buyToken.address as `0x${string}`,
+      sellToken: sellToken.address as `0x${string}`,
       sellAmount: parseEther("0.1"), // 0.1 WETH in wei
-      taker: account.address,
-    });
+      taker: ownerAccount.address,
+    }) as any;
 
     // Check for liquidity
     if (!swapQuote.liquidityAvailable) {
@@ -45,8 +45,8 @@ async function main() {
       return;
     }
 
-    // At this point we know liquidityAvailable is true and we can access other properties
-    console.log("Swap Quote:");
+    // At this point we know liquidityAvailable is true and we can access all properties
+    console.log("\nSwap Quote:");
     console.log("-------------");
     console.log(`Buy Amount: ${formatUnits(swapQuote.buyAmount, buyToken.decimals)} ${buyToken.symbol}`);
     console.log(`Min Buy Amount: ${formatUnits(swapQuote.minBuyAmount, buyToken.decimals)} ${buyToken.symbol}`);
@@ -56,24 +56,36 @@ async function main() {
     // Calculate and display price ratios
     const sellAmountBigInt = BigInt(swapQuote.sellAmount);
     const buyAmountBigInt = BigInt(swapQuote.buyAmount);
+    const minBuyAmountBigInt = BigInt(swapQuote.minBuyAmount);
     
-    // Calculate price: How many buyTokens per sellToken
-    const sellTokenPrice = Number(
-      (buyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals))) / 
-      (sellAmountBigInt * BigInt(10 ** (18 - sellToken.decimals)))
-    ) / (10 ** 18);
-    
-    // Calculate inverse price: How many sellTokens per buyToken
-    const buyTokenPrice = Number(
-      (sellAmountBigInt * BigInt(10 ** (18 - sellToken.decimals))) / 
-      (buyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals)))
-    ) / (10 ** 18);
+    // Calculate exchange rate: How many buy tokens per 1 sell token
+    const sellToBuyRate = Number(buyAmountBigInt) / (10 ** buyToken.decimals) * 
+                         (10 ** sellToken.decimals) / Number(sellAmountBigInt);
+
+    // Calculate minimum exchange rate with slippage applied
+    const minSellToBuyRate = Number(minBuyAmountBigInt) / (10 ** buyToken.decimals) * 
+                           (10 ** sellToken.decimals) / Number(sellAmountBigInt);
+
+    // Calculate maximum buyToken to sellToken ratio with slippage
+    const maxBuyToSellRate = Number(sellAmountBigInt) / (10 ** sellToken.decimals) *
+                           (10 ** buyToken.decimals) / Number(minBuyAmountBigInt);
+
+    // Calculate exchange rate: How many sell tokens per 1 buy token
+    const buyToSellRate = Number(sellAmountBigInt) / (10 ** sellToken.decimals) *
+                         (10 ** buyToken.decimals) / Number(buyAmountBigInt);
     
     console.log("\nToken Price Calculations:");
     console.log("------------------------");
-    console.log(`1 ${sellToken.symbol} = ${sellTokenPrice.toLocaleString()} ${buyToken.symbol}`);
-    console.log(`1 ${buyToken.symbol} = ${buyTokenPrice.toLocaleString()} ${sellToken.symbol}`);
-    
+    console.log(`1 ${sellToken.symbol} = ${sellToBuyRate.toFixed(buyToken.decimals)} ${buyToken.symbol}`);
+    console.log(`1 ${buyToken.symbol} = ${buyToSellRate.toFixed(sellToken.decimals)} ${sellToken.symbol}`);
+
+    // Calculate effective exchange rate with slippage applied
+    console.log("\nWith Slippage Applied (Worst Case):");
+    console.log("----------------------------------");
+    console.log(`1 ${sellToken.symbol} = ${minSellToBuyRate.toFixed(buyToken.decimals)} ${buyToken.symbol} (minimum)`);
+    console.log(`1 ${buyToken.symbol} = ${maxBuyToSellRate.toFixed(sellToken.decimals)} ${sellToken.symbol} (maximum)`);
+    console.log(`Maximum price impact: ${((sellToBuyRate - minSellToBuyRate) / sellToBuyRate * 100).toFixed(2)}%`);
+
     // Check for any issues
     if (swapQuote.issues.allowance) {
       console.log("\nAllowance Issues:");

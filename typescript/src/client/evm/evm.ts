@@ -430,15 +430,32 @@ export class EvmClient implements EvmClientInterface {
    *
    *   const sellAmountBigInt = BigInt(quote.sellAmount);
    *   const buyAmountBigInt = BigInt(quote.buyAmount);
+   *   const minBuyAmountBigInt = BigInt(quote.minBuyAmount);
    *
-   *   // Calculate price: How many buyTokens per sellToken (e.g., USDC per WETH)
-   *   const sellTokenPrice = Number(
-   *     (buyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals))) /
-   *     (sellAmountBigInt * BigInt(10 ** (18 - sellToken.decimals)))
-   *   ) / (10 ** 18);
+   *   // Calculate exchange rate: How many buy tokens per 1 sell token
+   *   const sellToBuyRate = Number(buyAmountBigInt) / (10 ** buyToken.decimals) *
+   *     (10 ** sellToken.decimals) / Number(sellAmountBigInt);
    *
-   *   // Display price
-   *   console.log(`1 ${sellToken.symbol} = ${sellTokenPrice.toLocaleString()} ${buyToken.symbol}`);
+   *   // Calculate minimum exchange rate with slippage applied
+   *   const minSellToBuyRate = Number(minBuyAmountBigInt) / (10 ** buyToken.decimals) *
+   *     (10 ** sellToken.decimals) / Number(sellAmountBigInt);
+   *
+   *   // Calculate exchange rate: How many sell tokens per 1 buy token
+   *   const buyToSellRate = Number(sellAmountBigInt) / (10 ** sellToken.decimals) *
+   *     (10 ** buyToken.decimals) / Number(buyAmountBigInt);
+   *
+   *   // Calculate maximum exchange rate with slippage applied
+   *   const maxBuyToSellRate = Number(sellAmountBigInt) / (10 ** sellToken.decimals) *
+   *     (10 ** buyToken.decimals) / Number(minBuyAmountBigInt);
+   *
+   *   // Display both exchange rate directions
+   *   console.log(`1 ${sellToken.symbol} = ${sellToBuyRate.toFixed(buyToken.decimals)} ${buyToken.symbol}`);
+   *   console.log(`1 ${buyToken.symbol} = ${buyToSellRate.toFixed(sellToken.decimals)} ${sellToken.symbol}`);
+   *
+   *   // Display exchange rates with slippage applied
+   *   console.log(`With slippage: 1 ${sellToken.symbol} = ${minSellToBuyRate.toFixed(buyToken.decimals)} ${buyToken.symbol} (minimum)`);
+   *   console.log(`With slippage: 1 ${buyToken.symbol} = ${maxBuyToSellRate.toFixed(sellToken.decimals)} ${sellToken.symbol} (maximum)`);
+   *   console.log(`Price impact: ${((sellToBuyRate - minSellToBuyRate) / sellToBuyRate * 100).toFixed(2)}%`);
    * }
    * ```
    */
@@ -474,7 +491,7 @@ export class EvmClient implements EvmClientInterface {
    * });
    * ```
    *
-   * @example **Calculating effective exchange rate with slippage**
+   * @example **Calculating price ratio between tokens**
    * ```ts
    * // After creating a swap
    * if (swap.liquidityAvailable) {
@@ -486,22 +503,30 @@ export class EvmClient implements EvmClientInterface {
    *   const buyAmountBigInt = BigInt(swap.buyAmount);
    *   const minBuyAmountBigInt = BigInt(swap.minBuyAmount);
    *
-   *   // Calculate expected exchange rate
-   *   const expectedRate = Number(
-   *     (buyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals))) /
-   *     (sellAmountBigInt * BigInt(10 ** (18 - sellToken.decimals)))
-   *   ) / (10 ** 18);
+   *   // Calculate exchange rate: How many buy tokens per 1 sell token
+   *   const sellToBuyRate = Number(buyAmountBigInt) / (10 ** buyToken.decimals) *
+   *     (10 ** sellToken.decimals) / Number(sellAmountBigInt);
    *
-   *   // Calculate minimum exchange rate (with slippage)
-   *   const minRate = Number(
-   *     (minBuyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals))) /
-   *     (sellAmountBigInt * BigInt(10 ** (18 - sellToken.decimals)))
-   *   ) / (10 ** 18);
+   *   // Calculate minimum exchange rate with slippage applied
+   *   const minSellToBuyRate = Number(minBuyAmountBigInt) / (10 ** buyToken.decimals) *
+   *     (10 ** sellToken.decimals) / Number(sellAmountBigInt);
    *
-   *   // Display prices
-   *   console.log(`1 ${sellToken.symbol} = ${expectedRate.toLocaleString()} ${buyToken.symbol} (expected)`);
-   *   console.log(`1 ${sellToken.symbol} = ${minRate.toLocaleString()} ${buyToken.symbol} (minimum with slippage)`);
-   *   console.log(`Price impact: ${((expectedRate - minRate) / expectedRate * 100).toFixed(2)}%`);
+   *   // Calculate exchange rate: How many sell tokens per 1 buy token
+   *   const buyToSellRate = Number(sellAmountBigInt) / (10 ** sellToken.decimals) *
+   *     (10 ** buyToken.decimals) / Number(buyAmountBigInt);
+   *
+   *   // Calculate maximum exchange rate with slippage applied
+   *   const maxBuyToSellRate = Number(sellAmountBigInt) / (10 ** sellToken.decimals) *
+   *     (10 ** buyToken.decimals) / Number(minBuyAmountBigInt);
+   *
+   *   // Display both exchange rate directions
+   *   console.log(`1 ${sellToken.symbol} = ${sellToBuyRate.toFixed(buyToken.decimals)} ${buyToken.symbol}`);
+   *   console.log(`1 ${buyToken.symbol} = ${buyToSellRate.toFixed(sellToken.decimals)} ${sellToken.symbol}`);
+   *
+   *   // Display exchange rates with slippage applied
+   *   console.log(`With slippage: 1 ${sellToken.symbol} = ${minSellToBuyRate.toFixed(buyToken.decimals)} ${buyToken.symbol} (minimum)`);
+   *   console.log(`With slippage: 1 ${buyToken.symbol} = ${maxBuyToSellRate.toFixed(sellToken.decimals)} ${sellToken.symbol} (maximum)`);
+   *   console.log(`Price impact: ${((sellToBuyRate - minSellToBuyRate) / sellToBuyRate * 100).toFixed(2)}%`);
    * }
    * ```
    */
