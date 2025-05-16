@@ -62,7 +62,7 @@ import {
  *   console.log(`Price impact: ${((expectedRate - minRate) / expectedRate * 100).toFixed(2)}%`);
  * }
  * ```
-*/
+ */
 export async function createSwap(
   client: CdpOpenApiClientType,
   options: CreateSwapOptions,

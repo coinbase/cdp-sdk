@@ -45,7 +45,7 @@ import {
  *
  *   // Calculate price: How many buyTokens per sellToken (e.g., USDC per WETH)
  *   const sellTokenPrice = Number(
- *     (buyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals))) / 
+ *     (buyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals))) /
  *     (sellAmountBigInt * BigInt(10 ** (18 - sellToken.decimals)))
  *   ) / (10 ** 18);
  *
