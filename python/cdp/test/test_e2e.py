@@ -799,40 +799,33 @@ async def test_create_account_policy(cdp_client):
     assert policy.description == "E2E Test Policy"
     assert policy.rules is not None
     assert len(policy.rules) == 3
-    assert policy.rules[0].actual_instance.action == "accept"
-    assert policy.rules[0].actual_instance.operation == "signEvmTransaction"
-    assert policy.rules[0].actual_instance.criteria is not None
-    assert len(policy.rules[0].actual_instance.criteria) == 2
-    assert policy.rules[0].actual_instance.criteria[0].actual_instance.type == "ethValue"
-    assert (
-        policy.rules[0].actual_instance.criteria[0].actual_instance.eth_value
-        == "1000000000000000000"
-    )
-    assert policy.rules[0].actual_instance.criteria[0].actual_instance.operator == "<="
-    assert policy.rules[0].actual_instance.criteria[1].actual_instance.type == "evmAddress"
-    assert policy.rules[0].actual_instance.criteria[1].actual_instance.addresses == [
-        "0x000000000000000000000000000000000000dEaD"
-    ]
-    assert policy.rules[0].actual_instance.criteria[1].actual_instance.operator == "in"
-    assert policy.rules[1].actual_instance.action == "accept"
-    assert policy.rules[1].actual_instance.operation == "sendEvmTransaction"
-    assert policy.rules[1].actual_instance.criteria is not None
-    assert len(policy.rules[1].actual_instance.criteria) == 1
-    assert policy.rules[1].actual_instance.criteria[0].actual_instance.type == "evmNetwork"
-    assert policy.rules[1].actual_instance.criteria[0].actual_instance.networks == [
+    assert policy.rules[0].action == "accept"
+    assert policy.rules[0].operation == "signEvmTransaction"
+    assert policy.rules[0].criteria is not None
+    assert len(policy.rules[0].criteria) == 2
+    assert policy.rules[0].criteria[0].type == "ethValue"
+    assert policy.rules[0].criteria[0].ethValue == "1000000000000000000"
+    assert policy.rules[0].criteria[0].operator == "<="
+    assert policy.rules[0].criteria[1].type == "evmAddress"
+    assert policy.rules[0].criteria[1].addresses == ["0x000000000000000000000000000000000000dEaD"]
+    assert policy.rules[0].criteria[1].operator == "in"
+    assert policy.rules[1].action == "accept"
+    assert policy.rules[1].operation == "sendEvmTransaction"
+    assert policy.rules[1].criteria is not None
+    assert len(policy.rules[1].criteria) == 1
+    assert policy.rules[1].criteria[0].type == "evmNetwork"
+    assert policy.rules[1].criteria[0].networks == [
         "base-sepolia",
         "base",
     ]
-    assert policy.rules[1].actual_instance.criteria[0].actual_instance.operator == "in"
-    assert policy.rules[2].actual_instance.action == "accept"
-    assert policy.rules[2].actual_instance.operation == "signSolTransaction"
-    assert policy.rules[2].actual_instance.criteria is not None
-    assert len(policy.rules[2].actual_instance.criteria) == 1
-    assert policy.rules[2].actual_instance.criteria[0].actual_instance.type == "solAddress"
-    assert policy.rules[2].actual_instance.criteria[0].actual_instance.addresses == [
-        "123456789abcdef123456789abcdef12"
-    ]
-    assert policy.rules[2].actual_instance.criteria[0].actual_instance.operator == "in"
+    assert policy.rules[1].criteria[0].operator == "in"
+    assert policy.rules[2].action == "accept"
+    assert policy.rules[2].operation == "signSolTransaction"
+    assert policy.rules[2].criteria is not None
+    assert len(policy.rules[2].criteria) == 1
+    assert policy.rules[2].criteria[0].type == "solAddress"
+    assert policy.rules[2].criteria[0].addresses == ["123456789abcdef123456789abcdef12"]
+    assert policy.rules[2].criteria[0].operator == "in"
 
     # Delete the policy
     await cdp_client.policies.delete_policy(id=policy.id)
@@ -902,16 +895,13 @@ async def test_create_project_policy(cdp_client):
     assert policy.description == "E2E Test Policy"
     assert policy.rules is not None
     assert len(policy.rules) == 1
-    assert policy.rules[0].actual_instance.action == "accept"
-    assert policy.rules[0].actual_instance.operation == "signEvmTransaction"
-    assert policy.rules[0].actual_instance.criteria is not None
-    assert len(policy.rules[0].actual_instance.criteria) == 1
-    assert policy.rules[0].actual_instance.criteria[0].actual_instance.type == "ethValue"
-    assert (
-        policy.rules[0].actual_instance.criteria[0].actual_instance.eth_value
-        == "1000000000000000000"
-    )
-    assert policy.rules[0].actual_instance.criteria[0].actual_instance.operator == "<="
+    assert policy.rules[0].action == "accept"
+    assert policy.rules[0].operation == "signEvmTransaction"
+    assert policy.rules[0].criteria is not None
+    assert len(policy.rules[0].criteria) == 1
+    assert policy.rules[0].criteria[0].type == "ethValue"
+    assert policy.rules[0].criteria[0].ethValue == "1000000000000000000"
+    assert policy.rules[0].criteria[0].operator == "<="
 
     # Delete the policy
     await cdp_client.policies.delete_policy(id=policy.id)
@@ -968,15 +958,15 @@ async def test_update_policy(cdp_client):
     assert updated_policy.description == "Updated E2E Test Policy"
     assert updated_policy.rules is not None
     assert len(updated_policy.rules) == 1
-    assert updated_policy.rules[0].actual_instance.action == "accept"
-    assert updated_policy.rules[0].actual_instance.operation == "signEvmTransaction"
-    assert updated_policy.rules[0].actual_instance.criteria is not None
-    assert len(updated_policy.rules[0].actual_instance.criteria) == 1
-    assert updated_policy.rules[0].actual_instance.criteria[0].actual_instance.type == "evmAddress"
-    assert updated_policy.rules[0].actual_instance.criteria[0].actual_instance.addresses == [
+    assert updated_policy.rules[0].action == "accept"
+    assert updated_policy.rules[0].operation == "signEvmTransaction"
+    assert updated_policy.rules[0].criteria is not None
+    assert len(updated_policy.rules[0].criteria) == 1
+    assert updated_policy.rules[0].criteria[0].type == "evmAddress"
+    assert updated_policy.rules[0].criteria[0].addresses == [
         "0x000000000000000000000000000000000000dEaD"
     ]
-    assert updated_policy.rules[0].actual_instance.criteria[0].actual_instance.operator == "in"
+    assert updated_policy.rules[0].criteria[0].operator == "in"
 
     # Delete the policy
     await cdp_client.policies.delete_policy(id=updated_policy.id)
