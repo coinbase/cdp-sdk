@@ -409,7 +409,7 @@ export class EvmClient implements EvmClientInterface {
    *
    * @returns {Promise<GetQuoteResponse | SwapUnavailableResponse>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
    *
-   * @example
+   * @example **Getting a swap quote**
    * ```ts
    * const quote = await cdp.evm.getSwapQuote({
    *   network: "ethereum",
@@ -418,6 +418,28 @@ export class EvmClient implements EvmClientInterface {
    *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
    *   taker: "0x1234567890123456789012345678901234567890"
    * });
+   * ```
+   *
+   * @example **Calculating price ratio between tokens**
+   * ```ts
+   * // After getting a quote
+   * if (quote.liquidityAvailable) {
+   *   // Define token information
+   *   const sellToken = { symbol: "WETH", decimals: 18 };
+   *   const buyToken = { symbol: "USDC", decimals: 6 };
+   *
+   *   const sellAmountBigInt = BigInt(quote.sellAmount);
+   *   const buyAmountBigInt = BigInt(quote.buyAmount);
+   *
+   *   // Calculate price: How many buyTokens per sellToken (e.g., USDC per WETH)
+   *   const sellTokenPrice = Number(
+   *     (buyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals))) / 
+   *     (sellAmountBigInt * BigInt(10 ** (18 - sellToken.decimals)))
+   *   ) / (10 ** 18);
+   *
+   *   // Display price
+   *   console.log(`1 ${sellToken.symbol} = ${sellTokenPrice.toLocaleString()} ${buyToken.symbol}`);
+   * }
    * ```
    */
   async getSwapQuote(
@@ -441,7 +463,7 @@ export class EvmClient implements EvmClientInterface {
    *
    * @returns {Promise<CreateSwapResponse | SwapUnavailableResponse>} A promise that resolves to the swap result or a response indicating that liquidity is unavailable.
    *
-   * @example
+   * @example **Creating a swap**
    * ```ts
    * const swap = await cdp.evm.createSwap({
    *   network: "ethereum",
@@ -450,6 +472,37 @@ export class EvmClient implements EvmClientInterface {
    *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
    *   taker: "0x1234567890123456789012345678901234567890"
    * });
+   * ```
+   *
+   * @example **Calculating effective exchange rate with slippage**
+   * ```ts
+   * // After creating a swap
+   * if (swap.liquidityAvailable) {
+   *   // Define token information
+   *   const sellToken = { symbol: "WETH", decimals: 18 };
+   *   const buyToken = { symbol: "USDC", decimals: 6 };
+   *
+   *   const sellAmountBigInt = BigInt(swap.sellAmount);
+   *   const buyAmountBigInt = BigInt(swap.buyAmount);
+   *   const minBuyAmountBigInt = BigInt(swap.minBuyAmount);
+   *
+   *   // Calculate expected exchange rate
+   *   const expectedRate = Number(
+   *     (buyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals))) /
+   *     (sellAmountBigInt * BigInt(10 ** (18 - sellToken.decimals)))
+   *   ) / (10 ** 18);
+   *
+   *   // Calculate minimum exchange rate (with slippage)
+   *   const minRate = Number(
+   *     (minBuyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals))) /
+   *     (sellAmountBigInt * BigInt(10 ** (18 - sellToken.decimals)))
+   *   ) / (10 ** 18);
+   *
+   *   // Display prices
+   *   console.log(`1 ${sellToken.symbol} = ${expectedRate.toLocaleString()} ${buyToken.symbol} (expected)`);
+   *   console.log(`1 ${sellToken.symbol} = ${minRate.toLocaleString()} ${buyToken.symbol} (minimum with slippage)`);
+   *   console.log(`Price impact: ${((expectedRate - minRate) / expectedRate * 100).toFixed(2)}%`);
+   * }
    * ```
    */
   async createSwap(

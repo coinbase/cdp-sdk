@@ -31,7 +31,7 @@ describe("createSwap", () => {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: "1000000000000000000",
+      sellAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
     });
 
@@ -113,7 +113,7 @@ describe("createSwap", () => {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: "1000000000000000000",
+      sellAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
     });
 
@@ -161,10 +161,10 @@ describe("createSwap", () => {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: "1000000000000000000",
+      sellAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
       signerAddress: "0xSignerAddress",
-      gasPrice: "25000000000",
+      gasPrice: BigInt("25000000000"),
       slippageBps: 50,
     });
 
@@ -211,7 +211,7 @@ describe("createSwap", () => {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: "1000000000000000000",
+      sellAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
     });
 

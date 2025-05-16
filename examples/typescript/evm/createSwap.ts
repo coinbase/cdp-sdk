@@ -1,10 +1,24 @@
 // Usage: pnpm tsx evm/createSwap.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
-import { parseEther } from "viem";
+import { formatUnits, parseEther } from "viem";
 import "dotenv/config";
 
 const cdp = new CdpClient();
+
+// Token definitions for the example
+const TOKENS = {
+  WETH: {
+    address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    symbol: "WETH",
+    decimals: 18,
+  },
+  USDC: {
+    address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    symbol: "USDC",
+    decimals: 6,
+  },
+};
 
 async function main() {
   // Get or create an account to use for the swap
@@ -12,12 +26,16 @@ async function main() {
   console.log(`Using account: ${account.address}`);
 
   try {
+    // Define the tokens we're working with
+    const sellToken = TOKENS.WETH;
+    const buyToken = TOKENS.USDC;
+    
     // Create a swap transaction from WETH to USDC on Ethereum mainnet
     const swap = await cdp.evm.createSwap({
       network: "ethereum",
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
-      sellAmount: parseEther("0.1").toString(), // 0.1 WETH in wei
+      buyToken: buyToken.address,
+      sellToken: sellToken.address,
+      sellAmount: parseEther("0.1"), // 0.1 WETH in wei
       taker: account.address,
       slippageBps: 100, // 1% slippage tolerance
     });
@@ -31,9 +49,44 @@ async function main() {
     // At this point we know liquidityAvailable is true and we can access all properties
     console.log("Swap Transaction Created:");
     console.log("-------------------------");
-    console.log(`Buy Amount: ${swap.buyAmount}`);
-    console.log(`Min Buy Amount: ${swap.minBuyAmount}`);
-    console.log(`Sell Amount: ${swap.sellAmount}`);
+    console.log(`Buy Amount: ${formatUnits(swap.buyAmount, buyToken.decimals)} ${buyToken.symbol}`);
+    console.log(`Min Buy Amount: ${formatUnits(swap.minBuyAmount, buyToken.decimals)} ${buyToken.symbol}`);
+    console.log(`Sell Amount: ${formatUnits(swap.sellAmount, sellToken.decimals)} ${sellToken.symbol}`);
+    
+    // Calculate and display price ratios
+    const sellAmountBigInt = BigInt(swap.sellAmount);
+    const buyAmountBigInt = BigInt(swap.buyAmount);
+    const minBuyAmountBigInt = BigInt(swap.minBuyAmount);
+    
+    // Calculate price: How many buyTokens per sellToken (e.g., USDC per WETH)
+    const sellTokenPrice = Number(
+      (buyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals))) / 
+      (sellAmountBigInt * BigInt(10 ** (18 - sellToken.decimals)))
+    ) / (10 ** 18);
+    
+    // Calculate the minimum price with slippage applied
+    const minSellTokenPrice = Number(
+      (minBuyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals))) / 
+      (sellAmountBigInt * BigInt(10 ** (18 - sellToken.decimals)))
+    ) / (10 ** 18);
+    
+    // Calculate inverse price: How many sellTokens per buyToken (e.g., WETH per USDC)
+    const buyTokenPrice = Number(
+      (sellAmountBigInt * BigInt(10 ** (18 - sellToken.decimals))) / 
+      (buyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals)))
+    ) / (10 ** 18);
+    
+    console.log("\nToken Price Calculations:");
+    console.log("------------------------");
+    console.log(`1 ${sellToken.symbol} = ${sellTokenPrice.toLocaleString()} ${buyToken.symbol}`);
+    console.log(`1 ${buyToken.symbol} = ${buyTokenPrice.toLocaleString()} ${sellToken.symbol}`);
+    
+    // Show price with slippage applied
+    console.log("\nWith Slippage Applied (Worst Case):");
+    console.log("----------------------------------");
+    console.log(`1 ${sellToken.symbol} = ${minSellTokenPrice.toLocaleString()} ${buyToken.symbol} (minimum)`);
+    console.log(`Slippage: ${swap.slippageBps / 100}%`);
+    console.log(`Price impact: ${((sellTokenPrice - minSellTokenPrice) / sellTokenPrice * 100).toFixed(2)}%`);
     
     console.log("\nTransaction Details:");
     console.log(`To: ${swap.transaction.to}`);

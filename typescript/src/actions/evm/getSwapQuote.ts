@@ -21,7 +21,7 @@ import {
  *
  * @returns {Promise<GetQuoteResponse | SwapUnavailableResponse>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
  *
- * @example
+ * @example **Getting a swap quote**
  * ```ts
  * const quote = await getSwapQuote(client, {
  *   network: "ethereum-mainnet",
@@ -30,6 +30,28 @@ import {
  *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
  *   taker: "0x1234567890123456789012345678901234567890"
  * });
+ * ```
+ *
+ * @example **Calculating price ratio between tokens**
+ * ```ts
+ * // After getting a quote
+ * if (quote.liquidityAvailable) {
+ *   // Define token information
+ *   const sellToken = { symbol: "WETH", decimals: 18 };
+ *   const buyToken = { symbol: "USDC", decimals: 6 };
+ *
+ *   const sellAmountBigInt = BigInt(quote.sellAmount);
+ *   const buyAmountBigInt = BigInt(quote.buyAmount);
+ *
+ *   // Calculate price: How many buyTokens per sellToken (e.g., USDC per WETH)
+ *   const sellTokenPrice = Number(
+ *     (buyAmountBigInt * BigInt(10 ** (18 - buyToken.decimals))) / 
+ *     (sellAmountBigInt * BigInt(10 ** (18 - sellToken.decimals)))
+ *   ) / (10 ** 18);
+ *
+ *   // Display price
+ *   console.log(`1 ${sellToken.symbol} = ${sellTokenPrice.toLocaleString()} ${buyToken.symbol}`);
+ * }
  * ```
  */
 export async function getSwapQuote(
