@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
+from cdp.openapi_client.models.payment_method_limits_target_limit import PaymentMethodLimitsTargetLimit
 
-class TestUpdateSolanaAccountRequest(unittest.TestCase):
-    """UpdateSolanaAccountRequest unit test stubs"""
+class TestPaymentMethodLimitsTargetLimit(unittest.TestCase):
+    """PaymentMethodLimitsTargetLimit unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,26 +26,26 @@ class TestUpdateSolanaAccountRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> UpdateSolanaAccountRequest:
-        """Test UpdateSolanaAccountRequest
+    def make_instance(self, include_optional) -> PaymentMethodLimitsTargetLimit:
+        """Test PaymentMethodLimitsTargetLimit
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `UpdateSolanaAccountRequest`
+        # uncomment below to create an instance of `PaymentMethodLimitsTargetLimit`
         """
-        model = UpdateSolanaAccountRequest()
+        model = PaymentMethodLimitsTargetLimit()
         if include_optional:
-            return UpdateSolanaAccountRequest(
-                name = 'my-wallet',
-                account_policy = '123e4567-e89b-12d3-a456-426614174000'
+            return PaymentMethodLimitsTargetLimit(
+                amount = '100',
+                currency = 'USD'
             )
         else:
-            return UpdateSolanaAccountRequest(
+            return PaymentMethodLimitsTargetLimit(
         )
         """
 
-    def testUpdateSolanaAccountRequest(self):
-        """Test UpdateSolanaAccountRequest"""
+    def testPaymentMethodLimitsTargetLimit(self):
+        """Test PaymentMethodLimitsTargetLimit"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 
