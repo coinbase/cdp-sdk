@@ -1,4 +1,5 @@
-from unittest.mock import AsyncMock, MagicMock, patch
+from typing import List
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 from eth_account.messages import _hash_eip191_message, encode_defunct
@@ -7,6 +8,9 @@ from eth_typing import Hash32
 from hexbytes import HexBytes
 from web3 import Web3
 
+from cdp.actions.evm.fund.quote import Quote
+from cdp.actions.evm.fund.quote_fund import QuoteFundOptions
+from cdp.api_clients import ApiClients
 from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_token_balances import (
     EvmToken,
@@ -15,8 +19,10 @@ from cdp.evm_token_balances import (
     ListTokenBalancesResult,
 )
 from cdp.evm_transaction_types import TransactionRequestEIP1559
+from cdp.openapi_client.models.create_payment_transfer_quote201_response import CreatePaymentTransferQuote201Response
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
+from cdp.openapi_client.models.payment_method import PaymentMethod
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
 from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
@@ -453,3 +459,96 @@ async def test_list_token_balances(server_account_model_factory, evm_token_balan
     )
 
     assert result == expected_result
+
+
+@pytest.mark.asyncio
+async def test_quote_fund_transfer_usdc(server_account_model_factory, payment_transfer_model_factory, payment_method_model_factory):
+    """Test quote_fund method."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    server_account_model = server_account_model_factory(address, name)
+    payment_transfer = payment_transfer_model_factory()
+    payment_method = payment_method_model_factory()
+
+    mock_payments_api = AsyncMock()
+    
+    mock_api_clients = AsyncMock(spec=ApiClients)
+    mock_api_clients.payments = mock_payments_api
+    
+    mock_payments_api.get_payment_methods = AsyncMock(
+        return_value=[payment_method]
+    )
+
+    mock_payments_api.create_payment_transfer_quote = AsyncMock(
+        return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
+    )
+
+    server_account = EvmServerAccount(server_account_model, mock_api_clients, mock_api_clients)
+    fund_args = QuoteFundOptions(network="base", token="usdc", amount=1000000) # 1 USDC
+
+    result = await server_account.quote_fund(fund_args)
+    
+    mock_payments_api.get_payment_methods.assert_called_once()
+
+    mock_payments_api.create_payment_transfer_quote.assert_called_once()
+    call_args = mock_payments_api.create_payment_transfer_quote.call_args[1]
+    assert call_args["create_payment_transfer_quote_request"].source_type == "payment_method"
+    assert call_args["create_payment_transfer_quote_request"].target_type == "crypto_rail"
+    assert call_args["create_payment_transfer_quote_request"].amount == "1"
+    assert call_args["create_payment_transfer_quote_request"].currency == "usdc"
+
+    assert isinstance(result, Quote)
+    assert result.quote_id == payment_transfer.id
+    assert result.network == "base"
+    assert result.token == "usdc"
+    assert result.fiat_amount == "1"
+    assert result.fiat_currency == "usd"
+    assert result.token_amount == "1"
+    assert result.token == "usdc"
+    assert result.fees == []
+    
+@pytest.mark.asyncio
+async def test_quote_fund_transfer_eth(server_account_model_factory, payment_transfer_model_factory, payment_method_model_factory):
+    """Test quote_fund method."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    server_account_model = server_account_model_factory(address, name)
+    payment_transfer = payment_transfer_model_factory(source_amount="1000", source_currency="usd", target_amount="1.1", target_currency="eth")
+    payment_method = payment_method_model_factory()
+
+    mock_payments_api = AsyncMock()
+    
+    mock_api_clients = AsyncMock(spec=ApiClients)
+    mock_api_clients.payments = mock_payments_api
+    
+    mock_payments_api.get_payment_methods = AsyncMock(
+        return_value=[payment_method]
+    )
+
+    mock_payments_api.create_payment_transfer_quote = AsyncMock(
+        return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
+    )
+
+    server_account = EvmServerAccount(server_account_model, mock_api_clients, mock_api_clients)
+    fund_args = QuoteFundOptions(network="base", token="eth", amount=1100000000000000000) # 1.1 ETH
+
+    result = await server_account.quote_fund(fund_args)
+    
+    mock_payments_api.get_payment_methods.assert_called_once()
+
+    mock_payments_api.create_payment_transfer_quote.assert_called_once()
+    call_args = mock_payments_api.create_payment_transfer_quote.call_args[1]
+    assert call_args["create_payment_transfer_quote_request"].source_type == "payment_method"
+    assert call_args["create_payment_transfer_quote_request"].target_type == "crypto_rail"
+    assert call_args["create_payment_transfer_quote_request"].amount == "1.1"
+    assert call_args["create_payment_transfer_quote_request"].currency == "eth"
+
+    assert isinstance(result, Quote)
+    assert result.quote_id == payment_transfer.id
+    assert result.network == "base"
+    assert result.token == "eth"
+    assert result.fiat_amount == "1000"
+    assert result.fiat_currency == "usd"
+    assert result.token_amount == "1.1"
+    assert result.token == "eth"
+    assert result.fees == []

@@ -251,6 +251,70 @@ class EvmSmartAccount(BaseModel):
             self.address, user_op_hash
         )
 
+    async def quote_fund(self, fund_args):
+        """Quote a fund.
+
+        Args:
+            fund_args: The options for the fund.
+        """
+        from cdp.actions.evm.fund import (
+            QuoteFundOptions,
+            quote_fund,
+        )
+        
+        # Convert to QuoteFundOptions if it's not already
+        if not isinstance(fund_args, QuoteFundOptions):
+            fund_args = QuoteFundOptions(**fund_args)
+
+        return await quote_fund(
+            api_clients=self.__api_clients,
+            address=self.address,
+            quote_fund_args=fund_args,
+        )
+
+    async def fund(self, fund_args):
+        """Fund an EVM account.
+
+        Args:
+            fund_args: The options for the fund.
+            fund_args.amount: The amount of the token to fund.
+            fund_args.token: The token to fund.
+            fund_args.network: The network to fund the token on.
+
+        Returns:
+            The result of the fund.
+
+        """
+        from cdp.actions.evm.fund import (
+            FundOptions,
+            fund,
+        )
+        
+        # Convert to FundOptions if it's not already
+        if not isinstance(fund_args, FundOptions):
+            fund_args = FundOptions(**fund_args)
+
+        return await fund(
+            api_clients=self.__api_clients,
+            address=self.address,
+            fund_args=fund_args,
+        )
+        
+    async def wait_for_fund_operation_receipt(self, transfer_id: str):
+        """Wait for a fund operation to complete.
+
+        Args:
+            transfer_id: The id of the transfer to wait for.
+        """
+        from cdp.actions.evm.fund import (
+            wait_for_fund_operation_receipt,
+        )
+
+        return await wait_for_fund_operation_receipt(
+            api_clients=self.__api_clients,
+            transfer_id=transfer_id,
+        )
+
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.
 
