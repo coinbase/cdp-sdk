@@ -9,7 +9,7 @@ import { faker } from "@faker-js/faker";
 
 import { HttpResponse, delay, http } from "msw";
 
-import { PaymentRailAction } from "../coinbaseDeveloperPlatformAPIs.schemas";
+import { PaymentRailAction } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 import type {
   CreatePaymentTransferQuote201,
   CryptoRail,
@@ -17,7 +17,7 @@ import type {
   PaymentMethod,
   PaymentMethodRequest,
   Transfer,
-} from "../coinbaseDeveloperPlatformAPIs.schemas";
+} from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 export const getGetPaymentMethodsResponseMock = (): PaymentMethod[] =>
   Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
