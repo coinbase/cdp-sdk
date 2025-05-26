@@ -1,6 +1,10 @@
+from typing import Literal
+
 from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, ConfigDict, Field
 
+from cdp.actions.evm.fund.quote import Quote
+from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_user_operation import send_user_operation
@@ -10,6 +14,7 @@ from cdp.evm_call_types import ContractCall
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount as EvmSmartAccountModel
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
+from cdp.openapi_client.models.transfer import Transfer
 
 
 class EvmSmartAccount(BaseModel):
@@ -251,60 +256,115 @@ class EvmSmartAccount(BaseModel):
             self.address, user_op_hash
         )
 
-    async def quote_fund(self, fund_args):
-        """Quote a fund.
+    async def quote_fund(
+        self,
+        network: Literal["base", "ethereum"],
+        amount: int,
+        token: Literal["eth", "usdc"],
+    ) -> Quote:
+        """Quote a fund operation.
 
         Args:
-            fund_args: The options for the fund.
+            network: The network to fund the account on.
+            amount: The amount of the token to fund in atomic units (e.g. 1000000 for 1 USDC).
+            token: The token to fund.
+
+        Returns:
+            Quote: A quote object containing:
+                - quote_id: The ID of the quote
+                - network: The network the quote is for
+                - fiat_amount: The amount in fiat currency
+                - fiat_currency: The fiat currency (e.g. "usd")
+                - token_amount: The amount of tokens to receive
+                - token: The token to receive
+                - fees: List of fees associated with the quote
+
         """
         from cdp.actions.evm.fund import (
             QuoteFundOptions,
             quote_fund,
         )
-        
-        # Convert to QuoteFundOptions if it's not already
-        if not isinstance(fund_args, QuoteFundOptions):
-            fund_args = QuoteFundOptions(**fund_args)
+
+        fund_options = QuoteFundOptions(
+            network=network,
+            amount=amount,
+            token=token,
+        )
 
         return await quote_fund(
             api_clients=self.__api_clients,
             address=self.address,
-            quote_fund_options=fund_args,
+            quote_fund_options=fund_options,
         )
 
-    async def fund(self, fund_args):
+    async def fund(
+        self,
+        network: Literal["base", "ethereum"],
+        amount: int,
+        token: Literal["eth", "usdc"],
+    ) -> FundOperationResult:
         """Fund an EVM account.
 
         Args:
-            fund_args: The options for the fund.
-            fund_args.amount: The amount of the token to fund.
-            fund_args.token: The token to fund.
-            fund_args.network: The network to fund the token on.
+            network: The network to fund the account on.
+            amount: The amount of the token to fund in atomic units (e.g. 1000000 for 1 USDC).
+            token: The token to fund.
 
         Returns:
-            The result of the fund.
+            FundOperationResult: The result of the fund operation containing:
+                - transfer: A Transfer object with details about the transfer including:
+                    - id: The transfer ID
+                    - status: The status of the transfer (e.g. "pending", "completed", "failed")
+                    - source_amount: The amount in source currency
+                    - source_currency: The source currency
+                    - target_amount: The amount in target currency
+                    - target_currency: The target currency
+                    - fees: List of fees associated with the transfer
 
         """
         from cdp.actions.evm.fund import (
             FundOptions,
             fund,
         )
-        
-        # Convert to FundOptions if it's not already
-        if not isinstance(fund_args, FundOptions):
-            fund_args = FundOptions(**fund_args)
+
+        fund_options = FundOptions(
+            network=network,
+            amount=amount,
+            token=token,
+        )
 
         return await fund(
             api_clients=self.__api_clients,
             address=self.address,
-            fund_options=fund_args,
+            fund_options=fund_options,
         )
-        
-    async def wait_for_fund_operation_receipt(self, transfer_id: str, timeout_seconds: float = 300, interval_seconds: float = 1):
+
+    async def wait_for_fund_operation_receipt(
+        self,
+        transfer_id: str,
+        timeout_seconds: float = 300,
+        interval_seconds: float = 1,
+    ) -> Transfer:
         """Wait for a fund operation to complete.
 
         Args:
-            transfer_id: The id of the transfer to wait for.
+            transfer_id: The ID of the transfer to wait for.
+            timeout_seconds: The maximum time to wait for completion in seconds. Defaults to 300 (5 minutes).
+            interval_seconds: The time between status checks in seconds. Defaults to 1.
+
+        Returns:
+            Transfer: The completed transfer object containing:
+                - id: The transfer ID
+                - status: The final status of the transfer ("completed" or "failed")
+                - source_amount: The amount in source currency
+                - source_currency: The source currency
+                - target_amount: The amount in target currency
+                - target_currency: The target currency
+                - fees: List of fees associated with the transfer
+
+        Raises:
+            TimeoutError: If the transfer does not complete within the timeout period.
+
         """
         from cdp.actions.evm.fund import (
             wait_for_fund_operation_receipt,
