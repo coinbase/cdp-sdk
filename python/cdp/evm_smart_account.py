@@ -269,7 +269,7 @@ class EvmSmartAccount(BaseModel):
         return await quote_fund(
             api_clients=self.__api_clients,
             address=self.address,
-            quote_fund_args=fund_args,
+            quote_fund_options=fund_args,
         )
 
     async def fund(self, fund_args):
@@ -297,10 +297,10 @@ class EvmSmartAccount(BaseModel):
         return await fund(
             api_clients=self.__api_clients,
             address=self.address,
-            fund_args=fund_args,
+            fund_options=fund_args,
         )
         
-    async def wait_for_fund_operation_receipt(self, transfer_id: str):
+    async def wait_for_fund_operation_receipt(self, transfer_id: str, timeout_seconds: float = 300, interval_seconds: float = 1):
         """Wait for a fund operation to complete.
 
         Args:
@@ -313,6 +313,8 @@ class EvmSmartAccount(BaseModel):
         return await wait_for_fund_operation_receipt(
             api_clients=self.__api_clients,
             transfer_id=transfer_id,
+            timeout_seconds=timeout_seconds,
+            interval_seconds=interval_seconds,
         )
 
     def __str__(self) -> str:

@@ -1,4 +1,3 @@
-from typing import List
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
@@ -22,7 +21,6 @@ from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.models.create_payment_transfer_quote201_response import CreatePaymentTransferQuote201Response
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
-from cdp.openapi_client.models.payment_method import PaymentMethod
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
 from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
