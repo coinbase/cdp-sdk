@@ -1,6 +1,6 @@
 // Usage: pnpm tsx evm/smartAccount.quoteAndExecute.ts
 
-import { CdpClient } from "../../../typescript/src/index.js";
+import { CdpClient } from "@coinbase/cdp-sdk";
 
 async function main() {
   const cdp = new CdpClient();
