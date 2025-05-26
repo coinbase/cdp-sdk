@@ -1,3 +1,5 @@
+import { formatUnits } from "viem";
+
 import { Quote } from "./Quote.js";
 import {
   CreatePaymentTransferQuoteBodySourceType,
@@ -13,10 +15,10 @@ export interface QuoteFundOptions {
   address: string;
   /** The network to request funds from. */
   network: "base" | "ethereum";
-  /** The amount to fund the account with, in whole units of the token. */
-  amount: string;
+  /** The amount to fund the account with, in atomic units (wei) of the token. */
+  amount: bigint;
   /** The token to request funds for. */
-  token: string;
+  token: "eth" | "usdc";
 }
 
 /**
@@ -40,6 +42,9 @@ export async function quoteFund(
     throw new Error("No card found to fund account");
   }
 
+  const decimals = options.token === "eth" ? 18 : 6;
+  const amount = formatUnits(options.amount, decimals);
+
   const response = await apiClient.createPaymentTransferQuote({
     sourceType: CreatePaymentTransferQuoteBodySourceType.payment_method,
     source: {
@@ -51,7 +56,7 @@ export async function quoteFund(
       network: options.network,
       address: options.address,
     },
-    amount: options.amount,
+    amount,
     currency: options.token,
   });
 
