@@ -65,24 +65,60 @@ type Actions = {
    * @param options - The options for the quote fund.
    * @param options.network - The network to fund the account on.
    * @param options.token - The token to fund the account with.
+   * @param options.amount - The amount of the token to fund represented as an atomic unit.
+   * It's common to use `parseUnits` utils from viem to convert to atomic units.
+   * Otherwise, you can pass atomic units directly.
+   *
+   * @returns A promise that resolves to a Quote object containing details about the funding operation.
+   *
+   * @example
+   * ```ts
+   * const quote = await account.quoteFund({
+   *   network: "base",
+   *   token: "usdc",
+   *   amount: 1000000n,
+   * });
+   * ```
    */
   quoteFund: (options: Omit<QuoteFundOptions, "address">) => Promise<Quote>;
 
   /**
-   * Funds an EVM account.
+   * Funds an EVM account with the specified token amount.
    *
-   * @param options - The options for the fund.
-   * @param options.quote - The quote to fund the account with.
+   * @param options - The options for the fund operation.
+   * @param options.network - The network to fund the account on.
+   * @param options.token - The token to fund the account with (e.g., 'usdc').
+   * @param options.amount - The amount of the token to fund represented as an atomic unit.
+   * It's common to use `parseUnits` utils from viem to convert to atomic units.
+   * Otherwise, you can pass atomic units directly.
+   *
+   * @returns A promise that resolves to the fund operation result containing the transfer details.
+   *
+   * @example
+   * ```ts
+   * const fundOperation = await account.fund({
+   *   network: "base",
+   *   token: "usdc",
+   *   amount: 1000000n,
+   * });
+   * ```
    */
   fund: (options: Omit<FundOptions, "address">) => Promise<FundOperationResult>;
 
   /**
-   * Waits for a fund operation to complete.
+   * Waits for a fund operation to complete and returns the transfer receipt.
    *
    * @param options - The options for the wait for fund operation.
    * @param options.transferId - The ID of the transfer to wait for.
    *
-   * @returns The result of the wait for fund operation.
+   * @returns A promise that resolves to the completed transfer receipt containing details about the funding operation.
+   *
+   * @example
+   * ```ts
+   * const completedTransfer = await account.waitForFundOperationReceipt({
+   *   transferId: "transfer_123",
+   * });
+   * ```
    */
   waitForFundOperationReceipt(
     options: WaitForFundOperationOptions,
