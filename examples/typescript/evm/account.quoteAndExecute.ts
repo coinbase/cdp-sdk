@@ -4,9 +4,8 @@ import { CdpClient } from "../../../typescript/src/index.js";
 
 async function main() {
   const cdp = new CdpClient();
-  const account = await cdp.evm.createAccount({ name: "Sender" });
+  const account = await cdp.evm.createAccount();
 
-  // Example using quote
   const quote = await account.quoteFund({
     network: "base",
     token: "usdc",
@@ -29,6 +28,8 @@ async function main() {
   const completedTransfer = await account.waitForFundOperationReceipt({
     transferId: response.transfer.id,
   });
+
+  console.log(completedTransfer);
 }
 
 main().catch(console.error);

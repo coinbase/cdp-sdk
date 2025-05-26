@@ -1,12 +1,14 @@
-// Usage: pnpm tsx evm/account.quoteFund.ts
+// Usage: pnpm tsx evm/smartAccount.quoteFund.ts
 
 import { CdpClient } from "../../../typescript/src/index.js";
 
 async function main() {
   const cdp = new CdpClient();
-  const account = await cdp.evm.createAccount();
 
-  const quote = await account.quoteFund({
+  const account = await cdp.evm.createAccount();
+  const smartAccount = await cdp.evm.createSmartAccount({ owner: account });
+
+  const quote = await smartAccount.quoteFund({
     network: "base",
     token: "usdc",
     amount: 100000000n, // 100 USDC

@@ -1,15 +1,16 @@
-// Usage: pnpm tsx evm/account.quoteFund.ts
+// Usage: pnpm tsx evm/smartAccount.quoteAndExecute.ts
 
 import { CdpClient } from "../../../typescript/src/index.js";
 
 async function main() {
   const cdp = new CdpClient();
   const account = await cdp.evm.createAccount();
+  const smartAccount = await cdp.evm.createSmartAccount({ owner: account });
 
-  const quote = await account.quoteFund({
+  const quote = await smartAccount.quoteFund({
     network: "base",
     token: "usdc",
-    amount: 100000000n, // 100 USDC
+    amount: 1000000n, // 1 USDC
   });
 
   // get details of the quote
@@ -22,6 +23,14 @@ async function main() {
     console.log(fee.amount) // amount in the token
     console.log(fee.currency) // currency of the amount
   }
+
+  const response = await quote.execute();
+
+  const completedTransfer = await smartAccount.waitForFundOperationReceipt({
+    transferId: response.transfer.id,
+  });
+
+  console.log(completedTransfer);
 }
 
 main().catch(console.error);
