@@ -6,6 +6,7 @@ from cdp.openapi_client.models.transfer import Transfer
 from cdp.openapi_client.models.transfer_source import TransferSource
 from cdp.openapi_client.models.transfer_target import TransferTarget
 
+
 @pytest.fixture
 def payment_transfer_model_factory():
     """Create and return a factory for Payment Transfer fixtures."""
@@ -14,12 +15,16 @@ def payment_transfer_model_factory():
         id="123e4567-e89b-12d3-a456-426614174000",
         source_type="payment_method",
         source=TransferSource(PaymentMethodRequest(id="123e4567-e89b-12d3-a456-426614174000")),
-        target_type="crypto_rail", 
-        target=TransferTarget(CryptoRailAddress(symbol="usdc", network="base", address="0x1234567890123456789012345678901234567890")),
+        target_type="crypto_rail",
+        target=TransferTarget(
+            CryptoRailAddress(
+                symbol="usdc", network="base", address="0x1234567890123456789012345678901234567890"
+            )
+        ),
         source_amount="1",
         source_currency="usd",
         target_amount="1",
-        target_currency="usdc", 
+        target_currency="usdc",
         user_amount="1",
         user_currency="usd",
         fees=[],
@@ -42,7 +47,7 @@ def payment_transfer_model_factory():
             fees=fees,
             status=status,
             created_at=created_at,
-            updated_at=updated_at
+            updated_at=updated_at,
         )
 
     return _create_payment_transfer_model

@@ -2,7 +2,7 @@ import pytest
 
 from cdp.openapi_client.models.payment_method import PaymentMethod
 from cdp.openapi_client.models.payment_rail_action import PaymentRailAction
-from cdp.openapi_client.models.payment_method_limits import PaymentMethodLimits
+
 
 @pytest.fixture
 def payment_method_model_factory():
@@ -15,12 +15,6 @@ def payment_method_model_factory():
         actions=[PaymentRailAction(PaymentRailAction.SOURCE)],
         limits=None,
     ):
-        return PaymentMethod(
-            id=id,
-            type=type,
-            currency=currency,
-            actions=actions,
-            limits=limits
-        )
+        return PaymentMethod(id=id, type=type, currency=currency, actions=actions, limits=limits)
 
     return _create_payment_method_model

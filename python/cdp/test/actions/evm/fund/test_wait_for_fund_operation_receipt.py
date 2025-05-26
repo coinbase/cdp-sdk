@@ -173,7 +173,9 @@ async def test_wait_for_fund_operation_receipt_api_error(mock_api_clients, mock_
 @pytest.mark.asyncio
 @patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time")
 @patch("cdp.cdp_client.ApiClients")
-async def test_wait_for_fund_operation_receipt_custom_timeout_and_interval(mock_api_clients, mock_time):
+async def test_wait_for_fund_operation_receipt_custom_timeout_and_interval(
+    mock_api_clients, mock_time
+):
     """Test using custom timeout and interval values."""
     start_time = 1000
     mock_time.time.side_effect = [

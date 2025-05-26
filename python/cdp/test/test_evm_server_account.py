@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from eth_account.messages import _hash_eip191_message, encode_defunct
@@ -8,7 +8,6 @@ from hexbytes import HexBytes
 from web3 import Web3
 
 from cdp.actions.evm.fund.quote import Quote
-from cdp.actions.evm.fund.quote_fund import QuoteFundOptions
 from cdp.api_clients import ApiClients
 from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_token_balances import (
@@ -18,7 +17,9 @@ from cdp.evm_token_balances import (
     ListTokenBalancesResult,
 )
 from cdp.evm_transaction_types import TransactionRequestEIP1559
-from cdp.openapi_client.models.create_payment_transfer_quote201_response import CreatePaymentTransferQuote201Response
+from cdp.openapi_client.models.create_payment_transfer_quote201_response import (
+    CreatePaymentTransferQuote201Response,
+)
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
@@ -460,7 +461,9 @@ async def test_list_token_balances(server_account_model_factory, evm_token_balan
 
 
 @pytest.mark.asyncio
-async def test_quote_fund_transfer_usdc(server_account_model_factory, payment_transfer_model_factory, payment_method_model_factory):
+async def test_quote_fund_transfer_usdc(
+    server_account_model_factory, payment_transfer_model_factory, payment_method_model_factory
+):
     """Test quote_fund method."""
     address = "0x1234567890123456789012345678901234567890"
     name = "test-account"
@@ -469,23 +472,20 @@ async def test_quote_fund_transfer_usdc(server_account_model_factory, payment_tr
     payment_method = payment_method_model_factory()
 
     mock_payments_api = AsyncMock()
-    
+
     mock_api_clients = AsyncMock(spec=ApiClients)
     mock_api_clients.payments = mock_payments_api
-    
-    mock_payments_api.get_payment_methods = AsyncMock(
-        return_value=[payment_method]
-    )
+
+    mock_payments_api.get_payment_methods = AsyncMock(return_value=[payment_method])
 
     mock_payments_api.create_payment_transfer_quote = AsyncMock(
         return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
     )
 
     server_account = EvmServerAccount(server_account_model, mock_api_clients, mock_api_clients)
-    fund_args = QuoteFundOptions(network="base", token="usdc", amount=1000000) # 1 USDC
+    # 1 USDC
+    result = await server_account.quote_fund(network="base", token="usdc", amount=1000000)
 
-    result = await server_account.quote_fund(fund_args)
-    
     mock_payments_api.get_payment_methods.assert_called_once()
 
     mock_payments_api.create_payment_transfer_quote.assert_called_once()
@@ -504,34 +504,38 @@ async def test_quote_fund_transfer_usdc(server_account_model_factory, payment_tr
     assert result.token_amount == "1"
     assert result.token == "usdc"
     assert result.fees == []
-    
+
+
 @pytest.mark.asyncio
-async def test_quote_fund_transfer_eth(server_account_model_factory, payment_transfer_model_factory, payment_method_model_factory):
+async def test_quote_fund_transfer_eth(
+    server_account_model_factory, payment_transfer_model_factory, payment_method_model_factory
+):
     """Test quote_fund method."""
     address = "0x1234567890123456789012345678901234567890"
     name = "test-account"
     server_account_model = server_account_model_factory(address, name)
-    payment_transfer = payment_transfer_model_factory(source_amount="1000", source_currency="usd", target_amount="1.1", target_currency="eth")
+    payment_transfer = payment_transfer_model_factory(
+        source_amount="1000", source_currency="usd", target_amount="1.1", target_currency="eth"
+    )
     payment_method = payment_method_model_factory()
 
     mock_payments_api = AsyncMock()
-    
+
     mock_api_clients = AsyncMock(spec=ApiClients)
     mock_api_clients.payments = mock_payments_api
-    
-    mock_payments_api.get_payment_methods = AsyncMock(
-        return_value=[payment_method]
-    )
+
+    mock_payments_api.get_payment_methods = AsyncMock(return_value=[payment_method])
 
     mock_payments_api.create_payment_transfer_quote = AsyncMock(
         return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
     )
 
     server_account = EvmServerAccount(server_account_model, mock_api_clients, mock_api_clients)
-    fund_args = QuoteFundOptions(network="base", token="eth", amount=1100000000000000000) # 1.1 ETH
+    # 1.1 ETH
+    result = await server_account.quote_fund(
+        network="base", token="eth", amount=1100000000000000000
+    )
 
-    result = await server_account.quote_fund(fund_args)
-    
     mock_payments_api.get_payment_methods.assert_called_once()
 
     mock_payments_api.create_payment_transfer_quote.assert_called_once()
@@ -553,32 +557,33 @@ async def test_quote_fund_transfer_eth(server_account_model_factory, payment_tra
 
 
 @pytest.mark.asyncio
-async def test_fund_transfer_eth(server_account_model_factory, payment_transfer_model_factory, payment_method_model_factory):
+async def test_fund_transfer_eth(
+    server_account_model_factory, payment_transfer_model_factory, payment_method_model_factory
+):
     """Test fund method."""
     address = "0x1234567890123456789012345678901234567890"
     name = "test-account"
     server_account_model = server_account_model_factory(address, name)
-    payment_transfer = payment_transfer_model_factory(source_amount="1000", source_currency="usd", target_amount="1.1", target_currency="eth")
+    payment_transfer = payment_transfer_model_factory(
+        source_amount="1000", source_currency="usd", target_amount="1.1", target_currency="eth"
+    )
     payment_method = payment_method_model_factory()
 
     mock_payments_api = AsyncMock()
-    
+
     mock_api_clients = AsyncMock(spec=ApiClients)
     mock_api_clients.payments = mock_payments_api
-    
-    mock_payments_api.get_payment_methods = AsyncMock(
-        return_value=[payment_method]
-    )
+
+    mock_payments_api.get_payment_methods = AsyncMock(return_value=[payment_method])
 
     mock_payments_api.create_payment_transfer_quote = AsyncMock(
         return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
     )
 
     server_account = EvmServerAccount(server_account_model, mock_api_clients, mock_api_clients)
-    fund_args = {"network": "base", "token": "eth", "amount": 1100000000000000000} # 1.1 ETH
+    # 1.1 ETH
+    result = await server_account.fund(network="base", token="eth", amount=1100000000000000000)
 
-    result = await server_account.fund(fund_args)
-    
     mock_payments_api.get_payment_methods.assert_called_once()
 
     mock_payments_api.create_payment_transfer_quote.assert_called_once()
@@ -593,32 +598,33 @@ async def test_fund_transfer_eth(server_account_model_factory, payment_transfer_
 
 
 @pytest.mark.asyncio
-async def test_fund_transfer_usdc(server_account_model_factory, payment_transfer_model_factory, payment_method_model_factory):
+async def test_fund_transfer_usdc(
+    server_account_model_factory, payment_transfer_model_factory, payment_method_model_factory
+):
     """Test fund method with USDC."""
     address = "0x1234567890123456789012345678901234567890"
     name = "test-account"
     server_account_model = server_account_model_factory(address, name)
-    payment_transfer = payment_transfer_model_factory(source_amount="1", source_currency="usd", target_amount="1", target_currency="usdc")
+    payment_transfer = payment_transfer_model_factory(
+        source_amount="1", source_currency="usd", target_amount="1", target_currency="usdc"
+    )
     payment_method = payment_method_model_factory()
 
     mock_payments_api = AsyncMock()
-    
+
     mock_api_clients = AsyncMock(spec=ApiClients)
     mock_api_clients.payments = mock_payments_api
-    
-    mock_payments_api.get_payment_methods = AsyncMock(
-        return_value=[payment_method]
-    )
+
+    mock_payments_api.get_payment_methods = AsyncMock(return_value=[payment_method])
 
     mock_payments_api.create_payment_transfer_quote = AsyncMock(
         return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
     )
 
     server_account = EvmServerAccount(server_account_model, mock_api_clients, mock_api_clients)
-    fund_args = {"network": "base", "token": "usdc", "amount": 1000000} # 1 USDC (6 decimals)
+    # 1 USDC (6 decimals)
+    result = await server_account.fund(network="base", token="usdc", amount=1000000)
 
-    result = await server_account.fund(fund_args)
-    
     mock_payments_api.get_payment_methods.assert_called_once()
 
     mock_payments_api.create_payment_transfer_quote.assert_called_once()
@@ -633,7 +639,9 @@ async def test_fund_transfer_usdc(server_account_model_factory, payment_transfer
 
 
 @pytest.mark.asyncio
-async def test_wait_for_fund_operation_receipt_success(server_account_model_factory, payment_transfer_model_factory):
+async def test_wait_for_fund_operation_receipt_success(
+    server_account_model_factory, payment_transfer_model_factory
+):
     """Test wait_for_fund_operation_receipt method with successful completion."""
     address = "0x1234567890123456789012345678901234567890"
     name = "test-account"
@@ -654,7 +662,9 @@ async def test_wait_for_fund_operation_receipt_success(server_account_model_fact
 
 
 @pytest.mark.asyncio
-async def test_wait_for_fund_operation_receipt_failure(server_account_model_factory, payment_transfer_model_factory):
+async def test_wait_for_fund_operation_receipt_failure(
+    server_account_model_factory, payment_transfer_model_factory
+):
     """Test wait_for_fund_operation_receipt method with failed transfer."""
     address = "0x1234567890123456789012345678901234567890"
     name = "test-account"
@@ -675,7 +685,9 @@ async def test_wait_for_fund_operation_receipt_failure(server_account_model_fact
 
 
 @pytest.mark.asyncio
-async def test_wait_for_fund_operation_receipt_timeout(server_account_model_factory, payment_transfer_model_factory):
+async def test_wait_for_fund_operation_receipt_timeout(
+    server_account_model_factory, payment_transfer_model_factory
+):
     """Test wait_for_fund_operation_receipt method with timeout."""
     address = "0x1234567890123456789012345678901234567890"
     name = "test-account"
@@ -692,9 +704,5 @@ async def test_wait_for_fund_operation_receipt_timeout(server_account_model_fact
 
     with pytest.raises(TimeoutError):
         await server_account.wait_for_fund_operation_receipt(
-            transfer_id="test-transfer-id",
-            timeout_seconds=0.1,
-            interval_seconds=0.1
+            transfer_id="test-transfer-id", timeout_seconds=0.1, interval_seconds=0.1
         )
-
-

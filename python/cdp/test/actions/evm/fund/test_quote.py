@@ -19,7 +19,7 @@ def test_quote_initialization():
         fiat_currency="USD",
         token_amount="0.05",
         token="eth",
-        fees=[Fee(type="exchange_fee", amount="1.00", currency="USD")]
+        fees=[Fee(type="exchange_fee", amount="1.00", currency="USD")],
     )
     assert valid_quote.quote_id == "test-quote-id"
     assert valid_quote.network == "base"
@@ -44,7 +44,7 @@ def test_quote_invalid_network():
             fiat_currency="USD",
             token_amount="0.05",
             token="eth",
-            fees=[Fee(type="exchange_fee", amount="1.00", currency="USD")]
+            fees=[Fee(type="exchange_fee", amount="1.00", currency="USD")],
         )
 
 
@@ -53,10 +53,10 @@ async def test_quote_execute():
     """Test executing a quote."""
     mock_api_clients = MagicMock(spec=ApiClients)
     mock_api_clients.payments = AsyncMock()
-    
+
     mock_transfer = MagicMock(spec=Transfer)
     mock_api_clients.payments.execute_payment_transfer_quote = AsyncMock(return_value=mock_transfer)
-    
+
     quote = Quote(
         api_clients=mock_api_clients,
         quote_id="test-quote-id",
@@ -65,14 +65,16 @@ async def test_quote_execute():
         fiat_currency="USD",
         token_amount="0.05",
         token="eth",
-        fees=[Fee(type="exchange_fee", amount="1.00", currency="USD")]
+        fees=[Fee(type="exchange_fee", amount="1.00", currency="USD")],
     )
-    
+
     result = await quote.execute()
-    
+
     assert isinstance(result, FundOperationResult)
     assert result.transfer == mock_transfer
-    mock_api_clients.payments.execute_payment_transfer_quote.assert_called_once_with("test-quote-id")
+    mock_api_clients.payments.execute_payment_transfer_quote.assert_called_once_with(
+        "test-quote-id"
+    )
 
 
 @pytest.mark.asyncio
@@ -80,11 +82,11 @@ async def test_quote_execute_api_error():
     """Test handling API error during quote execution."""
     mock_api_clients = MagicMock(spec=ApiClients)
     mock_api_clients.payments = AsyncMock()
-    
+
     mock_api_clients.payments.execute_payment_transfer_quote = AsyncMock(
         side_effect=Exception("API Error")
     )
-    
+
     quote = Quote(
         api_clients=mock_api_clients,
         quote_id="test-quote-id",
@@ -93,10 +95,12 @@ async def test_quote_execute_api_error():
         fiat_currency="USD",
         token_amount="0.05",
         token="eth",
-        fees=[Fee(type="exchange_fee", amount="1.00", currency="USD")]
+        fees=[Fee(type="exchange_fee", amount="1.00", currency="USD")],
     )
-    
+
     with pytest.raises(Exception, match="API Error"):
         await quote.execute()
-    
-    mock_api_clients.payments.execute_payment_transfer_quote.assert_called_once_with("test-quote-id")
+
+    mock_api_clients.payments.execute_payment_transfer_quote.assert_called_once_with(
+        "test-quote-id"
+    )
