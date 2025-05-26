@@ -75,7 +75,7 @@ export async function waitForFundOperationReceipt(
   };
 
   const waitOptions = options.waitOptions || {
-    timeoutSeconds: 30,
+    timeoutSeconds: 300,
   };
 
   return await wait(reload, isTerminal, transform, waitOptions);
