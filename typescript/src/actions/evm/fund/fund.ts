@@ -1,0 +1,62 @@
+import { FundOperationResult } from "./types.js";
+import {
+  CreatePaymentTransferQuoteBodySourceType,
+  CreatePaymentTransferQuoteBodyTargetType,
+  type CdpOpenApiClientType,
+} from "../../../openapi-client/index.js";
+
+/**
+ * Options for funding an EVM account.
+ */
+export interface FundOptions {
+  /** The address of the account. */
+  address: string;
+  /** The network to request funds from. */
+  network: "base" | "ethereum";
+  /** The amount to fund the account with, in whole units of the token. */
+  amount: string;
+  /** The token to request funds for. */
+  token: string;
+}
+
+/**
+ * Funds an EVM account.
+ *
+ * @param apiClient - The API client.
+ * @param options - The options for funding an EVM account.
+ *
+ * @returns A promise that resolves to the fund operation result.
+ */
+export async function fund(
+  apiClient: CdpOpenApiClientType,
+  options: FundOptions,
+): Promise<FundOperationResult> {
+  const paymentMethods = await apiClient.getPaymentMethods();
+  const cardPaymentMethod = paymentMethods.find(
+    method => method.type === "card" && method.actions.includes("source"),
+  );
+
+  if (!cardPaymentMethod) {
+    throw new Error("No card found to fund account");
+  }
+
+  const response = await apiClient.createPaymentTransferQuote({
+    sourceType: CreatePaymentTransferQuoteBodySourceType.payment_method,
+    source: {
+      id: cardPaymentMethod.id,
+    },
+    targetType: CreatePaymentTransferQuoteBodyTargetType.crypto_rail,
+    target: {
+      symbol: options.token,
+      network: options.network,
+      address: options.address,
+    },
+    amount: options.amount,
+    currency: options.token,
+    execute: true,
+  });
+
+  return {
+    transfer: response.transfer,
+  };
+}

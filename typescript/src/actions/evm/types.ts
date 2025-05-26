@@ -1,3 +1,11 @@
+import { FundOptions } from "./fund/fund.js";
+import { Quote } from "./fund/Quote.js";
+import { QuoteFundOptions } from "./fund/quoteFund.js";
+import { FundOperationResult } from "./fund/types.js";
+import {
+  WaitForFundOperationOptions,
+  WaitForFundOperationResult,
+} from "./fund/waitForFundOperationReceipt.js";
 import { SendUserOperationOptions, SendUserOperationReturnType } from "./sendUserOperation.js";
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 import { Hex } from "../../types/misc.js";
@@ -50,6 +58,35 @@ type Actions = {
    * ```
    */
   requestFaucet: (options: Omit<RequestFaucetOptions, "address">) => Promise<RequestFaucetResult>;
+
+  /**
+   * Gets a quote to fund an EVM account.
+   *
+   * @param options - The options for the quote fund.
+   * @param options.network - The network to fund the account on.
+   * @param options.token - The token to fund the account with.
+   */
+  quoteFund: (options: Omit<QuoteFundOptions, "address">) => Promise<Quote>;
+
+  /**
+   * Funds an EVM account.
+   *
+   * @param options - The options for the fund.
+   * @param options.quote - The quote to fund the account with.
+   */
+  fund: (options: Omit<FundOptions, "address">) => Promise<FundOperationResult>;
+
+  /**
+   * Waits for a fund operation to complete.
+   *
+   * @param options - The options for the wait for fund operation.
+   * @param options.transferId - The ID of the transfer to wait for.
+   *
+   * @returns The result of the wait for fund operation.
+   */
+  waitForFundOperationReceipt(
+    options: WaitForFundOperationOptions,
+  ): Promise<WaitForFundOperationResult>;
 };
 
 export type AccountActions = Actions & {
