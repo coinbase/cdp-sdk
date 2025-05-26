@@ -5,7 +5,7 @@ import { CdpClient } from "@coinbase/cdp-sdk";
 async function main() {
   const cdp = new CdpClient();
 
-  const account = await cdp.evm.createAccount();
+  const account = await cdp.evm.getOrCreateAccount({ name: "account" });
   const smartAccount = await cdp.evm.createSmartAccount({ owner: account });
 
   const fundOperation = await smartAccount.fund({
