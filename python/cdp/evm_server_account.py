@@ -453,7 +453,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             fund_options=fund_args,
         )
         
-    async def wait_for_fund_operation_receipt(self, transfer_id: str):
+    async def wait_for_fund_operation_receipt(self, transfer_id: str, timeout_seconds: float = 300, interval_seconds: float = 1):
         """Wait for a fund operation to complete.
 
         Args:
@@ -466,6 +466,8 @@ class EvmServerAccount(BaseAccount, BaseModel):
         return await wait_for_fund_operation_receipt(
             api_clients=self.__api_clients,
             transfer_id=transfer_id,
+            timeout_seconds=timeout_seconds,
+            interval_seconds=interval_seconds,
         )
        
     def __str__(self) -> str:

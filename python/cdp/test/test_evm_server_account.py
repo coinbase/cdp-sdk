@@ -634,3 +634,69 @@ async def test_fund_transfer_usdc(server_account_model_factory, payment_transfer
     assert result.transfer == payment_transfer
 
 
+@pytest.mark.asyncio
+async def test_wait_for_fund_operation_receipt_success(server_account_model_factory, payment_transfer_model_factory):
+    """Test wait_for_fund_operation_receipt method with successful completion."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    server_account_model = server_account_model_factory(address, name)
+
+    mock_payments_api = AsyncMock()
+    mock_api_clients = AsyncMock(spec=ApiClients)
+    mock_api_clients.payments = mock_payments_api
+
+    completed_transfer = payment_transfer_model_factory(status="completed")
+    mock_payments_api.get_payment_transfer = AsyncMock(return_value=completed_transfer)
+
+    server_account = EvmServerAccount(server_account_model, mock_api_clients, mock_api_clients)
+    result = await server_account.wait_for_fund_operation_receipt(transfer_id="test-transfer-id")
+
+    assert result == completed_transfer
+    mock_payments_api.get_payment_transfer.assert_called_once_with("test-transfer-id")
+
+
+@pytest.mark.asyncio
+async def test_wait_for_fund_operation_receipt_failure(server_account_model_factory, payment_transfer_model_factory):
+    """Test wait_for_fund_operation_receipt method with failed transfer."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    server_account_model = server_account_model_factory(address, name)
+
+    mock_payments_api = AsyncMock()
+    mock_api_clients = AsyncMock(spec=ApiClients)
+    mock_api_clients.payments = mock_payments_api
+
+    failed_transfer = payment_transfer_model_factory(status="failed")
+    mock_payments_api.get_payment_transfer = AsyncMock(return_value=failed_transfer)
+
+    server_account = EvmServerAccount(server_account_model, mock_api_clients, mock_api_clients)
+    result = await server_account.wait_for_fund_operation_receipt(transfer_id="test-transfer-id")
+
+    assert result == failed_transfer
+    mock_payments_api.get_payment_transfer.assert_called_once_with("test-transfer-id")
+
+
+@pytest.mark.asyncio
+async def test_wait_for_fund_operation_receipt_timeout(server_account_model_factory, payment_transfer_model_factory):
+    """Test wait_for_fund_operation_receipt method with timeout."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    server_account_model = server_account_model_factory(address, name)
+
+    mock_payments_api = AsyncMock()
+    mock_api_clients = AsyncMock(spec=ApiClients)
+    mock_api_clients.payments = mock_payments_api
+
+    pending_transfer = payment_transfer_model_factory(status="pending")
+    mock_payments_api.get_payment_transfer = AsyncMock(return_value=pending_transfer)
+
+    server_account = EvmServerAccount(server_account_model, mock_api_clients, mock_api_clients)
+
+    with pytest.raises(TimeoutError):
+        await server_account.wait_for_fund_operation_receipt(
+            transfer_id="test-transfer-id",
+            timeout_seconds=0.1,
+            interval_seconds=0.1
+        )
+
+
