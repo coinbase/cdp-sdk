@@ -39,6 +39,7 @@ class ApiClients:
         self._faucets: FaucetsApi | None = None
         self._solana_accounts: SolanaAccountsApi | None = None
         self._policies: PolicyEngineApi | None = None
+        self._payments: PaymentsAlphaApi | None = None
 
     @property
     def evm_accounts(self) -> EVMAccountsApi:
