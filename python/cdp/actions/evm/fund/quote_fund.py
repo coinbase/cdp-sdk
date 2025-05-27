@@ -56,7 +56,7 @@ async def quote_fund(
         target_type="crypto_rail",
         target=TransferTarget(
             CryptoRailAddress(
-                symbol=quote_fund_options.token, network=quote_fund_options.network, address=address
+                currency=quote_fund_options.token, network=quote_fund_options.network, address=address
             )
         ),
         amount=amount,

@@ -35,7 +35,7 @@ def payment_transfer_model_factory():
         if target is None:
             target = TransferTarget(
                 CryptoRailAddress(
-                    symbol="usdc",
+                    currency="usdc",
                     network="base",
                     address="0x1234567890123456789012345678901234567890",
                 )
