@@ -141,9 +141,9 @@ class ApiClients:
             This property lazily initializes the PaymentsAlphaApi client on first access.
 
         """
-        if self.payments is None:
-            self.payments = PaymentsAlphaApi(api_client=self._cdp_client)
-        return self.payments
+        if self._payments is None:
+            self._payments = PaymentsAlphaApi(api_client=self._cdp_client)
+        return self._payments
 
     async def close(self):
         """Close the CDP client asynchronously."""
