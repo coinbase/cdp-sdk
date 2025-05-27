@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
+from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 
-class TestUpdateSolanaAccountRequest(unittest.TestCase):
-    """UpdateSolanaAccountRequest unit test stubs"""
+class TestImportEvmAccountRequest(unittest.TestCase):
+    """ImportEvmAccountRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,26 +26,27 @@ class TestUpdateSolanaAccountRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> UpdateSolanaAccountRequest:
-        """Test UpdateSolanaAccountRequest
+    def make_instance(self, include_optional) -> ImportEvmAccountRequest:
+        """Test ImportEvmAccountRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `UpdateSolanaAccountRequest`
+        # uncomment below to create an instance of `ImportEvmAccountRequest`
         """
-        model = UpdateSolanaAccountRequest()
+        model = ImportEvmAccountRequest()
         if include_optional:
-            return UpdateSolanaAccountRequest(
-                name = 'my-wallet',
-                account_policy = '123e4567-e89b-12d3-a456-426614174000'
+            return ImportEvmAccountRequest(
+                encrypted_private_key = 'U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=',
+                name = 'my-wallet'
             )
         else:
-            return UpdateSolanaAccountRequest(
+            return ImportEvmAccountRequest(
+                encrypted_private_key = 'U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=',
         )
         """
 
-    def testUpdateSolanaAccountRequest(self):
-        """Test UpdateSolanaAccountRequest"""
+    def testImportEvmAccountRequest(self):
+        """Test ImportEvmAccountRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

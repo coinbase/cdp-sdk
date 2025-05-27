@@ -53,6 +53,7 @@ from cdp.openapi_client.models.evm_call import EvmCall
 from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
+from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.list_evm_accounts200_response import ListEvmAccounts200Response
 from cdp.openapi_client.models.list_evm_smart_accounts200_response import ListEvmSmartAccounts200Response
 from cdp.openapi_client.models.list_evm_token_balances200_response import ListEvmTokenBalances200Response
