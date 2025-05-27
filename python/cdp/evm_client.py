@@ -1,5 +1,10 @@
+import base64
+import re
 from typing import Any
 
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from eth_account.signers.base import BaseAccount
 from eth_account.typed_transactions import DynamicFeeTransaction
 
@@ -10,6 +15,7 @@ from cdp.actions.evm.send_user_operation import send_user_operation
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.analytics import wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
+from cdp.constants import ImportEvmAccountPublicRSAKey
 from cdp.evm_call_types import ContractCall, EncodedCall
 from cdp.evm_server_account import EvmServerAccount, ListEvmAccountsResponse
 from cdp.evm_smart_account import EvmSmartAccount, ListEvmSmartAccountsResponse
@@ -26,6 +32,7 @@ from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.evm_call import EvmCall
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
+from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.prepare_user_operation_request import (
     PrepareUserOperationRequest,
 )
@@ -64,6 +71,52 @@ class EvmClient:
             create_evm_account_request=CreateEvmAccountRequest(name=name),
         )
         return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
+
+    async def import_account(
+        self,
+        private_key: str,
+        name: str | None = None,
+        idempotency_key: str | None = None,
+    ) -> EvmServerAccount:
+        """Import an EVM account.
+
+        Args:
+            private_key (str): The private key of the account.
+            name (str, optional): The name. Defaults to None.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        Returns:
+            EvmServerAccount: The EVM server account.
+
+        """
+        private_key_hex = private_key[2:] if private_key.startswith("0x") else private_key
+        if not re.match(r"^[0-9a-fA-F]+$", private_key_hex):
+            raise ValueError("Private key must be a valid hexadecimal string")
+
+        try:
+            private_key_bytes = bytes.fromhex(private_key_hex)
+            public_key = load_pem_public_key(ImportEvmAccountPublicRSAKey.encode())
+            encrypted_private_key = public_key.encrypt(
+                private_key_bytes,
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None,
+                ),
+            )
+            encrypted_private_key = base64.b64encode(encrypted_private_key).decode("utf-8")
+            evm_account = await self.api_clients.evm_accounts.import_evm_account(
+                import_evm_account_request=ImportEvmAccountRequest(
+                    encrypted_private_key=encrypted_private_key,
+                    name=name,
+                ),
+                x_idempotency_key=idempotency_key,
+            )
+            return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
+        except ApiError as e:
+            raise e
+        except Exception as e:
+            raise ValueError(f"Failed to import account: {e}") from e
 
     async def create_smart_account(self, owner: BaseAccount) -> EvmSmartAccount:
         """Create an EVM smart account.
