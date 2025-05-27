@@ -9,19 +9,19 @@ async function main() {
 
   const quote = await account.quoteFund({
     network: "base",
-    token: "usdc",
-    amount: 1000000n, // 1 USDC
+    token: "eth",
+    amount: 500000000000000n, // 0.0005 eth
   });
 
   // get details of the quote
-  console.log(quote.fiatAmount)
-  console.log(quote.tokenAmount)
-  console.log(quote.token)
-  console.log(quote.network)
+  console.log("Fiat amount: ", quote.fiatAmount)
+  console.log("Token amount: ", quote.tokenAmount)
+  console.log("Token: ", quote.token)
+  console.log("Network: ", quote.network)
   for (const fee of quote.fees) {
-    console.log(fee.type) // operation or network
-    console.log(fee.amount) // amount in the token
-    console.log(fee.currency) // currency of the amount
+    console.log("Fee type: ", fee.type) // operation or network
+    console.log("Fee amount: ", fee.amount) // amount in the token
+    console.log("Fee currency: ", fee.currency) // currency of the amount
   }
 }
 

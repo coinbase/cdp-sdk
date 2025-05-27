@@ -13,19 +13,19 @@ async def main():
 
         quote = await account.quote_fund(
             network="base",
-            token="usdc",
-            amount=1000000,  # 1 USDC
+            token="eth",
+            amount=500000000000000, # 0.0005 eth
         )
 
         # get details of the quote
-        print(quote.fiat_amount)
-        print(quote.token_amount)
-        print(quote.token)
-        print(quote.network)
+        print("Fiat amount: ", quote.fiat_amount)
+        print("Token amount: ", quote.token_amount)
+        print("Token: ", quote.token)
+        print("Network: ", quote.network)
         for fee in quote.fees:
-            print(fee.type)  # operation or network
-            print(fee.amount)  # amount in the token
-            print(fee.currency)  # currency of the amount
+            print("Fee type: ", fee.type)  # operation or network
+            print("Fee amount: ", fee.amount)  # amount in the token
+            print("Fee currency: ", fee.currency)  # currency of the amount
 
         response = await quote.execute()
 

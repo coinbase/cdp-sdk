@@ -8,8 +8,8 @@ async function main() {
 
   const fundOperation = await account.fund({
     network: "base",
-    token: "usdc",
-    amount: 1000000n, // 1 USDC
+    token: "eth",
+    amount: 500000000000000n, // 0.0005 eth
   });
 
 

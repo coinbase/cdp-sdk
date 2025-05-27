@@ -13,8 +13,8 @@ async def main():
 
         fund_operation = await account.fund(
             network="base",
-            token="usdc",
-            amount=1000000,  # 1 USDC
+            token="eth",
+            amount=500000000000000, # 0.0005 eth
         )
 
         completed_transfer = await account.wait_for_fund_operation_receipt(
