@@ -1,6 +1,7 @@
 // Usage: pnpm tsx evm/smartAccount.quoteAndExecute.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
+import "dotenv/config";
 
 async function main() {
   const cdp = new CdpClient();
@@ -19,7 +20,7 @@ async function main() {
   console.log(quote.token)
   console.log(quote.network)
   for (const fee of quote.fees) {
-    console.log(fee.type) // operation or network
+    console.log(fee.type) // network_fee or exchange_fee
     console.log(fee.amount) // amount in the token
     console.log(fee.currency) // currency of the amount
   }

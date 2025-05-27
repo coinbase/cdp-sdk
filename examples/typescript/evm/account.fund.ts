@@ -1,7 +1,7 @@
 // Usage: pnpm tsx evm/account.fund.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
-
+import "dotenv/config";
 async function main() {
   const cdp = new CdpClient();
   const account = await cdp.evm.getOrCreateAccount({ name: "account" });

@@ -1,6 +1,7 @@
 // Usage: pnpm tsx evm/smartAccount.fund.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
+import "dotenv/config";
 
 async function main() {
   const cdp = new CdpClient();

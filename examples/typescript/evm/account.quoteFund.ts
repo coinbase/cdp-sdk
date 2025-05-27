@@ -1,6 +1,7 @@
 // Usage: pnpm tsx evm/account.quoteFund.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
+import "dotenv/config";
 
 async function main() {
   const cdp = new CdpClient();
@@ -9,7 +10,7 @@ async function main() {
   const quote = await account.quoteFund({
     network: "base",
     token: "usdc",
-    amount: 100000000n, // 100 USDC
+    amount: 1000000n, // 1 USDC
   });
 
   // get details of the quote
