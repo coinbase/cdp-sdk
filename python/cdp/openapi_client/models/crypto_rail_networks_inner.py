@@ -18,19 +18,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
-class CryptoRailAddress(BaseModel):
+class CryptoRailNetworksInner(BaseModel):
     """
-    The crypto rail input object which specifies the symbol, network, and address which is the source or destination wallet address.
+    The networks of the asset.
     """ # noqa: E501
-    currency: StrictStr = Field(description="The symbol of the currency of the payment rail.")
-    network: StrictStr = Field(description="The network of the payment rail.")
-    address: StrictStr = Field(description="The address of the payment rail. This is the source or destination wallet address. It is not a contract address.")
-    __properties: ClassVar[List[str]] = ["currency", "network", "address"]
+    name: Optional[StrictStr] = Field(default=None, description="The name of the network.")
+    chain_id: Optional[StrictInt] = Field(default=None, description="The chain ID of the network.", alias="chainId")
+    contract_address: Optional[StrictStr] = Field(default=None, description="The contract address of the asset on the network.", alias="contractAddress")
+    __properties: ClassVar[List[str]] = ["name", "chainId", "contractAddress"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -50,7 +50,7 @@ class CryptoRailAddress(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CryptoRailAddress from a JSON string"""
+        """Create an instance of CryptoRailNetworksInner from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -75,7 +75,7 @@ class CryptoRailAddress(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CryptoRailAddress from a dict"""
+        """Create an instance of CryptoRailNetworksInner from a dict"""
         if obj is None:
             return None
 
@@ -83,9 +83,9 @@ class CryptoRailAddress(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "currency": obj.get("currency"),
-            "network": obj.get("network"),
-            "address": obj.get("address")
+            "name": obj.get("name"),
+            "chainId": obj.get("chainId"),
+            "contractAddress": obj.get("contractAddress")
         })
         return _obj
 

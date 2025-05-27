@@ -47,6 +47,7 @@ from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.create_solana_account_request import CreateSolanaAccountRequest
 from cdp.openapi_client.models.crypto_rail import CryptoRail
 from cdp.openapi_client.models.crypto_rail_address import CryptoRailAddress
+from cdp.openapi_client.models.crypto_rail_networks_inner import CryptoRailNetworksInner
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.error import Error

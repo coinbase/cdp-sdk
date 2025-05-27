@@ -36,13 +36,13 @@ class TestCryptoRailAddress(unittest.TestCase):
         model = CryptoRailAddress()
         if include_optional:
             return CryptoRailAddress(
-                symbol = 'USDC',
+                currency = 'USDC',
                 network = 'base',
                 address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             )
         else:
             return CryptoRailAddress(
-                symbol = 'USDC',
+                currency = 'USDC',
                 network = 'base',
                 address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
         )

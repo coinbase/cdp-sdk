@@ -20,6 +20,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
+from cdp.openapi_client.models.crypto_rail_networks_inner import CryptoRailNetworksInner
 from cdp.openapi_client.models.payment_rail_action import PaymentRailAction
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,11 +29,11 @@ class CryptoRail(BaseModel):
     """
     The crypto rails available.
     """ # noqa: E501
+    currency: StrictStr = Field(description="The currency symbol of the asset.")
     name: StrictStr = Field(description="The name of the asset.")
-    symbol: StrictStr = Field(description="The symbol of the asset.")
-    network: StrictStr = Field(description="The network of the asset.")
+    networks: List[CryptoRailNetworksInner] = Field(description="All available networks of the asset.")
     actions: List[PaymentRailAction] = Field(description="The actions for the crypto rail.")
-    __properties: ClassVar[List[str]] = ["name", "symbol", "network", "actions"]
+    __properties: ClassVar[List[str]] = ["currency", "name", "networks", "actions"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -73,6 +74,13 @@ class CryptoRail(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in networks (list)
+        _items = []
+        if self.networks:
+            for _item_networks in self.networks:
+                if _item_networks:
+                    _items.append(_item_networks.to_dict())
+            _dict['networks'] = _items
         return _dict
 
     @classmethod
@@ -85,9 +93,9 @@ class CryptoRail(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "currency": obj.get("currency"),
             "name": obj.get("name"),
-            "symbol": obj.get("symbol"),
-            "network": obj.get("network"),
+            "networks": [CryptoRailNetworksInner.from_dict(_item) for _item in obj["networks"]] if obj.get("networks") is not None else None,
             "actions": obj.get("actions")
         })
         return _obj

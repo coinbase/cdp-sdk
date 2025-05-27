@@ -36,16 +36,16 @@ class TestCryptoRail(unittest.TestCase):
         model = CryptoRail()
         if include_optional:
             return CryptoRail(
+                currency = 'USDC',
                 name = 'USD Coin',
-                symbol = 'USDC',
-                network = 'base',
+                networks = [{"name":"base","chainId":8453,"contractAddress":"0xd9aa0e1babc7397f2c6cb2f9b6edb6f6953b4d62"}],
                 actions = ["source","target"]
             )
         else:
             return CryptoRail(
+                currency = 'USDC',
                 name = 'USD Coin',
-                symbol = 'USDC',
-                network = 'base',
+                networks = [{"name":"base","chainId":8453,"contractAddress":"0xd9aa0e1babc7397f2c6cb2f9b6edb6f6953b4d62"}],
                 actions = ["source","target"],
         )
         """

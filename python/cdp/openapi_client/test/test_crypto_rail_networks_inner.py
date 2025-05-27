@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.transfer_target import TransferTarget
+from cdp.openapi_client.models.crypto_rail_networks_inner import CryptoRailNetworksInner
 
-class TestTransferTarget(unittest.TestCase):
-    """TransferTarget unit test stubs"""
+class TestCryptoRailNetworksInner(unittest.TestCase):
+    """CryptoRailNetworksInner unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,27 @@ class TestTransferTarget(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> TransferTarget:
-        """Test TransferTarget
+    def make_instance(self, include_optional) -> CryptoRailNetworksInner:
+        """Test CryptoRailNetworksInner
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `TransferTarget`
+        # uncomment below to create an instance of `CryptoRailNetworksInner`
         """
-        model = TransferTarget()
+        model = CryptoRailNetworksInner()
         if include_optional:
-            return TransferTarget(
-                currency = 'USDC',
-                network = 'base',
-                address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            return CryptoRailNetworksInner(
+                name = 'base',
+                chain_id = 8453,
+                contract_address = '0xd9aa0e1babc7397f2c6cb2f9b6edb6f6953b4d62'
             )
         else:
-            return TransferTarget(
-                currency = 'USDC',
-                network = 'base',
-                address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+            return CryptoRailNetworksInner(
         )
         """
 
-    def testTransferTarget(self):
-        """Test TransferTarget"""
+    def testCryptoRailNetworksInner(self):
+        """Test CryptoRailNetworksInner"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 
