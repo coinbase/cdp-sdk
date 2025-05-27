@@ -22,7 +22,7 @@ import type {
 export const getGetPaymentMethodsResponseMock = (): PaymentMethod[] =>
   Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
     id: faker.helpers.fromRegExp(
-      "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
     ),
     type: faker.helpers.arrayElement(["card", "fiat_account"] as const),
     currency: faker.string.alpha(20),
@@ -70,7 +70,7 @@ export const getCreatePaymentTransferQuoteResponsePaymentMethodRequestMock = (
 ): PaymentMethodRequest => ({
   ...{
     id: faker.helpers.fromRegExp(
-      "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
     ),
   },
   ...overrideResponse,
@@ -92,7 +92,7 @@ export const getCreatePaymentTransferQuoteResponseMock = (
 ): CreatePaymentTransferQuote201 => ({
   transfer: {
     id: faker.helpers.fromRegExp(
-      "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
     ),
     sourceType: faker.helpers.arrayElement(["payment_method"] as const),
     source: faker.helpers.arrayElement([
@@ -135,7 +135,7 @@ export const getExecutePaymentTransferQuoteResponsePaymentMethodRequestMock = (
 ): PaymentMethodRequest => ({
   ...{
     id: faker.helpers.fromRegExp(
-      "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
     ),
   },
   ...overrideResponse,
@@ -156,7 +156,7 @@ export const getExecutePaymentTransferQuoteResponseMock = (
   overrideResponse: Partial<Transfer> = {},
 ): Transfer => ({
   id: faker.helpers.fromRegExp(
-    "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+    "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
   ),
   sourceType: faker.helpers.arrayElement(["payment_method"] as const),
   source: faker.helpers.arrayElement([
@@ -196,7 +196,7 @@ export const getGetPaymentTransferResponsePaymentMethodRequestMock = (
 ): PaymentMethodRequest => ({
   ...{
     id: faker.helpers.fromRegExp(
-      "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
     ),
   },
   ...overrideResponse,
@@ -217,7 +217,7 @@ export const getGetPaymentTransferResponseMock = (
   overrideResponse: Partial<Transfer> = {},
 ): Transfer => ({
   id: faker.helpers.fromRegExp(
-    "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+    "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
   ),
   sourceType: faker.helpers.arrayElement(["payment_method"] as const),
   source: faker.helpers.arrayElement([

@@ -636,7 +636,7 @@ export type PaymentMethodLimits = {
 export interface PaymentMethod {
   /**
    * The ID of the payment method which previously was added.
-   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
    */
   id: string;
   /** The type of payment method. */
@@ -681,7 +681,7 @@ export interface CryptoRail {
 export interface PaymentMethodRequest {
   /**
    * The ID of the payment method.
-   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
    */
   id: string;
 }
@@ -773,7 +773,7 @@ export const TransferStatus = {
 export interface Transfer {
   /**
    * The ID of the transfer.
-   * @pattern ^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
    */
   id: string;
   /** The type of the source of the transfer. */

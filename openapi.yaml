@@ -3881,7 +3881,7 @@ components:
       properties:
         id:
           type: string
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           example: 8e03978e-40d5-43e8-bc93-6894a57f9324
           description: The ID of the payment method which previously was added.
         type:
@@ -4019,7 +4019,7 @@ components:
       properties:
         id:
           type: string
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           description: The ID of the payment method.
           example: 8e03978e-40d5-43e8-bc93-6894a57f9324
       required:
@@ -4094,7 +4094,7 @@ components:
       properties:
         id:
           type: string
-          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           example: 8e03978e-40d5-43e8-bc93-6894a57f9324
           description: The ID of the transfer.
         sourceType:
