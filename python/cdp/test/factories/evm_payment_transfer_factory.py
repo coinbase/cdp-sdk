@@ -14,24 +14,32 @@ def payment_transfer_model_factory():
     def _create_payment_transfer_model(
         id="123e4567-e89b-12d3-a456-426614174000",
         source_type="payment_method",
-        source=TransferSource(PaymentMethodRequest(id="123e4567-e89b-12d3-a456-426614174000")),
+        source=None,
         target_type="crypto_rail",
-        target=TransferTarget(
-            CryptoRailAddress(
-                symbol="usdc", network="base", address="0x1234567890123456789012345678901234567890"
-            )
-        ),
+        target=None,
         source_amount="1",
         source_currency="usd",
         target_amount="1",
         target_currency="usdc",
         user_amount="1",
         user_currency="usd",
-        fees=[],
+        fees=None,
         status="pending",
         created_at="2021-01-01T00:00:00.000Z",
         updated_at="2021-01-01T00:00:00.000Z",
     ):
+        if fees is None:
+            fees = []
+        if source is None:
+            source = TransferSource(PaymentMethodRequest(id="123e4567-e89b-12d3-a456-426614174000"))
+        if target is None:
+            target = TransferTarget(
+                CryptoRailAddress(
+                    symbol="usdc",
+                    network="base",
+                    address="0x1234567890123456789012345678901234567890",
+                )
+            )
         return Transfer(
             id=id,
             source_type=source_type,

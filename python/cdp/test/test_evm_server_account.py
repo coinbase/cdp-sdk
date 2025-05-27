@@ -592,7 +592,7 @@ async def test_fund_transfer_eth(
     assert call_args["create_payment_transfer_quote_request"].target_type == "crypto_rail"
     assert call_args["create_payment_transfer_quote_request"].amount == "1.1"
     assert call_args["create_payment_transfer_quote_request"].currency == "eth"
-    assert call_args["create_payment_transfer_quote_request"].execute == True
+    assert call_args["create_payment_transfer_quote_request"].execute is True
 
     assert result.transfer == payment_transfer
 
@@ -633,7 +633,7 @@ async def test_fund_transfer_usdc(
     assert call_args["create_payment_transfer_quote_request"].target_type == "crypto_rail"
     assert call_args["create_payment_transfer_quote_request"].amount == "1"
     assert call_args["create_payment_transfer_quote_request"].currency == "usdc"
-    assert call_args["create_payment_transfer_quote_request"].execute == True
+    assert call_args["create_payment_transfer_quote_request"].execute is True
 
     assert result.transfer == payment_transfer
 
