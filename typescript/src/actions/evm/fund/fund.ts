@@ -42,6 +42,10 @@ export async function fund(
     throw new Error("No card found to fund account");
   }
 
+  if (options.token.toLowerCase() !== "eth" && options.token.toLowerCase() !== "usdc") {
+    throw new Error("Invalid currency, must be eth or usdc");
+  }
+
   const decimals = options.token === "eth" ? 18 : 6;
   const amount = formatUnits(options.amount, decimals);
 
