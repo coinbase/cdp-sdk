@@ -84,7 +84,7 @@ tags:
       ### Payment Rails
       Payment rails are the the source or the target of a transfer.
       We support the following payment rails:
-      - Crypto rails: Onchain currency and networks to send and receive crypto (e.g. Symbol: USDC, Network: Ethereum, Solana, Bitcoin, Polygon, Avalanche).
+      - Crypto rails: Onchain currency and networks to send and receive crypto (e.g. Currency: USDC, Network: Ethereum, Solana, Bitcoin, Polygon, Avalanche).
       - Payment methods: Payment methods that are previously added in your account (e.g Debit Card).
       ### Transfer
       A Transfer is a money movement between two payment rails. we support the following transfer types:
@@ -3958,18 +3958,38 @@ components:
       description: The crypto rails available.
       type: object
       properties:
+        currency:
+          type: string
+          example: USDC
+          description: The currency symbol of the asset.
         name:
           type: string
           example: USD Coin
           description: The name of the asset.
-        symbol:
-          type: string
-          example: USDC
-          description: The symbol of the asset.
-        network:
-          type: string
-          example: base
-          description: The network of the asset.
+        networks:
+          description: All available networks of the asset.
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: base
+                description: The name of the network.
+              chainId:
+                type: integer
+                format: int64
+                example: 8453
+                description: The chain ID of the network.
+              contractAddress:
+                type: string
+                example: '0xd9aa0e1babc7397f2c6cb2f9b6edb6f6953b4d62'
+                description: The contract address of the asset on the network.
+            description: The networks of the asset.
+          example:
+            - name: base
+              chainId: 8453
+              contractAddress: '0xd9aa0e1babc7397f2c6cb2f9b6edb6f6953b4d62'
         actions:
           type: array
           items:
@@ -3979,14 +3999,17 @@ components:
             - target
           description: The actions for the crypto rail.
       required:
+        - currency
         - name
-        - symbol
-        - network
+        - networks
         - actions
       example:
         name: USD Coin
-        symbol: USDC
-        network: base
+        currency: USDC
+        networks:
+          - name: base
+            chainId: 8453
+            contractAddress: '0xd9aa0e1babc7397f2c6cb2f9b6edb6f6953b4d62'
         actions:
           - source
           - target
@@ -4012,7 +4035,7 @@ components:
       type: object
       description: The crypto rail input object which specifies the symbol, network, and address which is the source or destination wallet address.
       properties:
-        symbol:
+        currency:
           type: string
           description: The symbol of the currency of the payment rail.
           example: USDC
@@ -4025,7 +4048,7 @@ components:
           description: The address of the payment rail. This is the source or destination wallet address. It is not a contract address.
           example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
       required:
-        - symbol
+        - currency
         - network
         - address
     TransferTarget:
@@ -4099,7 +4122,7 @@ components:
             - $ref: '#/components/schemas/CryptoRailAddress'
           description: The target of the transfer.
           example:
-            symbol: USDC
+            currency: USDC
             network: base
             address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
         sourceAmount:
@@ -4183,7 +4206,7 @@ components:
           id: 8e03978e-40d5-43e8-bc93-6894a57f9324
         targetType: crypto_rail
         target:
-          symbol: USDC
+          currency: USDC
           network: base
           address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
         sourceAmount: '110.50'

@@ -650,15 +650,27 @@ export interface PaymentMethod {
 }
 
 /**
+ * The networks of the asset.
+ */
+export type CryptoRailNetworksItem = {
+  /** The name of the network. */
+  name?: string;
+  /** The chain ID of the network. */
+  chainId?: number;
+  /** The contract address of the asset on the network. */
+  contractAddress?: string;
+};
+
+/**
  * The crypto rails available.
  */
 export interface CryptoRail {
+  /** The currency symbol of the asset. */
+  currency: string;
   /** The name of the asset. */
   name: string;
-  /** The symbol of the asset. */
-  symbol: string;
-  /** The network of the asset. */
-  network: string;
+  /** All available networks of the asset. */
+  networks: CryptoRailNetworksItem[];
   /** The actions for the crypto rail. */
   actions: PaymentRailAction[];
 }
@@ -684,7 +696,7 @@ export type TransferSource = PaymentMethodRequest;
  */
 export interface CryptoRailAddress {
   /** The symbol of the currency of the payment rail. */
-  symbol: string;
+  currency: string;
   /** The network of the payment rail. */
   network: string;
   /** The address of the payment rail. This is the source or destination wallet address. It is not a contract address. */

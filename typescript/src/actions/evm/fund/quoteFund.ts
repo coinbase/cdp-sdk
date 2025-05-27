@@ -52,7 +52,7 @@ export async function quoteFund(
     },
     targetType: CreatePaymentTransferQuoteBodyTargetType.crypto_rail,
     target: {
-      symbol: options.token,
+      currency: options.token,
       network: options.network,
       address: options.address,
     },

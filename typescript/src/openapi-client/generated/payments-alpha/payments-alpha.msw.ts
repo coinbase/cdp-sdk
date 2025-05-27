@@ -50,9 +50,18 @@ export const getGetPaymentMethodsResponseMock = (): PaymentMethod[] =>
 
 export const getGetCryptoRailsResponseMock = (): CryptoRail[] =>
   Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+    currency: faker.string.alpha(20),
     name: faker.string.alpha(20),
-    symbol: faker.string.alpha(20),
-    network: faker.string.alpha(20),
+    networks: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        chainId: faker.helpers.arrayElement([
+          faker.number.int({ min: undefined, max: undefined }),
+          undefined,
+        ]),
+        contractAddress: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+      }),
+    ),
     actions: faker.helpers.arrayElements(Object.values(PaymentRailAction)),
   }));
 
@@ -71,7 +80,7 @@ export const getCreatePaymentTransferQuoteResponseCryptoRailAddressMock = (
   overrideResponse: Partial<CryptoRailAddress> = {},
 ): CryptoRailAddress => ({
   ...{
-    symbol: faker.string.alpha(20),
+    currency: faker.string.alpha(20),
     network: faker.string.alpha(20),
     address: faker.string.alpha(20),
   },
@@ -136,7 +145,7 @@ export const getExecutePaymentTransferQuoteResponseCryptoRailAddressMock = (
   overrideResponse: Partial<CryptoRailAddress> = {},
 ): CryptoRailAddress => ({
   ...{
-    symbol: faker.string.alpha(20),
+    currency: faker.string.alpha(20),
     network: faker.string.alpha(20),
     address: faker.string.alpha(20),
   },
@@ -197,7 +206,7 @@ export const getGetPaymentTransferResponseCryptoRailAddressMock = (
   overrideResponse: Partial<CryptoRailAddress> = {},
 ): CryptoRailAddress => ({
   ...{
-    symbol: faker.string.alpha(20),
+    currency: faker.string.alpha(20),
     network: faker.string.alpha(20),
     address: faker.string.alpha(20),
   },
