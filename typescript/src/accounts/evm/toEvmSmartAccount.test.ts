@@ -215,7 +215,7 @@ describe("toEvmSmartAccount", () => {
       target: {
         network: "base",
         address: mockAddress,
-        symbol: "usdc",
+        currency: "usdc",
       },
       amount: "0.000001",
       currency: "usdc",
@@ -244,7 +244,7 @@ describe("toEvmSmartAccount", () => {
       target: {
         network: "base",
         address: mockAddress,
-        symbol: "usdc",
+        currency: "usdc",
       },
       amount: "0.000001",
       currency: "usdc",

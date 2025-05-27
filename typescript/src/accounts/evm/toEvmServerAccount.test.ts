@@ -50,7 +50,7 @@ describe("toEvmServerAccount", () => {
       target: {
         network: "base",
         address: mockAddress,
-        symbol: "usdc",
+        currency: "usdc",
       },
       sourceAmount: "0.000001",
       sourceCurrency: "usd",
@@ -205,7 +205,7 @@ describe("toEvmServerAccount", () => {
       target: {
         network: "base",
         address: mockAddress,
-        symbol: "usdc",
+        currency: "usdc",
       },
       amount: "0.000001",
       currency: "usdc",
@@ -229,7 +229,7 @@ describe("toEvmServerAccount", () => {
       target: {
         network: "base",
         address: mockAddress,
-        symbol: "usdc",
+        currency: "usdc",
       },
       amount: "0.000001",
       currency: "usdc",

@@ -26,7 +26,7 @@ describe("fund", () => {
     target: {
       network: "ethereum",
       address: address,
-      symbol: "eth",
+      currency: "eth",
     },
     sourceAmount: "1000",
     sourceCurrency: "usd",
@@ -56,7 +56,7 @@ describe("fund", () => {
     target: {
       network: "base",
       address: address,
-      symbol: "usdc",
+      currency: "usdc",
     },
     sourceAmount: "1",
     sourceCurrency: "usd",
@@ -100,7 +100,7 @@ describe("fund", () => {
       target: {
         network: "ethereum",
         address: address,
-        symbol: "eth",
+        currency: "eth",
       },
       amount: "1",
       currency: "eth",
@@ -136,7 +136,7 @@ describe("fund", () => {
       target: {
         network: "base",
         address: address,
-        symbol: "usdc",
+        currency: "usdc",
       },
       amount: "1",
       currency: "usdc",

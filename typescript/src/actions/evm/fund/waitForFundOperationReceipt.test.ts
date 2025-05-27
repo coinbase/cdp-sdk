@@ -49,7 +49,7 @@ describe("waitForFundOperationReceipt", () => {
       transfer: completedTransfer,
     });
 
-    expect(waitOpts).toEqual({ timeoutSeconds: 300 });
+    expect(waitOpts).toEqual({ timeoutSeconds: 300, intervalSeconds: 1 });
 
     expect(result).toEqual({
       transfer: completedTransfer,
