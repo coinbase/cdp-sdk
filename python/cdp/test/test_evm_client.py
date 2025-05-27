@@ -1,10 +1,12 @@
-from unittest.mock import AsyncMock, patch
+import base64
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from eth_account.typed_transactions import DynamicFeeTransaction
 from web3 import Web3
 
 from cdp.api_clients import ApiClients
+from cdp.constants import ImportEvmAccountPublicRSAKey
 from cdp.evm_client import EvmClient
 from cdp.evm_token_balances import (
     EvmToken,
@@ -21,6 +23,7 @@ from cdp.openapi_client.models.create_evm_smart_account_request import (
 )
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
+from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
 from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
@@ -75,6 +78,178 @@ async def test_create_account(server_account_model_factory):
 
     assert result.address == evm_server_account_model.address
     assert result.name == evm_server_account_model.name
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_client.load_pem_public_key")
+@patch("cdp.evm_client.padding")
+@patch("cdp.evm_client.hashes")
+async def test_import_account(
+    mock_hashes, mock_padding, mock_load_pem_public_key, server_account_model_factory
+):
+    """Test importing an EVM account."""
+    # Create mock objects for padding and hashes
+    mock_sha256 = MagicMock()
+    mock_hashes.SHA256.return_value = mock_sha256
+    mock_mgf1 = MagicMock()
+    mock_mgf1.algorithm = mock_sha256
+    mock_oaep = MagicMock()
+    mock_oaep.mgf = mock_mgf1
+    mock_oaep.algorithm = mock_sha256
+    mock_oaep.label = None
+
+    # Set up the padding mock to return our mock OAEP
+    mock_padding.OAEP.return_value = mock_oaep
+    mock_padding.MGF1.return_value = mock_mgf1
+
+    # Mock the public key and encryption
+    test_encrypted_private_key = b"encrypted_private_key"
+    mock_public_key = MagicMock()
+    mock_public_key.encrypt.return_value = test_encrypted_private_key
+    mock_load_pem_public_key.return_value = mock_public_key
+
+    evm_server_account_model = server_account_model_factory()
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+    mock_evm_accounts_api.import_evm_account = AsyncMock(return_value=evm_server_account_model)
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    test_private_key = "0x1234567890123456789012345678901234567890123456789012345678901234"
+    test_private_key_bytes = bytes.fromhex(test_private_key[2:])
+    test_name = "test-account"
+    test_idempotency_key = "65514b9d-ffa1-4d46-ac59-ac88b5f651ae"
+
+    result = await client.import_account(
+        private_key=test_private_key,
+        name=test_name,
+        idempotency_key=test_idempotency_key,
+    )
+
+    # Verify the encryption was called with correct parameters
+    mock_load_pem_public_key.assert_called_once_with(ImportEvmAccountPublicRSAKey.encode())
+    mock_public_key.encrypt.assert_called_once_with(
+        test_private_key_bytes,
+        mock_oaep,
+    )
+
+    # Verify the padding was set up correctly
+    mock_padding.OAEP.assert_called_once_with(mgf=mock_mgf1, algorithm=mock_sha256, label=None)
+    mock_padding.MGF1.assert_called_once_with(algorithm=mock_sha256)
+
+    # Verify the API call was made with base64 encoded encrypted key
+    test_encrypted_private_key_base64 = base64.b64encode(test_encrypted_private_key).decode("utf-8")
+    mock_evm_accounts_api.import_evm_account.assert_called_once_with(
+        import_evm_account_request=ImportEvmAccountRequest(
+            encrypted_private_key=test_encrypted_private_key_base64,
+            name=test_name,
+        ),
+        x_idempotency_key=test_idempotency_key,
+    )
+
+    assert result.address == evm_server_account_model.address
+    assert result.name == evm_server_account_model.name
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_client.load_pem_public_key")
+@patch("cdp.evm_client.padding")
+@patch("cdp.evm_client.hashes")
+async def test_import_account_without_0x_prefix(
+    mock_hashes, mock_padding, mock_load_pem_public_key, server_account_model_factory
+):
+    """Test importing an EVM account with private key without 0x prefix."""
+    # Create mock objects for padding and hashes
+    mock_sha256 = MagicMock()
+    mock_hashes.SHA256.return_value = mock_sha256
+    mock_mgf1 = MagicMock()
+    mock_mgf1.algorithm = mock_sha256
+    mock_oaep = MagicMock()
+    mock_oaep.mgf = mock_mgf1
+    mock_oaep.algorithm = mock_sha256
+    mock_oaep.label = None
+
+    # Set up the padding mock to return our mock OAEP
+    mock_padding.OAEP.return_value = mock_oaep
+    mock_padding.MGF1.return_value = mock_mgf1
+
+    # Mock the public key and encryption
+    test_encrypted_private_key = b"encrypted_private_key"
+    mock_public_key = MagicMock()
+    mock_public_key.encrypt.return_value = test_encrypted_private_key
+    mock_load_pem_public_key.return_value = mock_public_key
+
+    evm_server_account_model = server_account_model_factory()
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+    mock_evm_accounts_api.import_evm_account = AsyncMock(return_value=evm_server_account_model)
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    # Private key without 0x prefix
+    test_private_key = "1234567890123456789012345678901234567890123456789012345678901234"
+    test_private_key_bytes = bytes.fromhex(test_private_key)
+    test_name = "test-account"
+    test_idempotency_key = "65514b9d-ffa1-4d46-ac59-ac88b5f651ae"
+
+    result = await client.import_account(
+        private_key=test_private_key,
+        name=test_name,
+        idempotency_key=test_idempotency_key,
+    )
+
+    # Verify the encryption was called with correct parameters
+    mock_load_pem_public_key.assert_called_once_with(ImportEvmAccountPublicRSAKey.encode())
+    mock_public_key.encrypt.assert_called_once_with(
+        test_private_key_bytes,
+        mock_oaep,
+    )
+
+    # Verify the padding was set up correctly
+    mock_padding.OAEP.assert_called_once_with(mgf=mock_mgf1, algorithm=mock_sha256, label=None)
+    mock_padding.MGF1.assert_called_once_with(algorithm=mock_sha256)
+
+    # Verify the API call was made with base64 encoded encrypted key
+    test_encrypted_private_key_base64 = base64.b64encode(test_encrypted_private_key).decode("utf-8")
+    mock_evm_accounts_api.import_evm_account.assert_called_once_with(
+        import_evm_account_request=ImportEvmAccountRequest(
+            encrypted_private_key=test_encrypted_private_key_base64,
+            name=test_name,
+        ),
+        x_idempotency_key=test_idempotency_key,
+    )
+
+    assert result.address == evm_server_account_model.address
+    assert result.name == evm_server_account_model.name
+
+
+@pytest.mark.asyncio
+async def test_import_account_invalid_private_key():
+    """Test importing an EVM account with invalid private key."""
+    client = EvmClient(api_clients=AsyncMock())
+
+    # Test with non-hex characters
+    with pytest.raises(ValueError, match="Private key must be a valid hexadecimal string"):
+        await client.import_account(
+            private_key="0xnot-a-valid-hex-string",
+            name="test-account",
+        )
+
+    # Test with empty string
+    with pytest.raises(ValueError, match="Private key must be a valid hexadecimal string"):
+        await client.import_account(
+            private_key="",
+            name="test-account",
+        )
+
+    # Test with invalid hex characters
+    with pytest.raises(ValueError, match="Private key must be a valid hexadecimal string"):
+        await client.import_account(
+            private_key="0x123456789012345678901234567890123456789012345678901234567890123g",
+            name="test-account",
+        )
 
 
 @pytest.mark.asyncio
