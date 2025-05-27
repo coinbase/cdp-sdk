@@ -6,7 +6,7 @@ from cdp.api_clients import ApiClients
 async def wait_for_fund_operation_receipt(
     api_clients: ApiClients,
     transfer_id: str,
-    timeout_seconds: float = 300,
+    timeout_seconds: float = 900,
     interval_seconds: float = 1,
 ):
     """Wait for a fund operation to be processed.

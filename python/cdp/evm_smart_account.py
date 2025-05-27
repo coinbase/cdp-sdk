@@ -342,14 +342,14 @@ class EvmSmartAccount(BaseModel):
     async def wait_for_fund_operation_receipt(
         self,
         transfer_id: str,
-        timeout_seconds: float = 300,
+        timeout_seconds: float = 900,
         interval_seconds: float = 1,
     ) -> Transfer:
         """Wait for a fund operation to complete.
 
         Args:
             transfer_id: The ID of the transfer to wait for.
-            timeout_seconds: The maximum time to wait for completion in seconds. Defaults to 300 (5 minutes).
+            timeout_seconds: The maximum time to wait for completion in seconds. Defaults to 900 (15 minutes).
             interval_seconds: The time between status checks in seconds. Defaults to 1.
 
         Returns:
