@@ -36,7 +36,7 @@ describe("transfer", () => {
     getUserOperation: vi.fn(),
     quoteFund: vi.fn(),
     fund: vi.fn(),
-    waitForFundOperationReceipt: vi.fn()
+    waitForFundOperationReceipt: vi.fn(),
   };
 
   const mockTransferStrategy: TransferExecutionStrategy<EvmAccount | EvmSmartAccount> = {

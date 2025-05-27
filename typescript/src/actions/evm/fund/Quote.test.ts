@@ -23,11 +23,13 @@ describe("Quote", () => {
     targetCurrency: "eth",
     userAmount: "1000",
     userCurrency: "usd",
-    fees: [{
-      type: "exchange_fee",
-      amount: "1",
-      currency: "usd"
-    }],
+    fees: [
+      {
+        type: "exchange_fee",
+        amount: "1",
+        currency: "usd",
+      },
+    ],
     status: "pending",
     createdAt: "2021-01-01T00:00:00.000Z",
     updatedAt: "2021-01-01T00:00:00.000Z",
@@ -41,20 +43,13 @@ describe("Quote", () => {
   });
 
   it("should create a Quote instance with correct properties", () => {
-    const quote = new Quote(
-      mockApiClient,
-      "0xmocktransferid",
-      "base",
-      "1000",
-      "usd",
-      "1",
-      "eth",
-      [{
+    const quote = new Quote(mockApiClient, "0xmocktransferid", "base", "1000", "usd", "1", "eth", [
+      {
         type: "exchange_fee",
         amount: "1",
-        currency: "usd"
-      }]
-    );
+        currency: "usd",
+      },
+    ]);
 
     expect(quote.quoteId).toBe("0xmocktransferid");
     expect(quote.network).toBe("base");
@@ -62,34 +57,29 @@ describe("Quote", () => {
     expect(quote.fiatCurrency).toBe("usd");
     expect(quote.tokenAmount).toBe("1");
     expect(quote.token).toBe("eth");
-    expect(quote.fees).toEqual([{
-      type: "exchange_fee",
-      amount: "1",
-      currency: "usd"
-    }]);
+    expect(quote.fees).toEqual([
+      {
+        type: "exchange_fee",
+        amount: "1",
+        currency: "usd",
+      },
+    ]);
   });
 
   it("should execute the quote successfully", async () => {
-    const quote = new Quote(
-      mockApiClient,
-      "0xmocktransferid",
-      "base",
-      "1000",
-      "usd",
-      "1",
-      "eth",
-      [{
+    const quote = new Quote(mockApiClient, "0xmocktransferid", "base", "1000", "usd", "1", "eth", [
+      {
         type: "exchange_fee",
         amount: "1",
-        currency: "usd"
-      }]
-    );
+        currency: "usd",
+      },
+    ]);
 
     const result = await quote.execute();
 
     expect(mockApiClient.executePaymentTransferQuote).toHaveBeenCalledWith("0xmocktransferid");
     expect(result).toEqual({
-      transfer: mockTransfer
+      transfer: mockTransfer,
     });
   });
 
@@ -97,20 +87,13 @@ describe("Quote", () => {
     const error = new Error("API Error");
     mockApiClient.executePaymentTransferQuote = vi.fn().mockRejectedValue(error);
 
-    const quote = new Quote(
-      mockApiClient,
-      "0xmocktransferid",
-      "base",
-      "1000",
-      "usd",
-      "1",
-      "eth",
-      [{
+    const quote = new Quote(mockApiClient, "0xmocktransferid", "base", "1000", "usd", "1", "eth", [
+      {
         type: "exchange_fee",
         amount: "1",
-        currency: "usd"
-      }]
-    );
+        currency: "usd",
+      },
+    ]);
 
     await expect(quote.execute()).rejects.toThrow("API Error");
     expect(mockApiClient.executePaymentTransferQuote).toHaveBeenCalledWith("0xmocktransferid");

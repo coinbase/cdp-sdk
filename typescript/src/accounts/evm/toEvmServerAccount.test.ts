@@ -38,7 +38,7 @@ describe("toEvmServerAccount", () => {
         actions: ["source"],
         currency: "usd",
       },
-    ]
+    ];
 
     mockTransfer = {
       id: "0xmocktransferid",

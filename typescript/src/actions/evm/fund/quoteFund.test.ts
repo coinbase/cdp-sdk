@@ -5,9 +5,8 @@ import { Address } from "../../../types/misc.js";
 import { parseEther } from "viem";
 import { quoteFund, QuoteFundOptions } from "./quoteFund.js";
 
-
 describe("quoteFund", () => {
-  const address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" as Address
+  const address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" as Address;
   const mockPaymentMethods = [
     {
       id: "0xmockpaymentmethodid",
@@ -15,7 +14,7 @@ describe("quoteFund", () => {
       actions: ["source"],
       currency: "usd",
     },
-  ]
+  ];
 
   const mockEthTransfer = {
     id: "0xmocktransferid",
@@ -35,15 +34,17 @@ describe("quoteFund", () => {
     targetCurrency: "eth",
     userAmount: "1000",
     userCurrency: "usd",
-    fees: [{
-      type: "exchange_fee",
-      amount: "1",
-      currency: "usd"
-    }],
+    fees: [
+      {
+        type: "exchange_fee",
+        amount: "1",
+        currency: "usd",
+      },
+    ],
     status: "pending",
     createdAt: "2021-01-01T00:00:00.000Z",
     updatedAt: "2021-01-01T00:00:00.000Z",
-  }
+  };
 
   const mockTransfer = {
     id: "0xmocktransferid",
@@ -68,7 +69,7 @@ describe("quoteFund", () => {
     createdAt: "2021-01-01T00:00:00.000Z",
     updatedAt: "2021-01-01T00:00:00.000Z",
   };
-  
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -85,10 +86,10 @@ describe("quoteFund", () => {
       token: "eth",
       network: "base",
     };
-    
+
     const result = await quoteFund(mockApiClient, quoteFundArgs);
 
-    expect(mockApiClient.getPaymentMethods).toHaveBeenCalled()
+    expect(mockApiClient.getPaymentMethods).toHaveBeenCalled();
 
     expect(mockApiClient.createPaymentTransferQuote).toHaveBeenCalledWith({
       sourceType: "payment_method",
@@ -105,15 +106,15 @@ describe("quoteFund", () => {
       currency: "eth",
     });
 
-    expect(result.quoteId).toEqual("0xmocktransferid")
-    expect(result.network).toEqual("base")
-    expect(result.fiatAmount).toEqual("1000")
-    expect(result.fiatCurrency).toEqual("usd")
-    expect(result.token).toEqual("eth")
-    expect(result.tokenAmount).toEqual("1")
-    expect(result.fees[0].type).toEqual("exchange_fee")
-    expect(result.fees[0].amount).toEqual("1")
-    expect(result.fees[0].currency).toEqual("usd")
+    expect(result.quoteId).toEqual("0xmocktransferid");
+    expect(result.network).toEqual("base");
+    expect(result.fiatAmount).toEqual("1000");
+    expect(result.fiatCurrency).toEqual("usd");
+    expect(result.token).toEqual("eth");
+    expect(result.tokenAmount).toEqual("1");
+    expect(result.fees[0].type).toEqual("exchange_fee");
+    expect(result.fees[0].amount).toEqual("1");
+    expect(result.fees[0].currency).toEqual("usd");
   });
 
   it("should get quote to fund USDC", async () => {
@@ -128,7 +129,7 @@ describe("quoteFund", () => {
       token: "usdc",
       network: "base",
     };
-    
+
     const result = await quoteFund(mockApiClient, quoteFundArgs);
 
     expect(mockApiClient.getPaymentMethods).toHaveBeenCalled();
@@ -166,12 +167,12 @@ describe("quoteFund", () => {
     const quoteFundArgs: QuoteFundOptions = {
       address: address,
       amount: 1000000000000000000n, // 1 ETH
-      token: "eth", 
+      token: "eth",
       network: "base",
     };
 
     await expect(quoteFund(mockApiClient, quoteFundArgs)).rejects.toThrow(
-      "No card found to fund account"
+      "No card found to fund account",
     );
 
     expect(mockApiClient.getPaymentMethods).toHaveBeenCalled();

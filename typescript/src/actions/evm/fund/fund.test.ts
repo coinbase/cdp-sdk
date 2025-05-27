@@ -34,11 +34,13 @@ describe("fund", () => {
     targetCurrency: "eth",
     userAmount: "1000",
     userCurrency: "usd",
-    fees: [{
-      type: "exchange_fee",
-      amount: "1",
-      currency: "usd"
-    }],
+    fees: [
+      {
+        type: "exchange_fee",
+        amount: "1",
+        currency: "usd",
+      },
+    ],
     status: "pending",
     createdAt: "2021-01-01T00:00:00.000Z",
     updatedAt: "2021-01-01T00:00:00.000Z",
@@ -67,7 +69,7 @@ describe("fund", () => {
     createdAt: "2021-01-01T00:00:00.000Z",
     updatedAt: "2021-01-01T00:00:00.000Z",
   };
-  
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -84,7 +86,7 @@ describe("fund", () => {
       token: "eth",
       network: "ethereum",
     };
-    
+
     const result = await fund(mockApiClient, fundArgs);
 
     expect(mockApiClient.getPaymentMethods).toHaveBeenCalled();
@@ -120,7 +122,7 @@ describe("fund", () => {
       token: "usdc",
       network: "base",
     };
-    
+
     const result = await fund(mockApiClient, fundArgs);
 
     expect(mockApiClient.getPaymentMethods).toHaveBeenCalled();
@@ -157,9 +159,7 @@ describe("fund", () => {
       network: "ethereum",
     };
 
-    await expect(fund(mockApiClient, fundArgs)).rejects.toThrow(
-      "No card found to fund account"
-    );
+    await expect(fund(mockApiClient, fundArgs)).rejects.toThrow("No card found to fund account");
 
     expect(mockApiClient.getPaymentMethods).toHaveBeenCalled();
     expect(mockApiClient.createPaymentTransferQuote).not.toHaveBeenCalled();
