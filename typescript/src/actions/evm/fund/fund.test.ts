@@ -44,6 +44,7 @@ describe("fund", () => {
     status: "pending",
     createdAt: "2021-01-01T00:00:00.000Z",
     updatedAt: "2021-01-01T00:00:00.000Z",
+    transactionHash: "0xmocktransactionhash",
   };
 
   const mockUsdcTransfer = {
@@ -68,6 +69,7 @@ describe("fund", () => {
     status: "pending",
     createdAt: "2021-01-01T00:00:00.000Z",
     updatedAt: "2021-01-01T00:00:00.000Z",
+    transactionHash: "0xmocktransactionhash",
   };
 
   beforeEach(() => {
@@ -107,7 +109,12 @@ describe("fund", () => {
       execute: true,
     });
 
-    expect(result.transfer).toEqual(mockEthTransfer);
+    expect(result.id).toEqual(mockEthTransfer.id);
+    expect(result.network).toEqual(mockEthTransfer.target.network);
+    expect(result.status).toEqual(mockEthTransfer.status);
+    expect(result.targetAmount).toEqual(mockEthTransfer.targetAmount);
+    expect(result.targetCurrency).toEqual(mockEthTransfer.targetCurrency);
+    expect(result.transactionHash).toEqual(mockEthTransfer.transactionHash);
   });
 
   it("should fund USDC", async () => {
@@ -143,7 +150,12 @@ describe("fund", () => {
       execute: true,
     });
 
-    expect(result.transfer).toEqual(mockUsdcTransfer);
+    expect(result.id).toEqual(mockUsdcTransfer.id);
+    expect(result.network).toEqual(mockUsdcTransfer.target.network);
+    expect(result.status).toEqual(mockUsdcTransfer.status);
+    expect(result.targetAmount).toEqual(mockUsdcTransfer.targetAmount);
+    expect(result.targetCurrency).toEqual(mockUsdcTransfer.targetCurrency);
+    expect(result.transactionHash).toEqual(mockUsdcTransfer.transactionHash);
   });
 
   it("should throw error when no payment methods available", async () => {

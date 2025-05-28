@@ -28,6 +28,11 @@ describe("waitForFundOperationReceipt", () => {
       status: TransferStatus.completed,
       id: mockTransferId,
       transactionHash: "0xtxHash",
+      target: {
+        network: "ethereum-mainnet",
+      },
+      targetAmount: "100",
+      targetCurrency: "ETH",
     };
     mockClient.getPaymentTransfer.mockResolvedValue(completedTransfer);
 
@@ -46,31 +51,48 @@ describe("waitForFundOperationReceipt", () => {
     expect(terminalCheckFn(completedTransfer)).toBe(true);
 
     expect(transformFn(completedTransfer)).toEqual({
-      transfer: completedTransfer,
+      id: mockTransferId,
+      network: "ethereum-mainnet",
+      targetAmount: "100",
+      targetCurrency: "ETH",
+      status: TransferStatus.completed,
+      transactionHash: "0xtxHash",
     });
 
     expect(waitOpts).toEqual({ timeoutSeconds: 900, intervalSeconds: 1 });
 
     expect(result).toEqual({
-      transfer: completedTransfer,
+      id: mockTransferId,
+      network: "ethereum-mainnet",
+      targetAmount: "100",
+      targetCurrency: "ETH",
+      status: TransferStatus.completed,
+      transactionHash: "0xtxHash",
     });
   });
 
   it("should handle a failed operation", async () => {
-    mockClient.getPaymentTransfer.mockResolvedValue({
+    const failedTransfer = {
       status: TransferStatus.failed,
       id: mockTransferId,
-    });
+      target: {
+        network: "ethereum-mainnet",
+      },
+      targetAmount: "100",
+      targetCurrency: "ETH",
+    };
+    mockClient.getPaymentTransfer.mockResolvedValue(failedTransfer);
 
     const result = await waitForFundOperationReceipt(mockClient, {
       transferId: mockTransferId,
     });
 
     expect(result).toEqual({
-      transfer: {
-        status: TransferStatus.failed,
-        id: mockTransferId,
-      },
+      id: mockTransferId,
+      network: "ethereum-mainnet",
+      targetAmount: "100",
+      targetCurrency: "ETH",
+      status: TransferStatus.failed,
     });
   });
 
@@ -78,6 +100,11 @@ describe("waitForFundOperationReceipt", () => {
     mockClient.getPaymentTransfer.mockResolvedValue({
       status: TransferStatus.pending,
       id: mockTransferId,
+      target: {
+        network: "ethereum-mainnet",
+      },
+      targetAmount: "100",
+      targetCurrency: "ETH",
     });
 
     (wait as any).mockImplementation(async (reload, isTerminal) => {
@@ -100,6 +127,11 @@ describe("waitForFundOperationReceipt", () => {
       status: TransferStatus.completed,
       id: mockTransferId,
       transactionHash: "0xtxHash",
+      target: {
+        network: "ethereum-mainnet",
+      },
+      targetAmount: "100",
+      targetCurrency: "ETH",
     });
 
     await waitForFundOperationReceipt(mockClient, {
@@ -115,6 +147,11 @@ describe("waitForFundOperationReceipt", () => {
     mockClient.getPaymentTransfer.mockResolvedValue({
       status: TransferStatus.completed,
       id: mockTransferId,
+      target: {
+        network: "ethereum-mainnet",
+      },
+      targetAmount: "100",
+      targetCurrency: "ETH",
     });
 
     await waitForFundOperationReceipt(mockClient, {

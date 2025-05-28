@@ -15,14 +15,34 @@ export type WaitForFundOperationOptions = {
  * Represents a failed fund operation.
  */
 export type FailedFundOperation = {
-  transfer: Transfer;
+  /** The ID of the transfer. */
+  id: string;
+  /** The network that the transfer was created on. */
+  network: string;
+  /** The target amount that will be received. */
+  targetAmount: string;
+  /** The currency that will be received. */
+  targetCurrency: string;
+  /** The status of the transfer. */
+  status: typeof TransferStatus.failed;
 };
 
 /**
  * Represents a completed fund operation.
  */
 export type CompletedFundOperation = {
-  transfer: Transfer;
+  /** The ID of the transfer. */
+  id: string;
+  /** The network that the transfer was created on. */
+  network: string;
+  /** The target amount that will be received. */
+  targetAmount: string;
+  /** The currency that will be received. */
+  targetCurrency: string;
+  /** The status of the transfer. */
+  status: typeof TransferStatus.completed;
+  /** The transaction hash of the transfer. */
+  transactionHash: string;
 };
 
 /**
@@ -63,11 +83,20 @@ export async function waitForFundOperationReceipt(
   const transform = (operation: Transfer): WaitForFundOperationResult => {
     if (operation.status === TransferStatus.failed) {
       return {
-        transfer: operation,
+        id: operation.id,
+        network: operation.target.network,
+        targetAmount: operation.targetAmount,
+        targetCurrency: operation.targetCurrency,
+        status: operation.status,
       } satisfies FailedFundOperation;
     } else if (operation.status === TransferStatus.completed) {
       return {
-        transfer: operation,
+        id: operation.id,
+        network: operation.target.network,
+        targetAmount: operation.targetAmount,
+        targetCurrency: operation.targetCurrency,
+        status: operation.status,
+        transactionHash: operation.transactionHash!,
       } satisfies CompletedFundOperation;
     } else {
       throw new Error("Transfer is not terminal");

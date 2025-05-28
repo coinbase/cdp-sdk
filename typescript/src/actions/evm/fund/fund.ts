@@ -66,6 +66,11 @@ export async function fund(
   });
 
   return {
-    transfer: response.transfer,
+    id: response.transfer.id,
+    network: response.transfer.target.network,
+    status: response.transfer.status,
+    targetAmount: response.transfer.targetAmount,
+    targetCurrency: response.transfer.targetCurrency,
+    transactionHash: response.transfer.transactionHash,
   };
 }
