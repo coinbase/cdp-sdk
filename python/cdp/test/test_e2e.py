@@ -91,6 +91,26 @@ async def test_create_get_and_list_accounts(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_import_account(cdp_client):
+    """Test importing an account."""
+    account = Account.create()
+    random_name = generate_random_name()
+    imported_account = await cdp_client.evm.import_account(
+        private_key=account.key.hex(),
+        name=random_name,
+    )
+    assert imported_account is not None
+    assert imported_account.address == account.address
+    assert imported_account.name == random_name
+
+    imported_account = await cdp_client.evm.get_account(address=imported_account.address)
+    assert imported_account is not None
+    assert imported_account.address == account.address
+    assert imported_account.name == random_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_evm_sign_fns(cdp_client):
     """Test signing functions."""
     account = await cdp_client.evm.create_account()
