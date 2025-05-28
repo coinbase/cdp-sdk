@@ -19,7 +19,7 @@ async def main():
         )
 
         completed_transfer = await smart_account.wait_for_fund_operation_receipt(
-            transfer_id=fund_operation.transfer.id,
+            transfer_id=fund_operation.id,
         )
 
         print(completed_transfer)

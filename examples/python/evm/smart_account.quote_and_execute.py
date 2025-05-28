@@ -31,7 +31,7 @@ async def main():
         response = await quote.execute()
 
         completed_transfer = await smart_account.wait_for_fund_operation_receipt(
-            transfer_id=response.transfer.id,
+            transfer_id=response.id,
         )
 
         print(completed_transfer)
