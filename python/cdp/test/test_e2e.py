@@ -9,10 +9,10 @@ import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
+from eth_account.messages import encode_defunct
 from solana.rpc.api import Client as SolanaClient
 from solders.pubkey import Pubkey as PublicKey
 from web3 import Web3
-from eth_account.messages import encode_defunct
 
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
