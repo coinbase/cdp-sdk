@@ -33,6 +33,7 @@ describe("Quote", () => {
     status: "pending",
     createdAt: "2021-01-01T00:00:00.000Z",
     updatedAt: "2021-01-01T00:00:00.000Z",
+    transactionHash: "0xmocktransactionhash",
   };
 
   beforeEach(() => {
@@ -79,7 +80,12 @@ describe("Quote", () => {
 
     expect(mockApiClient.executePaymentTransferQuote).toHaveBeenCalledWith("0xmocktransferid");
     expect(result).toEqual({
-      transfer: mockTransfer,
+      id: mockTransfer.id,
+      network: mockTransfer.target.network,
+      targetAmount: mockTransfer.targetAmount,
+      targetCurrency: mockTransfer.targetCurrency,
+      status: mockTransfer.status,
+      transactionHash: mockTransfer.transactionHash,
     });
   });
 

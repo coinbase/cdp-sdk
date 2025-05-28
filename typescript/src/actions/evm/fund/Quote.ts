@@ -72,7 +72,12 @@ export class Quote {
     const transfer = await this.apiClient.executePaymentTransferQuote(this.quoteId);
 
     return {
-      transfer: transfer,
+      id: transfer.id,
+      network: transfer.target.network,
+      targetAmount: transfer.targetAmount,
+      targetCurrency: transfer.targetCurrency,
+      status: transfer.status,
+      transactionHash: transfer.transactionHash,
     };
   }
 }
