@@ -298,6 +298,67 @@ class EvmServerAccount(BaseAccount, BaseModel):
             transfer_strategy=account_transfer_strategy,
         )
 
+    async def swap(self, swap_args):
+        """Swap tokens from one asset to another.
+
+        Args:
+            swap_args: The options for the swap.
+                swap_args.from_asset: The asset to swap from (token symbol or contract address).
+                swap_args.to_asset: The asset to swap to (token symbol or contract address).
+                swap_args.amount: The amount to swap.
+                swap_args.network: The network to execute the swap on.
+                swap_args.slippage_percentage: Maximum slippage percentage (optional, default: 0.5%).
+
+        Returns:
+            The result of the swap.
+
+        Examples:
+            >>> result = await account.swap(
+            ...     SwapOptions(
+            ...         from_asset="eth",
+            ...         to_asset="usdc",
+            ...         amount="0.01",
+            ...         network="base-sepolia",
+            ...     )
+            ... )
+
+            **Swap with custom slippage**
+            >>> result = await account.swap(
+            ...     SwapOptions(
+            ...         from_asset="usdc",
+            ...         to_asset="eth",
+            ...         amount="100",
+            ...         network="base-sepolia",
+            ...         slippage_percentage=1.0,
+            ...     )
+            ... )
+
+            **Using contract addresses**
+            >>> result = await account.swap({
+            ...     "from_asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",  # USDC on Base Sepolia
+            ...     "to_asset": "eth",
+            ...     "amount": "100000000",  # 100 USDC in smallest unit
+            ...     "network": "base-sepolia",
+            ... })
+
+        """
+        from cdp.actions.evm.swap import (
+            SwapOptions,
+            account_swap_strategy,
+            swap,
+        )
+
+        # Convert to SwapOptions if it's not already
+        if not isinstance(swap_args, SwapOptions):
+            swap_args = SwapOptions(**swap_args)
+
+        return await swap(
+            api_clients=self.__api_clients,
+            from_account=self,
+            swap_args=swap_args,
+            swap_strategy=account_swap_strategy,
+        )
+
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.
 

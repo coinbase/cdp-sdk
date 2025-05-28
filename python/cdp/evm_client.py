@@ -500,3 +500,121 @@ class EvmClient:
             timeout_seconds,
             interval_seconds,
         )
+
+    async def get_quote(
+        self,
+        from_asset: str,
+        to_asset: str,
+        amount: str | int,
+        network: str,
+    ) -> "SwapQuote":
+        """Get a quote for swapping tokens.
+
+        Args:
+            from_asset (str): The asset to swap from (token symbol or contract address).
+            to_asset (str): The asset to swap to (token symbol or contract address).
+            amount (str | int): The amount to swap (in smallest unit or as string).
+            network (str): The network to get the quote for.
+
+        Returns:
+            SwapQuote: The swap quote with estimated output amount and route.
+
+        """
+        from cdp.actions.evm.swap.types import SwapQuote
+        from cdp.actions.evm.swap.utils import resolve_token_address
+        
+        # Resolve token addresses
+        from_address = resolve_token_address(from_asset, network)
+        to_address = resolve_token_address(to_asset, network)
+        
+        # Convert amount to string if needed
+        amount_str = str(amount)
+        
+        # TODO: Call the actual API endpoint when available
+        # For now, return a mock quote
+        # response = await self.api_clients.swaps.get_swap_quote(
+        #     GetSwapQuoteRequest(
+        #         from_asset=from_address,
+        #         to_asset=to_address,
+        #         amount=amount_str,
+        #         network=network,
+        #     )
+        # )
+        
+        # Mock implementation - replace with actual API call
+        return SwapQuote(
+            from_asset=from_asset,
+            to_asset=to_asset,
+            from_amount=amount_str,
+            to_amount=str(int(amount_str) * 2),  # Mock 2x output
+            price_impact=0.1,
+            route=[from_address, to_address],
+            gas_estimate="100000",
+        )
+
+    async def create_swap(
+        self,
+        from_address: str,
+        from_asset: str,
+        to_asset: str,
+        amount: str | int,
+        network: str,
+        min_amount_out: str,
+        quote_id: str | None = None,
+    ) -> "SwapTransaction":
+        """Create a swap transaction.
+
+        Args:
+            from_address (str): The address executing the swap.
+            from_asset (str): The asset to swap from (token symbol or contract address).
+            to_asset (str): The asset to swap to (token symbol or contract address).
+            amount (str | int): The amount to swap (in smallest unit or as string).
+            network (str): The network to execute the swap on.
+            min_amount_out (str): Minimum amount to receive (with slippage).
+            quote_id (str, optional): Quote ID from get_quote. Defaults to None.
+
+        Returns:
+            SwapTransaction: The swap transaction ready to be sent.
+
+        """
+        from cdp.actions.evm.swap.utils import resolve_token_address
+        from cdp.actions.evm.swap.constants import SWAP_ROUTER_ADDRESSES
+        
+        # Resolve token addresses
+        from_token_address = resolve_token_address(from_asset, network)
+        to_token_address = resolve_token_address(to_asset, network)
+        
+        # Convert amount to string if needed
+        amount_str = str(amount)
+        
+        # TODO: Call the actual API endpoint when available
+        # For now, return a mock transaction
+        # response = await self.api_clients.swaps.create_swap_transaction(
+        #     CreateSwapTransactionRequest(
+        #         from_address=from_address,
+        #         from_asset=from_token_address,
+        #         to_asset=to_token_address,
+        #         amount=amount_str,
+        #         min_amount_out=min_amount_out,
+        #         network=network,
+        #         quote_id=quote_id,
+        #     )
+        # )
+        
+        # Mock implementation - replace with actual API call
+        class SwapTransaction:
+            def __init__(self, to, data, value, transaction):
+                self.to = to
+                self.data = data
+                self.value = value
+                self.transaction = transaction
+        
+        # Mock swap router address and calldata
+        router_address = SWAP_ROUTER_ADDRESSES.get(network, "0x0000000000000000000000000000000000000000")
+        
+        return SwapTransaction(
+            to=router_address,
+            data="0x",  # Mock calldata
+            value=0 if from_asset.lower() != "eth" else int(amount_str),
+            transaction=f"0x02{router_address}{amount_str}",  # Mock RLP-encoded transaction
+        )

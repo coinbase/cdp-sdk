@@ -159,6 +159,71 @@ class EvmSmartAccount(BaseModel):
             transfer_strategy=smart_account_transfer_strategy,
         )
 
+    async def swap(self, swap_args):
+        """Swap tokens from one asset to another using user operations.
+
+        Args:
+            swap_args: The options for the swap.
+                swap_args.from_asset: The asset to swap from (token symbol or contract address).
+                swap_args.to_asset: The asset to swap to (token symbol or contract address).
+                swap_args.amount: The amount to swap.
+                swap_args.network: The network to execute the swap on.
+                swap_args.slippage_percentage: Maximum slippage percentage (optional, default: 0.5%).
+
+        Returns:
+            The result of the swap.
+
+        Examples:
+            >>> smart_account = await cdp.evm.create_smart_account(
+            ...     owner=await cdp.evm.create_account(name="Owner"),
+            ... )
+            >>>
+            >>> result = await smart_account.swap(
+            ...     SwapOptions(
+            ...         from_asset="eth",
+            ...         to_asset="usdc",
+            ...         amount="0.01",
+            ...         network="base-sepolia",
+            ...     )
+            ... )
+
+            **Swap with custom slippage**
+            >>> result = await smart_account.swap(
+            ...     SwapOptions(
+            ...         from_asset="usdc",
+            ...         to_asset="eth",
+            ...         amount="100",
+            ...         network="base-sepolia",
+            ...         slippage_percentage=1.0,
+            ...     )
+            ... )
+
+            **Gasless swap on Base Sepolia**
+            >>> result = await smart_account.swap({
+            ...     "from_asset": "usdc",
+            ...     "to_asset": "weth",
+            ...     "amount": "100000000",  # 100 USDC in smallest unit
+            ...     "network": "base-sepolia",
+            ... })
+
+        """
+        from cdp.actions.evm.swap import (
+            SwapOptions,
+            smart_account_swap_strategy,
+            swap,
+        )
+
+        # Convert to SwapOptions if it's not already
+        if not isinstance(swap_args, SwapOptions):
+            swap_args = SwapOptions(**swap_args)
+
+        return await swap(
+            api_clients=self.__api_clients,
+            from_account=self,
+            swap_args=swap_args,
+            swap_strategy=smart_account_swap_strategy,
+        )
+
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.
 
