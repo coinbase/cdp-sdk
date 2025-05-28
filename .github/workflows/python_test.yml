@@ -37,5 +37,10 @@ jobs:
           make verify-env
           make install
 
-      - name: Run unit tests
+      - name: Run unit tests (Python 3.10)
+        if: matrix.python == '3.10'
+        run: make test-3.10
+  
+      - name: Run unit tests (Python 3.11+)
+        if: matrix.python != '3.10'
         run: make test
