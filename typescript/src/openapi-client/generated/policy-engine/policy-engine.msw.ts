@@ -12,10 +12,7 @@ import { HttpResponse, delay, http } from "msw";
 import type {
   EthValueCriterion,
   EvmAddressCriterion,
-<<<<<<< HEAD
-=======
   EvmNetworkCriterion,
->>>>>>> origin/main
   ListPolicies200,
   Policy,
   SolAddressCriterion,
@@ -45,8 +42,6 @@ export const getListPoliciesResponseEvmAddressCriterionMock = (
   ...overrideResponse,
 });
 
-<<<<<<< HEAD
-=======
 export const getListPoliciesResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
@@ -58,7 +53,6 @@ export const getListPoliciesResponseEvmNetworkCriterionMock = (
   ...overrideResponse,
 });
 
->>>>>>> origin/main
 export const getListPoliciesResponseSolAddressCriterionMock = (
   overrideResponse: Partial<SolAddressCriterion> = {},
 ): SolAddressCriterion => ({
@@ -85,17 +79,6 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
         ]),
         scope: faker.helpers.arrayElement(["project", "account"] as const),
         rules: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
-<<<<<<< HEAD
-          () => ({
-            action: faker.helpers.arrayElement(["reject", "accept"] as const),
-            operation: faker.helpers.arrayElement([
-              "signEvmTransaction",
-              "signSolTransaction",
-            ] as const),
-            criteria: faker.helpers.arrayElement([
-              Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
-                () =>
-=======
           () =>
             faker.helpers.arrayElement([
               {
@@ -105,22 +88,10 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
                   { length: faker.number.int({ min: 1, max: 10 }) },
                   (_, i) => i + 1,
                 ).map(() =>
->>>>>>> origin/main
                   faker.helpers.arrayElement([
                     { ...getListPoliciesResponseEthValueCriterionMock() },
                     { ...getListPoliciesResponseEvmAddressCriterionMock() },
                   ]),
-<<<<<<< HEAD
-              ),
-              Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
-                () =>
-                  faker.helpers.arrayElement([
-                    { ...getListPoliciesResponseSolAddressCriterionMock() },
-                  ]),
-              ),
-            ]),
-          }),
-=======
                 ),
               },
               {
@@ -150,7 +121,6 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
                 ),
               },
             ]),
->>>>>>> origin/main
         ),
         createdAt: faker.string.alpha(20),
         updatedAt: faker.string.alpha(20),
@@ -184,8 +154,6 @@ export const getCreatePolicyResponseEvmAddressCriterionMock = (
   ...overrideResponse,
 });
 
-<<<<<<< HEAD
-=======
 export const getCreatePolicyResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
@@ -197,7 +165,6 @@ export const getCreatePolicyResponseEvmNetworkCriterionMock = (
   ...overrideResponse,
 });
 
->>>>>>> origin/main
 export const getCreatePolicyResponseSolAddressCriterionMock = (
   overrideResponse: Partial<SolAddressCriterion> = {},
 ): SolAddressCriterion => ({
@@ -220,23 +187,6 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
     undefined,
   ]),
   scope: faker.helpers.arrayElement(["project", "account"] as const),
-<<<<<<< HEAD
-  rules: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
-    action: faker.helpers.arrayElement(["reject", "accept"] as const),
-    operation: faker.helpers.arrayElement(["signEvmTransaction", "signSolTransaction"] as const),
-    criteria: faker.helpers.arrayElement([
-      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
-        faker.helpers.arrayElement([
-          { ...getCreatePolicyResponseEthValueCriterionMock() },
-          { ...getCreatePolicyResponseEvmAddressCriterionMock() },
-        ]),
-      ),
-      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
-        faker.helpers.arrayElement([{ ...getCreatePolicyResponseSolAddressCriterionMock() }]),
-      ),
-    ]),
-  })),
-=======
   rules: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
     faker.helpers.arrayElement([
       {
@@ -278,7 +228,6 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
       },
     ]),
   ),
->>>>>>> origin/main
   createdAt: faker.string.alpha(20),
   updatedAt: faker.string.alpha(20),
   ...overrideResponse,
@@ -308,8 +257,6 @@ export const getGetPolicyByIdResponseEvmAddressCriterionMock = (
   ...overrideResponse,
 });
 
-<<<<<<< HEAD
-=======
 export const getGetPolicyByIdResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
@@ -321,7 +268,6 @@ export const getGetPolicyByIdResponseEvmNetworkCriterionMock = (
   ...overrideResponse,
 });
 
->>>>>>> origin/main
 export const getGetPolicyByIdResponseSolAddressCriterionMock = (
   overrideResponse: Partial<SolAddressCriterion> = {},
 ): SolAddressCriterion => ({
@@ -344,23 +290,6 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
     undefined,
   ]),
   scope: faker.helpers.arrayElement(["project", "account"] as const),
-<<<<<<< HEAD
-  rules: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
-    action: faker.helpers.arrayElement(["reject", "accept"] as const),
-    operation: faker.helpers.arrayElement(["signEvmTransaction", "signSolTransaction"] as const),
-    criteria: faker.helpers.arrayElement([
-      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
-        faker.helpers.arrayElement([
-          { ...getGetPolicyByIdResponseEthValueCriterionMock() },
-          { ...getGetPolicyByIdResponseEvmAddressCriterionMock() },
-        ]),
-      ),
-      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
-        faker.helpers.arrayElement([{ ...getGetPolicyByIdResponseSolAddressCriterionMock() }]),
-      ),
-    ]),
-  })),
-=======
   rules: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
     faker.helpers.arrayElement([
       {
@@ -402,7 +331,6 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
       },
     ]),
   ),
->>>>>>> origin/main
   createdAt: faker.string.alpha(20),
   updatedAt: faker.string.alpha(20),
   ...overrideResponse,
@@ -432,8 +360,6 @@ export const getUpdatePolicyResponseEvmAddressCriterionMock = (
   ...overrideResponse,
 });
 
-<<<<<<< HEAD
-=======
 export const getUpdatePolicyResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
@@ -445,7 +371,6 @@ export const getUpdatePolicyResponseEvmNetworkCriterionMock = (
   ...overrideResponse,
 });
 
->>>>>>> origin/main
 export const getUpdatePolicyResponseSolAddressCriterionMock = (
   overrideResponse: Partial<SolAddressCriterion> = {},
 ): SolAddressCriterion => ({
@@ -468,23 +393,6 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
     undefined,
   ]),
   scope: faker.helpers.arrayElement(["project", "account"] as const),
-<<<<<<< HEAD
-  rules: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
-    action: faker.helpers.arrayElement(["reject", "accept"] as const),
-    operation: faker.helpers.arrayElement(["signEvmTransaction", "signSolTransaction"] as const),
-    criteria: faker.helpers.arrayElement([
-      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
-        faker.helpers.arrayElement([
-          { ...getUpdatePolicyResponseEthValueCriterionMock() },
-          { ...getUpdatePolicyResponseEvmAddressCriterionMock() },
-        ]),
-      ),
-      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
-        faker.helpers.arrayElement([{ ...getUpdatePolicyResponseSolAddressCriterionMock() }]),
-      ),
-    ]),
-  })),
-=======
   rules: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
     faker.helpers.arrayElement([
       {
@@ -526,7 +434,6 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
       },
     ]),
   ),
->>>>>>> origin/main
   createdAt: faker.string.alpha(20),
   updatedAt: faker.string.alpha(20),
   ...overrideResponse,
