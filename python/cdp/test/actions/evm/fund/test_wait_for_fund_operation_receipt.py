@@ -2,14 +2,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-# from cdp.actions.evm.fund.wait_for_fund_operation_receipt import wait_for_fund_operation_receipt
+#from cdp.actions.evm.fund.wait_for_fund_operation_receipt import wait_for_fund_operation_receipt
 from cdp.openapi_client.exceptions import ApiException
 from cdp.openapi_client.models.transfer import Transfer
 
-from cdp.actions.evm.fund.wait_for_fund_operation_receipt import wait_for_fund_operation_receipt
-import cdp.actions.evm.fund.wait_for_fund_operation_receipt as module
-print("\n\n\nHELL YEAH \n\n\n")
-print(dir(module))  # Should show 'time' in the list
+from cdp.actions.evm.fund import wait_for_fund_operation_receipt
 
 
 @pytest.mark.asyncio
