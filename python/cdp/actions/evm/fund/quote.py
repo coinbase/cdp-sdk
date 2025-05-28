@@ -24,4 +24,11 @@ class Quote(BaseModel):
     async def execute(self) -> FundOperationResult:
         """Execute the quote."""
         transfer = await self.api_clients.payments.execute_payment_transfer_quote(self.quote_id)
-        return FundOperationResult(transfer=transfer)
+        return FundOperationResult(
+            id=transfer.id,
+            network=transfer.target.actual_instance.network,
+            target_amount=transfer.target_amount,
+            target_currency=transfer.target_currency,
+            status=transfer.status,
+            transaction_hash=transfer.transaction_hash,
+        )

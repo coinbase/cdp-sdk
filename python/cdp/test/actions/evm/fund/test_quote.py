@@ -6,7 +6,6 @@ from cdp.actions.evm.fund.quote import Quote
 from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.fee import Fee
-from cdp.openapi_client.models.transfer import Transfer
 
 
 def test_quote_initialization():
@@ -49,12 +48,12 @@ def test_quote_invalid_network():
 
 
 @pytest.mark.asyncio
-async def test_quote_execute():
+async def test_quote_execute(payment_transfer_model_factory):
     """Test executing a quote."""
     mock_api_clients = MagicMock(spec=ApiClients)
     mock_api_clients.payments = AsyncMock()
 
-    mock_transfer = MagicMock(spec=Transfer)
+    mock_transfer = payment_transfer_model_factory()
     mock_api_clients.payments.execute_payment_transfer_quote = AsyncMock(return_value=mock_transfer)
 
     quote = Quote(
@@ -71,7 +70,12 @@ async def test_quote_execute():
     result = await quote.execute()
 
     assert isinstance(result, FundOperationResult)
-    assert result.transfer == mock_transfer
+    assert result.id == mock_transfer.id
+    assert result.network == mock_transfer.target.actual_instance.network
+    assert result.target_amount == mock_transfer.target_amount
+    assert result.target_currency == mock_transfer.target_currency
+    assert result.status == mock_transfer.status
+    assert result.transaction_hash == mock_transfer.transaction_hash
     mock_api_clients.payments.execute_payment_transfer_quote.assert_called_once_with(
         "test-quote-id"
     )

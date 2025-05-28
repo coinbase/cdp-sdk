@@ -389,7 +389,12 @@ async def test_fund_transfer_eth(
     assert call_args["create_payment_transfer_quote_request"].currency == "eth"
     assert call_args["create_payment_transfer_quote_request"].execute is True
 
-    assert result.transfer == payment_transfer
+    assert result.id == payment_transfer.id
+    assert result.network == payment_transfer.target.actual_instance.network
+    assert result.target_amount == payment_transfer.target_amount
+    assert result.target_currency == payment_transfer.target_currency
+    assert result.status == payment_transfer.status
+    assert result.transaction_hash == payment_transfer.transaction_hash
 
 
 @pytest.mark.asyncio
@@ -430,7 +435,12 @@ async def test_fund_transfer_usdc(
     assert call_args["create_payment_transfer_quote_request"].currency == "usdc"
     assert call_args["create_payment_transfer_quote_request"].execute is True
 
-    assert result.transfer == payment_transfer
+    assert result.id == payment_transfer.id
+    assert result.network == payment_transfer.target.actual_instance.network
+    assert result.target_amount == payment_transfer.target_amount
+    assert result.target_currency == payment_transfer.target_currency
+    assert result.status == payment_transfer.status
+    assert result.transaction_hash == payment_transfer.transaction_hash
 
 
 @pytest.mark.asyncio

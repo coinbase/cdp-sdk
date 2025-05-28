@@ -68,4 +68,11 @@ async def fund(
         create_payment_transfer_quote_request=create_payment_transfer_request,
     )
 
-    return FundOperationResult(transfer=response.transfer)
+    return FundOperationResult(
+        id=response.transfer.id,
+        network=response.transfer.target.actual_instance.network,
+        target_amount=response.transfer.target_amount,
+        target_currency=response.transfer.target_currency,
+        status=response.transfer.status,
+        transaction_hash=response.transfer.transaction_hash,
+    )
