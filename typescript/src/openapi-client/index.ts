@@ -41,4 +41,3 @@ export const OpenApiPoliciesMethods = {
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
-export * from "./generated/policy-engine/policy-engine";
