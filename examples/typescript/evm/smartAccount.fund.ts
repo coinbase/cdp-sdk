@@ -17,7 +17,7 @@ async function main() {
 
 
   const completedTransfer = await smartAccount.waitForFundOperationReceipt({
-    transferId: fundOperation.transfer.id,
+    transferId: fundOperation.id,
   });
 
   console.log(completedTransfer);

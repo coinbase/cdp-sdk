@@ -14,7 +14,7 @@ async function main() {
 
 
   const completedTransfer = await account.waitForFundOperationReceipt({
-    transferId: fundOperation.transfer.id,
+    transferId: fundOperation.id,
   });
 
   console.log(completedTransfer);

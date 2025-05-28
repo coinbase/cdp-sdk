@@ -28,7 +28,7 @@ async function main() {
   const response = await quote.execute();
 
   const completedTransfer = await smartAccount.waitForFundOperationReceipt({
-    transferId: response.transfer.id,
+    transferId: response.id,
   });
 
   console.log(completedTransfer);
