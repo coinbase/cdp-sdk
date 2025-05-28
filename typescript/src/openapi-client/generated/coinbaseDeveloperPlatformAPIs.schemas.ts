@@ -33,6 +33,7 @@ export type ErrorType = (typeof ErrorType)[keyof typeof ErrorType];
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ErrorType = {
   already_exists: "already_exists",
+  bad_gateway: "bad_gateway",
   faucet_limit_exceeded: "faucet_limit_exceeded",
   forbidden: "forbidden",
   idempotency_error: "idempotency_error",
@@ -43,9 +44,11 @@ export const ErrorType = {
   not_found: "not_found",
   rate_limit_exceeded: "rate_limit_exceeded",
   request_canceled: "request_canceled",
+  service_unavailable: "service_unavailable",
   timed_out: "timed_out",
   unauthorized: "unauthorized",
   policy_violation: "policy_violation",
+  policy_in_use: "policy_in_use",
 } as const;
 
 /**
@@ -197,6 +200,201 @@ export interface TokenBalance {
   token: Token;
 }
 
+/**
+ * The type of criterion to use. This should be `ethValue`.
+ */
+export type EthValueCriterionType =
+  (typeof EthValueCriterionType)[keyof typeof EthValueCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EthValueCriterionType = {
+  ethValue: "ethValue",
+} as const;
+
+/**
+ * The operator to use for the comparison. The transaction's `value` field will be on the left-hand side of the operator, and the `ethValue` field will be on the right-hand side.
+ */
+export type EthValueCriterionOperator =
+  (typeof EthValueCriterionOperator)[keyof typeof EthValueCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EthValueCriterionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * A schema for specifying a criterion for the `value` field of an EVM transaction.
+ */
+export interface EthValueCriterion {
+  /** The type of criterion to use. This should be `ethValue`. */
+  type: EthValueCriterionType;
+  /**
+   * The amount of ETH, in wei, that the transaction's `value` field should be compared to.
+   * @pattern ^[0-9]+$
+   */
+  ethValue: string;
+  /** The operator to use for the comparison. The transaction's `value` field will be on the left-hand side of the operator, and the `ethValue` field will be on the right-hand side. */
+  operator: EthValueCriterionOperator;
+}
+
+/**
+ * The type of criterion to use. This should be `evmAddress`.
+ */
+export type EvmAddressCriterionType =
+  (typeof EvmAddressCriterionType)[keyof typeof EvmAddressCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmAddressCriterionType = {
+  evmAddress: "evmAddress",
+} as const;
+
+/**
+ * The operator to use for the comparison. The transaction's `to` field will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+ */
+export type EvmAddressCriterionOperator =
+  (typeof EvmAddressCriterionOperator)[keyof typeof EvmAddressCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmAddressCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * A schema for specifying a criterion for the `to` field of an EVM transaction.
+ */
+export interface EvmAddressCriterion {
+  /** The type of criterion to use. This should be `evmAddress`. */
+  type: EvmAddressCriterionType;
+  /** A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 100 addresses per criterion. */
+  addresses: string[];
+  /** The operator to use for the comparison. The transaction's `to` field will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
+  operator: EvmAddressCriterionOperator;
+}
+
+export type SignEvmTransactionCriteriaItem = EthValueCriterion | EvmAddressCriterion;
+
+/**
+ * A schema for specifying the rejection criteria for the SignEvmTransaction operation.
+ */
+export type SignEvmTransactionCriteria = SignEvmTransactionCriteriaItem[];
+
+/**
+ * The type of criterion to use. This should be `solAddress`.
+ */
+export type SolAddressCriterionType =
+  (typeof SolAddressCriterionType)[keyof typeof SolAddressCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolAddressCriterionType = {
+  solAddress: "solAddress",
+} as const;
+
+/**
+ * The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side.
+ */
+export type SolAddressCriterionOperator =
+  (typeof SolAddressCriterionOperator)[keyof typeof SolAddressCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolAddressCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * The criterion for the recipient addresses of a Solana transaction.
+ */
+export interface SolAddressCriterion {
+  /** The type of criterion to use. This should be `solAddress`. */
+  type: SolAddressCriterionType;
+  /** The Solana addresses that are compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array. */
+  addresses: string[];
+  /** The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side. */
+  operator: SolAddressCriterionOperator;
+}
+
+/**
+ * A schema for specifying the rejection criteria for the SignSolTransaction operation.
+ */
+export type SignSolTransactionCriteria = SolAddressCriterion[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type RuleAction = (typeof RuleAction)[keyof typeof RuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const RuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type RuleOperation = (typeof RuleOperation)[keyof typeof RuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const RuleOperation = {
+  signEvmTransaction: "signEvmTransaction",
+  signSolTransaction: "signSolTransaction",
+} as const;
+
+/**
+ * The set of criteria for the rule. There is a limit of 10 criteria per rule.
+ */
+export type RuleCriteria = SignEvmTransactionCriteria | SignSolTransactionCriteria;
+
+/**
+ * A rule that limits the behavior of an account.
+ */
+export interface Rule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: RuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: RuleOperation;
+  /** The set of criteria for the rule. There is a limit of 10 criteria per rule. */
+  criteria: RuleCriteria;
+}
+
+/**
+ * The scope of the policy. Only one project-level policy can exist at any time.
+ */
+export type PolicyScope = (typeof PolicyScope)[keyof typeof PolicyScope];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PolicyScope = {
+  project: "project",
+  account: "account",
+} as const;
+
+export interface Policy {
+  /**
+   * The unique identifier for the policy.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  id: string;
+  /**
+   * An optional human-readable description of the policy. 
+Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.
+   * @pattern ^[A-Za-z0-9 ,.]{1,50}$
+   */
+  description?: string;
+  /** The scope of the policy. Only one project-level policy can exist at any time. */
+  scope: PolicyScope;
+  /** A list of rules that comprise the policy. */
+  rules: Rule[];
+  /** The ISO 8601 timestamp at which the Policy was created. */
+  createdAt: string;
+  /** The ISO 8601 timestamp at which the Policy was last updated. */
+  updatedAt: string;
+}
+
 export interface SolanaAccount {
   /**
    * The base58 encoded Solana address.
@@ -216,6 +414,16 @@ Account names are guaranteed to be unique across all Solana accounts in the deve
  * Internal server error.
  */
 export type InternalServerErrorResponse = Error;
+
+/**
+ * Bad gateway.
+ */
+export type BadGatewayErrorResponse = Error;
+
+/**
+ * Service unavailable.
+ */
+export type ServiceUnavailableErrorResponse = Error;
 
 /**
  * Idempotency key conflict.
@@ -434,6 +642,72 @@ export type RequestEvmFaucet200 = {
   /** The hash of the transaction that requested the funds.
    **Note:** In rare cases, when gas conditions are unusually high, the transaction may not confirm, and the system may issue a replacement transaction to complete the faucet request. In these rare cases, the `transactionHash` will be out of sync with the actual faucet transaction that was confirmed onchain. */
   transactionHash: string;
+};
+
+export type ListPoliciesParams = {
+  /**
+   * The number of policies to return per page.
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of policies, if any.
+   */
+  pageToken?: string;
+  /**
+   * The scope of the policies to return. If `project`, the response will include exactly one policy, which is the project-level policy. If `account`, the response will include all account-level policies for the developer's CDP Project.
+   */
+  scope?: ListPoliciesScope;
+};
+
+export type ListPoliciesScope = (typeof ListPoliciesScope)[keyof typeof ListPoliciesScope];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ListPoliciesScope = {
+  project: "project",
+  account: "account",
+} as const;
+
+export type ListPolicies200AllOf = {
+  /** The list of policies. */
+  policies: Policy[];
+};
+
+export type ListPolicies200 = ListPolicies200AllOf & ListResponse;
+
+/**
+ * The scope of the policy.
+ */
+export type CreatePolicyBodyScope =
+  (typeof CreatePolicyBodyScope)[keyof typeof CreatePolicyBodyScope];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CreatePolicyBodyScope = {
+  project: "project",
+  account: "account",
+} as const;
+
+export type CreatePolicyBody = {
+  /** The scope of the policy. */
+  scope: CreatePolicyBodyScope;
+  /**
+   * An optional human-readable description for the policy.
+Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.
+   * @pattern ^[A-Za-z0-9 ,.]{1,50}$
+   */
+  description?: string;
+  /** A list of rules that comprise the policy. There is a limit of 10 rules per policy. */
+  rules: Rule[];
+};
+
+export type UpdatePolicyBody = {
+  /**
+   * An optional human-readable description for the policy.
+Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.
+   * @pattern ^[A-Za-z0-9 ,.]{1,50}$
+   */
+  description?: string;
+  /** A list of rules that comprise the policy. There is a limit of 10 rules per policy. */
+  rules: Rule[];
 };
 
 export type ListSolanaAccountsParams = {

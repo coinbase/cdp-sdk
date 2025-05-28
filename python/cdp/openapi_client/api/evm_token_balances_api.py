@@ -111,6 +111,8 @@ class EVMTokenBalancesApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -193,6 +195,8 @@ class EVMTokenBalancesApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -275,6 +279,8 @@ class EVMTokenBalancesApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
