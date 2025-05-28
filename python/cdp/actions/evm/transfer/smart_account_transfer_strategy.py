@@ -1,20 +1,16 @@
-from typing import cast
-
-from eth_typing import HexStr
 from web3 import Web3
 
 from cdp.actions.evm.send_user_operation import send_user_operation
 from cdp.actions.evm.transfer.constants import ERC20_ABI
 from cdp.actions.evm.transfer.types import (
+    TokenType,
     TransferExecutionStrategy,
-    TransferOptions,
-    TransferResult,
 )
 from cdp.actions.evm.transfer.utils import get_erc20_address
-from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import EncodedCall
 from cdp.evm_smart_account import EvmSmartAccount
+from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
 
 
 class SmartAccountTransferStrategy(TransferExecutionStrategy):
@@ -24,36 +20,40 @@ class SmartAccountTransferStrategy(TransferExecutionStrategy):
         self,
         api_clients: ApiClients,
         from_account: EvmSmartAccount,
-        transfer_args: TransferOptions,
         to: str,
         value: int,
-    ) -> HexStr:
+        token: TokenType,
+        network: str,
+        paymaster_url: str | None,
+    ) -> EvmUserOperationModel:
         """Execute a transfer from a smart account.
 
         Args:
             api_clients: The API clients
             from_account: The account to transfer from
-            transfer_args: The transfer options
             to: The recipient address
             value: The amount to transfer
+            token: The token to transfer
+            network: The network to transfer on
+            paymaster_url: The paymaster URL
 
         Returns:
             The transaction hash
 
         """
-        if transfer_args.token == "eth":
+        if token == "eth":
             # For ETH transfers, we send directly to the recipient
-            result = await send_user_operation(
+            return await send_user_operation(
                 api_clients=api_clients,
-                smart_account=from_account,
+                address=from_account.address,
+                owner=from_account.owners[0],
                 calls=[EncodedCall(to=to, value=str(value), data="0x")],
-                network=transfer_args.network,
-                paymaster_url=None,
+                network=network,
+                paymaster_url=paymaster_url,
             )
-            return cast(HexStr, result.user_op_hash)
         else:
             # For token transfers, we need to interact with the ERC20 contract
-            erc20_address = get_erc20_address(transfer_args.token, transfer_args.network)
+            erc20_address = get_erc20_address(token, network)
 
             # Encode function calls using Web3
             w3 = Web3()
@@ -66,49 +66,16 @@ class SmartAccountTransferStrategy(TransferExecutionStrategy):
             transfer_data = contract.encode_abi("transfer", args=[to, value])
 
             # Send user operation with both calls
-            result = await send_user_operation(
+            return await send_user_operation(
                 api_clients=api_clients,
-                smart_account=from_account,
+                address=from_account.address,
+                owner=from_account.owners[0],
                 calls=[
                     EncodedCall(to=erc20_address, data=approve_data),
                     EncodedCall(to=erc20_address, data=transfer_data),
                 ],
-                network=transfer_args.network,
-                paymaster_url=None,
-            )
-
-            return cast(HexStr, result.user_op_hash)
-
-    async def wait_for_result(
-        self, api_clients: ApiClients, w3: Web3, from_account: EvmSmartAccount, hash: HexStr
-    ) -> TransferResult:
-        """Wait for the result of a transfer.
-
-        Args:
-            api_clients: The API clients
-            w3: The Web3 client
-            from_account: The account that sent the transfer
-            hash: The transaction hash
-
-        Returns:
-            The result of the transfer
-
-        """
-        result = await wait_for_user_operation(
-            api_clients=api_clients,
-            smart_account_address=from_account.address,
-            user_op_hash=hash,
-        )
-
-        tx_hash = result.transaction_hash
-
-        if result.status == "complete":
-            return TransferResult(status="success", transaction_hash=tx_hash)
-        else:
-            raise Exception(
-                f"Transaction failed. Check the transaction on a transaction explorer."
-                f"Chain ID: {w3.eth.chain_id}"
-                f"Transaction hash: {tx_hash}"
+                network=network,
+                paymaster_url=paymaster_url,
             )
 
 

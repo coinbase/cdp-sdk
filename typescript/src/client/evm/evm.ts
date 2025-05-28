@@ -1,5 +1,8 @@
+import { publicEncrypt, constants } from "crypto";
+
 import { Address } from "viem";
 
+import { ImportEvmAccountPublicRSAKey } from "./constants.js";
 import {
   CreateServerAccountOptions,
   GetServerAccountOptions,
@@ -21,9 +24,13 @@ import {
   ListSmartAccountResult,
   ListSmartAccountsOptions,
   GetOrCreateServerAccountOptions,
+  SignTypedDataOptions,
+  UpdateEvmAccountOptions,
+  ImportServerAccountOptions,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
+import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import {
   listTokenBalances,
   ListTokenBalancesResult,
@@ -44,6 +51,7 @@ import {
   waitForUserOperation,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
+import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 import { Hex } from "../../types/misc.js";
@@ -52,6 +60,7 @@ import type {
   TransactionResult,
   SendTransactionOptions,
 } from "../../actions/evm/sendTransaction.js";
+
 /**
  * The namespace containing all EVM methods.
  */
@@ -91,16 +100,106 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async createAccount(options: CreateServerAccountOptions = {}): Promise<ServerAccount> {
-    const account = await CdpOpenApiClient.createEvmAccount(
+    const openApiAccount = await CdpOpenApiClient.createEvmAccount(
       {
         name: options.name,
       },
       options.idempotencyKey,
     );
 
-    return toEvmServerAccount(CdpOpenApiClient, {
-      account,
+    const account = toEvmServerAccount(CdpOpenApiClient, {
+      account: openApiAccount,
     });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
+  }
+
+  /**
+   * Imports a CDP EVM account from an external source.
+   *
+   * @param {ImportServerAccountOptions} options - Parameters for importing the account.
+   * @param {string} options.privateKey - The private key of the account to import.
+   * @param {string} [options.name] - A name for the account to import.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
+   * @returns A promise that resolves to the imported account.
+   *
+   * @example **Without arguments**
+   *          ```ts
+   *          const account = await cdp.evm.importAccount({
+   *            privateKey: "0x123456"
+   *          });
+   *          ```
+   *
+   * @example **With a name**
+   *          ```ts
+   *          const account = await cdp.evm.importAccount({
+   *            privateKey: "0x123456",
+   *            name: "MyAccount"
+   *          });
+   *          ```
+   *
+   * @example **With an idempotency key**
+   *          ```ts
+   *          const idempotencyKey = uuidv4();
+   *
+   *          // First call
+   *          await cdp.evm.importAccount({
+   *            privateKey: "0x123456",
+   *            idempotencyKey,
+   *          });
+   *
+   *          // Second call with the same idempotency key will return the same account
+   *          await cdp.evm.importAccount({
+   *            privateKey: "0x123456"
+   *            idempotencyKey,
+   *          });
+   *          ```
+   */
+  async importAccount(options: ImportServerAccountOptions): Promise<ServerAccount> {
+    const privateKeyHex = options.privateKey.startsWith("0x")
+      ? options.privateKey.slice(2)
+      : options.privateKey;
+
+    if (!/^[0-9a-fA-F]+$/.test(privateKeyHex)) {
+      throw new Error("Private key must be a valid hexadecimal string");
+    }
+
+    try {
+      const privateKeyBytes = Buffer.from(privateKeyHex, "hex");
+
+      const encryptedPrivateKey = publicEncrypt(
+        {
+          key: ImportEvmAccountPublicRSAKey,
+          padding: constants.RSA_PKCS1_OAEP_PADDING,
+          oaepHash: "sha256",
+        },
+        privateKeyBytes,
+      );
+
+      const openApiAccount = await CdpOpenApiClient.importEvmAccount(
+        {
+          name: options.name,
+          encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
+        },
+        options.idempotencyKey,
+      );
+
+      const account = toEvmServerAccount(CdpOpenApiClient, {
+        account: openApiAccount,
+      });
+
+      Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+      return account;
+    } catch (error) {
+      if (error instanceof APIError) {
+        throw error;
+      }
+      throw new Error(`Failed to import account: ${String(error)}`);
+    }
   }
 
   /**
@@ -149,17 +248,21 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async createSmartAccount(options: CreateSmartAccountOptions): Promise<SmartAccount> {
-    const smartAccount = await CdpOpenApiClient.createEvmSmartAccount(
+    const openApiSmartAccount = await CdpOpenApiClient.createEvmSmartAccount(
       {
         owners: [options.owner.address],
       },
       options.idempotencyKey,
     );
 
-    return toEvmSmartAccount(CdpOpenApiClient, {
-      smartAccount,
+    const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
+      smartAccount: openApiSmartAccount,
       owner: options.owner,
     });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
+
+    return smartAccount;
   }
 
   /**
@@ -188,7 +291,7 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async getAccount(options: GetServerAccountOptions): Promise<ServerAccount> {
-    const account = await (() => {
+    const openApiAccount = await (() => {
       if (options.address) {
         return CdpOpenApiClient.getEvmAccount(options.address);
       }
@@ -200,9 +303,13 @@ export class EvmClient implements EvmClientInterface {
       throw new Error("Either address or name must be provided");
     })();
 
-    return toEvmServerAccount(CdpOpenApiClient, {
-      account,
+    const account = toEvmServerAccount(CdpOpenApiClient, {
+      account: openApiAccount,
     });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
   }
 
   /**
@@ -225,12 +332,16 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async getSmartAccount(options: GetSmartAccountOptions): Promise<SmartAccount> {
-    const smartAccount = await CdpOpenApiClient.getEvmSmartAccount(options.address);
+    const openApiSmartAccount = await CdpOpenApiClient.getEvmSmartAccount(options.address);
 
-    return toEvmSmartAccount(CdpOpenApiClient, {
-      smartAccount,
+    const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
+      smartAccount: openApiSmartAccount,
       owner: options.owner,
     });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
+
+    return smartAccount;
   }
 
   /**
@@ -292,22 +403,7 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async getUserOperation(options: GetUserOperationOptions): Promise<UserOperation> {
-    const userOp = await CdpOpenApiClient.getUserOperation(
-      options.smartAccount.address,
-      options.userOpHash,
-    );
-
-    return {
-      calls: userOp.calls.map(call => ({
-        to: call.to as Address,
-        value: BigInt(call.value),
-        data: call.data as Hex,
-      })),
-      network: userOp.network,
-      status: userOp.status,
-      transactionHash: userOp.transactionHash as Hex | undefined,
-      userOpHash: userOp.userOpHash as Hex,
-    };
+    return getUserOperation(CdpOpenApiClient, options);
   }
 
   /**
@@ -341,11 +437,15 @@ export class EvmClient implements EvmClientInterface {
     });
 
     return {
-      accounts: ethAccounts.accounts.map(account =>
-        toEvmServerAccount(CdpOpenApiClient, {
-          account: account,
-        }),
-      ),
+      accounts: ethAccounts.accounts.map(account => {
+        const evmAccount = toEvmServerAccount(CdpOpenApiClient, {
+          account,
+        });
+
+        Analytics.wrapObjectMethodsWithErrorTracking(evmAccount);
+
+        return evmAccount;
+      }),
       nextPageToken: ethAccounts.nextPageToken,
     };
   }
@@ -661,6 +761,68 @@ export class EvmClient implements EvmClientInterface {
   }
 
   /**
+   * Signs an EIP-712 message.
+   *
+   * @param {SignTypedDataOptions} options - Parameters for signing the EIP-712 message.
+   * @returns A promise that resolves to the signature.
+   *
+   * @example
+   * ```ts
+   * const signature = await cdp.evm.signTypedData({
+   *   address: account.address,
+   *   domain: {
+   *     name: "Permit2",
+   *     chainId: 1,
+   *     verifyingContract: "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+   *   },
+   *   types: {
+   *     EIP712Domain: [
+   *       { name: "name", type: "string" },
+   *       { name: "chainId", type: "uint256" },
+   *       { name: "verifyingContract", type: "address" },
+   *     ],
+   *     PermitTransferFrom: [
+   *       { name: "permitted", type: "TokenPermissions" },
+   *       { name: "spender", type: "address" },
+   *       { name: "nonce", type: "uint256" },
+   *       { name: "deadline", type: "uint256" },
+   *     ],
+   *     TokenPermissions: [
+   *       { name: "token", type: "address" },
+   *       { name: "amount", type: "uint256" },
+   *     ],
+   *   },
+   *   primaryType: "PermitTransferFrom",
+   *   message: {
+   *     permitted: {
+   *       token: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+   *       amount: "1000000",
+   *     },
+   *     spender: "0xFfFfFfFFfFFfFFfFFfFFFFFffFFFffffFfFFFfFf",
+   *     nonce: "0",
+   *     deadline: "1717123200",
+   *   },
+   * });
+   * ```
+   */
+  async signTypedData(options: SignTypedDataOptions): Promise<SignatureResult> {
+    const signature = await CdpOpenApiClient.signEvmTypedData(
+      options.address,
+      {
+        domain: options.domain,
+        types: options.types,
+        primaryType: options.primaryType,
+        message: options.message,
+      },
+      options.idempotencyKey,
+    );
+
+    return {
+      signature: signature.signature as Hex,
+    };
+  }
+
+  /**
    * Signs an EVM transaction.
    *
    * @param {SignTransactionOptions} options - Configuration options for signing the transaction.
@@ -702,6 +864,63 @@ export class EvmClient implements EvmClientInterface {
     return {
       signature: signature.signedTransaction as Hex,
     };
+  }
+
+  /**
+   * Updates a CDP EVM account.
+   *
+   * @param {UpdateEvmAccountOptions} [options] - Optional parameters for creating the account.
+   * @param {string} options.address - The address of the account to update
+   * @param {UpdateEvmAccountBody} options.update - An object containing account fields to update.
+   * @param {string} [options.update.name] - The new name for the account.
+   * @param {string} [options.update.accountPolicy] - The ID of a Policy to apply to the account.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
+   * @returns A promise that resolves to the updated account.
+   *
+   * @example **With a name**
+   *          ```ts
+   *          const account = await cdp.evm.updateAccount({ address: "0x...", update: { name: "New Name" } });
+   *          ```
+   *
+   * @example **With an account policy**
+   *          ```ts
+   *          const account = await cdp.evm.updateAccount({ address: "0x...", update: { accountPolicy: "73bcaeeb-d7af-4615-b064-42b5fe83a31e" } });
+   *          ```
+   *
+   * @example **With an idempotency key**
+   *          ```ts
+   *          const idempotencyKey = uuidv4();
+   *
+   *          // First call
+   *          await cdp.evm.updateAccount({
+   *            address: "0x...",
+   *            update: { accountPolicy: "73bcaeeb-d7af-4615-b064-42b5fe83a31e" },
+   *            idempotencyKey,
+   *          });
+   *
+   *          // Second call with the same idempotency key will not update
+   *          await cdp.evm.updateAccount({
+   *            address: '0x...',
+   *            update: { name: "" },
+   *            idempotencyKey,
+   *          });
+   *          ```
+   */
+  async updateAccount(options: UpdateEvmAccountOptions): Promise<ServerAccount> {
+    const openApiAccount = await CdpOpenApiClient.updateEvmAccount(
+      options.address,
+      options.update,
+      options.idempotencyKey,
+    );
+
+    const account = toEvmServerAccount(CdpOpenApiClient, {
+      account: openApiAccount,
+    });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
   }
 
   /**

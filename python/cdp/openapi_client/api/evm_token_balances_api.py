@@ -345,7 +345,7 @@ class EVMTokenBalancesApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(

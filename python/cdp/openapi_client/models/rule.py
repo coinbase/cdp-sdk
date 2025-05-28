@@ -14,97 +14,139 @@
 
 
 from __future__ import annotations
-import pprint
-import re  # noqa: F401
 import json
+import pprint
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
+from typing import Any, List, Optional
+from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransactionRule
+from cdp.openapi_client.models.sign_evm_transaction_rule import SignEvmTransactionRule
+from cdp.openapi_client.models.sign_sol_transaction_rule import SignSolTransactionRule
+from pydantic import StrictStr, Field
+from typing import Union, List, Set, Optional, Dict
+from typing_extensions import Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.rule_criteria import RuleCriteria
-from typing import Optional, Set
-from typing_extensions import Self
+RULE_ONE_OF_SCHEMAS = ["SendEvmTransactionRule", "SignEvmTransactionRule", "SignSolTransactionRule"]
 
 class Rule(BaseModel):
     """
     A rule that limits the behavior of an account.
-    """ # noqa: E501
-    action: StrictStr = Field(description="Whether matching the rule will cause the request to be rejected or accepted.")
-    operation: StrictStr = Field(description="The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.")
-    criteria: RuleCriteria
-    __properties: ClassVar[List[str]] = ["action", "operation", "criteria"]
-
-    @field_validator('action')
-    def action_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['reject', 'accept']):
-            raise ValueError("must be one of enum values ('reject', 'accept')")
-        return value
-
-    @field_validator('operation')
-    def operation_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['signEvmTransaction', 'signSolTransaction']):
-            raise ValueError("must be one of enum values ('signEvmTransaction', 'signSolTransaction')")
-        return value
+    """
+    # data type: SignEvmTransactionRule
+    oneof_schema_1_validator: Optional[SignEvmTransactionRule] = None
+    # data type: SendEvmTransactionRule
+    oneof_schema_2_validator: Optional[SendEvmTransactionRule] = None
+    # data type: SignSolTransactionRule
+    oneof_schema_3_validator: Optional[SignSolTransactionRule] = None
+    actual_instance: Optional[Union[SendEvmTransactionRule, SignEvmTransactionRule, SignSolTransactionRule]] = None
+    one_of_schemas: Set[str] = { "SendEvmTransactionRule", "SignEvmTransactionRule", "SignSolTransactionRule" }
 
     model_config = ConfigDict(
-        populate_by_name=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
 
 
-    def to_str(self) -> str:
-        """Returns the string representation of the model using alias"""
-        return pprint.pformat(self.model_dump(by_alias=True))
+    def __init__(self, *args, **kwargs) -> None:
+        if args:
+            if len(args) > 1:
+                raise ValueError("If a position argument is used, only 1 is allowed to set `actual_instance`")
+            if kwargs:
+                raise ValueError("If a position argument is used, keyword arguments cannot be used.")
+            super().__init__(actual_instance=args[0])
+        else:
+            super().__init__(**kwargs)
+
+    @field_validator('actual_instance')
+    def actual_instance_must_validate_oneof(cls, v):
+        instance = Rule.model_construct()
+        error_messages = []
+        match = 0
+        # validate data type: SignEvmTransactionRule
+        if not isinstance(v, SignEvmTransactionRule):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `SignEvmTransactionRule`")
+        else:
+            match += 1
+        # validate data type: SendEvmTransactionRule
+        if not isinstance(v, SendEvmTransactionRule):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `SendEvmTransactionRule`")
+        else:
+            match += 1
+        # validate data type: SignSolTransactionRule
+        if not isinstance(v, SignSolTransactionRule):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `SignSolTransactionRule`")
+        else:
+            match += 1
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when setting `actual_instance` in Rule with oneOf schemas: SendEvmTransactionRule, SignEvmTransactionRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when setting `actual_instance` in Rule with oneOf schemas: SendEvmTransactionRule, SignEvmTransactionRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+        else:
+            return v
+
+    @classmethod
+    def from_dict(cls, obj: Union[str, Dict[str, Any]]) -> Self:
+        return cls.from_json(json.dumps(obj))
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Returns the object represented by the json string"""
+        instance = cls.model_construct()
+        error_messages = []
+        match = 0
+
+        # deserialize data into SignEvmTransactionRule
+        try:
+            instance.actual_instance = SignEvmTransactionRule.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into SendEvmTransactionRule
+        try:
+            instance.actual_instance = SendEvmTransactionRule.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into SignSolTransactionRule
+        try:
+            instance.actual_instance = SignSolTransactionRule.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when deserializing the JSON string into Rule with oneOf schemas: SendEvmTransactionRule, SignEvmTransactionRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when deserializing the JSON string into Rule with oneOf schemas: SendEvmTransactionRule, SignEvmTransactionRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+        else:
+            return instance
 
     def to_json(self) -> str:
-        """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        """Returns the JSON representation of the actual instance"""
+        if self.actual_instance is None:
+            return "null"
 
-    @classmethod
-    def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of Rule from a JSON string"""
-        return cls.from_dict(json.loads(json_str))
+        if hasattr(self.actual_instance, "to_json") and callable(self.actual_instance.to_json):
+            return self.actual_instance.to_json()
+        else:
+            return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Return the dictionary representation of the model using alias.
-
-        This has the following differences from calling pydantic's
-        `self.model_dump(by_alias=True)`:
-
-        * `None` is only added to the output dict for nullable fields that
-          were set at model initialization. Other fields with value `None`
-          are ignored.
-        """
-        excluded_fields: Set[str] = set([
-        ])
-
-        _dict = self.model_dump(
-            by_alias=True,
-            exclude=excluded_fields,
-            exclude_none=True,
-        )
-        # override the default output from pydantic by calling `to_dict()` of criteria
-        if self.criteria:
-            _dict['criteria'] = self.criteria.to_dict()
-        return _dict
-
-    @classmethod
-    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of Rule from a dict"""
-        if obj is None:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], SendEvmTransactionRule, SignEvmTransactionRule, SignSolTransactionRule]]:
+        """Returns the dict representation of the actual instance"""
+        if self.actual_instance is None:
             return None
 
-        if not isinstance(obj, dict):
-            return cls.model_validate(obj)
+        if hasattr(self.actual_instance, "to_dict") and callable(self.actual_instance.to_dict):
+            return self.actual_instance.to_dict()
+        else:
+            # primitive type
+            return self.actual_instance
 
-        _obj = cls.model_validate({
-            "action": obj.get("action"),
-            "operation": obj.get("operation"),
-            "criteria": RuleCriteria.from_dict(obj["criteria"]) if obj.get("criteria") is not None else None
-        })
-        return _obj
+    def to_str(self) -> str:
+        """Returns the string representation of the actual instance"""
+        return pprint.pformat(self.model_dump())
 
 

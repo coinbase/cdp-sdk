@@ -1,8 +1,8 @@
+from eth_account.signers.base import BaseAccount
 from web3 import Web3
 
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall, FunctionCall
-from cdp.evm_smart_account import EvmSmartAccount
 from cdp.openapi_client.models.evm_call import EvmCall
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
 from cdp.openapi_client.models.prepare_user_operation_request import (
@@ -16,7 +16,8 @@ from cdp.utils import ensure_awaitable
 
 async def send_user_operation(
     api_clients: ApiClients,
-    smart_account: EvmSmartAccount,
+    address: str,
+    owner: BaseAccount,
     calls: list[ContractCall],
     network: str,
     paymaster_url: str | None = None,
@@ -25,7 +26,8 @@ async def send_user_operation(
 
     Args:
         api_clients: The API clients object.
-        smart_account (EvmSmartAccount): The smart account to send the user operation from.
+        address (str): The address of the smart account.
+        owner (Account): The owner of the smart account.
         calls (List[EVMCall]): The calls to send.
         network (str): The network.
         paymaster_url (str): The paymaster URL.
@@ -55,9 +57,8 @@ async def send_user_operation(
         paymaster_url=paymaster_url,
     )
     user_operation_model = await api_clients.evm_smart_accounts.prepare_user_operation(
-        smart_account.address, prepare_user_operation_request
+        address, prepare_user_operation_request
     )
-    owner = smart_account.owners[0]
 
     signed_payload = await ensure_awaitable(
         owner.unsafe_sign_hash, user_operation_model.user_op_hash
@@ -68,7 +69,7 @@ async def send_user_operation(
         signature=signature,
     )
     user_operation_model = await api_clients.evm_smart_accounts.send_user_operation(
-        smart_account.address,
+        address,
         user_operation_model.user_op_hash,
         send_user_operation_request,
     )

@@ -75,8 +75,9 @@ python-client: check-openapi preprocess-openapi
 	@ echo "Cleaning old API and model files..."
 	@ rm -rf cdp/openapi_client/api
 	@ rm -rf cdp/openapi_client/models
+	@ rm -rf cdp/openapi_client/test
 	@ echo "Generating new client..."
-	@ openapi-generator generate -i ../openapi_preprocessed.yaml -g python -o cdp/openapi_client -c client_config.yaml -t templates
+	@ openapi-generator generate -i ../openapi_preprocessed.yaml -g python -o cdp/openapi_client -c client_config.yaml -t templates --legacy-discriminator-behavior
 	@ if [ -d "cdp/openapi_client/cdp/openapi_client" ]; then cp -R cdp/openapi_client/cdp/openapi_client/* cdp/openapi_client/ && rm -rf cdp/openapi_client/cdp; fi
 	@ rm -rf cdp/openapi_client/docs
 	@ echo "OpenAPI client generation completed"

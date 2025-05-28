@@ -19,6 +19,8 @@ from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccoun
 from cdp.openapi_client.models.create_evm_smart_account_request import (
     CreateEvmSmartAccountRequest,
 )
+from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
 from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
@@ -27,6 +29,9 @@ from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageReq
 from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
+from cdp.openapi_client.models.sign_evm_typed_data200_response import SignEvmTypedData200Response
+from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
+from cdp.update_account_types import UpdateAccountOptions
 
 
 def test_init():
@@ -239,7 +244,8 @@ async def test_send_user_operation(mock_send_user_operation, smart_account_model
 
     mock_send_user_operation.assert_called_once_with(
         client.api_clients,
-        smart_account_model,
+        smart_account_model.address,
+        smart_account_model.owners[0],
         mock_calls,
         test_network,
         test_paymaster_url,
@@ -445,6 +451,63 @@ async def test_sign_message():
 
 
 @pytest.mark.asyncio
+async def test_sign_typed_data():
+    """Test signing an EVM typed data."""
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+
+    test_address = "0x1234567890123456789012345678901234567890"
+    domain = EIP712Domain(
+        name="Test",
+        chain_id=1,
+        verifying_contract="0x0000000000000000000000000000000000000000",
+    )
+    types = {
+        "EIP712Domain": [
+            {"name": "name", "type": "string"},
+            {"name": "chainId", "type": "uint256"},
+            {"name": "verifyingContract", "type": "address"},
+        ],
+    }
+    primary_type = "EIP712Domain"
+    message = {
+        "name": "EIP712Domain",
+        "chainId": 1,
+        "verifyingContract": "0x0000000000000000000000000000000000000000",
+    }
+    test_idempotency_key = "test-idempotency-key"
+
+    mock_evm_accounts_api.sign_evm_typed_data = AsyncMock(
+        return_value=SignEvmTypedData200Response(signature="0x123")
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    result = await client.sign_typed_data(
+        address=test_address,
+        domain=domain,
+        types=types,
+        primary_type=primary_type,
+        message=message,
+        idempotency_key=test_idempotency_key,
+    )
+
+    mock_evm_accounts_api.sign_evm_typed_data.assert_called_once_with(
+        address=test_address,
+        eip712_message=EIP712Message(
+            domain=domain,
+            types=types,
+            primary_type=primary_type,
+            message=message,
+        ),
+        x_idempotency_key=test_idempotency_key,
+    )
+
+    assert result == "0x123"
+
+
+@pytest.mark.asyncio
 async def test_sign_transaction():
     """Test signing an EVM transaction."""
     mock_evm_accounts_api = AsyncMock()
@@ -502,6 +565,40 @@ async def test_request_faucet():
     )
 
     assert result == "0xfaucet_tx_hash"
+
+
+@pytest.mark.asyncio
+async def test_update_account(server_account_model_factory):
+    """Test updating an EVM account."""
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+
+    evm_server_account_model = server_account_model_factory()
+    mock_evm_accounts_api.update_evm_account = AsyncMock(return_value=evm_server_account_model)
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    test_address = "0x1234567890123456789012345678901234567890"
+    test_name = "updated-account-name"
+    test_idempotency_key = "test-idempotency-key"
+    test_account_policy = "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    update_options = UpdateAccountOptions(name=test_name, account_policy=test_account_policy)
+
+    await client.update_account(
+        address=test_address,
+        update=update_options,
+        idempotency_key=test_idempotency_key,
+    )
+
+    mock_evm_accounts_api.update_evm_account.assert_called_once_with(
+        address=test_address,
+        update_evm_account_request=UpdateEvmAccountRequest(
+            name=test_name,
+            account_policy=test_account_policy,
+        ),
+        x_idempotency_key=test_idempotency_key,
+    )
 
 
 @pytest.mark.asyncio

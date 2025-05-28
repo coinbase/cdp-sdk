@@ -1,6 +1,7 @@
 // Usage: pnpm tsx solana/listAccounts.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
+import "dotenv/config";
 
 const cdp = new CdpClient();
 

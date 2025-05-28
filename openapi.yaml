@@ -14,7 +14,7 @@ servers:
   - url: https://api.cdp.coinbase.com/platform
     description: The production server of the CDP APIs.
 security:
-  - bearerAuth: []
+  - apiKeyAuth: []
 tags:
   - name: EVM Accounts
     x-audience: public
@@ -33,7 +33,7 @@ tags:
 
       - **CDP Secret API Key**: This key is used to authenticate all requests to the entire suite of
          REST APIs offered on Coinbase Developer Platform.
-      - **Wallet Secret**: This secret is used specifically to authenticate sensitive wallet operations 
+      - **Wallet Secret**: This secret is used specifically to authenticate sensitive wallet operations
         to `POST` and `DELETE` endpoints in the EVM and Solana Account APIs.
 
 
@@ -80,7 +80,8 @@ tags:
         - `criteria` is an array of logical expressions. All parameters must evaluate to true for the action to be applied.
         - An `operation` corresponds to a CDP v2 API:
             - `signEvmTransaction` or `signSolTransaction` for signing transactions (to set a transaction limit)
-      - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected. Only `signEvmTransaction` and `signSolTransaction` operations are currently supported. 
+            - `sendEvmTransaction` for signing a transaction, and sending it to a supported network
+      - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected. Only `signEvmTransaction` and `signSolTransaction` operations are currently supported.
       ## Policy Scope
       Policies can be applied at the project and/or account level:
       - **Project-level policy**: A `project`-level policy applies to all accounts in a CDP Project. Only one project-level policy can be applied to accounts within a CDP Project at any given time.
@@ -92,7 +93,7 @@ tags:
       Scope is specified in the `scope` field of a policy:
       ```json {
         "description": "Project-level policy",
-        "scope": "account", 
+        "scope": "account",
         ...
       ```
       ## Policy Evaluation
@@ -158,7 +159,7 @@ tags:
         `createSolAccount` operations.
 
       - By specifying the `policies` field in the request body of the `updateEvmAccount` and
-        `updateSolAccount` operations.
+        `updateSolanaAccount` operations.
 
 
       ## Criteria
@@ -191,7 +192,7 @@ tags:
 
       - **CDP Secret API Key**: This key is used to authenticate all requests to the entire suite of
          REST APIs offered on Coinbase Developer Platform.
-      - **Wallet Secret**: This secret is used specifically to authenticate sensitive wallet operations 
+      - **Wallet Secret**: This secret is used specifically to authenticate sensitive wallet operations
         to `POST` and `DELETE` endpoints in the EVM and Solana Account APIs.
 
 
@@ -381,6 +382,82 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: EVM account with the given address not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+    put:
+      x-audience: public
+      summary: Update an EVM account
+      description: Updates an existing EVM account. Use this to update the account's name or account-level policy.
+      operationId: updateEvmAccount
+      tags:
+        - EVM Accounts
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: address
+          description: The 0x-prefixed address of the EVM account. The address does not need to be checksummed.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: |-
+                    An optional name for the account.
+                    Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+                    Account names must be unique across all EVM accounts in the developer's CDP Project.
+                  example: my-wallet
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                accountPolicy:
+                  type: string
+                  x-audience: public
+                  description: The ID of the account-level policy to apply to the account.
+                  pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: Successfully updated EVM account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmAccount'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'request body has an error: doesn''t match schema: Error at "/name": string doesn''t match the regular expression  "^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"'
+        '404':
+          description: EVM account not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given address not found.
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
         '500':
           $ref: '#/components/responses/InternalServerError'
         '502':
@@ -831,6 +908,85 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/accounts/{address}/sign/typed-data:
+    post:
+      x-audience: public
+      summary: Sign EIP-712 typed data
+      description: Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given EVM account.
+      operationId: signEvmTypedData
+      tags:
+        - EVM Accounts
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: address
+          description: The 0x-prefixed address of the EVM account.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EIP712Message'
+      responses:
+        '200':
+          description: Successfully signed typed data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signature:
+                    type: string
+                    description: The signature of the typed data, as a 0x-prefixed hex string.
+                    example: '0x1b0c9cf8cd4554c6c6d9e7311e88f1be075d7f25b418a044f4bf2c0a42a93e212ad0a8b54de9e0b5f7e3812de3f2c6cc79aa8c3e1c02e7ad14b4a8f42012c2c01b'
+                required:
+                  - signature
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given address not found.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/smart-accounts:
     get:
       summary: List Smart Accounts
@@ -930,6 +1086,85 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Invalid owner address or account name provided.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/accounts/import:
+    post:
+      x-audience: public
+      summary: Import an EVM account
+      description: Import an existing EVM account into the developer's CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
+      operationId: importEvmAccount
+      tags:
+        - EVM Accounts
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                encryptedPrivateKey:
+                  type: string
+                  description: The base64-encoded, encrypted private key of the EVM account. The private key must be encrypted using the CDP SDK's encryption scheme.
+                  example: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+                name:
+                  type: string
+                  description: |-
+                    An optional name for the account.
+                    Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+                    Account names must be unique across all EVM accounts in the developer's CDP Project.
+                  example: my-wallet
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+              required:
+                - encryptedPrivateKey
+      responses:
+        '201':
+          description: Successfully imported EVM account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmAccount'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: The encrypted private key is invalid.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '409':
+          description: Resource already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                already_exists:
+                  value:
+                    errorType: already_exists
+                    errorMessage: EVM account with the given address already exists.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
         '500':
           $ref: '#/components/responses/InternalServerError'
         '502':
@@ -1127,7 +1362,9 @@ paths:
       summary: Send a user operation
       description: |-
         Sends a user operation with a signature.
-        The signature that is sent should be 65 bytes, consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.
+        The payload to sign must be the `userOpHash` field of the user operation. This hash should be signed directly (not using `personal_sign` or EIP-191 message hashing).
+        The signature must be 65 bytes in length, consisting of: - 32 bytes for the `r` value - 32 bytes for the `s` value - 1 byte for the `v` value (must be 27 or 28)
+        If using the CDP Paymaster, the user operation must be signed and sent within 2 minutes of being prepared.
       operationId: sendUserOperation
       tags:
         - EVM Smart Accounts
@@ -1878,6 +2115,81 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+    put:
+      x-audience: public
+      summary: Update a Solana account
+      description: Updates an existing Solana account. Use this to update the account's name or account-level policy.
+      operationId: updateSolanaAccount
+      tags:
+        - Solana Accounts
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: address
+          description: The base58 encoded address of the Solana account.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+          example: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: |-
+                    An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+                    Account names must be unique across all Solana accounts in the developer's CDP Project.
+                  example: my-wallet
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                accountPolicy:
+                  type: string
+                  x-audience: public
+                  description: The ID of the account-level policy to apply to the account.
+                  pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: Successfully updated Solana account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolanaAccount'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'request body has an error: doesn''t match schema: Error at "name": string doesn''t match the regular expression  "^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"'
+        '404':
+          description: Solana account not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Solana account with the given address not found.
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/solana/accounts/by-name/{name}:
     get:
       x-audience: public
@@ -2229,11 +2541,16 @@ paths:
           $ref: '#/components/responses/ServiceUnavailableError'
 components:
   securitySchemes:
-    bearerAuth:
+    apiKeyAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: A JWT signed using your API Key Secret, encoded in base64. Refer to the  [Generate Bearer Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-bearer-token) section of our Authentication docs for information on how to generate your Bearer Token.
+      description: A JWT signed using your CDP API Key Secret, encoded in base64. Refer to the [Generate Bearer Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-bearer-token) section of our Authentication docs for information on how to generate your Bearer Token.
+    endUserAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: A JWT signed using the developer's own JWT private key (in the case of JWT authentication), or an end user JWT signed by CDP, encoded in base64. This is used for End User Account APIs.
   schemas:
     EvmAccount:
       type: object
@@ -2251,6 +2568,15 @@ components:
             Account names are guaranteed to be unique across all EVM accounts in the developer's CDP Project.
           example: my-account
           pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+        policies:
+          type: array
+          x-audience: public
+          description: The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists.
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example:
+            - 123e4567-e89b-12d3-a456-426614174000
       required:
         - address
     ListResponse:
@@ -2553,6 +2879,126 @@ components:
         errorMessage: Invalid request.
         correlationId: 41deb8d59a9dc9a7-IAD
         errorLink: https://docs.cdp.coinbase.com/api-v2/docs/errors#invalid_request
+    EIP712Domain:
+      type: object
+      description: The domain of the EIP-712 typed data.
+      properties:
+        name:
+          type: string
+          description: The name of the DApp or protocol.
+          example: Permit2
+        version:
+          type: string
+          description: The version of the DApp or protocol.
+          example: '1'
+        chainId:
+          type: integer
+          format: int64
+          description: The chain ID of the EVM network.
+          example: 1
+        verifyingContract:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: The 0x-prefixed EVM address of the verifying smart contract.
+          example: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+        salt:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{64}$
+          description: The optional 32-byte 0x-prefixed hex salt for domain separation.
+          example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+      example:
+        name: Permit2
+        chainId: 1
+        verifyingContract: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+    EIP712Types:
+      type: object
+      description: |
+        A mapping of struct names to an array of type objects (name + type).
+        Each key corresponds to a type name (e.g., "`EIP712Domain`", "`PermitTransferFrom`").
+      example:
+        EIP712Domain:
+          - name: name
+            type: string
+          - name: chainId
+            type: uint256
+          - name: verifyingContract
+            type: address
+        PermitTransferFrom:
+          - name: permitted
+            type: TokenPermissions
+          - name: spender
+            type: address
+          - name: nonce
+            type: uint256
+          - name: deadline
+            type: uint256
+        TokenPermissions:
+          - name: token
+            type: address
+          - name: amount
+            type: uint256
+    EIP712Message:
+      type: object
+      description: The message to sign using EIP-712.
+      properties:
+        domain:
+          $ref: '#/components/schemas/EIP712Domain'
+        types:
+          $ref: '#/components/schemas/EIP712Types'
+        primaryType:
+          type: string
+          description: The primary type of the message. This is the name of the struct in the `types` object that is the root of the message.
+          example: PermitTransferFrom
+        message:
+          type: object
+          description: The message to sign. The structure of this message must match the `primaryType` struct in the `types` object.
+          example:
+            permitted:
+              token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+              amount: '1000000'
+            spender: '0x1111111254EEB25477B68fb85Ed929f73A960582'
+            nonce: '0'
+            deadline: '1716239020'
+      required:
+        - domain
+        - types
+        - primaryType
+        - message
+      example:
+        domain:
+          name: Permit2
+          chainId: 1
+          verifyingContract: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+        types:
+          EIP712Domain:
+            - name: name
+              type: string
+            - name: chainId
+              type: uint256
+            - name: verifyingContract
+              type: address
+          PermitTransferFrom:
+            - name: permitted
+              type: TokenPermissions
+            - name: spender
+              type: address
+            - name: nonce
+              type: uint256
+            - name: deadline
+              type: uint256
+          TokenPermissions:
+            - name: token
+              type: address
+            - name: amount
+              type: uint256
+        primaryType: PermitTransferFrom
+        message:
+          permitted:
+            token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+            amount: '1000000'
+          spender: '0xFfFfFfFFfFFfFFfFFfFFFFFffFFFffffFfFFFfFf'
+          nonce: '123456'
+          deadline: '1717123200'
     EvmSmartAccount:
       type: object
       properties:
@@ -2796,6 +3242,109 @@ components:
         oneOf:
           - $ref: '#/components/schemas/EthValueCriterion'
           - $ref: '#/components/schemas/EvmAddressCriterion'
+      example:
+        - type: ethValue
+          ethValue: '1000000'
+          operator: '>='
+        - type: evmAddress
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+    SignEvmTransactionRule:
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: signEvmTransaction
+          enum:
+            - signEvmTransaction
+        criteria:
+          $ref: '#/components/schemas/SignEvmTransactionCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    EvmNetworkCriterion:
+      type: object
+      x-audience: public
+      description: A schema for specifying a criterion for the intended `network` of an EVM transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `evmNetwork`.
+          example: evmNetwork
+          enum:
+            - evmNetwork
+        networks:
+          type: array
+          description: A list of EVM network identifiers that the transaction's intended `network` should be compared to.
+          items:
+            type: string
+            description: The network the transaction is for.
+            enum:
+              - base-sepolia
+              - base
+            example: base-sepolia
+          example:
+            - base
+            - base-sepolia
+        operator:
+          type: string
+          description: The operator to use for the comparison. The transaction's intended `network` will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+      required:
+        - type
+        - networks
+        - operator
+    SendEvmTransactionCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying the rejection criteria for the SignEvmTransaction operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EthValueCriterion'
+          - $ref: '#/components/schemas/EvmAddressCriterion'
+          - $ref: '#/components/schemas/EvmNetworkCriterion'
+      example:
+        - type: ethValue
+          ethValue: '1000000'
+          operator: '>='
+        - type: evmAddress
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+    SendEvmTransactionRule:
+      x-audience: public
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: sendEvmTransaction
+          enum:
+            - sendEvmTransaction
+        criteria:
+          $ref: '#/components/schemas/SendEvmTransactionCriteria'
+      required:
+        - action
+        - operation
+        - criteria
     SolAddressCriterion:
       type: object
       description: The criterion for the recipient addresses of a Solana transaction.
@@ -2833,9 +3382,12 @@ components:
       items:
         oneOf:
           - $ref: '#/components/schemas/SolAddressCriterion'
-    Rule:
-      type: object
-      description: A rule that limits the behavior of an account.
+      example:
+        - type: solAddress
+          addresses:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+          operator: in
+    SignSolTransactionRule:
       properties:
         action:
           type: string
@@ -2847,28 +3399,33 @@ components:
         operation:
           type: string
           description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
-          example: signEvmTransaction
+          example: signSolTransaction
           enum:
-            - signEvmTransaction
             - signSolTransaction
         criteria:
-          description: The set of criteria for the rule. There is a limit of 10 criteria per rule.
-          oneOf:
-            - $ref: '#/components/schemas/SignEvmTransactionCriteria'
-            - $ref: '#/components/schemas/SignSolTransactionCriteria'
-          example:
-            - type: ethValue
-              ethValue: '1000000000000000000'
-              operator: <=
-            - type: evmAddress
-              addresses:
-                - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-                - '0x1234567890123456789012345678901234567890'
-              operator: in
+          $ref: '#/components/schemas/SignSolTransactionCriteria'
       required:
         - action
         - operation
         - criteria
+    Rule:
+      type: object
+      description: A rule that limits the behavior of an account.
+      oneOf:
+        - $ref: '#/components/schemas/SignEvmTransactionRule'
+        - $ref: '#/components/schemas/SendEvmTransactionRule'
+        - $ref: '#/components/schemas/SignSolTransactionRule'
+      example:
+        action: accept
+        operation: signEvmTransaction
+        criteria:
+          - type: ethValue
+            ethValue: '1000000'
+            operator: '>='
+          - type: evmAddress
+            addresses:
+              - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            operator: in
     Policy:
       type: object
       properties:
@@ -2880,7 +3437,7 @@ components:
         description:
           type: string
           description: |-
-            An optional human-readable description of the policy. 
+            An optional human-readable description of the policy.
             Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.
           pattern: ^[A-Za-z0-9 ,.]{1,50}$
           example: Default policy
@@ -2907,6 +3464,13 @@ components:
                   addresses:
                     - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
                     - '0x1234567890123456789012345678901234567890'
+                  operator: in
+            - action: accept
+              operation: signSolTransaction
+              criteria:
+                - type: solAddress
+                  addresses:
+                    - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
                   operator: in
         createdAt:
           type: string
@@ -2938,6 +3502,15 @@ components:
             Account names are guaranteed to be unique across all Solana accounts in the developer's CDP Project.
           example: my-account
           pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+        policies:
+          type: array
+          x-audience: public
+          description: The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists.
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example:
+            - 123e4567-e89b-12d3-a456-426614174000
       required:
         - address
   responses:

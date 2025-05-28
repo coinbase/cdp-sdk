@@ -1,5 +1,3 @@
-import { base, baseSepolia } from "viem/chains";
-
 import { Network } from "./types.js";
 
 /**
@@ -25,15 +23,4 @@ const addressMap = {
  */
 export function getErc20Address(token: string, network: Network) {
   return addressMap[network][token] ?? token;
-}
-
-/**
- * Map a network to a viem chain.
- * TODO: Add more networks (or dynamically map viem chains).
- *
- * @param network - The network to map to a chain.
- * @returns The chain for the given network.
- */
-export function mapNetworkToChain(network: Network) {
-  return network === "base" ? base : baseSepolia;
 }

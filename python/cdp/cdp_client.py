@@ -1,11 +1,12 @@
 import os
 
 from cdp.__version__ import __version__
-from cdp.analytics import wrap_class_with_error_tracking
+from cdp.analytics import Analytics, wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
 from cdp.constants import SDK_DEFAULT_SOURCE
 from cdp.evm_client import EvmClient
 from cdp.openapi_client.cdp_api_client import CdpApiClient
+from cdp.policies_client import PoliciesClient
 from cdp.solana_client import SolanaClient
 
 
@@ -89,11 +90,14 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
 
         self._evm = EvmClient(self.api_clients)
         self._solana = SolanaClient(self.api_clients)
+        self._policies = PoliciesClient(self.api_clients)
 
         if os.getenv("DISABLE_CDP_ERROR_REPORTING") != "true":
-            wrap_class_with_error_tracking(CdpClient, api_key_id)
-            wrap_class_with_error_tracking(EvmClient, api_key_id)
-            wrap_class_with_error_tracking(SolanaClient, api_key_id)
+            Analytics["identifier"] = api_key_id
+            wrap_class_with_error_tracking(CdpClient)
+            wrap_class_with_error_tracking(EvmClient)
+            wrap_class_with_error_tracking(SolanaClient)
+            wrap_class_with_error_tracking(PoliciesClient)
 
     @property
     def evm(self) -> EvmClient:
@@ -104,6 +108,11 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
     def solana(self) -> SolanaClient:
         """Get the SolanaClient instance."""
         return self._solana
+
+    @property
+    def policies(self) -> PoliciesClient:
+        """Get the PoliciesClient instance."""
+        return self._policies
 
     async def __aenter__(self):
         """Enter the context manager."""

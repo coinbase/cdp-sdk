@@ -1,16 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { encodeFunctionData, erc20Abi, Hex } from "viem";
+import { encodeFunctionData, erc20Abi, Hex, parseEther } from "viem";
 
 import { smartAccountTransferStrategy } from "./smartAccountTransferStrategy.js";
 import { getErc20Address } from "./utils.js";
-import { EvmSmartAccount, EvmAccount } from "../../../accounts/types.js";
 import { sendUserOperation } from "../sendUserOperation.js";
 import { waitForUserOperation } from "../waitForUserOperation.js";
 import { Address } from "../../../types/misc.js";
 import { CdpOpenApiClientType } from "../../../openapi-client/index.js";
 import type { SmartAccountTransferOptions } from "./types.js";
+import type { EvmSmartAccount, EvmAccount } from "../../../accounts/evm/types.js";
 
-vi.mock("viem", () => ({
+vi.mock("viem", async importOriginal => ({
+  ...(await importOriginal<typeof vi>()),
   encodeFunctionData: vi.fn().mockReturnValue("0xmockedEncodedData"),
   erc20Abi: ["mocked_abi"],
 }));
@@ -34,7 +35,6 @@ vi.mock("../waitForUserOperation.js", () => ({
 
 describe("smartAccountTransferStrategy", () => {
   let mockApiClient: CdpOpenApiClientType;
-  let mockPublicClient: any;
   let mockSmartAccount: EvmSmartAccount;
   let mockOwnerAccount: EvmAccount;
   let mockTransferArgs: SmartAccountTransferOptions;
@@ -59,23 +59,14 @@ describe("smartAccountTransferStrategy", () => {
       requestFaucet: vi.fn(),
       sendUserOperation: vi.fn(),
       waitForUserOperation: vi.fn(),
+      getUserOperation: vi.fn(),
     };
 
     mockApiClient = {} as unknown as CdpOpenApiClientType;
 
-    mockPublicClient = {
-      chain: {
-        blockExplorers: {
-          default: {
-            url: "https://explorer.example.org",
-          },
-        },
-      },
-    };
-
     mockTransferArgs = {
       to: "0x1234567890123456789012345678901234567890" as Address,
-      amount: "0.1",
+      amount: parseEther("0.1"),
       token: "eth",
       network: "base",
     };
@@ -114,7 +105,7 @@ describe("smartAccountTransferStrategy", () => {
         ],
       });
 
-      expect(result).toBe("0xuserophash");
+      expect(result.userOpHash).toBe("0xuserophash");
     });
 
     it("should execute ERC-20 token transfer correctly", async () => {
@@ -160,7 +151,7 @@ describe("smartAccountTransferStrategy", () => {
         ],
       });
 
-      expect(result).toBe("0xuserophash");
+      expect(result.userOpHash).toBe("0xuserophash");
     });
 
     it("should execute custom token transfer correctly", async () => {
@@ -187,7 +178,7 @@ describe("smartAccountTransferStrategy", () => {
         }),
       );
 
-      expect(result).toBe("0xuserophash");
+      expect(result.userOpHash).toBe("0xuserophash");
     });
 
     it("should pass paymasterUrl to sendUserOperation", async () => {
@@ -211,104 +202,7 @@ describe("smartAccountTransferStrategy", () => {
         }),
       );
 
-      expect(result).toBe("0xuserophash");
-    });
-  });
-
-  describe("waitForResult", () => {
-    it("should handle successful user operation", async () => {
-      const hash = "0xsuccesshash" as Hex;
-
-      (waitForUserOperation as any).mockResolvedValue({
-        status: "complete",
-      });
-
-      const result = await smartAccountTransferStrategy.waitForResult({
-        apiClient: mockApiClient,
-        publicClient: mockPublicClient,
-        from: mockSmartAccount,
-        hash,
-      });
-
-      expect(waitForUserOperation).toHaveBeenCalledWith(mockApiClient, {
-        smartAccountAddress: mockSmartAccount.address,
-        userOpHash: hash,
-      });
-
-      expect(result).toEqual({
-        status: "success",
-        transactionHash: hash,
-      });
-    });
-
-    it("should pass waitOptions to waitForUserOperation", async () => {
-      const waitOptions = {
-        timeoutSeconds: 1000,
-        intervalSeconds: 100,
-      };
-
-      (waitForUserOperation as any).mockResolvedValue({
-        status: "complete",
-      });
-
-      await smartAccountTransferStrategy.waitForResult({
-        apiClient: mockApiClient,
-        publicClient: mockPublicClient,
-        from: mockSmartAccount,
-        hash: "0xsuccesshash" as Hex,
-        waitOptions,
-      });
-
-      expect(waitForUserOperation).toHaveBeenCalledWith(mockApiClient, {
-        smartAccountAddress: mockSmartAccount.address,
-        userOpHash: "0xsuccesshash" as Hex,
-        waitOptions,
-      });
-    });
-
-    it("should throw error for failed user operation", async () => {
-      const hash = "0xfailedhash" as Hex;
-
-      (waitForUserOperation as any).mockResolvedValue({
-        status: "failed",
-      });
-
-      await expect(
-        smartAccountTransferStrategy.waitForResult({
-          apiClient: mockApiClient,
-          publicClient: mockPublicClient,
-          from: mockSmartAccount,
-          hash,
-        }),
-      ).rejects.toThrow(
-        `Transaction failed. Check the transaction on the explorer: https://explorer.example.org/tx/${hash}`,
-      );
-
-      expect(waitForUserOperation).toHaveBeenCalledWith(mockApiClient, {
-        smartAccountAddress: mockSmartAccount.address,
-        userOpHash: hash,
-      });
-    });
-
-    it("should handle user operation rejection due to other error", async () => {
-      const hash = "0xerrorhash" as Hex;
-      const error = new Error("Some unexpected error");
-
-      (waitForUserOperation as any).mockRejectedValue(error);
-
-      await expect(
-        smartAccountTransferStrategy.waitForResult({
-          apiClient: mockApiClient,
-          publicClient: mockPublicClient,
-          from: mockSmartAccount,
-          hash,
-        }),
-      ).rejects.toThrow(error);
-
-      expect(waitForUserOperation).toHaveBeenCalledWith(mockApiClient, {
-        smartAccountAddress: mockSmartAccount.address,
-        userOpHash: hash,
-      });
+      expect(result.userOpHash).toBe("0xuserophash");
     });
   });
 });

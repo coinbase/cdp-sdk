@@ -3,6 +3,9 @@
 import asyncio
 
 from cdp import CdpClient
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 async def main():
@@ -19,7 +22,7 @@ async def main():
         account_coros = [
             cdp.evm.get_or_create_account(name="Account"),
             cdp.evm.get_or_create_account(name="Account"),
-            cdp.evm.get_or_create_account(name="Account")
+            cdp.evm.get_or_create_account(name="Account"),
         ]
         accounts = await asyncio.gather(*account_coros)
         for i, acc in enumerate(accounts, 1):

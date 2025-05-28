@@ -1,29 +1,64 @@
 import asyncio
 import base64
+import os
 import random
 import string
+from math import floor
 
 import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
 from eth_account.account import Account
+from solana.rpc.api import Client as SolanaClient
+from solders.pubkey import Pubkey as PublicKey
 from web3 import Web3
 
 from cdp import CdpClient
-from cdp.actions.evm.transfer.types import TransferOptions
 from cdp.evm_call_types import EncodedCall
 from cdp.evm_transaction_types import TransactionRequestEIP1559
+from cdp.openapi_client.errors import ApiError
+from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.policies.types import (
+    CreatePolicyOptions,
+    EthValueCriterion,
+    EvmAddressCriterion,
+    EvmNetworkCriterion,
+    SendEvmTransactionRule,
+    SignEvmTransactionRule,
+    SignSolanaTransactionRule,
+    SolanaAddressCriterion,
+    UpdatePolicyOptions,
+)
+from cdp.update_account_types import UpdateAccountOptions
 
 load_dotenv()
 
 w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 
+test_account_name = "E2EServerAccount2"
+
+e2e_base_path = os.getenv("E2E_BASE_PATH")
+
+client_args = {}
+
+if e2e_base_path:
+    client_args["base_path"] = e2e_base_path
+
 
 @pytest_asyncio.fixture(scope="function")
 async def cdp_client():
     """Create and configure CDP client for all tests."""
-    client = CdpClient()
+    client = CdpClient(**client_args)
     yield client
+    await client.close()
+
+
+@pytest_asyncio.fixture(scope="function")
+async def solana_account():
+    """Create and configure a shared Solana account for all tests."""
+    client = CdpClient(**client_args)
+    account = await client.solana.get_or_create_account(name=test_account_name)
+    yield account
     await client.close()
 
 
@@ -156,9 +191,47 @@ async def test_send_wait_and_get_user_operation(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_send_wait_and_get_user_operation_with_smart_account(cdp_client):
+    """Test sending, waiting for, and getting a user operation with a smart account."""
+    private_key = Account.create().key
+    owner = Account.from_key(private_key)
+
+    smart_account = await cdp_client.evm.create_smart_account(owner=owner)
+    assert smart_account is not None
+
+    user_operation = await smart_account.send_user_operation(
+        network="base-sepolia",
+        calls=[
+            EncodedCall(
+                to="0x0000000000000000000000000000000000000000",
+                data="0x",
+                value=0,
+            )
+        ],
+    )
+
+    assert user_operation is not None
+    assert user_operation.user_op_hash is not None
+
+    user_op_result = await smart_account.wait_for_user_operation(
+        user_op_hash=user_operation.user_op_hash,
+    )
+
+    assert user_op_result is not None
+    assert user_op_result.status == "complete"
+
+    user_op = await smart_account.get_user_operation(
+        user_op_hash=user_operation.user_op_hash,
+    )
+    assert user_op is not None
+    assert user_op.status == "complete"
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_send_transaction(cdp_client):
     """Test sending a transaction."""
-    account = await cdp_client.evm.get_account(name="E2ETestAccount")
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
@@ -175,6 +248,86 @@ async def test_send_transaction(cdp_client):
 
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     assert tx_receipt is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_send_transaction_from_account(cdp_client):
+    """Test sending a transaction from an account."""
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
+    assert account is not None
+
+    await _ensure_sufficient_eth_balance(cdp_client, account)
+
+    # test that account can send a TransactionRequestEIP1559
+    tx_hash = await account.send_transaction(
+        transaction=TransactionRequestEIP1559(
+            to="0x0000000000000000000000000000000000000000",
+            value=w3.to_wei(0, "ether"),
+        ),
+        network="base-sepolia",
+    )
+
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    assert tx_receipt is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@pytest.mark.skip(reason="Skipping due to faucet rate limit")
+async def test_evm_request_faucet_for_account(cdp_client):
+    """Test requesting a faucet for an EVM account."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    faucet_hash = await account.request_faucet(network="base-sepolia", token="eth")
+    assert faucet_hash is not None
+
+    tx_receipt = w3.eth.wait_for_transaction_receipt(faucet_hash)
+    assert tx_receipt is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_list_evm_token_balances_for_account(cdp_client):
+    """Test listing evm token balances for a server account."""
+    account = await cdp_client.evm.get_or_create_account(name="E2ETestAccount")
+    assert account is not None
+
+    first_page = await account.list_token_balances(network="base-sepolia", page_size=1)
+    assert first_page is not None
+    assert len(first_page.balances) > 0
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@pytest.mark.skip(reason="Skipping due to faucet rate limit")
+async def test_evm_request_faucet_for_smart_account(cdp_client):
+    """Test requesting a faucet for an EVM smart account."""
+    smart_account = await cdp_client.evm.create_smart_account(owner=Account.create())
+    assert smart_account is not None
+
+    faucet_hash = await smart_account.request_faucet(network="base-sepolia", token="eth")
+    assert faucet_hash is not None
+
+    tx_receipt = w3.eth.wait_for_transaction_receipt(faucet_hash)
+    assert tx_receipt is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_list_evm_token_balances_for_smart_account(cdp_client):
+    """Test listing evm token balances for a smart account."""
+    account = await cdp_client.evm.get_or_create_account(name="E2ESmartAccount")
+    assert account is not None
+
+    smart_account = await cdp_client.evm.get_smart_account(
+        address=os.getenv("CDP_E2E_SMART_ACCOUNT_ADDRESS"), owner=account
+    )
+
+    first_page = await smart_account.list_token_balances(network="base-sepolia")
+    assert first_page is not None
+    assert len(first_page.balances) > 0
 
 
 @pytest.mark.e2e
@@ -288,46 +441,109 @@ async def test_solana_sign_fns(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_evm_sign_typed_data(cdp_client):
+    """Test signing typed data."""
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
+    assert account is not None
+
+    signature = await cdp_client.evm.sign_typed_data(
+        address=account.address,
+        domain=EIP712Domain(
+            name="EIP712Domain",
+            chain_id=1,
+            verifying_contract="0x0000000000000000000000000000000000000000",
+        ),
+        types={
+            "EIP712Domain": [
+                {"name": "name", "type": "string"},
+                {"name": "chainId", "type": "uint256"},
+                {"name": "verifyingContract", "type": "address"},
+            ],
+        },
+        primary_type="EIP712Domain",
+        message={
+            "name": "EIP712Domain",
+            "chainId": 1,
+            "verifyingContract": "0x0000000000000000000000000000000000000000",
+        },
+    )
+    assert signature is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_sign_typed_data_for_account(cdp_client):
+    """Test signing typed data for an account."""
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
+    assert account is not None
+
+    signature = await account.sign_typed_data(
+        domain=EIP712Domain(
+            name="EIP712Domain",
+            chain_id=1,
+            verifying_contract="0x0000000000000000000000000000000000000000",
+        ),
+        types={
+            "EIP712Domain": [
+                {"name": "name", "type": "string"},
+                {"name": "chainId", "type": "uint256"},
+                {"name": "verifyingContract", "type": "address"},
+            ],
+        },
+        primary_type="EIP712Domain",
+        message={
+            "name": "EIP712Domain",
+            "chainId": 1,
+            "verifyingContract": "0x0000000000000000000000000000000000000000",
+        },
+    )
+    assert signature is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_transfer_eth(cdp_client):
     """Test transferring ETH."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
 
-    transfer_result = await account.transfer(
-        TransferOptions(
-            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            amount="0",
-            token="eth",
-            network="base-sepolia",
-        )
+    tx_hash = await account.transfer(
+        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+        amount=0,
+        token="eth",
+        network="base-sepolia",
     )
 
-    assert transfer_result is not None
-    assert transfer_result.status == "success"
+    assert tx_hash is not None
+
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    assert receipt is not None
+    assert receipt.status == 1
 
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_transfer_usdc(cdp_client):
     """Test transferring USDC tokens."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     await _ensure_sufficient_eth_balance(cdp_client, account)
 
-    transfer_result = await account.transfer(
-        TransferOptions(
-            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            amount="0",
-            token="usdc",
-            network="base-sepolia",
-        )
+    tx_hash = await account.transfer(
+        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+        amount=0,
+        token="usdc",
+        network="base-sepolia",
     )
 
-    assert transfer_result is not None
-    assert transfer_result.status == "success"
+    assert tx_hash is not None
+
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    assert receipt is not None
+    assert receipt.status == 1
 
 
 @pytest.mark.e2e
@@ -337,19 +553,20 @@ async def test_transfer_eth_smart_account(cdp_client):
     account = await cdp_client.evm.create_smart_account(owner=Account.create())
     assert account is not None
 
-    await _ensure_sufficient_eth_balance(cdp_client, account)
-
     transfer_result = await account.transfer(
-        TransferOptions(
-            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            amount="0",
-            token="eth",
-            network="base-sepolia",
-        )
+        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+        amount=0,
+        token="eth",
+        network="base-sepolia",
     )
 
     assert transfer_result is not None
-    assert transfer_result.status == "success"
+
+    user_op_result = await account.wait_for_user_operation(
+        user_op_hash=transfer_result.user_op_hash
+    )
+    assert user_op_result is not None
+    assert user_op_result.status == "complete"
 
 
 @pytest.mark.e2e
@@ -359,51 +576,72 @@ async def test_transfer_usdc_smart_account(cdp_client):
     account = await cdp_client.evm.create_smart_account(owner=Account.create())
     assert account is not None
 
-    await _ensure_sufficient_eth_balance(cdp_client, account)
-
     transfer_result = await account.transfer(
-        TransferOptions(
-            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-            amount="0",
-            token="usdc",
-            network="base-sepolia",
-        )
+        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+        amount=0,
+        token="usdc",
+        network="base-sepolia",
     )
 
     assert transfer_result is not None
-    assert transfer_result.status == "success"
+
+    user_op_result = await account.wait_for_user_operation(
+        user_op_hash=transfer_result.user_op_hash
+    )
+    assert user_op_result is not None
+    assert user_op_result.status == "complete"
 
 
-async def _ensure_sufficient_eth_balance(cdp_client, account):
-    """Ensure an account has sufficient ETH balance."""
-    min_required_balance = w3.to_wei(0.000001, "ether")
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_transfer_sol(solana_account):
+    """Test transferring SOL."""
+    connection = SolanaClient("https://api.devnet.solana.com")
 
-    eth_balance = w3.eth.get_balance(account.address)
+    await _ensure_sufficient_sol_balance(cdp_client, solana_account)
 
-    print(f"Current ETH balance: {w3.from_wei(eth_balance, 'ether')} ETH")
+    signature = await solana_account.transfer(
+        to="3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE", amount=0, token="sol", network="devnet"
+    )
 
-    if eth_balance < min_required_balance:
-        print(
-            f"ETH balance below minimum required ({w3.from_wei(min_required_balance, 'ether')} ETH)"
-        )
-        faucet_hash = await cdp_client.evm.request_faucet(
-            address=account.address, network="base-sepolia", token="eth"
-        )
+    assert signature is not None
 
-        print(f"Faucet request submitted: {faucet_hash}")
+    last_valid_block_height = connection.get_latest_blockhash()
 
-        w3.eth.wait_for_transaction_receipt(faucet_hash)
+    confirmation = connection.confirm_transaction(
+        tx_sig=signature,
+        last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
+        commitment="confirmed",
+    )
 
-        # Verify the balance is now sufficient
-        new_balance = w3.eth.get_balance(account.address)
-        assert (
-            new_balance >= min_required_balance
-        ), f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
-        return new_balance
-    else:
-        print(f"ETH balance is sufficient: {w3.from_wei(eth_balance, 'ether')} ETH")
+    assert confirmation is not None
+    assert confirmation.value[0].err is None
 
-    return eth_balance
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_solana_account_transfer_usdc(solana_account):
+    """Test transferring USDC tokens."""
+    connection = SolanaClient("https://api.devnet.solana.com")
+
+    await _ensure_sufficient_sol_balance(cdp_client, solana_account)
+
+    signature = await solana_account.transfer(
+        to="3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE", amount=0, token="usdc", network="devnet"
+    )
+
+    assert signature is not None
+
+    last_valid_block_height = connection.get_latest_blockhash()
+
+    confirmation = connection.confirm_transaction(
+        tx_sig=signature,
+        last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
+        commitment="confirmed",
+    )
+
+    assert confirmation is not None
+    assert confirmation.value[0].err is None
 
 
 @pytest.mark.e2e
@@ -492,3 +730,572 @@ async def test_solana_get_or_create_account_race_condition(cdp_client):
     assert accounts[0].name == accounts[1].name
     assert accounts[0].address == accounts[2].address
     assert accounts[0].name == accounts[2].name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_solana_sign_message(cdp_client):
+    """Test signing a message."""
+    account = await cdp_client.solana.create_account()
+    assert account is not None
+
+    message = "Hello Solana!"
+    response = await account.sign_message(message)
+    assert response is not None
+    assert response.signature is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_solana_sign_transaction(cdp_client):
+    """Test signing a transaction."""
+    account = await cdp_client.solana.create_account()
+    assert account is not None
+
+    response = await account.sign_transaction(transaction=_get_transaction(account.address))
+    assert response is not None
+    assert response.signed_transaction is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_create_account_policy(cdp_client):
+    """Test creating an account policy."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                        EvmAddressCriterion(
+                            addresses=["0x000000000000000000000000000000000000dEaD"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+                SendEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EvmNetworkCriterion(
+                            networks=["base-sepolia", "base"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+                SignSolanaTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolanaAddressCriterion(
+                            addresses=["123456789abcdef123456789abcdef12"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+            ],
+        )
+    )
+    assert policy is not None
+    assert policy.id is not None
+    assert policy.scope == "account"
+    assert policy.description == "E2E Test Policy"
+    assert policy.rules is not None
+    assert len(policy.rules) == 3
+    assert policy.rules[0].action == "accept"
+    assert policy.rules[0].operation == "signEvmTransaction"
+    assert policy.rules[0].criteria is not None
+    assert len(policy.rules[0].criteria) == 2
+    assert policy.rules[0].criteria[0].type == "ethValue"
+    assert policy.rules[0].criteria[0].ethValue == "1000000000000000000"
+    assert policy.rules[0].criteria[0].operator == "<="
+    assert policy.rules[0].criteria[1].type == "evmAddress"
+    assert policy.rules[0].criteria[1].addresses == ["0x000000000000000000000000000000000000dEaD"]
+    assert policy.rules[0].criteria[1].operator == "in"
+    assert policy.rules[1].action == "accept"
+    assert policy.rules[1].operation == "sendEvmTransaction"
+    assert policy.rules[1].criteria is not None
+    assert len(policy.rules[1].criteria) == 1
+    assert policy.rules[1].criteria[0].type == "evmNetwork"
+    assert policy.rules[1].criteria[0].networks == [
+        "base-sepolia",
+        "base",
+    ]
+    assert policy.rules[1].criteria[0].operator == "in"
+    assert policy.rules[2].action == "accept"
+    assert policy.rules[2].operation == "signSolTransaction"
+    assert policy.rules[2].criteria is not None
+    assert len(policy.rules[2].criteria) == 1
+    assert policy.rules[2].criteria[0].type == "solAddress"
+    assert policy.rules[2].criteria[0].addresses == ["123456789abcdef123456789abcdef12"]
+    assert policy.rules[2].criteria[0].operator == "in"
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_create_project_policy(cdp_client):
+    """Test creating a project policy."""
+    try:
+        # Create the project policy
+        policy = await cdp_client.policies.create_policy(
+            policy=CreatePolicyOptions(
+                scope="project",
+                description="E2E Test Policy",
+                rules=[
+                    SignEvmTransactionRule(
+                        action="accept",
+                        criteria=[
+                            EthValueCriterion(
+                                ethValue="1000000000000000000",
+                                operator="<=",
+                            ),
+                        ],
+                    )
+                ],
+            )
+        )
+    except ApiError as e:
+        # If a project policy already exists, delete it and create a new one
+        # as there can only be one project-scoped policy
+        if e.http_code == 409:
+            # Get existing project policy
+            policies = await cdp_client.policies.list_policies(scope="project")
+
+            # Delete the existing project policy
+            if policies.policies:
+                await cdp_client.policies.delete_policy(id=policies.policies[0].id)
+
+            # Create the project policy
+            policy = await cdp_client.policies.create_policy(
+                policy=CreatePolicyOptions(
+                    scope="project",
+                    description="E2E Test Policy",
+                    rules=[
+                        SignEvmTransactionRule(
+                            action="accept",
+                            criteria=[
+                                EthValueCriterion(
+                                    ethValue="1000000000000000000",
+                                    operator="<=",
+                                ),
+                            ],
+                        )
+                    ],
+                )
+            )
+
+    assert policy is not None
+    assert policy.id is not None
+    assert policy.scope == "project"
+    assert policy.description == "E2E Test Policy"
+    assert policy.rules is not None
+    assert len(policy.rules) == 1
+    assert policy.rules[0].action == "accept"
+    assert policy.rules[0].operation == "signEvmTransaction"
+    assert policy.rules[0].criteria is not None
+    assert len(policy.rules[0].criteria) == 1
+    assert policy.rules[0].criteria[0].type == "ethValue"
+    assert policy.rules[0].criteria[0].ethValue == "1000000000000000000"
+    assert policy.rules[0].criteria[0].operator == "<="
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_update_policy(cdp_client):
+    """Test updating a policy."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+    assert policy is not None
+
+    # Update the policy
+    updated_policy = await cdp_client.policies.update_policy(
+        id=policy.id,
+        policy=UpdatePolicyOptions(
+            description="Updated E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EvmAddressCriterion(
+                            addresses=["0x000000000000000000000000000000000000dEaD"],
+                            operator="in",
+                        ),
+                    ],
+                )
+            ],
+        ),
+    )
+    assert updated_policy is not None
+    assert updated_policy.id == policy.id
+    assert updated_policy.description == "Updated E2E Test Policy"
+    assert updated_policy.rules is not None
+    assert len(updated_policy.rules) == 1
+    assert updated_policy.rules[0].action == "accept"
+    assert updated_policy.rules[0].operation == "signEvmTransaction"
+    assert updated_policy.rules[0].criteria is not None
+    assert len(updated_policy.rules[0].criteria) == 1
+    assert updated_policy.rules[0].criteria[0].type == "evmAddress"
+    assert updated_policy.rules[0].criteria[0].addresses == [
+        "0x000000000000000000000000000000000000dEaD"
+    ]
+    assert updated_policy.rules[0].criteria[0].operator == "in"
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=updated_policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=updated_policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_delete_policy(cdp_client):
+    """Test deleting a policy."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+    assert policy is not None
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_get_policy_by_id(cdp_client):
+    """Test getting a policy by ID."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+    assert policy is not None
+
+    # Get the policy by ID
+    retrieved_policy = await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert retrieved_policy is not None
+    assert retrieved_policy.id == policy.id
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_list_policies(cdp_client):
+    """Test listing policies."""
+    # Create a new policy
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Test Policy",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                    ],
+                )
+            ],
+        )
+    )
+    assert policy is not None
+
+    # List all policies
+    policies = await cdp_client.policies.list_policies()
+    assert policies is not None
+    assert policies.policies is not None
+    assert len(policies.policies) > 0
+    assert any(p.id == policy.id for p in policies.policies)
+
+    # List policies with scope filter
+    policies = await cdp_client.policies.list_policies(scope="account")
+    assert policies is not None
+    assert policies.policies is not None
+    assert len(policies.policies) > 0
+    assert any(p.id == policy.id for p in policies.policies)
+
+    policies = await cdp_client.policies.list_policies(scope="project")
+    assert policies is not None
+    assert policies.policies is not None
+    assert not any(p.id == policy.id for p in policies.policies)
+
+    # List policies with pagination
+    first_page_policies = await cdp_client.policies.list_policies(page_size=1)
+    assert first_page_policies is not None
+    assert first_page_policies.policies is not None
+    assert len(first_page_policies.policies) == 1
+
+    # Check if we have more policies
+    if policies.next_page_token:
+        policies = await cdp_client.policies.list_policies(
+            page_size=1, page_token=policies.next_page_token
+        )
+        assert policies is not None
+        assert policies.policies is not None
+
+        # Verify that the second page has a different policy
+        assert not any(p.id == first_page_policies.policies[0].id for p in policies.policies)
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_update_evm_account(cdp_client):
+    """Test updating an EVM account."""
+    original_name = generate_random_name()
+    account_to_update = await cdp_client.evm.get_or_create_account(name=original_name)
+    assert account_to_update is not None
+    assert account_to_update.name == original_name
+
+    # Update the account with a new name
+    updated_name = generate_random_name()
+    updated_account = await cdp_client.evm.update_account(
+        address=account_to_update.address,
+        update=UpdateAccountOptions(
+            name=updated_name,
+        ),
+    )
+    assert updated_account is not None
+    assert updated_account.address == account_to_update.address
+    assert updated_account.name == updated_name
+
+    # Verify we can get the updated account by its new name
+    retrieved_account = await cdp_client.evm.get_account(name=updated_name)
+    assert retrieved_account is not None
+    assert retrieved_account.address == account_to_update.address
+    assert retrieved_account.name == updated_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_update_solana_account(cdp_client):
+    """Test updating a Solana account."""
+    original_name = generate_random_name()
+    account_to_update = await cdp_client.solana.create_account(name=original_name)
+    assert account_to_update is not None
+    assert account_to_update.name == original_name
+
+    # Update the account with a new name
+    updated_name = generate_random_name()
+    updated_account = await cdp_client.solana.update_account(
+        address=account_to_update.address,
+        update=UpdateAccountOptions(
+            name=updated_name,
+        ),
+    )
+    assert updated_account is not None
+    assert updated_account.address == account_to_update.address
+    assert updated_account.name == updated_name
+
+    # Verify we can get the updated account by its new name
+    retrieved_account = await cdp_client.solana.get_account(name=updated_name)
+    assert retrieved_account is not None
+    assert retrieved_account.address == account_to_update.address
+    assert retrieved_account.name == updated_name
+
+
+def _get_transaction(address: str):
+    """Help method to create a transaction."""
+    from solana.rpc.api import Client as SolanaClient
+    from solders.message import Message
+    from solders.pubkey import Pubkey as PublicKey
+    from solders.system_program import TransferParams, transfer
+
+    connection = SolanaClient("https://api.devnet.solana.com")
+
+    source_pubkey = PublicKey.from_string(address)
+    dest_pubkey = PublicKey.from_string("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE")
+
+    blockhash_resp = connection.get_latest_blockhash()
+    blockhash = blockhash_resp.value.blockhash
+
+    transfer_params = TransferParams(
+        from_pubkey=source_pubkey, to_pubkey=dest_pubkey, lamports=1000
+    )
+    transfer_instr = transfer(transfer_params)
+
+    message = Message.new_with_blockhash(
+        [transfer_instr],
+        source_pubkey,
+        blockhash,
+    )
+
+    # Create a transaction envelope with signature space
+    sig_count = bytes([1])  # 1 byte for signature count (1)
+    empty_sig = bytes([0] * 64)  # 64 bytes of zeros for the empty signature
+    message_bytes = bytes(message)  # Get the serialized message bytes
+
+    # Concatenate to form the transaction bytes
+    tx_bytes = sig_count + empty_sig + message_bytes
+
+    # Encode to base64 used by CDP API
+    serialized_tx = base64.b64encode(tx_bytes).decode("utf-8")
+
+    return serialized_tx
+
+
+async def _ensure_sufficient_eth_balance(cdp_client, account):
+    """Ensure an account has sufficient ETH balance."""
+    min_required_balance = w3.to_wei(0.000001, "ether")
+
+    eth_balance = w3.eth.get_balance(account.address)
+
+    print(f"Current ETH balance: {w3.from_wei(eth_balance, 'ether')} ETH")
+
+    if eth_balance < min_required_balance:
+        print(
+            f"ETH balance below minimum required ({w3.from_wei(min_required_balance, 'ether')} ETH)"
+        )
+        faucet_hash = await cdp_client.evm.request_faucet(
+            address=account.address, network="base-sepolia", token="eth"
+        )
+
+        print(f"Faucet request submitted: {faucet_hash}")
+
+        w3.eth.wait_for_transaction_receipt(faucet_hash)
+
+        # Verify the balance is now sufficient
+        new_balance = w3.eth.get_balance(account.address)
+        assert (
+            new_balance >= min_required_balance
+        ), f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
+        return new_balance
+    else:
+        print(f"ETH balance is sufficient: {w3.from_wei(eth_balance, 'ether')} ETH")
+
+    return eth_balance
+
+
+async def _ensure_sufficient_sol_balance(cdp_client, account):
+    """Ensure an account has sufficient SOL balance."""
+    connection = SolanaClient("https://api.devnet.solana.com")
+
+    async def sleep(ms):
+        await asyncio.sleep(ms / 1000)
+
+    # 1250000 is the amount the faucet gives, and is plenty to cover gas
+    min_required_balance = 1250000
+
+    # Get initial balance
+    balance_resp = connection.get_balance(PublicKey.from_string(account.address))
+    balance = balance_resp.value
+
+    if balance >= min_required_balance:
+        return
+
+    print("Balance too low, requesting SOL from faucet...")
+    await cdp_client.solana.request_faucet(address=account.address, token="sol")
+
+    attempts = 0
+    max_attempts = 30
+
+    while balance == 0 and attempts < max_attempts:
+        balance_resp = connection.get_balance(PublicKey.from_string(account.address))
+        balance = balance_resp.value
+        if balance == 0:
+            print("Waiting for funds...")
+            await sleep(1000)
+            attempts += 1
+
+    if balance == 0:
+        raise Exception("Account not funded after multiple attempts")
+
+
+def generate_random_name():
+    """Generate a random name."""
+    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    chars_with_hyphen = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
+
+    first_char = chars[floor(random.random() * len(chars))]
+
+    middle_length = floor(random.random() * 34)
+    middle_part = ""
+    for _ in range(middle_length):
+        middle_part += chars_with_hyphen[floor(random.random() * len(chars_with_hyphen))]
+
+    last_char = chars[floor(random.random() * len(chars))]
+    return first_char + middle_part + last_char

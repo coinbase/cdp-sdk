@@ -18,6 +18,8 @@ Account names are guaranteed to be unique across all EVM accounts in the develop
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /** The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists. */
+  policies?: string[];
 }
 
 export interface ListResponse {
@@ -62,6 +64,54 @@ export interface Error {
   correlationId?: string;
   /** A link to the corresponding error documentation. */
   errorLink?: string;
+}
+
+/**
+ * The domain of the EIP-712 typed data.
+ */
+export interface EIP712Domain {
+  /** The name of the DApp or protocol. */
+  name?: string;
+  /** The version of the DApp or protocol. */
+  version?: string;
+  /** The chain ID of the EVM network. */
+  chainId?: number;
+  /**
+   * The 0x-prefixed EVM address of the verifying smart contract.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  verifyingContract?: string;
+  /**
+   * The optional 32-byte 0x-prefixed hex salt for domain separation.
+   * @pattern ^0x[a-fA-F0-9]{64}$
+   */
+  salt?: string;
+}
+
+/**
+ * A mapping of struct names to an array of type objects (name + type).
+Each key corresponds to a type name (e.g., "`EIP712Domain`", "`PermitTransferFrom`").
+
+ */
+export interface EIP712Types {
+  [key: string]: unknown;
+}
+
+/**
+ * The message to sign. The structure of this message must match the `primaryType` struct in the `types` object.
+ */
+export type EIP712MessageMessage = { [key: string]: unknown };
+
+/**
+ * The message to sign using EIP-712.
+ */
+export interface EIP712Message {
+  domain: EIP712Domain;
+  types: EIP712Types;
+  /** The primary type of the message. This is the name of the struct in the `types` object that is the root of the message. */
+  primaryType: string;
+  /** The message to sign. The structure of this message must match the `primaryType` struct in the `types` object. */
+  message: EIP712MessageMessage;
 }
 
 export interface EvmSmartAccount {
@@ -284,6 +334,125 @@ export type SignEvmTransactionCriteriaItem = EthValueCriterion | EvmAddressCrite
 export type SignEvmTransactionCriteria = SignEvmTransactionCriteriaItem[];
 
 /**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SignEvmTransactionRuleAction =
+  (typeof SignEvmTransactionRuleAction)[keyof typeof SignEvmTransactionRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTransactionRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SignEvmTransactionRuleOperation =
+  (typeof SignEvmTransactionRuleOperation)[keyof typeof SignEvmTransactionRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTransactionRuleOperation = {
+  signEvmTransaction: "signEvmTransaction",
+} as const;
+
+export interface SignEvmTransactionRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SignEvmTransactionRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SignEvmTransactionRuleOperation;
+  criteria: SignEvmTransactionCriteria;
+}
+
+/**
+ * The type of criterion to use. This should be `evmNetwork`.
+ */
+export type EvmNetworkCriterionType =
+  (typeof EvmNetworkCriterionType)[keyof typeof EvmNetworkCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmNetworkCriterionType = {
+  evmNetwork: "evmNetwork",
+} as const;
+
+/**
+ * The network the transaction is for.
+ */
+export type EvmNetworkCriterionNetworksItem =
+  (typeof EvmNetworkCriterionNetworksItem)[keyof typeof EvmNetworkCriterionNetworksItem];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmNetworkCriterionNetworksItem = {
+  "base-sepolia": "base-sepolia",
+  base: "base",
+} as const;
+
+/**
+ * The operator to use for the comparison. The transaction's intended `network` will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.
+ */
+export type EvmNetworkCriterionOperator =
+  (typeof EvmNetworkCriterionOperator)[keyof typeof EvmNetworkCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmNetworkCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * A schema for specifying a criterion for the intended `network` of an EVM transaction.
+ */
+export interface EvmNetworkCriterion {
+  /** The type of criterion to use. This should be `evmNetwork`. */
+  type: EvmNetworkCriterionType;
+  /** A list of EVM network identifiers that the transaction's intended `network` should be compared to. */
+  networks: EvmNetworkCriterionNetworksItem[];
+  /** The operator to use for the comparison. The transaction's intended `network` will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side. */
+  operator: EvmNetworkCriterionOperator;
+}
+
+export type SendEvmTransactionCriteriaItem =
+  | EthValueCriterion
+  | EvmAddressCriterion
+  | EvmNetworkCriterion;
+
+/**
+ * A schema for specifying the rejection criteria for the SignEvmTransaction operation.
+ */
+export type SendEvmTransactionCriteria = SendEvmTransactionCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SendEvmTransactionRuleAction =
+  (typeof SendEvmTransactionRuleAction)[keyof typeof SendEvmTransactionRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendEvmTransactionRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SendEvmTransactionRuleOperation =
+  (typeof SendEvmTransactionRuleOperation)[keyof typeof SendEvmTransactionRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendEvmTransactionRuleOperation = {
+  sendEvmTransaction: "sendEvmTransaction",
+} as const;
+
+export interface SendEvmTransactionRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SendEvmTransactionRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SendEvmTransactionRuleOperation;
+  criteria: SendEvmTransactionCriteria;
+}
+
+/**
  * The type of criterion to use. This should be `solAddress`.
  */
 export type SolAddressCriterionType =
@@ -326,10 +495,11 @@ export type SignSolTransactionCriteria = SolAddressCriterion[];
 /**
  * Whether matching the rule will cause the request to be rejected or accepted.
  */
-export type RuleAction = (typeof RuleAction)[keyof typeof RuleAction];
+export type SignSolTransactionRuleAction =
+  (typeof SignSolTransactionRuleAction)[keyof typeof SignSolTransactionRuleAction];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const RuleAction = {
+export const SignSolTransactionRuleAction = {
   reject: "reject",
   accept: "accept",
 } as const;
@@ -337,30 +507,26 @@ export const RuleAction = {
 /**
  * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
  */
-export type RuleOperation = (typeof RuleOperation)[keyof typeof RuleOperation];
+export type SignSolTransactionRuleOperation =
+  (typeof SignSolTransactionRuleOperation)[keyof typeof SignSolTransactionRuleOperation];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const RuleOperation = {
-  signEvmTransaction: "signEvmTransaction",
+export const SignSolTransactionRuleOperation = {
   signSolTransaction: "signSolTransaction",
 } as const;
 
-/**
- * The set of criteria for the rule. There is a limit of 10 criteria per rule.
- */
-export type RuleCriteria = SignEvmTransactionCriteria | SignSolTransactionCriteria;
+export interface SignSolTransactionRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SignSolTransactionRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SignSolTransactionRuleOperation;
+  criteria: SignSolTransactionCriteria;
+}
 
 /**
  * A rule that limits the behavior of an account.
  */
-export interface Rule {
-  /** Whether matching the rule will cause the request to be rejected or accepted. */
-  action: RuleAction;
-  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
-  operation: RuleOperation;
-  /** The set of criteria for the rule. There is a limit of 10 criteria per rule. */
-  criteria: RuleCriteria;
-}
+export type Rule = SignEvmTransactionRule | SendEvmTransactionRule | SignSolTransactionRule;
 
 /**
  * The scope of the policy. Only one project-level policy can exist at any time.
@@ -380,7 +546,7 @@ export interface Policy {
    */
   id: string;
   /**
-   * An optional human-readable description of the policy. 
+   * An optional human-readable description of the policy.
 Policy descriptions can consist of alphanumeric characters, spaces, commas, and periods, and be 50 characters or less.
    * @pattern ^[A-Za-z0-9 ,.]{1,50}$
    */
@@ -408,6 +574,8 @@ Account names are guaranteed to be unique across all Solana accounts in the deve
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /** The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists. */
+  policies?: string[];
 }
 
 /**
@@ -479,6 +647,21 @@ Account names must be unique across all EVM accounts in the developer's CDP Proj
   name?: string;
 };
 
+export type UpdateEvmAccountBody = {
+  /**
+   * An optional name for the account.
+Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names must be unique across all EVM accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
+  /**
+   * The ID of the account-level policy to apply to the account.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  accountPolicy?: string;
+};
+
 /**
  * The network to send the transaction to.
  */
@@ -533,6 +716,11 @@ export type SignEvmMessage200 = {
   signature: string;
 };
 
+export type SignEvmTypedData200 = {
+  /** The signature of the typed data, as a 0x-prefixed hex string. */
+  signature: string;
+};
+
 export type ListEvmSmartAccountsParams = {
   /**
    * The number of accounts to return per page.
@@ -554,6 +742,18 @@ export type ListEvmSmartAccounts200 = ListEvmSmartAccounts200AllOf & ListRespons
 export type CreateEvmSmartAccountBody = {
   /** Today, only a single owner can be set for a Smart Account, but this is an array to allow setting multiple owners in the future. */
   owners: string[];
+};
+
+export type ImportEvmAccountBody = {
+  /** The base64-encoded, encrypted private key of the EVM account. The private key must be encrypted using the CDP SDK's encryption scheme. */
+  encryptedPrivateKey: string;
+  /**
+   * An optional name for the account.
+Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names must be unique across all EVM accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
 };
 
 /**
@@ -736,6 +936,20 @@ Account names must be unique across all Solana accounts in the developer's CDP P
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+};
+
+export type UpdateSolanaAccountBody = {
+  /**
+   * An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names must be unique across all Solana accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
+  /**
+   * The ID of the account-level policy to apply to the account.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  accountPolicy?: string;
 };
 
 export type SignSolanaTransactionBody = {

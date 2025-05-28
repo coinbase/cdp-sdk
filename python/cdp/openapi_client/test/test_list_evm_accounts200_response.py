@@ -40,7 +40,8 @@ class TestListEvmAccounts200Response(unittest.TestCase):
                 accounts = [
                     cdp.openapi_client.models.evm_account.EvmAccount(
                         address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', 
-                        name = 'my-account', )
+                        name = 'my-account', 
+                        policies = ["123e4567-e89b-12d3-a456-426614174000"], )
                     ]
             )
         else:
@@ -48,7 +49,8 @@ class TestListEvmAccounts200Response(unittest.TestCase):
                 accounts = [
                     cdp.openapi_client.models.evm_account.EvmAccount(
                         address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', 
-                        name = 'my-account', )
+                        name = 'my-account', 
+                        policies = ["123e4567-e89b-12d3-a456-426614174000"], )
                     ],
         )
         """

@@ -1,4 +1,4 @@
-# Usage: uv run python evm/create_smart_wallet_and_send.py
+# Usage: uv run python evm/send_user_operation.py
 
 import asyncio
 from decimal import Decimal
@@ -8,6 +8,9 @@ from web3 import Web3
 
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 async def main():

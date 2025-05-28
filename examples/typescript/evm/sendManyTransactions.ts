@@ -10,6 +10,7 @@ import {
   Hex,
 } from "viem";
 import { baseSepolia } from "viem/chains";
+import "dotenv/config";
 
 import { env } from "node:process";
 

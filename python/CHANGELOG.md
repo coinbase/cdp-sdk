@@ -2,6 +2,50 @@
 
 <!-- towncrier release notes start -->
 
+## [1.8.1] - 2025-05-16
+
+### Misc
+
+- [#151](https://github.com/coinbase/cdp-sdk/pull/151)
+
+
+## [1.8.0] - 2025-05-15
+
+### Features
+
+- Added policy CRUD methods ([#145](https://github.com/coinbase/cdp-sdk/pull/145))
+- Added updateAccount to evm and solana clients ([#146](https://github.com/coinbase/cdp-sdk/pull/146))
+
+
+## [1.7.0] - 2025-05-14
+
+### Features
+
+- Added transfer method to Solana account to easily send tokens on Solana ([#136](https://github.com/coinbase/cdp-sdk/pull/136))
+- Updated Transfer API to allow users to wait for receipt and pass in a parsed amount to transfer ([#137](https://github.com/coinbase/cdp-sdk/pull/137))
+
+
+## [1.6.0] - 2025-05-09
+
+### Features
+
+- Added support for eip-712 signing ([#132](https://github.com/coinbase/cdp-sdk/pull/132))
+- Added SolanaAccount with convenience methods to easily perform actions on a returned account ([#135](https://github.com/coinbase/cdp-sdk/pull/135))
+
+
+## [1.5.0] - 2025-05-07
+
+### Features
+
+- Added additional options to transfer methods ([#105](https://github.com/coinbase/cdp-sdk/pull/105)):
+
+  - Added `paymaster_url` and `wait_options` to EvmSmartAccount.transfer
+  - Added `wait_options` to EvmAccount.transfer
+
+  
+- Added account actions for evm server and smart accounts ([#114](https://github.com/coinbase/cdp-sdk/pull/114))
+
+
 ## [1.4.0] - 2025-05-02
 
 ### Features

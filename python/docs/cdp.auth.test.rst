@@ -36,6 +36,14 @@ cdp.auth.test.test\_jwt module
    :undoc-members:
    :show-inheritance:
 
+cdp.auth.test.test\_ws module
+-----------------------------
+
+.. automodule:: cdp.auth.test.test_ws
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

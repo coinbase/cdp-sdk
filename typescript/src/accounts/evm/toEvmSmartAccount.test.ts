@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toEvmSmartAccount } from "./toEvmSmartAccount.js";
-import { EvmAccount } from "../types.js";
+import { EvmAccount } from "./types.js";
 import { Address } from "../../types/misc.js";
 import {
   CdpOpenApiClientType,
@@ -9,6 +9,9 @@ import {
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import type { TransferOptions } from "../../actions/evm/transfer/types.js";
 import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
+import { UserOperation } from "../../client/evm/evm.types.js";
+import { parseUnits } from "viem";
+
 vi.mock("../../actions/evm/transfer/transfer.js", () => ({
   ...vi.importActual("../../actions/evm/transfer/transfer.js"),
   transfer: vi.fn().mockResolvedValue({ transactionHash: "0xmocktransactionhash" }),
@@ -19,10 +22,20 @@ describe("toEvmSmartAccount", () => {
   let mockOwner: EvmAccount;
   let mockAddress: Address;
   let mockSmartAccount: EvmSmartAccountModel;
+  let mockUserOp: UserOperation;
 
   beforeEach(() => {
+    mockUserOp = {
+      userOpHash: "0xuserophash",
+      network: "base-sepolia",
+      calls: [],
+      status: "complete",
+      transactionHash: "0xtransactionhash",
+    };
+
     mockApiClient = {
       signEvmTransaction: vi.fn().mockResolvedValue({ signedTransaction: "0xmocktransaction" }),
+      getUserOperation: vi.fn().mockResolvedValue(mockUserOp),
     } as unknown as CdpOpenApiClientType;
 
     mockAddress = "0x123456789abcdef" as Address;
@@ -55,6 +68,7 @@ describe("toEvmSmartAccount", () => {
       listTokenBalances: expect.any(Function),
       sendUserOperation: expect.any(Function),
       waitForUserOperation: expect.any(Function),
+      getUserOperation: expect.any(Function),
       requestFaucet: expect.any(Function),
     });
   });
@@ -107,7 +121,7 @@ describe("toEvmSmartAccount", () => {
 
     const transferArgs: TransferOptions = {
       to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d" as Address,
-      amount: "0.000001",
+      amount: parseUnits("0.000001", 6),
       token: "usdc",
       network: "base-sepolia",
     };
@@ -120,5 +134,20 @@ describe("toEvmSmartAccount", () => {
       transferArgs,
       smartAccountTransferStrategy,
     );
+  });
+
+  it("should call apiClient.getUserOperation when getUserOperation is called", async () => {
+    const smartAccount = toEvmSmartAccount(mockApiClient, {
+      smartAccount: mockSmartAccount,
+      owner: mockOwner,
+    });
+
+    const userOp = await smartAccount.getUserOperation({
+      userOpHash: "0xuserophash",
+    });
+
+    expect(mockApiClient.getUserOperation).toHaveBeenCalledWith(mockAddress, "0xuserophash");
+
+    expect(userOp).toEqual(mockUserOp);
   });
 });

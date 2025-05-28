@@ -3,13 +3,11 @@ from typing import cast
 from eth_account.typed_transactions import DynamicFeeTransaction
 from eth_typing import HexStr
 from web3 import Web3
-from web3.exceptions import TimeExhausted
 
 from cdp.actions.evm.transfer.constants import ERC20_ABI
 from cdp.actions.evm.transfer.types import (
+    TokenType,
     TransferExecutionStrategy,
-    TransferOptions,
-    TransferResult,
 )
 from cdp.actions.evm.transfer.utils import get_erc20_address
 from cdp.api_clients import ApiClients
@@ -26,24 +24,26 @@ class AccountTransferStrategy(TransferExecutionStrategy):
         self,
         api_clients: ApiClients,
         from_account: EvmServerAccount,
-        transfer_args: TransferOptions,
         to: str,
         value: int,
+        token: TokenType,
+        network: str,
     ) -> HexStr:
         """Execute a transfer from a server account.
 
         Args:
             api_clients: The API clients
             from_account: The account to transfer from
-            transfer_args: The transfer options
             to: The recipient address
             value: The amount to transfer
+            token: The token to transfer
+            network: The network to transfer on
 
         Returns:
             The transaction hash
 
         """
-        if transfer_args.token == "eth":
+        if token == "eth":
             transaction = TransactionRequestEIP1559(
                 to=to,
                 value=value,
@@ -56,13 +56,13 @@ class AccountTransferStrategy(TransferExecutionStrategy):
                 address=from_account.address,
                 send_evm_transaction_request=SendEvmTransactionRequest(
                     transaction=serialized_tx,
-                    network=transfer_args.network,
+                    network=network,
                 ),
             )
 
             return cast(HexStr, response.transaction_hash)
         else:
-            erc20_address = get_erc20_address(transfer_args.token, transfer_args.network)
+            erc20_address = get_erc20_address(token, network)
 
             approve_data = _encode_erc20_function_call(erc20_address, "approve", [to, value])
 
@@ -78,7 +78,7 @@ class AccountTransferStrategy(TransferExecutionStrategy):
                 address=from_account.address,
                 send_evm_transaction_request=SendEvmTransactionRequest(
                     transaction=serialized_tx,
-                    network=transfer_args.network,
+                    network=network,
                 ),
             )
 
@@ -96,46 +96,11 @@ class AccountTransferStrategy(TransferExecutionStrategy):
                 address=from_account.address,
                 send_evm_transaction_request=SendEvmTransactionRequest(
                     transaction=serialized_tx,
-                    network=transfer_args.network,
+                    network=network,
                 ),
             )
 
             return cast(HexStr, response.transaction_hash)
-
-    async def wait_for_result(
-        self, api_clients: ApiClients, from_account: EvmServerAccount, w3: Web3, hash: HexStr
-    ) -> TransferResult:
-        """Wait for the result of a transfer.
-
-        Args:
-            api_clients: The API clients
-            from_account: The account to transfer from
-            w3: The Web3 client
-            hash: The transaction hash
-
-        Returns:
-            The result of the transfer
-
-        """
-        chain_id = w3.eth.chain_id
-
-        try:
-            receipt = w3.eth.wait_for_transaction_receipt(hash)
-
-            if receipt.status == 1:
-                return TransferResult(status="success", transaction_hash=hash)
-            else:
-                raise Exception(
-                    f"Transaction failed. Check the transaction on a transaction explorer."
-                    f"Chain ID: {chain_id}"
-                    f"Transaction hash: {hash}"
-                )
-        except TimeExhausted:
-            raise TimeoutError(
-                f"Transaction timed out. Check the transaction on a transaction explorer."
-                f"Chain ID: {chain_id}"
-                f"Transaction hash: {hash}"
-            ) from None
 
 
 def _encode_erc20_function_call(address: str, function_name: str, args: list) -> str:

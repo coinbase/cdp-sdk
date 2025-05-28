@@ -1,6 +1,6 @@
 [project]
 name = "cdp-sdk"
-version = "1.4.0"
+version = "1.8.1"
 description = "CDP SDK"
 license = {text = "MIT"}
 readme = "README.md"
@@ -8,13 +8,15 @@ requires-python = ">=3.10"
 
 dependencies = [
     "cryptography>=42.0.0",
-    "pydantic==2.10.3",
+    "pydantic>=2.10.3,<=2.10.4",
     "PyJWT>=2.10.1",
     "python-dateutil==2.9.0.post0",
-    "urllib3==2.2.3",
+    "urllib3>=2.2.3,<=2.3.0",
     "aiohttp==3.11.16",
     "aiohttp-retry==2.9.1",
-    "web3==7.6.0",
+    "web3>=7.6.0,<=7.10.0",
+    "solana>=0.36.6",
+    "solders>=0.26.0",
 ]
 
 [project.optional-dependencies]
@@ -30,7 +32,6 @@ dev = [
     "sphinx-autobuild>=2024.10.3",
     "pyyaml>=6.0",
     "ruff>=0.7.1,<0.8",
-    "solana>=0.30.2",
     "towncrier>=24.8.0,<25"
 ]
 

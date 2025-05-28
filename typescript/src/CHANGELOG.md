@@ -1,5 +1,44 @@
 # CDP SDK Changelog
 
+## 1.10.0
+
+### Minor Changes
+
+- [#148](https://github.com/coinbase/cdp-sdk/pull/148) [`c894aba`](https://github.com/coinbase/cdp-sdk/commit/c894aba9facb6c64a6a7e3a5537592ae591ce7e8) Thanks [@marcin-cb](https://github.com/marcin-cb)! - Added an ImportAccount method to the EVM client
+
+## 1.9.0
+
+### Minor Changes
+
+- [#128](https://github.com/coinbase/cdp-sdk/pull/128) [`bd4d1d6`](https://github.com/coinbase/cdp-sdk/commit/bd4d1d6855627e24bd4b51937e40df27a2595559) Thanks [@0xRAG](https://github.com/0xRAG)! - Added transfer method to Solana account to easily send tokens on Solana
+
+- [#133](https://github.com/coinbase/cdp-sdk/pull/133) [`438d967`](https://github.com/coinbase/cdp-sdk/commit/438d967401c06469bfc44c581a6c0994f77c0f9e) Thanks [@0xRAG](https://github.com/0xRAG)! - Updated Transfer API to allow users to wait for receipt and pass in a parsed amount to transfer
+
+- [#141](https://github.com/coinbase/cdp-sdk/pull/141) [`c0273f9`](https://github.com/coinbase/cdp-sdk/commit/c0273f96769f74c78cddbbf0b109dc47cc16b7ca) Thanks [@sammccord](https://github.com/sammccord)! - Added SendEvmTransactionRule to Policy Rules
+
+## 1.8.0
+
+### Minor Changes
+
+- [#124](https://github.com/coinbase/cdp-sdk/pull/124) [`9b874f8`](https://github.com/coinbase/cdp-sdk/commit/9b874f85b8b21fa8f5ab2b724413cdd41a5423ea) Thanks [@sammccord](https://github.com/sammccord)! - Added all Policy Engine functionality; CRUD operations and zod schemas
+
+- [#130](https://github.com/coinbase/cdp-sdk/pull/130) [`3274e09`](https://github.com/coinbase/cdp-sdk/commit/3274e099612209daf756e0c06857ea29f880318c) Thanks [@sammccord](https://github.com/sammccord)! - Added updateAccount for evm and solana namespaces, as well as account.policies on response types
+
+- [#129](https://github.com/coinbase/cdp-sdk/pull/129) [`b4f6b43`](https://github.com/coinbase/cdp-sdk/commit/b4f6b43d936a9e87eed488ea236bf74851241d65) Thanks [@sddioulde](https://github.com/sddioulde)! - Added support for eip-712 signing
+
+## 1.7.0
+
+### Minor Changes
+
+- [#116](https://github.com/coinbase/cdp-sdk/pull/116) [`97678d6`](https://github.com/coinbase/cdp-sdk/commit/97678d675358bb8d0b6195fd31933a32926cdd44) Thanks [@sddioulde](https://github.com/sddioulde)! - Added getUserOperation smart account action
+
+- [#122](https://github.com/coinbase/cdp-sdk/pull/122) [`ee41d98`](https://github.com/coinbase/cdp-sdk/commit/ee41d986406e3e8666d1d1a1b1525e7ff7435a2b) Thanks [@sddioulde](https://github.com/sddioulde)! - Added account actions to Solana
+
+- [#103](https://github.com/coinbase/cdp-sdk/pull/103) [`2777cde`](https://github.com/coinbase/cdp-sdk/commit/2777cde93e4f10579a4ca31e140720067799cf66) Thanks [@0xRAG](https://github.com/0xRAG)! - Added additional options to transfer methods:
+
+  - Added `paymasterUrl` and `waitOptions` to EvmSmartAccount.transfer
+  - Added `waitOptions` to EvmAccount.transfer
+
 ## 1.6.0
 
 ### Minor Changes

@@ -1,3 +1,4 @@
+import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import {
   listTokenBalances,
   type ListTokenBalancesOptions,
@@ -20,14 +21,14 @@ import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
+import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 
-import type { TransferResult } from "../../actions/evm/transfer/types.js";
+import type { EvmAccount, EvmSmartAccount } from "./types.js";
 import type {
   CdpOpenApiClientType,
   EvmSmartAccount as EvmSmartAccountModel,
 } from "../../openapi-client/index.js";
 import type { Address } from "../../types/misc.js";
-import type { EvmAccount, EvmSmartAccount } from "../types.js";
 
 /**
  * Options for converting a pre-existing EvmSmartAccount and owner to a EvmSmartAccount
@@ -58,7 +59,7 @@ export function toEvmSmartAccount(
   const account: EvmSmartAccount = {
     address: options.smartAccount.address as Address,
     owners: [options.owner],
-    async transfer(transferArgs): Promise<TransferResult> {
+    async transfer(transferArgs): Promise<SendUserOperationReturnType> {
       return transfer(apiClient, account, transferArgs, smartAccountTransferStrategy);
     },
     async listTokenBalances(
@@ -83,6 +84,14 @@ export function toEvmSmartAccount(
       return waitForUserOperation(apiClient, {
         ...options,
         smartAccountAddress: account.address,
+      });
+    },
+    async getUserOperation(
+      options: Omit<GetUserOperationOptions, "smartAccount">,
+    ): Promise<UserOperation> {
+      return getUserOperation(apiClient, {
+        ...options,
+        smartAccount: account,
       });
     },
     async requestFaucet(

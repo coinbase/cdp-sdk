@@ -1,7 +1,6 @@
-import {
-  OpenApiSolanaMethods,
-  SolanaAccount as OpenAPISolanaAccount,
-} from "../../openapi-client/index.js";
+import { Account, SolanaAccount } from "../../accounts/solana/types.js";
+import { OpenApiSolanaMethods, UpdateSolanaAccountBody } from "../../openapi-client/index.js";
+
 /**
  * The SolanaClient type, where all OpenApiSolanaMethods methods are wrapped.
  */
@@ -10,23 +9,30 @@ export type SolanaClientInterface = Omit<
   | "createSolanaAccount" // mapped to createAccount
   | "getSolanaAccount" // mapped to getAccount
   | "getSolanaAccountByName" // mapped to getAccount
+  | "updateSolanaAccount" // mapped to updateAccount
   | "listSolanaAccounts" // mapped to listAccounts
   | "requestSolanaFaucet" // mapped to requestFaucet
   | "signSolanaMessage" // mapped to signMessage
   | "signSolanaTransaction" // mapped to signTransaction
+  | "updateSolanaAccount" // mapped to updateAccount
 > & {
   createAccount: (options: CreateAccountOptions) => Promise<Account>;
   getAccount: (options: GetAccountOptions) => Promise<Account>;
   getOrCreateAccount: (options: GetOrCreateAccountOptions) => Promise<Account>;
+  updateAccount: (options: UpdateSolanaAccountOptions) => Promise<Account>;
   listAccounts: (options: ListAccountsOptions) => Promise<ListAccountsResult>;
   requestFaucet: (options: RequestFaucetOptions) => Promise<SignatureResult>;
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
   signTransaction: (options: SignTransactionOptions) => Promise<SignatureResult>;
 };
+
 /**
- * A Solana account.
+ * A Solana signature result.
  */
-export type Account = OpenAPISolanaAccount;
+export interface SignatureResult {
+  /** The signature. */
+  signature: string;
+}
 
 /**
  * Options for creating a Solana account.
@@ -57,6 +63,18 @@ export interface GetOrCreateAccountOptions {
 }
 
 /**
+ * Options for creating a SOL server account.
+ */
+export interface UpdateSolanaAccountOptions {
+  /** The address of the account. */
+  address: string;
+  /** The updates to apply to the account */
+  update: UpdateSolanaAccountBody;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+}
+
+/**
  * Options for listing Solana accounts.
  */
 export interface ListAccountsOptions {
@@ -71,7 +89,7 @@ export interface ListAccountsOptions {
  */
 export interface ListAccountsResult {
   /** The accounts. */
-  accounts: Account[];
+  accounts: SolanaAccount[];
   /**
    * The token for the next page of accounts, if any.
    */
@@ -112,12 +130,4 @@ export interface SignTransactionOptions {
   transaction: string;
   /** The idempotency key. */
   idempotencyKey?: string;
-}
-
-/**
- * A Solana signature result.
- */
-export interface SignatureResult {
-  /** The signature. */
-  signature: string;
 }

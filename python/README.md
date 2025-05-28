@@ -18,7 +18,7 @@
 
 ## CDP SDK
 
-This module contains the Python CDP SDK, which is a library that provides a client for interacting with the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). It includes a CDP Client for interacting with EVM and Solana APIs to create accounts and send transactions, as well as authentication tools for interacting directly with the CDP APIs.
+This module contains the Python CDP SDK, which is a library that provides a client for interacting with the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). It includes a CDP Client for interacting with EVM and Solana APIs to create accounts and send transactions, policy APIs to govern transaction permissions, as well as authentication tools for interacting directly with the CDP APIs.
 
 ## Documentation
 
@@ -164,6 +164,32 @@ async def main():
         account = await cdp.solana.get_or_create_account()
 
 asyncio.run(main())
+```
+
+### Updating EVM or Solana accounts
+
+#### Update an EVM account as follows:
+
+```python
+account = await cdp.evm.update_account(
+  address=account.address,
+  update=UpdateAccountOptions(
+    name="Updated name",
+    account_policy="1622d4b7-9d60-44a2-9a6a-e9bbb167e412",
+  ),
+)
+```
+
+#### Update a Solana account as follows:
+
+```python
+account = await cdp.solana.update_account(
+  address=account.address,
+  update=UpdateAccountOptions(
+    name="Updated name",
+    account_policy="1622d4b7-9d60-44a2-9a6a-e9bbb167e412",
+  ),
+)
 ```
 
 ### Testnet faucet
@@ -384,53 +410,76 @@ async def main():
 asyncio.run(main())
 ```
 
+#### Solana
+
+For Solana, we recommend using the `solana` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/examples/python/solana/send_transaction.py).
+
 ### Transferring tokens
 
-For complete examples, check out [account.transfer.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.transfer.py) and [smartAccount.transfer.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smartAccount.transfer.py).
+#### EVM
+
+For complete examples, check out [account.transfer.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.transfer.py) and [smart_account.transfer.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart_account.transfer.py).
 
 You can transfer tokens between accounts using the `transfer` function:
 
 ```python
 sender = await cdp.evm.create_account(name="Sender")
 
-transfer_result = await sender.transfer(
-    TransferOptions(
-        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-        amount="0.01",
-        token="usdc",
-        network="base-sepolia",
-    )
+tx_hash = await sender.transfer(
+    to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+    amount=w3.to_wei("0.001", "ether"),
+    token="eth",
+    network="base-sepolia",
+)
+
+w3.eth.wait_for_transaction_receipt(tx_hash)
+```
+
+To send USDC, the SDK exports a helper function to convert a whole number to a bigint:
+
+```python
+from cdp import parse_units
+
+# returns atomic representation of 0.01 USDC, which uses 6 decimal places
+amount = parse_units("0.01", 6)
+
+tx_hash = await sender.transfer(
+    to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+    amount=amount,
+    token="usdc",
+    network="base-sepolia",
 )
 ```
 
 Smart Accounts also have a `transfer` function:
 
 ```python
+from cdp import parse_units
+
 sender = await cdp.evm.create_smart_account(
     owner=privateKeyToAccount(generatePrivateKey()),
 );
 print("Created smart account", sender);
 
 transfer_result = await sender.transfer(
-    TransferOptions(
-        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-        amount="0.01",
-        token="usdc",
-        network="base-sepolia",
-    )
+    to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+    amount=parse_units("0.01", 6),
+    token="usdc",
+    network="base-sepolia",
 )
+
+user_op_result = await sender.wait_for_user_operation(user_op_hash=transfer_result.user_op_hash)
 ```
 
-If you pass a decimal amount in a string, the SDK will parse it into a bigint based on the token's decimals. You can also pass a bigint directly:
+Using Smart Accounts, you can also specify a paymaster URL:
 
 ```python
 transfer_result = await sender.transfer(
-    TransferOptions(
-        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-        amount=10000n, # equivalent to 0.01 usdc
-        token="usdc",
-        network="base-sepolia",
-    )
+    to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+    amount="0.01",
+    token="usdc",
+    network="base-sepolia",
+    paymaster_url="https://some-paymaster-url.com",
 )
 ```
 
@@ -438,34 +487,86 @@ You can pass `usdc` or `eth` as the token to transfer, or you can pass a contrac
 
 ```python
 transfer_result = await sender.transfer(
-    TransferOptions(
-        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-        amount="0.000001",
-        token="0x4200000000000000000000000000000000000006", # WETH on Base Sepolia
-        network="base-sepolia",
-    )
+    to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+    amount=w3.to_wei("0.000001", "ether"),
+    token="0x4200000000000000000000000000000000000006", # WETH on Base Sepolia
+    network="base-sepolia",
 )
 ```
 
 You can also pass another account as the `to` parameter:
 
 ```python
+from cdp import parse_units
+
 sender = await cdp.evm.create_account(name="Sender")
 receiver = await cdp.evm.create_account(name="Receiver")
 
 transfer_result = await sender.transfer(
-    TransferOptions(
-        to=receiver,
-        amount="0.01",
-        token="usdc",
-        network="base-sepolia",
-    )
+    to=receiver,
+    amount=parse_units("0.01", 6),
+    token="usdc",
+    network="base-sepolia",
 )
 ```
 
 #### Solana
 
-For Solana, we recommend using the `solana` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/examples/python/solana/send_transaction.py).
+For complete examples, check out [solana/account.transfer.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/solana/account.transfer.py).
+
+You can transfer tokens between accounts using the `transfer` function, and wait for the transaction to be confirmed using the `confirmTransaction` function from `solana`:
+
+```python
+import asyncio
+from cdp import CdpClient
+from solana.rpc.api import Client as SolanaClient
+
+async def main():
+    async with CdpClient() as cdp:
+        sender = await cdp.solana.create_account()
+
+        connection = SolanaClient("https://api.devnet.solana.com")
+
+        signature = await sender.transfer({
+            to="3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+            amount=0.01 * LAMPORTS_PER_SOL,
+            token="sol",
+            network=connection,
+        });
+
+        blockhash, lastValidBlockHeight = await connection.get_latest_blockhash()
+
+        confirmation = await connection.confirm_transaction(
+            {
+                signature,
+                blockhash,
+                lastValidBlockHeight,
+            },
+        )
+
+        if confirmation.value.err:
+            print(f"Something went wrong! Error: {confirmation.value.err.toString()}")
+        else:
+            print(
+                f"Transaction confirmed: Link: https://explorer.solana.com/tx/${signature}?cluster=devnet",
+            )
+```
+
+To send USDC, the SDK exports a helper function to convert a whole number to a bigint:
+
+```python
+from cdp import parse_units
+
+# returns atomic representation of 0.01 USDC, which uses 6 decimal places
+amount = parse_units("0.01", 6)
+
+tx_hash = await sender.transfer(
+    to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+    amount=amount,
+    token="usdc",
+    network="devet",
+)
+```
 
 ### EVM Smart Accounts
 
@@ -528,6 +629,190 @@ async def main():
         )
 
 asyncio.run(main())
+```
+
+## Account Actions
+
+Account objects have actions that can be used to interact with the account. These can be used in place of the `cdp` client.
+
+For example, instead of:
+
+```python
+token_balances = await cdp.evm.list_token_balances(
+    address=account.address,
+    network="base-sepolia"
+)
+```
+
+You can use the `list_token_balances` action:
+
+```python
+balances = await account.list_token_balances(
+    network="base-sepolia",
+)
+```
+
+EvmAccount supports the following actions:
+
+- `list_token_balances`
+- `request_faucet`
+- `sign_transaction`
+- `send_transaction`
+- `transfer`
+
+EvmSmartAccount supports the following actions:
+
+- `list_token_balances`
+- `request_faucet`
+- `send_user_operation`
+- `wait_for_user_operation`
+- `get_user_operation`
+- `transfer`
+
+SolanaAccount supports the following actions:
+
+- `sign_message`
+- `sign_transaction`
+- `request_faucet`
+
+## Policy Management
+
+You can use the policies SDK to manage sets of rules that govern the behavior of accounts and projects, such as enforce allowlists and denylists.
+
+### Create a Project-level policy that applies to all accounts
+
+This policy will accept any account sending less than a specific amount of ETH to a specific address.
+
+```python
+policy = await cdp.policies.create_policy(
+    policy=CreatePolicyOptions(
+        scope="project",
+        description="Project-wide Allowlist Example",
+        rules=[
+            SignEvmTransactionRule(
+                action="accept",
+                criteria=[
+                    EthValueCriterion(
+                        ethValue="1000000000000000000",
+                        operator="<=",
+                    ),
+                    EvmAddressCriterion(
+                        addresses=["0x000000000000000000000000000000000000dEaD"],
+                        operator="in",
+                    ),
+                ],
+            ),
+        ],
+    )
+)
+```
+
+### Create an Account-level policy
+
+This policy will accept any transaction with a value less than or equal to 1 ETH to a specific address.
+
+```python
+policy = await cdp.policies.create_policy(
+    policy=CreatePolicyOptions(
+        scope="account",
+        description="Account Allowlist Example",
+        rules=[
+            SignEvmTransactionRule(
+                action="accept",
+                criteria=[
+                    EthValueCriterion(
+                        ethValue="1000000000000000000",
+                        operator="<=",
+                    ),
+                    EvmAddressCriterion(
+                        addresses=["0x000000000000000000000000000000000000dEaD"],
+                        operator="in",
+                    ),
+                ],
+            ),
+        ],
+    )
+)
+```
+
+### Create a Solana Allowlist Policy
+
+```python
+policy = await cdp.policies.create_policy(
+    policy=CreatePolicyOptions(
+        scope="account",
+        description="Account Allowlist Example",
+        rules=[
+            SignSolanaTransactionRule(
+                action="accept",
+                criteria=[
+                    SolanaAddressCriterion(
+                        addresses=["123456789abcdef123456789abcdef12"],
+                        operator="in",
+                    ),
+                ],
+            )
+        ],
+    )
+)
+```
+
+### List Policies
+
+You can filter by account:
+
+```python
+policies = await cdp.policies.list_policies(scope="account")
+```
+
+You can also filter by project:
+
+```python
+policies = await cdp.policies.list_policies(scope="project")
+```
+
+Or you can list all of them without any filter:
+
+```python
+policies = await cdp.policies.list_policies()
+```
+
+### Retrieve a Policy
+
+```python
+policies = await cdp.policies.get_policy_by_id(id="__POLICY_ID__")
+```
+
+### Update a Policy
+
+This policy will update an existing policy to accept transactions to any address except one.
+
+```python
+policy = await cdp.policies.update_policy(
+    id="__POLICY_ID__",
+    policy=UpdatePolicyOptions(
+        description="Updated Denylist Policy",
+        rules=[
+            SignEvmTransactionRule(
+                action="accept",
+                criteria=[
+                    EvmAddressCriterion(
+                        addresses=["0x000000000000000000000000000000000000dEaD"],
+                        operator="not in",
+                    ),
+                ],
+            )
+        ],
+    )
+)
+```
+
+### Delete a Policy
+
+> [!WARNING] Attempting to delete an account-level policy in-use by at least one account will fail.
+
+```python
+policy = await cdp.policies.delete_policy(id="__POLICY_ID__")
 ```
 
 ## Authentication tools

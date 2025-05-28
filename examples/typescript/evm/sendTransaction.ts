@@ -4,6 +4,7 @@ import { CdpClient } from "@coinbase/cdp-sdk";
 
 import { parseEther, createPublicClient, http } from "viem";
 import { baseSepolia } from "viem/chains";
+import "dotenv/config";
 
 const cdp = new CdpClient();
 const publicClient = createPublicClient({
@@ -42,13 +43,14 @@ const txResult = await cdp.evm.sendTransaction({
   },
 });
 
-console.log("Transaction sent successfully!");
 console.log(
-  `Transaction explorer link: https://sepolia.basescan.org/tx/${txResult.transactionHash}`
+  `Transaction hash: ${txResult.transactionHash}. Waiting for confirmation...`
 );
 
 await publicClient.waitForTransactionReceipt({
   hash: txResult.transactionHash,
 });
 
-console.log("Transaction confirmed!");
+console.log(
+  `Transaction confirmed! link: https://sepolia.basescan.org/tx/${txResult.transactionHash}`
+);

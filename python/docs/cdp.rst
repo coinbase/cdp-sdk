@@ -77,6 +77,30 @@ cdp.evm\_smart\_account module
    :undoc-members:
    :show-inheritance:
 
+cdp.evm\_token\_balances module
+-------------------------------
+
+.. automodule:: cdp.evm_token_balances
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cdp.evm\_transaction\_types module
+----------------------------------
+
+.. automodule:: cdp.evm_transaction_types
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cdp.solana\_account module
+--------------------------
+
+.. automodule:: cdp.solana_account
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 cdp.solana\_client module
 -------------------------
 

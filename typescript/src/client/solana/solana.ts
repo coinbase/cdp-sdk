@@ -1,16 +1,22 @@
 import {
-  SolanaClientInterface,
-  Account,
   CreateAccountOptions,
   GetAccountOptions,
+  GetOrCreateAccountOptions,
   ListAccountsOptions,
-  RequestFaucetOptions,
   ListAccountsResult,
+  RequestFaucetOptions,
   SignatureResult,
   SignMessageOptions,
   SignTransactionOptions,
-  GetOrCreateAccountOptions,
+  SolanaClientInterface,
+  UpdateSolanaAccountOptions,
 } from "./solana.types.js";
+import { toSolanaAccount } from "../../accounts/solana/toSolanaAccount.js";
+import { SolanaAccount } from "../../accounts/solana/types.js";
+import { requestFaucet } from "../../actions/solana/requestFaucet.js";
+import { signMessage } from "../../actions/solana/signMessage.js";
+import { signTransaction } from "../../actions/solana/signTransaction.js";
+import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 
@@ -48,8 +54,19 @@ export class SolanaClient implements SolanaClientInterface {
    *          await cdp.solana.createAccount({ idempotencyKey });
    *          ```
    */
-  async createAccount(options: CreateAccountOptions = {}): Promise<Account> {
-    return CdpOpenApiClient.createSolanaAccount(options, options.idempotencyKey);
+  async createAccount(options: CreateAccountOptions = {}): Promise<SolanaAccount> {
+    const openApiAccount = await CdpOpenApiClient.createSolanaAccount(
+      options,
+      options.idempotencyKey,
+    );
+
+    const account = toSolanaAccount(CdpOpenApiClient, {
+      account: openApiAccount,
+    });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
   }
 
   /**
@@ -77,16 +94,26 @@ export class SolanaClient implements SolanaClientInterface {
    *          });
    *          ```
    */
-  async getAccount(options: GetAccountOptions): Promise<Account> {
-    if (options.address) {
-      return CdpOpenApiClient.getSolanaAccount(options.address);
-    }
+  async getAccount(options: GetAccountOptions): Promise<SolanaAccount> {
+    const openApiAccount = await (() => {
+      if (options.address) {
+        return CdpOpenApiClient.getSolanaAccount(options.address);
+      }
 
-    if (options.name) {
-      return CdpOpenApiClient.getSolanaAccountByName(options.name);
-    }
+      if (options.name) {
+        return CdpOpenApiClient.getSolanaAccountByName(options.name);
+      }
 
-    throw new Error("Either address or name must be provided");
+      throw new Error("Either address or name must be provided");
+    })();
+
+    const account = toSolanaAccount(CdpOpenApiClient, {
+      account: openApiAccount,
+    });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
   }
 
   /**
@@ -104,7 +131,7 @@ export class SolanaClient implements SolanaClientInterface {
    * });
    * ```
    */
-  async getOrCreateAccount(options: GetOrCreateAccountOptions): Promise<Account> {
+  async getOrCreateAccount(options: GetOrCreateAccountOptions): Promise<SolanaAccount> {
     try {
       const account = await this.getAccount(options);
       return account;
@@ -165,7 +192,15 @@ export class SolanaClient implements SolanaClientInterface {
     });
 
     return {
-      accounts: solAccounts.accounts,
+      accounts: solAccounts.accounts.map(account => {
+        const solanaAccount = toSolanaAccount(CdpOpenApiClient, {
+          account,
+        });
+
+        Analytics.wrapObjectMethodsWithErrorTracking(solanaAccount);
+
+        return solanaAccount;
+      }),
       nextPageToken: solAccounts.nextPageToken,
     };
   }
@@ -189,14 +224,7 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async requestFaucet(options: RequestFaucetOptions): Promise<SignatureResult> {
-    const signature = await CdpOpenApiClient.requestSolanaFaucet(
-      { address: options.address, token: options.token },
-      options.idempotencyKey,
-    );
-
-    return {
-      signature: signature.transactionSignature,
-    };
+    return requestFaucet(CdpOpenApiClient, options);
   }
 
   /**
@@ -222,13 +250,7 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async signMessage(options: SignMessageOptions): Promise<SignatureResult> {
-    return CdpOpenApiClient.signSolanaMessage(
-      options.address,
-      {
-        message: options.message,
-      },
-      options.idempotencyKey,
-    );
+    return signMessage(CdpOpenApiClient, options);
   }
 
   /**
@@ -265,16 +287,63 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async signTransaction(options: SignTransactionOptions): Promise<SignatureResult> {
-    const signature = await CdpOpenApiClient.signSolanaTransaction(
+    return signTransaction(CdpOpenApiClient, options);
+  }
+
+  /**
+   * Updates a CDP Solana account.
+   *
+   * @param {UpdateSolanaAccountOptions} [options] - Optional parameters for creating the account.
+   * @param {string} options.address - The address of the account to update
+   * @param {UpdateSolanaAccountBody} options.update - An object containing account fields to update.
+   * @param {string} [options.update.name] - The new name for the account.
+   * @param {string} [options.update.accountPolicy] - The ID of a Policy to apply to the account.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
+   * @returns A promise that resolves to the updated account.
+   *
+   * @example **With a name**
+   *          ```ts
+   *          const account = await cdp.sol.updateAccount({ address: "...", update: { name: "New Name" } });
+   *          ```
+   *
+   * @example **With an account policy**
+   *          ```ts
+   *          const account = await cdp.sol.updateAccount({ address: "...", update: { accountPolicy: "73bcaeeb-d7af-4615-b064-42b5fe83a31e" } });
+   *          ```
+   *
+   * @example **With an idempotency key**
+   *          ```ts
+   *          const idempotencyKey = uuidv4();
+   *
+   *          // First call
+   *          await cdp.sol.updateAccount({
+   *            address: "0x...",
+   *            update: { accountPolicy: "73bcaeeb-d7af-4615-b064-42b5fe83a31e" },
+   *            idempotencyKey,
+   *          });
+   *
+   *          // Second call with the same idempotency key will not update
+   *          await cdp.sol.updateAccount({
+   *            address: '0x...',
+   *            update: { name: "" },
+   *            idempotencyKey,
+   *          });
+   *          ```
+   */
+  async updateAccount(options: UpdateSolanaAccountOptions): Promise<SolanaAccount> {
+    const openApiAccount = await CdpOpenApiClient.updateSolanaAccount(
       options.address,
-      {
-        transaction: options.transaction,
-      },
+      options.update,
       options.idempotencyKey,
     );
 
-    return {
-      signature: signature.signedTransaction,
-    };
+    const account = toSolanaAccount(CdpOpenApiClient, {
+      account: openApiAccount,
+    });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
   }
 }

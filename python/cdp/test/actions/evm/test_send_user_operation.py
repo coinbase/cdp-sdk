@@ -60,7 +60,8 @@ async def test_send_user_operation_function_call(
 
     result = await send_user_operation(
         api_clients=mock_api_clients,
-        smart_account=mock_smart_account,
+        address=mock_smart_account.address,
+        owner=mock_smart_account.owners[0],
         calls=[function_call],
         network="base-sepolia",
         paymaster_url="https://paymaster.example.com",
@@ -135,7 +136,8 @@ async def test_send_user_operation_contract_call(
 
     result = await send_user_operation(
         api_clients=mock_api_clients,
-        smart_account=mock_smart_account,
+        address=mock_smart_account.address,
+        owner=mock_smart_account.owners[0],
         calls=[contract_call],
         network="base-sepolia",
         paymaster_url=None,
@@ -207,7 +209,8 @@ async def test_send_user_operation_multiple_calls(
 
     result = await send_user_operation(
         api_clients=mock_api_clients,
-        smart_account=mock_smart_account,
+        address=mock_smart_account.address,
+        owner=mock_smart_account.owners[0],
         calls=[function_call, contract_call],
         network="base-sepolia",
         paymaster_url="https://other-paymaster.example.com",
@@ -243,7 +246,8 @@ async def test_send_user_operation_empty_calls(mock_api_clients):
     with pytest.raises(ValueError, match="Calls list cannot be empty"):
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[],
             network="base-sepolia",
             paymaster_url=None,
@@ -270,7 +274,8 @@ async def test_send_user_operation_no_owners(mock_api_clients):
     with pytest.raises(IndexError):
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[contract_call],
             network="base-sepolia",
             paymaster_url=None,
@@ -298,7 +303,8 @@ async def test_send_user_operation_create_api_error(mock_api_clients):
     with pytest.raises(ApiException) as exc_info:
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[contract_call],
             network="base-sepolia",
             paymaster_url=None,
@@ -335,7 +341,8 @@ async def test_send_user_operation_signing_error(mock_api_clients, mock_ensure_a
     with pytest.raises(Exception, match="Signing failed"):
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[contract_call],
             network="base-sepolia",
             paymaster_url=None,
@@ -374,7 +381,8 @@ async def test_send_user_operation_broadcast_api_error(mock_api_clients, mock_en
     with pytest.raises(ApiException) as exc_info:
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[contract_call],
             network="base-sepolia",
             paymaster_url=None,
@@ -412,7 +420,8 @@ async def test_send_user_operation_function_call_encoding_error(mock_api_clients
     with pytest.raises(ValueError, match="Invalid argument type"):
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[function_call],
             network="base-sepolia",
             paymaster_url=None,
@@ -441,7 +450,8 @@ async def test_send_user_operation_invalid_network(mock_api_clients):
     with pytest.raises(ValidationError):
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[contract_call],
             network="invalid-network",
             paymaster_url=None,

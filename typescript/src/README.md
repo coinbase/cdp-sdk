@@ -7,6 +7,7 @@
 - [Installation](#installation)
 - [API Keys](#api-keys)
 - [Usage](#usage)
+- [Policy Management](#policy-management)
 - [Authentication tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
 - [License](#license)
@@ -20,7 +21,7 @@
 
 ## CDP SDK
 
-This module contains the TypeScript CDP SDK, which is a library that provides a client for interacting with the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). It includes a CDP Client for interacting with EVM and Solana APIs to create accounts and send transactions, as well as authentication tools for interacting directly with the CDP APIs.
+This module contains the TypeScript CDP SDK, which is a library that provides a client for interacting with the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). It includes a CDP Client for interacting with EVM and Solana APIs to create accounts and send transactions, policy APIs to govern transaction permissions, as well as authentication tools for interacting directly with the CDP APIs.
 
 ## Documentation
 
@@ -104,6 +105,14 @@ const cdp = new CdpClient({
 ```typescript
 const account = await cdp.evm.createAccount();
 ```
+#### Import an EVM account as follows:
+
+```typescript
+const account = await cdp.evm.importAccount({
+  privateKey: "0x123456",
+  name: "MyAccount",
+});
+```
 
 #### Create a Solana account as follows:
 
@@ -124,6 +133,32 @@ const account = await cdp.evm.getOrCreateAccount({
 ```typescript
 const account = await cdp.solana.getOrCreateAccount({
   name: "Account1",
+});
+```
+
+### Updating EVM or Solana accounts
+
+#### Update an EVM account as follows:
+
+```typescript
+const account = await cdp.evm.updateAccount({
+  addresss: account.address,
+  update: {
+    name: "Updated name",
+    accountPolicy: "1622d4b7-9d60-44a2-9a6a-e9bbb167e412",
+  },
+});
+```
+
+#### Update a Solana account as follows:
+
+```typescript
+const account = await cdp.solana.updateAccount({
+  addresss: account.address,
+  update: {
+    name: "Updated name",
+    accountPolicy: "1622d4b7-9d60-44a2-9a6a-e9bbb167e412",
+  },
 });
 ```
 
@@ -289,19 +324,35 @@ const userOperation = await cdp.sendUserOperation({
 
 ### Transferring tokens
 
-For complete examples, check out [transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/transfer.ts) and [transferWithSmartWallet.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/transferWithSmartWallet.ts).
+#### EVM
+
+For complete examples, check out [evm/account.transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.transfer.ts) and [evm/smartAccount.transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.transfer.ts).
 
 You can transfer tokens between accounts using the `transfer` function:
 
 ```typescript
 const sender = await cdp.evm.createAccount({ name: "Sender" });
 
-const { status } = await sender.transfer({
+const { transactionHash } = await sender.transfer({
   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-  amount: "0.01",
+  amount: 10000n, // equivalent to 0.01 USDC
   token: "usdc",
   network: "base-sepolia",
 });
+```
+
+You can then [wait for the transaction receipt with a viem Public Client](https://viem.sh/docs/actions/public/waitForTransactionReceipt#waitfortransactionreceipt):
+
+```typescript
+import { createPublicClient, http } from "viem";
+import { baseSepolia } from "viem/chains";
+
+const publicClient = createPublicClient({
+  chain: baseSepolia,
+  transport: http(),
+});
+
+const receipt = await publicClient.waitForTransactionReceipt({ hash: transactionHash });
 ```
 
 Smart Accounts also have a `transfer` function:
@@ -312,36 +363,48 @@ const sender = await cdp.evm.createSmartAccount({
 });
 console.log("Created smart account", sender);
 
-const { status } = await sender.transfer({
+const { userOpHash } = await sender.transfer({
   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-  amount: "0.01",
+  amount: 10000n, // equivalent to 0.01 USDC
   token: "usdc",
   network: "base-sepolia",
 });
 ```
 
-Using Smart Accounts, you can also specify a paymaster URL and wait options:
+One difference is that the `transfer` function returns the user operation hash, which is different from the transaction hash. You can use the returned user operation hash in a call to `waitForUserOperation` to get the result of the transaction:
 
 ```typescript
-const { status } = await sender.transfer({
+const receipt = await sender.waitForUserOperation({
+  hash: userOpHash,
+});
+
+if (receipt.status === "complete") {
+  console.log(
+    `Transfer successful! Explorer link: https://sepolia.basescan.org/tx/${receipt.userOpHash}`,
+  );
+} else {
+  console.log(`Something went wrong! User operation hash: ${receipt.userOpHash}`);
+}
+```
+
+Using Smart Accounts, you can also specify a paymaster URL:
+
+```typescript
+await sender.transfer({
   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
   amount: "0.01",
   token: "usdc",
   network: "base-sepolia",
   paymasterUrl: "https://some-paymaster-url.com",
-  waitOptions: {
-    timeout: 30,
-    interval: 2,
-  },
 });
 ```
 
-If you pass a decimal amount in a string, the SDK will parse it into a bigint based on the token's decimals. You can also pass a bigint directly:
+Transfer amount must be passed as a bigint. To convert common tokens from whole units, you can use utilities such as [`parseEther`](https://viem.sh/docs/utilities/parseEther#parseether) and [`parseUnits`](https://viem.sh/docs/utilities/parseUnits#parseunits) from viem.
 
 ```typescript
-const { status } = await sender.transfer({
+await sender.transfer({
   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-  amount: 10000n, // equivalent to 0.01 usdc
+  amount: parseUnits("0.01", 6), // USDC has 6 decimals
   token: "usdc",
   network: "base-sepolia",
 });
@@ -350,9 +413,9 @@ const { status } = await sender.transfer({
 You can pass `usdc` or `eth` as the token to transfer, or you can pass a contract address directly:
 
 ```typescript
-const { status } = await sender.transfer({
+await sender.transfer({
   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-  amount: "0.000001",
+  amount: parseUnits("0.000001", 18), // WETH has 18 decimals. equivalent to calling `parseEther("0.000001")`
   token: "0x4200000000000000000000000000000000000006", // WETH on Base Sepolia
   network: "base-sepolia",
 });
@@ -364,32 +427,87 @@ You can also pass another account as the `to` parameter:
 const sender = await cdp.evm.createAccount({ name: "Sender" });
 const receiver = await cdp.evm.createAccount({ name: "Receiver" });
 
-const { status } = await sender.transfer({
+await sender.transfer({
   to: receiver,
-  amount: "0.01",
+  amount: 10000n, // equivalent to 0.01 USDC
   token: "usdc",
   network: "base-sepolia",
 });
 ```
 
-You can also pass wait options to the `transfer` function:
+#### Solana
+
+For complete examples, check out [solana/account.transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/account.transfer.ts).
+
+You can transfer tokens between accounts using the `transfer` function, and wait for the transaction to be confirmed using the `confirmTransaction` function from `@solana/web3.js`:
 
 ```typescript
-const { status } = await sender.transfer({
-  to: receiver,
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+
+const sender = await cdp.solana.createAccount();
+
+const connection = new Connection("https://api.devnet.solana.com");
+
+const { signature } = await sender.transfer({
+  to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+  amount: 0.01 * LAMPORTS_PER_SOL,
+  token: "sol",
+  network: connection,
+});
+
+const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+const confirmation = await connection.confirmTransaction(
+  {
+    signature,
+    blockhash,
+    lastValidBlockHeight,
+  },
+  "confirmed",
+);
+
+if (confirmation.value.err) {
+  console.log(`Something went wrong! Error: ${confirmation.value.err.toString()}`);
+} else {
+  console.log(
+    `Transaction confirmed: Link: https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+  );
+}
+```
+
+You can also easily send USDC:
+
+```typescript
+const { signature } = await sender.transfer({
+  to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
   amount: "0.01",
   token: "usdc",
-  network: "base-sepolia",
-  waitOptions: {
-    timeout: 30,
-    interval: 2,
-  },
+  network: "devnet",
+});
+```
+
+If you want to use your own Connection, you can pass one to the `network` parameter:
+
+```typescript
+import { Connection } from "@solana/web3.js";
+
+const connection = new Connection("YOUR_RPC_URL");
+
+const { signature } = await sender.transfer({
+  to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+  amount: "0.01",
+  token: "usdc",
+  network: connection,
 });
 ```
 
 ## Account Actions
 
 Account objects have actions that can be used to interact with the account. These can be used in place of the `cdp` client.
+
+### EVM account actions
+
+Here are some examples for actions on EVM accounts.
 
 For example, instead of:
 
@@ -421,7 +539,226 @@ EvmSmartAccount supports the following actions:
 - `requestFaucet`
 - `sendUserOperation`
 - `waitForUserOperation`
+- `getUserOperation`
 - `transfer`
+
+### Solana account actions
+
+Here are some examples for actions on Solana accounts.
+
+```typescript
+const balances = await cdp.solana.signMessage({
+  address: account.address,
+  message: "Hello, world!",
+});
+```
+
+You can use the `signMessage` action:
+
+```typescript
+const account = await cdp.solana.createAccount();
+const { signature } = await account.signMessage({
+  message: "Hello, world!",
+});
+```
+
+SolanaAccount supports the following actions:
+
+- `requestFaucet`
+- `signMessage`
+- `signTransaction`
+
+## Policy Management
+
+You can use the policies SDK to manage sets of rules that govern the behavior of accounts and projects, such as enforce allowlists and denylists.
+
+### Create a Project-level policy that applies to all accounts
+
+This policy will accept any account sending less than a specific amount of ETH to a specific address.
+
+```typescript
+const policy = await cdp.policies.createPolicy({
+  policy: {
+    scope: "project",
+    description: "Project-wide Allowlist Policy",
+    rules: [
+      {
+        action: "accept",
+        operation: "signEvmTransaction",
+        criteria: [
+          {
+            type: "ethValue",
+            ethValue: "1000000000000000000",
+            operator: "<=",
+          },
+          {
+            type: "evmAddress",
+            addresses: ["0x000000000000000000000000000000000000dEaD"],
+            operator: "in",
+          },
+        ],
+      },
+    ],
+  },
+});
+```
+
+### Create an Account-level policy
+
+This policy will accept any transaction with a value less than or equal to 1 ETH to a specific address.
+
+```typescript
+const policy = await cdp.policies.createPolicy({
+  policy: {
+    scope: "account",
+    description: "Account Allowlist Policy",
+    rules: [
+      {
+        action: "accept",
+        operation: "signEvmTransaction",
+        criteria: [
+          {
+            type: "ethValue",
+            ethValue: "1000000000000000000",
+            operator: "<=",
+          },
+          {
+            type: "evmAddress",
+            addresses: ["0x000000000000000000000000000000000000dEaD"],
+            operator: "in",
+          },
+        ],
+      },
+    ],
+  },
+});
+```
+
+### Create a Solana Allowlist Policy
+
+```typescript
+const policy = await cdp.policies.createPolicy({
+  policy: {
+    scope: "account",
+    description: "Account Allowlist Policy",
+    rules: [
+      {
+        action: "accept",
+        operation: "signSolTransaction",
+        criteria: [
+          {
+            type: "solAddress",
+            addresses: ["DtdSSG8ZJRZVv5Jx7K1MeWp7Zxcu19GD5wQRGRpQ9uMF"],
+            operator: "in",
+          },
+        ],
+      },
+    ],
+  },
+});
+```
+
+### List Policies
+
+You can filter by account:
+
+```typescript
+const policy = await cdp.policies.listPolicies({
+  scope: "account",
+});
+```
+
+You can also filter by project:
+
+```typescript
+const policy = await cdp.policies.listPolicies({
+  scope: "project",
+});
+```
+
+### Retrieve a Policy
+
+```typescript
+const policy = await cdp.policies.getPolicyById({
+  id: "__POLICY_ID__",
+});
+```
+
+### Update a Policy
+
+This policy will update an existing policy to accept transactions to any address except one.
+
+```typescript
+const policy = await cdp.policies.updatePolicy({
+  id: "__POLICY_ID__",
+  policy: {
+    description: "Updated Account Denylist Policy",
+    rules: [
+      {
+        action: "accept",
+        operation: "signEvmTransaction",
+        criteria: [
+          {
+            type: "evmAddress",
+            addresses: ["0x000000000000000000000000000000000000dEaD"],
+            operator: "not in",
+          },
+        ],
+      },
+    ],
+  },
+});
+```
+
+### Delete a Policy
+
+> [!WARNING] Attempting to delete an account-level policy in-use by at least one account will fail.
+
+```typescript
+const policy = await cdp.policies.deletePolicy({
+  id: "__POLICY_ID__",
+});
+```
+
+### Validate a Policy
+
+If you're integrating policy editing into your application, you may find it useful to validate policies ahead of time to provide a user with feedback. The `CreatePolicyBodySchema` and `UpdatePolicyBodySchema` can be used to get actionable structured information about any issues with a policy. Read more about [handling ZodErrors](https://zod.dev/ERROR_HANDLING).
+
+```ts
+import { CreatePolicyBodySchema, UpdatePolicyBodySchema } from "@coinbase/cdp-sdk";
+
+// Validate a new Policy with many issues, will throw a ZodError with actionable validation errors
+try {
+  CreatePolicyBodySchema.parse({
+    description: "Bad description with !#@ characters, also is wayyyyy toooooo long!!",
+    rules: [
+      {
+        action: "acept",
+        operation: "unknownOperation",
+        criteria: [
+          {
+            type: "ethValue",
+            ethValue: "not a number",
+            operator: "<=",
+          },
+          {
+            type: "evmAddress",
+            addresses: ["not an address"],
+            operator: "in",
+          },
+          {
+            type: "evmAddress",
+            addresses: ["not an address"],
+            operator: "invalid operator",
+          },
+        ],
+      },
+    ],
+  });
+} catch (e) {
+  console.error(e);
+}
+```
 
 ## Authentication tools
 

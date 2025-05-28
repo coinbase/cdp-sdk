@@ -37,7 +37,8 @@ class TestSolanaAccount(unittest.TestCase):
         if include_optional:
             return SolanaAccount(
                 address = 'HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT',
-                name = 'my-account'
+                name = 'my-account',
+                policies = ["123e4567-e89b-12d3-a456-426614174000"]
             )
         else:
             return SolanaAccount(

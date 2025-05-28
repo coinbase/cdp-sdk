@@ -6,6 +6,9 @@ from web3 import Web3
 
 from cdp import CdpClient
 from cdp.evm_transaction_types import TransactionRequestEIP1559
+from dotenv import load_dotenv
+
+load_dotenv()
 
 w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 
@@ -31,13 +34,14 @@ async def main():
             network="base-sepolia",
         )
 
-
         print(f"Transaction sent! Hash: {tx_hash}")
 
         print("Waiting for transaction confirmation...")
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         print(f"Transaction confirmed in block {tx_receipt.blockNumber}")
-        print(f"Transaction status: {'Success' if tx_receipt.status == 1 else 'Failed'}")
+        print(
+            f"Transaction status: {'Success' if tx_receipt.status == 1 else 'Failed'}"
+        )
 
 
 asyncio.run(main())

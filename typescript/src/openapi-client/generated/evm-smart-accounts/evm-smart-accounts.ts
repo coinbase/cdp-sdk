@@ -99,7 +99,9 @@ export const getUserOperation = (
 };
 /**
  * Sends a user operation with a signature.
-The signature that is sent should be 65 bytes, consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.
+The payload to sign must be the `userOpHash` field of the user operation. This hash should be signed directly (not using `personal_sign` or EIP-191 message hashing).
+The signature must be 65 bytes in length, consisting of: - 32 bytes for the `r` value - 32 bytes for the `s` value - 1 byte for the `v` value (must be 27 or 28)
+If using the CDP Paymaster, the user operation must be signed and sent within 2 minutes of being prepared.
  * @summary Send a user operation
  */
 export const sendUserOperation = (

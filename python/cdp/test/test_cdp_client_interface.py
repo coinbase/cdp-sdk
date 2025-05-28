@@ -39,6 +39,10 @@ def is_method_wrapped(api_method, evm_methods, solana_methods):
         stripped_method = api_method.replace("solana_", "").replace("_by_name", "")
         if stripped_method in solana_methods:
             return True
+    elif "sol" in api_method:
+        stripped_method = api_method.replace("sol_", "").replace("_by_name", "")
+        if stripped_method in solana_methods:
+            return True
     return False
 
 

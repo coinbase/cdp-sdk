@@ -2,7 +2,7 @@ import type {
   EvmAccount as Account,
   EvmServerAccount as ServerAccount,
   EvmSmartAccount as SmartAccount,
-} from "../../accounts/types.js";
+} from "../../accounts/evm/types.js";
 import type {
   ListTokenBalancesOptions,
   ListTokenBalancesResult,
@@ -21,9 +21,10 @@ import type {
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
+  UpdateEvmAccountBody,
 } from "../../openapi-client/index.js";
 import type { Calls } from "../../types/calls.js";
-import type { Address, Hex } from "../../types/misc.js";
+import type { Address, EIP712Message, Hex } from "../../types/misc.js";
 import type { WaitOptions } from "../../utils/wait.js";
 
 /**
@@ -33,10 +34,12 @@ export type EvmClientInterface = Omit<
   typeof OpenApiEvmMethods,
   | "createEvmAccount" // mapped to createAccount
   | "createEvmSmartAccount" // mapped to createSmartAccount
+  | "importEvmAccount" // mapped to importAccount
   | "getEvmAccount" // mapped to getAccount
   | "getEvmAccountByName" // mapped to getAccount
   | "getEvmSmartAccount" // mapped to getSmartAccount
   | "getUserOperation"
+  | "updateEvmAccount" // mapped to updateAccount
   | "listEvmAccounts" // mapped to listAccounts
   | "listEvmSmartAccounts" // mapped to listSmartAccounts
   | "listEvmTokenBalances" // mapped to listTokenBalances
@@ -46,14 +49,19 @@ export type EvmClientInterface = Omit<
   | "signEvmHash" // mapped to signHash
   | "signEvmMessage" // mapped to signMessage
   | "signEvmTransaction" // mapped to signTransaction
+  | "signEvmTypedData" // mapped to signTypedData
   | "sendEvmTransaction" // mapped to sendTransaction
+  | "signEvmTypedData" // mapped to signTypedData
+  | "updateEvmAccount" // mapped to updateAccount
 > & {
   createAccount: (options: CreateServerAccountOptions) => Promise<ServerAccount>;
   createSmartAccount: (options: CreateSmartAccountOptions) => Promise<SmartAccount>;
+  importAccount: (options: ImportServerAccountOptions) => Promise<ServerAccount>;
   getAccount: (options: GetServerAccountOptions) => Promise<ServerAccount>;
   getSmartAccount: (options: GetSmartAccountOptions) => Promise<SmartAccount>;
   getOrCreateAccount: (options: GetOrCreateServerAccountOptions) => Promise<ServerAccount>;
   getUserOperation: (options: GetUserOperationOptions) => Promise<UserOperation>;
+  updateAccount: (options: UpdateEvmAccountOptions) => Promise<ServerAccount>;
   listAccounts: (options: ListServerAccountsOptions) => Promise<ListServerAccountResult>;
   listSmartAccounts: (options: ListSmartAccountsOptions) => Promise<ListSmartAccountResult>;
   listTokenBalances: (options: ListTokenBalancesOptions) => Promise<ListTokenBalancesResult>;
@@ -65,6 +73,7 @@ export type EvmClientInterface = Omit<
   ) => Promise<SendUserOperationReturnType>;
   signHash: (options: SignHashOptions) => Promise<SignatureResult>;
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
+  signTypedData: (options: SignTypedDataOptions) => Promise<SignatureResult>;
   signTransaction: (options: SignTransactionOptions) => Promise<SignatureResult>;
 };
 
@@ -141,6 +150,18 @@ export interface CreateServerAccountOptions {
 }
 
 /**
+ * Options for importing an EVM server account.
+ */
+export interface ImportServerAccountOptions {
+  /** The name of the account. */
+  name?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+  /** The private key of the account. */
+  privateKey: Hex;
+}
+
+/**
  * Options for getting an EVM account.
  */
 export interface GetServerAccountOptions {
@@ -185,6 +206,18 @@ export interface ReadonlySmartAccount
   extends Omit<SmartAccount, "owners" | keyof SmartAccountActions> {
   /** The owners of the smart account. */
   owners: Address[];
+}
+
+/**
+ * Options for creating an EVM server account.
+ */
+export interface UpdateEvmAccountOptions {
+  /** The address of the account. */
+  address: string;
+  /** The updates to apply to the account */
+  update: UpdateEvmAccountBody;
+  /** The idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -255,6 +288,24 @@ export interface SignMessageOptions {
   address: Address;
   /** The message to sign. */
   message: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+}
+
+/**
+ * Options for signing an EVM message.
+ */
+export interface SignTypedDataOptions {
+  /** The address of the account. */
+  address: Address;
+  /** The domain of the message. */
+  domain: EIP712Message["domain"];
+  /** The types of the message. */
+  types: EIP712Message["types"];
+  /** The primary type of the message. This is the name of the struct in the `types` object that is the root of the message. */
+  primaryType: EIP712Message["primaryType"];
+  /** The message to sign. The structure of this message must match the `primaryType` struct in the `types` object. */
+  message: EIP712Message["message"];
   /** The idempotency key. */
   idempotencyKey?: string;
 }

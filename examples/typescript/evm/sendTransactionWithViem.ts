@@ -5,6 +5,7 @@ import { CdpClient } from "@coinbase/cdp-sdk";
 import { createWalletClient, http, createPublicClient, parseEther } from "viem";
 import { toAccount } from "viem/accounts";
 import { baseSepolia } from "viem/chains";
+import "dotenv/config";
 
 const cdp = new CdpClient();
 const publicClient = createPublicClient({

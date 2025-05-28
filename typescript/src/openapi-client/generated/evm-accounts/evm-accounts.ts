@@ -7,7 +7,9 @@
  */
 import type {
   CreateEvmAccountBody,
+  EIP712Message,
   EvmAccount,
+  ImportEvmAccountBody,
   ListEvmAccounts200,
   ListEvmAccountsParams,
   SendEvmTransaction200,
@@ -18,6 +20,8 @@ import type {
   SignEvmMessageBody,
   SignEvmTransaction200,
   SignEvmTransactionBody,
+  SignEvmTypedData200,
+  UpdateEvmAccountBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -62,6 +66,25 @@ export const createEvmAccount = (
  */
 export const getEvmAccount = (address: string, options?: SecondParameter<typeof cdpApiClient>) => {
   return cdpApiClient<EvmAccount>({ url: `/v2/evm/accounts/${address}`, method: "GET" }, options);
+};
+/**
+ * Updates an existing EVM account. Use this to update the account's name or account-level policy.
+ * @summary Update an EVM account
+ */
+export const updateEvmAccount = (
+  address: string,
+  updateEvmAccountBody: UpdateEvmAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmAccount>(
+    {
+      url: `/v2/evm/accounts/${address}`,
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      data: updateEvmAccountBody,
+    },
+    options,
+  );
 };
 /**
  * Gets an EVM account by its name.
@@ -182,9 +205,47 @@ export const signEvmMessage = (
     options,
   );
 };
+/**
+ * Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given EVM account.
+ * @summary Sign EIP-712 typed data
+ */
+export const signEvmTypedData = (
+  address: string,
+  eIP712Message: EIP712Message,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SignEvmTypedData200>(
+    {
+      url: `/v2/evm/accounts/${address}/sign/typed-data`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: eIP712Message,
+    },
+    options,
+  );
+};
+/**
+ * Import an existing EVM account into the developer's CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
+ * @summary Import an EVM account
+ */
+export const importEvmAccount = (
+  importEvmAccountBody: ImportEvmAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmAccount>(
+    {
+      url: `/v2/evm/accounts/import`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: importEvmAccountBody,
+    },
+    options,
+  );
+};
 export type ListEvmAccountsResult = NonNullable<Awaited<ReturnType<typeof listEvmAccounts>>>;
 export type CreateEvmAccountResult = NonNullable<Awaited<ReturnType<typeof createEvmAccount>>>;
 export type GetEvmAccountResult = NonNullable<Awaited<ReturnType<typeof getEvmAccount>>>;
+export type UpdateEvmAccountResult = NonNullable<Awaited<ReturnType<typeof updateEvmAccount>>>;
 export type GetEvmAccountByNameResult = NonNullable<
   Awaited<ReturnType<typeof getEvmAccountByName>>
 >;
@@ -192,3 +253,5 @@ export type SendEvmTransactionResult = NonNullable<Awaited<ReturnType<typeof sen
 export type SignEvmTransactionResult = NonNullable<Awaited<ReturnType<typeof signEvmTransaction>>>;
 export type SignEvmHashResult = NonNullable<Awaited<ReturnType<typeof signEvmHash>>>;
 export type SignEvmMessageResult = NonNullable<Awaited<ReturnType<typeof signEvmMessage>>>;
+export type SignEvmTypedDataResult = NonNullable<Awaited<ReturnType<typeof signEvmTypedData>>>;
+export type ImportEvmAccountResult = NonNullable<Awaited<ReturnType<typeof importEvmAccount>>>;

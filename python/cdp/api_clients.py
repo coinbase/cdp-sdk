@@ -2,6 +2,7 @@ from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
 from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
+from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 
@@ -36,6 +37,7 @@ class ApiClients:
         self._evm_token_balances: EVMTokenBalancesApi | None = None
         self._faucets: FaucetsApi | None = None
         self._solana_accounts: SolanaAccountsApi | None = None
+        self._policies: PolicyEngineApi | None = None
 
     @property
     def evm_accounts(self) -> EVMAccountsApi:
@@ -111,6 +113,21 @@ class ApiClients:
         if self._solana_accounts is None:
             self._solana_accounts = SolanaAccountsApi(api_client=self._cdp_client)
         return self._solana_accounts
+
+    @property
+    def policies(self) -> PolicyEngineApi:
+        """Get the PolicyEngineApi client instance.
+
+        Returns:
+            PolicyEngineApi: The PolicyEngineApi client instance.
+
+        Note:
+            This property lazily initializes the PolicyEngineApi client on first access.
+
+        """
+        if self._policies is None:
+            self._policies = PolicyEngineApi(api_client=self._cdp_client)
+        return self._policies
 
     async def close(self):
         """Close the CDP client asynchronously."""
