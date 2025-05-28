@@ -8,7 +8,7 @@ from cdp.openapi_client.models.transfer import Transfer
 
 
 @pytest.mark.asyncio
-@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time")
+@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time", create=True)
 @patch("cdp.cdp_client.ApiClients")
 async def test_wait_for_fund_operation_receipt_success_immediate(mock_api_clients, mock_time):
     """Test successful completion of a fund operation that is already complete."""
@@ -34,7 +34,7 @@ async def test_wait_for_fund_operation_receipt_success_immediate(mock_api_client
 
 
 @pytest.mark.asyncio
-@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time")
+@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time", create=True)
 @patch("cdp.cdp_client.ApiClients")
 async def test_wait_for_fund_operation_receipt_success_after_poll(mock_api_clients, mock_time):
     """Test successful completion of a fund operation after polling."""
@@ -66,7 +66,7 @@ async def test_wait_for_fund_operation_receipt_success_after_poll(mock_api_clien
 
 
 @pytest.mark.asyncio
-@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time")
+@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time", create=True)
 @patch("cdp.cdp_client.ApiClients")
 async def test_wait_for_fund_operation_receipt_failed_status(mock_api_clients, mock_time):
     """Test handling of a fund operation that completes with 'failed' status."""
@@ -98,7 +98,7 @@ async def test_wait_for_fund_operation_receipt_failed_status(mock_api_clients, m
 
 
 @pytest.mark.asyncio
-@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time")
+@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time", create=True)
 @patch("cdp.cdp_client.ApiClients")
 async def test_wait_for_fund_operation_receipt_timeout(mock_api_clients, mock_time):
     """Test timeout for a fund operation that never completes."""
@@ -141,7 +141,7 @@ async def test_wait_for_fund_operation_receipt_timeout(mock_api_clients, mock_ti
 
 
 @pytest.mark.asyncio
-@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time")
+@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time", create=True)
 @patch("cdp.cdp_client.ApiClients")
 async def test_wait_for_fund_operation_receipt_api_error(mock_api_clients, mock_time):
     """Test handling of API errors during polling."""
@@ -171,7 +171,7 @@ async def test_wait_for_fund_operation_receipt_api_error(mock_api_clients, mock_
 
 
 @pytest.mark.asyncio
-@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time")
+@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time", create=True)
 @patch("cdp.cdp_client.ApiClients")
 async def test_wait_for_fund_operation_receipt_custom_timeout_and_interval(
     mock_api_clients, mock_time
@@ -205,7 +205,7 @@ async def test_wait_for_fund_operation_receipt_custom_timeout_and_interval(
 
 
 @pytest.mark.asyncio
-@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time")
+@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time", create=True)
 @patch("cdp.cdp_client.ApiClients")
 async def test_wait_for_fund_operation_receipt_multiple_status_changes(mock_api_clients, mock_time):
     """Test handling of a fund operation that goes through multiple status changes."""
@@ -241,7 +241,7 @@ async def test_wait_for_fund_operation_receipt_multiple_status_changes(mock_api_
 
 
 @pytest.mark.asyncio
-@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time")
+@patch("cdp.actions.evm.fund.wait_for_fund_operation_receipt.time", create=True)
 @patch("cdp.cdp_client.ApiClients")
 async def test_wait_for_fund_operation_receipt_invalid_transfer_id(mock_api_clients, mock_time):
     """Test handling of an API error when transfer_id is invalid."""
