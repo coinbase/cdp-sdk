@@ -1,4 +1,4 @@
-import { Transfer, TransferStatus } from "../../../openapi-client/index.js";
+import { TransferStatus } from "../../../openapi-client/index.js";
 
 export type FundOperationResult = {
   /** The transfer that was created to fund the account. */
