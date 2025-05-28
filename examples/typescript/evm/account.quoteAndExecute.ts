@@ -15,6 +15,7 @@ async function main() {
 
   // get details of the quote
   console.log("Fiat amount: ", quote.fiatAmount)
+  console.log("Fiat currency: ", quote.fiatCurrency)
   console.log("Token amount: ", quote.tokenAmount)
   console.log("Token: ", quote.token)
   console.log("Network: ", quote.network)

@@ -19,6 +19,7 @@ async def main():
 
         # get details of the quote
         print("Fiat amount: ", quote.fiat_amount)
+        print("Fiat currency: ", quote.fiat_currency)
         print("Token amount: ", quote.token_amount)
         print("Token: ", quote.token)
         print("Network: ", quote.network)
