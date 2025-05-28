@@ -37,11 +37,18 @@ w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 
 test_account_name = "E2EServerAccount2"
 
+e2e_base_path = os.getenv("E2E_BASE_PATH")
+
+client_args = {}
+
+if e2e_base_path:
+    client_args["base_path"] = e2e_base_path
+
 
 @pytest_asyncio.fixture(scope="function")
 async def cdp_client():
     """Create and configure CDP client for all tests."""
-    client = CdpClient()
+    client = CdpClient(**client_args)
     yield client
     await client.close()
 
@@ -49,10 +56,10 @@ async def cdp_client():
 @pytest_asyncio.fixture(scope="function")
 async def solana_account():
     """Create and configure a shared Solana account for all tests."""
-    cdp = CdpClient()
-    account = await cdp.solana.get_or_create_account(name=test_account_name)
+    client = CdpClient(**client_args)
+    account = await client.solana.get_or_create_account(name=test_account_name)
     yield account
-    await cdp.close()
+    await client.close()
 
 
 @pytest.mark.e2e

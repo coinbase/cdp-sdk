@@ -3,8 +3,7 @@ import { SignableMessage, TransactionSerializable } from "viem";
 import { Prettify } from "../../types/utils.js";
 
 import type { AccountActions, SmartAccountActions } from "../../actions/evm/types.js";
-import type { EIP712Message } from "../../openapi-client/generated/coinbaseDeveloperPlatformAPIs.schemas.js";
-import type { Address, Hash, Hex } from "../../types/misc.js";
+import type { Address, EIP712Message, Hash, Hex } from "../../types/misc.js";
 
 /**
  * Base type for any Ethereum account with signing capabilities.

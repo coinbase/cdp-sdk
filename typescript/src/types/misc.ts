@@ -54,9 +54,9 @@ export interface EIP712Domain {
   /** The chain ID of the EVM network. */
   chainId?: number;
   /** The 0x-prefixed EVM address of the verifying smart contract. */
-  verifyingContract?: string;
+  verifyingContract?: Hex;
   /** The optional 32-byte 0x-prefixed hex salt for domain separation. */
-  salt?: string;
+  salt?: Hex;
 }
 
 /**

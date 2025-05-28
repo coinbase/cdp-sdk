@@ -14,7 +14,7 @@ import {
   formatEther,
 } from "viem";
 import { baseSepolia } from "viem/chains";
-import { CdpClient } from "./client/cdp.js";
+import { CdpClient, CdpClientOptions } from "./client/cdp.js";
 import type { ServerAccount as Account, SmartAccount } from "./client/evm/evm.types.js";
 import {
   Keypair,
@@ -113,6 +113,7 @@ async function ensureSufficientSolBalance(cdp: CdpClient, account: SolanaAccount
 }
 
 describe("CDP Client E2E Tests", () => {
+  let cdpOptions: CdpClientOptions;
   let cdp: CdpClient;
   let publicClient: PublicClient<Transport, Chain>;
 
@@ -122,7 +123,13 @@ describe("CDP Client E2E Tests", () => {
   let testPolicyId: string;
 
   beforeAll(async () => {
-    cdp = new CdpClient();
+    cdpOptions = {};
+
+    if (process.env.E2E_BASE_PATH) {
+      cdpOptions.basePath = process.env.E2E_BASE_PATH;
+    }
+
+    cdp = new CdpClient(cdpOptions);
     publicClient = createPublicClient<Transport, Chain>({
       chain: baseSepolia,
       transport: http(),

@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.8.1] - 2025-05-16
+
+### Misc
+
+- [#151](https://github.com/coinbase/cdp-sdk/pull/151)
+
+
 ## [1.8.0] - 2025-05-15
 
 ### Features
