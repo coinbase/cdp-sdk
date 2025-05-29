@@ -21,17 +21,17 @@ async def main():
         
         print("\nSigning hash...")
         message_hash = "0x1234567890123456789012345678901234567890123456789012345678901234"
-        signed_hash = await evm_local_account.unsafe_sign_hash(message_hash)
+        signed_hash = evm_local_account.unsafe_sign_hash(message_hash)
         print("Signed hash: ", signed_hash)
         
         print("\nSigning message...")
         message = "Hello, world!"
         signable_message = encode_defunct(text=message)
-        signed_message = await evm_local_account.sign_message(signable_message)
+        signed_message = evm_local_account.sign_message(signable_message)
         print("Signed message: ", signed_message)
 
         print("\nSigning typed data with domain, types, and message...")
-        signed_typed_data = await evm_local_account.sign_typed_data(
+        signed_typed_data = evm_local_account.sign_typed_data(
             domain_data={
                 "name": "MyDomain",
                 "version": "1",
@@ -83,7 +83,7 @@ async def main():
                 "wallet": "0x1234567890123456789012345678901234567890",
             },
         }
-        signed_typed_data = await evm_local_account.sign_typed_data(
+        signed_typed_data = evm_local_account.sign_typed_data(
             full_message=typed_data,
         )
         print("Signed typed data full message: ", signed_typed_data)
@@ -91,7 +91,7 @@ async def main():
         print("\nSigning transaction...")
         w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
         nonce = w3.eth.get_transaction_count(evm_local_account.address)
-        transaction = await evm_local_account.sign_transaction(
+        transaction = evm_local_account.sign_transaction(
             transaction_dict={
                 "to": "0x000000000000000000000000000000000000dEaD",
                 "value": 10000000000,

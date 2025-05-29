@@ -5,9 +5,34 @@ from eth_account.messages import SignableMessage
 from eth_account.signers.base import BaseAccount
 from eth_account.types import TransactionDictType
 from eth_typing import Hash32
+import nest_asyncio
 
 from cdp.evm_server_account import EvmServerAccount
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
+
+import asyncio
+
+
+# Apply nest-asyncio to allow nested event loops
+nest_asyncio.apply()
+
+
+def _run_async(coroutine):
+    """Run an async coroutine synchronously.
+
+    Args:
+        coroutine: The coroutine to run
+
+    Returns:
+        Any: The result of the coroutine
+
+    """
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return loop.run_until_complete(coroutine)
 
 
 class EvmLocalAccount(BaseAccount):
@@ -40,7 +65,7 @@ class EvmLocalAccount(BaseAccount):
         """
         return self._server_account.address
 
-    async def unsafe_sign_hash(self, message_hash: Hash32) -> SignedMessage:
+    def unsafe_sign_hash(self, message_hash: Hash32) -> SignedMessage:
         """Sign a message hash.
 
         WARNING: Never sign a hash that you didn't generate,
@@ -53,9 +78,11 @@ class EvmLocalAccount(BaseAccount):
             SignedMessage: The signed message.
 
         """
-        return await self._server_account.unsafe_sign_hash(message_hash)
+        return _run_async(
+            self._server_account.unsafe_sign_hash(message_hash)
+        )
 
-    async def sign_message(self, signable_message: SignableMessage) -> SignedMessage:
+    def sign_message(self, signable_message: SignableMessage) -> SignedMessage:
         """Sign a message.
 
         Args:
@@ -65,9 +92,11 @@ class EvmLocalAccount(BaseAccount):
             SignedMessage: The signed message.
 
         """
-        return await self._server_account.sign_message(signable_message)
+        return _run_async(
+            self._server_account.sign_message(signable_message)
+        )
 
-    async def sign_transaction(self, transaction_dict: TransactionDictType) -> SignedTransaction:
+    def sign_transaction(self, transaction_dict: TransactionDictType) -> SignedTransaction:
         """Sign a transaction.
 
         Args:
@@ -77,9 +106,11 @@ class EvmLocalAccount(BaseAccount):
             SignedTransaction: The signed transaction.
 
         """
-        return await self._server_account.sign_transaction(transaction_dict)
+        return _run_async(
+            self._server_account.sign_transaction(transaction_dict)
+        )
 
-    async def sign_typed_data(
+    def sign_typed_data(
         self,
         domain_data: dict[str, Any] | None = None,
         message_types: dict[str, Any] | None = None,
@@ -117,17 +148,19 @@ class EvmLocalAccount(BaseAccount):
                 "Must provide either full_message or all of domain_data, message_types, and message_data"
             )
 
-        return await self._server_account.sign_typed_data(
-            domain=EIP712Domain(
-                name=typed_data["domain"].get("name"),
-                version=typed_data["domain"].get("version"),
-                chainId=typed_data["domain"].get("chainId"),
-                verifyingContract=typed_data["domain"].get("verifyingContract"),
-                salt=typed_data["domain"].get("salt"),
-            ),
-            types=typed_data["types"],
-            primary_type=typed_data["primaryType"],
-            message=typed_data["message"],
+        return _run_async(
+            self._server_account.sign_typed_data(
+                domain=EIP712Domain(
+                    name=typed_data["domain"].get("name"),
+                    version=typed_data["domain"].get("version"),
+                    chainId=typed_data["domain"].get("chainId"),
+                    verifyingContract=typed_data["domain"].get("verifyingContract"),
+                    salt=typed_data["domain"].get("salt"),
+                ),
+                types=typed_data["types"],
+                primary_type=typed_data["primaryType"],
+                message=typed_data["message"],
+            )
         )
 
     def __str__(self) -> str:
