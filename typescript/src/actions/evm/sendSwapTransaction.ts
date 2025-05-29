@@ -62,15 +62,6 @@ interface SendSwapTransactionWithSwapOptions extends BaseSendSwapTransactionOpti
 }
 
 /**
- * Type guard to check if options include inline swap parameters
- */
-function isSwapOptionsProvided(
-  options: SendSwapTransactionOptions,
-): options is SendSwapTransactionWithSwapOptions {
-  return "buyToken" in options && "sellToken" in options && "sellAmount" in options;
-}
-
-/**
  * Options for sending a swap transaction.
  * Either provide a pre-created swap result or inline swap parameters.
  */
@@ -150,8 +141,11 @@ export async function sendSwapTransaction(
   let swap: CreateSwapResult;
 
   // Determine if we need to create the swap or use the provided one
-  if (isSwapOptionsProvided(options)) {
-    // Create the swap using the provided options
+  if ("swap" in options) {
+    // Use the provided swap
+    swap = options.swap;
+  } else {
+    // Create the swap using the provided options (SendSwapTransactionWithSwapOptions)
     const swapResult = await createSwap(client, {
       network: options.network as CreateSwapOptions["network"],
       buyToken: options.buyToken,
@@ -169,13 +163,6 @@ export async function sendSwapTransaction(
     }
 
     swap = swapResult as CreateSwapResult;
-  } else if ("swap" in options && options.swap) {
-    // Use the provided swap
-    swap = options.swap;
-  } else {
-    throw new Error(
-      "Either 'swap' or swap parameters (buyToken, sellToken, sellAmount) must be provided",
-    );
   }
 
   // If the transaction doesn't exist, throw an error
