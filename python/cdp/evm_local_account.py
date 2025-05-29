@@ -129,3 +129,21 @@ class EvmLocalAccount(BaseAccount):
             primary_type=typed_data["primaryType"],
             message=typed_data["message"],
         )
+
+    def __str__(self) -> str:
+        """Return a string representation of the EthereumAccount object.
+
+        Returns:
+            str: A string representation of the EthereumAccount.
+
+        """
+        return f"Ethereum Account Address: {self.address}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of the EthereumAccount object.
+
+        Returns:
+            str: A string representation of the EthereumAccount.
+
+        """
+        return str(self)

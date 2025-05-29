@@ -83,20 +83,22 @@ async def test_sign_message_with_bytes(mock_api, server_account_model_factory):
     message = b"Test message"
     signable_message = encode_defunct(message)
 
-    signature_response = MagicMock()
+    signature_response = AsyncMock()
     # Create a real bytes-like object for the signature that's 65 bytes long
     # (32 bytes for r, 32 bytes for s, 1 byte for v). 1b = 27 in hex
     mock_signature = bytes.fromhex("1234" * 32 + "5678" * 32 + "1b")
 
     signature_response.signature = mock_signature
-    mock_api_instance.sign_evm_message.return_value = signature_response
+    mock_api_instance.sign_evm_message = AsyncMock(return_value=signature_response)
 
     result = await server_account.sign_message(signable_message)
 
     message_hex = HexBytes(message).hex()
     sign_request = SignEvmMessageRequest(message=message_hex)
     mock_api_instance.sign_evm_message.assert_called_once_with(
-        address, sign_request, x_idempotency_key=None
+        address=address,
+        sign_evm_message_request=sign_request,
+        x_idempotency_key=None,
     )
 
     assert result.r == int.from_bytes(mock_signature[0:32], byteorder="big")
