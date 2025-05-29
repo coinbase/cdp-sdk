@@ -265,7 +265,7 @@ class EvmSmartAccount(BaseModel):
 
     async def quote_fund(
         self,
-        network: Literal["base", "ethereum"],
+        network: Literal["base"],
         amount: int,
         token: Literal["eth", "usdc"],
     ) -> Quote:
