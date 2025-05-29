@@ -2,9 +2,9 @@ import { concat, numberToHex, size } from "viem";
 
 import { sendTransaction } from "./sendTransaction.js";
 
+import type { CreateSwapResult } from "../../client/evm/evm.types.js";
 import type {
   CdpOpenApiClientType,
-  CreateSwapResponse,
   SendEvmTransactionBodyNetwork,
 } from "../../openapi-client/index.js";
 import type { Address, Hex } from "../../types/misc.js";
@@ -27,7 +27,7 @@ export interface SubmitSwapTransactionOptions {
   /**
    * The swap transaction data returned by the createSwap method.
    */
-  swap: CreateSwapResponse;
+  swap: CreateSwapResult;
 
   /**
    * Optional idempotency key for the request.

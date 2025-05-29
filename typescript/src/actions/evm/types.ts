@@ -187,7 +187,7 @@ export type AccountActions = Actions & {
    *
    * @param {SubmitSwapTransactionOptions} options - Configuration options for the swap.
    * @param {SendEvmTransactionBodyNetwork} options.network - The network to execute the swap on.
-   * @param {CreateSwapResponse} options.swap - The swap transaction data returned by the createSwap method.
+   * @param {CreateSwapResult} options.swap - The swap transaction data returned by the createSwap method.
    * @param {string} [options.idempotencyKey] - Optional idempotency key for the request.
    *
    * @returns A promise that resolves to the transaction hash.

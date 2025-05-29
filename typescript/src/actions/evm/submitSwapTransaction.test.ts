@@ -5,7 +5,7 @@ import { Address, numberToHex, concat, size } from "viem";
 import { submitSwapTransaction } from "./submitSwapTransaction.js";
 import { sendTransaction } from "./sendTransaction.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
-import type { CreateSwapResponse } from "../../openapi-client/index.js";
+import type { CreateSwapResult } from "../../client/evm/evm.types.js";
 
 // Mock dependencies
 vi.mock("./sendTransaction.js", () => ({
@@ -32,7 +32,7 @@ describe("submitSwapTransaction", () => {
   const mockAddress = "0x1234567890123456789012345678901234567890" as Address;
   const mockNetwork = "base";
   const mockTransactionHash = "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890";
-  let mockSwap: CreateSwapResponse;
+  let mockSwap: CreateSwapResult;
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -41,27 +41,28 @@ describe("submitSwapTransaction", () => {
       liquidityAvailable: true,
       sellToken: "0x4200000000000000000000000000000000000006",
       buyToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-      sellAmount: "1000000000000000000",
-      buyAmount: "1800000000",
-      minBuyAmount: "1782000000",
-      blockNumber: "123456",
+      sellAmount: BigInt("1000000000000000000"),
+      buyAmount: BigInt("1800000000"),
+      minBuyAmount: BigInt("1782000000"),
+      blockNumber: BigInt("123456"),
       fees: {
-        gasFee: null,
-        protocolFee: null,
+        gasFee: undefined,
+        protocolFee: undefined,
       },
       issues: {
-        allowance: null,
-        balance: null,
+        allowance: undefined,
+        balance: undefined,
         simulationIncomplete: false,
       },
+      gas: BigInt("300000"),
+      gasPrice: BigInt("1500000000"),
       transaction: {
         to: "0x000000000022D473030F116dDEE9F6B43aC78BA3",
         data: "0x12345678",
         gas: "300000",
-        gasPrice: "1500000000",
         value: "0",
       },
-      permit2: null,
+      permit2: undefined,
     };
 
     (sendTransaction as MockedFunction<typeof sendTransaction>).mockResolvedValue({
@@ -83,10 +84,10 @@ describe("submitSwapTransaction", () => {
         address: mockAddress,
         network: mockNetwork,
         transaction: {
-          to: mockSwap.transaction.to as `0x${string}`,
-          data: mockSwap.transaction.data as `0x${string}`,
-          gas: BigInt(mockSwap.transaction.gas),
-          value: BigInt(mockSwap.transaction.value),
+          to: mockSwap.transaction!.to as `0x${string}`,
+          data: mockSwap.transaction!.data as `0x${string}`,
+          gas: BigInt(mockSwap.transaction!.gas!),
+          value: BigInt(mockSwap.transaction!.value!),
         },
         idempotencyKey: undefined,
       },
@@ -100,7 +101,6 @@ describe("submitSwapTransaction", () => {
   it("should submit a swap with permit2", async () => {
     // Add permit2 data to the mock swap
     mockSwap.permit2 = {
-      hash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
       eip712: {
         domain: {
           name: "Permit2",
@@ -159,10 +159,10 @@ describe("submitSwapTransaction", () => {
     expect(CdpOpenApiClient.signEvmTypedData).toHaveBeenCalledWith(
       mockAddress,
       {
-        domain: mockSwap.permit2.eip712.domain,
-        types: mockSwap.permit2.eip712.types,
-        primaryType: mockSwap.permit2.eip712.primaryType,
-        message: mockSwap.permit2.eip712.message,
+        domain: mockSwap.permit2!.eip712.domain,
+        types: mockSwap.permit2!.eip712.types,
+        primaryType: mockSwap.permit2!.eip712.primaryType,
+        message: mockSwap.permit2!.eip712.message,
       },
       undefined,
     );
@@ -178,7 +178,7 @@ describe("submitSwapTransaction", () => {
 
     // Check that concat was called to append the signature length and signature
     expect(concat).toHaveBeenCalledWith([
-      mockSwap.transaction.data as `0x${string}`,
+      mockSwap.transaction!.data as `0x${string}`,
       mockSignatureLengthHex,
       mockSignatureHex,
     ]);
@@ -190,10 +190,10 @@ describe("submitSwapTransaction", () => {
         address: mockAddress,
         network: mockNetwork,
         transaction: {
-          to: mockSwap.transaction.to as `0x${string}`,
+          to: mockSwap.transaction!.to as `0x${string}`,
           data: mockConcatenatedData,
-          gas: BigInt(mockSwap.transaction.gas),
-          value: BigInt(mockSwap.transaction.value),
+          gas: BigInt(mockSwap.transaction!.gas!),
+          value: BigInt(mockSwap.transaction!.value!),
         },
         idempotencyKey: undefined,
       },
@@ -221,10 +221,10 @@ describe("submitSwapTransaction", () => {
         address: mockAddress,
         network: mockNetwork,
         transaction: {
-          to: mockSwap.transaction.to as `0x${string}`,
-          data: mockSwap.transaction.data as `0x${string}`,
-          gas: BigInt(mockSwap.transaction.gas),
-          value: BigInt(mockSwap.transaction.value),
+          to: mockSwap.transaction!.to as `0x${string}`,
+          data: mockSwap.transaction!.data as `0x${string}`,
+          gas: BigInt(mockSwap.transaction!.gas!),
+          value: BigInt(mockSwap.transaction!.value!),
         },
         idempotencyKey,
       },
@@ -249,11 +249,15 @@ describe("submitSwapTransaction", () => {
 
   it("should handle transaction with no value field", async () => {
     // Create a modified version of the transaction for the test
-    const modifiedSwap = JSON.parse(JSON.stringify(mockSwap)) as CreateSwapResponse;
-
-    // Remove the value field for the test
-    const txData = modifiedSwap.transaction as any;
-    delete txData.value;
+    const modifiedSwap: CreateSwapResult = {
+      ...mockSwap,
+      transaction: mockSwap.transaction ? {
+        to: mockSwap.transaction.to,
+        data: mockSwap.transaction.data,
+        gas: mockSwap.transaction.gas,
+        // Intentionally omit value field
+      } : undefined,
+    };
 
     await submitSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
@@ -268,9 +272,9 @@ describe("submitSwapTransaction", () => {
         address: mockAddress,
         network: mockNetwork,
         transaction: {
-          to: mockSwap.transaction.to as `0x${string}`,
-          data: mockSwap.transaction.data as `0x${string}`,
-          gas: BigInt(mockSwap.transaction.gas),
+          to: mockSwap.transaction!.to as `0x${string}`,
+          data: mockSwap.transaction!.data as `0x${string}`,
+          gas: BigInt(mockSwap.transaction!.gas!),
         },
         idempotencyKey: undefined,
       },
@@ -279,11 +283,15 @@ describe("submitSwapTransaction", () => {
 
   it("should handle transaction with no gas field", async () => {
     // Create a modified version of the transaction for the test
-    const modifiedSwap = JSON.parse(JSON.stringify(mockSwap)) as CreateSwapResponse;
-
-    // Remove the gas field for the test
-    const txData = modifiedSwap.transaction as any;
-    delete txData.gas;
+    const modifiedSwap: CreateSwapResult = {
+      ...mockSwap,
+      transaction: mockSwap.transaction ? {
+        to: mockSwap.transaction.to,
+        data: mockSwap.transaction.data,
+        value: mockSwap.transaction.value,
+        // Intentionally omit gas field
+      } : undefined,
+    };
 
     await submitSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
@@ -298,9 +306,9 @@ describe("submitSwapTransaction", () => {
         address: mockAddress,
         network: mockNetwork,
         transaction: {
-          to: mockSwap.transaction.to as `0x${string}`,
-          data: mockSwap.transaction.data as `0x${string}`,
-          value: BigInt(mockSwap.transaction.value),
+          to: mockSwap.transaction!.to as `0x${string}`,
+          data: mockSwap.transaction!.data as `0x${string}`,
+          value: BigInt(mockSwap.transaction!.value!),
         },
         idempotencyKey: undefined,
       },
