@@ -12,7 +12,7 @@ class Quote(BaseModel):
 
     api_clients: ApiClients
     quote_id: str
-    network: Literal["base", "ethereum"]
+    network: Literal["base"]
     fiat_amount: str
     fiat_currency: str
     token_amount: str

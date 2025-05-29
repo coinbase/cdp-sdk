@@ -3,6 +3,13 @@ from typing import Literal
 from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, ConfigDict, Field
 
+from cdp.actions.evm.fund import (
+    FundOptions,
+    QuoteFundOptions,
+    fund,
+    quote_fund,
+    wait_for_fund_operation_receipt,
+)
 from cdp.actions.evm.fund.quote import Quote
 from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.actions.evm.list_token_balances import list_token_balances
@@ -280,11 +287,6 @@ class EvmSmartAccount(BaseModel):
                 - fees: List of fees associated with the quote
 
         """
-        from cdp.actions.evm.fund import (
-            QuoteFundOptions,
-            quote_fund,
-        )
-
         fund_options = QuoteFundOptions(
             network=network,
             amount=amount,
@@ -299,7 +301,7 @@ class EvmSmartAccount(BaseModel):
 
     async def fund(
         self,
-        network: Literal["base", "ethereum"],
+        network: Literal["base"],
         amount: int,
         token: Literal["eth", "usdc"],
     ) -> FundOperationResult:
@@ -322,11 +324,6 @@ class EvmSmartAccount(BaseModel):
                     - fees: List of fees associated with the transfer
 
         """
-        from cdp.actions.evm.fund import (
-            FundOptions,
-            fund,
-        )
-
         fund_options = FundOptions(
             network=network,
             amount=amount,
@@ -366,10 +363,6 @@ class EvmSmartAccount(BaseModel):
             TimeoutError: If the transfer does not complete within the timeout period.
 
         """
-        from cdp.actions.evm.fund import (
-            wait_for_fund_operation_receipt,
-        )
-
         return await wait_for_fund_operation_receipt(
             api_clients=self.__api_clients,
             transfer_id=transfer_id,
