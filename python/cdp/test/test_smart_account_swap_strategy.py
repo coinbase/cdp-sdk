@@ -9,7 +9,7 @@ from cdp.actions.evm.swap.smart_account_swap_strategy import (
     SmartAccountSwapStrategy,
     smart_account_swap_strategy,
 )
-from cdp.actions.evm.swap.types import SwapOptions, SwapQuote, SwapResult
+from cdp.actions.evm.swap.types import SwapOptions, SwapQuote, SwapResult, SwapTransaction
 from cdp.api_clients import ApiClients
 from cdp.evm_smart_account import EvmSmartAccount
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
@@ -21,15 +21,8 @@ async def test_execute_swap_eth_to_usdc():
     """Test executing ETH to USDC swap with smart account."""
     # Arrange
     mock_api_clients = MagicMock(spec=ApiClients)
-    mock_api_clients.evm = AsyncMock()
-    mock_api_clients.evm_smart_accounts = AsyncMock()
-    
-    # Mock create_swap response
-    mock_swap_tx = MagicMock()
-    mock_swap_tx.to = "0x1234567890123456789012345678901234567890"
-    mock_swap_tx.data = "0x12345678"  # Valid hex data
-    mock_swap_tx.value = 1000000000000000000  # 1 ETH
-    mock_api_clients.evm.create_swap = AsyncMock(return_value=mock_swap_tx)
+    mock_api_clients.evm = MagicMock()
+    mock_api_clients.evm_smart_accounts = MagicMock()
     
     # Mock user operation with proper format
     mock_user_op = EvmUserOperationModel(
@@ -57,6 +50,7 @@ async def test_execute_swap_eth_to_usdc():
     # Mock smart account
     mock_smart_account = MagicMock(spec=EvmSmartAccount)
     mock_smart_account.address = "0x1234567890123456789012345678901234567890"
+    mock_smart_account.owners = [Account.create()]  # Add owners attribute
     
     swap_options = SwapOptions(
         from_asset="eth",
@@ -75,10 +69,20 @@ async def test_execute_swap_eth_to_usdc():
         route=["0x0000", "0x1111"],
     )
     
+    # Mock the swap transaction
+    mock_swap_tx = SwapTransaction(
+        to="0x1234567890123456789012345678901234567890",
+        data="0x12345678",
+        value=1000000000000000000,  # 1 ETH
+        transaction=None
+    )
+    
     # Act
-    with patch("cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation") as mock_send_user_op, \
+    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap, \
+         patch("cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation") as mock_send_user_op, \
          patch("cdp.actions.evm.swap.smart_account_swap_strategy.wait_for_user_operation") as mock_wait_user_op:
         
+        mock_create_swap.return_value = mock_swap_tx
         mock_send_user_op.return_value = mock_user_op
         mock_wait_user_op.return_value = completed_user_op
         
@@ -91,14 +95,13 @@ async def test_execute_swap_eth_to_usdc():
         )
     
     # Assert
-    mock_api_clients.evm.create_swap.assert_called_once_with(
-        from_address=mock_smart_account.address,
+    mock_create_swap.assert_called_once_with(
         from_asset="eth",
         to_asset="usdc",
         amount="1000000000000000000",
         network="base",
-        min_amount_out="1990000000",  # 2000 USDC with 0.5% slippage
-        quote_id=None,
+        wallet_address=mock_smart_account.address,
+        slippage_percentage=0.5,
     )
     
     mock_send_user_op.assert_called_once()
@@ -117,19 +120,12 @@ async def test_execute_swap_erc20_to_erc20():
     """Test executing ERC20 to ERC20 swap with smart account."""
     # Arrange
     mock_api_clients = MagicMock(spec=ApiClients)
-    mock_api_clients.evm = AsyncMock()
-    mock_api_clients.evm_smart_accounts = AsyncMock()
-    
-    # Mock create_swap response (no value for ERC20)
-    mock_swap_tx = MagicMock()
-    mock_swap_tx.to = "0x3456789012345678901234567890123456789012"
-    mock_swap_tx.data = "0xabcdef01"  # Valid hex data
-    mock_swap_tx.value = 0  # No ETH value for ERC20 swap
-    mock_api_clients.evm.create_swap = AsyncMock(return_value=mock_swap_tx)
+    mock_api_clients.evm = MagicMock()
+    mock_api_clients.evm_smart_accounts = MagicMock()
     
     # Mock user operation
     mock_user_op = EvmUserOperationModel(
-        network="ethereum",
+        network="base",
         user_op_hash="0x" + "c" * 64,
         calls=[
             EvmCall(
@@ -142,7 +138,7 @@ async def test_execute_swap_erc20_to_erc20():
     )
     
     completed_user_op = EvmUserOperationModel(
-        network="ethereum",
+        network="base",
         user_op_hash="0x" + "c" * 64,
         calls=mock_user_op.calls,
         status="complete",
@@ -151,12 +147,13 @@ async def test_execute_swap_erc20_to_erc20():
     
     mock_smart_account = MagicMock(spec=EvmSmartAccount)
     mock_smart_account.address = "0x2345678901234567890123456789012345678901"
+    mock_smart_account.owners = [Account.create()]  # Add owners attribute
     
     swap_options = SwapOptions(
         from_asset="usdc",
         to_asset="weth",
         amount="5000000000",  # 5000 USDC
-        network="ethereum",
+        network="base",
         slippage_percentage=1.0,
     )
     
@@ -169,10 +166,20 @@ async def test_execute_swap_erc20_to_erc20():
         route=["0x2222", "0x3333", "0x4444"],
     )
     
+    # Mock the swap transaction (no value for ERC20)
+    mock_swap_tx = SwapTransaction(
+        to="0x3456789012345678901234567890123456789012",
+        data="0xabcdef01",
+        value=0,  # No ETH value for ERC20 swap
+        transaction=None
+    )
+    
     # Act
-    with patch("cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation") as mock_send_user_op, \
+    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap, \
+         patch("cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation") as mock_send_user_op, \
          patch("cdp.actions.evm.swap.smart_account_swap_strategy.wait_for_user_operation") as mock_wait_user_op:
         
+        mock_create_swap.return_value = mock_swap_tx
         mock_send_user_op.return_value = mock_user_op
         mock_wait_user_op.return_value = completed_user_op
         
@@ -185,6 +192,15 @@ async def test_execute_swap_erc20_to_erc20():
         )
     
     # Assert
+    mock_create_swap.assert_called_once_with(
+        from_asset="usdc",
+        to_asset="weth",
+        amount="5000000000",
+        network="base",
+        wallet_address=mock_smart_account.address,
+        slippage_percentage=1.0,
+    )
+    
     assert result.transaction_hash == "0x" + "d" * 64
     assert result.status == "completed"
     
@@ -198,13 +214,8 @@ async def test_execute_swap_failed_user_operation():
     """Test handling failed user operation."""
     # Arrange
     mock_api_clients = MagicMock(spec=ApiClients)
-    mock_api_clients.evm = AsyncMock()
-    mock_api_clients.evm_smart_accounts = AsyncMock()
-    
-    mock_swap_tx = MagicMock()
-    mock_swap_tx.to = "0x5678901234567890123456789012345678901234"
-    mock_swap_tx.data = "0xdeadbeef"  # Valid hex data
-    mock_api_clients.evm.create_swap = AsyncMock(return_value=mock_swap_tx)
+    mock_api_clients.evm = MagicMock()
+    mock_api_clients.evm_smart_accounts = MagicMock()
     
     # Mock user operation
     mock_user_op = EvmUserOperationModel(
@@ -230,6 +241,7 @@ async def test_execute_swap_failed_user_operation():
     
     mock_smart_account = MagicMock(spec=EvmSmartAccount)
     mock_smart_account.address = "0x3456789012345678901234567890123456789012"
+    mock_smart_account.owners = [Account.create()]  # Add owners attribute
     
     swap_options = SwapOptions(
         from_asset="eth",
@@ -247,10 +259,20 @@ async def test_execute_swap_failed_user_operation():
         route=["0x5555"],
     )
     
+    # Mock the swap transaction
+    mock_swap_tx = SwapTransaction(
+        to="0x5678901234567890123456789012345678901234",
+        data="0xdeadbeef",
+        value=0,
+        transaction=None
+    )
+    
     # Act
-    with patch("cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation") as mock_send_user_op, \
+    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap, \
+         patch("cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation") as mock_send_user_op, \
          patch("cdp.actions.evm.swap.smart_account_swap_strategy.wait_for_user_operation") as mock_wait_user_op:
         
+        mock_create_swap.return_value = mock_swap_tx
         mock_send_user_op.return_value = mock_user_op
         mock_wait_user_op.return_value = failed_user_op
         
@@ -263,6 +285,15 @@ async def test_execute_swap_failed_user_operation():
         )
     
     # Assert
+    mock_create_swap.assert_called_once_with(
+        from_asset="eth",
+        to_asset="usdc",
+        amount="1000000000000000000",
+        network="base",
+        wallet_address=mock_smart_account.address,
+        slippage_percentage=0.5,  # Default slippage
+    )
+    
     assert result.status == "failed"
     assert result.transaction_hash == ""  # No transaction hash for failed operation
 
@@ -272,16 +303,11 @@ async def test_execute_swap_with_quote_id():
     """Test executing swap with quote ID."""
     # Arrange
     mock_api_clients = MagicMock(spec=ApiClients)
-    mock_api_clients.evm = AsyncMock()
-    mock_api_clients.evm_smart_accounts = AsyncMock()
-    
-    mock_swap_tx = MagicMock()
-    mock_swap_tx.to = "0x7890123456789012345678901234567890123456"
-    mock_swap_tx.data = "0x99887766"  # Valid hex data
-    mock_api_clients.evm.create_swap = AsyncMock(return_value=mock_swap_tx)
+    mock_api_clients.evm = MagicMock()
+    mock_api_clients.evm_smart_accounts = MagicMock()
     
     mock_user_op = EvmUserOperationModel(
-        network="ethereum",
+        network="base",
         user_op_hash="0x" + "f" * 64,
         calls=[
             EvmCall(
@@ -294,7 +320,7 @@ async def test_execute_swap_with_quote_id():
     )
     
     completed_user_op = EvmUserOperationModel(
-        network="ethereum",
+        network="base",
         user_op_hash="0x" + "f" * 64,
         calls=mock_user_op.calls,
         status="complete",
@@ -303,12 +329,13 @@ async def test_execute_swap_with_quote_id():
     
     mock_smart_account = MagicMock(spec=EvmSmartAccount)
     mock_smart_account.address = "0x4567890123456789012345678901234567890123"
+    mock_smart_account.owners = [Account.create()]  # Add owners attribute
     
     swap_options = SwapOptions(
         from_asset="weth",
         to_asset="usdc",
         amount="1000000000000000000",  # 1 WETH
-        network="ethereum",
+        network="base",
         slippage_percentage=2.0,
     )
     
@@ -322,10 +349,20 @@ async def test_execute_swap_with_quote_id():
         quote_id="quote-999-888",
     )
     
+    # Mock the swap transaction
+    mock_swap_tx = SwapTransaction(
+        to="0x7890123456789012345678901234567890123456",
+        data="0x99887766",
+        value=0,
+        transaction=None
+    )
+    
     # Act
-    with patch("cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation") as mock_send_user_op, \
+    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap, \
+         patch("cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation") as mock_send_user_op, \
          patch("cdp.actions.evm.swap.smart_account_swap_strategy.wait_for_user_operation") as mock_wait_user_op:
         
+        mock_create_swap.return_value = mock_swap_tx
         mock_send_user_op.return_value = mock_user_op
         mock_wait_user_op.return_value = completed_user_op
         
@@ -338,10 +375,14 @@ async def test_execute_swap_with_quote_id():
         )
     
     # Assert
-    mock_api_clients.evm.create_swap.assert_called_once()
-    call_args = mock_api_clients.evm.create_swap.call_args[1]
-    assert call_args["quote_id"] == "quote-999-888"
-    assert call_args["min_amount_out"] == "1960000000"  # 2000 USDC with 2% slippage
+    mock_create_swap.assert_called_once_with(
+        from_asset="weth",
+        to_asset="usdc",
+        amount="1000000000000000000",
+        network="base",
+        wallet_address=mock_smart_account.address,
+        slippage_percentage=2.0,
+    )
     
     assert result.transaction_hash == "0x" + "9" * 64
 
