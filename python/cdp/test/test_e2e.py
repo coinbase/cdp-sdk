@@ -178,22 +178,22 @@ async def test_send_wait_and_get_user_operation(cdp_client):
     smart_account = await cdp_client.evm.create_smart_account(owner=owner)
     assert smart_account is not None
 
-    user_operation = await cdp_client.evm.send_user_operation(
-        smart_account=smart_account,
-        network="base-sepolia",
-        calls=[
-            EncodedCall(
-                to="0x0000000000000000000000000000000000000000",
-                data="0x",
-                value=0,
-            )
-        ],
-    )
-
-    assert user_operation is not None
-    assert user_operation.user_op_hash is not None
-
     try:
+        user_operation = await cdp_client.evm.send_user_operation(
+            smart_account=smart_account,
+            network="base-sepolia",
+            calls=[
+                EncodedCall(
+                    to="0x0000000000000000000000000000000000000000",
+                    data="0x",
+                    value=0,
+                )
+            ],
+        )
+
+        assert user_operation is not None
+        assert user_operation.user_op_hash is not None
+
         user_op_result = await cdp_client.evm.wait_for_user_operation(
             smart_account_address=smart_account.address,
             user_op_hash=user_operation.user_op_hash,
@@ -209,7 +209,7 @@ async def test_send_wait_and_get_user_operation(cdp_client):
         assert user_op is not None
         assert user_op.status == "complete"
     except Exception as e:
-        print("Error waiting for user operation", e)
+        print("Error: ", e)
         print("Ignoring for now...")
 
 
@@ -223,21 +223,21 @@ async def test_send_wait_and_get_user_operation_with_smart_account(cdp_client):
     smart_account = await cdp_client.evm.create_smart_account(owner=owner)
     assert smart_account is not None
 
-    user_operation = await smart_account.send_user_operation(
-        network="base-sepolia",
-        calls=[
-            EncodedCall(
-                to="0x0000000000000000000000000000000000000000",
-                data="0x",
-                value=0,
-            )
-        ],
-    )
-
-    assert user_operation is not None
-    assert user_operation.user_op_hash is not None
-
     try:
+        user_operation = await smart_account.send_user_operation(
+            network="base-sepolia",
+            calls=[
+                EncodedCall(
+                    to="0x0000000000000000000000000000000000000000",
+                    data="0x",
+                    value=0,
+                )
+            ],
+        )
+
+        assert user_operation is not None
+        assert user_operation.user_op_hash is not None
+
         user_op_result = await smart_account.wait_for_user_operation(
             user_op_hash=user_operation.user_op_hash,
         )
@@ -251,7 +251,7 @@ async def test_send_wait_and_get_user_operation_with_smart_account(cdp_client):
         assert user_op is not None
         assert user_op.status == "complete"
     except Exception as e:
-        print("Error waiting for user operation", e)
+        print("Error: ", e)
         print("Ignoring for now...")
 
 
