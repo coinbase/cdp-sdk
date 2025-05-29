@@ -6,8 +6,6 @@ import { submitSwapTransaction } from "./submitSwapTransaction.js";
 import { sendTransaction } from "./sendTransaction.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 import type { CreateSwapResponse } from "../../openapi-client/index.js";
-import type { Hex } from "../../types/misc.js";
-import type { TransactionRequestEIP1559 } from "viem";
 
 // Mock dependencies
 vi.mock("./sendTransaction.js", () => ({

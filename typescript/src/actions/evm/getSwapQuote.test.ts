@@ -1,6 +1,10 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { getSwapQuote } from "./getSwapQuote.js";
 import {
+  GetSwapQuoteResult,
+  SwapQuoteUnavailableResult,
+} from "../../client/evm/evm.types.js";
+import {
   CdpOpenApiClientType,
   GetQuoteResponse,
   SwapUnavailableResponse,
@@ -20,7 +24,7 @@ describe("getSwapQuote", () => {
     } as unknown as CdpOpenApiClientType;
   });
 
-  it("should return SwapUnavailableResponse when liquidity is unavailable", async () => {
+  it("should return SwapQuoteUnavailableResult when liquidity is unavailable", async () => {
     const mockResponse: SwapUnavailableResponse = {
       liquidityAvailable: false,
     };
@@ -33,13 +37,13 @@ describe("getSwapQuote", () => {
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       sellAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
-    });
+    }) as SwapQuoteUnavailableResult;
 
-    expect(result).toEqual(mockResponse);
+    expect(result).toEqual({ liquidityAvailable: false });
     expect(result.liquidityAvailable).toBe(false);
   });
 
-  it("should successfully return a swap quote when liquidity is available", async () => {
+  it("should successfully return a transformed swap quote when liquidity is available", async () => {
     const mockResponse: GetQuoteResponse = {
       blockNumber: "12345678",
       buyAmount: "5000000000",
@@ -98,9 +102,40 @@ describe("getSwapQuote", () => {
     // Type assertion to handle the union type
     expect(result.liquidityAvailable).toBe(true);
 
-    // Since we've checked liquidityAvailable is true, we know it's a GetQuoteResponse
-    const quoteResult = result as GetQuoteResponse;
-    expect(quoteResult).toEqual(mockResponse);
+    // Since we've checked liquidityAvailable is true, we know it's a GetSwapQuoteResult
+    const quoteResult = result as GetSwapQuoteResult;
+    
+    // Check transformed values
+    expect(quoteResult.blockNumber).toBe(BigInt("12345678"));
+    expect(quoteResult.buyAmount).toBe(BigInt("5000000000"));
+    expect(quoteResult.buyToken).toBe("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48");
+    expect(quoteResult.sellAmount).toBe(BigInt("1000000000000000000"));
+    expect(quoteResult.sellToken).toBe("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2");
+    expect(quoteResult.minBuyAmount).toBe(BigInt("4950000000"));
+    expect(quoteResult.gas).toBe(BigInt("150000"));
+    expect(quoteResult.gasPrice).toBe(BigInt("20000000000"));
+    
+    // Check fees
+    expect(quoteResult.fees.gasFee).toEqual({
+      amount: BigInt("1000000"),
+      token: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
+    });
+    expect(quoteResult.fees.protocolFee).toEqual({
+      amount: BigInt("500000"),
+      token: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
+    });
+    
+    // Check issues
+    expect(quoteResult.issues.allowance).toEqual({
+      currentAllowance: BigInt("0"),
+      spender: "0xSpenderAddress" as Address,
+    });
+    expect(quoteResult.issues.balance).toEqual({
+      token: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
+      currentBalance: BigInt("900000000000000000"),
+      requiredBalance: BigInt("1000000000000000000"),
+    });
+    expect(quoteResult.issues.simulationIncomplete).toBe(false);
   });
 
   it("should handle optional parameters when provided", async () => {
@@ -170,18 +205,18 @@ describe("getSwapQuote", () => {
       taker: "0x1234567890123456789012345678901234567890",
     });
 
-    // Check that it's a GetQuoteResponse with liquidityAvailable = true
+    // Check that it's a GetSwapQuoteResult with liquidityAvailable = true
     expect(result.liquidityAvailable).toBe(true);
 
     // Type assertion to work with the properties
-    const quoteResult = result as GetQuoteResponse;
+    const quoteResult = result as GetSwapQuoteResult;
     expect(quoteResult.fees).toEqual({
-      gasFee: null,
-      protocolFee: null,
+      gasFee: undefined,
+      protocolFee: undefined,
     });
     expect(quoteResult.issues).toEqual({
-      allowance: null,
-      balance: null,
+      allowance: undefined,
+      balance: undefined,
       simulationIncomplete: false,
     });
   });
