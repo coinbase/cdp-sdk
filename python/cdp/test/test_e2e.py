@@ -16,6 +16,7 @@ from web3 import Web3
 
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
+from cdp.evm_local_account import EvmLocalAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
@@ -1303,6 +1304,148 @@ async def test_update_solana_account(cdp_client):
     assert retrieved_account is not None
     assert retrieved_account.address == account_to_update.address
     assert retrieved_account.name == updated_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_local_account_sign_hash(cdp_client):
+    """Test signing a hash with an EVM local account."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    evm_local_account = EvmLocalAccount(account)
+    assert evm_local_account is not None
+
+    message_hash = "0x1234567890123456789012345678901234567890123456789012345678901234"
+    signed_hash = await evm_local_account.unsafe_sign_hash(message_hash)
+    assert signed_hash is not None
+    assert signed_hash.signature is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_local_account_sign_message(cdp_client):
+    """Test signing a message with an EVM local account."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    evm_local_account = EvmLocalAccount(account)
+    assert evm_local_account is not None
+
+    message = "Hello EVM!"
+    signable_message = encode_defunct(text=message)
+    signed_message = await evm_local_account.sign_message(signable_message)
+    assert signed_message is not None
+    assert signed_message.signature is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_local_account_sign_typed_data(cdp_client):
+    """Test signing typed data with an EVM local account."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    evm_local_account = EvmLocalAccount(account)
+    assert evm_local_account is not None
+
+    signature = await evm_local_account.sign_typed_data(
+        domain_data={
+            "name": "EIP712Domain",
+            "version": "1",
+            "chainId": 1,
+            "verifyingContract": "0x0000000000000000000000000000000000000000",
+        },
+        message_types={
+            "EIP712Domain": [
+                {"name": "name", "type": "string"},
+                {"name": "version", "type": "string"},
+                {"name": "chainId", "type": "uint256"},
+                {"name": "verifyingContract", "type": "address"},
+            ],
+            "Person": [
+                {"name": "name", "type": "string"},
+                {"name": "wallet", "type": "address"},
+            ],
+        },
+        message_data={
+            "name": "John Doe",
+            "wallet": "0x1234567890123456789012345678901234567890",
+        },
+    )
+    assert signature is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_local_account_sign_typed_data_with_full_message(cdp_client):
+    """Test signing typed data with a full message with an EVM local account."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    evm_local_account = EvmLocalAccount(account)
+    assert evm_local_account is not None
+
+    signature = await evm_local_account.sign_typed_data(
+        full_message={
+            "domain": {
+                "name": "EIP712Domain",
+                "version": "1",
+                "chainId": 1,
+                "verifyingContract": "0x0000000000000000000000000000000000000000",
+            },
+            "types": {
+                "EIP712Domain": [
+                    {"name": "name", "type": "string"},
+                    {"name": "version", "type": "string"},
+                    {"name": "chainId", "type": "uint256"},
+                    {"name": "verifyingContract", "type": "address"},
+                ],
+                "Person": [
+                    {"name": "name", "type": "string"},
+                    {"name": "wallet", "type": "address"},
+                ],
+            },
+            "primaryType": "Person",
+            "message": {
+                "name": "John Doe",
+                "wallet": "0x1234567890123456789012345678901234567890",
+            },
+        }
+    )
+    assert signature is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_local_account_sign_and_send_transaction(cdp_client):
+    """Test signing a transaction with an EVM local account."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    evm_local_account = EvmLocalAccount(account)
+    assert evm_local_account is not None
+
+    transaction = await evm_local_account.sign_transaction(
+        transaction_dict={
+            "to": "0x0000000000000000000000000000000000000000",
+            "value": 10000000000,
+            "chainId": 84532,
+            "gas": 21000,
+            "maxFeePerGas": 1000000000,
+            "maxPriorityFeePerGas": 1000000000,
+            "nonce": 0,
+            "type": "0x2",
+        }
+    )
+    faucet_hash = await cdp_client.evm.request_faucet(
+        address=evm_local_account.address, network="base-sepolia", token="eth"
+    )
+    w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
+    w3.eth.wait_for_transaction_receipt(faucet_hash)
+    tx_hash = w3.eth.send_raw_transaction(transaction.raw_transaction)
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    assert tx_receipt is not None
 
 
 def _get_transaction(address: str):
