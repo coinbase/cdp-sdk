@@ -322,7 +322,6 @@ describe("submitSwapTransaction", () => {
 
   it("should create swap when swapOptions is provided", async () => {
     const swapOptions = {
-      network: "base" as const,
       buyToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
       sellToken: "0x4200000000000000000000000000000000000006" as `0x${string}`,
       sellAmount: BigInt("1000000000000000000"),
@@ -338,7 +337,10 @@ describe("submitSwapTransaction", () => {
     });
 
     // Check that createSwap was called with the correct options
-    expect(createSwap).toHaveBeenCalledWith(CdpOpenApiClient, swapOptions);
+    expect(createSwap).toHaveBeenCalledWith(CdpOpenApiClient, {
+      ...swapOptions,
+      network: mockNetwork,
+    });
 
     // Check that sendTransaction was called with the created swap
     expect(sendTransaction).toHaveBeenCalledWith(
@@ -363,7 +365,6 @@ describe("submitSwapTransaction", () => {
 
   it("should throw error when swapOptions is provided but liquidity is not available", async () => {
     const swapOptions = {
-      network: "base" as const,
       buyToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
       sellToken: "0x4200000000000000000000000000000000000006" as `0x${string}`,
       sellAmount: BigInt("1000000000000000000"),
@@ -386,7 +387,10 @@ describe("submitSwapTransaction", () => {
     ).rejects.toThrow("Insufficient liquidity for swap");
 
     // Check that createSwap was called
-    expect(createSwap).toHaveBeenCalledWith(CdpOpenApiClient, swapOptions);
+    expect(createSwap).toHaveBeenCalledWith(CdpOpenApiClient, {
+      ...swapOptions,
+      network: mockNetwork,
+    });
 
     // Check that sendTransaction was NOT called
     expect(sendTransaction).not.toHaveBeenCalled();

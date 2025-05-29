@@ -94,7 +94,6 @@ async function main() {
       const result = await ownerAccount.swap({
         network: NETWORK,
         swapOptions: {
-          network: NETWORK,
           buyToken: buyToken.address as `0x${string}`,
           sellToken: sellToken.address as `0x${string}`,
           sellAmount,

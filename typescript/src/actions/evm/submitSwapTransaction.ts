@@ -12,6 +12,11 @@ import type { Address, Hex } from "../../types/misc.js";
 import type { TransactionRequestEIP1559 } from "viem";
 
 /**
+ * Swap options without the network field, as it will be inherited from parent
+ */
+type CreateSwapOptionsWithoutNetwork = Omit<CreateSwapOptions, "network">;
+
+/**
  * Base options for submitting a swap transaction.
  */
 interface BaseSubmitSwapTransactionOptions {
@@ -52,8 +57,9 @@ interface SubmitSwapTransactionWithSwapResult extends BaseSubmitSwapTransactionO
 interface SubmitSwapTransactionWithSwapOptions extends BaseSubmitSwapTransactionOptions {
   /**
    * The options to create a swap. The function will call createSwap internally.
+   * The network will be inherited from the parent options.
    */
-  swapOptions: CreateSwapOptions;
+  swapOptions: CreateSwapOptionsWithoutNetwork;
 
   /**
    * Should not be provided when swapOptions is provided.
@@ -124,7 +130,6 @@ export interface SubmitSwapTransactionResult {
  *   address: account.address,
  *   network: "base",
  *   swapOptions: {
- *     network: "base",
  *     buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
  *     sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
  *     sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
@@ -146,7 +151,11 @@ export async function submitSwapTransaction(
   // Determine if we need to create the swap or use the provided one
   if ("swapOptions" in options && options.swapOptions) {
     // Create the swap using the provided options
-    const swapResult = await createSwap(client, options.swapOptions);
+    
+    const swapResult = await createSwap(client, {
+      ...options.swapOptions,
+      network: network as CreateSwapOptions["network"],
+    });
 
     // Check if liquidity is available
     if (!swapResult.liquidityAvailable) {
