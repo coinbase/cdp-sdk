@@ -38,8 +38,8 @@ class TestEvmClientSwap:
 
         # Assert
         assert quote is not None
-        assert quote.from_asset == "eth"
-        assert quote.to_asset == "usdc"
+        assert quote.from_token == "eth"
+        assert quote.to_token == "usdc"
         assert quote.from_amount == "1000000000000000000"
         # Note: to_amount will be determined by the API response
 
@@ -70,8 +70,8 @@ class TestEvmClientSwap:
 
         # Assert
         assert quote is not None
-        assert quote.from_asset == "usdc"
-        assert quote.to_asset == "eth"
+        assert quote.from_token == "usdc"
+        assert quote.to_token == "eth"
         assert quote.from_amount == "1000000000"
 
     @pytest.mark.asyncio

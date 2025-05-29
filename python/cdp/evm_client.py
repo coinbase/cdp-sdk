@@ -634,22 +634,36 @@ class EvmClient:
         # Parse as GetQuoteResponse
         quote_data = GetQuoteResponse.from_dict(response_json)
 
-        # Calculate price impact from fees if available
-        price_impact = 0.0
-        if hasattr(quote_data.fees, "zero_ex_fee") and quote_data.fees.zero_ex_fee:
-            # Simple price impact calculation based on fees
-            price_impact = 0.1  # Default to 0.1% for now
+        # Calculate price ratio
+        from_amount_decimal = float(amount_str)
+        to_amount_decimal = float(quote_data.buy_amount)
+        price_ratio = (
+            str(to_amount_decimal / from_amount_decimal) if from_amount_decimal > 0 else "0"
+        )
+
+        # Generate a quote ID from response data
+        import hashlib
+
+        quote_id = hashlib.sha256(
+            f"{from_asset}:{to_asset}:{amount_str}:{quote_data.buy_amount}".encode()
+        ).hexdigest()[:16]
+
+        # Get expiry time (if available in response)
+        import datetime
+
+        expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
+            minutes=5
+        )  # Default 5 min expiry
 
         # Convert response to SwapQuote
         return SwapQuote(
-            from_asset=from_asset,
-            to_asset=to_asset,
+            quote_id=quote_id,
+            from_token=from_asset,
+            to_token=to_asset,
             from_amount=amount_str,
             to_amount=quote_data.buy_amount,
-            price_impact=price_impact,
-            route=[from_address, to_address],  # Simplified route
-            gas_estimate=quote_data.gas if quote_data.gas else "100000",
-            quote_id=None,  # Quote ID not provided in the response
+            price_ratio=price_ratio,
+            expires_at=expires_at.isoformat() + "Z",
         )
 
     async def create_swap(
