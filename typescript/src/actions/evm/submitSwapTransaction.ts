@@ -12,11 +12,6 @@ import type { Address, Hex } from "../../types/misc.js";
 import type { TransactionRequestEIP1559 } from "viem";
 
 /**
- * Swap options without the network field, as it will be inherited from parent
- */
-type CreateSwapOptionsWithoutNetwork = Omit<CreateSwapOptions, "network">;
-
-/**
  * Base options for submitting a swap transaction.
  */
 interface BaseSubmitSwapTransactionOptions {
@@ -44,32 +39,40 @@ interface SubmitSwapTransactionWithSwapResult extends BaseSubmitSwapTransactionO
    * The swap transaction data returned by the createSwap method.
    */
   swap: CreateSwapResult;
-
-  /**
-   * Should not be provided when swap is provided.
-   */
-  swapOptions?: never;
 }
 
 /**
- * Options when providing swap creation options.
+ * Options when creating a swap inline.
  */
 interface SubmitSwapTransactionWithSwapOptions extends BaseSubmitSwapTransactionOptions {
-  /**
-   * The options to create a swap. The function will call createSwap internally.
-   * The network will be inherited from the parent options.
-   */
-  swapOptions: CreateSwapOptionsWithoutNetwork;
+  /** The token to buy (destination token). */
+  buyToken: Address;
+  /** The token to sell (source token). */
+  sellToken: Address;
+  /** The amount to sell in atomic units of the token. */
+  sellAmount: bigint;
+  /** The address that will perform the swap. */
+  taker: Address;
+  /** The signer address (only needed if taker is a smart contract). */
+  signerAddress?: Address;
+  /** The gas price in Wei. */
+  gasPrice?: bigint;
+  /** The slippage tolerance in basis points (0-10000). */
+  slippageBps?: number;
+}
 
-  /**
-   * Should not be provided when swapOptions is provided.
-   */
-  swap?: never;
+/**
+ * Type guard to check if options include inline swap parameters
+ */
+function isSwapOptionsProvided(
+  options: SubmitSwapTransactionOptions,
+): options is SubmitSwapTransactionWithSwapOptions {
+  return "buyToken" in options && "sellToken" in options && "sellAmount" in options;
 }
 
 /**
  * Options for submitting a swap transaction.
- * Either provide a pre-created swap result or swap options to create the swap internally.
+ * Either provide a pre-created swap result or inline swap parameters.
  */
 export type SubmitSwapTransactionOptions =
   | SubmitSwapTransactionWithSwapResult
@@ -129,12 +132,10 @@ export interface SubmitSwapTransactionResult {
  * const result = await submitSwapTransaction(client, {
  *   address: account.address,
  *   network: "base",
- *   swapOptions: {
- *     buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
- *     sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
- *     sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
- *     taker: account.address
- *   }
+ *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+ *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+ *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+ *   taker: account.address
  * });
  *
  * console.log(`Swap submitted with transaction hash: ${result.transactionHash}`);
@@ -149,12 +150,17 @@ export async function submitSwapTransaction(
   let swap: CreateSwapResult;
 
   // Determine if we need to create the swap or use the provided one
-  if ("swapOptions" in options && options.swapOptions) {
+  if (isSwapOptionsProvided(options)) {
     // Create the swap using the provided options
-    
     const swapResult = await createSwap(client, {
-      ...options.swapOptions,
-      network: network as CreateSwapOptions["network"],
+      network: options.network as CreateSwapOptions["network"],
+      buyToken: options.buyToken,
+      sellToken: options.sellToken,
+      sellAmount: options.sellAmount,
+      taker: options.taker,
+      signerAddress: options.signerAddress,
+      gasPrice: options.gasPrice,
+      slippageBps: options.slippageBps,
     });
 
     // Check if liquidity is available
@@ -167,7 +173,7 @@ export async function submitSwapTransaction(
     // Use the provided swap
     swap = options.swap;
   } else {
-    throw new Error("Either 'swap' or 'swapOptions' must be provided");
+    throw new Error("Either 'swap' or swap parameters (buyToken, sellToken, sellAmount) must be provided");
   }
 
   // If the transaction doesn't exist, throw an error

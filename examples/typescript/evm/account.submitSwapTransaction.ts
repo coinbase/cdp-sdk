@@ -93,13 +93,11 @@ async function main() {
       // Use the new swapOptions pattern - this creates and executes the swap in one call
       const result = await ownerAccount.swap({
         network: NETWORK,
-        swapOptions: {
-          buyToken: buyToken.address as `0x${string}`,
-          sellToken: sellToken.address as `0x${string}`,
-          sellAmount,
-          taker: ownerAccount.address,
-          slippageBps: 100, // 1% slippage tolerance
-        }
+        buyToken: buyToken.address as `0x${string}`,
+        sellToken: sellToken.address as `0x${string}`,
+        sellAmount,
+        taker: ownerAccount.address,
+        slippageBps: 100, // 1% slippage tolerance
       });
 
       console.log(`\n✅ Swap submitted successfully!`);

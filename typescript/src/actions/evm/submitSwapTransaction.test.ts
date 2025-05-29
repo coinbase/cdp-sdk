@@ -333,7 +333,7 @@ describe("submitSwapTransaction", () => {
     const result = await submitSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
       network: mockNetwork,
-      swapOptions,
+      ...swapOptions,
     });
 
     // Check that createSwap was called with the correct options
@@ -382,7 +382,7 @@ describe("submitSwapTransaction", () => {
       submitSwapTransaction(CdpOpenApiClient, {
         address: mockAddress,
         network: mockNetwork,
-        swapOptions,
+        ...swapOptions,
       }),
     ).rejects.toThrow("Insufficient liquidity for swap");
 
@@ -402,6 +402,6 @@ describe("submitSwapTransaction", () => {
         address: mockAddress,
         network: mockNetwork,
       } as any),
-    ).rejects.toThrow("Either 'swap' or 'swapOptions' must be provided");
+    ).rejects.toThrow("Either 'swap' or swap parameters (buyToken, sellToken, sellAmount) must be provided");
   });
 });
