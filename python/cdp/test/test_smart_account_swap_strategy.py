@@ -78,26 +78,24 @@ async def test_execute_swap_eth_to_usdc():
     )
 
     # Act
-    with (
-        patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap,
-        patch(
+    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:
+        with patch(
             "cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation"
-        ) as mock_send_user_op,
-        patch(
-            "cdp.actions.evm.swap.smart_account_swap_strategy.wait_for_user_operation"
-        ) as mock_wait_user_op,
-    ):
-        mock_create_swap.return_value = mock_swap_tx
-        mock_send_user_op.return_value = mock_user_op
-        mock_wait_user_op.return_value = completed_user_op
+        ) as mock_send_user_op:
+            with patch(
+                "cdp.actions.evm.swap.smart_account_swap_strategy.wait_for_user_operation"
+            ) as mock_wait_user_op:
+                mock_create_swap.return_value = mock_swap_tx
+                mock_send_user_op.return_value = mock_user_op
+                mock_wait_user_op.return_value = completed_user_op
 
-        strategy = SmartAccountSwapStrategy()
-        result = await strategy.execute_swap(
-            api_clients=mock_api_clients,
-            from_account=mock_smart_account,
-            swap_options=swap_options,
-            quote=quote,
-        )
+                strategy = SmartAccountSwapStrategy()
+                result = await strategy.execute_swap(
+                    api_clients=mock_api_clients,
+                    from_account=mock_smart_account,
+                    swap_options=swap_options,
+                    quote=quote,
+                )
 
     # Assert
     mock_create_swap.assert_called_once_with(
@@ -180,26 +178,24 @@ async def test_execute_swap_erc20_to_erc20():
     )
 
     # Act
-    with (
-        patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap,
-        patch(
+    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:
+        with patch(
             "cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation"
-        ) as mock_send_user_op,
-        patch(
-            "cdp.actions.evm.swap.smart_account_swap_strategy.wait_for_user_operation"
-        ) as mock_wait_user_op,
-    ):
-        mock_create_swap.return_value = mock_swap_tx
-        mock_send_user_op.return_value = mock_user_op
-        mock_wait_user_op.return_value = completed_user_op
+        ) as mock_send_user_op:
+            with patch(
+                "cdp.actions.evm.swap.smart_account_swap_strategy.wait_for_user_operation"
+            ) as mock_wait_user_op:
+                mock_create_swap.return_value = mock_swap_tx
+                mock_send_user_op.return_value = mock_user_op
+                mock_wait_user_op.return_value = completed_user_op
 
-        strategy = SmartAccountSwapStrategy()
-        result = await strategy.execute_swap(
-            api_clients=mock_api_clients,
-            from_account=mock_smart_account,
-            swap_options=swap_options,
-            quote=quote,
-        )
+                strategy = SmartAccountSwapStrategy()
+                result = await strategy.execute_swap(
+                    api_clients=mock_api_clients,
+                    from_account=mock_smart_account,
+                    swap_options=swap_options,
+                    quote=quote,
+                )
 
     # Assert
     mock_create_swap.assert_called_once_with(
@@ -278,26 +274,24 @@ async def test_execute_swap_failed_user_operation():
     )
 
     # Act
-    with (
-        patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap,
-        patch(
+    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:
+        with patch(
             "cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation"
-        ) as mock_send_user_op,
-        patch(
-            "cdp.actions.evm.swap.smart_account_swap_strategy.wait_for_user_operation"
-        ) as mock_wait_user_op,
-    ):
-        mock_create_swap.return_value = mock_swap_tx
-        mock_send_user_op.return_value = mock_user_op
-        mock_wait_user_op.return_value = failed_user_op
+        ) as mock_send_user_op:
+            with patch(
+                "cdp.actions.evm.swap.smart_account_swap_strategy.wait_for_user_operation"
+            ) as mock_wait_user_op:
+                mock_create_swap.return_value = mock_swap_tx
+                mock_send_user_op.return_value = mock_user_op
+                mock_wait_user_op.return_value = failed_user_op
 
-        strategy = SmartAccountSwapStrategy()
-        result = await strategy.execute_swap(
-            api_clients=mock_api_clients,
-            from_account=mock_smart_account,
-            swap_options=swap_options,
-            quote=quote,
-        )
+                strategy = SmartAccountSwapStrategy()
+                result = await strategy.execute_swap(
+                    api_clients=mock_api_clients,
+                    from_account=mock_smart_account,
+                    swap_options=swap_options,
+                    quote=quote,
+                )
 
     # Assert
     mock_create_swap.assert_called_once_with(
@@ -373,26 +367,24 @@ async def test_execute_swap_with_quote_id():
     )
 
     # Act
-    with (
-        patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap,
-        patch(
+    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:
+        with patch(
             "cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation"
-        ) as mock_send_user_op,
-        patch(
-            "cdp.actions.evm.swap.smart_account_swap_strategy.wait_for_user_operation"
-        ) as mock_wait_user_op,
-    ):
-        mock_create_swap.return_value = mock_swap_tx
-        mock_send_user_op.return_value = mock_user_op
-        mock_wait_user_op.return_value = completed_user_op
+        ) as mock_send_user_op:
+            with patch(
+                "cdp.actions.evm.swap.smart_account_swap_strategy.wait_for_user_operation"
+            ) as mock_wait_user_op:
+                mock_create_swap.return_value = mock_swap_tx
+                mock_send_user_op.return_value = mock_user_op
+                mock_wait_user_op.return_value = completed_user_op
 
-        strategy = SmartAccountSwapStrategy()
-        result = await strategy.execute_swap(
-            api_clients=mock_api_clients,
-            from_account=mock_smart_account,
-            swap_options=swap_options,
-            quote=quote,
-        )
+                strategy = SmartAccountSwapStrategy()
+                result = await strategy.execute_swap(
+                    api_clients=mock_api_clients,
+                    from_account=mock_smart_account,
+                    swap_options=swap_options,
+                    quote=quote,
+                )
 
     # Assert
     mock_create_swap.assert_called_once_with(
@@ -405,8 +397,9 @@ async def test_execute_swap_with_quote_id():
     )
 
     assert result.transaction_hash == "0x" + "9" * 64
+    assert result.status == "completed"
 
 
 def test_singleton_instance():
-    """Test that smart_account_swap_strategy is an instance of SmartAccountSwapStrategy."""
+    """Test that smart_account_swap_strategy is a singleton instance."""
     assert isinstance(smart_account_swap_strategy, SmartAccountSwapStrategy)
