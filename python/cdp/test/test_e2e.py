@@ -1317,7 +1317,7 @@ async def test_evm_local_account_sign_hash(cdp_client):
     assert evm_local_account is not None
 
     message_hash = "0x1234567890123456789012345678901234567890123456789012345678901234"
-    signed_hash = await evm_local_account.unsafe_sign_hash(message_hash)
+    signed_hash = evm_local_account.unsafe_sign_hash(message_hash)
     assert signed_hash is not None
     assert signed_hash.signature is not None
 
@@ -1334,7 +1334,7 @@ async def test_evm_local_account_sign_message(cdp_client):
 
     message = "Hello EVM!"
     signable_message = encode_defunct(text=message)
-    signed_message = await evm_local_account.sign_message(signable_message)
+    signed_message = evm_local_account.sign_message(signable_message)
     assert signed_message is not None
     assert signed_message.signature is not None
 
@@ -1349,7 +1349,7 @@ async def test_evm_local_account_sign_typed_data(cdp_client):
     evm_local_account = EvmLocalAccount(account)
     assert evm_local_account is not None
 
-    signature = await evm_local_account.sign_typed_data(
+    signature = evm_local_account.sign_typed_data(
         domain_data={
             "name": "EIP712Domain",
             "version": "1",
@@ -1386,7 +1386,7 @@ async def test_evm_local_account_sign_typed_data_with_full_message(cdp_client):
     evm_local_account = EvmLocalAccount(account)
     assert evm_local_account is not None
 
-    signature = await evm_local_account.sign_typed_data(
+    signature = evm_local_account.sign_typed_data(
         full_message={
             "domain": {
                 "name": "EIP712Domain",
@@ -1426,7 +1426,7 @@ async def test_evm_local_account_sign_and_send_transaction(cdp_client):
     evm_local_account = EvmLocalAccount(account)
     assert evm_local_account is not None
 
-    transaction = await evm_local_account.sign_transaction(
+    transaction = evm_local_account.sign_transaction(
         transaction_dict={
             "to": "0x0000000000000000000000000000000000000000",
             "value": 10000000000,

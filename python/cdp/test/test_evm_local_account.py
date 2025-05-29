@@ -43,7 +43,7 @@ async def test_unsafe_sign_hash(mock_server_account):
     mock_server_account.unsafe_sign_hash = AsyncMock(return_value=signature_response)
     evm_local_account = EvmLocalAccount(mock_server_account)
     message_hash = b"test"
-    signed_message = await evm_local_account.unsafe_sign_hash(message_hash)
+    signed_message = evm_local_account.unsafe_sign_hash(message_hash)
     mock_server_account.unsafe_sign_hash.assert_called_once_with(message_hash)
     assert signed_message == signature_response
     assert signed_message.signature == HexBytes(mock_signature)
@@ -59,7 +59,7 @@ async def test_sign_message(mock_server_account):
     mock_server_account.sign_message = AsyncMock(return_value=signature_response)
     evm_local_account = EvmLocalAccount(mock_server_account)
     message = encode_defunct(text="test")
-    signed_message = await evm_local_account.sign_message(message)
+    signed_message = evm_local_account.sign_message(message)
     mock_server_account.sign_message.assert_called_once_with(message)
     assert signed_message == signature_response
     assert signed_message.signature == HexBytes(mock_signature)
@@ -73,7 +73,7 @@ async def test_sign_transaction(mock_server_account):
     mock_server_account.sign_transaction = AsyncMock(return_value=signature_response)
     evm_local_account = EvmLocalAccount(mock_server_account)
     transaction = MagicMock()
-    signed_transaction = await evm_local_account.sign_transaction(transaction)
+    signed_transaction = evm_local_account.sign_transaction(transaction)
     mock_server_account.sign_transaction.assert_called_once_with(transaction)
     assert signed_transaction == signature_response
 
@@ -100,7 +100,7 @@ async def test_sign_typed_data_with_full_message(mock_server_account):
         "primaryType": "test",
         "message": {"test": "test"},
     }
-    signed_message = await evm_local_account.sign_typed_data(full_message=full_message)
+    signed_message = evm_local_account.sign_typed_data(full_message=full_message)
     mock_server_account.sign_typed_data.assert_called_once_with(
         domain=EIP712Domain(
             name="test",
@@ -138,7 +138,7 @@ async def test_sign_typed_data_with_domain_data_message_types_message_data(mock_
         "test": [{"name": "test", "type": "test"}],
     }
     message_data = {"test": "test"}
-    signed_message = await evm_local_account.sign_typed_data(
+    signed_message = evm_local_account.sign_typed_data(
         domain_data=domain_data,
         message_types=message_types,
         message_data=message_data,
@@ -166,19 +166,19 @@ async def test_sign_typed_data_with_bad_arguments(mock_server_account):
         ValueError,
         match="Must provide either full_message or all of domain_data, message_types, and message_data",
     ):
-        await evm_local_account.sign_typed_data()
+        evm_local_account.sign_typed_data()
 
     with pytest.raises(
         ValueError,
         match="Must provide either full_message or all of domain_data, message_types, and message_data",
     ):
-        await evm_local_account.sign_typed_data(full_message=None)
+        evm_local_account.sign_typed_data(full_message=None)
 
     with pytest.raises(
         ValueError,
         match="Must provide either full_message or all of domain_data, message_types, and message_data",
     ):
-        await evm_local_account.sign_typed_data(
+        evm_local_account.sign_typed_data(
             domain_data={"name": "test"},
             message_types={"test": [{"name": "test", "type": "test"}]},
         )
@@ -187,7 +187,7 @@ async def test_sign_typed_data_with_bad_arguments(mock_server_account):
         ValueError,
         match="Must provide either full_message or all of domain_data, message_types, and message_data",
     ):
-        await evm_local_account.sign_typed_data(
+        evm_local_account.sign_typed_data(
             domain_data={"name": "test"},
             message_data={"test": "test"},
         )
@@ -196,7 +196,7 @@ async def test_sign_typed_data_with_bad_arguments(mock_server_account):
         ValueError,
         match="Must provide either full_message or all of domain_data, message_types, and message_data",
     ):
-        await evm_local_account.sign_typed_data(
+        evm_local_account.sign_typed_data(
             message_types={"test": [{"name": "test", "type": "test"}]},
             message_data={"test": "test"},
         )
@@ -205,7 +205,7 @@ async def test_sign_typed_data_with_bad_arguments(mock_server_account):
         ValueError,
         match="Could not infer primaryType from message_types",
     ):
-        await evm_local_account.sign_typed_data(
+        evm_local_account.sign_typed_data(
             domain_data={"name": "test"},
             message_types={
                 "EIP712Domain": [
