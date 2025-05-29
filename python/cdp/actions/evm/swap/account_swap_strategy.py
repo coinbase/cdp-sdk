@@ -3,7 +3,6 @@
 from web3 import Web3
 
 from cdp.actions.evm.swap.types import SwapOptions, SwapQuote, SwapResult
-from cdp.actions.evm.swap.utils import calculate_minimum_amount_out
 from cdp.api_clients import ApiClients
 from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
@@ -36,11 +35,6 @@ class AccountSwapStrategy:
 
         # Create an EVM client instance
         evm_client = EvmClient(api_clients)
-
-        # Calculate minimum amount out based on slippage
-        min_amount_out = calculate_minimum_amount_out(
-            quote.to_amount, swap_options.slippage_percentage or 0.5
-        )
 
         # Create the swap transaction
         swap_tx = await evm_client.create_swap(

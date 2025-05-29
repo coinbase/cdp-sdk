@@ -218,7 +218,7 @@ class TestEvmClientSwap:
             ]
 
             # Act
-            quote = await evm_client.get_quote(
+            await evm_client.get_quote(
                 from_asset="eth", to_asset="usdc", amount="1000000000000000000", network="base"
             )
 

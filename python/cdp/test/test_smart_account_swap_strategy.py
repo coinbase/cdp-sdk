@@ -78,7 +78,7 @@ async def test_execute_swap_eth_to_usdc():
     )
 
     # Act
-    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:
+    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:  # noqa: SIM117
         with patch(
             "cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation"
         ) as mock_send_user_op:
@@ -178,7 +178,7 @@ async def test_execute_swap_erc20_to_erc20():
     )
 
     # Act
-    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:
+    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:  # noqa: SIM117
         with patch(
             "cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation"
         ) as mock_send_user_op:
@@ -274,7 +274,7 @@ async def test_execute_swap_failed_user_operation():
     )
 
     # Act
-    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:
+    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:  # noqa: SIM117
         with patch(
             "cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation"
         ) as mock_send_user_op:
@@ -367,7 +367,7 @@ async def test_execute_swap_with_quote_id():
     )
 
     # Act
-    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:
+    with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:  # noqa: SIM117
         with patch(
             "cdp.actions.evm.swap.smart_account_swap_strategy.send_user_operation"
         ) as mock_send_user_op:

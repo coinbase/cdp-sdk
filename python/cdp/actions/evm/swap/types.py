@@ -18,6 +18,7 @@ class SwapOptions(BaseModel):
     )
 
     @field_validator("slippage_percentage")
+    @classmethod
     def validate_slippage(cls, v):
         """Validate slippage percentage is within reasonable bounds."""
         if v is not None and (v < 0 or v > 10):

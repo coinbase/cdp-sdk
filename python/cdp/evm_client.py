@@ -1,6 +1,8 @@
 import base64
 import re
-from typing import Any
+
+# TYPE_CHECKING imports for type annotations
+from typing import TYPE_CHECKING, Any
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -43,6 +45,9 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
 )
 from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
+
+if TYPE_CHECKING:
+    from cdp.actions.evm.swap.types import SwapQuote, SwapTransaction
 
 
 class EvmClient:
