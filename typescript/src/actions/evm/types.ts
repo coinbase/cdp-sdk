@@ -5,6 +5,10 @@ import { Hex } from "../../types/misc.js";
 import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTokenBalances.js";
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
 import type { SendTransactionOptions, TransactionResult } from "./sendTransaction.js";
+import type {
+  SubmitSwapOperationOptions,
+  SubmitSwapOperationResult,
+} from "./submitSwapOperation.js";
 import type { TransferOptions } from "./transfer/types.js";
 import type {
   WaitForUserOperationOptions,
@@ -256,6 +260,47 @@ export type SmartAccountActions = Actions & {
    * ```
    */
   transfer: (options: TransferOptions) => Promise<SendUserOperationReturnType>;
+
+  /**
+   * Executes a token swap on the specified network via a user operation.
+   * This method submits the swap directly from the smart account without requiring Permit2 signatures.
+   *
+   * @param {SubmitSwapOperationOptions} options - Configuration options for the swap.
+   * @param {SendEvmTransactionBodyNetwork} options.network - The network to execute the swap on.
+   * @param {CreateSwapResponse} options.swap - The swap transaction data returned by the createSwap method.
+   * @param {string} [options.idempotencyKey] - Optional idempotency key for the request.
+   *
+   * @returns A promise that resolves to the user operation result.
+   *
+   * @example
+   * ```ts
+   * // First create a swap quote
+   * const swap = await cdp.evm.createSwap({
+   *   network: "base",
+   *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+   *   taker: smartAccount.address
+   * });
+   *
+   * // Check if liquidity is available
+   * if (!swap.liquidityAvailable) {
+   *   console.error("Insufficient liquidity for swap");
+   *   return;
+   * }
+   *
+   * // Execute the swap
+   * const { userOpHash } = await smartAccount.swap({
+   *   network: "base",
+   *   swap
+   * });
+   *
+   * console.log(`Swap submitted with user operation hash: ${userOpHash}`);
+   * ```
+   */
+  swap: (
+    options: Omit<SubmitSwapOperationOptions, "smartAccount">,
+  ) => Promise<SubmitSwapOperationResult>;
 
   /**
    * Sends a user operation.

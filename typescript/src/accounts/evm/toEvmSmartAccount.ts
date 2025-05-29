@@ -14,6 +14,11 @@ import {
   type SendUserOperationReturnType,
   sendUserOperation,
 } from "../../actions/evm/sendUserOperation.js";
+import {
+  submitSwapOperation,
+  type SubmitSwapOperationOptions,
+  type SubmitSwapOperationResult,
+} from "../../actions/evm/submitSwapOperation.js";
 import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import {
@@ -100,6 +105,14 @@ export function toEvmSmartAccount(
       return requestFaucet(apiClient, {
         ...options,
         address: account.address,
+      });
+    },
+    async swap(
+      options: Omit<SubmitSwapOperationOptions, "smartAccount">,
+    ): Promise<SubmitSwapOperationResult> {
+      return submitSwapOperation(apiClient, {
+        ...options,
+        smartAccount: account,
       });
     },
     name: options.smartAccount.name,

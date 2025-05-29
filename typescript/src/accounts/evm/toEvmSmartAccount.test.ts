@@ -70,6 +70,7 @@ describe("toEvmSmartAccount", () => {
       waitForUserOperation: expect.any(Function),
       getUserOperation: expect.any(Function),
       requestFaucet: expect.any(Function),
+      swap: expect.any(Function),
     });
   });
 
