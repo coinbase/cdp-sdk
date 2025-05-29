@@ -6,9 +6,14 @@ import {
   EvmSmartAccount as OpenApiEvmSmartAccount,
   EvmUserOperation as OpenApiUserOperation,
   EvmCall as OpenApiEvmCall,
+  GetQuoteResponse,
+  CreateSwapResponse,
+  SwapUnavailableResponse,
 } from "../../openapi-client";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount";
+import { getSwapQuote } from "../../actions/evm/getSwapQuote";
+import { createSwap } from "../../actions/evm/createSwap";
 import { sendUserOperation } from "../../actions/evm/sendUserOperation";
 import { waitForUserOperation } from "../../actions/evm/waitForUserOperation";
 import type { EvmAccount, EvmServerAccount, EvmSmartAccount } from "../../accounts/evm/types.js";
@@ -54,6 +59,8 @@ vi.mock("../../openapi-client", () => {
       signEvmTransaction: vi.fn(),
       signEvmTypedData: vi.fn(),
       updateEvmAccount: vi.fn(),
+      getEvmSwapQuote: vi.fn(),
+      createEvmSwap: vi.fn(),
     },
   };
 });
@@ -64,6 +71,14 @@ vi.mock("../../accounts/evm/toEvmServerAccount", () => ({
 
 vi.mock("../../accounts/evm/toEvmSmartAccount", () => ({
   toEvmSmartAccount: vi.fn(),
+}));
+
+vi.mock("../../actions/evm/getSwapQuote", () => ({
+  getSwapQuote: vi.fn(),
+}));
+
+vi.mock("../../actions/evm/createSwap", () => ({
+  createSwap: vi.fn(),
 }));
 
 vi.mock("../../actions/evm/sendUserOperation", () => ({
@@ -1088,6 +1103,173 @@ describe("EvmClient", () => {
 
       // Verify the API wasn't called
       expect(CdpOpenApiClient.importEvmAccount).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getSwapQuote", () => {
+    it("should get a swap quote", async () => {
+      const network = "ethereum";
+      const buyToken = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+      const sellToken = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+      const sellAmount = BigInt("1000000000000000000"); // 1 ETH in wei
+      const taker = "0x1234567890123456789012345678901234567890";
+      const gasPrice = BigInt("5000000000"); // 5 Gwei
+      const slippageBps = 50; // 0.5%
+
+      const mockResponse: GetQuoteResponse = {
+        liquidityAvailable: true,
+        blockNumber: "12345678",
+        buyAmount: "5000000000",
+        buyToken,
+        fees: {
+          gasFee: {
+            amount: "1000000",
+            token: sellToken,
+          },
+          protocolFee: {
+            amount: "500000",
+            token: sellToken,
+          },
+        },
+        issues: {
+          allowance: null,
+          balance: null,
+          simulationIncomplete: false,
+        },
+        minBuyAmount: "4950000000",
+        sellAmount: "1000000000000000000",
+        sellToken,
+        gas: "150000",
+        gasPrice: "5000000000",
+      };
+
+      const getSwapQuoteMock = getSwapQuote as MockedFunction<typeof getSwapQuote>;
+      getSwapQuoteMock.mockResolvedValue(mockResponse);
+
+      const result = await client.getSwapQuote({
+        network,
+        buyToken,
+        sellToken,
+        sellAmount,
+        taker,
+        gasPrice,
+        slippageBps,
+      });
+
+      expect(getSwapQuote).toHaveBeenCalledWith(CdpOpenApiClient, {
+        network,
+        buyToken,
+        sellToken,
+        sellAmount,
+        taker,
+        gasPrice,
+        slippageBps,
+      });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it("should handle unavailable liquidity", async () => {
+      const mockResponse: SwapUnavailableResponse = {
+        liquidityAvailable: false,
+      };
+
+      const getSwapQuoteMock = getSwapQuote as MockedFunction<typeof getSwapQuote>;
+      getSwapQuoteMock.mockResolvedValue(mockResponse);
+
+      const result = await client.getSwapQuote({
+        network: "ethereum",
+        buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        sellAmount: BigInt("1000000000000000000"),
+        taker: "0x1234567890123456789012345678901234567890",
+      });
+
+      expect(result.liquidityAvailable).toBe(false);
+    });
+  });
+
+  describe("createSwap", () => {
+    it("should create a swap", async () => {
+      const network = "ethereum";
+      const buyToken = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+      const sellToken = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+      const sellAmount = BigInt("1000000000000000000"); // 1 ETH in wei
+      const taker = "0x1234567890123456789012345678901234567890";
+      const slippageBps = 50; // 0.5%
+
+      const mockResponse: CreateSwapResponse = {
+        liquidityAvailable: true,
+        blockNumber: "12345678",
+        buyAmount: "5000000000",
+        buyToken,
+        fees: {
+          gasFee: {
+            amount: "1000000",
+            token: sellToken,
+          },
+          protocolFee: {
+            amount: "500000",
+            token: sellToken,
+          },
+        },
+        issues: {
+          allowance: null,
+          balance: null,
+          simulationIncomplete: false,
+        },
+        minBuyAmount: "4950000000",
+        sellAmount: "1000000000000000000",
+        sellToken,
+        permit2: null,
+        transaction: {
+          to: "0xRouterAddress",
+          data: "0xTransactionData",
+          gas: "250000",
+          gasPrice: "20000000000",
+          value: "0",
+        },
+      };
+
+      const createSwapMock = createSwap as MockedFunction<typeof createSwap>;
+      createSwapMock.mockResolvedValue(mockResponse);
+
+      const result = await client.createSwap({
+        network,
+        buyToken,
+        sellToken,
+        sellAmount,
+        taker,
+        slippageBps,
+      });
+
+      expect(createSwap).toHaveBeenCalledWith(CdpOpenApiClient, {
+        network,
+        buyToken,
+        sellToken,
+        sellAmount,
+        taker,
+        slippageBps,
+      });
+      expect(result).toEqual(mockResponse);
+    });
+
+    it("should handle unavailable liquidity for createSwap", async () => {
+      const mockResponse: SwapUnavailableResponse = {
+        liquidityAvailable: false,
+      };
+
+      const createSwapMock = createSwap as MockedFunction<typeof createSwap>;
+      createSwapMock.mockResolvedValue(mockResponse);
+
+      const result = await client.createSwap({
+        network: "ethereum",
+        buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        sellAmount: BigInt("1000000000000000000"),
+        taker: "0x1234567890123456789012345678901234567890",
+      });
+
+      expect(result.liquidityAvailable).toBe(false);
     });
   });
 });
