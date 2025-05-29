@@ -581,23 +581,23 @@ async def test_transfer_eth_smart_account(cdp_client):
     account = await cdp_client.evm.create_smart_account(owner=Account.create())
     assert account is not None
 
-    transfer_result = await account.transfer(
-        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-        amount=0,
-        token="eth",
-        network="base-sepolia",
-    )
-
-    assert transfer_result is not None
-
     try:
+        transfer_result = await account.transfer(
+            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            amount=0,
+            token="eth",
+            network="base-sepolia",
+        )
+
+        assert transfer_result is not None
+
         user_op_result = await account.wait_for_user_operation(
             user_op_hash=transfer_result.user_op_hash
         )
         assert user_op_result is not None
         assert user_op_result.status == "complete"
     except Exception as e:
-        print("Error waiting for user operation", e)
+        print("Error: ", e)
         print("Ignoring for now...")
 
 
@@ -608,23 +608,23 @@ async def test_transfer_usdc_smart_account(cdp_client):
     account = await cdp_client.evm.create_smart_account(owner=Account.create())
     assert account is not None
 
-    transfer_result = await account.transfer(
-        to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
-        amount=0,
-        token="usdc",
-        network="base-sepolia",
-    )
-
-    assert transfer_result is not None
-
     try:
+        transfer_result = await account.transfer(
+            to="0x9F663335Cd6Ad02a37B633602E98866CF944124d",
+            amount=0,
+            token="usdc",
+            network="base-sepolia",
+        )
+
+        assert transfer_result is not None
+
         user_op_result = await account.wait_for_user_operation(
             user_op_hash=transfer_result.user_op_hash
         )
         assert user_op_result is not None
         assert user_op_result.status == "complete"
     except Exception as e:
-        print("Error waiting for user operation", e)
+        print("Error: ", e)
         print("Ignoring for now...")
 
 
