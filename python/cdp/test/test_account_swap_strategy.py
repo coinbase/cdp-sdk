@@ -38,7 +38,7 @@ async def test_execute_swap_eth_to_usdc():
         from_asset="eth",
         to_asset="usdc",
         amount="1000000000000000000",  # 1 ETH
-        network="base-sepolia",
+        network="base",
         slippage_percentage=0.5,
     )
     
@@ -66,7 +66,7 @@ async def test_execute_swap_eth_to_usdc():
         from_asset="eth",
         to_asset="usdc",
         amount="1000000000000000000",
-        network="base-sepolia",
+        network="base",
         min_amount_out="1990000000",  # 2000 USDC with 0.5% slippage
         quote_id=None,
     )
@@ -74,7 +74,7 @@ async def test_execute_swap_eth_to_usdc():
     mock_api_clients.evm.send_transaction.assert_called_once_with(
         address=mock_from_account.address,
         transaction="0x02abc123",
-        network="base-sepolia",
+        network="base",
     )
     
     assert isinstance(result, SwapResult)
@@ -105,7 +105,7 @@ async def test_execute_swap_with_quote_id():
         from_asset="usdc",
         to_asset="eth",
         amount="1000000000",  # 1000 USDC
-        network="base-sepolia",
+        network="base",
         slippage_percentage=1.0,
     )
     
@@ -134,7 +134,7 @@ async def test_execute_swap_with_quote_id():
         from_asset="usdc",
         to_asset="eth",
         amount="1000000000",
-        network="base-sepolia",
+        network="base",
         min_amount_out="495000000000000000",  # 0.5 ETH with 1% slippage
         quote_id="quote-123-456",
     )
@@ -161,8 +161,8 @@ async def test_execute_swap_custom_slippage():
         from_asset="weth",
         to_asset="usdc",
         amount="2000000000000000000",  # 2 WETH
-        network="base-sepolia",
-        slippage_percentage=2.5,
+        network="ethereum",
+        slippage_percentage=2.0,
     )
     
     quote = SwapQuote(
@@ -186,7 +186,7 @@ async def test_execute_swap_custom_slippage():
     # Assert
     mock_api_clients.evm.create_swap.assert_called_once()
     call_args = mock_api_clients.evm.create_swap.call_args[1]
-    assert call_args["min_amount_out"] == "3900000000"  # 4000 USDC with 2.5% slippage
+    assert call_args["min_amount_out"] == "3900000000"  # 4000 USDC with 2.0% slippage
     
     assert result.status == "completed"
 
@@ -207,16 +207,16 @@ async def test_execute_swap_contract_addresses():
     mock_from_account.address = "0x4567890123456789012345678901234567890123"
     
     swap_options = SwapOptions(
-        from_asset="0x036CbD53842c5426634e7929541eC2318f3dCF7e",  # USDC address
-        to_asset="0x4200000000000000000000000000000000000006",  # WETH address
-        amount="5000000000",  # 5000 USDC
-        network="base-sepolia",
+        from_asset="0x036CbD53842c5426634e7929541eC2318f3dCF7e",  # USDC on Base
+        to_asset="0x4200000000000000000000000000000000000006",  # WETH on Base
+        amount="1000000000",  # 1000 USDC
+        network="base",
     )
     
     quote = SwapQuote(
         from_asset="0x036CbD53842c5426634e7929541eC2318f3dCF7e",
         to_asset="0x4200000000000000000000000000000000000006",
-        from_amount="5000000000",
+        from_amount="1000000000",
         to_amount="2500000000000000000",  # 2.5 WETH
         price_impact=0.3,
         route=["0x5555", "0x6666"],

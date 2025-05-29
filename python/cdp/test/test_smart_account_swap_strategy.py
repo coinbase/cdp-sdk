@@ -33,7 +33,7 @@ async def test_execute_swap_eth_to_usdc():
     
     # Mock user operation with proper format
     mock_user_op = EvmUserOperationModel(
-        network="base-sepolia",
+        network="base",
         user_op_hash="0x" + "a" * 64,  # Valid 64-char hex hash
         calls=[
             EvmCall(
@@ -47,7 +47,7 @@ async def test_execute_swap_eth_to_usdc():
     
     # Update status after execution
     completed_user_op = EvmUserOperationModel(
-        network="base-sepolia",
+        network="base",
         user_op_hash="0x" + "a" * 64,
         calls=mock_user_op.calls,
         status="complete",
@@ -62,7 +62,7 @@ async def test_execute_swap_eth_to_usdc():
         from_asset="eth",
         to_asset="usdc",
         amount="1000000000000000000",  # 1 ETH
-        network="base-sepolia",
+        network="base",
         slippage_percentage=0.5,
     )
     
@@ -96,7 +96,7 @@ async def test_execute_swap_eth_to_usdc():
         from_asset="eth",
         to_asset="usdc",
         amount="1000000000000000000",
-        network="base-sepolia",
+        network="base",
         min_amount_out="1990000000",  # 2000 USDC with 0.5% slippage
         quote_id=None,
     )
@@ -129,7 +129,7 @@ async def test_execute_swap_erc20_to_erc20():
     
     # Mock user operation
     mock_user_op = EvmUserOperationModel(
-        network="base-sepolia",
+        network="ethereum",
         user_op_hash="0x" + "c" * 64,
         calls=[
             EvmCall(
@@ -142,7 +142,7 @@ async def test_execute_swap_erc20_to_erc20():
     )
     
     completed_user_op = EvmUserOperationModel(
-        network="base-sepolia",
+        network="ethereum",
         user_op_hash="0x" + "c" * 64,
         calls=mock_user_op.calls,
         status="complete",
@@ -156,7 +156,7 @@ async def test_execute_swap_erc20_to_erc20():
         from_asset="usdc",
         to_asset="weth",
         amount="5000000000",  # 5000 USDC
-        network="base-sepolia",
+        network="ethereum",
         slippage_percentage=1.0,
     )
     
@@ -208,7 +208,7 @@ async def test_execute_swap_failed_user_operation():
     
     # Mock user operation
     mock_user_op = EvmUserOperationModel(
-        network="base-sepolia",
+        network="base",
         user_op_hash="0x" + "e" * 64,
         calls=[
             EvmCall(
@@ -222,7 +222,7 @@ async def test_execute_swap_failed_user_operation():
     
     # Mock failed user operation
     failed_user_op = EvmUserOperationModel(
-        network="base-sepolia",
+        network="base",
         user_op_hash="0x" + "e" * 64,
         calls=mock_user_op.calls,
         status="failed",
@@ -235,7 +235,7 @@ async def test_execute_swap_failed_user_operation():
         from_asset="eth",
         to_asset="usdc",
         amount="1000000000000000000",
-        network="base-sepolia",
+        network="base",
     )
     
     quote = SwapQuote(
@@ -281,7 +281,7 @@ async def test_execute_swap_with_quote_id():
     mock_api_clients.evm.create_swap = AsyncMock(return_value=mock_swap_tx)
     
     mock_user_op = EvmUserOperationModel(
-        network="base-sepolia",
+        network="ethereum",
         user_op_hash="0x" + "f" * 64,
         calls=[
             EvmCall(
@@ -294,7 +294,7 @@ async def test_execute_swap_with_quote_id():
     )
     
     completed_user_op = EvmUserOperationModel(
-        network="base-sepolia",
+        network="ethereum",
         user_op_hash="0x" + "f" * 64,
         calls=mock_user_op.calls,
         status="complete",
@@ -308,7 +308,7 @@ async def test_execute_swap_with_quote_id():
         from_asset="weth",
         to_asset="usdc",
         amount="1000000000000000000",  # 1 WETH
-        network="base-sepolia",
+        network="ethereum",
         slippage_percentage=2.0,
     )
     

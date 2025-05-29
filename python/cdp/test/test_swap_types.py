@@ -15,13 +15,13 @@ class TestSwapOptions:
             from_asset="eth",
             to_asset="usdc",
             amount="1000000000000000000",
-            network="base-sepolia",
+            network="base",
             slippage_percentage=0.5,
         )
         assert options.from_asset == "eth"
         assert options.to_asset == "usdc"
         assert options.amount == "1000000000000000000"
-        assert options.network == "base-sepolia"
+        assert options.network == "base"
         assert options.slippage_percentage == 0.5
 
     def test_swap_options_int_amount(self):
@@ -30,7 +30,7 @@ class TestSwapOptions:
             from_asset="usdc",
             to_asset="eth",
             amount=1000000,
-            network="base-sepolia",
+            network="base",
         )
         assert options.amount == 1000000
 
@@ -40,7 +40,7 @@ class TestSwapOptions:
             from_asset="eth",
             to_asset="usdc",
             amount="1000000000000000000",
-            network="base-sepolia",
+            network="base",
         )
         assert options.slippage_percentage == 0.5
 
@@ -51,7 +51,7 @@ class TestSwapOptions:
                 from_asset="eth",
                 to_asset="usdc",
                 amount="1000000000000000000",
-                network="base-sepolia",
+                network="base",
                 slippage_percentage=-1,
             )
         assert "Slippage percentage must be between 0 and 10" in str(exc_info.value)
@@ -63,7 +63,7 @@ class TestSwapOptions:
                 from_asset="eth",
                 to_asset="usdc",
                 amount="1000000000000000000",
-                network="base-sepolia",
+                network="base",
                 slippage_percentage=15,
             )
         assert "Slippage percentage must be between 0 and 10" in str(exc_info.value)
@@ -74,7 +74,7 @@ class TestSwapOptions:
             from_asset="0x036CbD53842c5426634e7929541eC2318f3dCF7e",
             to_asset="0x4200000000000000000000000000000000000006",
             amount="1000000",
-            network="base-sepolia",
+            network="base",
         )
         assert options.from_asset == "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
         assert options.to_asset == "0x4200000000000000000000000000000000000006"

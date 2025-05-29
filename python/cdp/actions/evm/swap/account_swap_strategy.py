@@ -1,9 +1,11 @@
 """Swap strategy for regular EVM accounts."""
 
+from web3 import Web3
 from cdp.api_clients import ApiClients
 from cdp.actions.evm.swap.types import SwapOptions, SwapQuote, SwapResult, SwapStrategy
 from cdp.actions.evm.swap.utils import calculate_minimum_amount_out
 from cdp.evm_server_account import EvmServerAccount
+from cdp.evm_transaction_types import TransactionRequestEIP1559
 
 
 class AccountSwapStrategy:
@@ -27,6 +29,12 @@ class AccountSwapStrategy:
         Returns:
             SwapResult: The result of the swap
         """
+        # Import EVM client here to avoid circular imports
+        from cdp.evm_client import EvmClient
+        
+        # Create an EVM client instance
+        evm_client = EvmClient(api_clients)
+        
         # Calculate minimum amount out based on slippage
         min_amount_out = calculate_minimum_amount_out(
             quote.to_amount,
@@ -34,20 +42,26 @@ class AccountSwapStrategy:
         )
         
         # Create the swap transaction
-        swap_tx = await api_clients.evm.create_swap(
-            from_address=from_account.address,
+        swap_tx = await evm_client.create_swap(
             from_asset=swap_options.from_asset,
             to_asset=swap_options.to_asset,
             amount=swap_options.amount,
             network=swap_options.network,
-            min_amount_out=min_amount_out,
-            quote_id=quote.quote_id,
+            wallet_address=from_account.address,
+            slippage_percentage=swap_options.slippage_percentage or 0.5,
         )
         
         # Send the transaction
-        tx_hash = await api_clients.evm.send_transaction(
-            address=from_account.address,
-            transaction=swap_tx.transaction,
+        # Create a proper transaction request with checksum address
+        w3 = Web3()
+        transaction_request = TransactionRequestEIP1559(
+            to=w3.to_checksum_address(swap_tx.to),
+            data=swap_tx.data,
+            value=swap_tx.value,
+        )
+        
+        tx_hash = await from_account.send_transaction(
+            transaction=transaction_request,
             network=swap_options.network,
         )
         

@@ -30,6 +30,12 @@ class SmartAccountSwapStrategy:
         Returns:
             SwapResult: The result of the swap
         """
+        # Import EVM client here to avoid circular imports
+        from cdp.evm_client import EvmClient
+        
+        # Create an EVM client instance
+        evm_client = EvmClient(api_clients)
+        
         # Calculate minimum amount out based on slippage
         min_amount_out = calculate_minimum_amount_out(
             quote.to_amount,
@@ -37,14 +43,13 @@ class SmartAccountSwapStrategy:
         )
         
         # Create the swap transaction data
-        swap_tx = await api_clients.evm.create_swap(
-            from_address=from_account.address,
+        swap_tx = await evm_client.create_swap(
             from_asset=swap_options.from_asset,
             to_asset=swap_options.to_asset,
             amount=swap_options.amount,
             network=swap_options.network,
-            min_amount_out=min_amount_out,
-            quote_id=quote.quote_id if hasattr(quote, 'quote_id') else None,
+            wallet_address=from_account.address,
+            slippage_percentage=swap_options.slippage_percentage or 0.5,
         )
         
         # Extract the call data from the swap transaction
@@ -58,7 +63,8 @@ class SmartAccountSwapStrategy:
         # Send the user operation
         user_op = await send_user_operation(
             api_clients=api_clients,
-            smart_account=from_account,
+            address=from_account.address,
+            owner=from_account.owners[0],
             calls=[swap_call],
             network=swap_options.network,
             paymaster_url=None,  # Use default paymaster for gasless swaps

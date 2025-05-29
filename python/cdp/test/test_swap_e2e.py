@@ -13,7 +13,7 @@ from cdp.actions.evm.swap import SwapOptions
 
 load_dotenv()
 
-w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
+w3 = Web3(Web3.HTTPProvider("https://mainnet.base.org"))
 
 
 @pytest_asyncio.fixture(scope="function")
@@ -33,7 +33,7 @@ async def test_get_swap_quote(cdp_client):
         from_asset="eth",
         to_asset="usdc",
         amount="1000000000000000",  # 0.001 ETH
-        network="base-sepolia"
+        network="base"
     )
     
     assert quote is not None
@@ -50,14 +50,14 @@ async def test_get_swap_quote(cdp_client):
 @pytest.mark.asyncio
 async def test_get_swap_quote_with_contract_addresses(cdp_client):
     """Test getting a swap quote with contract addresses."""
-    # USDC address on Base Sepolia
-    usdc_address = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    # USDC address on Base
+    usdc_address = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
     
     quote = await cdp_client.evm.get_quote(
         from_asset=usdc_address,
         to_asset="eth",
         amount=1000000,  # 1 USDC (6 decimals)
-        network="base-sepolia"
+        network="base"
     )
     
     assert quote is not None
@@ -81,7 +81,7 @@ async def test_swap_eth_to_usdc(cdp_client):
             from_asset="eth",
             to_asset="usdc",
             amount="1000000000000",  # 0.000001 ETH
-            network="base-sepolia",
+            network="base",
             slippage_percentage=1.0,
         )
     )
@@ -107,7 +107,7 @@ async def test_swap_usdc_to_eth(cdp_client):
         "from_asset": "eth",
         "to_asset": "usdc",
         "amount": "10000000000000",  # 0.00001 ETH
-        "network": "base-sepolia",
+        "network": "base",
     })
     
     # Wait for the initial swap to complete
@@ -119,7 +119,7 @@ async def test_swap_usdc_to_eth(cdp_client):
             from_asset="usdc",
             to_asset="eth",
             amount="10000",  # 0.01 USDC
-            network="base-sepolia",
+            network="base",
             slippage_percentage=2.0,
         )
     )
@@ -145,7 +145,7 @@ async def test_swap_eth_to_usdc_smart_account(cdp_client):
             from_asset="eth",
             to_asset="usdc",
             amount="1000000000000",  # 0.000001 ETH
-            network="base-sepolia",
+            network="base",
             slippage_percentage=1.0,
         )
     )
@@ -172,7 +172,7 @@ async def test_swap_usdc_to_weth_smart_account(cdp_client):
         "from_asset": "eth",
         "to_asset": "usdc",
         "amount": "10000000000000",  # 0.00001 ETH
-        "network": "base-sepolia",
+        "network": "base",
     })
     
     # Wait for the initial swap
@@ -184,7 +184,7 @@ async def test_swap_usdc_to_weth_smart_account(cdp_client):
             from_asset="usdc",
             to_asset="weth",
             amount="10000",  # 0.01 USDC
-            network="base-sepolia",
+            network="base",
             slippage_percentage=1.5,
         )
     )
@@ -211,7 +211,7 @@ async def test_swap_with_high_slippage(cdp_client):
             from_asset="eth",
             to_asset="usdc",
             amount="1000000000000",  # 0.000001 ETH
-            network="base-sepolia",
+            network="base",
             slippage_percentage=5.0,
         )
     )
@@ -234,7 +234,7 @@ async def _ensure_sufficient_eth_balance(cdp_client, account):
             f"ETH balance below minimum required ({w3.from_wei(min_required_balance, 'ether')} ETH)"
         )
         faucet_hash = await cdp_client.evm.request_faucet(
-            address=account.address, network="base-sepolia", token="eth"
+            address=account.address, network="base", token="eth"
         )
         
         print(f"Faucet request submitted: {faucet_hash}")

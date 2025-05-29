@@ -36,6 +36,15 @@ class SwapQuote(BaseModel):
     quote_id: Optional[str] = Field(default=None, description="Unique identifier for the quote")
 
 
+class SwapTransaction(BaseModel):
+    """A swap transaction ready to be signed and sent."""
+    
+    to: str = Field(description="The contract address to send the transaction to")
+    data: str = Field(description="The transaction data (calldata)")
+    value: int = Field(description="The amount of ETH to send with the transaction (in wei)")
+    transaction: Optional[str] = Field(default=None, description="The raw transaction if available")
+
+
 class SwapResult(BaseModel):
     """Result of a swap transaction."""
     

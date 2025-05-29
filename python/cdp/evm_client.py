@@ -541,99 +541,132 @@ class EvmClient:
         """
         from cdp.actions.evm.swap.types import SwapQuote
         from cdp.actions.evm.swap.utils import resolve_token_address
+        from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
+        from cdp.openapi_client.models.get_quote_response import GetQuoteResponse
+        
+        # Convert amount to string if it's an integer
+        amount_str = str(amount)
         
         # Resolve token addresses
         from_address = resolve_token_address(from_asset, network)
         to_address = resolve_token_address(to_asset, network)
         
-        # Convert amount to string if needed
-        amount_str = str(amount)
+        # Convert network to EvmSwapsNetwork enum
+        network_enum = EvmSwapsNetwork(network)
         
-        # TODO: Call the actual API endpoint when available
-        # For now, return a mock quote
-        # response = await self.api_clients.swaps.get_swap_quote(
-        #     GetSwapQuoteRequest(
-        #         from_asset=from_address,
-        #         to_asset=to_address,
-        #         amount=amount_str,
-        #         network=network,
-        #     )
-        # )
+        # Get quote from API - use the raw response to avoid oneOf deserialization issues
+        response = await self.api_clients.evm_swaps.get_evm_swap_quote_without_preload_content(
+            network=network_enum,
+            buy_token=to_address,
+            sell_token=from_address,
+            sell_amount=amount_str,
+            taker="0x0000000000000000000000000000000000010000",  # Valid placeholder address
+        )
         
-        # Mock implementation - replace with actual API call
+        # Read and parse the response manually
+        import json
+        raw_data = await response.read()
+        response_json = json.loads(raw_data.decode('utf-8'))
+        
+        # Check if liquidity is available
+        if not response_json.get('liquidityAvailable', False):
+            raise ValueError("Swap unavailable: Insufficient liquidity")
+        
+        # Parse as GetQuoteResponse
+        quote_data = GetQuoteResponse.from_dict(response_json)
+        
+        # Calculate price impact from fees if available
+        price_impact = 0.0
+        if hasattr(quote_data.fees, 'zero_ex_fee') and quote_data.fees.zero_ex_fee:
+            # Simple price impact calculation based on fees
+            price_impact = 0.1  # Default to 0.1% for now
+        
+        # Convert response to SwapQuote
         return SwapQuote(
             from_asset=from_asset,
             to_asset=to_asset,
             from_amount=amount_str,
-            to_amount=str(int(amount_str) * 2),  # Mock 2x output
-            price_impact=0.1,
-            route=[from_address, to_address],
-            gas_estimate="100000",
+            to_amount=quote_data.buy_amount,
+            price_impact=price_impact,
+            route=[from_address, to_address],  # Simplified route
+            gas_estimate=quote_data.gas if quote_data.gas else "100000",
+            quote_id=None,  # Quote ID not provided in the response
         )
 
     async def create_swap(
         self,
-        from_address: str,
         from_asset: str,
         to_asset: str,
         amount: str | int,
         network: str,
-        min_amount_out: str,
-        quote_id: str | None = None,
+        wallet_address: str,
+        slippage_percentage: float = 1.0,
     ) -> "SwapTransaction":
         """Create a swap transaction.
 
         Args:
-            from_address (str): The address executing the swap.
             from_asset (str): The asset to swap from (token symbol or contract address).
             to_asset (str): The asset to swap to (token symbol or contract address).
             amount (str | int): The amount to swap (in smallest unit or as string).
-            network (str): The network to execute the swap on.
-            min_amount_out (str): Minimum amount to receive (with slippage).
-            quote_id (str, optional): Quote ID from get_quote. Defaults to None.
+            network (str): The network to create the swap on.
+            wallet_address (str): The wallet address that will execute the swap.
+            slippage_percentage (float): The maximum acceptable slippage percentage.
 
         Returns:
-            SwapTransaction: The swap transaction ready to be sent.
+            SwapTransaction: The swap transaction data.
 
         """
+        from cdp.actions.evm.swap.types import SwapTransaction
         from cdp.actions.evm.swap.utils import resolve_token_address
-        from cdp.actions.evm.swap.constants import SWAP_ROUTER_ADDRESSES
+        from cdp.openapi_client.models.create_evm_swap_request import CreateEvmSwapRequest
+        from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
+        from cdp.openapi_client.models.create_swap_response import CreateSwapResponse
         
-        # Resolve token addresses
-        from_token_address = resolve_token_address(from_asset, network)
-        to_token_address = resolve_token_address(to_asset, network)
-        
-        # Convert amount to string if needed
+        # Convert amount to string if it's an integer
         amount_str = str(amount)
         
-        # TODO: Call the actual API endpoint when available
-        # For now, return a mock transaction
-        # response = await self.api_clients.swaps.create_swap_transaction(
-        #     CreateSwapTransactionRequest(
-        #         from_address=from_address,
-        #         from_asset=from_token_address,
-        #         to_asset=to_token_address,
-        #         amount=amount_str,
-        #         min_amount_out=min_amount_out,
-        #         network=network,
-        #         quote_id=quote_id,
-        #     )
-        # )
+        # Resolve token addresses
+        from_address = resolve_token_address(from_asset, network)
+        to_address = resolve_token_address(to_asset, network)
         
-        # Mock implementation - replace with actual API call
-        class SwapTransaction:
-            def __init__(self, to, data, value, transaction):
-                self.to = to
-                self.data = data
-                self.value = value
-                self.transaction = transaction
+        # Convert network to EvmSwapsNetwork enum
+        network_enum = EvmSwapsNetwork(network)
         
-        # Mock swap router address and calldata
-        router_address = SWAP_ROUTER_ADDRESSES.get(network, "0x0000000000000000000000000000000000000000")
+        # Convert slippage percentage to basis points (1% = 100 bps)
+        slippage_bps = int(slippage_percentage * 100)
         
+        # Create swap request
+        request = CreateEvmSwapRequest(
+            network=network_enum,
+            buy_token=to_address,
+            sell_token=from_address,
+            sell_amount=amount_str,
+            taker=wallet_address,
+            slippage_bps=slippage_bps,
+        )
+        
+        # Create swap via API - use raw response to avoid oneOf deserialization issues
+        response = await self.api_clients.evm_swaps.create_evm_swap_without_preload_content(request)
+        
+        # Read and parse the response manually
+        import json
+        raw_data = await response.read()
+        response_json = json.loads(raw_data.decode('utf-8'))
+        
+        # Check if liquidity is available
+        if not response_json.get('liquidityAvailable', False):
+            raise ValueError("Swap unavailable: Insufficient liquidity")
+        
+        # Parse as CreateSwapResponse
+        swap_data = CreateSwapResponse.from_dict(response_json)
+        
+        # Extract transaction data
+        tx_data = swap_data.transaction
+        
+        # Convert response to SwapTransaction
         return SwapTransaction(
-            to=router_address,
-            data="0x",  # Mock calldata
-            value=0 if from_asset.lower() != "eth" else int(amount_str),
-            transaction=f"0x02{router_address}{amount_str}",  # Mock RLP-encoded transaction
+            to=tx_data.to,
+            data=tx_data.data,
+            value=int(tx_data.value) if tx_data.value else 0,
+            transaction=None,  # Raw transaction not provided in the response
         )

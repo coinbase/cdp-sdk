@@ -14,45 +14,45 @@ class TestResolveTokenAddress:
 
     def test_resolve_eth(self):
         """Test resolving ETH token."""
-        address = resolve_token_address("eth", "base-sepolia")
+        address = resolve_token_address("eth", "base")
         assert address == "0x0000000000000000000000000000000000000000"
 
     def test_resolve_eth_case_insensitive(self):
         """Test resolving ETH token with different cases."""
-        assert resolve_token_address("ETH", "base-sepolia") == "0x0000000000000000000000000000000000000000"
-        assert resolve_token_address("Eth", "base-sepolia") == "0x0000000000000000000000000000000000000000"
+        assert resolve_token_address("ETH", "base") == "0x0000000000000000000000000000000000000000"
+        assert resolve_token_address("Eth", "base") == "0x0000000000000000000000000000000000000000"
 
-    def test_resolve_usdc_base_sepolia(self):
-        """Test resolving USDC on Base Sepolia."""
-        address = resolve_token_address("usdc", "base-sepolia")
-        assert address == "0x036cbd53842c5426634e7929541ec2318f3dcf7e"
-
-    def test_resolve_usdc_base_mainnet(self):
-        """Test resolving USDC on Base mainnet."""
-        address = resolve_token_address("USDC", "base")
+    def test_resolve_usdc_base(self):
+        """Test resolving USDC on Base."""
+        address = resolve_token_address("usdc", "base")
         assert address == "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
 
-    def test_resolve_weth_base_sepolia(self):
-        """Test resolving WETH on Base Sepolia."""
-        address = resolve_token_address("weth", "base-sepolia")
+    def test_resolve_usdc_ethereum(self):
+        """Test resolving USDC on Ethereum."""
+        address = resolve_token_address("USDC", "ethereum")
+        assert address == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+
+    def test_resolve_weth_base(self):
+        """Test resolving WETH on Base."""
+        address = resolve_token_address("weth", "base")
         assert address == "0x4200000000000000000000000000000000000006"
 
     def test_resolve_contract_address(self):
         """Test resolving when input is already a contract address."""
         input_address = "0x1234567890123456789012345678901234567890"
-        address = resolve_token_address(input_address, "base-sepolia")
+        address = resolve_token_address(input_address, "base")
         assert address == input_address.lower()
 
     def test_resolve_contract_address_mixed_case(self):
         """Test resolving contract address with mixed case."""
         input_address = "0xAbCdEf1234567890123456789012345678901234"
-        address = resolve_token_address(input_address, "base-sepolia")
+        address = resolve_token_address(input_address, "base")
         assert address == input_address.lower()
 
     def test_resolve_unknown_token(self):
         """Test resolving unknown token symbol."""
         with pytest.raises(ValueError) as exc_info:
-            resolve_token_address("unknown", "base-sepolia")
+            resolve_token_address("unknown", "base")
         assert "Unknown token: unknown" in str(exc_info.value)
 
     def test_resolve_token_unsupported_network(self):

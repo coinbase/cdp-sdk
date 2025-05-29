@@ -34,8 +34,14 @@ async def swap(
     if not isinstance(swap_args, SwapOptions):
         swap_args = SwapOptions(**swap_args)
     
+    # Import EVM client here to avoid circular imports
+    from cdp.evm_client import EvmClient
+    
+    # Create an EVM client instance
+    evm_client = EvmClient(api_clients)
+    
     # Get a quote for the swap
-    quote = await api_clients.evm.get_quote(
+    quote = await evm_client.get_quote(
         from_asset=swap_args.from_asset,
         to_asset=swap_args.to_asset,
         amount=swap_args.amount,

@@ -3,23 +3,23 @@
 # Token addresses on different networks
 TOKEN_ADDRESSES = {
     "eth": {
-        "base-sepolia": "0x0000000000000000000000000000000000000000",
         "base": "0x0000000000000000000000000000000000000000",
+        "ethereum": "0x0000000000000000000000000000000000000000",
     },
     "usdc": {
-        "base-sepolia": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
         "base": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "ethereum": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     },
     "weth": {
-        "base-sepolia": "0x4200000000000000000000000000000000000006",
         "base": "0x4200000000000000000000000000000000000006",
+        "ethereum": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
     },
 }
 
 # Swap router addresses on different networks
 SWAP_ROUTER_ADDRESSES = {
-    "base-sepolia": "0x0000000000000000000000000000000000000000",  # TODO: Add real router address
     "base": "0x0000000000000000000000000000000000000000",  # TODO: Add real router address
+    "ethereum": "0x0000000000000000000000000000000000000000",  # TODO: Add real router address
 }
 
 # Default slippage percentage

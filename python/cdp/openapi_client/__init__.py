@@ -20,6 +20,7 @@ __version__ = "1.0.0"
 # import apis into sdk package
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
+from cdp.openapi_client.api.evm_swaps_api import EVMSwapsApi
 from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
@@ -38,10 +39,20 @@ from cdp.openapi_client.exceptions import ApiAttributeError
 from cdp.openapi_client.exceptions import ApiException
 
 # import models into sdk package
+from cdp.openapi_client.models.common_swap_response import CommonSwapResponse
+from cdp.openapi_client.models.common_swap_response_fees import CommonSwapResponseFees
+from cdp.openapi_client.models.common_swap_response_issues import CommonSwapResponseIssues
+from cdp.openapi_client.models.common_swap_response_issues_allowance import CommonSwapResponseIssuesAllowance
+from cdp.openapi_client.models.common_swap_response_issues_balance import CommonSwapResponseIssuesBalance
 from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccountRequest
 from cdp.openapi_client.models.create_evm_smart_account_request import CreateEvmSmartAccountRequest
+from cdp.openapi_client.models.create_evm_swap_request import CreateEvmSwapRequest
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.create_solana_account_request import CreateSolanaAccountRequest
+from cdp.openapi_client.models.create_swap_response import CreateSwapResponse
+from cdp.openapi_client.models.create_swap_response_all_of_permit2 import CreateSwapResponseAllOfPermit2
+from cdp.openapi_client.models.create_swap_response_all_of_transaction import CreateSwapResponseAllOfTransaction
+from cdp.openapi_client.models.create_swap_response_wrapper import CreateSwapResponseWrapper
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.error import Error
@@ -52,7 +63,11 @@ from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
 from cdp.openapi_client.models.evm_call import EvmCall
 from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount
+from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
+from cdp.openapi_client.models.get_quote_response import GetQuoteResponse
+from cdp.openapi_client.models.get_swap_quote_response_wrapper import GetSwapQuoteResponseWrapper
+from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.list_evm_accounts200_response import ListEvmAccounts200Response
 from cdp.openapi_client.models.list_evm_smart_accounts200_response import ListEvmSmartAccounts200Response
 from cdp.openapi_client.models.list_evm_token_balances200_response import ListEvmTokenBalances200Response
@@ -89,9 +104,11 @@ from cdp.openapi_client.models.sign_solana_transaction200_response import SignSo
 from cdp.openapi_client.models.sign_solana_transaction_request import SignSolanaTransactionRequest
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
 from cdp.openapi_client.models.solana_account import SolanaAccount
+from cdp.openapi_client.models.swap_unavailable_response import SwapUnavailableResponse
 from cdp.openapi_client.models.token import Token
 from cdp.openapi_client.models.token_amount import TokenAmount
 from cdp.openapi_client.models.token_balance import TokenBalance
+from cdp.openapi_client.models.token_fee import TokenFee
 from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
