@@ -91,7 +91,10 @@ class TestSwapQuote:
             from_amount="1000000000000000000",
             to_amount="2000000000",
             price_impact=0.1,
-            route=["0x0000000000000000000000000000000000000000", "0x036CbD53842c5426634e7929541eC2318f3dCF7e"],
+            route=[
+                "0x0000000000000000000000000000000000000000",
+                "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+            ],
             gas_estimate="100000",
             expires_at=1234567890,
         )
@@ -148,4 +151,4 @@ class TestSwapResult:
             to_amount="500000000000000",
             status="pending",
         )
-        assert result.status == "pending" 
+        assert result.status == "pending"

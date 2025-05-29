@@ -19,14 +19,14 @@ async def test_execute_swap_eth_to_usdc():
     # Arrange
     mock_api_clients = MagicMock(spec=ApiClients)
     mock_api_clients.evm = MagicMock()
-    
+
     # Mock send_transaction response
     mock_api_clients.evm.send_transaction = AsyncMock(return_value="0xtxhash123")
-    
+
     mock_from_account = MagicMock(spec=EvmServerAccount)
     mock_from_account.address = "0x1234567890123456789012345678901234567890"
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash123")
-    
+
     swap_options = SwapOptions(
         from_asset="eth",
         to_asset="usdc",
@@ -34,7 +34,7 @@ async def test_execute_swap_eth_to_usdc():
         network="base",
         slippage_percentage=0.5,
     )
-    
+
     quote = SwapQuote(
         from_asset="eth",
         to_asset="usdc",
@@ -43,19 +43,19 @@ async def test_execute_swap_eth_to_usdc():
         price_impact=0.1,
         route=["0x0000", "0x1111"],
     )
-    
+
     # Mock the swap transaction
     mock_swap_tx = SwapTransaction(
         to="0x1234567890123456789012345678901234567890",
         data="0xswapdata",
         value=0,
-        transaction="0x02abc123"
+        transaction="0x02abc123",
     )
-    
+
     # Act
     with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:
         mock_create_swap.return_value = mock_swap_tx
-        
+
         strategy = AccountSwapStrategy()
         result = await strategy.execute_swap(
             api_clients=mock_api_clients,
@@ -63,7 +63,7 @@ async def test_execute_swap_eth_to_usdc():
             swap_options=swap_options,
             quote=quote,
         )
-    
+
     # Assert
     mock_create_swap.assert_called_once_with(
         from_asset="eth",
@@ -73,9 +73,9 @@ async def test_execute_swap_eth_to_usdc():
         wallet_address=mock_from_account.address,
         slippage_percentage=0.5,
     )
-    
+
     mock_from_account.send_transaction.assert_called_once()
-    
+
     assert isinstance(result, SwapResult)
     assert result.transaction_hash == "0xtxhash123"
     assert result.from_asset == "eth"
@@ -92,11 +92,11 @@ async def test_execute_swap_with_quote_id():
     mock_api_clients = MagicMock(spec=ApiClients)
     mock_api_clients.evm = MagicMock()
     mock_api_clients.evm.send_transaction = AsyncMock(return_value="0xtxhash456")
-    
+
     mock_from_account = MagicMock(spec=EvmServerAccount)
     mock_from_account.address = "0x2345678901234567890123456789012345678901"
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash456")
-    
+
     swap_options = SwapOptions(
         from_asset="usdc",
         to_asset="eth",
@@ -104,7 +104,7 @@ async def test_execute_swap_with_quote_id():
         network="base",
         slippage_percentage=1.0,
     )
-    
+
     quote = SwapQuote(
         from_asset="usdc",
         to_asset="eth",
@@ -114,19 +114,19 @@ async def test_execute_swap_with_quote_id():
         route=["0x2222", "0x3333"],
         quote_id="quote-123-456",  # Set quote ID directly in constructor
     )
-    
+
     # Mock the swap transaction
     mock_swap_tx = SwapTransaction(
         to="0x2345678901234567890123456789012345678901",
         data="0xswapdata",
         value=0,
-        transaction="0x02def456"
+        transaction="0x02def456",
     )
-    
+
     # Act
     with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:
         mock_create_swap.return_value = mock_swap_tx
-        
+
         strategy = AccountSwapStrategy()
         result = await strategy.execute_swap(
             api_clients=mock_api_clients,
@@ -134,7 +134,7 @@ async def test_execute_swap_with_quote_id():
             swap_options=swap_options,
             quote=quote,
         )
-    
+
     # Assert
     mock_create_swap.assert_called_once_with(
         from_asset="usdc",
@@ -144,7 +144,7 @@ async def test_execute_swap_with_quote_id():
         wallet_address=mock_from_account.address,
         slippage_percentage=1.0,
     )
-    
+
     assert result.transaction_hash == "0xtxhash456"
 
 
@@ -155,11 +155,11 @@ async def test_execute_swap_custom_slippage():
     mock_api_clients = MagicMock(spec=ApiClients)
     mock_api_clients.evm = MagicMock()
     mock_api_clients.evm.send_transaction = AsyncMock(return_value="0xtxhash789")
-    
+
     mock_from_account = MagicMock(spec=EvmServerAccount)
     mock_from_account.address = "0x3456789012345678901234567890123456789012"
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash789")
-    
+
     swap_options = SwapOptions(
         from_asset="weth",
         to_asset="usdc",
@@ -167,7 +167,7 @@ async def test_execute_swap_custom_slippage():
         network="ethereum",
         slippage_percentage=2.0,
     )
-    
+
     quote = SwapQuote(
         from_asset="weth",
         to_asset="usdc",
@@ -176,19 +176,19 @@ async def test_execute_swap_custom_slippage():
         price_impact=0.5,
         route=["0x4444"],
     )
-    
+
     # Mock the swap transaction
     mock_swap_tx = SwapTransaction(
         to="0x3456789012345678901234567890123456789012",
         data="0xswapdata",
         value=0,
-        transaction="0x02ghi789"
+        transaction="0x02ghi789",
     )
-    
+
     # Act
     with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:
         mock_create_swap.return_value = mock_swap_tx
-        
+
         strategy = AccountSwapStrategy()
         result = await strategy.execute_swap(
             api_clients=mock_api_clients,
@@ -196,7 +196,7 @@ async def test_execute_swap_custom_slippage():
             swap_options=swap_options,
             quote=quote,
         )
-    
+
     # Assert
     mock_create_swap.assert_called_once_with(
         from_asset="weth",
@@ -206,7 +206,7 @@ async def test_execute_swap_custom_slippage():
         wallet_address=mock_from_account.address,
         slippage_percentage=2.0,
     )
-    
+
     assert result.status == "completed"
 
 
@@ -217,18 +217,18 @@ async def test_execute_swap_contract_addresses():
     mock_api_clients = MagicMock(spec=ApiClients)
     mock_api_clients.evm = MagicMock()
     mock_api_clients.evm.send_transaction = AsyncMock(return_value="0xtxhash012")
-    
+
     mock_from_account = MagicMock(spec=EvmServerAccount)
     mock_from_account.address = "0x4567890123456789012345678901234567890123"
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash012")
-    
+
     swap_options = SwapOptions(
         from_asset="0x036CbD53842c5426634e7929541eC2318f3dCF7e",  # USDC on Base
         to_asset="0x4200000000000000000000000000000000000006",  # WETH on Base
         amount="1000000000",  # 1000 USDC
         network="base",
     )
-    
+
     quote = SwapQuote(
         from_asset="0x036CbD53842c5426634e7929541eC2318f3dCF7e",
         to_asset="0x4200000000000000000000000000000000000006",
@@ -237,19 +237,19 @@ async def test_execute_swap_contract_addresses():
         price_impact=0.3,
         route=["0x5555", "0x6666"],
     )
-    
+
     # Mock the swap transaction
     mock_swap_tx = SwapTransaction(
         to="0x4567890123456789012345678901234567890123",
         data="0xswapdata",
         value=0,
-        transaction="0x02jkl012"
+        transaction="0x02jkl012",
     )
-    
+
     # Act
     with patch("cdp.evm_client.EvmClient.create_swap", new_callable=AsyncMock) as mock_create_swap:
         mock_create_swap.return_value = mock_swap_tx
-        
+
         strategy = AccountSwapStrategy()
         result = await strategy.execute_swap(
             api_clients=mock_api_clients,
@@ -257,7 +257,7 @@ async def test_execute_swap_contract_addresses():
             swap_options=swap_options,
             quote=quote,
         )
-    
+
     # Assert
     mock_create_swap.assert_called_once_with(
         from_asset="0x036CbD53842c5426634e7929541eC2318f3dCF7e",
@@ -267,11 +267,11 @@ async def test_execute_swap_contract_addresses():
         wallet_address=mock_from_account.address,
         slippage_percentage=0.5,  # Default slippage since not specified in swap_options
     )
-    
+
     assert result.from_asset == "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
     assert result.to_asset == "0x4200000000000000000000000000000000000006"
 
 
 def test_singleton_instance():
     """Test that account_swap_strategy is an instance of AccountSwapStrategy."""
-    assert isinstance(account_swap_strategy, AccountSwapStrategy) 
+    assert isinstance(account_swap_strategy, AccountSwapStrategy)

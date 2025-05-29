@@ -15,17 +15,10 @@
 
 import unittest
 
-<<<<<<<< HEAD:python/cdp/openapi_client/test/test_swap_unavailable_response.py
 from cdp.openapi_client.models.swap_unavailable_response import SwapUnavailableResponse
 
 class TestSwapUnavailableResponse(unittest.TestCase):
     """SwapUnavailableResponse unit test stubs"""
-========
-from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
-
-class TestImportEvmAccountRequest(unittest.TestCase):
-    """ImportEvmAccountRequest unit test stubs"""
->>>>>>>> origin/main:python/cdp/openapi_client/test/test_import_evm_account_request.py
 
     def setUp(self):
         pass
@@ -33,7 +26,6 @@ class TestImportEvmAccountRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-<<<<<<<< HEAD:python/cdp/openapi_client/test/test_swap_unavailable_response.py
     def make_instance(self, include_optional) -> SwapUnavailableResponse:
         """Test SwapUnavailableResponse
             include_optional is a boolean, when False only required
@@ -54,29 +46,6 @@ class TestImportEvmAccountRequest(unittest.TestCase):
 
     def testSwapUnavailableResponse(self):
         """Test SwapUnavailableResponse"""
-========
-    def make_instance(self, include_optional) -> ImportEvmAccountRequest:
-        """Test ImportEvmAccountRequest
-            include_optional is a boolean, when False only required
-            params are included, when True both required and
-            optional params are included """
-        # uncomment below to create an instance of `ImportEvmAccountRequest`
-        """
-        model = ImportEvmAccountRequest()
-        if include_optional:
-            return ImportEvmAccountRequest(
-                encrypted_private_key = 'U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=',
-                name = 'my-wallet'
-            )
-        else:
-            return ImportEvmAccountRequest(
-                encrypted_private_key = 'U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=',
-        )
-        """
-
-    def testImportEvmAccountRequest(self):
-        """Test ImportEvmAccountRequest"""
->>>>>>>> origin/main:python/cdp/openapi_client/test/test_import_evm_account_request.py
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

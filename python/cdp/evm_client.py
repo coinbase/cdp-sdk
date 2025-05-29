@@ -596,17 +596,17 @@ class EvmClient:
         from cdp.actions.evm.swap.utils import resolve_token_address
         from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
         from cdp.openapi_client.models.get_quote_response import GetQuoteResponse
-        
+
         # Convert amount to string if it's an integer
         amount_str = str(amount)
-        
+
         # Resolve token addresses
         from_address = resolve_token_address(from_asset, network)
         to_address = resolve_token_address(to_asset, network)
-        
+
         # Convert network to EvmSwapsNetwork enum
         network_enum = EvmSwapsNetwork(network)
-        
+
         # Get quote from API - use the raw response to avoid oneOf deserialization issues
         response = await self.api_clients.evm_swaps.get_evm_swap_quote_without_preload_content(
             network=network_enum,
@@ -615,25 +615,26 @@ class EvmClient:
             sell_amount=amount_str,
             taker="0x0000000000000000000000000000000000010000",  # Valid placeholder address
         )
-        
+
         # Read and parse the response manually
         import json
+
         raw_data = await response.read()
-        response_json = json.loads(raw_data.decode('utf-8'))
-        
+        response_json = json.loads(raw_data.decode("utf-8"))
+
         # Check if liquidity is available
-        if not response_json.get('liquidityAvailable', False):
+        if not response_json.get("liquidityAvailable", False):
             raise ValueError("Swap unavailable: Insufficient liquidity")
-        
+
         # Parse as GetQuoteResponse
         quote_data = GetQuoteResponse.from_dict(response_json)
-        
+
         # Calculate price impact from fees if available
         price_impact = 0.0
-        if hasattr(quote_data.fees, 'zero_ex_fee') and quote_data.fees.zero_ex_fee:
+        if hasattr(quote_data.fees, "zero_ex_fee") and quote_data.fees.zero_ex_fee:
             # Simple price impact calculation based on fees
             price_impact = 0.1  # Default to 0.1% for now
-        
+
         # Convert response to SwapQuote
         return SwapQuote(
             from_asset=from_asset,
@@ -672,22 +673,22 @@ class EvmClient:
         from cdp.actions.evm.swap.types import SwapTransaction
         from cdp.actions.evm.swap.utils import resolve_token_address
         from cdp.openapi_client.models.create_evm_swap_request import CreateEvmSwapRequest
-        from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
         from cdp.openapi_client.models.create_swap_response import CreateSwapResponse
-        
+        from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
+
         # Convert amount to string if it's an integer
         amount_str = str(amount)
-        
+
         # Resolve token addresses
         from_address = resolve_token_address(from_asset, network)
         to_address = resolve_token_address(to_asset, network)
-        
+
         # Convert network to EvmSwapsNetwork enum
         network_enum = EvmSwapsNetwork(network)
-        
+
         # Convert slippage percentage to basis points (1% = 100 bps)
         slippage_bps = int(slippage_percentage * 100)
-        
+
         # Create swap request
         request = CreateEvmSwapRequest(
             network=network_enum,
@@ -697,25 +698,26 @@ class EvmClient:
             taker=wallet_address,
             slippage_bps=slippage_bps,
         )
-        
+
         # Create swap via API - use raw response to avoid oneOf deserialization issues
         response = await self.api_clients.evm_swaps.create_evm_swap_without_preload_content(request)
-        
+
         # Read and parse the response manually
         import json
+
         raw_data = await response.read()
-        response_json = json.loads(raw_data.decode('utf-8'))
-        
+        response_json = json.loads(raw_data.decode("utf-8"))
+
         # Check if liquidity is available
-        if not response_json.get('liquidityAvailable', False):
+        if not response_json.get("liquidityAvailable", False):
             raise ValueError("Swap unavailable: Insufficient liquidity")
-        
+
         # Parse as CreateSwapResponse
         swap_data = CreateSwapResponse.from_dict(response_json)
-        
+
         # Extract transaction data
         tx_data = swap_data.transaction
-        
+
         # Convert response to SwapTransaction
         return SwapTransaction(
             to=tx_data.to,

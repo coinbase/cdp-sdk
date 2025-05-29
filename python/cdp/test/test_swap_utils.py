@@ -138,4 +138,4 @@ class TestCalculateMinimumAmountOut:
         """Test that calculation rounds down."""
         # With 0.3% slippage on 1000, minimum should be 997 (not 997.x)
         min_amount = calculate_minimum_amount_out("1000", 0.3)
-        assert min_amount == "997" 
+        assert min_amount == "997"
