@@ -18,8 +18,8 @@ TOKEN_ADDRESSES = {
 
 # Swap router addresses on different networks
 SWAP_ROUTER_ADDRESSES = {
-    "base": "0x0000000000000000000000000000000000000000",  # TODO: Add real router address
-    "ethereum": "0x0000000000000000000000000000000000000000",  # TODO: Add real router address
+    "base": "0xdef1c0ded9bec7f1a1670819833240f027b25eff",  # 0x Protocol Exchange Proxy on Base
+    "ethereum": "0xdef1c0ded9bec7f1a1670819833240f027b25eff",  # 0x Protocol Exchange Proxy on Ethereum
 }
 
 # Default slippage percentage

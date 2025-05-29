@@ -1,6 +1,6 @@
 """Type definitions for swap functionality."""
 
-from typing import Protocol
+from typing import Any, Protocol
 
 from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, Field, field_validator
@@ -40,6 +40,13 @@ class SwapQuote(BaseModel):
     quote_id: str | None = Field(default=None, description="Unique identifier for the quote")
 
 
+class Permit2Data(BaseModel):
+    """Permit2 signature data for ERC20 token swaps."""
+
+    eip712: dict[str, Any] = Field(description="EIP-712 typed data to sign")
+    hash: str = Field(description="Hash of the Permit2 message")
+
+
 class SwapTransaction(BaseModel):
     """A swap transaction ready to be signed and sent."""
 
@@ -47,6 +54,10 @@ class SwapTransaction(BaseModel):
     data: str = Field(description="The transaction data (calldata)")
     value: int = Field(description="The amount of ETH to send with the transaction (in wei)")
     transaction: str | None = Field(default=None, description="The raw transaction if available")
+    permit2_data: Permit2Data | None = Field(default=None, description="Permit2 data if required")
+    requires_signature: bool = Field(
+        default=False, description="Whether the transaction requires a Permit2 signature"
+    )
 
 
 class SwapResult(BaseModel):

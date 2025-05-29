@@ -46,11 +46,55 @@ class SmartAccountSwapStrategy:
             slippage_percentage=swap_options.slippage_percentage or 0.5,
         )
 
+        # Get the transaction data (will be modified if Permit2 is required)
+        tx_data = swap_tx.data
+
+        # Handle Permit2 signature if required
+        if swap_tx.requires_signature and swap_tx.permit2_data:
+            # For smart accounts, we need to get the owner to sign the Permit2 message
+            owner = from_account.owners[0]
+
+            # Sign the Permit2 EIP-712 message
+            eip712_data = swap_tx.permit2_data.eip712
+
+            # Extract domain, types, primary type, and message from EIP-712 data
+            domain = eip712_data.get("domain", {})
+            types = eip712_data.get("types", {})
+            primary_type = eip712_data.get("primaryType", "PermitTransferFrom")
+            message = eip712_data.get("message", {})
+
+            # Sign the typed data with the owner account
+            signature = await owner.sign_typed_data(
+                domain=domain,
+                types=types,
+                primary_type=primary_type,
+                message=message,
+            )
+
+            # Remove 0x prefix from signature if present
+            sig_hex = signature[2:] if signature.startswith("0x") else signature
+
+            # Calculate signature length in bytes
+            sig_length = len(sig_hex) // 2  # Convert hex chars to bytes
+
+            # Convert length to 32-byte hex value (64 hex chars)
+            # This is equivalent to TypeScript's numberToHex(size, { size: 32 })
+            sig_length_hex = f"{sig_length:064x}"  # 32 bytes = 64 hex chars
+
+            # Remove 0x prefix from transaction data if present
+            if tx_data.startswith("0x"):
+                tx_data = tx_data[2:]
+
+            # Append length and signature to the transaction data
+            # This matches the TypeScript implementation:
+            # concat([txData, signatureLengthInHex, signature])
+            tx_data = "0x" + tx_data + sig_length_hex + sig_hex
+
         # Extract the call data from the swap transaction
         # The swap transaction should contain the target contract and calldata
         swap_call = EncodedCall(
             to=swap_tx.to,
-            data=swap_tx.data,
+            data=tx_data,
             value=swap_tx.value if hasattr(swap_tx, "value") else 0,
         )
 

@@ -723,10 +723,32 @@ class EvmClient:
         # Extract transaction data
         tx_data = swap_data.transaction
 
+        # Check if Permit2 signature is required
+        permit2_data = None
+        requires_signature = False
+
+        if swap_data.permit2 and swap_data.permit2.eip712:
+            from cdp.actions.evm.swap.types import Permit2Data
+
+            # The eip712 field might be an EIP712Message object, convert to dict
+            eip712_obj = swap_data.permit2.eip712
+            if hasattr(eip712_obj, "to_dict"):
+                eip712_dict = eip712_obj.to_dict()
+            elif hasattr(eip712_obj, "model_dump"):
+                eip712_dict = eip712_obj.model_dump()
+            else:
+                # If it's already a dict or can be converted
+                eip712_dict = dict(eip712_obj) if not isinstance(eip712_obj, dict) else eip712_obj
+
+            permit2_data = Permit2Data(eip712=eip712_dict, hash=swap_data.permit2.hash)
+            requires_signature = True
+
         # Convert response to SwapTransaction
         return SwapTransaction(
             to=tx_data.to,
             data=tx_data.data,
             value=int(tx_data.value) if tx_data.value else 0,
             transaction=None,  # Raw transaction not provided in the response
+            permit2_data=permit2_data,
+            requires_signature=requires_signature,
         )
