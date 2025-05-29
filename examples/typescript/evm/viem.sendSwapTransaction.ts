@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/viem.submitSwapTransaction.ts
+// Usage: pnpm tsx evm/viem.sendSwapTransaction.ts
 
 /**
  * This example demonstrates how to perform token swaps using a viem wallet

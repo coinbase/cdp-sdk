@@ -83,7 +83,7 @@ async function main() {
     
     console.log("\nSwap quote created successfully. To execute this swap, you would need to:");
     console.log("1. Ensure you have sufficient token allowance for Permit2 contract");
-    console.log("2. Submit the swap transaction (either using the CDP SDK or viem - more examples in account.submitSwapTransaction.ts, smartAccount.submitSwapOperation.ts, and submitSwapTransactionWithViem.ts)");
+    console.log("2. Submit the swap transaction (either using the CDP SDK or viem - more examples in account.sendSwapTransaction.ts, smartAccount.submitSwapOperation.ts, and sendSwapTransactionWithViem.ts)");
     console.log("3. Wait for transaction confirmation");
     
   } catch (error) {

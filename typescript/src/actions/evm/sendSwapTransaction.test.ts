@@ -2,7 +2,7 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 import { MockedFunction } from "vitest";
 import { Address, numberToHex, concat, size } from "viem";
 
-import { submitSwapTransaction } from "./submitSwapTransaction.js";
+import { sendSwapTransaction } from "./sendSwapTransaction.js";
 import { sendTransaction } from "./sendTransaction.js";
 import { createSwap } from "./createSwap.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
@@ -33,7 +33,7 @@ vi.mock("../../openapi-client/index.js", () => ({
   },
 }));
 
-describe("submitSwapTransaction", () => {
+describe("sendSwapTransaction", () => {
   const mockAddress = "0x1234567890123456789012345678901234567890" as Address;
   const mockNetwork = "base" as const;
   const mockTransactionHash = "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890";
@@ -75,8 +75,8 @@ describe("submitSwapTransaction", () => {
     });
   });
 
-  it("should submit a swap without permit2", async () => {
-    const result = await submitSwapTransaction(CdpOpenApiClient, {
+  it("should send a swap without permit2", async () => {
+    const result = await sendSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
       network: mockNetwork,
       swap: mockSwap,
@@ -103,7 +103,7 @@ describe("submitSwapTransaction", () => {
     });
   });
 
-  it("should submit a swap with permit2", async () => {
+  it("should send a swap with permit2", async () => {
     // Add permit2 data to the mock swap
     mockSwap.permit2 = {
       eip712: {
@@ -154,7 +154,7 @@ describe("submitSwapTransaction", () => {
     (numberToHex as MockedFunction<typeof numberToHex>).mockReturnValue(mockSignatureLengthHex);
     (concat as MockedFunction<typeof concat>).mockReturnValue(mockConcatenatedData);
 
-    const result = await submitSwapTransaction(CdpOpenApiClient, {
+    const result = await sendSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
       network: mockNetwork,
       swap: mockSwap,
@@ -212,7 +212,7 @@ describe("submitSwapTransaction", () => {
   it("should pass idempotency key to API calls", async () => {
     const idempotencyKey = "test-idempotency-key";
 
-    const result = await submitSwapTransaction(CdpOpenApiClient, {
+    const result = await sendSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
       network: mockNetwork,
       swap: mockSwap,
@@ -244,7 +244,7 @@ describe("submitSwapTransaction", () => {
     mockSwap.transaction = undefined as any;
 
     await expect(
-      submitSwapTransaction(CdpOpenApiClient, {
+      sendSwapTransaction(CdpOpenApiClient, {
         address: mockAddress,
         network: mockNetwork,
         swap: mockSwap,
@@ -264,7 +264,7 @@ describe("submitSwapTransaction", () => {
       } : undefined,
     };
 
-    await submitSwapTransaction(CdpOpenApiClient, {
+    await sendSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
       network: mockNetwork,
       swap: modifiedSwap,
@@ -298,7 +298,7 @@ describe("submitSwapTransaction", () => {
       } : undefined,
     };
 
-    await submitSwapTransaction(CdpOpenApiClient, {
+    await sendSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
       network: mockNetwork,
       swap: modifiedSwap,
@@ -330,7 +330,7 @@ describe("submitSwapTransaction", () => {
 
     (createSwap as MockedFunction<typeof createSwap>).mockResolvedValue(mockSwap);
 
-    const result = await submitSwapTransaction(CdpOpenApiClient, {
+    const result = await sendSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
       network: mockNetwork,
       ...swapOptions,
@@ -379,7 +379,7 @@ describe("submitSwapTransaction", () => {
     (createSwap as MockedFunction<typeof createSwap>).mockResolvedValue(swapWithNoLiquidity);
 
     await expect(
-      submitSwapTransaction(CdpOpenApiClient, {
+      sendSwapTransaction(CdpOpenApiClient, {
         address: mockAddress,
         network: mockNetwork,
         ...swapOptions,
@@ -398,7 +398,7 @@ describe("submitSwapTransaction", () => {
 
   it("should throw error when neither swap nor swapOptions is provided", async () => {
     await expect(
-      submitSwapTransaction(CdpOpenApiClient, {
+      sendSwapTransaction(CdpOpenApiClient, {
         address: mockAddress,
         network: mockNetwork,
       } as any),

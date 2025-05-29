@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/account.submitSwapTransaction.ts
+// Usage: pnpm tsx evm/account.sendSwapTransaction.ts
 
 /**
  * This example demonstrates how to perform a token swap using the new all-in-one pattern.
@@ -6,7 +6,7 @@
  * 
  * 1. Uses account.swap() with swapOptions to create and execute swap in one call
  * 2. Automatically handles liquidity checks and throws error if insufficient
- * 3. Simplifies the swap flow by combining createSwap and submitSwapTransaction
+ * 3. Simplifies the swap flow by combining createSwap and sendSwapTransaction
  * 4. Still handles Permit2 signatures automatically for ERC20 token swaps
  * 5. Provides a more streamlined API for common swap use cases
  * 

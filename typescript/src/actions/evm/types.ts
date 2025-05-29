@@ -6,9 +6,9 @@ import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTo
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
 import type { SendTransactionOptions, TransactionResult } from "./sendTransaction.js";
 import type {
-  SubmitSwapTransactionOptions,
-  SubmitSwapTransactionResult,
-} from "./submitSwapTransaction.js";
+  SendSwapTransactionOptions,
+  SendSwapTransactionResult,
+} from "./sendSwapTransaction.js";
 import type { TransferOptions } from "./transfer/types.js";
 import type {
   WaitForUserOperationOptions,
@@ -18,12 +18,12 @@ import type {
 /**
  * Options for executing a token swap.
  */
-export type SwapOptions = Omit<SubmitSwapTransactionOptions, "address">;
+export type SwapOptions = Omit<SendSwapTransactionOptions, "address">;
 
 /**
  * Result of executing a token swap.
  */
-export type SwapResult = SubmitSwapTransactionResult;
+export type SwapResult = SendSwapTransactionResult;
 
 type Actions = {
   /**

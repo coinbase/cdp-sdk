@@ -12,9 +12,9 @@ import type { Address, Hex } from "../../types/misc.js";
 import type { TransactionRequestEIP1559 } from "viem";
 
 /**
- * Base options for submitting a swap transaction.
+ * Base options for sending a swap transaction.
  */
-interface BaseSubmitSwapTransactionOptions {
+interface BaseSendSwapTransactionOptions {
   /**
    * The address of the account that will execute the swap.
    */
@@ -34,7 +34,7 @@ interface BaseSubmitSwapTransactionOptions {
 /**
  * Options when providing an already created swap.
  */
-interface SubmitSwapTransactionWithSwapResult extends BaseSubmitSwapTransactionOptions {
+interface SendSwapTransactionWithSwapResult extends BaseSendSwapTransactionOptions {
   /**
    * The swap transaction data returned by the createSwap method.
    */
@@ -44,7 +44,7 @@ interface SubmitSwapTransactionWithSwapResult extends BaseSubmitSwapTransactionO
 /**
  * Options when creating a swap inline.
  */
-interface SubmitSwapTransactionWithSwapOptions extends BaseSubmitSwapTransactionOptions {
+interface SendSwapTransactionWithSwapOptions extends BaseSendSwapTransactionOptions {
   /** The token to buy (destination token). */
   buyToken: Address;
   /** The token to sell (source token). */
@@ -65,23 +65,23 @@ interface SubmitSwapTransactionWithSwapOptions extends BaseSubmitSwapTransaction
  * Type guard to check if options include inline swap parameters
  */
 function isSwapOptionsProvided(
-  options: SubmitSwapTransactionOptions,
-): options is SubmitSwapTransactionWithSwapOptions {
+  options: SendSwapTransactionOptions,
+): options is SendSwapTransactionWithSwapOptions {
   return "buyToken" in options && "sellToken" in options && "sellAmount" in options;
 }
 
 /**
- * Options for submitting a swap transaction.
+ * Options for sending a swap transaction.
  * Either provide a pre-created swap result or inline swap parameters.
  */
-export type SubmitSwapTransactionOptions =
-  | SubmitSwapTransactionWithSwapResult
-  | SubmitSwapTransactionWithSwapOptions;
+export type SendSwapTransactionOptions =
+  | SendSwapTransactionWithSwapResult
+  | SendSwapTransactionWithSwapOptions;
 
 /**
- * Result of submitting a swap transaction.
+ * Result of sending a swap transaction.
  */
-export interface SubmitSwapTransactionResult {
+export interface SendSwapTransactionResult {
   /**
    * The transaction hash of the submitted swap.
    */
@@ -89,17 +89,17 @@ export interface SubmitSwapTransactionResult {
 }
 
 /**
- * Submits a swap transaction to the blockchain.
+ * Sends a swap transaction to the blockchain.
  * Handles any permit2 signatures required for the swap.
  *
- * @param {CdpOpenApiClientType} client - The client to use for submitting the swap.
- * @param {SubmitSwapTransactionOptions} options - The options for the swap submission.
+ * @param {CdpOpenApiClientType} client - The client to use for sending the swap.
+ * @param {SendSwapTransactionOptions} options - The options for the swap submission.
  *
- * @returns {Promise<SubmitSwapTransactionResult>} A promise that resolves to the transaction hash.
+ * @returns {Promise<SendSwapTransactionResult>} A promise that resolves to the transaction hash.
  *
  * @throws {Error} If liquidity is not available when using swapOptions.
- * 
- * @example **Submitting a swap with pre-created swap result**
+ *
+ * @example **Sending a swap with pre-created swap result**
  * ```ts
  * // First create a swap
  * const swap = await cdp.evm.createSwap({
@@ -116,20 +116,20 @@ export interface SubmitSwapTransactionResult {
  *   return;
  * }
  *
- * // Submit the swap
- * const result = await submitSwapTransaction(client, {
+ * // Send the swap
+ * const result = await sendSwapTransaction(client, {
  *   address: account.address,
  *   network: "base",
  *   swap
  * });
  *
- * console.log(`Swap submitted with transaction hash: ${result.transactionHash}`);
+ * console.log(`Swap sent with transaction hash: ${result.transactionHash}`);
  * ```
- * 
- * @example **Submitting a swap with swap options (all-in-one)**
+ *
+ * @example **Sending a swap with inline options (all-in-one)**
  * ```ts
- * // Submit swap in one call
- * const result = await submitSwapTransaction(client, {
+ * // Send swap in one call
+ * const result = await sendSwapTransaction(client, {
  *   address: account.address,
  *   network: "base",
  *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
@@ -138,13 +138,13 @@ export interface SubmitSwapTransactionResult {
  *   taker: account.address
  * });
  *
- * console.log(`Swap submitted with transaction hash: ${result.transactionHash}`);
+ * console.log(`Swap sent with transaction hash: ${result.transactionHash}`);
  * ```
  */
-export async function submitSwapTransaction(
+export async function sendSwapTransaction(
   client: CdpOpenApiClientType,
-  options: SubmitSwapTransactionOptions,
-): Promise<SubmitSwapTransactionResult> {
+  options: SendSwapTransactionOptions,
+): Promise<SendSwapTransactionResult> {
   const { address, network, idempotencyKey } = options;
 
   let swap: CreateSwapResult;
@@ -173,7 +173,9 @@ export async function submitSwapTransaction(
     // Use the provided swap
     swap = options.swap;
   } else {
-    throw new Error("Either 'swap' or swap parameters (buyToken, sellToken, sellAmount) must be provided");
+    throw new Error(
+      "Either 'swap' or swap parameters (buyToken, sellToken, sellAmount) must be provided",
+    );
   }
 
   // If the transaction doesn't exist, throw an error
