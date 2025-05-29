@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.9.0] - 2025-05-29
+
+### Features
+
+- Added import account to evm client ([#157](https://github.com/coinbase/cdp-sdk/pull/157))
+
+
 ## [1.8.1] - 2025-05-16
 
 ### Misc
