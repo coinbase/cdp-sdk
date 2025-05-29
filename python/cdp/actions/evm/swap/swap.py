@@ -1,6 +1,5 @@
 """Main swap functionality."""
 
-
 from eth_account.signers.base import BaseAccount
 
 from cdp.actions.evm.swap.types import SwapOptions, SwapResult, SwapStrategy

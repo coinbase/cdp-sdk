@@ -11,9 +11,7 @@ class SwapOptions(BaseModel):
 
     from_asset: str = Field(description="The asset to swap from (token symbol or contract address)")
     to_asset: str = Field(description="The asset to swap to (token symbol or contract address)")
-    amount: str | int = Field(
-        description="The amount to swap (in smallest unit or as string)"
-    )
+    amount: str | int = Field(description="The amount to swap (in smallest unit or as string)")
     network: str = Field(description="The network to execute the swap on")
     slippage_percentage: float | None = Field(
         default=0.5, description="Maximum slippage percentage (default: 0.5%)"

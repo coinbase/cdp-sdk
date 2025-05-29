@@ -1,6 +1,5 @@
 """Utility functions for swap operations."""
 
-
 from cdp.actions.evm.swap.constants import TOKEN_ADDRESSES
 
 
