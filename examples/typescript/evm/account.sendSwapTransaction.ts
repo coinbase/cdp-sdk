@@ -22,7 +22,7 @@ import {
   http, 
   erc20Abi,
   encodeFunctionData,
-  formatEther
+  formatEther,
 } from "viem";
 import { base } from "viem/chains";
 import "dotenv/config";
@@ -90,7 +90,7 @@ async function main() {
     console.log("\nCreating and submitting swap in one call...");
     
     try {
-      // Use the new swapOptions pattern - this creates and executes the swap in one call
+      // Create and execute the swap in one call
       const result = await ownerAccount.swap({
         network: NETWORK,
         buyToken: buyToken.address as `0x${string}`,
@@ -99,6 +99,36 @@ async function main() {
         taker: ownerAccount.address,
         slippageBps: 100, // 1% slippage tolerance
       });
+
+      /* Alternative approach: Create swap first, inspect it, then send it separately
+      // This gives you more control to analyze the swap details before execution
+      
+      // Step 1: Create the swap
+      const swapResponse = await cdp.evm.createSwap({
+        network: NETWORK,
+        buyToken: buyToken.address as `0x${string}`,
+        sellToken: sellToken.address as `0x${string}`,
+        sellAmount,
+        taker: ownerAccount.address,
+        slippageBps: 100, // 1% slippage tolerance
+      });
+      
+      // Step 2: Check if liquidity is available
+      if (!swapResponse.liquidityAvailable) {
+        console.log("\n❌ Swap failed: Insufficient liquidity for this swap pair or amount.");
+        return;
+      }
+      
+      // Step 3: Optionally inspect swap details
+      console.log(`Buy Amount: ${formatUnits(BigInt(swapResponse.buyAmount), buyToken.decimals)} ${buyToken.symbol}`);
+      console.log(`Min Buy Amount: ${formatUnits(BigInt(swapResponse.minBuyAmount), buyToken.decimals)} ${buyToken.symbol}`);
+      
+      // Step 4: Send the swap transaction
+      const result = await ownerAccount.swap({
+        network: NETWORK,
+        swap: swapResponse,
+      });
+      */
 
       console.log(`\n✅ Swap submitted successfully!`);
       console.log(`Transaction hash: ${result.transactionHash}`);
