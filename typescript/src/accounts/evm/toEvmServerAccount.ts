@@ -20,10 +20,8 @@ import type {
   SendTransactionOptions,
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
-import type {
-  SubmitSwapTransactionOptions,
-  SubmitSwapTransactionResult,
-} from "../../actions/evm/submitSwapTransaction.js";
+import type { SubmitSwapTransactionOptions } from "../../actions/evm/submitSwapTransaction.js";
+import type { SwapOptions, SwapResult } from "../../actions/evm/types.js";
 import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
 import type { Address, EIP712Message, Hash, Hex } from "../../types/misc.js";
 
@@ -100,9 +98,7 @@ export function toEvmServerAccount(
         address: this.address,
       });
     },
-    async swap(
-      options: Omit<SubmitSwapTransactionOptions, "address">,
-    ): Promise<SubmitSwapTransactionResult> {
+    async swap(options: SwapOptions): Promise<SwapResult> {
       return submitSwapTransaction(apiClient, {
         ...options,
         address: this.address,

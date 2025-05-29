@@ -15,6 +15,16 @@ import type {
   WaitForUserOperationReturnType,
 } from "./waitForUserOperation.js";
 
+/**
+ * Options for executing a token swap.
+ */
+export type SwapOptions = Omit<SubmitSwapTransactionOptions, "address">;
+
+/**
+ * Result of executing a token swap.
+ */
+export type SwapResult = SubmitSwapTransactionResult;
+
 type Actions = {
   /**
    * List the token balances of an account.
@@ -185,8 +195,8 @@ export type AccountActions = Actions & {
    * Executes a token swap on the specified network.
    * This method handles all the steps required for a swap, including Permit2 signatures if needed.
    *
-   * @param {SubmitSwapTransactionOptions} options - Configuration options for the swap.
-   * @param {SendEvmTransactionBodyNetwork} options.network - The network to execute the swap on.
+   * @param {SwapOptions} options - Configuration options for the swap.
+   * @param {string} options.network - The network to execute the swap on.
    * @param {CreateSwapResult} [options.swap] - The swap transaction data returned by the createSwap method.
    * @param {CreateSwapOptions} [options.swapOptions] - Options to create a swap. The function will call createSwap internally.
    * @param {string} [options.idempotencyKey] - Optional idempotency key for the request.
@@ -237,9 +247,7 @@ export type AccountActions = Actions & {
    * console.log(`Swap executed with transaction hash: ${transactionHash}`);
    * ```
    */
-  swap: (
-    options: Omit<SubmitSwapTransactionOptions, "address">,
-  ) => Promise<SubmitSwapTransactionResult>;
+  swap: (options: SwapOptions) => Promise<SwapResult>;
 };
 
 export type SmartAccountActions = Actions & {
