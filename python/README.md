@@ -510,7 +510,7 @@ transfer_result = await sender.transfer(
 )
 ```
 
-You can also pass another account as the `to` parameter:
+You can pass another account as the `to` parameter:
 
 ```python
 from cdp import parse_units
@@ -583,6 +583,120 @@ tx_hash = await sender.transfer(
     network="devet",
 )
 ```
+
+### Swapping tokens
+
+#### EVM
+
+For complete examples, check out [account.swap.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.swap.py) and [smartAccount.swap.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smartAccount.swap.py).
+
+You can swap tokens between different assets using the `swap` function. The SDK supports swapping tokens on supported EVM networks with automatic slippage protection and optimal routing.
+
+#### Basic Token Swap with Regular Account
+
+```python
+from cdp.actions.evm.swap import SwapOptions
+
+async def main():
+    async with CdpClient() as cdp:
+        account = await cdp.evm.create_account(name="SwapAccount")
+        
+        # Swap 0.001 ETH to USDC
+        swap_result = await account.swap(
+            SwapOptions(
+                from_asset="eth",
+                to_asset="usdc",
+                amount="0.001",  # 0.001 ETH
+                network="base-sepolia",
+                slippage_percentage=0.5,  # 0.5% slippage tolerance
+            )
+        )
+        
+        print(f"Swap completed!")
+        print(f"Transaction hash: {swap_result.transaction_hash}")
+        print(f"Swapped {swap_result.from_amount} {swap_result.from_asset} for {swap_result.to_amount} {swap_result.to_asset}")
+```
+
+#### Using Dictionary Parameters
+
+You can also pass swap parameters as a dictionary:
+
+```python
+swap_result = await account.swap({
+    "from_asset": "usdc",
+    "to_asset": "eth",
+    "amount": "1000000",  # 1 USDC in atomic units (6 decimals)
+    "network": "base-sepolia",
+    "slippage_percentage": 1.0,  # 1% slippage tolerance
+})
+```
+
+#### Using Contract Addresses
+
+You can specify tokens using their contract addresses instead of symbols:
+
+```python
+swap_result = await account.swap(
+    SwapOptions(
+        from_asset="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
+        to_asset="0x4200000000000000000000000000000000000006",   # WETH on Base
+        amount="1000000",  # 1 USDC
+        network="base",
+        slippage_percentage=0.5,
+    )
+)
+```
+
+#### Gasless Swaps with Smart Accounts
+
+Smart Accounts can perform gasless swaps on supported networks like Base:
+
+```python
+from eth_account import Account
+
+async def main():
+    async with CdpClient() as cdp:
+        # Create an owner account for the smart account
+        owner = await cdp.evm.create_account(name="smart-account-owner")
+        
+        # Create a smart account
+        smart_account = await cdp.evm.create_smart_account(owner=owner)
+        
+        # Perform gasless swap
+        swap_result = await smart_account.swap(
+            SwapOptions(
+                from_asset="eth",
+                to_asset="usdc",
+                amount="0.001",  # 0.001 ETH
+                network="base-sepolia",
+                slippage_percentage=1.0,  # 1% slippage tolerance
+            )
+        )
+        
+        print(f"Gasless swap completed!")
+        print(f"User operation hash: {swap_result.transaction_hash}")
+        print(f"Status: {swap_result.status}")
+```
+
+#### Swap Result
+
+The `swap` function returns a `SwapResult` object containing:
+
+- `transaction_hash`: The transaction or user operation hash
+- `from_asset`: The source token
+- `to_asset`: The destination token
+- `from_amount`: The amount of source token swapped
+- `to_amount`: The amount of destination token received
+- `status`: The swap status ("completed", "pending", or "failed")
+
+#### Supported Networks and Tokens
+
+The swap functionality supports:
+
+- **Networks**: Base, Base Sepolia, Ethereum, and other EVM-compatible networks
+- **Tokens**: ETH, USDC, WETH, and other ERC-20 tokens
+- **Token formats**: Token symbols (e.g., "eth", "usdc") or contract addresses
+- **Amount formats**: Decimal strings (e.g., "0.001") or atomic units (e.g., "1000000")
 
 ### EVM Smart Accounts
 
@@ -675,6 +789,7 @@ EvmAccount supports the following actions:
 - `sign_transaction`
 - `send_transaction`
 - `transfer`
+- `swap`
 
 EvmSmartAccount supports the following actions:
 
@@ -684,6 +799,7 @@ EvmSmartAccount supports the following actions:
 - `wait_for_user_operation`
 - `get_user_operation`
 - `transfer`
+- `swap`
 
 SolanaAccount supports the following actions:
 
