@@ -51,10 +51,6 @@ export interface SubmitSwapTransactionResult {
  *
  * @param {CdpOpenApiClientType} client - The client to use for submitting the swap.
  * @param {SubmitSwapTransactionOptions} options - The options for the swap submission.
- * @param {Address} options.address - The address of the account that will execute the swap.
- * @param {SendEvmTransactionBodyNetwork} options.network - The network to execute the swap on.
- * @param {CreateSwapResponse} options.swap - The swap transaction data returned by the createSwap method.
- * @param {string} [options.idempotencyKey] - Optional idempotency key for the request.
  *
  * @returns {Promise<SubmitSwapTransactionResult>} A promise that resolves to the transaction hash.
  *
