@@ -106,7 +106,7 @@ export function toEvmServerAccount(
       return submitSwapTransaction(apiClient, {
         ...options,
         address: this.address,
-      });
+      } as SubmitSwapTransactionOptions);
     },
     name: options.account.name,
     type: "evm-server",

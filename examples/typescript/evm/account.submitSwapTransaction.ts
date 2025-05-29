@@ -1,23 +1,22 @@
 // Usage: pnpm tsx evm/account.submitSwapTransaction.ts
 
 /**
- * This example demonstrates how to perform a complete token swap using a CDP-managed account.
+ * This example demonstrates how to perform a token swap using the new all-in-one pattern.
  * Key features of this approach:
  * 
- * 1. Uses CDP's account.swap() method which handles the entire swap flow
- * 2. Automatically manages Permit2 signatures for ERC20 token swaps
- * 3. Handles token allowance checks and approvals when needed
- * 4. Uses CDP's transaction management for reliable execution
- * 5. Provides detailed swap information including exchange rates and price impact
+ * 1. Uses account.swap() with swapOptions to create and execute swap in one call
+ * 2. Automatically handles liquidity checks and throws error if insufficient
+ * 3. Simplifies the swap flow by combining createSwap and submitSwapTransaction
+ * 4. Still handles Permit2 signatures automatically for ERC20 token swaps
+ * 5. Provides a more streamlined API for common swap use cases
  * 
- * This is the simplest way to execute swaps if you're already using CDP accounts.
- * The SDK abstracts away the complexity of Permit2 signatures and transaction
- * construction, making it ideal for applications that want a streamlined experience.
+ * This is the simplest way to execute swaps when you don't need to inspect the
+ * swap details before execution. The SDK will automatically check liquidity and
+ * throw an error if the swap cannot be executed.
  */
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import { 
-  formatUnits, 
   parseEther, 
   createPublicClient, 
   http, 
@@ -64,7 +63,7 @@ async function main() {
   console.log(`Note: This example is using ${NETWORK} network. Make sure you have funds available.`);
 
   // Get or create an account to use for the swap
-  const ownerAccount = await cdp.evm.getOrCreateAccount({ name: "SwapAccount" });
+  const ownerAccount = await cdp.evm.getOrCreateAccount({ name: "SwapAccountWithOptions" });
   console.log(`\nUsing account: ${ownerAccount.address}`);
 
   try {
@@ -87,60 +86,50 @@ async function main() {
       );
     }
     
-    // Create the swap transaction
-    console.log("\nCreating swap quote...");
-    const swapResponse = await cdp.evm.createSwap({
-      network: NETWORK,
-      buyToken: buyToken.address as `0x${string}`,
-      sellToken: sellToken.address as `0x${string}`,
-      sellAmount,
-      taker: ownerAccount.address,
-      slippageBps: 100, // 1% slippage tolerance
-    });
+    // Submit the swap transaction using the new all-in-one pattern
+    console.log("\nCreating and submitting swap in one call...");
     
-    // Check if swap is available (handle the union type)
-    if (!('transaction' in swapResponse) || !swapResponse.liquidityAvailable) {
-      console.log("\n❌ Swap unavailable. Insufficient liquidity or other issues.");
-      return;
+    try {
+      // Use the new swapOptions pattern - this creates and executes the swap in one call
+      const result = await ownerAccount.swap({
+        network: NETWORK,
+        swapOptions: {
+          network: NETWORK,
+          buyToken: buyToken.address as `0x${string}`,
+          sellToken: sellToken.address as `0x${string}`,
+          sellAmount,
+          taker: ownerAccount.address,
+          slippageBps: 100, // 1% slippage tolerance
+        }
+      });
+
+      console.log(`\n✅ Swap submitted successfully!`);
+      console.log(`Transaction hash: ${result.transactionHash}`);
+      console.log(`Waiting for confirmation...`);
+
+      // Wait for transaction confirmation using viem
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: result.transactionHash,
+      });
+
+      console.log("\nSwap Transaction Confirmed!");
+      console.log(`Block number: ${receipt.blockNumber}`);
+      console.log(`Gas used: ${receipt.gasUsed}`);
+      console.log(`Status: ${receipt.status === 'success' ? 'Success ✅' : 'Failed ❌'}`);
+      console.log(`Transaction Explorer: https://basescan.org/tx/${result.transactionHash}`);
+      
+    } catch (error: any) {
+      // The new pattern will throw an error if liquidity is not available
+      if (error.message?.includes("Insufficient liquidity")) {
+        console.log("\n❌ Swap failed: Insufficient liquidity for this swap pair or amount.");
+        console.log("Try reducing the swap amount or using a different token pair.");
+      } else {
+        throw error;
+      }
     }
-    
-    // Type assertion after checking
-    const swap = swapResponse as any;
-    
-    // Log swap details
-    logSwapInfo(swap, sellToken, buyToken);
-    
-    // Validate the swap for any issues
-    if (!validateSwap(swap)) {
-      return;
-    }
-    
-    // Submit the swap transaction
-    console.log("\nSubmitting the swap onchain...");
-
-    // Use the CDP account to submit the swap
-    // The swap method automatically handles Permit2 signatures if needed
-    const result = await ownerAccount.swap({
-      network: NETWORK,
-      swap,
-    });
-
-    console.log(`Transaction hash: ${result.transactionHash}`);
-    console.log(`Waiting for confirmation...`);
-
-    // Wait for transaction confirmation using viem
-    const receipt = await publicClient.waitForTransactionReceipt({
-      hash: result.transactionHash,
-    });
-
-    console.log("\nSwap Transaction Confirmed!");
-    console.log(`Block number: ${receipt.blockNumber}`);
-    console.log(`Gas used: ${receipt.gasUsed}`);
-    console.log(`Status: ${receipt.status === 'success' ? 'Success ✅' : 'Failed ❌'}`);
-    console.log(`Transaction Explorer: https://basescan.org/tx/${result.transactionHash}`);
     
   } catch (error) {
-    console.error("Error creating swap:", error);
+    console.error("Error executing swap:", error);
   }
 }
 
@@ -230,93 +219,6 @@ async function approveTokenAllowance(
 }
 
 /**
- * Logs information about the swap
- * @param swap - The swap transaction data
- * @param sellToken - The token being sold
- * @param buyToken - The token being bought
- */
-function logSwapInfo(
-  swap: any,
-  sellToken: typeof TOKENS.WETH,
-  buyToken: typeof TOKENS.USDC
-): void {
-  if (!swap.liquidityAvailable) {
-    return;
-  }
-
-  console.log("\nSwap Transaction Created:");
-  console.log("-------------------------");
-  console.log(`Buy Amount: ${formatUnits(BigInt(swap.buyAmount), buyToken.decimals)} ${buyToken.symbol}`);
-  console.log(`Min Buy Amount: ${formatUnits(BigInt(swap.minBuyAmount), buyToken.decimals)} ${buyToken.symbol}`);
-  console.log(`Sell Amount: ${formatUnits(BigInt(swap.sellAmount), sellToken.decimals)} ${sellToken.symbol}`);
-  
-  // Calculate and display price ratios
-  const sellAmountBigInt = BigInt(swap.sellAmount);
-  const buyAmountBigInt = BigInt(swap.buyAmount);
-  const minBuyAmountBigInt = BigInt(swap.minBuyAmount);
-  
-  // Calculate exchange rate: How many buy tokens per 1 sell token
-  const sellToBuyRate = Number(buyAmountBigInt) / (10 ** buyToken.decimals) * 
-                       (10 ** sellToken.decimals) / Number(sellAmountBigInt);
-  
-  // Calculate minimum exchange rate with slippage applied
-  const minSellToBuyRate = Number(minBuyAmountBigInt) / (10 ** buyToken.decimals) * 
-                         (10 ** sellToken.decimals) / Number(sellAmountBigInt);
-  
-  // Calculate maximum buyToken to sellToken ratio with slippage
-  const maxBuyToSellRate = Number(sellAmountBigInt) / (10 ** sellToken.decimals) *
-                         (10 ** buyToken.decimals) / Number(minBuyAmountBigInt);
-
-  // Calculate exchange rate: How many sell tokens per 1 buy token
-  const buyToSellRate = Number(sellAmountBigInt) / (10 ** sellToken.decimals) *
-                       (10 ** buyToken.decimals) / Number(buyAmountBigInt);
-  
-  console.log("\nToken Price Calculations:");
-  console.log("------------------------");
-  console.log(`1 ${sellToken.symbol} = ${sellToBuyRate.toFixed(buyToken.decimals)} ${buyToken.symbol}`);
-  console.log(`1 ${buyToken.symbol} = ${buyToSellRate.toFixed(sellToken.decimals)} ${sellToken.symbol}`);
-  
-  // Calculate effective exchange rate with slippage applied
-  console.log("\nWith Slippage Applied (Worst Case):");
-  console.log("----------------------------------");
-  console.log(`1 ${sellToken.symbol} = ${minSellToBuyRate.toFixed(buyToken.decimals)} ${buyToken.symbol} (minimum)`);
-  console.log(`1 ${buyToken.symbol} = ${maxBuyToSellRate.toFixed(sellToken.decimals)} ${sellToken.symbol} (maximum)`);
-  console.log(`Maximum price impact: ${((sellToBuyRate - minSellToBuyRate) / sellToBuyRate * 100).toFixed(2)}%`);
-  
-  console.log("\nSuggested Gas Details:");
-  console.log("----------------------------------");
-  console.log(`Gas: ${swap.transaction.gas}`);
-  console.log(`Gas Price: ${swap.transaction.gasPrice}`);
-}
-
-/**
- * Validates the swap for any issues
- * @param swap - The swap transaction data
- * @returns true if swap is valid, false if there are issues
- */
-function validateSwap(swap: any): boolean {
-  if (!swap.liquidityAvailable) {
-    console.log("Insufficient liquidity available for this swap.");
-    return false;
-  }
-  
-  if (swap.issues.balance) {
-    console.log("\nBalance Issues:");
-    console.log(`Current Balance: ${swap.issues.balance.currentBalance}`);
-    console.log(`Required Balance: ${swap.issues.balance.requiredBalance}`);
-    console.log(`Token: ${swap.issues.balance.token}`);
-    console.log("\nInsufficient balance. Please add funds to your account.");
-    return false;
-  }
-
-  if (swap.issues.simulationIncomplete) {
-    console.log("\n⚠️ WARNING: Simulation incomplete. Transaction may fail.");
-  }
-  
-  return true;
-}
-
-/**
  * Check token allowance for the Permit2 contract
  * @param owner - The token owner's address
  * @param token - The token contract address
@@ -346,4 +248,4 @@ async function getAllowance(
   }
 }
 
-main().catch(console.error);
+main().catch(console.error); 

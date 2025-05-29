@@ -1,8 +1,9 @@
 import { concat, numberToHex, size } from "viem";
 
+import { createSwap } from "./createSwap.js";
 import { sendTransaction } from "./sendTransaction.js";
 
-import type { CreateSwapResult } from "../../client/evm/evm.types.js";
+import type { CreateSwapResult, CreateSwapOptions } from "../../client/evm/evm.types.js";
 import type {
   CdpOpenApiClientType,
   SendEvmTransactionBodyNetwork,
@@ -11,9 +12,9 @@ import type { Address, Hex } from "../../types/misc.js";
 import type { TransactionRequestEIP1559 } from "viem";
 
 /**
- * Options for submitting a swap transaction.
+ * Base options for submitting a swap transaction.
  */
-export interface SubmitSwapTransactionOptions {
+interface BaseSubmitSwapTransactionOptions {
   /**
    * The address of the account that will execute the swap.
    */
@@ -25,15 +26,48 @@ export interface SubmitSwapTransactionOptions {
   network: SendEvmTransactionBodyNetwork;
 
   /**
+   * Optional idempotency key for the request.
+   */
+  idempotencyKey?: string;
+}
+
+/**
+ * Options when providing an already created swap.
+ */
+interface SubmitSwapTransactionWithSwapResult extends BaseSubmitSwapTransactionOptions {
+  /**
    * The swap transaction data returned by the createSwap method.
    */
   swap: CreateSwapResult;
 
   /**
-   * Optional idempotency key for the request.
+   * Should not be provided when swap is provided.
    */
-  idempotencyKey?: string;
+  swapOptions?: never;
 }
+
+/**
+ * Options when providing swap creation options.
+ */
+interface SubmitSwapTransactionWithSwapOptions extends BaseSubmitSwapTransactionOptions {
+  /**
+   * The options to create a swap. The function will call createSwap internally.
+   */
+  swapOptions: CreateSwapOptions;
+
+  /**
+   * Should not be provided when swapOptions is provided.
+   */
+  swap?: never;
+}
+
+/**
+ * Options for submitting a swap transaction.
+ * Either provide a pre-created swap result or swap options to create the swap internally.
+ */
+export type SubmitSwapTransactionOptions =
+  | SubmitSwapTransactionWithSwapResult
+  | SubmitSwapTransactionWithSwapOptions;
 
 /**
  * Result of submitting a swap transaction.
@@ -54,7 +88,9 @@ export interface SubmitSwapTransactionResult {
  *
  * @returns {Promise<SubmitSwapTransactionResult>} A promise that resolves to the transaction hash.
  *
- * @example **Submitting a swap**
+ * @throws {Error} If liquidity is not available when using swapOptions.
+ * 
+ * @example **Submitting a swap with pre-created swap result**
  * ```ts
  * // First create a swap
  * const swap = await cdp.evm.createSwap({
@@ -80,12 +116,50 @@ export interface SubmitSwapTransactionResult {
  *
  * console.log(`Swap submitted with transaction hash: ${result.transactionHash}`);
  * ```
+ * 
+ * @example **Submitting a swap with swap options (all-in-one)**
+ * ```ts
+ * // Submit swap in one call
+ * const result = await submitSwapTransaction(client, {
+ *   address: account.address,
+ *   network: "base",
+ *   swapOptions: {
+ *     network: "base",
+ *     buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+ *     sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+ *     sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+ *     taker: account.address
+ *   }
+ * });
+ *
+ * console.log(`Swap submitted with transaction hash: ${result.transactionHash}`);
+ * ```
  */
 export async function submitSwapTransaction(
   client: CdpOpenApiClientType,
   options: SubmitSwapTransactionOptions,
 ): Promise<SubmitSwapTransactionResult> {
-  const { address, network, swap, idempotencyKey } = options;
+  const { address, network, idempotencyKey } = options;
+
+  let swap: CreateSwapResult;
+
+  // Determine if we need to create the swap or use the provided one
+  if ("swapOptions" in options && options.swapOptions) {
+    // Create the swap using the provided options
+    const swapResult = await createSwap(client, options.swapOptions);
+
+    // Check if liquidity is available
+    if (!swapResult.liquidityAvailable) {
+      throw new Error("Insufficient liquidity for swap");
+    }
+
+    swap = swapResult as CreateSwapResult;
+  } else if ("swap" in options && options.swap) {
+    // Use the provided swap
+    swap = options.swap;
+  } else {
+    throw new Error("Either 'swap' or 'swapOptions' must be provided");
+  }
 
   // If the transaction doesn't exist, throw an error
   if (!swap.transaction) {

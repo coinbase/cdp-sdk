@@ -187,12 +187,15 @@ export type AccountActions = Actions & {
    *
    * @param {SubmitSwapTransactionOptions} options - Configuration options for the swap.
    * @param {SendEvmTransactionBodyNetwork} options.network - The network to execute the swap on.
-   * @param {CreateSwapResult} options.swap - The swap transaction data returned by the createSwap method.
+   * @param {CreateSwapResult} [options.swap] - The swap transaction data returned by the createSwap method.
+   * @param {CreateSwapOptions} [options.swapOptions] - Options to create a swap. The function will call createSwap internally.
    * @param {string} [options.idempotencyKey] - Optional idempotency key for the request.
    *
    * @returns A promise that resolves to the transaction hash.
    *
-   * @example
+   * @throws {Error} If liquidity is not available when using swapOptions.
+   *
+   * @example **Using a pre-created swap**
    * ```ts
    * // First create a swap quote
    * const swap = await cdp.evm.createSwap({
@@ -213,6 +216,23 @@ export type AccountActions = Actions & {
    * const { transactionHash } = await account.swap({
    *   network: "base",
    *   swap
+   * });
+   *
+   * console.log(`Swap executed with transaction hash: ${transactionHash}`);
+   * ```
+   *
+   * @example **Using swap options (all-in-one)**
+   * ```ts
+   * // Create and execute swap in one call
+   * const { transactionHash } = await account.swap({
+   *   network: "base",
+   *   swapOptions: {
+   *     network: "base",
+   *     buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *     sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *     sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+   *     taker: account.address
+   *   }
    * });
    *
    * console.log(`Swap executed with transaction hash: ${transactionHash}`);

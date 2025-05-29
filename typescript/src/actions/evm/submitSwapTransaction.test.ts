@@ -4,12 +4,17 @@ import { Address, numberToHex, concat, size } from "viem";
 
 import { submitSwapTransaction } from "./submitSwapTransaction.js";
 import { sendTransaction } from "./sendTransaction.js";
+import { createSwap } from "./createSwap.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 import type { CreateSwapResult } from "../../client/evm/evm.types.js";
 
 // Mock dependencies
 vi.mock("./sendTransaction.js", () => ({
   sendTransaction: vi.fn(),
+}));
+
+vi.mock("./createSwap.js", () => ({
+  createSwap: vi.fn(),
 }));
 
 vi.mock("viem", async () => {
@@ -30,7 +35,7 @@ vi.mock("../../openapi-client/index.js", () => ({
 
 describe("submitSwapTransaction", () => {
   const mockAddress = "0x1234567890123456789012345678901234567890" as Address;
-  const mockNetwork = "base";
+  const mockNetwork = "base" as const;
   const mockTransactionHash = "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890";
   let mockSwap: CreateSwapResult;
 
@@ -313,5 +318,86 @@ describe("submitSwapTransaction", () => {
         idempotencyKey: undefined,
       },
     );
+  });
+
+  it("should create swap when swapOptions is provided", async () => {
+    const swapOptions = {
+      network: "base" as const,
+      buyToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
+      sellToken: "0x4200000000000000000000000000000000000006" as `0x${string}`,
+      sellAmount: BigInt("1000000000000000000"),
+      taker: mockAddress,
+    };
+
+    (createSwap as MockedFunction<typeof createSwap>).mockResolvedValue(mockSwap);
+
+    const result = await submitSwapTransaction(CdpOpenApiClient, {
+      address: mockAddress,
+      network: mockNetwork,
+      swapOptions,
+    });
+
+    // Check that createSwap was called with the correct options
+    expect(createSwap).toHaveBeenCalledWith(CdpOpenApiClient, swapOptions);
+
+    // Check that sendTransaction was called with the created swap
+    expect(sendTransaction).toHaveBeenCalledWith(
+      CdpOpenApiClient,
+      {
+        address: mockAddress,
+        network: mockNetwork,
+        transaction: {
+          to: mockSwap.transaction!.to as `0x${string}`,
+          data: mockSwap.transaction!.data as `0x${string}`,
+          gas: BigInt(mockSwap.transaction!.gas!),
+          value: BigInt(mockSwap.transaction!.value!),
+        },
+        idempotencyKey: undefined,
+      },
+    );
+
+    expect(result).toEqual({
+      transactionHash: mockTransactionHash,
+    });
+  });
+
+  it("should throw error when swapOptions is provided but liquidity is not available", async () => {
+    const swapOptions = {
+      network: "base" as const,
+      buyToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
+      sellToken: "0x4200000000000000000000000000000000000006" as `0x${string}`,
+      sellAmount: BigInt("1000000000000000000"),
+      taker: mockAddress,
+    };
+
+    const swapWithNoLiquidity = {
+      ...mockSwap,
+      liquidityAvailable: false,
+    };
+
+    (createSwap as MockedFunction<typeof createSwap>).mockResolvedValue(swapWithNoLiquidity);
+
+    await expect(
+      submitSwapTransaction(CdpOpenApiClient, {
+        address: mockAddress,
+        network: mockNetwork,
+        swapOptions,
+      }),
+    ).rejects.toThrow("Insufficient liquidity for swap");
+
+    // Check that createSwap was called
+    expect(createSwap).toHaveBeenCalledWith(CdpOpenApiClient, swapOptions);
+
+    // Check that sendTransaction was NOT called
+    expect(sendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("should throw error when neither swap nor swapOptions is provided", async () => {
+    await expect(
+      submitSwapTransaction(CdpOpenApiClient, {
+        address: mockAddress,
+        network: mockNetwork,
+      } as any),
+    ).rejects.toThrow("Either 'swap' or 'swapOptions' must be provided");
   });
 });
