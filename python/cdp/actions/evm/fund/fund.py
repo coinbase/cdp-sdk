@@ -18,7 +18,7 @@ class FundOptions(BaseModel):
     """The options for funding an EVM account."""
 
     # The network to fund the account on
-    network: Literal["base", "ethereum"]
+    network: Literal["base"]
 
     # The amount of the token to fund
     amount: int

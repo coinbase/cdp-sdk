@@ -14,7 +14,7 @@ export interface FundOptions {
   /** The address of the account. */
   address: string;
   /** The network to request funds from. */
-  network: "base" | "ethereum";
+  network: "base";
   /** The amount to fund the account with, in atomic units (wei) of the token. */
   amount: bigint;
   /** The token to request funds for. */
