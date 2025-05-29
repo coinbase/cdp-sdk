@@ -1,17 +1,15 @@
+import asyncio
 from typing import Any
 
+import nest_asyncio
 from eth_account.datastructures import SignedMessage, SignedTransaction
 from eth_account.messages import SignableMessage
 from eth_account.signers.base import BaseAccount
 from eth_account.types import TransactionDictType
 from eth_typing import Hash32
-import nest_asyncio
 
 from cdp.evm_server_account import EvmServerAccount
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
-
-import asyncio
-
 
 # Apply nest-asyncio to allow nested event loops
 nest_asyncio.apply()
@@ -78,9 +76,7 @@ class EvmLocalAccount(BaseAccount):
             SignedMessage: The signed message.
 
         """
-        return _run_async(
-            self._server_account.unsafe_sign_hash(message_hash)
-        )
+        return _run_async(self._server_account.unsafe_sign_hash(message_hash))
 
     def sign_message(self, signable_message: SignableMessage) -> SignedMessage:
         """Sign a message.
@@ -92,9 +88,7 @@ class EvmLocalAccount(BaseAccount):
             SignedMessage: The signed message.
 
         """
-        return _run_async(
-            self._server_account.sign_message(signable_message)
-        )
+        return _run_async(self._server_account.sign_message(signable_message))
 
     def sign_transaction(self, transaction_dict: TransactionDictType) -> SignedTransaction:
         """Sign a transaction.
@@ -106,9 +100,7 @@ class EvmLocalAccount(BaseAccount):
             SignedTransaction: The signed transaction.
 
         """
-        return _run_async(
-            self._server_account.sign_transaction(transaction_dict)
-        )
+        return _run_async(self._server_account.sign_transaction(transaction_dict))
 
     def sign_typed_data(
         self,
