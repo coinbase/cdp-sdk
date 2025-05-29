@@ -29,6 +29,7 @@ import {
 import { SolanaAccount } from "./accounts/solana/types.js";
 import type { Policy } from "./policies/types.js";
 import type { WaitForUserOperationReturnType } from "./actions/evm/waitForUserOperation.js";
+import { TimeoutError } from "./errors.js";
 
 dotenv.config();
 
@@ -412,8 +413,12 @@ describe("CDP Client E2E Tests", () => {
     try {
       await Promise.race([test(), timeout(25000)]);
     } catch (error) {
-      console.log("Error: ", error);
-      console.log("Ignoring for now...");
+      if (error instanceof TimeoutError) {
+        console.log("Error: ", error.message);
+        console.log("Ignoring for now...");
+      } else {
+        throw error;
+      }
     }
   });
 
@@ -593,8 +598,12 @@ describe("CDP Client E2E Tests", () => {
           expect(receipt).toBeDefined();
           expect((receipt as TransactionReceipt).status).toBe("success");
         } catch (error) {
-          console.log("Error: ", error);
-          console.log("Ignoring for now...");
+          if (error instanceof TimeoutError) {
+            console.log("Error: ", error.message);
+            console.log("Ignoring for now...");
+          } else {
+            throw error;
+          }
         }
       });
 
@@ -617,8 +626,12 @@ describe("CDP Client E2E Tests", () => {
           expect(receipt).toBeDefined();
           expect((receipt as TransactionReceipt).status).toBe("success");
         } catch (error) {
-          console.log("Error: ", error);
-          console.log("Ignoring for now...");
+          if (error instanceof TimeoutError) {
+            console.log("Error: ", error.message);
+            console.log("Ignoring for now...");
+          } else {
+            throw error;
+          }
         }
       });
     });
@@ -662,8 +675,12 @@ describe("CDP Client E2E Tests", () => {
           const transactionHash = await Promise.race([test(), timeout(25000)]);
           expect(transactionHash).toBeDefined();
         } catch (error) {
-          console.log("Error: ", error);
-          console.log("Ignoring for now...");
+          if (error instanceof TimeoutError) {
+            console.log("Error: ", error.message);
+            console.log("Ignoring for now...");
+          } else {
+            throw error;
+          }
         }
       });
     });
@@ -716,7 +733,7 @@ describe("CDP Client E2E Tests", () => {
           expect(receipt).toBeDefined();
           expect((receipt as WaitForUserOperationReturnType).status).toBe("complete");
         } catch (error) {
-          console.log("Error: ", error);
+          console.log("Error: ", error.message);
           console.log("Ignoring for now...");
         }
       });
@@ -740,7 +757,7 @@ describe("CDP Client E2E Tests", () => {
           expect(receipt).toBeDefined();
           expect((receipt as WaitForUserOperationReturnType).status).toBe("complete");
         } catch (error) {
-          console.log("Error: ", error);
+          console.log("Error: ", error.message);
           console.log("Ignoring for now...");
         }
       });
@@ -1069,7 +1086,9 @@ describe("CDP Client E2E Tests", () => {
 });
 
 function timeout(ms: number) {
-  return new Promise((_, reject) => setTimeout(() => reject(new Error("Test took too long")), ms));
+  return new Promise((_, reject) =>
+    setTimeout(() => reject(new TimeoutError(`Test took too long (${ms}ms)`)), ms),
+  );
 }
 
 // Helper function to generate random name matching the required pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
