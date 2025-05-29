@@ -29,6 +29,10 @@ import {
   ImportServerAccountOptions,
   GetSwapQuoteOptions,
   CreateSwapOptions,
+  GetSwapQuoteResult,
+  SwapQuoteUnavailableResult,
+  CreateSwapResult,
+  SwapUnavailableResult,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
@@ -57,12 +61,7 @@ import {
 } from "../../actions/evm/waitForUserOperation.js";
 import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
-import {
-  CdpOpenApiClient,
-  GetQuoteResponse,
-  CreateSwapResponse,
-  SwapUnavailableResponse,
-} from "../../openapi-client/index.js";
+import { CdpOpenApiClient } from "../../openapi-client/index.js";
 import { Hex } from "../../types/misc.js";
 
 import type {
@@ -398,7 +397,7 @@ export class EvmClient implements EvmClientInterface {
    * Gets a quote for a swap between two tokens on an EVM network.
    *
    * @param {GetSwapQuoteOptions} options - The options for getting a swap quote.
-   * @param {EvmSwapsNetwork} options.network - The network to get a quote from (e.g., "ethereum", "ethereum-sepolia", "base").
+   * @param {EvmSwapsNetwork} options.network - The network to get a quote from (e.g., "ethereum", "base").
    * @param {Address} options.buyToken - The token to buy (destination token address).
    * @param {Address} options.sellToken - The token to sell (source token address).
    * @param {bigint} options.sellAmount - The amount to sell in atomic units (wei) of the token.
@@ -407,7 +406,7 @@ export class EvmClient implements EvmClientInterface {
    * @param {bigint} [options.gasPrice] - The gas price in Wei.
    * @param {number} [options.slippageBps] - The slippage tolerance in basis points (0-10000).
    *
-   * @returns {Promise<GetQuoteResponse | SwapUnavailableResponse>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
+   * @returns {Promise<GetSwapQuoteResult | SwapQuoteUnavailableResult>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
    *
    * @example **Getting a swap quote**
    * ```ts
@@ -428,9 +427,9 @@ export class EvmClient implements EvmClientInterface {
    *   const sellToken = { symbol: "WETH", decimals: 18 };
    *   const buyToken = { symbol: "USDC", decimals: 6 };
    *
-   *   const sellAmountBigInt = BigInt(quote.sellAmount);
-   *   const buyAmountBigInt = BigInt(quote.buyAmount);
-   *   const minBuyAmountBigInt = BigInt(quote.minBuyAmount);
+   *   const sellAmountBigInt = quote.sellAmount;
+   *   const buyAmountBigInt = quote.buyAmount;
+   *   const minBuyAmountBigInt = quote.minBuyAmount;
    *
    *   // Calculate exchange rate: How many buy tokens per 1 sell token
    *   const sellToBuyRate = Number(buyAmountBigInt) / (10 ** buyToken.decimals) *
@@ -461,7 +460,7 @@ export class EvmClient implements EvmClientInterface {
    */
   async getSwapQuote(
     options: GetSwapQuoteOptions,
-  ): Promise<GetQuoteResponse | SwapUnavailableResponse> {
+  ): Promise<GetSwapQuoteResult | SwapQuoteUnavailableResult> {
     return getSwapQuote(CdpOpenApiClient, options);
   }
 
@@ -469,7 +468,7 @@ export class EvmClient implements EvmClientInterface {
    * Creates a swap between two tokens on an EVM network.
    *
    * @param {CreateSwapOptions} options - The options for creating a swap.
-   * @param {EvmSwapsNetwork} options.network - The network to create a swap on (e.g., "ethereum", "ethereum-sepolia", "base").
+   * @param {EvmSwapsNetwork} options.network - The network to create a swap on (e.g., "ethereum", "base").
    * @param {Address} options.buyToken - The token to buy (destination token address).
    * @param {Address} options.sellToken - The token to sell (source token address).
    * @param {bigint} options.sellAmount - The amount to sell in atomic units (wei) of the token.
@@ -478,7 +477,7 @@ export class EvmClient implements EvmClientInterface {
    * @param {bigint} [options.gasPrice] - The gas price in Wei.
    * @param {number} [options.slippageBps] - The slippage tolerance in basis points (0-10000).
    *
-   * @returns {Promise<CreateSwapResponse | SwapUnavailableResponse>} A promise that resolves to the swap result or a response indicating that liquidity is unavailable.
+   * @returns {Promise<CreateSwapResult | SwapUnavailableResult>} A promise that resolves to the swap result or a response indicating that liquidity is unavailable.
    *
    * @example **Creating a swap**
    * ```ts
@@ -499,9 +498,9 @@ export class EvmClient implements EvmClientInterface {
    *   const sellToken = { symbol: "WETH", decimals: 18 };
    *   const buyToken = { symbol: "USDC", decimals: 6 };
    *
-   *   const sellAmountBigInt = BigInt(swap.sellAmount);
-   *   const buyAmountBigInt = BigInt(swap.buyAmount);
-   *   const minBuyAmountBigInt = BigInt(swap.minBuyAmount);
+   *   const sellAmountBigInt = swap.sellAmount;
+   *   const buyAmountBigInt = swap.buyAmount;
+   *   const minBuyAmountBigInt = swap.minBuyAmount;
    *
    *   // Calculate exchange rate: How many buy tokens per 1 sell token
    *   const sellToBuyRate = Number(buyAmountBigInt) / (10 ** buyToken.decimals) *
@@ -530,9 +529,7 @@ export class EvmClient implements EvmClientInterface {
    * }
    * ```
    */
-  async createSwap(
-    options: CreateSwapOptions,
-  ): Promise<CreateSwapResponse | SwapUnavailableResponse> {
+  async createSwap(options: CreateSwapOptions): Promise<CreateSwapResult | SwapUnavailableResult> {
     return createSwap(CdpOpenApiClient, options);
   }
 

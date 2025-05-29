@@ -3385,7 +3385,6 @@ components:
       enum:
         - base
         - ethereum
-        - ethereum-sepolia
       description: The network on which to perform the swap.
       example: base
     buyToken:

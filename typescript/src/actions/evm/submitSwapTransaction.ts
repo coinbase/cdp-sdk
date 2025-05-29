@@ -20,7 +20,7 @@ export interface SubmitSwapTransactionOptions {
   address: Address;
 
   /**
-   * The network to execute the swap on (e.g., "ethereum", "ethereum-sepolia", "base").
+   * The network to execute the swap on (e.g., "ethereum", "base").
    */
   network: SendEvmTransactionBodyNetwork;
 

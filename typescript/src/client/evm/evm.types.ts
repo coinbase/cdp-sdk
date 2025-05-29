@@ -21,9 +21,6 @@ import type {
   EvmSwapsNetwork,
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
-  GetQuoteResponse,
-  CreateSwapResponse,
-  SwapUnavailableResponse,
   OpenApiEvmMethods,
   UpdateEvmAccountBody,
 } from "../../openapi-client/index.js";
@@ -67,8 +64,8 @@ export type EvmClientInterface = Omit<
   getSmartAccount: (options: GetSmartAccountOptions) => Promise<SmartAccount>;
   getSwapQuote: (
     options: GetSwapQuoteOptions,
-  ) => Promise<GetQuoteResponse | SwapUnavailableResponse>;
-  createSwap: (options: CreateSwapOptions) => Promise<CreateSwapResponse | SwapUnavailableResponse>;
+  ) => Promise<GetSwapQuoteResult | SwapQuoteUnavailableResult>;
+  createSwap: (options: CreateSwapOptions) => Promise<CreateSwapResult | SwapUnavailableResult>;
   getOrCreateAccount: (options: GetOrCreateServerAccountOptions) => Promise<ServerAccount>;
   getUserOperation: (options: GetUserOperationOptions) => Promise<UserOperation>;
   updateAccount: (options: UpdateEvmAccountOptions) => Promise<ServerAccount>;
@@ -131,6 +128,94 @@ export interface GetSwapQuoteOptions {
   gasPrice?: bigint;
   /** The slippage tolerance in basis points (0-10000). */
   slippageBps?: number;
+}
+
+/**
+ * Result of getting a swap quote.
+ */
+export interface GetSwapQuoteResult {
+  /** Whether liquidity is available for the swap. */
+  liquidityAvailable: true;
+  /** The token to buy (destination token). */
+  buyToken: Address;
+  /** The token to sell (source token). */
+  sellToken: Address;
+  /** The amount to sell in atomic units of the token. */
+  sellAmount: bigint;
+  /** The amount to buy in atomic units of the token. */
+  buyAmount: bigint;
+  /** The minimum amount to buy after slippage in atomic units of the token. */
+  minBuyAmount: bigint;
+  /** The block number at which the liquidity conditions were examined. */
+  blockNumber: bigint;
+  /** The estimated fees for the swap. */
+  fees: SwapFees;
+  /** Potential issues discovered during validation. */
+  issues: SwapIssues;
+  /** The gas estimate for the swap. */
+  gas?: bigint;
+  /** The gas price in Wei. */
+  gasPrice?: bigint;
+}
+
+/**
+ * Result when liquidity is unavailable for a swap quote.
+ */
+export interface SwapQuoteUnavailableResult {
+  /** Whether liquidity is available for the swap. */
+  liquidityAvailable: false;
+}
+
+/**
+ * Result of creating a swap.
+ */
+export interface CreateSwapResult {
+  /** Whether liquidity is available for the swap. */
+  liquidityAvailable: true;
+  /** The token to buy (destination token). */
+  buyToken: Address;
+  /** The token to sell (source token). */
+  sellToken: Address;
+  /** The amount to sell in atomic units of the token. */
+  sellAmount: bigint;
+  /** The amount to buy in atomic units of the token. */
+  buyAmount: bigint;
+  /** The minimum amount to buy after slippage in atomic units of the token. */
+  minBuyAmount: bigint;
+  /** The block number at which the liquidity conditions were examined. */
+  blockNumber: bigint;
+  /** The estimated fees for the swap. */
+  fees: SwapFees;
+  /** Potential issues discovered during validation. */
+  issues: SwapIssues;
+  /** The gas estimate for the swap. */
+  gas?: bigint;
+  /** The gas price in Wei. */
+  gasPrice?: bigint;
+  /** The transaction to execute the swap. */
+  transaction?: {
+    /** The contract address to send the transaction to. */
+    to: Address;
+    /** The transaction data. */
+    data: Hex;
+    /** The value to send with the transaction in Wei. */
+    value?: string;
+    /** The gas limit for the transaction. */
+    gas?: string;
+  };
+  /** Permit2 data if required for the swap. */
+  permit2?: {
+    /** EIP-712 typed data for signing. */
+    eip712: EIP712Message;
+  };
+}
+
+/**
+ * Result when liquidity is unavailable for a swap.
+ */
+export interface SwapUnavailableResult {
+  /** Whether liquidity is available for the swap. */
+  liquidityAvailable: false;
 }
 
 /**
@@ -382,6 +467,60 @@ export interface SignTransactionOptions {
 export interface SignatureResult {
   /** The signature. */
   signature: Hex;
+}
+
+/**
+ * A fee in a specific token.
+ */
+export interface TokenFee {
+  /** The amount of the fee in atomic units of the token. */
+  amount: bigint;
+  /** The contract address of the token that the fee is paid in. */
+  token: Address;
+}
+
+/**
+ * The estimated fees for a swap.
+ */
+export interface SwapFees {
+  /** The estimated gas fee for the swap. */
+  gasFee?: TokenFee;
+  /** The estimated protocol fee for the swap. */
+  protocolFee?: TokenFee;
+}
+
+/**
+ * Details of allowance issues for a swap.
+ */
+export interface SwapAllowanceIssue {
+  /** The current allowance of the sellToken by the taker. */
+  currentAllowance: bigint;
+  /** The address to set the allowance on. */
+  spender: Address;
+}
+
+/**
+ * Details of balance issues for a swap.
+ */
+export interface SwapBalanceIssue {
+  /** The contract address of the token. */
+  token: Address;
+  /** The current balance of the sellToken by the taker. */
+  currentBalance: bigint;
+  /** The amount of the token that the taker must hold. */
+  requiredBalance: bigint;
+}
+
+/**
+ * Potential issues discovered during swap validation.
+ */
+export interface SwapIssues {
+  /** Details of the allowances that the taker must set. Null if no allowance is required. */
+  allowance?: SwapAllowanceIssue;
+  /** Details of the balance of the sellToken that the taker must hold. Null if sufficient balance. */
+  balance?: SwapBalanceIssue;
+  /** True when the transaction cannot be validated (e.g., insufficient balance). */
+  simulationIncomplete: boolean;
 }
 
 /**

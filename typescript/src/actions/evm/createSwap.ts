@@ -1,16 +1,17 @@
-import { CreateSwapOptions } from "../../client/evm/evm.types.js";
 import {
-  CdpOpenApiClientType,
-  CreateSwapResponse,
-  SwapUnavailableResponse,
-} from "../../openapi-client/index.js";
+  CreateSwapOptions,
+  CreateSwapResult,
+  SwapUnavailableResult,
+} from "../../client/evm/evm.types.js";
+import { CdpOpenApiClientType, CreateSwapResponse } from "../../openapi-client/index.js";
+import { Address, Hex } from "../../types/misc.js";
 
 /**
  * Creates a swap between two tokens on an EVM network.
  *
  * @param {CdpOpenApiClientType} client - The client to use to create the swap.
  * @param {CreateSwapOptions} options - The options for creating a swap.
- * @param {EvmSwapsNetwork} options.network - The network to create a swap on (e.g., "ethereum", "ethereum-sepolia", "base").
+ * @param {EvmSwapsNetwork} options.network - The network to create a swap on (e.g., "ethereum", "base").
  * @param {Address} options.buyToken - The token to buy (destination token address).
  * @param {Address} options.sellToken - The token to sell (source token address).
  * @param {bigint} options.sellAmount - The amount to sell in atomic units (wei) of the token.
@@ -19,7 +20,7 @@ import {
  * @param {bigint} [options.gasPrice] - The gas price in Wei.
  * @param {number} [options.slippageBps] - The slippage tolerance in basis points (0-10000).
  *
- * @returns {Promise<CreateSwapResponse | SwapUnavailableResponse>} A promise that resolves to the swap result or a response indicating that liquidity is unavailable.
+ * @returns {Promise<CreateSwapResult | SwapUnavailableResult>} A promise that resolves to the swap result or a response indicating that liquidity is unavailable.
  *
  * @example **Creating a swap**
  * ```ts
@@ -40,9 +41,10 @@ import {
  *   const sellToken = { symbol: "WETH", decimals: 18 };
  *   const buyToken = { symbol: "USDC", decimals: 6 };
  *
- *   const sellAmountBigInt = BigInt(swap.sellAmount);
- *   const buyAmountBigInt = BigInt(swap.buyAmount);
- *   const minBuyAmountBigInt = BigInt(swap.minBuyAmount);
+ *   // No need to convert - amounts are already bigints
+ *   const sellAmountBigInt = swap.sellAmount;
+ *   const buyAmountBigInt = swap.buyAmount;
+ *   const minBuyAmountBigInt = swap.minBuyAmount;
  *
  *   // Calculate exchange rate: How many buy tokens per 1 sell token
  *   const sellToBuyRate = Number(buyAmountBigInt) / (10 ** buyToken.decimals) *
@@ -74,7 +76,7 @@ import {
 export async function createSwap(
   client: CdpOpenApiClientType,
   options: CreateSwapOptions,
-): Promise<CreateSwapResponse | SwapUnavailableResponse> {
+): Promise<CreateSwapResult | SwapUnavailableResult> {
   // Call the createEvmSwap function directly with the client's configured API
   const response = await client.createEvmSwap({
     network: options.network,
@@ -89,10 +91,79 @@ export async function createSwap(
 
   // Check if liquidity is unavailable
   if (!response.liquidityAvailable) {
-    // Return the SwapUnavailableResponse
-    return response as SwapUnavailableResponse;
-  } else {
-    // At this point we know it's a CreateSwapResponse since liquidityAvailable is true
-    return response as CreateSwapResponse;
+    // Return the SwapUnavailableResult
+    return {
+      liquidityAvailable: false,
+    };
   }
+
+  // At this point we know it's a CreateSwapResponse since liquidityAvailable is true
+  const swapResponse = response as CreateSwapResponse;
+  return {
+    liquidityAvailable: true,
+    buyToken: swapResponse.buyToken as Address,
+    sellToken: swapResponse.sellToken as Address,
+    sellAmount: BigInt(swapResponse.sellAmount),
+    buyAmount: BigInt(swapResponse.buyAmount),
+    minBuyAmount: BigInt(swapResponse.minBuyAmount),
+    blockNumber: BigInt(swapResponse.blockNumber),
+    fees: {
+      gasFee: swapResponse.fees.gasFee
+        ? {
+            amount: BigInt(swapResponse.fees.gasFee.amount),
+            token: swapResponse.fees.gasFee.token as Address,
+          }
+        : undefined,
+      protocolFee: swapResponse.fees.protocolFee
+        ? {
+            amount: BigInt(swapResponse.fees.protocolFee.amount),
+            token: swapResponse.fees.protocolFee.token as Address,
+          }
+        : undefined,
+    },
+    issues: {
+      allowance: swapResponse.issues.allowance
+        ? {
+            currentAllowance: BigInt(swapResponse.issues.allowance.currentAllowance),
+            spender: swapResponse.issues.allowance.spender as Address,
+          }
+        : undefined,
+      balance: swapResponse.issues.balance
+        ? {
+            token: swapResponse.issues.balance.token as Address,
+            currentBalance: BigInt(swapResponse.issues.balance.currentBalance),
+            requiredBalance: BigInt(swapResponse.issues.balance.requiredBalance),
+          }
+        : undefined,
+      simulationIncomplete: swapResponse.issues.simulationIncomplete,
+    },
+    gas: swapResponse.transaction?.gas ? BigInt(swapResponse.transaction.gas) : undefined,
+    gasPrice: swapResponse.transaction?.gasPrice
+      ? BigInt(swapResponse.transaction.gasPrice)
+      : undefined,
+    transaction: swapResponse.transaction
+      ? {
+          to: swapResponse.transaction.to as Address,
+          data: swapResponse.transaction.data as Hex,
+          value: swapResponse.transaction.value,
+          gas: swapResponse.transaction.gas,
+        }
+      : undefined,
+    permit2: swapResponse.permit2
+      ? {
+          eip712: {
+            domain: {
+              ...swapResponse.permit2.eip712.domain,
+              verifyingContract: swapResponse.permit2.eip712.domain.verifyingContract as
+                | Address
+                | undefined,
+              salt: swapResponse.permit2.eip712.domain.salt as Hex | undefined,
+            },
+            types: swapResponse.permit2.eip712.types,
+            primaryType: swapResponse.permit2.eip712.primaryType,
+            message: swapResponse.permit2.eip712.message,
+          },
+        }
+      : undefined,
+  };
 }

@@ -1,16 +1,17 @@
-import { GetSwapQuoteOptions } from "../../client/evm/evm.types.js";
 import {
-  CdpOpenApiClientType,
-  GetQuoteResponse,
-  SwapUnavailableResponse,
-} from "../../openapi-client/index.js";
+  GetSwapQuoteOptions,
+  GetSwapQuoteResult,
+  SwapQuoteUnavailableResult,
+} from "../../client/evm/evm.types.js";
+import { CdpOpenApiClientType, GetQuoteResponse } from "../../openapi-client/index.js";
+import { Address } from "../../types/misc.js";
 
 /**
  * Gets a quote for a swap between two tokens on an EVM network.
  *
  * @param {CdpOpenApiClientType} client - The client to use to get the swap quote.
  * @param {GetSwapQuoteOptions} options - The options for getting a swap quote.
- * @param {EvmSwapsNetwork} options.network - The network to get a quote from (e.g., "ethereum", "ethereum-sepolia", "base").
+ * @param {EvmSwapsNetwork} options.network - The network to get a quote from (e.g., "ethereum", "base").
  * @param {Address} options.buyToken - The token to buy (destination token address).
  * @param {Address} options.sellToken - The token to sell (source token address).
  * @param {bigint} options.sellAmount - The amount to sell in atomic units (wei) of the token.
@@ -19,7 +20,7 @@ import {
  * @param {bigint} [options.gasPrice] - The gas price in Wei.
  * @param {number} [options.slippageBps] - The slippage tolerance in basis points (0-10000).
  *
- * @returns {Promise<GetQuoteResponse | SwapUnavailableResponse>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
+ * @returns {Promise<GetSwapQuoteResult | SwapQuoteUnavailableResult>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
  *
  * @example **Getting a swap quote**
  * ```ts
@@ -40,9 +41,9 @@ import {
  *   const sellToken = { symbol: "WETH", decimals: 18 };
  *   const buyToken = { symbol: "USDC", decimals: 6 };
  *
- *   const sellAmountBigInt = BigInt(quote.sellAmount);
- *   const buyAmountBigInt = BigInt(quote.buyAmount);
- *   const minBuyAmountBigInt = BigInt(quote.minBuyAmount);
+ *   const sellAmountBigInt = quote.sellAmount;
+ *   const buyAmountBigInt = quote.buyAmount;
+ *   const minBuyAmountBigInt = quote.minBuyAmount;
  *
  *   // Calculate exchange rate: How many buy tokens per 1 sell token
  *   const sellToBuyRate = Number(buyAmountBigInt) / (10 ** buyToken.decimals) *
@@ -74,7 +75,7 @@ import {
 export async function getSwapQuote(
   client: CdpOpenApiClientType,
   options: GetSwapQuoteOptions,
-): Promise<GetQuoteResponse | SwapUnavailableResponse> {
+): Promise<GetSwapQuoteResult | SwapQuoteUnavailableResult> {
   // Call the getEvmSwapQuote function directly with the client's configured API
   const response = await client.getEvmSwapQuote({
     network: options.network,
@@ -89,10 +90,53 @@ export async function getSwapQuote(
 
   // Check if liquidity is unavailable
   if (!response.liquidityAvailable) {
-    // Return the SwapUnavailableResponse
-    return response as SwapUnavailableResponse;
-  } else {
-    // At this point we know it's a GetQuoteResponse since liquidityAvailable is true
-    return response as GetQuoteResponse;
+    // Return the SwapQuoteUnavailableResult
+    return {
+      liquidityAvailable: false,
+    };
   }
+
+  // At this point we know it's a GetQuoteResponse since liquidityAvailable is true
+  const quoteResponse = response as GetQuoteResponse;
+  return {
+    blockNumber: BigInt(quoteResponse.blockNumber),
+    buyAmount: BigInt(quoteResponse.buyAmount),
+    buyToken: quoteResponse.buyToken as Address,
+    fees: {
+      gasFee: quoteResponse.fees.gasFee
+        ? {
+            amount: BigInt(quoteResponse.fees.gasFee.amount),
+            token: quoteResponse.fees.gasFee.token as Address,
+          }
+        : undefined,
+      protocolFee: quoteResponse.fees.protocolFee
+        ? {
+            amount: BigInt(quoteResponse.fees.protocolFee.amount),
+            token: quoteResponse.fees.protocolFee.token as Address,
+          }
+        : undefined,
+    },
+    issues: {
+      allowance: quoteResponse.issues.allowance
+        ? {
+            currentAllowance: BigInt(quoteResponse.issues.allowance.currentAllowance),
+            spender: quoteResponse.issues.allowance.spender as Address,
+          }
+        : undefined,
+      balance: quoteResponse.issues.balance
+        ? {
+            token: quoteResponse.issues.balance.token as Address,
+            currentBalance: BigInt(quoteResponse.issues.balance.currentBalance),
+            requiredBalance: BigInt(quoteResponse.issues.balance.requiredBalance),
+          }
+        : undefined,
+      simulationIncomplete: quoteResponse.issues.simulationIncomplete,
+    },
+    liquidityAvailable: true,
+    minBuyAmount: BigInt(quoteResponse.minBuyAmount),
+    sellAmount: BigInt(quoteResponse.sellAmount),
+    sellToken: quoteResponse.sellToken as Address,
+    gas: quoteResponse.gas ? BigInt(quoteResponse.gas) : undefined,
+    gasPrice: quoteResponse.gasPrice ? BigInt(quoteResponse.gasPrice) : undefined,
+  };
 }
