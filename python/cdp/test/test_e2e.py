@@ -12,6 +12,7 @@ from eth_account.account import Account
 from solana.rpc.api import Client as SolanaClient
 from solders.pubkey import Pubkey as PublicKey
 from web3 import Web3
+from eth_account.messages import encode_defunct
 
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
@@ -125,6 +126,20 @@ async def test_evm_sign_fns(cdp_client):
     signature = "0x02f87083014a3480830f4240831e895582520894000000000000000000000000000000000000000085e8d4a5100080c080a0c3685a0f41476c9917a16a55726b19e4b1b06a856843dc19faa212df5901243aa0218063520078d5ea45dc2b66cef8668d73ad640a65b2debf542b30b5fdf42b2a"
     signed_transaction = await cdp_client.evm.sign_transaction(account.address, signature)
     assert signed_transaction is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_server_account_sign_message(cdp_client):
+    """Test signing a message with an EVM server account."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    message = "Hello EVM!"
+    signable_message = encode_defunct(text=message)
+    response = await account.sign_message(signable_message)
+    assert response is not None
+    assert response.signature is not None
 
 
 @pytest.mark.e2e
@@ -770,8 +785,8 @@ async def test_solana_get_or_create_account_race_condition(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_solana_sign_message(cdp_client):
-    """Test signing a message."""
+async def test_solana_account_sign_message(cdp_client):
+    """Test signing a message with a Solana account."""
     account = await cdp_client.solana.create_account()
     assert account is not None
 
