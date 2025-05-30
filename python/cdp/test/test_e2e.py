@@ -1420,12 +1420,14 @@ async def test_evm_local_account_sign_typed_data_with_full_message(cdp_client):
 @pytest.mark.asyncio
 async def test_evm_local_account_sign_and_send_transaction(cdp_client):
     """Test signing a transaction with an EVM local account."""
-    account = await cdp_client.evm.create_account()
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
     evm_local_account = EvmLocalAccount(account)
     assert evm_local_account is not None
 
+    w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
+    nonce = w3.eth.get_transaction_count(evm_local_account.address)
     transaction = evm_local_account.sign_transaction(
         transaction_dict={
             "to": "0x0000000000000000000000000000000000000000",
@@ -1434,14 +1436,13 @@ async def test_evm_local_account_sign_and_send_transaction(cdp_client):
             "gas": 21000,
             "maxFeePerGas": 1000000000,
             "maxPriorityFeePerGas": 1000000000,
-            "nonce": 0,
+            "nonce": nonce,
             "type": "0x2",
         }
     )
     faucet_hash = await cdp_client.evm.request_faucet(
         address=evm_local_account.address, network="base-sepolia", token="eth"
     )
-    w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
     w3.eth.wait_for_transaction_receipt(faucet_hash)
     tx_hash = w3.eth.send_raw_transaction(transaction.raw_transaction)
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
