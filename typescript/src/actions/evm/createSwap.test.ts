@@ -1,9 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { createSwap } from "./createSwap.js";
-import {
-  CreateSwapResult,
-  SwapUnavailableResult,
-} from "../../client/evm/evm.types.js";
+import { CreateSwapResult, SwapUnavailableResult } from "../../client/evm/evm.types.js";
 import {
   CdpOpenApiClientType,
   CreateSwapResponse,
@@ -31,13 +28,13 @@ describe("createSwap", () => {
 
     mockClient.createEvmSwap = vi.fn().mockResolvedValue(mockResponse);
 
-    const result = await createSwap(mockClient, {
+    const result = (await createSwap(mockClient, {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       sellAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
-    }) as SwapUnavailableResult;
+    })) as SwapUnavailableResult;
 
     expect(result).toEqual({ liquidityAvailable: false });
     expect(result.liquidityAvailable).toBe(false);
@@ -137,7 +134,7 @@ describe("createSwap", () => {
 
     // Since we've checked liquidityAvailable is true, we know it's a CreateSwapResult
     const swapResult = result as CreateSwapResult;
-    
+
     // Check transformed values
     expect(swapResult.blockNumber).toBe(BigInt("12345678"));
     expect(swapResult.buyAmount).toBe(BigInt("5000000000"));
@@ -147,7 +144,7 @@ describe("createSwap", () => {
     expect(swapResult.minBuyAmount).toBe(BigInt("4950000000"));
     expect(swapResult.gas).toBe(BigInt("250000"));
     expect(swapResult.gasPrice).toBe(BigInt("20000000000"));
-    
+
     // Check fees
     expect(swapResult.fees.gasFee).toEqual({
       amount: BigInt("1000000"),
@@ -157,7 +154,7 @@ describe("createSwap", () => {
       amount: BigInt("500000"),
       token: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
     });
-    
+
     // Check issues
     expect(swapResult.issues.allowance).toEqual({
       currentAllowance: BigInt("0"),
@@ -169,7 +166,7 @@ describe("createSwap", () => {
       requiredBalance: BigInt("1000000000000000000"),
     });
     expect(swapResult.issues.simulationIncomplete).toBe(false);
-    
+
     // Check transaction
     expect(swapResult.transaction).toEqual({
       to: "0xRouterAddress" as Address,
@@ -177,7 +174,7 @@ describe("createSwap", () => {
       value: "0",
       gas: "250000",
     });
-    
+
     // Check permit2
     expect(swapResult.permit2?.eip712.domain).toEqual({
       name: "Permit2",

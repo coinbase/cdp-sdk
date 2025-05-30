@@ -1,9 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { getSwapQuote } from "./getSwapQuote.js";
-import {
-  GetSwapQuoteResult,
-  SwapQuoteUnavailableResult,
-} from "../../client/evm/evm.types.js";
+import { GetSwapQuoteResult, SwapQuoteUnavailableResult } from "../../client/evm/evm.types.js";
 import {
   CdpOpenApiClientType,
   GetQuoteResponse,
@@ -31,13 +28,13 @@ describe("getSwapQuote", () => {
 
     mockClient.getEvmSwapQuote = vi.fn().mockResolvedValue(mockResponse);
 
-    const result = await getSwapQuote(mockClient, {
+    const result = (await getSwapQuote(mockClient, {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       sellAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
-    }) as SwapQuoteUnavailableResult;
+    })) as SwapQuoteUnavailableResult;
 
     expect(result).toEqual({ liquidityAvailable: false });
     expect(result.liquidityAvailable).toBe(false);
@@ -104,7 +101,7 @@ describe("getSwapQuote", () => {
 
     // Since we've checked liquidityAvailable is true, we know it's a GetSwapQuoteResult
     const quoteResult = result as GetSwapQuoteResult;
-    
+
     // Check transformed values
     expect(quoteResult.blockNumber).toBe(BigInt("12345678"));
     expect(quoteResult.buyAmount).toBe(BigInt("5000000000"));
@@ -114,7 +111,7 @@ describe("getSwapQuote", () => {
     expect(quoteResult.minBuyAmount).toBe(BigInt("4950000000"));
     expect(quoteResult.gas).toBe(BigInt("150000"));
     expect(quoteResult.gasPrice).toBe(BigInt("20000000000"));
-    
+
     // Check fees
     expect(quoteResult.fees.gasFee).toEqual({
       amount: BigInt("1000000"),
@@ -124,7 +121,7 @@ describe("getSwapQuote", () => {
       amount: BigInt("500000"),
       token: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
     });
-    
+
     // Check issues
     expect(quoteResult.issues.allowance).toEqual({
       currentAllowance: BigInt("0"),

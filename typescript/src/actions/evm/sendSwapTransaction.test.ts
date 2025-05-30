@@ -83,20 +83,17 @@ describe("sendSwapTransaction", () => {
     });
 
     // Check that sendTransaction was called with the correct arguments
-    expect(sendTransaction).toHaveBeenCalledWith(
-      CdpOpenApiClient,
-      {
-        address: mockAddress,
-        network: mockNetwork,
-        transaction: {
-          to: mockSwap.transaction!.to as `0x${string}`,
-          data: mockSwap.transaction!.data as `0x${string}`,
-          gas: BigInt(mockSwap.transaction!.gas!),
-          value: BigInt(mockSwap.transaction!.value!),
-        },
-        idempotencyKey: undefined,
+    expect(sendTransaction).toHaveBeenCalledWith(CdpOpenApiClient, {
+      address: mockAddress,
+      network: mockNetwork,
+      transaction: {
+        to: mockSwap.transaction!.to as `0x${string}`,
+        data: mockSwap.transaction!.data as `0x${string}`,
+        gas: BigInt(mockSwap.transaction!.gas!),
+        value: BigInt(mockSwap.transaction!.value!),
       },
-    );
+      idempotencyKey: undefined,
+    });
 
     expect(result).toEqual({
       transactionHash: mockTransactionHash,
@@ -189,20 +186,17 @@ describe("sendSwapTransaction", () => {
     ]);
 
     // Check that sendTransaction was called with the modified data
-    expect(sendTransaction).toHaveBeenCalledWith(
-      CdpOpenApiClient,
-      {
-        address: mockAddress,
-        network: mockNetwork,
-        transaction: {
-          to: mockSwap.transaction!.to as `0x${string}`,
-          data: mockConcatenatedData,
-          gas: BigInt(mockSwap.transaction!.gas!),
-          value: BigInt(mockSwap.transaction!.value!),
-        },
-        idempotencyKey: undefined,
+    expect(sendTransaction).toHaveBeenCalledWith(CdpOpenApiClient, {
+      address: mockAddress,
+      network: mockNetwork,
+      transaction: {
+        to: mockSwap.transaction!.to as `0x${string}`,
+        data: mockConcatenatedData,
+        gas: BigInt(mockSwap.transaction!.gas!),
+        value: BigInt(mockSwap.transaction!.value!),
       },
-    );
+      idempotencyKey: undefined,
+    });
 
     expect(result).toEqual({
       transactionHash: mockTransactionHash,
@@ -220,20 +214,17 @@ describe("sendSwapTransaction", () => {
     });
 
     // Check that sendTransaction was called with idempotencyKey
-    expect(sendTransaction).toHaveBeenCalledWith(
-      CdpOpenApiClient,
-      {
-        address: mockAddress,
-        network: mockNetwork,
-        transaction: {
-          to: mockSwap.transaction!.to as `0x${string}`,
-          data: mockSwap.transaction!.data as `0x${string}`,
-          gas: BigInt(mockSwap.transaction!.gas!),
-          value: BigInt(mockSwap.transaction!.value!),
-        },
-        idempotencyKey,
+    expect(sendTransaction).toHaveBeenCalledWith(CdpOpenApiClient, {
+      address: mockAddress,
+      network: mockNetwork,
+      transaction: {
+        to: mockSwap.transaction!.to as `0x${string}`,
+        data: mockSwap.transaction!.data as `0x${string}`,
+        gas: BigInt(mockSwap.transaction!.gas!),
+        value: BigInt(mockSwap.transaction!.value!),
       },
-    );
+      idempotencyKey,
+    });
 
     expect(result).toEqual({
       transactionHash: mockTransactionHash,
@@ -256,12 +247,14 @@ describe("sendSwapTransaction", () => {
     // Create a modified version of the transaction for the test
     const modifiedSwap: CreateSwapResult = {
       ...mockSwap,
-      transaction: mockSwap.transaction ? {
-        to: mockSwap.transaction.to,
-        data: mockSwap.transaction.data,
-        gas: mockSwap.transaction.gas,
-        // Intentionally omit value field
-      } : undefined,
+      transaction: mockSwap.transaction
+        ? {
+            to: mockSwap.transaction.to,
+            data: mockSwap.transaction.data,
+            gas: mockSwap.transaction.gas,
+            // Intentionally omit value field
+          }
+        : undefined,
     };
 
     await sendSwapTransaction(CdpOpenApiClient, {
@@ -271,31 +264,30 @@ describe("sendSwapTransaction", () => {
     });
 
     // Check that sendTransaction was called without the value field
-    expect(sendTransaction).toHaveBeenCalledWith(
-      CdpOpenApiClient,
-      {
-        address: mockAddress,
-        network: mockNetwork,
-        transaction: {
-          to: mockSwap.transaction!.to as `0x${string}`,
-          data: mockSwap.transaction!.data as `0x${string}`,
-          gas: BigInt(mockSwap.transaction!.gas!),
-        },
-        idempotencyKey: undefined,
+    expect(sendTransaction).toHaveBeenCalledWith(CdpOpenApiClient, {
+      address: mockAddress,
+      network: mockNetwork,
+      transaction: {
+        to: mockSwap.transaction!.to as `0x${string}`,
+        data: mockSwap.transaction!.data as `0x${string}`,
+        gas: BigInt(mockSwap.transaction!.gas!),
       },
-    );
+      idempotencyKey: undefined,
+    });
   });
 
   it("should handle transaction with no gas field", async () => {
     // Create a modified version of the transaction for the test
     const modifiedSwap: CreateSwapResult = {
       ...mockSwap,
-      transaction: mockSwap.transaction ? {
-        to: mockSwap.transaction.to,
-        data: mockSwap.transaction.data,
-        value: mockSwap.transaction.value,
-        // Intentionally omit gas field
-      } : undefined,
+      transaction: mockSwap.transaction
+        ? {
+            to: mockSwap.transaction.to,
+            data: mockSwap.transaction.data,
+            value: mockSwap.transaction.value,
+            // Intentionally omit gas field
+          }
+        : undefined,
     };
 
     await sendSwapTransaction(CdpOpenApiClient, {
@@ -305,19 +297,16 @@ describe("sendSwapTransaction", () => {
     });
 
     // Check that sendTransaction was called without the gas field
-    expect(sendTransaction).toHaveBeenCalledWith(
-      CdpOpenApiClient,
-      {
-        address: mockAddress,
-        network: mockNetwork,
-        transaction: {
-          to: mockSwap.transaction!.to as `0x${string}`,
-          data: mockSwap.transaction!.data as `0x${string}`,
-          value: BigInt(mockSwap.transaction!.value!),
-        },
-        idempotencyKey: undefined,
+    expect(sendTransaction).toHaveBeenCalledWith(CdpOpenApiClient, {
+      address: mockAddress,
+      network: mockNetwork,
+      transaction: {
+        to: mockSwap.transaction!.to as `0x${string}`,
+        data: mockSwap.transaction!.data as `0x${string}`,
+        value: BigInt(mockSwap.transaction!.value!),
       },
-    );
+      idempotencyKey: undefined,
+    });
   });
 
   it("should create swap when swapOptions is provided", async () => {
@@ -343,20 +332,17 @@ describe("sendSwapTransaction", () => {
     });
 
     // Check that sendTransaction was called with the created swap
-    expect(sendTransaction).toHaveBeenCalledWith(
-      CdpOpenApiClient,
-      {
-        address: mockAddress,
-        network: mockNetwork,
-        transaction: {
-          to: mockSwap.transaction!.to as `0x${string}`,
-          data: mockSwap.transaction!.data as `0x${string}`,
-          gas: BigInt(mockSwap.transaction!.gas!),
-          value: BigInt(mockSwap.transaction!.value!),
-        },
-        idempotencyKey: undefined,
+    expect(sendTransaction).toHaveBeenCalledWith(CdpOpenApiClient, {
+      address: mockAddress,
+      network: mockNetwork,
+      transaction: {
+        to: mockSwap.transaction!.to as `0x${string}`,
+        data: mockSwap.transaction!.data as `0x${string}`,
+        gas: BigInt(mockSwap.transaction!.gas!),
+        value: BigInt(mockSwap.transaction!.value!),
       },
-    );
+      idempotencyKey: undefined,
+    });
 
     expect(result).toEqual({
       transactionHash: mockTransactionHash,
@@ -434,7 +420,7 @@ describe("sendSwapTransaction", () => {
       }),
     ).rejects.toThrow(
       "Insufficient token allowance for swap. Current allowance: 0. " +
-      "Please approve the Permit2 contract (0x000000000022D473030F116dDEE9F6B43aC78BA3) to spend your tokens."
+        "Please approve the Permit2 contract (0x000000000022D473030F116dDEE9F6B43aC78BA3) to spend your tokens.",
     );
 
     // Check that sendTransaction was NOT called
@@ -471,7 +457,7 @@ describe("sendSwapTransaction", () => {
       }),
     ).rejects.toThrow(
       "Insufficient token allowance for swap. Current allowance: 100. " +
-      "Please approve the Permit2 contract (0x000000000022D473030F116dDEE9F6B43aC78BA3) to spend your tokens."
+        "Please approve the Permit2 contract (0x000000000022D473030F116dDEE9F6B43aC78BA3) to spend your tokens.",
     );
 
     // Check that createSwap was called
