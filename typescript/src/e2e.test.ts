@@ -979,7 +979,9 @@ describe("CDP Client E2E Tests", () => {
     });
 
     it("should list policies", async () => {
-      const result = await cdp.policies.listPolicies();
+      const result = await cdp.policies.listPolicies({
+        pageSize: 100,
+      });
 
       expect(result).toBeDefined();
       expect(result.policies).toBeDefined();
@@ -993,6 +995,7 @@ describe("CDP Client E2E Tests", () => {
     it("should list policies with scope filter", async () => {
       const result = await cdp.policies.listPolicies({
         scope: "account",
+        pageSize: 100,
       });
 
       expect(result).toBeDefined();

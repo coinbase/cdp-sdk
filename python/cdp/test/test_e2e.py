@@ -1114,20 +1114,28 @@ async def test_list_policies(cdp_client):
     assert policy is not None
 
     # List all policies
-    policies = await cdp_client.policies.list_policies()
+    policies = await cdp_client.policies.list_policies(
+        page_size=100,
+    )
     assert policies is not None
     assert policies.policies is not None
     assert len(policies.policies) > 0
     assert any(p.id == policy.id for p in policies.policies)
 
     # List policies with scope filter
-    policies = await cdp_client.policies.list_policies(scope="account")
+    policies = await cdp_client.policies.list_policies(
+        scope="account",
+        page_size=100,
+    )
     assert policies is not None
     assert policies.policies is not None
     assert len(policies.policies) > 0
     assert any(p.id == policy.id for p in policies.policies)
 
-    policies = await cdp_client.policies.list_policies(scope="project")
+    policies = await cdp_client.policies.list_policies(
+        scope="project",
+        page_size=100,
+    )
     assert policies is not None
     assert policies.policies is not None
     assert not any(p.id == policy.id for p in policies.policies)
