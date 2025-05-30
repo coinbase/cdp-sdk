@@ -3,7 +3,11 @@ import { concat, numberToHex, size } from "viem";
 import { createSwap } from "./createSwap.js";
 import { sendTransaction } from "./sendTransaction.js";
 
-import type { CreateSwapResult, CreateSwapOptions } from "../../client/evm/evm.types.js";
+import type {
+  CreateSwapResult,
+  CreateSwapOptions,
+  SwapUnavailableResult,
+} from "../../client/evm/evm.types.js";
 import type {
   CdpOpenApiClientType,
   SendEvmTransactionBodyNetwork,
@@ -138,15 +142,15 @@ export async function sendSwapTransaction(
 ): Promise<SendSwapTransactionResult> {
   const { address, network, idempotencyKey } = options;
 
-  let swap: CreateSwapResult;
+  let swapResult: CreateSwapResult | SwapUnavailableResult;
 
   // Determine if we need to create the swap or use the provided one
   if ("swap" in options) {
     // Use the provided swap
-    swap = options.swap;
+    swapResult = options.swap;
   } else {
     // Create the swap using the provided options (SendSwapTransactionWithSwapOptions)
-    const swapResult = await createSwap(client, {
+    swapResult = await createSwap(client, {
       network: options.network as CreateSwapOptions["network"],
       buyToken: options.buyToken,
       sellToken: options.sellToken,
@@ -156,13 +160,23 @@ export async function sendSwapTransaction(
       gasPrice: options.gasPrice,
       slippageBps: options.slippageBps,
     });
+  }
 
-    // Check if liquidity is available
-    if (!swapResult.liquidityAvailable) {
-      throw new Error("Insufficient liquidity for swap");
-    }
+  // Check if liquidity is available
+  if (!swapResult.liquidityAvailable) {
+    throw new Error("Insufficient liquidity for swap");
+  }
 
-    swap = swapResult as CreateSwapResult;
+  // At this point, we know that swapResult is CreateSwapResult
+  const swap = swapResult as CreateSwapResult;
+
+  // Check for allowance issues
+  if (swap.issues?.allowance) {
+    const { currentAllowance, spender } = swap.issues.allowance;
+    throw new Error(
+      `Insufficient token allowance. Current allowance: ${currentAllowance}. ` +
+        `Please approve the Permit2 contract (${spender}) to spend your tokens.`,
+    );
   }
 
   // If the transaction doesn't exist, throw an error
