@@ -545,7 +545,7 @@ class EvmClient:
         """
         account = await self.api_clients.evm_accounts.update_evm_account(
             address=address,
-            update_evm_account_request=CreateEvmAccountRequest(
+            create_evm_account_request=CreateEvmAccountRequest(
                 name=update.name, account_policy=update.account_policy
             ),
             x_idempotency_key=idempotency_key,

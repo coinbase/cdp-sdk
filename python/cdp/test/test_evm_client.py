@@ -800,7 +800,7 @@ async def test_update_account(server_account_model_factory):
 
     mock_evm_accounts_api.update_evm_account.assert_called_once_with(
         address=test_address,
-        update_evm_account_request=CreateEvmAccountRequest(
+        create_evm_account_request=CreateEvmAccountRequest(
             name=test_name,
             account_policy=test_account_policy,
         ),
