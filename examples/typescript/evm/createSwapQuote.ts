@@ -66,7 +66,7 @@ async function main() {
     
     // Create the swap quote transaction
     console.log("\nFetching swap quote...");
-    const swap = await cdp.evm.createSwapQuote({
+    const swapQuote = await cdp.evm.createSwapQuote({
       network: NETWORK,
       buyToken: buyToken.address as `0x${string}`,
       sellToken: sellToken.address as `0x${string}`,
@@ -76,10 +76,10 @@ async function main() {
     });
     
     // Log swap details
-    logSwapInfo(swap, sellToken, buyToken);
+    logSwapInfo(swapQuote, sellToken, buyToken);
     
     // Validate the swap for any issues
-    validateSwap(swap);
+    validateSwap(swapQuote);
     
     console.log("\nSwap quote created successfully. To execute this swap, you would need to:");
     console.log("1. Ensure you have sufficient token allowance for Permit2 contract");
@@ -91,13 +91,13 @@ async function main() {
     console.log("```typescript");
     console.log("// Execute the swap directly from the quote");
     console.log("// The swap will be executed using the signerAddress (in the case of smart accounts) or taker address (in the case of regular EOA accounts)");
-    console.log("const result = await swap.execute({");
+    console.log("const result = await swapQuote.execute({");
     console.log("  idempotencyKey: 'unique-key' // optional");
     console.log("});");
     console.log(`// Transaction hash: \${result.transactionHash}`);
     console.log("");
     console.log("// Or execute without any options");
-    console.log("const result = await swap.execute({});");
+    console.log("const result = await swapQuote.execute({});");
     console.log("```");
     
   } catch (error) {
@@ -107,29 +107,29 @@ async function main() {
 
 /**
  * Logs information about the swap
- * @param swap - The swap transaction data
+ * @param swapQuote - The swap transaction data
  * @param sellToken - The token being sold
  * @param buyToken - The token being bought
  */
 function logSwapInfo(
-  swap: any,
+  swapQuote: any,
   sellToken: typeof TOKENS.WETH,
   buyToken: typeof TOKENS.USDC
 ): void {
-  if (!swap.liquidityAvailable) {
+  if (!swapQuote.liquidityAvailable) {
     return;
   }
 
   console.log("\nSwap Quote Details:");
   console.log("-------------------");
-  console.log(`Buy Amount: ${formatUnits(BigInt(swap.buyAmount), buyToken.decimals)} ${buyToken.symbol}`);
-  console.log(`Min Buy Amount: ${formatUnits(BigInt(swap.minBuyAmount), buyToken.decimals)} ${buyToken.symbol}`);
-  console.log(`Sell Amount: ${formatUnits(BigInt(swap.sellAmount), sellToken.decimals)} ${sellToken.symbol}`);
+  console.log(`Buy Amount: ${formatUnits(BigInt(swapQuote.buyAmount), buyToken.decimals)} ${buyToken.symbol}`);
+  console.log(`Min Buy Amount: ${formatUnits(BigInt(swapQuote.minBuyAmount), buyToken.decimals)} ${buyToken.symbol}`);
+  console.log(`Sell Amount: ${formatUnits(BigInt(swapQuote.sellAmount), sellToken.decimals)} ${sellToken.symbol}`);
   
   // Calculate and display price ratios
-  const sellAmountBigInt = BigInt(swap.sellAmount);
-  const buyAmountBigInt = BigInt(swap.buyAmount);
-  const minBuyAmountBigInt = BigInt(swap.minBuyAmount);
+  const sellAmountBigInt = BigInt(swapQuote.sellAmount);
+  const buyAmountBigInt = BigInt(swapQuote.buyAmount);
+  const minBuyAmountBigInt = BigInt(swapQuote.minBuyAmount);
   
   // Calculate exchange rate: How many buy tokens per 1 sell token
   const sellToBuyRate = Number(buyAmountBigInt) / (10 ** buyToken.decimals) * 
@@ -161,38 +161,38 @@ function logSwapInfo(
   
   console.log("\nSuggested Gas Details:");
   console.log("----------------------------------");
-  console.log(`Gas: ${swap.transaction.gas}`);
-  console.log(`Gas Price: ${swap.transaction.gasPrice}`);
+  console.log(`Gas: ${swapQuote.transaction.gas}`);
+  console.log(`Gas Price: ${swapQuote.transaction.gasPrice}`);
 }
 
 /**
  * Validates the swap for any issues
- * @param swap - The swap transaction data
+ * @param swapQuote - The swap transaction data
  * @returns true if swap is valid, false if there are issues
  */
-function validateSwap(swap: any): boolean {
+function validateSwap(swapQuote: any): boolean {
   console.log("\nValidating Swap Quote:");
   console.log("---------------------");
   
-  if (!swap.liquidityAvailable) {
+  if (!swapQuote.liquidityAvailable) {
     console.log("❌ Insufficient liquidity available for this swap.");
     return false;
   } else {
     console.log("✅ Liquidity available");
   }
   
-  if (swap.issues.balance) {
+  if (swapQuote.issues.balance) {
     console.log("\n❌ Balance Issues:");
-    console.log(`Current Balance: ${swap.issues.balance.currentBalance}`);
-    console.log(`Required Balance: ${swap.issues.balance.requiredBalance}`);
-    console.log(`Token: ${swap.issues.balance.token}`);
+    console.log(`Current Balance: ${swapQuote.issues.balance.currentBalance}`);
+    console.log(`Required Balance: ${swapQuote.issues.balance.requiredBalance}`);
+    console.log(`Token: ${swapQuote.issues.balance.token}`);
     console.log("\nInsufficient balance. Please add funds to your account.");
     return false;
   } else {
     console.log("✅ Sufficient balance");
   }
 
-  if (swap.issues.simulationIncomplete) {
+  if (swapQuote.issues.simulationIncomplete) {
     console.log("⚠️ WARNING: Simulation incomplete. Transaction may fail.");
   } else {
     console.log("✅ Simulation complete");

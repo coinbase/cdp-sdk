@@ -116,7 +116,7 @@ async function main() {
       // This gives you more control to analyze the swap details before execution
       
       // Step 1: Create the swap quote
-      const swapResponse = await cdp.evm.createSwapQuote({
+      const swapQuote = await cdp.evm.createSwapQuote({
         network: NETWORK,
         buyToken: buyToken.address as `0x${string}`,
         sellToken: sellToken.address as `0x${string}`,
@@ -126,26 +126,26 @@ async function main() {
       });
       
       // Step 2: Check if liquidity is available
-      if (!swapResponse.liquidityAvailable) {
+      if (!swapQuote.liquidityAvailable) {
         console.log("\n❌ Swap failed: Insufficient liquidity for this swap pair or amount.");
         return;
       }
       
       // Step 3: Optionally inspect swap details
-      console.log(`Buy Amount: ${formatUnits(swapResponse.buyAmount, buyToken.decimals)} ${buyToken.symbol}`);
-      console.log(`Min Buy Amount: ${formatUnits(swapResponse.minBuyAmount, buyToken.decimals)} ${buyToken.symbol}`);
-      if (swapResponse.fees?.gasFee) {
-        console.log(`Gas Fee: ${formatEther(swapResponse.fees.gasFee.amount)} ${swapResponse.fees.gasFee.token}`);
+      console.log(`Buy Amount: ${formatUnits(swapQuote.buyAmount, buyToken.decimals)} ${buyToken.symbol}`);
+      console.log(`Min Buy Amount: ${formatUnits(swapQuote.minBuyAmount, buyToken.decimals)} ${buyToken.symbol}`);
+      if (swapQuote.fees?.gasFee) {
+        console.log(`Gas Fee: ${formatEther(swapQuote.fees.gasFee.amount)} ${swapQuote.fees.gasFee.token}`);
       }
       
       // Step 4: Send the swap transaction
       // Option A: Using account.swap() with the pre-created swap quote
       const result = await ownerAccount.swap({
-        swap: swapResponse,
+        swapQuote: swapQuote,
       });
       
       // Option B: Using the swap quote's execute() method directly
-      const result = await swapResponse.execute();
+      const result = await swapQuote.execute();
       */
 
       console.log(`\n✅ Swap submitted successfully!`);

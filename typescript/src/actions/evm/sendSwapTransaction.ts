@@ -35,9 +35,9 @@ interface BaseSendSwapTransactionOptions {
  */
 interface SendSwapTransactionWithSwapResult extends BaseSendSwapTransactionOptions {
   /**
-   * The swap transaction data returned by the createSwapQuote method.
+   * The swap quote returned by the createSwapQuote method.
    */
-  swap: CreateSwapQuoteResult;
+  swapQuote: CreateSwapQuoteResult;
 }
 
 /**
@@ -121,7 +121,7 @@ export interface SendSwapTransactionResult {
  * // Send the swap
  * const result = await sendSwapTransaction(client, {
  *   address: account.address,
- *   swap: swapQuote
+ *   swapQuote: swapQuote
  * });
  *
  * console.log(`Swap sent with transaction hash: ${result.transactionHash}`);
@@ -151,9 +151,9 @@ export async function sendSwapTransaction(
   let swapResult: CreateSwapQuoteResult | SwapUnavailableResult;
 
   // Determine if we need to create the swap quote or use the provided one
-  if ("swap" in options) {
+  if ("swapQuote" in options) {
     // Use the provided swap quote
-    swapResult = options.swap;
+    swapResult = options.swapQuote;
   } else {
     // Create the swap quote using the provided options (SendSwapTransactionWithSwapOptions)
     swapResult = await createSwapQuote(client, {

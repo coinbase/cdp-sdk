@@ -130,7 +130,7 @@ export async function createSwapQuote(
       const { transactionHash } = await sendSwapTransaction(client, {
         address: options.signerAddress || options.taker, // Use signerAddress for smart accounts, taker for EOAs
         network: result.network as SendEvmTransactionBodyNetwork,
-        swap: result,
+        swapQuote: result,
         idempotencyKey: executeOptions.idempotencyKey,
       });
       return { transactionHash };

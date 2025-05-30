@@ -6,14 +6,14 @@ import {
   EvmSmartAccount as OpenApiEvmSmartAccount,
   EvmUserOperation as OpenApiUserOperation,
   EvmCall as OpenApiEvmCall,
-  GetQuoteResponse,
-  CreateSwapResponse,
+  GetSwapPriceResponse,
+  CreateSwapQuoteResponse,
   SwapUnavailableResponse,
 } from "../../openapi-client";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount";
-import { getSwapQuote } from "../../actions/evm/getSwapQuote";
-import { createSwap } from "../../actions/evm/createSwap";
+import { getSwapPrice } from "../../actions/evm/getSwapPrice";
+import { createSwapQuote } from "../../actions/evm/createSwapQuote";
 import { sendUserOperation } from "../../actions/evm/sendUserOperation";
 import { waitForUserOperation } from "../../actions/evm/waitForUserOperation";
 import type { EvmAccount, EvmServerAccount, EvmSmartAccount } from "../../accounts/evm/types.js";
@@ -73,12 +73,12 @@ vi.mock("../../accounts/evm/toEvmSmartAccount", () => ({
   toEvmSmartAccount: vi.fn(),
 }));
 
-vi.mock("../../actions/evm/getSwapQuote", () => ({
-  getSwapQuote: vi.fn(),
+vi.mock("../../actions/evm/getSwapPrice", () => ({
+  getSwapPrice: vi.fn(),
 }));
 
-vi.mock("../../actions/evm/createSwap", () => ({
-  createSwap: vi.fn(),
+vi.mock("../../actions/evm/createSwapQuote", () => ({
+  createSwapQuote: vi.fn(),
 }));
 
 vi.mock("../../actions/evm/sendUserOperation", () => ({
@@ -1106,8 +1106,8 @@ describe("EvmClient", () => {
     });
   });
 
-  describe("getSwapQuote", () => {
-    it("should get a swap quote", async () => {
+  describe("getSwapPrice", () => {
+    it("should get a swap price", async () => {
       const network = "ethereum";
       const buyToken = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
       const sellToken = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
@@ -1116,7 +1116,7 @@ describe("EvmClient", () => {
       const gasPrice = BigInt("5000000000"); // 5 Gwei
       const slippageBps = 50; // 0.5%
 
-      const mockResponse: GetQuoteResponse = {
+      const mockResponse: GetSwapPriceResponse = {
         liquidityAvailable: true,
         blockNumber: "12345678",
         buyAmount: "5000000000",
@@ -1143,10 +1143,10 @@ describe("EvmClient", () => {
         gasPrice: "5000000000",
       };
 
-      const getSwapQuoteMock = getSwapQuote as MockedFunction<typeof getSwapQuote>;
-      getSwapQuoteMock.mockResolvedValue(mockResponse);
+      const getSwapPriceMock = getSwapPrice as MockedFunction<typeof getSwapPrice>;
+      getSwapPriceMock.mockResolvedValue(mockResponse);
 
-      const result = await client.getSwapQuote({
+      const result = await client.getSwapPrice({
         network,
         buyToken,
         sellToken,
@@ -1156,7 +1156,7 @@ describe("EvmClient", () => {
         slippageBps,
       });
 
-      expect(getSwapQuote).toHaveBeenCalledWith(CdpOpenApiClient, {
+      expect(getSwapPrice).toHaveBeenCalledWith(CdpOpenApiClient, {
         network,
         buyToken,
         sellToken,
@@ -1173,10 +1173,10 @@ describe("EvmClient", () => {
         liquidityAvailable: false,
       };
 
-      const getSwapQuoteMock = getSwapQuote as MockedFunction<typeof getSwapQuote>;
-      getSwapQuoteMock.mockResolvedValue(mockResponse);
+      const getSwapPriceMock = getSwapPrice as MockedFunction<typeof getSwapPrice>;
+      getSwapPriceMock.mockResolvedValue(mockResponse);
 
-      const result = await client.getSwapQuote({
+      const result = await client.getSwapPrice({
         network: "ethereum",
         buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -1188,8 +1188,8 @@ describe("EvmClient", () => {
     });
   });
 
-  describe("createSwap", () => {
-    it("should create a swap", async () => {
+  describe("createSwapQuote", () => {
+    it("should create a swap quote", async () => {
       const network = "ethereum";
       const buyToken = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
       const sellToken = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
@@ -1197,7 +1197,7 @@ describe("EvmClient", () => {
       const taker = "0x1234567890123456789012345678901234567890";
       const slippageBps = 50; // 0.5%
 
-      const mockResponse: CreateSwapResponse = {
+      const mockResponse: CreateSwapQuoteResponse = {
         liquidityAvailable: true,
         blockNumber: "12345678",
         buyAmount: "5000000000",
@@ -1230,10 +1230,10 @@ describe("EvmClient", () => {
         },
       };
 
-      const createSwapMock = createSwap as MockedFunction<typeof createSwap>;
-      createSwapMock.mockResolvedValue(mockResponse);
+      const createSwapQuoteMock = createSwapQuote as MockedFunction<typeof createSwapQuote>;
+      createSwapQuoteMock.mockResolvedValue(mockResponse);
 
-      const result = await client.createSwap({
+      const result = await client.createSwapQuote({
         network,
         buyToken,
         sellToken,
@@ -1242,7 +1242,7 @@ describe("EvmClient", () => {
         slippageBps,
       });
 
-      expect(createSwap).toHaveBeenCalledWith(CdpOpenApiClient, {
+      expect(createSwapQuote).toHaveBeenCalledWith(CdpOpenApiClient, {
         network,
         buyToken,
         sellToken,
@@ -1253,15 +1253,15 @@ describe("EvmClient", () => {
       expect(result).toEqual(mockResponse);
     });
 
-    it("should handle unavailable liquidity for createSwap", async () => {
+    it("should handle unavailable liquidity for createSwapQuote", async () => {
       const mockResponse: SwapUnavailableResponse = {
         liquidityAvailable: false,
       };
 
-      const createSwapMock = createSwap as MockedFunction<typeof createSwap>;
-      createSwapMock.mockResolvedValue(mockResponse);
+      const createSwapQuoteMock = createSwapQuote as MockedFunction<typeof createSwapQuote>;
+      createSwapQuoteMock.mockResolvedValue(mockResponse);
 
-      const result = await client.createSwap({
+      const result = await client.createSwapQuote({
         network: "ethereum",
         buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",

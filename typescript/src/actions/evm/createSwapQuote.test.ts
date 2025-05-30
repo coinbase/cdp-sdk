@@ -341,7 +341,7 @@ describe("createSwapQuote", () => {
     expect(sendSwapTransaction).toHaveBeenCalledWith(mockClient, {
       address: "0x1234567890123456789012345678901234567890", // This is the taker address
       network: network,
-      swap: swapResult,
+      swapQuote: swapResult,
       idempotencyKey: "test-key",
     });
 
@@ -397,7 +397,7 @@ describe("createSwapQuote", () => {
     expect(sendSwapTransaction).toHaveBeenCalledWith(mockClient, {
       address: "0x1234567890123456789012345678901234567890", // This is the taker address
       network: network,
-      swap: swapResult,
+      swapQuote: swapResult,
       idempotencyKey: undefined,
     });
   });
@@ -451,7 +451,7 @@ describe("createSwapQuote", () => {
     expect(sendSwapTransaction).toHaveBeenCalledWith(mockClient, {
       address: signerAddress,
       network: network,
-      swap: swapResult,
+      swapQuote: swapResult,
       idempotencyKey: undefined,
     });
   });

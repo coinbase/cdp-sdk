@@ -247,7 +247,7 @@ describe("toEvmServerAccount", () => {
 
     const swapOptions = {
       network: "base", // Network is still required for backward compatibility
-      swap: mockSwapQuote,
+      swapQuote: mockSwapQuote,
     } as SwapOptions;
 
     const result = await serverAccount.swap(swapOptions);
