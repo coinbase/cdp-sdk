@@ -6,7 +6,7 @@ import { sendSwapTransaction } from "./sendSwapTransaction.js";
 import { sendTransaction } from "./sendTransaction.js";
 import { createSwap } from "./createSwap.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
-import type { CreateSwapResult } from "../../client/evm/evm.types.js";
+import type { CreateSwapResult, SwapUnavailableResult } from "../../client/evm/evm.types.js";
 
 // Mock dependencies
 vi.mock("./sendTransaction.js", () => ({
@@ -396,12 +396,91 @@ describe("sendSwapTransaction", () => {
     expect(sendTransaction).not.toHaveBeenCalled();
   });
 
-  it("should throw error when neither swap nor swapOptions is provided", async () => {
+  it("should throw error when swap is provided but liquidity is not available", async () => {
+    const swapWithNoLiquidity: SwapUnavailableResult = {
+      liquidityAvailable: false,
+    };
+
     await expect(
       sendSwapTransaction(CdpOpenApiClient, {
         address: mockAddress,
         network: mockNetwork,
-      } as any),
-    ).rejects.toThrow("Either 'swap' or swap parameters (buyToken, sellToken, sellAmount) must be provided");
+        swap: swapWithNoLiquidity as any,
+      }),
+    ).rejects.toThrow("Insufficient liquidity for swap");
+
+    // Check that sendTransaction was NOT called
+    expect(sendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("should throw error when swap has allowance issues", async () => {
+    const swapWithAllowanceIssue: CreateSwapResult = {
+      ...mockSwap,
+      issues: {
+        allowance: {
+          currentAllowance: BigInt("0"),
+          spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3" as `0x${string}`,
+        },
+        balance: undefined,
+        simulationIncomplete: false,
+      },
+    };
+
+    await expect(
+      sendSwapTransaction(CdpOpenApiClient, {
+        address: mockAddress,
+        network: mockNetwork,
+        swap: swapWithAllowanceIssue,
+      }),
+    ).rejects.toThrow(
+      "Insufficient token allowance for swap. Current allowance: 0. " +
+      "Please approve the Permit2 contract (0x000000000022D473030F116dDEE9F6B43aC78BA3) to spend your tokens."
+    );
+
+    // Check that sendTransaction was NOT called
+    expect(sendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("should throw error when swapOptions is provided and created swap has allowance issues", async () => {
+    const swapOptions = {
+      buyToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
+      sellToken: "0x4200000000000000000000000000000000000006" as `0x${string}`,
+      sellAmount: BigInt("1000000000000000000"),
+      taker: mockAddress,
+    };
+
+    const swapWithAllowanceIssue: CreateSwapResult = {
+      ...mockSwap,
+      issues: {
+        allowance: {
+          currentAllowance: BigInt("100"),
+          spender: "0x000000000022D473030F116dDEE9F6B43aC78BA3" as `0x${string}`,
+        },
+        balance: undefined,
+        simulationIncomplete: false,
+      },
+    };
+
+    (createSwap as MockedFunction<typeof createSwap>).mockResolvedValue(swapWithAllowanceIssue);
+
+    await expect(
+      sendSwapTransaction(CdpOpenApiClient, {
+        address: mockAddress,
+        network: mockNetwork,
+        ...swapOptions,
+      }),
+    ).rejects.toThrow(
+      "Insufficient token allowance for swap. Current allowance: 100. " +
+      "Please approve the Permit2 contract (0x000000000022D473030F116dDEE9F6B43aC78BA3) to spend your tokens."
+    );
+
+    // Check that createSwap was called
+    expect(createSwap).toHaveBeenCalledWith(CdpOpenApiClient, {
+      ...swapOptions,
+      network: mockNetwork,
+    });
+
+    // Check that sendTransaction was NOT called
+    expect(sendTransaction).not.toHaveBeenCalled();
   });
 });

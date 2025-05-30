@@ -87,14 +87,22 @@ export interface SendSwapTransactionResult {
  * Sends a swap transaction to the blockchain.
  * Handles any permit2 signatures required for the swap.
  *
+ * If you encounter token allowance issues, you'll need to perform a token approval transaction first to allow
+ * the Permit2 contract to spend the appropriate amount of your buyToken.
+ * See `examples/typescript/evm/account.sendSwapTransaction.ts` for example code on handling token approvals.
+ *
  * @param {CdpOpenApiClientType} client - The client to use for sending the swap.
  * @param {SendSwapTransactionOptions} options - The options for the swap submission.
  *
  * @returns {Promise<SendSwapTransactionResult>} A promise that resolves to the transaction hash.
  *
- * @throws {Error} If liquidity is not available when using swapOptions.
+ * @throws {Error} If liquidity is not available for the swap.
+ * @throws {Error} If there are insufficient token allowances. In this case, you need to approve the
+ *                 Permit2 contract to spend your tokens before attempting the swap. The error message
+ *                 will include the current allowance and the spender address that needs approval.
+ * @throws {Error} If no transaction data is found in the swap result.
  *
- * @example **Sending a swap with pre-created swap result**
+ * @example **Sending a swap with pre-created swap object**
  * ```ts
  * // First create a swap
  * const swap = await cdp.evm.createSwap({
