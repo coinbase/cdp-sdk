@@ -182,6 +182,24 @@ async def main():
 asyncio.run(main())
 ```
 
+### Creating EVM or Solana accounts with policies
+
+#### Create an EVM account with policy as follows:
+```python
+account = await cdp.evm.create_account(
+    name="AccountWithPolicy",
+    account_policy="abcdef12-3456-7890-1234-567890123456",
+)
+```
+
+#### Create a Solana account with policy as follows:
+```python
+account = await cdp.solana.create_account(
+    name="AccountWithPolicy",
+    account_policy="abcdef12-3456-7890-1234-567890123456",
+)
+```
+
 ### Updating EVM or Solana accounts
 
 #### Update an EVM account as follows:
