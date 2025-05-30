@@ -19,7 +19,7 @@ class CdpClient:
         api_key_secret: str | None = None,
         wallet_secret: str | None = None,
         debugging: bool = False,
-        base_path: str = "https://api.cdp.coinbase.com/platform",
+        base_path: str = "https://cloud-api-dev.cbhq.net/platform",
         max_network_retries: int = 3,
         source: str = SDK_DEFAULT_SOURCE,
         source_version: str = __version__,

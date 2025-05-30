@@ -1432,6 +1432,292 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/swaps/quote:
+    get:
+      x-audience: public
+      summary: Get a quote for a swap
+      description: Get a quote for a swap between two tokens on an EVM network.
+      operationId: getEvmSwapQuote
+      tags:
+        - EVM Swaps
+      parameters:
+        - in: query
+          name: network
+          required: true
+          schema:
+            $ref: '#/components/schemas/EvmSwapsNetwork'
+        - in: query
+          name: buyToken
+          required: true
+          schema:
+            $ref: '#/components/schemas/buyToken'
+        - in: query
+          name: sellToken
+          required: true
+          schema:
+            $ref: '#/components/schemas/sellToken'
+        - in: query
+          name: sellAmount
+          required: true
+          schema:
+            $ref: '#/components/schemas/sellAmount'
+        - in: query
+          name: taker
+          required: true
+          schema:
+            $ref: '#/components/schemas/taker'
+        - in: query
+          name: signerAddress
+          required: false
+          schema:
+            $ref: '#/components/schemas/signerAddress'
+        - in: query
+          name: gasPrice
+          required: false
+          schema:
+            $ref: '#/components/schemas/gasPrice'
+        - in: query
+          name: slippageBps
+          required: false
+          schema:
+            $ref: '#/components/schemas/slippageBps'
+      responses:
+        '200':
+          description: A quote for the swap.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSwapQuoteResponseWrapper'
+              examples:
+                success:
+                  summary: Successful swap quote
+                  value:
+                    blockNumber: '17038723'
+                    buyAmount: '1000000000000000000'
+                    buyToken: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+                    fees:
+                      gasFee:
+                        amount: '1000000000000000000'
+                        token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+                      protocolFee:
+                        amount: '1000000000000000000'
+                        token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+                    issues:
+                      allowance:
+                        currentAllowance: '1000000000'
+                        spender: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+                      balance:
+                        token: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                        currentBalance: '1000000000000000000'
+                        requiredBalance: '1000000000000000000'
+                      simulationIncomplete: false
+                    liquidityAvailable: true
+                    minBuyAmount: '900000000000000000'
+                    sellAmount: '1000000000000000000'
+                    sellToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                    gas: '100000'
+                    gasPrice: '1000000000'
+                unavailable:
+                  summary: Swap with unavailable liquidity
+                  value:
+                    liquidityAvailable: false
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '403':
+          description: Taker not permitted to perform swap.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Taker not permitted to perform swap.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/swaps:
+    post:
+      x-audience: public
+      summary: Create a swap
+      description: Create a swap, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
+      operationId: createEvmSwap
+      tags:
+        - EVM Swaps
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                network:
+                  $ref: '#/components/schemas/EvmSwapsNetwork'
+                buyToken:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed contract address of the token to buy.
+                  example: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+                sellToken:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed contract address of the token to sell.
+                  example: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                sellAmount:
+                  type: string
+                  pattern: ^\d+$
+                  description: The amount of the `sellToken` to sell in atomic units of the token. For example, `1000000000000000000` when selling ETH equates to 1 ETH, `1000000` when selling USDC equates to 1 USDC, etc.
+                  example: '1000000000000000000'
+                taker:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed address that holds the `sellToken` balance and has the `Permit2` allowance set for the swap.
+                  example: '0xAc0974bec39a17e36ba4a6b4d238ff944bacb478'
+                signerAddress:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed Externally Owned Account (EOA) address that will sign the `Permit2` EIP-712 permit message. This is only needed if `taker` is a smart contract.
+                  example: '0x922f49447d8a07e3bd95bd0d56f35241523fbab8'
+                gasPrice:
+                  type: string
+                  pattern: ^\d+$
+                  description: The target gas price for the swap transaction, in Wei. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. If not provided, the API will use an estimate based on the current network conditions.
+                  example: '1000000000'
+                slippageBps:
+                  type: integer
+                  minimum: 0
+                  maximum: 10000
+                  description: The maximum acceptable slippage of the `buyToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
+                  default: 100
+                  example: 100
+              required:
+                - network
+                - buyToken
+                - sellToken
+                - sellAmount
+                - taker
+      responses:
+        '201':
+          description: Successfully created swap.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSwapResponseWrapper'
+              examples:
+                success:
+                  summary: Successful swap creation
+                  value:
+                    blockNumber: '17038723'
+                    buyAmount: '1000000000000000000'
+                    buyToken: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+                    fees:
+                      gasFee:
+                        amount: '1000000000000000000'
+                        token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+                      protocolFee:
+                        amount: '1000000000000000000'
+                        token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+                    issues:
+                      allowance:
+                        currentAllowance: '1000000000'
+                        spender: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+                      balance:
+                        token: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                        currentBalance: '1000000000000000000'
+                        requiredBalance: '1000000000000000000'
+                      simulationIncomplete: false
+                    liquidityAvailable: true
+                    minBuyAmount: '900000000000000000'
+                    sellAmount: '1000000000000000000'
+                    sellToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                    permit2:
+                      hash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                      eip712:
+                        domain:
+                          name: Permit2
+                          chainId: 1
+                          verifyingContract: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+                        types:
+                          EIP712Domain:
+                            - name: name
+                              type: string
+                            - name: chainId
+                              type: uint256
+                            - name: verifyingContract
+                              type: address
+                          PermitTransferFrom:
+                            - name: permitted
+                              type: TokenPermissions
+                            - name: spender
+                              type: address
+                            - name: nonce
+                              type: uint256
+                            - name: deadline
+                              type: uint256
+                          TokenPermissions:
+                            - name: token
+                              type: address
+                            - name: amount
+                              type: uint256
+                        primaryType: PermitTransferFrom
+                        message:
+                          permitted:
+                            token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+                            amount: '1000000'
+                          spender: '0xFfFfFfFFfFFfFFfFFfFFFFFffFFFffffFfFFFfFf'
+                          nonce: '123456'
+                          deadline: '1717123200'
+                    transaction:
+                      to: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+                      data: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                      gas: '100000'
+                      gasPrice: '1000000000'
+                      value: '1000000000000000000'
+                unavailable:
+                  summary: Swap with unavailable liquidity
+                  value:
+                    liquidityAvailable: false
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '403':
+          description: Taker not permitted to perform swap.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Taker not permitted to perform swap.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/token-balances/{network}/{address}:
     get:
       summary: List EVM token balances
@@ -3094,6 +3380,334 @@ components:
         - userOpHash
         - calls
         - status
+    EvmSwapsNetwork:
+      type: string
+      enum:
+        - base
+        - ethereum
+        - ethereum-sepolia
+      description: The network on which to perform the swap.
+      example: base
+    buyToken:
+      type: string
+      pattern: ^0x[a-fA-F0-9]{40}$
+      description: The 0x-prefixed contract address of the token to buy.
+      example: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+    sellToken:
+      type: string
+      pattern: ^0x[a-fA-F0-9]{40}$
+      description: The 0x-prefixed contract address of the token to sell.
+      example: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+    sellAmount:
+      type: string
+      pattern: ^\d+$
+      description: The amount of the `sellToken` to sell in atomic units of the token. For example, `1000000000000000000` when selling ETH equates to 1 ETH, `1000000` when selling USDC equates to 1 USDC, etc.
+      example: '1000000000000000000'
+    taker:
+      type: string
+      pattern: ^0x[a-fA-F0-9]{40}$
+      description: The 0x-prefixed address that holds the `sellToken` balance and has the `Permit2` allowance set for the swap.
+      example: '0xAc0974bec39a17e36ba4a6b4d238ff944bacb478'
+    signerAddress:
+      type: string
+      pattern: ^0x[a-fA-F0-9]{40}$
+      description: The 0x-prefixed Externally Owned Account (EOA) address that will sign the `Permit2` EIP-712 permit message. This is only needed if `taker` is a smart contract.
+      example: '0x922f49447d8a07e3bd95bd0d56f35241523fbab8'
+    gasPrice:
+      type: string
+      pattern: ^\d+$
+      description: The target gas price for the swap transaction, in Wei. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. If not provided, the API will use an estimate based on the current network conditions.
+      example: '1000000000'
+    slippageBps:
+      type: integer
+      minimum: 0
+      maximum: 10000
+      description: The maximum acceptable slippage of the `buyToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
+      default: 100
+      example: 100
+    TokenFee:
+      type: object
+      properties:
+        amount:
+          type: string
+          pattern: ^\d+$
+          description: The estimated amount of the fee in atomic units of the `token`. For example, `1000000000000000` if the fee is in ETH equates to 0.001 ETH, `10000` if the fee is in USDC equates to 0.01 USDC, etc.
+          example: '1000000000000000000'
+        token:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: The contract address of the token that the fee is paid in. The address `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` is used for the native token of the network (e.g. ETH).
+          example: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      required:
+        - amount
+        - token
+    CommonSwapResponse:
+      type: object
+      properties:
+        blockNumber:
+          type: string
+          pattern: ^[1-9]\d*$
+          description: The block number at which the liquidity conditions were examined.
+          example: '17038723'
+        buyAmount:
+          type: string
+          pattern: ^(0|[1-9]\d*)$
+          description: The amount of the `buyToken` that will be received in atomic units of the `buyToken`. For example, `1000000000000000000` when buying ETH equates to 1 ETH, `1000000` when buying USDC equates to 1 USDC, etc.
+          example: '1000000000000000000'
+        buyToken:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: The 0x-prefixed contract address of the token that will be bought.
+          example: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+        fees:
+          type: object
+          description: The estimated fees for the swap.
+          properties:
+            gasFee:
+              type: object
+              nullable: true
+              description: The estimated gas fee for the swap.
+              allOf:
+                - $ref: '#/components/schemas/TokenFee'
+            protocolFee:
+              type: object
+              nullable: true
+              description: The estimated protocol fee for the swap.
+              allOf:
+                - $ref: '#/components/schemas/TokenFee'
+          required:
+            - gasFee
+            - protocolFee
+          example:
+            gasFee:
+              amount: '1000000000000000000'
+              token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+            protocolFee:
+              amount: '1000000000000000000'
+              token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        issues:
+          type: object
+          description: An object containing potential issues discovered during validation that could prevent the swap from being executed successfully.
+          properties:
+            allowance:
+              type: object
+              nullable: true
+              description: Details of the allowances that the taker must set in order to execute the swap successfully. Null if no allowance is required.
+              properties:
+                currentAllowance:
+                  type: string
+                  pattern: ^\d+$
+                  description: The current allowance of the `sellToken` by the `taker`.
+                  example: '1000000000'
+                spender:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed address of to set the allowance on.
+                  example: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+              required:
+                - currentAllowance
+                - spender
+              example:
+                currentAllowance: '1000000000'
+                spender: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+            balance:
+              type: object
+              nullable: true
+              description: Details of the balance of the `sellToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
+              properties:
+                token:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed contract address of the token.
+                currentBalance:
+                  type: string
+                  pattern: ^\d+$
+                  description: The current balance of the `sellToken` by the `taker`.
+                  example: '10000000'
+                requiredBalance:
+                  type: string
+                  pattern: ^\d+$
+                  description: The amount of the token that the `taker` must hold.
+                  example: '1000000000000000000'
+              required:
+                - token
+                - currentBalance
+                - requiredBalance
+              example:
+                token: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                currentBalance: '1000000000000000000'
+                requiredBalance: '1000000000000000000'
+            simulationIncomplete:
+              type: boolean
+              description: This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `sellToken`. Note that this does not necessarily mean that the trade will revert.
+              example: false
+          required:
+            - allowance
+            - balance
+            - simulationIncomplete
+          example:
+            allowance:
+              currentAllowance: '1000000000'
+              spender: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+            balance:
+              token: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+              currentBalance: '900000000000000000'
+              requiredBalance: '1000000000000000000'
+            simulationIncomplete: false
+        liquidityAvailable:
+          type: boolean
+          enum:
+            - true
+          description: Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
+          example: true
+        minBuyAmount:
+          type: string
+          pattern: ^(0|[1-9]\d*)$
+          description: The minimum amount of the `buyToken` that must be received for the swap to succeed, in atomic units of the `buyToken`.  For example, `1000000000000000000` when buying ETH equates to 1 ETH, `1000000` when buying USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.
+          example: '900000000000000000'
+        sellAmount:
+          type: string
+          pattern: ^(0|[1-9]\d*)$
+          description: The amount of the `sellToken` that will be sold in this swap, in atomic units of the `sellToken`. For example, `1000000000000000000` when selling ETH equates to 1 ETH, `1000000` when selling USDC equates to 1 USDC, etc.
+          example: '1000000000000000000'
+        sellToken:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: The 0x-prefixed contract address of the token that will be sold.
+          example: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+      required:
+        - blockNumber
+        - buyAmount
+        - buyToken
+        - fees
+        - issues
+        - liquidityAvailable
+        - minBuyAmount
+        - sellAmount
+        - sellToken
+      example:
+        blockNumber: '17038723'
+        buyAmount: '1000000000000000000'
+        buyToken: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+        fees:
+          gasFee:
+            amount: '1000000000000000000'
+            token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+          protocolFee:
+            amount: '1000000000000000000'
+            token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        issues:
+          allowance:
+            currentAllowance: '1000000000'
+            spender: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+          balance:
+            token: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+            currentBalance: '1000000000000000000'
+            requiredBalance: '1000000000000000000'
+          simulationIncomplete: false
+        liquidityAvailable: true
+        minBuyAmount: '900000000000000000'
+        sellAmount: '1000000000000000000'
+        sellToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+    GetQuoteResponse:
+      allOf:
+        - $ref: '#/components/schemas/CommonSwapResponse'
+        - type: object
+          properties:
+            gas:
+              type: string
+              nullable: true
+              pattern: ^\d+$
+              description: The estimated gas limit that should be used to send the transaction to guarantee settlement.
+              example: '100000'
+            gasPrice:
+              type: string
+              pattern: ^\d+$
+              description: The gas price, in Wei, that should be used to send the transaction. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. The transaction should be sent with this gas price to guarantee settlement.
+              example: '1000000000'
+          required:
+            - gas
+            - gasPrice
+    SwapUnavailableResponse:
+      type: object
+      properties:
+        liquidityAvailable:
+          type: boolean
+          enum:
+            - false
+          description: Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
+          example: false
+      required:
+        - liquidityAvailable
+      example:
+        liquidityAvailable: false
+    GetSwapQuoteResponseWrapper:
+      description: A wrapper for the response of a swap quote operation.
+      oneOf:
+        - $ref: '#/components/schemas/GetQuoteResponse'
+        - $ref: '#/components/schemas/SwapUnavailableResponse'
+    CreateSwapResponse:
+      allOf:
+        - type: object
+          properties:
+            permit2:
+              type: object
+              nullable: true
+              description: The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `sellToken` is the native token or the transaction is a native token wrap / unwrap.
+              properties:
+                hash:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{64}$
+                  description: The hash for the approval according to [EIP-712](https://eips.ethereum.org/EIPS/eip-712). Computing the hash of the `eip712` field should match the value of this field.
+                  example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                eip712:
+                  $ref: '#/components/schemas/EIP712Message'
+              required:
+                - hash
+                - eip712
+            transaction:
+              type: object
+              description: The details of the transaction to be signed and submitted to execute the swap.
+              properties:
+                to:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed address of the contract to call.
+                  example: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+                data:
+                  type: string
+                  description: The hex-encoded call data to send to the contract.
+                  example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                gas:
+                  type: string
+                  pattern: ^\d+$
+                  description: The estimated gas limit that should be used to send the transaction to guarantee settlement.
+                  example: '100000'
+                gasPrice:
+                  type: string
+                  pattern: ^\d+$
+                  description: The gas price, in Wei, that should be used to send the transaction. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. The transaction should be sent with this gas price to guarantee settlement.
+                  example: '1000000000'
+                value:
+                  type: string
+                  pattern: ^\d+$
+                  description: The value of the transaction in Wei.
+                  example: '1000000000000000000'
+              required:
+                - to
+                - data
+                - gas
+                - gasPrice
+                - value
+          required:
+            - permit2
+            - transaction
+        - $ref: '#/components/schemas/CommonSwapResponse'
+    CreateSwapResponseWrapper:
+      description: A wrapper for the response of a swap operation.
+      oneOf:
+        - $ref: '#/components/schemas/CreateSwapResponse'
+        - $ref: '#/components/schemas/SwapUnavailableResponse'
     ListEvmTokenBalancesNetwork:
       type: string
       enum:

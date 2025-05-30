@@ -1,5 +1,6 @@
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
+from cdp.openapi_client.api.evm_swaps_api import EVMSwapsApi
 from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
@@ -17,6 +18,7 @@ class ApiClients:
         _cdp_client (CdpApiClient): The CDP API client used to initialize individual API clients.
         _evm_accounts (Optional[EVMAccountsApi]): The EVMAccountsApi client instance.
         _evm_smart_accounts (Optional[EVMSmartAccountsApi]): The EVMSmartAccountsApi client instance.
+        _evm_swaps (Optional[EVMSwapsApi]): The EVMSwapsApi client instance.
         _evm_token_balances (Optional[EVMTokenBalancesApi]): The EVMTokenBalancesApi client instance.
         _faucets (Optional[FaucetsApi]): The FaucetsApi client instance.
         _solana_accounts (Optional[SolanaAccountsApi]): The SolanaAccountsApi client instance.
@@ -34,6 +36,7 @@ class ApiClients:
 
         self._evm_accounts: EVMAccountsApi | None = None
         self._evm_smart_accounts: EVMSmartAccountsApi | None = None
+        self._evm_swaps: EVMSwapsApi | None = None
         self._evm_token_balances: EVMTokenBalancesApi | None = None
         self._faucets: FaucetsApi | None = None
         self._solana_accounts: SolanaAccountsApi | None = None
@@ -68,6 +71,21 @@ class ApiClients:
         if self._evm_smart_accounts is None:
             self._evm_smart_accounts = EVMSmartAccountsApi(api_client=self._cdp_client)
         return self._evm_smart_accounts
+
+    @property
+    def evm_swaps(self) -> EVMSwapsApi:
+        """Get the EVMSwapsApi client instance.
+
+        Returns:
+            EVMSwapsApi: The EVMSwapsApi client instance.
+
+        Note:
+            This property lazily initializes the EVMSwapsApi client on first access.
+
+        """
+        if self._evm_swaps is None:
+            self._evm_swaps = EVMSwapsApi(api_client=self._cdp_client)
+        return self._evm_swaps
 
     @property
     def evm_token_balances(self) -> EVMTokenBalancesApi:

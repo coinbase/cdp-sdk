@@ -1,6 +1,8 @@
 import base64
 import re
-from typing import Any
+
+# TYPE_CHECKING imports for type annotations
+from typing import TYPE_CHECKING, Any
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -43,6 +45,9 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
 )
 from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
+
+if TYPE_CHECKING:
+    from cdp.actions.evm.swap.types import SwapQuote, SwapTransaction
 
 
 class EvmClient:
@@ -571,4 +576,203 @@ class EvmClient:
             user_op_hash,
             timeout_seconds,
             interval_seconds,
+        )
+
+    async def get_quote(
+        self,
+        from_token: str,
+        to_token: str,
+        amount: str | int,
+        network: str,
+    ) -> "SwapQuote":
+        """Get a quote for swapping tokens.
+
+        Args:
+            from_token (str): The contract address of the token to swap from.
+            to_token (str): The contract address of the token to swap to.
+            amount (str | int): The amount to swap (in smallest unit or as string).
+            network (str): The network to get the quote for.
+
+        Returns:
+            SwapQuote: The swap quote with estimated output amount and route.
+
+        """
+        from cdp.actions.evm.swap.types import SwapQuote
+        from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
+        from cdp.openapi_client.models.get_quote_response import GetQuoteResponse
+
+        # Convert amount to string if it's an integer
+        amount_str = str(amount)
+
+        # Normalize addresses to lowercase
+        from_address = from_token.lower()
+        to_address = to_token.lower()
+
+        # Convert network to EvmSwapsNetwork enum
+        network_enum = EvmSwapsNetwork(network)
+
+        # Get quote from API - use the raw response to avoid oneOf deserialization issues
+        response = await self.api_clients.evm_swaps.get_evm_swap_quote_without_preload_content(
+            network=network_enum,
+            buy_token=to_address,
+            sell_token=from_address,
+            sell_amount=amount_str,
+            taker="0x0000000000000000000000000000000000010000",  # Valid placeholder address
+        )
+
+        # Read and parse the response manually
+        import json
+
+        raw_data = await response.read()
+        if not raw_data:
+            raise ValueError("Empty response from swap quote API")
+
+        try:
+            response_json = json.loads(raw_data.decode("utf-8"))
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON response from swap quote API: {e}") from e
+
+        # Check if liquidity is available
+        if not response_json.get("liquidityAvailable", False):
+            raise ValueError("Swap unavailable: Insufficient liquidity")
+
+        # Parse as GetQuoteResponse
+        quote_data = GetQuoteResponse.from_dict(response_json)
+
+        # Calculate price ratio
+        from_amount_decimal = float(amount_str)
+        to_amount_decimal = float(quote_data.buy_amount)
+        price_ratio = (
+            str(to_amount_decimal / from_amount_decimal) if from_amount_decimal > 0 else "0"
+        )
+
+        # Generate a quote ID from response data
+        import hashlib
+
+        quote_id = hashlib.sha256(
+            f"{from_token}:{to_token}:{amount_str}:{quote_data.buy_amount}".encode()
+        ).hexdigest()[:16]
+
+        # Get expiry time (if available in response)
+        import datetime
+
+        expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
+            minutes=5
+        )  # Default 5 min expiry
+
+        # Convert response to SwapQuote
+        return SwapQuote(
+            quote_id=quote_id,
+            from_token=from_token,
+            to_token=to_token,
+            from_amount=amount_str,
+            to_amount=quote_data.buy_amount,
+            price_ratio=price_ratio,
+            expires_at=expires_at.isoformat() + "Z",
+        )
+
+    async def create_swap(
+        self,
+        from_token: str,
+        to_token: str,
+        amount: str | int,
+        network: str,
+        wallet_address: str,
+        slippage_percentage: float = 1.0,
+    ) -> "SwapTransaction":
+        """Create a swap transaction.
+
+        Args:
+            from_token (str): The contract address of the token to swap from.
+            to_token (str): The contract address of the token to swap to.
+            amount (str | int): The amount to swap (in smallest unit or as string).
+            network (str): The network to create the swap on.
+            wallet_address (str): The wallet address that will execute the swap.
+            slippage_percentage (float): The maximum acceptable slippage percentage.
+
+        Returns:
+            SwapTransaction: The swap transaction data.
+
+        """
+        from cdp.actions.evm.swap.types import SwapTransaction
+        from cdp.openapi_client.models.create_evm_swap_request import CreateEvmSwapRequest
+        from cdp.openapi_client.models.create_swap_response import CreateSwapResponse
+        from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
+
+        # Convert amount to string if it's an integer
+        amount_str = str(amount)
+
+        # Normalize addresses to lowercase
+        from_address = from_token.lower()
+        to_address = to_token.lower()
+
+        # Convert network to EvmSwapsNetwork enum
+        network_enum = EvmSwapsNetwork(network)
+
+        # Convert slippage percentage to basis points (1% = 100 bps)
+        slippage_bps = int(slippage_percentage * 100)
+
+        # Create swap request
+        request = CreateEvmSwapRequest(
+            network=network_enum,
+            buy_token=to_address,
+            sell_token=from_address,
+            sell_amount=amount_str,
+            taker=wallet_address,
+            slippage_bps=slippage_bps,
+        )
+
+        # Create swap via API - use raw response to avoid oneOf deserialization issues
+        response = await self.api_clients.evm_swaps.create_evm_swap_without_preload_content(request)
+
+        # Read and parse the response manually
+        import json
+
+        raw_data = await response.read()
+        if not raw_data:
+            raise ValueError("Empty response from create swap API")
+
+        try:
+            response_json = json.loads(raw_data.decode("utf-8"))
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON response from create swap API: {e}") from e
+
+        # Check if liquidity is available
+        if not response_json.get("liquidityAvailable", False):
+            raise ValueError("Swap unavailable: Insufficient liquidity")
+
+        # Parse as CreateSwapResponse
+        swap_data = CreateSwapResponse.from_dict(response_json)
+
+        # Extract transaction data
+        tx_data = swap_data.transaction
+
+        # Check if Permit2 signature is required
+        permit2_data = None
+        requires_signature = False
+
+        if swap_data.permit2 and swap_data.permit2.eip712:
+            from cdp.actions.evm.swap.types import Permit2Data
+
+            # The eip712 field might be an EIP712Message object, convert to dict
+            eip712_obj = swap_data.permit2.eip712
+            if hasattr(eip712_obj, "to_dict"):
+                eip712_dict = eip712_obj.to_dict()
+            elif hasattr(eip712_obj, "model_dump"):
+                eip712_dict = eip712_obj.model_dump()
+            else:
+                # If it's already a dict or can be converted
+                eip712_dict = dict(eip712_obj) if not isinstance(eip712_obj, dict) else eip712_obj
+
+            permit2_data = Permit2Data(eip712=eip712_dict, hash=swap_data.permit2.hash)
+            requires_signature = True
+
+        # Convert response to SwapTransaction
+        return SwapTransaction(
+            to=tx_data.to,
+            data=tx_data.data,
+            value=int(tx_data.value) if tx_data.value else 0,
+            transaction=None,  # Raw transaction not provided in the response
+            permit2_data=permit2_data,
+            requires_signature=requires_signature,
         )

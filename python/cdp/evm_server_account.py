@@ -277,6 +277,86 @@ class EvmServerAccount(BaseAccount, BaseModel):
             transfer_strategy=account_transfer_strategy,
         )
 
+    async def swap(self, swap_args):
+        """Swap tokens from one asset to another.
+
+        Args:
+            swap_args: The options for the swap. Can be either:
+                1. CreateSwapOptions - SDK will call createSwap under the hood
+                2. SwapOptions with create_swap_options - same as above
+                3. SwapOptions with create_swap_result - use pre-created swap data
+                4. Dict with fields matching CreateSwapOptions
+
+        Returns:
+            The result of the swap.
+
+        Examples:
+            **Simple swap with CreateSwapOptions**:
+            >>> from cdp.actions.evm.swap import CreateSwapOptions
+            >>> result = await account.swap(
+            ...     CreateSwapOptions(
+            ...         from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+            ...         to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
+            ...         amount="1000000000000000",  # 0.001 ETH
+            ...         network="base",
+            ...     )
+            ... )
+
+            **Swap with custom slippage**:
+            >>> result = await account.swap(
+            ...     CreateSwapOptions(
+            ...         from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
+            ...         to_token="0x4200000000000000000000000000000000000006",  # WETH on Base
+            ...         amount="100000000",  # 100 USDC
+            ...         network="base",
+            ...         slippage_percentage=1.0,
+            ...     )
+            ... )
+
+            **Using dict syntax**:
+            >>> result = await account.swap({
+            ...     "from_token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
+            ...     "to_token": "0x4200000000000000000000000000000000000006",  # WETH on Base
+            ...     "amount": "100000000",  # 100 USDC
+            ...     "network": "base",
+            ... })
+
+            **Using pre-created swap data**:
+            >>> # First create the swap
+            >>> swap_data = await cdp_client.evm.create_swap(...)
+            >>> # Then execute it
+            >>> result = await account.swap(
+            ...     SwapOptions(create_swap_result=swap_data)
+            ... )
+
+        """
+        from cdp.actions.evm.swap import (
+            AccountSwapStrategy,
+            CreateSwapOptions,
+            SwapOptions,
+            swap,
+        )
+
+        # Handle different input formats
+        if isinstance(swap_args, dict):
+            # If dict, create CreateSwapOptions
+            swap_options = SwapOptions(create_swap_options=CreateSwapOptions(**swap_args))
+        elif isinstance(swap_args, CreateSwapOptions):
+            # If CreateSwapOptions, wrap in SwapOptions
+            swap_options = SwapOptions(create_swap_options=swap_args)
+        elif isinstance(swap_args, SwapOptions):
+            # Already SwapOptions, use as is
+            swap_options = swap_args
+        else:
+            raise ValueError("swap_args must be a dict, CreateSwapOptions, or SwapOptions instance")
+
+        return await swap(
+            api_clients=self.__api_clients,
+            from_account=self,
+            swap_options=swap_options,
+            swap_strategy=AccountSwapStrategy(),
+        )
+
     async def request_faucet(
         self,
         network: str,
