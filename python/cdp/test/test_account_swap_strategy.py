@@ -18,31 +18,17 @@ async def test_execute_swap_eth_to_usdc():
     """Test executing ETH to USDC swap."""
     # Arrange
     mock_api_clients = MagicMock(spec=ApiClients)
-    mock_api_clients.evm_swaps = MagicMock()
-
-    # Mock the permit2 data response
-    mock_permit2_data = {
-        "typed_data": {
-            "domain": {"name": "Permit2"},
-            "types": {},
-            "primaryType": "PermitTransferFrom",
-            "message": {},
-        }
-    }
-    mock_api_clients.evm_swaps.get_swap_permit2_data = AsyncMock(return_value=mock_permit2_data)
-
     mock_from_account = MagicMock(spec=EvmServerAccount)
     mock_from_account.address = "0x1234567890123456789012345678901234567890"
-    mock_from_account.sign_typed_data = MagicMock(return_value="0x" + "a" * 130)  # 65 bytes hex
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash123")
 
     swap_data = CreateSwapResult(
         quote_id="quote-123",
-        from_token="eth",
-        to_token="usdc",
+        from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+        to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
         from_amount="1000000000000000000",  # 1 ETH
         to_amount="2000000000",  # 2000 USDC
-        to="0xSwapRouterAddress",
+        to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
         data="0x1234abcd",
         value="0",
     )
@@ -54,27 +40,25 @@ async def test_execute_swap_eth_to_usdc():
         from_account=mock_from_account,
         swap_data=swap_data,
         network="base",
+        permit2_signature="0x" + "a" * 130,  # 65 bytes hex
     )
 
     # Assert
-    mock_api_clients.evm_swaps.get_swap_permit2_data.assert_called_once_with(
-        mock_from_account.address,
-        swap_data.to,
-        swap_data.data,
-    )
-
-    mock_from_account.sign_typed_data.assert_called_once()
     mock_from_account.send_transaction.assert_called_once()
 
     # Check the transaction was called with appended signature
     tx_arg = mock_from_account.send_transaction.call_args[0][0]
+    # The calldata should be: 0x1234abcd + 64 chars for length + 130 chars for signature
     assert tx_arg.data.startswith("0x1234abcd")
-    assert tx_arg.data.endswith("a" * 130)  # Signature appended
+    # Check that signature length (65 bytes = 0x41) is encoded as 64 hex chars
+    assert "0000000000000000000000000000000000000000000000000000000000000041" in tx_arg.data
+    # Check that signature is appended
+    assert tx_arg.data.endswith("a" * 130)
 
     assert isinstance(result, SwapResult)
     assert result.transaction_hash == "0xtxhash123"
-    assert result.from_token == "eth"
-    assert result.to_token == "usdc"
+    assert result.from_token == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+    assert result.to_token == "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
     assert result.from_amount == "1000000000000000000"
     assert result.to_amount == "2000000000"
     assert result.quote_id == "quote-123"
@@ -82,34 +66,63 @@ async def test_execute_swap_eth_to_usdc():
 
 
 @pytest.mark.asyncio
+async def test_execute_swap_without_permit2():
+    """Test executing swap without Permit2 signature (e.g., ETH swap)."""
+    # Arrange
+    mock_api_clients = MagicMock(spec=ApiClients)
+    mock_from_account = MagicMock(spec=EvmServerAccount)
+    mock_from_account.address = "0x1234567890123456789012345678901234567890"
+    mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash123")
+
+    swap_data = CreateSwapResult(
+        quote_id="quote-123",
+        from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+        to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+        from_amount="1000000000000000000",  # 1 ETH
+        to_amount="2000000000",  # 2000 USDC
+        to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
+        data="0x1234abcd",
+        value="1000000000000000000",  # ETH value
+    )
+
+    # Act
+    strategy = AccountSwapStrategy()
+    result = await strategy.execute_swap(
+        api_clients=mock_api_clients,
+        from_account=mock_from_account,
+        swap_data=swap_data,
+        network="base",
+        permit2_signature=None,  # No Permit2 signature needed for ETH
+    )
+
+    # Assert
+    mock_from_account.send_transaction.assert_called_once()
+
+    # Check the transaction was called without appended signature
+    tx_arg = mock_from_account.send_transaction.call_args[0][0]
+    assert tx_arg.data == "0x1234abcd"  # No signature appended
+    assert tx_arg.value == 1000000000000000000  # ETH value
+
+    assert isinstance(result, SwapResult)
+    assert result.transaction_hash == "0xtxhash123"
+
+
+@pytest.mark.asyncio
 async def test_execute_swap_with_gas_parameters():
     """Test executing swap with gas parameters."""
     # Arrange
     mock_api_clients = MagicMock(spec=ApiClients)
-    mock_api_clients.evm_swaps = MagicMock()
-
-    mock_permit2_data = {
-        "typed_data": {
-            "domain": {"name": "Permit2"},
-            "types": {},
-            "primaryType": "PermitTransferFrom",
-            "message": {},
-        }
-    }
-    mock_api_clients.evm_swaps.get_swap_permit2_data = AsyncMock(return_value=mock_permit2_data)
-
     mock_from_account = MagicMock(spec=EvmServerAccount)
     mock_from_account.address = "0x2345678901234567890123456789012345678901"
-    mock_from_account.sign_typed_data = MagicMock(return_value="0x" + "b" * 130)
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash456")
 
     swap_data = CreateSwapResult(
         quote_id="quote-456",
-        from_token="usdc",
-        to_token="eth",
+        from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+        to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
         from_amount="1000000000",  # 1000 USDC
         to_amount="500000000000000000",  # 0.5 ETH
-        to="0xSwapRouterAddress",
+        to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
         data="0x5678efgh",
         value="0",
         gas_limit=300000,
@@ -124,6 +137,7 @@ async def test_execute_swap_with_gas_parameters():
         from_account=mock_from_account,
         swap_data=swap_data,
         network="base",
+        permit2_signature="0x" + "b" * 130,
     )
 
     # Assert
@@ -140,30 +154,17 @@ async def test_execute_swap_custom_network():
     """Test executing swap on ethereum network."""
     # Arrange
     mock_api_clients = MagicMock(spec=ApiClients)
-    mock_api_clients.evm_swaps = MagicMock()
-
-    mock_permit2_data = {
-        "typed_data": {
-            "domain": {"name": "Permit2"},
-            "types": {},
-            "primaryType": "PermitTransferFrom",
-            "message": {},
-        }
-    }
-    mock_api_clients.evm_swaps.get_swap_permit2_data = AsyncMock(return_value=mock_permit2_data)
-
     mock_from_account = MagicMock(spec=EvmServerAccount)
     mock_from_account.address = "0x3456789012345678901234567890123456789012"
-    mock_from_account.sign_typed_data = MagicMock(return_value="0x" + "c" * 130)
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash789")
 
     swap_data = CreateSwapResult(
         quote_id="quote-789",
-        from_token="weth",
-        to_token="usdc",
+        from_token="0x4200000000000000000000000000000000000006",  # WETH
+        to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
         from_amount="2000000000000000000",  # 2 WETH
         to_amount="4000000000",  # 4000 USDC
-        to="0xSwapRouterAddress",
+        to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
         data="0x9abcijkl",
         value="0",
     )
@@ -187,21 +188,8 @@ async def test_execute_swap_contract_addresses():
     """Test executing swap with contract addresses."""
     # Arrange
     mock_api_clients = MagicMock(spec=ApiClients)
-    mock_api_clients.evm_swaps = MagicMock()
-
-    mock_permit2_data = {
-        "typed_data": {
-            "domain": {"name": "Permit2"},
-            "types": {},
-            "primaryType": "PermitTransferFrom",
-            "message": {},
-        }
-    }
-    mock_api_clients.evm_swaps.get_swap_permit2_data = AsyncMock(return_value=mock_permit2_data)
-
     mock_from_account = MagicMock(spec=EvmServerAccount)
     mock_from_account.address = "0x4567890123456789012345678901234567890123"
-    mock_from_account.sign_typed_data = MagicMock(return_value="0x" + "d" * 130)
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash012")
 
     swap_data = CreateSwapResult(
@@ -210,7 +198,7 @@ async def test_execute_swap_contract_addresses():
         to_token="0x4200000000000000000000000000000000000006",  # WETH on Base
         from_amount="1000000000",  # 1000 USDC
         to_amount="2500000000000000000",  # 2.5 WETH
-        to="0xSwapRouterAddress",
+        to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
         data="0xdefmnopq",
         value="0",
     )
@@ -222,6 +210,7 @@ async def test_execute_swap_contract_addresses():
         from_account=mock_from_account,
         swap_data=swap_data,
         network="base",
+        permit2_signature="0x" + "d" * 130,
     )
 
     # Assert
@@ -238,11 +227,11 @@ async def test_execute_swap_missing_network():
 
     swap_data = CreateSwapResult(
         quote_id="quote-999",
-        from_token="eth",
-        to_token="usdc",
+        from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+        to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
         from_amount="1000000000000000000",
         to_amount="2000000000",
-        to="0xSwapRouterAddress",
+        to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
         data="0x1234",
         value="0",
     )

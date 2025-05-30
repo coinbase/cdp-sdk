@@ -1,5 +1,7 @@
 """Swap strategy for regular EVM accounts."""
 
+from web3 import Web3
+
 from cdp.actions.evm.swap.types import CreateSwapResult, SwapResult
 from cdp.api_clients import ApiClients
 from cdp.evm_server_account import EvmServerAccount
@@ -15,6 +17,7 @@ class AccountSwapStrategy:
         from_account: EvmServerAccount,
         swap_data: CreateSwapResult,
         network: str | None = None,
+        permit2_signature: str | None = None,
     ) -> SwapResult:
         """Execute a swap for a regular EVM account.
 
@@ -23,6 +26,7 @@ class AccountSwapStrategy:
             from_account: The account to execute the swap from
             swap_data: The swap data from createSwap
             network: The network to execute on (optional, can be determined from account)
+            permit2_signature: Optional pre-signed Permit2 signature
 
         Returns:
             SwapResult: The result of the swap transaction
@@ -34,27 +38,35 @@ class AccountSwapStrategy:
             # In the future, we could store network info on the account
             raise ValueError("Network must be provided for swap execution")
 
-        # Get current permit2 data for signature
-        permit2_data = await api_clients.evm_swaps.get_swap_permit2_data(
-            from_account.address,
-            swap_data.to,
-            swap_data.data,
-        )
+        # Handle Permit2 signature if provided
+        if permit2_signature:
+            # Append signature data to calldata
+            # Format: append signature length (as 32-byte hex) and signature
+            # Remove 0x prefix if present
+            sig_hex = (
+                permit2_signature[2:] if permit2_signature.startswith("0x") else permit2_signature
+            )
 
-        # Sign the permit2 message
-        typed_data = permit2_data["typed_data"]
-        signature = from_account.sign_typed_data(typed_data)
+            # Calculate signature length in bytes
+            sig_length = len(sig_hex) // 2  # Convert hex chars to bytes
 
-        # Append signature data to calldata
-        # Format: append signature length (130 chars = 65 bytes) and signature
-        # Remove 0x prefix if present
-        sig_hex = signature[2:] if signature.startswith("0x") else signature
-        calldata_with_signature = swap_data.data + f"{130:064x}" + sig_hex
+            # Convert length to 32-byte hex value (64 hex chars)
+            # This matches TypeScript's numberToHex(size, { size: 32 })
+            sig_length_hex = f"{sig_length:064x}"  # 32 bytes = 64 hex chars
+
+            # Append length and signature to the calldata
+            calldata = swap_data.data + sig_length_hex + sig_hex
+        else:
+            # Use calldata as-is (for swaps that don't need Permit2, like ETH swaps)
+            calldata = swap_data.data
+
+        # Ensure the to address is checksummed
+        to_address = Web3.to_checksum_address(swap_data.to)
 
         # Create the transaction request
         tx_request = TransactionRequestEIP1559(
-            to=swap_data.to,
-            data=calldata_with_signature,
+            to=to_address,
+            data=calldata,
             value=int(swap_data.value) if swap_data.value else 0,
         )
 
@@ -67,7 +79,7 @@ class AccountSwapStrategy:
             tx_request.maxPriorityFeePerGas = int(swap_data.max_priority_fee_per_gas)
 
         # Send the transaction
-        tx_hash = await from_account.send_transaction(tx_request)
+        tx_hash = await from_account.send_transaction(tx_request, network)
 
         # Return the swap result
         return SwapResult(

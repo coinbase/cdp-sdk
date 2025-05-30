@@ -1,58 +1,106 @@
-"""Example of swapping tokens using a regular EVM account."""
+"""Example showing how to swap tokens using an EVM account."""
 
 import asyncio
-from cdp import CdpClient
-from cdp.actions.evm.swap import SwapOptions
+import os
+
+from cdp import Cdp
+from cdp.actions.evm.swap import CreateSwapOptions
 
 
 async def main():
-    # Initialize CDP client
-    cdp = CdpClient.from_json("~/.cdp/credentials.json")
+    """Swap tokens example."""
+    # Initialize CDP SDK
+    api_key_name = os.environ.get("CDP_API_KEY_NAME", "your-api-key-name")
+    api_key_private_key = os.environ.get("CDP_API_KEY_PRIVATE_KEY", "your-api-key-private-key")
     
-    # Create or get an account
-    account = await cdp.evm.get_or_create_account(name="swap-example-account")
-    print(f"Using account: {account.address}")
+    cdp = Cdp(api_key_name=api_key_name, api_key_private_key=api_key_private_key)
     
-    # Request some ETH from faucet if needed
-    print("Requesting ETH from faucet...")
-    tx_hash = await cdp.evm.request_faucet(
-        address=account.address,
-        network="base-sepolia",
-        token="eth"
-    )
-    print(f"Faucet transaction: {tx_hash}")
+    # Create or get an existing account
+    print("Creating account...")
+    account = await cdp.evm.create_account(name="swap-example-account")
+    print(f"Account address: {account.address}")
     
-    # Wait a bit for the faucet transaction to be confirmed
-    print("Waiting for faucet transaction to confirm...")
-    await asyncio.sleep(10)
+    # Fund the account with some tokens (in production)
+    # For testnet, you might use:
+    # await account.request_faucet(network="base-sepolia", token="eth")
     
-    # Swap 0.001 ETH to USDC
-    print("\nSwapping 0.001 ETH to USDC...")
-    swap_result = await account.swap(
-        SwapOptions(
-            from_asset="eth",
-            to_asset="usdc",
-            amount="0.001",  # 0.001 ETH
-            network="base-sepolia",
-            slippage_percentage=0.5,  # 0.5% slippage tolerance
+    print("\nNote: Make sure your account has sufficient balance before swapping!")
+    
+    # Define token addresses
+    eth_address = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"  # ETH (EIP-7528)
+    usdc_base = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"  # USDC on Base
+    weth_base = "0x4200000000000000000000000000000000000006"  # WETH on Base
+    
+    # Example 1: Swap ETH to USDC using CreateSwapOptions
+    print("\n" + "="*50)
+    print("Example 1: Swapping ETH to USDC...")
+    
+    try:
+        swap_result = await account.swap(
+            CreateSwapOptions(
+                from_token=eth_address,
+                to_token=usdc_base,
+                amount="1000000000000000",  # 0.001 ETH
+                network="base",
+                slippage_percentage=0.5
+            )
         )
-    )
+        
+        print(f"✅ Swap successful!")
+        print(f"Transaction hash: {swap_result.transaction_hash}")
+        print(f"Swapped {swap_result.from_amount} from {swap_result.from_token}")
+        print(f"Received {swap_result.to_amount} to {swap_result.to_token}")
+    except Exception as e:
+        print(f"❌ Swap failed: {e}")
     
-    print(f"Swap completed!")
-    print(f"Transaction hash: {swap_result.transaction_hash}")
-    print(f"Swapped {swap_result.from_amount} {swap_result.from_asset} for {swap_result.to_amount} {swap_result.to_asset}")
+    # Example 2: Using dict syntax
+    print("\n" + "="*50)
+    print("Example 2: Using dict syntax for USDC to ETH...")
     
-    # Example of swapping back USDC to ETH
-    print("\nSwapping USDC back to ETH...")
-    swap_back_result = await account.swap({
-        "from_asset": "usdc",
-        "to_asset": "eth",
-        "amount": "1000000",  # 1 USDC in smallest unit (6 decimals)
-        "network": "base-sepolia",
-    })
+    try:
+        swap_result2 = await account.swap({
+            "from_token": usdc_base,
+            "to_token": eth_address,
+            "amount": "1000000",  # 1 USDC
+            "network": "base",
+            "slippage_percentage": 1.0
+        })
+        
+        print(f"✅ Swap successful!")
+        print(f"Transaction hash: {swap_result2.transaction_hash}")
+    except Exception as e:
+        print(f"❌ Swap failed: {e}")
     
-    print(f"Swap back completed!")
-    print(f"Transaction hash: {swap_back_result.transaction_hash}")
+    # Example 3: Using pre-created swap data
+    print("\n" + "="*50)
+    print("Example 3: Using pre-created swap data...")
+    
+    try:
+        # First create the swap data using the EVM client
+        from cdp.actions.evm.swap import SwapOptions
+        
+        # Create the swap
+        swap_data = await cdp.evm.create_swap(
+            from_token=usdc_base,
+            to_token=weth_base,
+            amount="500000000",  # 500 USDC
+            network="base",
+            wallet_address=account.address,
+            slippage_percentage=0.5
+        )
+        
+        # Execute using the pre-created data
+        swap_result3 = await account.swap(
+            SwapOptions(create_swap_result=swap_data)
+        )
+        
+        print(f"✅ Swap successful!")
+        print(f"Transaction hash: {swap_result3.transaction_hash}")
+    except Exception as e:
+        print(f"❌ Swap failed: {e}")
+    
+    print("\n" + "="*50)
+    print("Done! Check the transaction hashes on the block explorer.")
 
 
 if __name__ == "__main__":

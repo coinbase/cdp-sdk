@@ -12,8 +12,8 @@ SUPPORTED_SWAP_NETWORKS = ["base", "ethereum"]
 class CreateSwapOptions(BaseModel):
     """Options for creating a swap."""
 
-    from_asset: str = Field(description="The asset to swap from (token symbol or contract address)")
-    to_asset: str = Field(description="The asset to swap to (token symbol or contract address)")
+    from_token: str = Field(description="The contract address of the token to swap from")
+    to_token: str = Field(description="The contract address of the token to swap to")
     amount: str | int = Field(description="The amount to swap (in smallest unit or as string)")
     network: str = Field(description="The network to execute the swap on (base or ethereum only)")
     slippage_percentage: float | None = Field(
@@ -44,13 +44,21 @@ class CreateSwapOptions(BaseModel):
         """Validate and convert amount to string."""
         return str(v)
 
+    @field_validator("from_token", "to_token")
+    @classmethod
+    def validate_token_address(cls, v: str) -> str:
+        """Validate token address format."""
+        if not v.startswith("0x") or len(v) != 42:
+            raise ValueError("Token address must be a valid Ethereum address (0x + 40 hex chars)")
+        return v.lower()  # Normalize to lowercase
+
 
 class CreateSwapResult(BaseModel):
     """Result from createSwap API call."""
 
     quote_id: str = Field(description="The quote ID from the swap service")
-    from_token: str = Field(description="The token being swapped from")
-    to_token: str = Field(description="The token being swapped to")
+    from_token: str = Field(description="The token address being swapped from")
+    to_token: str = Field(description="The token address being swapped to")
     from_amount: str = Field(description="The amount being swapped")
     to_amount: str = Field(description="The expected amount to receive")
     to: str = Field(description="The contract address to send the transaction to")

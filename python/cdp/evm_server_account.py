@@ -295,9 +295,9 @@ class EvmServerAccount(BaseAccount, BaseModel):
             >>> from cdp.actions.evm.swap import CreateSwapOptions
             >>> result = await account.swap(
             ...     CreateSwapOptions(
-            ...         from_asset="eth",
-            ...         to_asset="usdc",
-            ...         amount="0.01",
+            ...         from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+            ...         to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
+            ...         amount="1000000000000000",  # 0.001 ETH
             ...         network="base",
             ...     )
             ... )
@@ -305,19 +305,19 @@ class EvmServerAccount(BaseAccount, BaseModel):
             **Swap with custom slippage**:
             >>> result = await account.swap(
             ...     CreateSwapOptions(
-            ...         from_asset="usdc",
-            ...         to_asset="eth",
-            ...         amount="100",
-            ...         network="ethereum",
+            ...         from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
+            ...         to_token="0x4200000000000000000000000000000000000006",  # WETH on Base
+            ...         amount="100000000",  # 100 USDC
+            ...         network="base",
             ...         slippage_percentage=1.0,
             ...     )
             ... )
 
             **Using dict syntax**:
             >>> result = await account.swap({
-            ...     "from_asset": "usdc",
-            ...     "to_asset": "weth",
-            ...     "amount": "100000000",  # 100 USDC in smallest unit
+            ...     "from_token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
+            ...     "to_token": "0x4200000000000000000000000000000000000006",  # WETH on Base
+            ...     "amount": "100000000",  # 100 USDC
             ...     "network": "base",
             ... })
 

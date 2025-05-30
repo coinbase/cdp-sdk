@@ -1,39 +1,5 @@
 """Utility functions for swap operations."""
 
-from cdp.actions.evm.swap.constants import TOKEN_ADDRESSES
-
-
-def resolve_token_address(token: str, network: str) -> str:
-    """Resolve a token symbol to its contract address.
-
-    Args:
-        token: Token symbol or contract address
-        network: Network name
-
-    Returns:
-        The contract address for the token
-
-    Raises:
-        ValueError: If token is not supported on the network
-
-    """
-    # If it's already an address, return it (normalized to lowercase)
-    if token.startswith("0x") and len(token) == 42:
-        return token.lower()
-
-    # Convert to lowercase for case-insensitive lookup
-    token_lower = token.lower()
-
-    # Check if token exists in our mapping
-    if token_lower not in TOKEN_ADDRESSES:
-        raise ValueError(f"Unknown token: {token}")
-
-    # Check if token is supported on this network
-    if network not in TOKEN_ADDRESSES[token_lower]:
-        raise ValueError(f"Token {token} is not supported on network {network}")
-
-    return TOKEN_ADDRESSES[token_lower][network].lower()
-
 
 def format_amount(amount: str | int, decimals: int = 18) -> str:
     """Format an amount to the correct decimal representation.

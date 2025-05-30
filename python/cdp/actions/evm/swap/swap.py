@@ -39,8 +39,8 @@ async def swap(
             from_account=account,
             swap_options=SwapOptions(
                 create_swap_options=CreateSwapOptions(
-                    from_asset="USDC",
-                    to_asset="WETH",
+                    from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+                    to_token="0x4200000000000000000000000000000000000006",  # WETH
                     amount="1000000",  # 1 USDC
                     network="base",
                     slippage_percentage=1.0
@@ -78,45 +78,56 @@ async def swap(
 
         # Get a quote for the swap
         quote = await evm_client.get_quote(
-            from_asset=create_options.from_asset,
-            to_asset=create_options.to_asset,
+            from_token=create_options.from_token,
+            to_token=create_options.to_token,
             amount=create_options.amount,
             network=create_options.network,
         )
 
         # Create the swap
-        create_result = await evm_client.create_swap(
-            from_asset=create_options.from_asset,
-            to_asset=create_options.to_asset,
+        swap_tx = await evm_client.create_swap(
+            from_token=create_options.from_token,
+            to_token=create_options.to_token,
             amount=create_options.amount,
             network=create_options.network,
-            quote=quote,
+            wallet_address=from_account.address,
             slippage_percentage=create_options.slippage_percentage,
         )
 
-        # Convert to CreateSwapResult
+        # Handle Permit2 signature if required
+        permit2_signature = None
+        if swap_tx.requires_signature and swap_tx.permit2_data:
+            # Sign the Permit2 typed data
+            typed_data = swap_tx.permit2_data.eip712
+            permit2_signature = await from_account.sign_typed_data(
+                domain=typed_data["domain"],
+                types=typed_data["types"],
+                primary_type=typed_data["primaryType"],
+                message=typed_data["message"],
+            )
+
+        # Convert SwapTransaction to CreateSwapResult
         swap_data = CreateSwapResult(
             quote_id=quote.quote_id,
-            from_token=create_options.from_asset,
-            to_token=create_options.to_asset,
+            from_token=create_options.from_token,
+            to_token=create_options.to_token,
             from_amount=create_options.amount,
             to_amount=quote.to_amount,
-            to=create_result["to"],
-            data=create_result["data"],
-            value=create_result.get("value", "0"),
-            gas_limit=create_result.get("gas_limit"),
-            gas_price=create_result.get("gas_price"),
-            max_fee_per_gas=create_result.get("max_fee_per_gas"),
-            max_priority_fee_per_gas=create_result.get("max_priority_fee_per_gas"),
+            to=swap_tx.to,
+            data=swap_tx.data,
+            value=str(swap_tx.value),
+            gas_limit=None,  # Will be estimated during execution
+            gas_price=None,
+            max_fee_per_gas=None,
+            max_priority_fee_per_gas=None,
         )
 
         network = create_options.network
     else:
         # Pattern 2: Use pre-created swap data
         swap_data = swap_options.create_swap_result
-        # We need to determine the network from the account or pass it through
-        # For now, we'll require it to be part of the strategy
         network = None  # Will be determined by strategy
+        permit2_signature = None  # Assume pre-created data already includes signature
 
     # Execute the swap using the appropriate strategy
     result = await swap_strategy.execute_swap(
@@ -124,6 +135,7 @@ async def swap(
         from_account=from_account,
         swap_data=swap_data,
         network=network,
+        permit2_signature=permit2_signature,
     )
 
     return result

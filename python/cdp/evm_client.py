@@ -580,16 +580,16 @@ class EvmClient:
 
     async def get_quote(
         self,
-        from_asset: str,
-        to_asset: str,
+        from_token: str,
+        to_token: str,
         amount: str | int,
         network: str,
     ) -> "SwapQuote":
         """Get a quote for swapping tokens.
 
         Args:
-            from_asset (str): The asset to swap from (token symbol or contract address).
-            to_asset (str): The asset to swap to (token symbol or contract address).
+            from_token (str): The contract address of the token to swap from.
+            to_token (str): The contract address of the token to swap to.
             amount (str | int): The amount to swap (in smallest unit or as string).
             network (str): The network to get the quote for.
 
@@ -598,16 +598,15 @@ class EvmClient:
 
         """
         from cdp.actions.evm.swap.types import SwapQuote
-        from cdp.actions.evm.swap.utils import resolve_token_address
         from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
         from cdp.openapi_client.models.get_quote_response import GetQuoteResponse
 
         # Convert amount to string if it's an integer
         amount_str = str(amount)
 
-        # Resolve token addresses
-        from_address = resolve_token_address(from_asset, network)
-        to_address = resolve_token_address(to_asset, network)
+        # Normalize addresses to lowercase
+        from_address = from_token.lower()
+        to_address = to_token.lower()
 
         # Convert network to EvmSwapsNetwork enum
         network_enum = EvmSwapsNetwork(network)
@@ -625,7 +624,13 @@ class EvmClient:
         import json
 
         raw_data = await response.read()
-        response_json = json.loads(raw_data.decode("utf-8"))
+        if not raw_data:
+            raise ValueError("Empty response from swap quote API")
+
+        try:
+            response_json = json.loads(raw_data.decode("utf-8"))
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON response from swap quote API: {e}") from e
 
         # Check if liquidity is available
         if not response_json.get("liquidityAvailable", False):
@@ -645,7 +650,7 @@ class EvmClient:
         import hashlib
 
         quote_id = hashlib.sha256(
-            f"{from_asset}:{to_asset}:{amount_str}:{quote_data.buy_amount}".encode()
+            f"{from_token}:{to_token}:{amount_str}:{quote_data.buy_amount}".encode()
         ).hexdigest()[:16]
 
         # Get expiry time (if available in response)
@@ -658,8 +663,8 @@ class EvmClient:
         # Convert response to SwapQuote
         return SwapQuote(
             quote_id=quote_id,
-            from_token=from_asset,
-            to_token=to_asset,
+            from_token=from_token,
+            to_token=to_token,
             from_amount=amount_str,
             to_amount=quote_data.buy_amount,
             price_ratio=price_ratio,
@@ -668,8 +673,8 @@ class EvmClient:
 
     async def create_swap(
         self,
-        from_asset: str,
-        to_asset: str,
+        from_token: str,
+        to_token: str,
         amount: str | int,
         network: str,
         wallet_address: str,
@@ -678,8 +683,8 @@ class EvmClient:
         """Create a swap transaction.
 
         Args:
-            from_asset (str): The asset to swap from (token symbol or contract address).
-            to_asset (str): The asset to swap to (token symbol or contract address).
+            from_token (str): The contract address of the token to swap from.
+            to_token (str): The contract address of the token to swap to.
             amount (str | int): The amount to swap (in smallest unit or as string).
             network (str): The network to create the swap on.
             wallet_address (str): The wallet address that will execute the swap.
@@ -690,7 +695,6 @@ class EvmClient:
 
         """
         from cdp.actions.evm.swap.types import SwapTransaction
-        from cdp.actions.evm.swap.utils import resolve_token_address
         from cdp.openapi_client.models.create_evm_swap_request import CreateEvmSwapRequest
         from cdp.openapi_client.models.create_swap_response import CreateSwapResponse
         from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
@@ -698,9 +702,9 @@ class EvmClient:
         # Convert amount to string if it's an integer
         amount_str = str(amount)
 
-        # Resolve token addresses
-        from_address = resolve_token_address(from_asset, network)
-        to_address = resolve_token_address(to_asset, network)
+        # Normalize addresses to lowercase
+        from_address = from_token.lower()
+        to_address = to_token.lower()
 
         # Convert network to EvmSwapsNetwork enum
         network_enum = EvmSwapsNetwork(network)
@@ -725,7 +729,13 @@ class EvmClient:
         import json
 
         raw_data = await response.read()
-        response_json = json.loads(raw_data.decode("utf-8"))
+        if not raw_data:
+            raise ValueError("Empty response from create swap API")
+
+        try:
+            response_json = json.loads(raw_data.decode("utf-8"))
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON response from create swap API: {e}") from e
 
         # Check if liquidity is available
         if not response_json.get("liquidityAvailable", False):
