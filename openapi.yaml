@@ -328,6 +328,12 @@ paths:
                     Account names must be unique across all EVM accounts in the developer's CDP Project.
                   example: my-wallet
                   pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                accountPolicy:
+                  type: string
+                  x-audience: public
+                  description: The ID of the account-level policy to apply to the account.
+                  pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  example: 123e4567-e89b-12d3-a456-426614174000
       responses:
         '201':
           description: Successfully created EVM account.
@@ -2055,6 +2061,12 @@ paths:
                     Account names must be unique across all Solana accounts in the developer's CDP Project.
                   example: my-wallet
                   pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                accountPolicy:
+                  type: string
+                  x-audience: public
+                  description: The ID of the account-level policy to apply to the account.
+                  pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  example: 123e4567-e89b-12d3-a456-426614174000
       responses:
         '201':
           description: Successfully created Solana account.

@@ -36,7 +36,8 @@ class TestCreateSolanaAccountRequest(unittest.TestCase):
         model = CreateSolanaAccountRequest()
         if include_optional:
             return CreateSolanaAccountRequest(
-                name = 'my-wallet'
+                name = 'my-wallet',
+                account_policy = '123e4567-e89b-12d3-a456-426614174000'
             )
         else:
             return CreateSolanaAccountRequest(

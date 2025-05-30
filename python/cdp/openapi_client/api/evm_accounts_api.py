@@ -34,7 +34,6 @@ from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageReq
 from cdp.openapi_client.models.sign_evm_transaction200_response import SignEvmTransaction200Response
 from cdp.openapi_client.models.sign_evm_transaction_request import SignEvmTransactionRequest
 from cdp.openapi_client.models.sign_evm_typed_data200_response import SignEvmTypedData200Response
-from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
 from cdp.openapi_client.api_response import ApiResponse
@@ -3262,7 +3261,7 @@ class EVMAccountsApi:
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account. The address does not need to be checksummed.")],
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
-        update_evm_account_request: Optional[UpdateEvmAccountRequest] = None,
+        create_evm_account_request: Optional[CreateEvmAccountRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3284,8 +3283,8 @@ class EVMAccountsApi:
         :type address: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param update_evm_account_request:
-        :type update_evm_account_request: UpdateEvmAccountRequest
+        :param create_evm_account_request:
+        :type create_evm_account_request: CreateEvmAccountRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3311,7 +3310,7 @@ class EVMAccountsApi:
         _param = self._update_evm_account_serialize(
             address=address,
             x_idempotency_key=x_idempotency_key,
-            update_evm_account_request=update_evm_account_request,
+            create_evm_account_request=create_evm_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3344,7 +3343,7 @@ class EVMAccountsApi:
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account. The address does not need to be checksummed.")],
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
-        update_evm_account_request: Optional[UpdateEvmAccountRequest] = None,
+        create_evm_account_request: Optional[CreateEvmAccountRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3366,8 +3365,8 @@ class EVMAccountsApi:
         :type address: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param update_evm_account_request:
-        :type update_evm_account_request: UpdateEvmAccountRequest
+        :param create_evm_account_request:
+        :type create_evm_account_request: CreateEvmAccountRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3393,7 +3392,7 @@ class EVMAccountsApi:
         _param = self._update_evm_account_serialize(
             address=address,
             x_idempotency_key=x_idempotency_key,
-            update_evm_account_request=update_evm_account_request,
+            create_evm_account_request=create_evm_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3426,7 +3425,7 @@ class EVMAccountsApi:
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM account. The address does not need to be checksummed.")],
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
-        update_evm_account_request: Optional[UpdateEvmAccountRequest] = None,
+        create_evm_account_request: Optional[CreateEvmAccountRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -3448,8 +3447,8 @@ class EVMAccountsApi:
         :type address: str
         :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
-        :param update_evm_account_request:
-        :type update_evm_account_request: UpdateEvmAccountRequest
+        :param create_evm_account_request:
+        :type create_evm_account_request: CreateEvmAccountRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -3475,7 +3474,7 @@ class EVMAccountsApi:
         _param = self._update_evm_account_serialize(
             address=address,
             x_idempotency_key=x_idempotency_key,
-            update_evm_account_request=update_evm_account_request,
+            create_evm_account_request=create_evm_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -3503,7 +3502,7 @@ class EVMAccountsApi:
         self,
         address,
         x_idempotency_key,
-        update_evm_account_request,
+        create_evm_account_request,
         _request_auth,
         _content_type,
         _headers,
@@ -3533,8 +3532,8 @@ class EVMAccountsApi:
             _header_params['X-Idempotency-Key'] = x_idempotency_key
         # process the form parameters
         # process the body parameter
-        if update_evm_account_request is not None:
-            _body_params = update_evm_account_request
+        if create_evm_account_request is not None:
+            _body_params = create_evm_account_request
 
 
         # set the HTTP header `Accept`

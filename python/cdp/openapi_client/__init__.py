@@ -109,7 +109,6 @@ from cdp.openapi_client.models.token_balance import TokenBalance
 from cdp.openapi_client.models.transfer import Transfer
 from cdp.openapi_client.models.transfer_source import TransferSource
 from cdp.openapi_client.models.transfer_target import TransferTarget
-from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
 
