@@ -174,7 +174,7 @@ export async function sendSwapTransaction(
   if (swap.issues?.allowance) {
     const { currentAllowance, spender } = swap.issues.allowance;
     throw new Error(
-      `Insufficient token allowance. Current allowance: ${currentAllowance}. ` +
+      `Insufficient token allowance for swap. Current allowance: ${currentAllowance}. ` +
         `Please approve the Permit2 contract (${spender}) to spend your tokens.`,
     );
   }
