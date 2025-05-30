@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.11.0
+
+### Minor Changes
+
+- [#156](https://github.com/coinbase/cdp-sdk/pull/156) [`6e696cf`](https://github.com/coinbase/cdp-sdk/commit/6e696cf75e8e1f69180f192bc82103ca1b5dd6a9) Thanks [@rohan-agarwal-coinbase](https://github.com/rohan-agarwal-coinbase)! - Added support for funding an EVM account with eth or usdc using a linked debit card
+
 ## 1.10.0
 
 ### Minor Changes
