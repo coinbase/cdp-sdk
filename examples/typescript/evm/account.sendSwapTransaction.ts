@@ -1,18 +1,28 @@
 // Usage: pnpm tsx evm/account.sendSwapTransaction.ts
 
 /**
- * This example demonstrates how to perform a token swap using the new all-in-one pattern.
- * Key features of this approach:
+ * This example demonstrates two approaches for performing token swaps:
  * 
- * 1. Uses account.swap() with swapOptions to create and execute swap in one call
- * 2. Automatically handles liquidity checks and throws error if insufficient
- * 3. Simplifies the swap flow by combining createSwap and sendSwapTransaction
- * 4. Still handles Permit2 signatures automatically for ERC20 token swaps
- * 5. Provides a more streamlined API for common swap use cases
+ * Approach 1: All-in-one pattern (shown in main code)
+ * - Uses account.swap() with inline options to create and execute swaps in a single call
+ * - Automatically validates liquidity and throws an error if insufficient
+ * - Simplest approach for straightforward swap scenarios
+ * - Note: Currently requires type assertion due to TypeScript union type limitations
  * 
- * This is the simplest way to execute swaps when you don't need to inspect the
- * swap details before execution. The SDK will automatically check liquidity and
- * throw an error if the swap cannot be executed.
+ * Approach 2: Create-then-submit pattern (shown in comments)
+ * - First creates a swap object using cdp.evm.createSwap()
+ * - Allows inspection of swap details (buy amount, fees, etc.) before execution
+ * - Provides more control for complex scenarios or when pre-validation is needed
+ * - Uses account.swap() with the pre-created swap object
+ * 
+ * Both approaches:
+ * - Handle Permit2 signatures automatically for ERC20 token swaps
+ * - Check for and report liquidity issues
+ * - Require proper token allowances (see handleTokenAllowance function)
+ * 
+ * Choose the approach based on your needs:
+ * - Use Approach 1 for simple, direct swaps
+ * - Use Approach 2 when you need to inspect swap details or handle complex logic
  */
 
 import { CdpClient } from "@coinbase/cdp-sdk";
@@ -23,6 +33,7 @@ import {
   erc20Abi,
   encodeFunctionData,
   formatEther,
+  formatUnits,
 } from "viem";
 import { base } from "viem/chains";
 import "dotenv/config";
@@ -86,11 +97,12 @@ async function main() {
       );
     }
     
-    // Submit the swap transaction using the new all-in-one pattern
+    // Create and submit the swap transaction
     console.log("\nCreating and submitting swap in one call...");
     
     try {
-      // Create and execute the swap in one call
+      // Approach 1: All-in-one pattern
+      // Create and execute the swap in one call - simpler but less control
       const result = await ownerAccount.swap({
         network: NETWORK,
         buyToken: buyToken.address as `0x${string}`,
@@ -100,7 +112,7 @@ async function main() {
         slippageBps: 100, // 1% slippage tolerance
       });
 
-      /* Alternative approach: Create swap first, inspect it, then send it separately
+      /* Alternative - Approach 2: Create swap first, inspect it, then send it separately
       // This gives you more control to analyze the swap details before execution
       
       // Step 1: Create the swap
@@ -120,8 +132,11 @@ async function main() {
       }
       
       // Step 3: Optionally inspect swap details
-      console.log(`Buy Amount: ${formatUnits(BigInt(swapResponse.buyAmount), buyToken.decimals)} ${buyToken.symbol}`);
-      console.log(`Min Buy Amount: ${formatUnits(BigInt(swapResponse.minBuyAmount), buyToken.decimals)} ${buyToken.symbol}`);
+      console.log(`Buy Amount: ${formatUnits(swapResponse.buyAmount, buyToken.decimals)} ${buyToken.symbol}`);
+      console.log(`Min Buy Amount: ${formatUnits(swapResponse.minBuyAmount, buyToken.decimals)} ${buyToken.symbol}`);
+      if (swapResponse.fees?.gasFee) {
+        console.log(`Gas Fee: ${formatEther(swapResponse.fees.gasFee.amount)} ${swapResponse.fees.gasFee.token}`);
+      }
       
       // Step 4: Send the swap transaction
       const result = await ownerAccount.swap({
