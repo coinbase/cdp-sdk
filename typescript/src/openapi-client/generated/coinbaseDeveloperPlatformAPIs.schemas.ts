@@ -875,6 +875,11 @@ Account names must be unique across all EVM accounts in the developer's CDP Proj
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /**
+   * The ID of the account-level policy to apply to the account.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  accountPolicy?: string;
 };
 
 export type UpdateEvmAccountBody = {
@@ -1166,6 +1171,11 @@ Account names must be unique across all Solana accounts in the developer's CDP P
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /**
+   * The ID of the account-level policy to apply to the account.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  accountPolicy?: string;
 };
 
 export type UpdateSolanaAccountBody = {
