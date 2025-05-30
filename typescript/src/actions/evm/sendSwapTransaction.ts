@@ -25,11 +25,6 @@ interface BaseSendSwapTransactionOptions {
   address: Address;
 
   /**
-   * The network to execute the swap on (e.g., "ethereum", "base").
-   */
-  network: SendEvmTransactionBodyNetwork;
-
-  /**
    * Optional idempotency key for the request.
    */
   idempotencyKey?: string;
@@ -49,6 +44,10 @@ interface SendSwapTransactionWithSwapResult extends BaseSendSwapTransactionOptio
  * Options when creating a swap quote inline.
  */
 interface SendSwapTransactionWithSwapOptions extends BaseSendSwapTransactionOptions {
+  /**
+   * The network to execute the swap on (e.g., "ethereum", "base").
+   */
+  network: SendEvmTransactionBodyNetwork;
   /** The token to buy (destination token). */
   buyToken: Address;
   /** The token to sell (source token). */
@@ -122,7 +121,6 @@ export interface SendSwapTransactionResult {
  * // Send the swap
  * const result = await sendSwapTransaction(client, {
  *   address: account.address,
- *   network: "base",
  *   swap: swapQuote
  * });
  *
@@ -148,7 +146,7 @@ export async function sendSwapTransaction(
   client: CdpOpenApiClientType,
   options: SendSwapTransactionOptions,
 ): Promise<SendSwapTransactionResult> {
-  const { address, network, idempotencyKey } = options;
+  const { address, idempotencyKey } = options;
 
   let swapResult: CreateSwapQuoteResult | SwapUnavailableResult;
 
@@ -230,7 +228,7 @@ export async function sendSwapTransaction(
   // Use sendTransaction instead of directly calling client.sendEvmTransaction
   const result = await sendTransaction(client, {
     address,
-    network,
+    network: swap.network as SendEvmTransactionBodyNetwork,
     transaction,
     idempotencyKey,
   });

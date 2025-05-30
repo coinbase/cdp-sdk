@@ -86,6 +86,20 @@ async function main() {
     console.log("2. Submit the swap transaction (either using the CDP SDK or viem - more examples in account.sendSwapTransaction.ts, smartAccount.submitSwapOperation.ts, and sendSwapTransactionWithViem.ts)");
     console.log("3. Wait for transaction confirmation");
     
+    // Show how to execute the swap using the new execute() method
+    console.log("\nAlternatively, you can execute the swap directly using the quote's execute() method:");
+    console.log("```typescript");
+    console.log("// Execute the swap directly from the quote");
+    console.log("// The swap will be executed using the signerAddress (in the case of smart accounts) or taker address (in the case of regular EOA accounts)");
+    console.log("const result = await swap.execute({");
+    console.log("  idempotencyKey: 'unique-key' // optional");
+    console.log("});");
+    console.log(`// Transaction hash: \${result.transactionHash}`);
+    console.log("");
+    console.log("// Or execute without any options");
+    console.log("const result = await swap.execute({});");
+    console.log("```");
+    
   } catch (error) {
     console.error("Error creating swap quote:", error);
   }

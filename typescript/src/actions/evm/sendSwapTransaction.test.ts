@@ -44,6 +44,7 @@ describe("sendSwapTransaction", () => {
 
     mockSwap = {
       liquidityAvailable: true,
+      network: mockNetwork,
       sellToken: "0x4200000000000000000000000000000000000006",
       buyToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
       sellAmount: BigInt("1000000000000000000"),
@@ -68,6 +69,7 @@ describe("sendSwapTransaction", () => {
         value: "0",
       },
       permit2: undefined,
+      execute: vi.fn(),
     };
 
     (sendTransaction as MockedFunction<typeof sendTransaction>).mockResolvedValue({
@@ -78,7 +80,6 @@ describe("sendSwapTransaction", () => {
   it("should send a swap without permit2", async () => {
     const result = await sendSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
-      network: mockNetwork,
       swap: mockSwap,
     });
 
@@ -153,7 +154,6 @@ describe("sendSwapTransaction", () => {
 
     const result = await sendSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
-      network: mockNetwork,
       swap: mockSwap,
     });
 
@@ -208,7 +208,6 @@ describe("sendSwapTransaction", () => {
 
     const result = await sendSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
-      network: mockNetwork,
       swap: mockSwap,
       idempotencyKey,
     });
@@ -237,7 +236,6 @@ describe("sendSwapTransaction", () => {
     await expect(
       sendSwapTransaction(CdpOpenApiClient, {
         address: mockAddress,
-        network: mockNetwork,
         swap: mockSwap,
       }),
     ).rejects.toThrow("No transaction data found in the swap");
@@ -259,7 +257,6 @@ describe("sendSwapTransaction", () => {
 
     await sendSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
-      network: mockNetwork,
       swap: modifiedSwap,
     });
 
@@ -292,7 +289,6 @@ describe("sendSwapTransaction", () => {
 
     await sendSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
-      network: mockNetwork,
       swap: modifiedSwap,
     });
 
@@ -392,7 +388,6 @@ describe("sendSwapTransaction", () => {
     await expect(
       sendSwapTransaction(CdpOpenApiClient, {
         address: mockAddress,
-        network: mockNetwork,
         swap: swapWithNoLiquidity as any,
       }),
     ).rejects.toThrow("Insufficient liquidity for swap");
@@ -417,7 +412,6 @@ describe("sendSwapTransaction", () => {
     await expect(
       sendSwapTransaction(CdpOpenApiClient, {
         address: mockAddress,
-        network: mockNetwork,
         swap: swapWithAllowanceIssue,
       }),
     ).rejects.toThrow(

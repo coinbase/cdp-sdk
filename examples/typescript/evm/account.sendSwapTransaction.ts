@@ -139,10 +139,13 @@ async function main() {
       }
       
       // Step 4: Send the swap transaction
+      // Option A: Using account.swap() with the pre-created swap quote
       const result = await ownerAccount.swap({
-        network: NETWORK,
         swap: swapResponse,
       });
+      
+      // Option B: Using the swap quote's execute() method directly
+      const result = await swapResponse.execute();
       */
 
       console.log(`\n✅ Swap submitted successfully!`);

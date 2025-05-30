@@ -269,7 +269,7 @@ export type AccountActions = Actions & {
    * This method handles all the steps required for a swap, including Permit2 signatures if needed.
    *
    * @param {SwapOptions} options - Configuration options for the swap.
-   * @param {string} options.network - The network to execute the swap on.
+   * @param {string} [options.network] - The network to execute the swap on
    * @param {CreateSwapQuoteResult} [options.swap] - The swap transaction data returned by the createSwapQuote method.
    * @param {CreateSwapQuoteOptions} [options.swapOptions] - Options to create a swap quote. The function will call createSwapQuote internally.
    * @param {string} [options.idempotencyKey] - Optional idempotency key for the request.
@@ -297,7 +297,6 @@ export type AccountActions = Actions & {
    *
    * // Execute the swap
    * const { transactionHash } = await account.swap({
-   *   network: "base",
    *   swap: swapQuote
    * });
    *

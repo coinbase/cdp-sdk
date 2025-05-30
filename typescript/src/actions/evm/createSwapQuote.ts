@@ -1,9 +1,16 @@
+import { sendSwapTransaction } from "./sendSwapTransaction.js";
 import {
   CreateSwapQuoteOptions,
   CreateSwapQuoteResult,
+  ExecuteSwapQuoteOptions,
+  ExecuteSwapQuoteResult,
   SwapUnavailableResult,
 } from "../../client/evm/evm.types.js";
-import { CdpOpenApiClientType, CreateSwapQuoteResponse } from "../../openapi-client/index.js";
+import {
+  CdpOpenApiClientType,
+  CreateSwapQuoteResponse,
+  type SendEvmTransactionBodyNetwork,
+} from "../../openapi-client/index.js";
 import { Address, Hex } from "../../types/misc.js";
 
 /**
@@ -51,8 +58,9 @@ export async function createSwapQuote(
 
   // At this point we know it's a CreateSwapQuoteResponse with liquidityAvailable as true
   const swapResponse = response as CreateSwapQuoteResponse;
-  return {
+  const result: CreateSwapQuoteResult = {
     liquidityAvailable: true,
+    network: options.network,
     buyToken: swapResponse.buyToken as Address,
     sellToken: swapResponse.sellToken as Address,
     sellAmount: BigInt(swapResponse.sellAmount),
@@ -117,5 +125,17 @@ export async function createSwapQuote(
           },
         }
       : undefined,
+    // Add the execute method
+    execute: async (executeOptions: ExecuteSwapQuoteOptions): Promise<ExecuteSwapQuoteResult> => {
+      const { transactionHash } = await sendSwapTransaction(client, {
+        address: options.signerAddress || options.taker, // Use signerAddress for smart accounts, taker for EOAs
+        network: result.network as SendEvmTransactionBodyNetwork,
+        swap: result,
+        idempotencyKey: executeOptions.idempotencyKey,
+      });
+      return { transactionHash };
+    },
   };
+
+  return result;
 }

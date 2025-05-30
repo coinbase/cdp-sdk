@@ -169,11 +169,29 @@ export interface SwapUnavailableResult {
 }
 
 /**
+ * Options for executing a swap quote.
+ */
+export interface ExecuteSwapQuoteOptions {
+  /** Optional idempotency key for the request. */
+  idempotencyKey?: string;
+}
+
+/**
+ * Result of executing a swap quote.
+ */
+export interface ExecuteSwapQuoteResult {
+  /** The transaction hash of the executed swap. */
+  transactionHash: Hex;
+}
+
+/**
  * Result of creating a swap quote.
  */
 export interface CreateSwapQuoteResult {
   /** Whether liquidity is available for the swap. */
   liquidityAvailable: true;
+  /** The network for which this swap quote was created. */
+  network: EvmSwapsNetwork;
   /** The token to buy (destination token). */
   buyToken: Address;
   /** The token to sell (source token). */
@@ -210,6 +228,13 @@ export interface CreateSwapQuoteResult {
     /** EIP-712 typed data for signing. */
     eip712: EIP712Message;
   };
+  /**
+   * Execute the swap using the quote.
+   *
+   * @param {ExecuteSwapQuoteOptions} options - Options for executing the swap.
+   * @returns {Promise<ExecuteSwapQuoteResult>} A promise that resolves to the swap execution result.
+   */
+  execute: (options: ExecuteSwapQuoteOptions) => Promise<ExecuteSwapQuoteResult>;
 }
 
 /**

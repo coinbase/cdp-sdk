@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { createSwapQuote } from "./createSwapQuote.js";
+import { sendSwapTransaction } from "./sendSwapTransaction.js";
 import { CreateSwapQuoteResult, SwapUnavailableResult } from "../../client/evm/evm.types.js";
 import {
   CdpOpenApiClientType,
@@ -8,6 +9,11 @@ import {
   EvmSwapsNetwork,
 } from "../../openapi-client/index.js";
 import { Address, Hex } from "../../types/misc.js";
+
+// Mock sendSwapTransaction
+vi.mock("./sendSwapTransaction.js", () => ({
+  sendSwapTransaction: vi.fn(),
+}));
 
 describe("createSwapQuote", () => {
   let mockClient: CdpOpenApiClientType;
@@ -134,6 +140,9 @@ describe("createSwapQuote", () => {
 
     // Since we've checked liquidityAvailable is true, we know it's a CreateSwapQuoteResult
     const swapResult = result as CreateSwapQuoteResult;
+
+    // Check that network is included
+    expect(swapResult.network).toBe(network);
 
     // Check transformed values
     expect(swapResult.blockNumber).toBe(BigInt("12345678"));
@@ -278,5 +287,172 @@ describe("createSwapQuote", () => {
       simulationIncomplete: false,
     });
     expect(swapResult.permit2).toBeUndefined();
+  });
+
+  it("should add an execute method to the result when liquidity is available", async () => {
+    const mockResponse: CreateSwapQuoteResponse = {
+      blockNumber: "12345678",
+      buyAmount: "5000000000",
+      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fees: { gasFee: null, protocolFee: null },
+      issues: { allowance: null, balance: null, simulationIncomplete: false },
+      liquidityAvailable: true,
+      minBuyAmount: "4950000000",
+      sellAmount: "1000000000000000000",
+      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      permit2: null,
+      transaction: {
+        to: "0xRouterAddress",
+        data: "0xTransactionData",
+        gas: "250000",
+        gasPrice: "20000000000",
+        value: "0",
+      },
+    };
+
+    mockClient.createEvmSwapQuote = vi.fn().mockResolvedValue(mockResponse);
+
+    const result = await createSwapQuote(mockClient, {
+      network,
+      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      sellAmount: BigInt("1000000000000000000"),
+      taker: "0x1234567890123456789012345678901234567890",
+    });
+
+    // Check that execute method exists
+    expect(result.liquidityAvailable).toBe(true);
+    const swapResult = result as CreateSwapQuoteResult;
+    expect(swapResult.execute).toBeDefined();
+    expect(typeof swapResult.execute).toBe("function");
+
+    // Mock the sendSwapTransaction response
+    const mockTransactionHash = "0xmocktransactionhash" as Hex;
+    (sendSwapTransaction as any).mockResolvedValue({
+      transactionHash: mockTransactionHash,
+    });
+
+    // Call the execute method
+    const swapResponse = await swapResult.execute({
+      idempotencyKey: "test-key",
+    });
+    
+    // Verify sendSwapTransaction was called with correct parameters
+    expect(sendSwapTransaction).toHaveBeenCalledWith(mockClient, {
+      address: "0x1234567890123456789012345678901234567890", // This is the taker address
+      network: network,
+      swap: swapResult,
+      idempotencyKey: "test-key",
+    });
+
+    // Verify the response
+    expect(swapResponse).toEqual({
+      transactionHash: mockTransactionHash,
+    });
+  });
+
+  it("should call execute method without idempotency key", async () => {
+    const mockResponse: CreateSwapQuoteResponse = {
+      blockNumber: "12345678",
+      buyAmount: "5000000000",
+      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fees: { gasFee: null, protocolFee: null },
+      issues: { allowance: null, balance: null, simulationIncomplete: false },
+      liquidityAvailable: true,
+      minBuyAmount: "4950000000",
+      sellAmount: "1000000000000000000",
+      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      permit2: null,
+      transaction: {
+        to: "0xRouterAddress",
+        data: "0xTransactionData",
+        gas: "250000",
+        gasPrice: "20000000000",
+        value: "0",
+      },
+    };
+
+    mockClient.createEvmSwapQuote = vi.fn().mockResolvedValue(mockResponse);
+
+    const result = await createSwapQuote(mockClient, {
+      network,
+      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      sellAmount: BigInt("1000000000000000000"),
+      taker: "0x1234567890123456789012345678901234567890",
+    });
+
+    const swapResult = result as CreateSwapQuoteResult;
+    
+    // Mock the sendSwapTransaction response
+    const mockTransactionHash = "0xmocktransactionhash" as Hex;
+    (sendSwapTransaction as any).mockResolvedValue({
+      transactionHash: mockTransactionHash,
+    });
+
+    // Call execute without options
+    await swapResult.execute({});
+    
+    // Verify sendSwapTransaction was called without idempotencyKey
+    expect(sendSwapTransaction).toHaveBeenCalledWith(mockClient, {
+      address: "0x1234567890123456789012345678901234567890", // This is the taker address
+      network: network,
+      swap: swapResult,
+      idempotencyKey: undefined,
+    });
+  });
+
+  it("should use signerAddress when provided in createSwapQuote", async () => {
+    const mockResponse: CreateSwapQuoteResponse = {
+      blockNumber: "12345678",
+      buyAmount: "5000000000",
+      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fees: { gasFee: null, protocolFee: null },
+      issues: { allowance: null, balance: null, simulationIncomplete: false },
+      liquidityAvailable: true,
+      minBuyAmount: "4950000000",
+      sellAmount: "1000000000000000000",
+      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      permit2: null,
+      transaction: {
+        to: "0xRouterAddress",
+        data: "0xTransactionData",
+        gas: "250000",
+        gasPrice: "20000000000",
+        value: "0",
+      },
+    };
+
+    mockClient.createEvmSwapQuote = vi.fn().mockResolvedValue(mockResponse);
+
+    const takerAddress = "0x1234567890123456789012345678901234567890";
+    const signerAddress = "0xabcdef1234567890abcdef1234567890abcdef12";
+    const result = await createSwapQuote(mockClient, {
+      network,
+      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      sellAmount: BigInt("1000000000000000000"),
+      taker: takerAddress,
+      signerAddress: signerAddress,
+    });
+
+    const swapResult = result as CreateSwapQuoteResult;
+    
+    // Mock the sendSwapTransaction response
+    const mockTransactionHash = "0xmocktransactionhash" as Hex;
+    (sendSwapTransaction as any).mockResolvedValue({
+      transactionHash: mockTransactionHash,
+    });
+
+    // Call execute
+    await swapResult.execute({});
+    
+    // Verify sendSwapTransaction was called with the signerAddress, not taker
+    expect(sendSwapTransaction).toHaveBeenCalledWith(mockClient, {
+      address: signerAddress,
+      network: network,
+      swap: swapResult,
+      idempotencyKey: undefined,
+    });
   });
 });

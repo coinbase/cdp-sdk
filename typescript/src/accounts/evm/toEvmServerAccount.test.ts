@@ -196,13 +196,59 @@ describe("toEvmServerAccount", () => {
   });
 
   it("should call sendSwapTransaction when swap is called", async () => {
-    const swapOptions: SwapOptions = {
+    const swapOptions = {
       network: "base",
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" as Address,
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
       sellAmount: BigInt("1000000000000000000"),
       taker: mockAddress,
+    } as SwapOptions;
+
+    const result = await serverAccount.swap(swapOptions);
+
+    expect(sendSwapTransaction).toHaveBeenCalledWith(mockApiClient, {
+      ...swapOptions,
+      address: mockAddress,
+    });
+
+    expect(result).toEqual({ transactionHash: "0xswaptransactionhash" });
+  });
+
+  it("should call sendSwapTransaction with pre-created swap quote", async () => {
+    const mockSwapQuote = {
+      liquidityAvailable: true,
+      network: "base",
+      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" as Address,
+      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
+      sellAmount: BigInt("1000000000000000000"),
+      buyAmount: BigInt("5000000000"),
+      minBuyAmount: BigInt("4950000000"),
+      blockNumber: BigInt("12345678"),
+      fees: {
+        gasFee: undefined,
+        protocolFee: undefined,
+      },
+      issues: {
+        allowance: undefined,
+        balance: undefined,
+        simulationIncomplete: false,
+      },
+      gas: BigInt("300000"),
+      gasPrice: BigInt("1500000000"),
+      transaction: {
+        to: "0x000000000022D473030F116dDEE9F6B43aC78BA3" as Address,
+        data: "0x12345678" as Hex,
+        gas: "300000",
+        value: "0",
+      },
+      permit2: undefined,
+      execute: vi.fn(),
     };
+
+    const swapOptions = {
+      network: "base", // Network is still required for backward compatibility
+      swap: mockSwapQuote,
+    } as SwapOptions;
 
     const result = await serverAccount.swap(swapOptions);
 
