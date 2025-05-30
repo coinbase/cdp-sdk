@@ -39,8 +39,8 @@ export type EvmClientInterface = Omit<
   | "getEvmAccount" // mapped to getAccount
   | "getEvmAccountByName" // mapped to getAccount
   | "getEvmSmartAccount" // mapped to getSmartAccount
-  | "getEvmSwapQuote" // mapped to getSwapQuote
-  | "createEvmSwap" // mapped to createSwap
+  | "getEvmSwapPrice" // mapped to getSwapPrice
+  | "createEvmSwapQuote" // mapped to createSwapQuote
   | "getUserOperation"
   | "updateEvmAccount" // mapped to updateAccount
   | "listEvmAccounts" // mapped to listAccounts
@@ -62,10 +62,12 @@ export type EvmClientInterface = Omit<
   importAccount: (options: ImportServerAccountOptions) => Promise<ServerAccount>;
   getAccount: (options: GetServerAccountOptions) => Promise<ServerAccount>;
   getSmartAccount: (options: GetSmartAccountOptions) => Promise<SmartAccount>;
-  getSwapQuote: (
-    options: GetSwapQuoteOptions,
-  ) => Promise<GetSwapQuoteResult | SwapQuoteUnavailableResult>;
-  createSwap: (options: CreateSwapOptions) => Promise<CreateSwapResult | SwapUnavailableResult>;
+  getSwapPrice: (
+    options: GetSwapPriceOptions,
+  ) => Promise<GetSwapPriceResult | SwapUnavailableResult>;
+  createSwapQuote: (
+    options: CreateSwapQuoteOptions,
+  ) => Promise<CreateSwapQuoteResult | SwapUnavailableResult>;
   getOrCreateAccount: (options: GetOrCreateServerAccountOptions) => Promise<ServerAccount>;
   getUserOperation: (options: GetUserOperationOptions) => Promise<UserOperation>;
   updateAccount: (options: UpdateEvmAccountOptions) => Promise<ServerAccount>;
@@ -87,10 +89,10 @@ export type EvmClientInterface = Omit<
 export type { ServerAccount, SmartAccount };
 
 /**
- * Options for creating a swap between two tokens on an EVM network.
+ * Options for creating a swap quote between two tokens on an EVM network.
  */
-export interface CreateSwapOptions {
-  /** The network to create a swap on. */
+export interface CreateSwapQuoteOptions {
+  /** The network to create a swap quote on. */
   network: EvmSwapsNetwork;
   /** The token to buy (destination token). */
   buyToken: Address;
@@ -109,10 +111,10 @@ export interface CreateSwapOptions {
 }
 
 /**
- * Options for getting a swap quote.
+ * Options for getting a swap price.
  */
-export interface GetSwapQuoteOptions {
-  /** The network to get a quote from. */
+export interface GetSwapPriceOptions {
+  /** The network to get a price from. */
   network: EvmSwapsNetwork;
   /** The token to buy (destination token). */
   buyToken: Address;
@@ -131,9 +133,9 @@ export interface GetSwapQuoteOptions {
 }
 
 /**
- * Result of getting a swap quote.
+ * Result of getting a swap price.
  */
-export interface GetSwapQuoteResult {
+export interface GetSwapPriceResult {
   /** Whether liquidity is available for the swap. */
   liquidityAvailable: true;
   /** The token to buy (destination token). */
@@ -159,17 +161,17 @@ export interface GetSwapQuoteResult {
 }
 
 /**
- * Result when liquidity is unavailable for a swap quote.
+ * Result when liquidity is unavailable for a swap.
  */
-export interface SwapQuoteUnavailableResult {
+export interface SwapUnavailableResult {
   /** Whether liquidity is available for the swap. */
   liquidityAvailable: false;
 }
 
 /**
- * Result of creating a swap.
+ * Result of creating a swap quote.
  */
-export interface CreateSwapResult {
+export interface CreateSwapQuoteResult {
   /** Whether liquidity is available for the swap. */
   liquidityAvailable: true;
   /** The token to buy (destination token). */
@@ -208,14 +210,6 @@ export interface CreateSwapResult {
     /** EIP-712 typed data for signing. */
     eip712: EIP712Message;
   };
-}
-
-/**
- * Result when liquidity is unavailable for a swap.
- */
-export interface SwapUnavailableResult {
-  /** Whether liquidity is available for the swap. */
-  liquidityAvailable: false;
 }
 
 /**
@@ -432,7 +426,7 @@ export interface SignMessageOptions {
 }
 
 /**
- * Options for signing an EVM message.
+ * Options for signing an EVM typed data message.
  */
 export interface SignTypedDataOptions {
   /** The address of the account. */
@@ -534,3 +528,15 @@ export interface WaitForUserOperationOptions {
   /** The wait options. */
   waitOptions?: WaitOptions;
 }
+
+/**
+ * Legacy type aliases for backwards compatibility.
+ *
+ * @deprecated Use the new type names instead.
+ */
+export type CreateSwapOptions = CreateSwapQuoteOptions;
+export type CreateSwapResult = CreateSwapQuoteResult;
+export type GetSwapQuoteOptions = GetSwapPriceOptions;
+export type GetSwapQuoteResult = GetSwapPriceResult;
+export type SwapQuoteUnavailableResult = SwapUnavailableResult;
+export type SwapPriceUnavailableResult = SwapUnavailableResult;

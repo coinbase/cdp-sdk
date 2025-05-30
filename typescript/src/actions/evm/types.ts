@@ -12,11 +12,11 @@ import { Hex } from "../../types/misc.js";
 
 import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTokenBalances.js";
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
-import type { SendTransactionOptions, TransactionResult } from "./sendTransaction.js";
 import type {
   SendSwapTransactionOptions,
   SendSwapTransactionResult,
 } from "./sendSwapTransaction.js";
+import type { SendTransactionOptions, TransactionResult } from "./sendTransaction.js";
 import type { TransferOptions } from "./transfer/types.js";
 import type {
   WaitForUserOperationOptions,
@@ -270,18 +270,18 @@ export type AccountActions = Actions & {
    *
    * @param {SwapOptions} options - Configuration options for the swap.
    * @param {string} options.network - The network to execute the swap on.
-   * @param {CreateSwapResult} [options.swap] - The swap transaction data returned by the createSwap method.
-   * @param {CreateSwapOptions} [options.swapOptions] - Options to create a swap. The function will call createSwap internally.
+   * @param {CreateSwapQuoteResult} [options.swap] - The swap transaction data returned by the createSwapQuote method.
+   * @param {CreateSwapQuoteOptions} [options.swapOptions] - Options to create a swap quote. The function will call createSwapQuote internally.
    * @param {string} [options.idempotencyKey] - Optional idempotency key for the request.
    *
    * @returns A promise that resolves to the transaction hash.
    *
    * @throws {Error} If liquidity is not available when using swapOptions.
    *
-   * @example **Using a pre-created swap**
+   * @example **Using a pre-created swap quote**
    * ```ts
    * // First create a swap quote
-   * const swap = await cdp.evm.createSwap({
+   * const swapQuote = await cdp.evm.createSwapQuote({
    *   network: "base",
    *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
    *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
@@ -290,7 +290,7 @@ export type AccountActions = Actions & {
    * });
    *
    * // Check if liquidity is available
-   * if (!swap.liquidityAvailable) {
+   * if (!swapQuote.liquidityAvailable) {
    *   console.error("Insufficient liquidity for swap");
    *   return;
    * }
@@ -298,7 +298,7 @@ export type AccountActions = Actions & {
    * // Execute the swap
    * const { transactionHash } = await account.swap({
    *   network: "base",
-   *   swap
+   *   swap: swapQuote
    * });
    *
    * console.log(`Swap executed with transaction hash: ${transactionHash}`);

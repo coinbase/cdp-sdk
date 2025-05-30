@@ -1,11 +1,11 @@
 import { concat, numberToHex, size } from "viem";
 
-import { createSwap } from "./createSwap.js";
+import { createSwapQuote } from "./createSwapQuote.js";
 import { sendTransaction } from "./sendTransaction.js";
 
 import type {
-  CreateSwapResult,
-  CreateSwapOptions,
+  CreateSwapQuoteResult,
+  CreateSwapQuoteOptions,
   SwapUnavailableResult,
 } from "../../client/evm/evm.types.js";
 import type {
@@ -36,17 +36,17 @@ interface BaseSendSwapTransactionOptions {
 }
 
 /**
- * Options when providing an already created swap.
+ * Options when providing an already created swap quote.
  */
 interface SendSwapTransactionWithSwapResult extends BaseSendSwapTransactionOptions {
   /**
-   * The swap transaction data returned by the createSwap method.
+   * The swap transaction data returned by the createSwapQuote method.
    */
-  swap: CreateSwapResult;
+  swap: CreateSwapQuoteResult;
 }
 
 /**
- * Options when creating a swap inline.
+ * Options when creating a swap quote inline.
  */
 interface SendSwapTransactionWithSwapOptions extends BaseSendSwapTransactionOptions {
   /** The token to buy (destination token). */
@@ -67,7 +67,7 @@ interface SendSwapTransactionWithSwapOptions extends BaseSendSwapTransactionOpti
 
 /**
  * Options for sending a swap transaction.
- * Either provide a pre-created swap result or inline swap parameters.
+ * Either provide a pre-created swap quote result or inline swap parameters.
  */
 export type SendSwapTransactionOptions =
   | SendSwapTransactionWithSwapResult
@@ -102,10 +102,10 @@ export interface SendSwapTransactionResult {
  *                 will include the current allowance and the spender address that needs approval.
  * @throws {Error} If no transaction data is found in the swap result.
  *
- * @example **Sending a swap with pre-created swap object**
+ * @example **Sending a swap with pre-created swap quote object**
  * ```ts
- * // First create a swap
- * const swap = await cdp.evm.createSwap({
+ * // First create a swap quote
+ * const swapQuote = await cdp.evm.createSwapQuote({
  *   network: "base",
  *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
  *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
@@ -114,7 +114,7 @@ export interface SendSwapTransactionResult {
  * });
  *
  * // Check if liquidity is available
- * if (!swap.liquidityAvailable) {
+ * if (!swapQuote.liquidityAvailable) {
  *   console.error("Insufficient liquidity for swap");
  *   return;
  * }
@@ -123,7 +123,7 @@ export interface SendSwapTransactionResult {
  * const result = await sendSwapTransaction(client, {
  *   address: account.address,
  *   network: "base",
- *   swap
+ *   swap: swapQuote
  * });
  *
  * console.log(`Swap sent with transaction hash: ${result.transactionHash}`);
@@ -150,16 +150,16 @@ export async function sendSwapTransaction(
 ): Promise<SendSwapTransactionResult> {
   const { address, network, idempotencyKey } = options;
 
-  let swapResult: CreateSwapResult | SwapUnavailableResult;
+  let swapResult: CreateSwapQuoteResult | SwapUnavailableResult;
 
-  // Determine if we need to create the swap or use the provided one
+  // Determine if we need to create the swap quote or use the provided one
   if ("swap" in options) {
-    // Use the provided swap
+    // Use the provided swap quote
     swapResult = options.swap;
   } else {
-    // Create the swap using the provided options (SendSwapTransactionWithSwapOptions)
-    swapResult = await createSwap(client, {
-      network: options.network as CreateSwapOptions["network"],
+    // Create the swap quote using the provided options (SendSwapTransactionWithSwapOptions)
+    swapResult = await createSwapQuote(client, {
+      network: options.network as CreateSwapQuoteOptions["network"],
       buyToken: options.buyToken,
       sellToken: options.sellToken,
       sellAmount: options.sellAmount,
@@ -175,8 +175,8 @@ export async function sendSwapTransaction(
     throw new Error("Insufficient liquidity for swap");
   }
 
-  // At this point, we know that swapResult is CreateSwapResult
-  const swap = swapResult as CreateSwapResult;
+  // At this point, we know that swapResult is CreateSwapQuoteResult
+  const swap = swapResult as CreateSwapQuoteResult;
 
   // Check for allowance issues
   if (swap.issues?.allowance) {

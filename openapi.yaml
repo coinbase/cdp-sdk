@@ -58,7 +58,17 @@ tags:
       A Smart Account has a single owner, which is another EVM Account which signs the Smart Account's transactions. The owner can be a CDP EVM account, or an account managed solely by the developer.
   - name: EVM Swaps
     x-audience: public
-    description: TODO.
+    description: |-
+      A swap refers to the act of exchanging one token for another. The EVM Swap APIs enable you to create and manage swaps. A swap process involves:
+
+       1. A user approves token spending via smart contract.
+       2. The smart contract determines the exchange rate and facilitates the swap between the two tokens.
+       3. The transaction is completed atomically and the tokens are transferred to the user's wallet.
+
+      The Swap API supports:
+
+       - **Getting a price**: Estimate the amount of tokens you will receive for a given amount of exchanged tokens.
+       - **Creating a swap quote**: Return a swap transaction payload that you can use to sign and submit.
   - name: EVM Token Balances
     x-audience: public
     description: |-
@@ -1484,9 +1494,9 @@ paths:
   /v2/evm/swaps/quote:
     get:
       x-audience: public
-      summary: Get a quote for a swap
-      description: Get a quote for a swap between two tokens on an EVM network.
-      operationId: getEvmSwapQuote
+      summary: Get a price estimate for a swap
+      description: Get a price estimate for a swap between two tokens on an EVM network.
+      operationId: getEvmSwapPrice
       tags:
         - EVM Swaps
       parameters:
@@ -1532,14 +1542,14 @@ paths:
             $ref: '#/components/schemas/slippageBps'
       responses:
         '200':
-          description: A quote for the swap.
+          description: A price estimate for the swap.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetSwapQuoteResponseWrapper'
+                $ref: '#/components/schemas/GetSwapPriceResponseWrapper'
               examples:
                 success:
-                  summary: Successful swap quote
+                  summary: Successful swap price retrieval
                   value:
                     blockNumber: '17038723'
                     buyAmount: '1000000000000000000'
@@ -1601,9 +1611,9 @@ paths:
   /v2/evm/swaps:
     post:
       x-audience: public
-      summary: Create a swap
-      description: Create a swap, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
-      operationId: createEvmSwap
+      summary: Create a swap quote
+      description: Create a swap quote, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
+      operationId: createEvmSwapQuote
       tags:
         - EVM Swaps
       requestBody:
@@ -1660,14 +1670,14 @@ paths:
                 - taker
       responses:
         '201':
-          description: Successfully created swap.
+          description: Successfully created swap quote.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateSwapResponseWrapper'
+                $ref: '#/components/schemas/CreateSwapQuoteResponseWrapper'
               examples:
                 success:
-                  summary: Successful swap creation
+                  summary: Successful swap quote creation
                   value:
                     blockNumber: '17038723'
                     buyAmount: '1000000000000000000'
@@ -3978,7 +3988,7 @@ components:
         minBuyAmount: '900000000000000000'
         sellAmount: '1000000000000000000'
         sellToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
-    GetQuoteResponse:
+    GetSwapPriceResponse:
       allOf:
         - $ref: '#/components/schemas/CommonSwapResponse'
         - type: object
@@ -4010,12 +4020,12 @@ components:
         - liquidityAvailable
       example:
         liquidityAvailable: false
-    GetSwapQuoteResponseWrapper:
-      description: A wrapper for the response of a swap quote operation.
+    GetSwapPriceResponseWrapper:
+      description: A wrapper for the response of a swap price operation.
       oneOf:
-        - $ref: '#/components/schemas/GetQuoteResponse'
+        - $ref: '#/components/schemas/GetSwapPriceResponse'
         - $ref: '#/components/schemas/SwapUnavailableResponse'
-    CreateSwapResponse:
+    CreateSwapQuoteResponse:
       allOf:
         - type: object
           properties:
@@ -4072,10 +4082,10 @@ components:
             - permit2
             - transaction
         - $ref: '#/components/schemas/CommonSwapResponse'
-    CreateSwapResponseWrapper:
-      description: A wrapper for the response of a swap operation.
+    CreateSwapQuoteResponseWrapper:
+      description: A wrapper for the response of a swap quote operation.
       oneOf:
-        - $ref: '#/components/schemas/CreateSwapResponse'
+        - $ref: '#/components/schemas/CreateSwapQuoteResponse'
         - $ref: '#/components/schemas/SwapUnavailableResponse'
     ListEvmTokenBalancesNetwork:
       type: string

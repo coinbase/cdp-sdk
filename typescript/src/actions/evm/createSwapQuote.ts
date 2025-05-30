@@ -1,22 +1,22 @@
 import {
-  CreateSwapOptions,
-  CreateSwapResult,
+  CreateSwapQuoteOptions,
+  CreateSwapQuoteResult,
   SwapUnavailableResult,
 } from "../../client/evm/evm.types.js";
-import { CdpOpenApiClientType, CreateSwapResponse } from "../../openapi-client/index.js";
+import { CdpOpenApiClientType, CreateSwapQuoteResponse } from "../../openapi-client/index.js";
 import { Address, Hex } from "../../types/misc.js";
 
 /**
- * Creates a swap between two tokens on an EVM network.
+ * Creates a quote for a swap between two tokens on an EVM network.
  *
- * @param {CdpOpenApiClientType} client - The client to use to create the swap.
- * @param {CreateSwapOptions} options - The options for creating a swap.
+ * @param {CdpOpenApiClientType} client - The client to use to create the swap quote.
+ * @param {CreateSwapQuoteOptions} options - The options for creating a swap quote.
  *
- * @returns {Promise<CreateSwapResult | SwapUnavailableResult>} A promise that resolves to the swap result or a response indicating that liquidity is unavailable.
+ * @returns {Promise<CreateSwapQuoteResult | SwapUnavailableResult>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
  *
- * @example **Creating a swap**
+ * @example **Creating a swap quote**
  * ```ts
- * const swap = await createSwap(client, {
+ * const swapQuote = await createSwapQuote(client, {
  *   network: "ethereum",
  *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
  *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
@@ -25,12 +25,12 @@ import { Address, Hex } from "../../types/misc.js";
  * });
  * ```
  */
-export async function createSwap(
+export async function createSwapQuote(
   client: CdpOpenApiClientType,
-  options: CreateSwapOptions,
-): Promise<CreateSwapResult | SwapUnavailableResult> {
-  // Call the createEvmSwap function directly with the client's configured API
-  const response = await client.createEvmSwap({
+  options: CreateSwapQuoteOptions,
+): Promise<CreateSwapQuoteResult | SwapUnavailableResult> {
+  // Call the createEvmSwapQuote function directly with the client's configured API
+  const response = await client.createEvmSwapQuote({
     network: options.network,
     buyToken: options.buyToken,
     sellToken: options.sellToken,
@@ -49,8 +49,8 @@ export async function createSwap(
     };
   }
 
-  // At this point we know it's a CreateSwapResponse since liquidityAvailable is true
-  const swapResponse = response as CreateSwapResponse;
+  // At this point we know it's a CreateSwapQuoteResponse with liquidityAvailable as true
+  const swapResponse = response as CreateSwapQuoteResponse;
   return {
     liquidityAvailable: true,
     buyToken: swapResponse.buyToken as Address,

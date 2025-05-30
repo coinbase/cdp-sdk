@@ -10,10 +10,10 @@
  * - Note: Currently requires type assertion due to TypeScript union type limitations
  * 
  * Approach 2: Create-then-submit pattern (shown in comments)
- * - First creates a swap object using cdp.evm.createSwap()
+ * - First creates a swap quote object using cdp.evm.createSwapQuote()
  * - Allows inspection of swap details (buy amount, fees, etc.) before execution
  * - Provides more control for complex scenarios or when pre-validation is needed
- * - Uses account.swap() with the pre-created swap object
+ * - Uses account.swap() with the pre-created swap quote object
  * 
  * Both approaches:
  * - Handle Permit2 signatures automatically for ERC20 token swaps
@@ -112,11 +112,11 @@ async function main() {
         slippageBps: 100, // 1% slippage tolerance
       });
 
-      /* Alternative - Approach 2: Create swap first, inspect it, then send it separately
+      /* Alternative - Approach 2: Create swap quote first, inspect it, then send it separately
       // This gives you more control to analyze the swap details before execution
       
-      // Step 1: Create the swap
-      const swapResponse = await cdp.evm.createSwap({
+      // Step 1: Create the swap quote
+      const swapResponse = await cdp.evm.createSwapQuote({
         network: NETWORK,
         buyToken: buyToken.address as `0x${string}`,
         sellToken: sellToken.address as `0x${string}`,

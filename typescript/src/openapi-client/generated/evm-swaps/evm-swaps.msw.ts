@@ -10,16 +10,16 @@ import { faker } from "@faker-js/faker";
 import { HttpResponse, delay, http } from "msw";
 
 import type {
-  CreateSwapResponse,
-  CreateSwapResponseWrapper,
-  GetQuoteResponse,
-  GetSwapQuoteResponseWrapper,
+  CreateSwapQuoteResponse,
+  CreateSwapQuoteResponseWrapper,
+  GetSwapPriceResponse,
+  GetSwapPriceResponseWrapper,
   SwapUnavailableResponse,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
-export const getGetEvmSwapQuoteResponseGetQuoteResponseMock = (
-  overrideResponse: Partial<GetQuoteResponse> = {},
-): GetQuoteResponse => ({
+export const getGetEvmSwapPriceResponseGetSwapPriceResponseMock = (
+  overrideResponse: Partial<GetSwapPriceResponse> = {},
+): GetSwapPriceResponse => ({
   ...{
     ...{
       blockNumber: faker.helpers.fromRegExp("^[1-9]\d*$"),
@@ -64,22 +64,22 @@ export const getGetEvmSwapQuoteResponseGetQuoteResponseMock = (
   ...overrideResponse,
 });
 
-export const getGetEvmSwapQuoteResponseSwapUnavailableResponseMock = (
+export const getGetEvmSwapPriceResponseSwapUnavailableResponseMock = (
   overrideResponse: Partial<SwapUnavailableResponse> = {},
 ): SwapUnavailableResponse => ({
   ...{ liquidityAvailable: faker.datatype.boolean() },
   ...overrideResponse,
 });
 
-export const getGetEvmSwapQuoteResponseMock = (): GetSwapQuoteResponseWrapper =>
+export const getGetEvmSwapPriceResponseMock = (): GetSwapPriceResponseWrapper =>
   faker.helpers.arrayElement([
-    { ...getGetEvmSwapQuoteResponseGetQuoteResponseMock() },
-    { ...getGetEvmSwapQuoteResponseSwapUnavailableResponseMock() },
+    { ...getGetEvmSwapPriceResponseGetSwapPriceResponseMock() },
+    { ...getGetEvmSwapPriceResponseSwapUnavailableResponseMock() },
   ]);
 
-export const getCreateEvmSwapResponseCreateSwapResponseMock = (
-  overrideResponse: Partial<CreateSwapResponse> = {},
-): CreateSwapResponse => ({
+export const getCreateEvmSwapQuoteResponseCreateSwapQuoteResponseMock = (
+  overrideResponse: Partial<CreateSwapQuoteResponse> = {},
+): CreateSwapQuoteResponse => ({
   ...{
     ...{
       permit2: {
@@ -153,25 +153,25 @@ export const getCreateEvmSwapResponseCreateSwapResponseMock = (
   ...overrideResponse,
 });
 
-export const getCreateEvmSwapResponseSwapUnavailableResponseMock = (
+export const getCreateEvmSwapQuoteResponseSwapUnavailableResponseMock = (
   overrideResponse: Partial<SwapUnavailableResponse> = {},
 ): SwapUnavailableResponse => ({
   ...{ liquidityAvailable: faker.datatype.boolean() },
   ...overrideResponse,
 });
 
-export const getCreateEvmSwapResponseMock = (): CreateSwapResponseWrapper =>
+export const getCreateEvmSwapQuoteResponseMock = (): CreateSwapQuoteResponseWrapper =>
   faker.helpers.arrayElement([
-    { ...getCreateEvmSwapResponseCreateSwapResponseMock() },
-    { ...getCreateEvmSwapResponseSwapUnavailableResponseMock() },
+    { ...getCreateEvmSwapQuoteResponseCreateSwapQuoteResponseMock() },
+    { ...getCreateEvmSwapQuoteResponseSwapUnavailableResponseMock() },
   ]);
 
-export const getGetEvmSwapQuoteMockHandler = (
+export const getGetEvmSwapPriceMockHandler = (
   overrideResponse?:
-    | GetSwapQuoteResponseWrapper
+    | GetSwapPriceResponseWrapper
     | ((
         info: Parameters<Parameters<typeof http.get>[1]>[0],
-      ) => Promise<GetSwapQuoteResponseWrapper> | GetSwapQuoteResponseWrapper),
+      ) => Promise<GetSwapPriceResponseWrapper> | GetSwapPriceResponseWrapper),
 ) => {
   return http.get("*/v2/evm/swaps/quote", async info => {
     await delay(0);
@@ -182,19 +182,19 @@ export const getGetEvmSwapQuoteMockHandler = (
           ? typeof overrideResponse === "function"
             ? await overrideResponse(info)
             : overrideResponse
-          : getGetEvmSwapQuoteResponseMock(),
+          : getGetEvmSwapPriceResponseMock(),
       ),
       { status: 200, headers: { "Content-Type": "application/json" } },
     );
   });
 };
 
-export const getCreateEvmSwapMockHandler = (
+export const getCreateEvmSwapQuoteMockHandler = (
   overrideResponse?:
-    | CreateSwapResponseWrapper
+    | CreateSwapQuoteResponseWrapper
     | ((
         info: Parameters<Parameters<typeof http.post>[1]>[0],
-      ) => Promise<CreateSwapResponseWrapper> | CreateSwapResponseWrapper),
+      ) => Promise<CreateSwapQuoteResponseWrapper> | CreateSwapQuoteResponseWrapper),
 ) => {
   return http.post("*/v2/evm/swaps", async info => {
     await delay(0);
@@ -205,13 +205,13 @@ export const getCreateEvmSwapMockHandler = (
           ? typeof overrideResponse === "function"
             ? await overrideResponse(info)
             : overrideResponse
-          : getCreateEvmSwapResponseMock(),
+          : getCreateEvmSwapQuoteResponseMock(),
       ),
       { status: 201, headers: { "Content-Type": "application/json" } },
     );
   });
 };
 export const getEvmSwapsMock = () => [
-  getGetEvmSwapQuoteMockHandler(),
-  getCreateEvmSwapMockHandler(),
+  getGetEvmSwapPriceMockHandler(),
+  getCreateEvmSwapQuoteMockHandler(),
 ];

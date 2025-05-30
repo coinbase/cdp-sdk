@@ -383,7 +383,7 @@ export interface CommonSwapResponse {
   sellToken: string;
 }
 
-export type GetQuoteResponseAllOf = {
+export type GetSwapPriceResponseAllOf = {
   /**
    * The estimated gas limit that should be used to send the transaction to guarantee settlement.
    * @nullable
@@ -397,7 +397,7 @@ export type GetQuoteResponseAllOf = {
   gasPrice: string;
 };
 
-export type GetQuoteResponse = CommonSwapResponse & GetQuoteResponseAllOf;
+export type GetSwapPriceResponse = CommonSwapResponse & GetSwapPriceResponseAllOf;
 
 export interface SwapUnavailableResponse {
   /** Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false. */
@@ -405,15 +405,15 @@ export interface SwapUnavailableResponse {
 }
 
 /**
- * A wrapper for the response of a swap quote operation.
+ * A wrapper for the response of a swap price operation.
  */
-export type GetSwapQuoteResponseWrapper = GetQuoteResponse | SwapUnavailableResponse;
+export type GetSwapPriceResponseWrapper = GetSwapPriceResponse | SwapUnavailableResponse;
 
 /**
  * The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `sellToken` is the native token or the transaction is a native token wrap / unwrap.
  * @nullable
  */
-export type CreateSwapResponseAllOfPermit2 = {
+export type CreateSwapQuoteResponseAllOfPermit2 = {
   /**
    * The hash for the approval according to [EIP-712](https://eips.ethereum.org/EIPS/eip-712). Computing the hash of the `eip712` field should match the value of this field.
    * @pattern ^0x[a-fA-F0-9]{64}$
@@ -425,7 +425,7 @@ export type CreateSwapResponseAllOfPermit2 = {
 /**
  * The details of the transaction to be signed and submitted to execute the swap.
  */
-export type CreateSwapResponseAllOfTransaction = {
+export type CreateSwapQuoteResponseAllOfTransaction = {
   /**
    * The 0x-prefixed address of the contract to call.
    * @pattern ^0x[a-fA-F0-9]{40}$
@@ -450,22 +450,22 @@ export type CreateSwapResponseAllOfTransaction = {
   value: string;
 };
 
-export type CreateSwapResponseAllOf = {
+export type CreateSwapQuoteResponseAllOf = {
   /**
    * The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `sellToken` is the native token or the transaction is a native token wrap / unwrap.
    * @nullable
    */
-  permit2: CreateSwapResponseAllOfPermit2;
+  permit2: CreateSwapQuoteResponseAllOfPermit2;
   /** The details of the transaction to be signed and submitted to execute the swap. */
-  transaction: CreateSwapResponseAllOfTransaction;
+  transaction: CreateSwapQuoteResponseAllOfTransaction;
 };
 
-export type CreateSwapResponse = CreateSwapResponseAllOf & CommonSwapResponse;
+export type CreateSwapQuoteResponse = CreateSwapQuoteResponseAllOf & CommonSwapResponse;
 
 /**
- * A wrapper for the response of a swap operation.
+ * A wrapper for the response of a swap quote operation.
  */
-export type CreateSwapResponseWrapper = CreateSwapResponse | SwapUnavailableResponse;
+export type CreateSwapQuoteResponseWrapper = CreateSwapQuoteResponse | SwapUnavailableResponse;
 
 /**
  * The name of the supported EVM networks in human-readable format.
@@ -1292,7 +1292,7 @@ export type SendUserOperationBody = {
   signature: string;
 };
 
-export type GetEvmSwapQuoteParams = {
+export type GetEvmSwapPriceParams = {
   network: EvmSwapsNetwork;
   buyToken: BuyToken;
   sellToken: SellToken;
@@ -1303,7 +1303,7 @@ export type GetEvmSwapQuoteParams = {
   slippageBps?: SlippageBps;
 };
 
-export type CreateEvmSwapBody = {
+export type CreateEvmSwapQuoteBody = {
   network: EvmSwapsNetwork;
   /**
    * The 0x-prefixed contract address of the token to buy.

@@ -1,47 +1,47 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { getSwapQuote } from "./getSwapQuote.js";
-import { GetSwapQuoteResult, SwapQuoteUnavailableResult } from "../../client/evm/evm.types.js";
-import {
+import { getSwapPrice } from "./getSwapPrice.js";
+import { GetSwapPriceResult, SwapUnavailableResult } from "../../client/evm/evm.types.js";
+import { 
   CdpOpenApiClientType,
-  GetQuoteResponse,
+  GetSwapPriceResponse,
   SwapUnavailableResponse,
-  EvmSwapsNetwork,
+  EvmSwapsNetwork 
 } from "../../openapi-client/index.js";
 import { Address } from "../../types/misc.js";
 
-describe("getSwapQuote", () => {
+describe("getSwapPrice", () => {
   let mockClient: CdpOpenApiClientType;
-  const network: EvmSwapsNetwork = "ethereum-mainnet" as EvmSwapsNetwork;
+  const network: EvmSwapsNetwork = "ethereum" as EvmSwapsNetwork;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     mockClient = {
-      getEvmSwapQuote: vi.fn(),
+      getEvmSwapPrice: vi.fn(),
     } as unknown as CdpOpenApiClientType;
   });
 
-  it("should return SwapQuoteUnavailableResult when liquidity is unavailable", async () => {
+  it("should return SwapUnavailableResult when liquidity is unavailable", async () => {
     const mockResponse: SwapUnavailableResponse = {
       liquidityAvailable: false,
     };
 
-    mockClient.getEvmSwapQuote = vi.fn().mockResolvedValue(mockResponse);
+    mockClient.getEvmSwapPrice = vi.fn().mockResolvedValue(mockResponse);
 
-    const result = (await getSwapQuote(mockClient, {
+    const result = (await getSwapPrice(mockClient, {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       sellAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
-    })) as SwapQuoteUnavailableResult;
+    })) as SwapUnavailableResult;
 
     expect(result).toEqual({ liquidityAvailable: false });
     expect(result.liquidityAvailable).toBe(false);
   });
 
-  it("should successfully return a transformed swap quote when liquidity is available", async () => {
-    const mockResponse: GetQuoteResponse = {
+  it("should successfully return a transformed swap price when liquidity is available", async () => {
+    const mockResponse: GetSwapPriceResponse = {
       blockNumber: "12345678",
       buyAmount: "5000000000",
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
@@ -75,9 +75,9 @@ describe("getSwapQuote", () => {
       gasPrice: "20000000000",
     };
 
-    mockClient.getEvmSwapQuote = vi.fn().mockResolvedValue(mockResponse);
+    mockClient.getEvmSwapPrice = vi.fn().mockResolvedValue(mockResponse);
 
-    const result = await getSwapQuote(mockClient, {
+    const result = await getSwapPrice(mockClient, {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -85,7 +85,7 @@ describe("getSwapQuote", () => {
       taker: "0x1234567890123456789012345678901234567890",
     });
 
-    expect(mockClient.getEvmSwapQuote).toHaveBeenCalledWith({
+    expect(mockClient.getEvmSwapPrice).toHaveBeenCalledWith({
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -99,8 +99,8 @@ describe("getSwapQuote", () => {
     // Type assertion to handle the union type
     expect(result.liquidityAvailable).toBe(true);
 
-    // Since we've checked liquidityAvailable is true, we know it's a GetSwapQuoteResult
-    const quoteResult = result as GetSwapQuoteResult;
+    // Since we've checked liquidityAvailable is true, we know it's a GetSwapPriceResult
+    const quoteResult = result as GetSwapPriceResult;
 
     // Check transformed values
     expect(quoteResult.blockNumber).toBe(BigInt("12345678"));
@@ -136,7 +136,7 @@ describe("getSwapQuote", () => {
   });
 
   it("should handle optional parameters when provided", async () => {
-    mockClient.getEvmSwapQuote = vi.fn().mockResolvedValue({
+    mockClient.getEvmSwapPrice = vi.fn().mockResolvedValue({
       liquidityAvailable: true,
       blockNumber: "12345678",
       buyAmount: "5000000000",
@@ -150,7 +150,7 @@ describe("getSwapQuote", () => {
       gasPrice: "20000000000",
     });
 
-    await getSwapQuote(mockClient, {
+    await getSwapPrice(mockClient, {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -161,7 +161,7 @@ describe("getSwapQuote", () => {
       slippageBps: 50,
     });
 
-    expect(mockClient.getEvmSwapQuote).toHaveBeenCalledWith({
+    expect(mockClient.getEvmSwapPrice).toHaveBeenCalledWith({
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -174,7 +174,7 @@ describe("getSwapQuote", () => {
   });
 
   it("should handle null fees in the response", async () => {
-    const mockResponse: GetQuoteResponse = {
+    const mockResponse: GetSwapPriceResponse = {
       blockNumber: "12345678",
       buyAmount: "5000000000",
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
@@ -192,9 +192,9 @@ describe("getSwapQuote", () => {
       gasPrice: "20000000000",
     };
 
-    mockClient.getEvmSwapQuote = vi.fn().mockResolvedValue(mockResponse);
+    mockClient.getEvmSwapPrice = vi.fn().mockResolvedValue(mockResponse);
 
-    const result = await getSwapQuote(mockClient, {
+    const result = await getSwapPrice(mockClient, {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -202,11 +202,11 @@ describe("getSwapQuote", () => {
       taker: "0x1234567890123456789012345678901234567890",
     });
 
-    // Check that it's a GetSwapQuoteResult with liquidityAvailable = true
+    // Check that it's a GetSwapPriceResult with liquidityAvailable = true
     expect(result.liquidityAvailable).toBe(true);
 
     // Type assertion to work with the properties
-    const quoteResult = result as GetSwapQuoteResult;
+    const quoteResult = result as GetSwapPriceResult;
     expect(quoteResult.fees).toEqual({
       gasFee: undefined,
       protocolFee: undefined,

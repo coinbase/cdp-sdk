@@ -1,8 +1,8 @@
-// Usage: pnpm tsx evm/createSwap.ts
+// Usage: pnpm tsx evm/createSwapQuote.ts
 
 /**
- * This example demonstrates how to create a swap transaction with all necessary data
- * for execution. Unlike getSwapQuote which only provides pricing information, createSwap
+ * This example demonstrates how to create a swap quote transaction with all necessary data
+ * for execution. Unlike getSwapPrice which only provides pricing information, createSwapQuote
  * returns the complete transaction data needed to execute the swap onchain.
  * 
  * Key features:
@@ -64,9 +64,9 @@ async function main() {
     
     console.log(`\nCreating a swap quote for ${formatEther(sellAmount)} ${sellToken.symbol} to ${buyToken.symbol}`);
     
-    // Create the swap transaction
+    // Create the swap quote transaction
     console.log("\nFetching swap quote...");
-    const swap = await cdp.evm.createSwap({
+    const swap = await cdp.evm.createSwapQuote({
       network: NETWORK,
       buyToken: buyToken.address as `0x${string}`,
       sellToken: sellToken.address as `0x${string}`,
@@ -87,7 +87,7 @@ async function main() {
     console.log("3. Wait for transaction confirmation");
     
   } catch (error) {
-    console.error("Error creating swap:", error);
+    console.error("Error creating swap quote:", error);
   }
 }
 

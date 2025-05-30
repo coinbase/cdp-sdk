@@ -1,23 +1,23 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { createSwap } from "./createSwap.js";
-import { CreateSwapResult, SwapUnavailableResult } from "../../client/evm/evm.types.js";
+import { createSwapQuote } from "./createSwapQuote.js";
+import { CreateSwapQuoteResult, SwapUnavailableResult } from "../../client/evm/evm.types.js";
 import {
   CdpOpenApiClientType,
-  CreateSwapResponse,
+  CreateSwapQuoteResponse,
   SwapUnavailableResponse,
   EvmSwapsNetwork,
 } from "../../openapi-client/index.js";
 import { Address, Hex } from "../../types/misc.js";
 
-describe("createSwap", () => {
+describe("createSwapQuote", () => {
   let mockClient: CdpOpenApiClientType;
-  const network: EvmSwapsNetwork = "ethereum-mainnet" as EvmSwapsNetwork;
+  const network: EvmSwapsNetwork = "ethereum" as EvmSwapsNetwork;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     mockClient = {
-      createEvmSwap: vi.fn(),
+      createEvmSwapQuote: vi.fn(),
     } as unknown as CdpOpenApiClientType;
   });
 
@@ -26,9 +26,9 @@ describe("createSwap", () => {
       liquidityAvailable: false,
     };
 
-    mockClient.createEvmSwap = vi.fn().mockResolvedValue(mockResponse);
+    mockClient.createEvmSwapQuote = vi.fn().mockResolvedValue(mockResponse);
 
-    const result = (await createSwap(mockClient, {
+    const result = (await createSwapQuote(mockClient, {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -40,8 +40,8 @@ describe("createSwap", () => {
     expect(result.liquidityAvailable).toBe(false);
   });
 
-  it("should successfully return a transformed swap when liquidity is available", async () => {
-    const mockResponse: CreateSwapResponse = {
+  it("should successfully return a transformed swap quote when liquidity is available", async () => {
+    const mockResponse: CreateSwapQuoteResponse = {
       blockNumber: "12345678",
       buyAmount: "5000000000",
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
@@ -108,9 +108,9 @@ describe("createSwap", () => {
       },
     };
 
-    mockClient.createEvmSwap = vi.fn().mockResolvedValue(mockResponse);
+    mockClient.createEvmSwapQuote = vi.fn().mockResolvedValue(mockResponse);
 
-    const result = await createSwap(mockClient, {
+    const result = await createSwapQuote(mockClient, {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -118,7 +118,7 @@ describe("createSwap", () => {
       taker: "0x1234567890123456789012345678901234567890",
     });
 
-    expect(mockClient.createEvmSwap).toHaveBeenCalledWith({
+    expect(mockClient.createEvmSwapQuote).toHaveBeenCalledWith({
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -132,8 +132,8 @@ describe("createSwap", () => {
     // Type assertion to handle the union type
     expect(result.liquidityAvailable).toBe(true);
 
-    // Since we've checked liquidityAvailable is true, we know it's a CreateSwapResult
-    const swapResult = result as CreateSwapResult;
+    // Since we've checked liquidityAvailable is true, we know it's a CreateSwapQuoteResult
+    const swapResult = result as CreateSwapQuoteResult;
 
     // Check transformed values
     expect(swapResult.blockNumber).toBe(BigInt("12345678"));
@@ -185,7 +185,7 @@ describe("createSwap", () => {
   });
 
   it("should handle optional parameters when provided", async () => {
-    mockClient.createEvmSwap = vi.fn().mockResolvedValue({
+    mockClient.createEvmSwapQuote = vi.fn().mockResolvedValue({
       liquidityAvailable: true,
       blockNumber: "12345678",
       buyAmount: "5000000000",
@@ -205,7 +205,7 @@ describe("createSwap", () => {
       },
     });
 
-    await createSwap(mockClient, {
+    await createSwapQuote(mockClient, {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -216,7 +216,7 @@ describe("createSwap", () => {
       slippageBps: 50,
     });
 
-    expect(mockClient.createEvmSwap).toHaveBeenCalledWith({
+    expect(mockClient.createEvmSwapQuote).toHaveBeenCalledWith({
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -229,7 +229,7 @@ describe("createSwap", () => {
   });
 
   it("should handle null fields in the response", async () => {
-    const mockResponse: CreateSwapResponse = {
+    const mockResponse: CreateSwapQuoteResponse = {
       blockNumber: "12345678",
       buyAmount: "5000000000",
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
@@ -253,9 +253,9 @@ describe("createSwap", () => {
       },
     };
 
-    mockClient.createEvmSwap = vi.fn().mockResolvedValue(mockResponse);
+    mockClient.createEvmSwapQuote = vi.fn().mockResolvedValue(mockResponse);
 
-    const result = await createSwap(mockClient, {
+    const result = await createSwapQuote(mockClient, {
       network,
       buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -263,11 +263,11 @@ describe("createSwap", () => {
       taker: "0x1234567890123456789012345678901234567890",
     });
 
-    // Check that it's a CreateSwapResult with liquidityAvailable = true
+    // Check that it's a CreateSwapQuoteResult with liquidityAvailable = true
     expect(result.liquidityAvailable).toBe(true);
 
     // Type assertion to work with the properties
-    const swapResult = result as CreateSwapResult;
+    const swapResult = result as CreateSwapQuoteResult;
     expect(swapResult.fees).toEqual({
       gasFee: undefined,
       protocolFee: undefined,

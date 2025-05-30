@@ -6,10 +6,10 @@
  * OpenAPI spec version: 2.0.0
  */
 import type {
-  CreateEvmSwapBody,
-  CreateSwapResponseWrapper,
-  GetEvmSwapQuoteParams,
-  GetSwapQuoteResponseWrapper,
+  CreateEvmSwapQuoteBody,
+  CreateSwapQuoteResponseWrapper,
+  GetEvmSwapPriceParams,
+  GetSwapPriceResponseWrapper,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -17,35 +17,35 @@ import { cdpApiClient } from "../../cdpApiClient.js";
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
- * Get a quote for a swap between two tokens on an EVM network.
- * @summary Get a quote for a swap
+ * Get a price estimate for a swap between two tokens on an EVM network.
+ * @summary Get a price estimate for a swap
  */
-export const getEvmSwapQuote = (
-  params: GetEvmSwapQuoteParams,
+export const getEvmSwapPrice = (
+  params: GetEvmSwapPriceParams,
   options?: SecondParameter<typeof cdpApiClient>,
 ) => {
-  return cdpApiClient<GetSwapQuoteResponseWrapper>(
+  return cdpApiClient<GetSwapPriceResponseWrapper>(
     { url: `/v2/evm/swaps/quote`, method: "GET", params },
     options,
   );
 };
 /**
- * Create a swap, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
- * @summary Create a swap
+ * Create a swap quote, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
+ * @summary Create a swap quote
  */
-export const createEvmSwap = (
-  createEvmSwapBody: CreateEvmSwapBody,
+export const createEvmSwapQuote = (
+  createEvmSwapQuoteBody: CreateEvmSwapQuoteBody,
   options?: SecondParameter<typeof cdpApiClient>,
 ) => {
-  return cdpApiClient<CreateSwapResponseWrapper>(
+  return cdpApiClient<CreateSwapQuoteResponseWrapper>(
     {
       url: `/v2/evm/swaps`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      data: createEvmSwapBody,
+      data: createEvmSwapQuoteBody,
     },
     options,
   );
 };
-export type GetEvmSwapQuoteResult = NonNullable<Awaited<ReturnType<typeof getEvmSwapQuote>>>;
-export type CreateEvmSwapResult = NonNullable<Awaited<ReturnType<typeof createEvmSwap>>>;
+export type GetEvmSwapPriceResult = NonNullable<Awaited<ReturnType<typeof getEvmSwapPrice>>>;
+export type CreateEvmSwapQuoteResult = NonNullable<Awaited<ReturnType<typeof createEvmSwapQuote>>>;

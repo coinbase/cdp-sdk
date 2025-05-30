@@ -5,7 +5,7 @@
  * instead of a CDP-managed wallet. Key differences from the CDP wallet approach:
  * 
  * 1. Uses a viem wallet created from a private key (VIEM_WALLET_PRIVATE_KEY env var)
- * 2. Still uses CDP API for creating swap quotes (cdp.evm.createSwap)
+ * 2. Still uses CDP API for creating swap quotes (cdp.evm.createSwapQuote)
  * 3. Uses viem's walletClient.sendTransaction instead of CDP's account.swap()
  * 4. Manually handles Permit2 signatures if needed (CDP wallet handles this automatically)
  * 5. Uses viem for token approval transactions instead of CDP's sendTransaction
@@ -65,7 +65,7 @@ const TOKENS = {
 // Permit2 contract address is the same across all networks
 const PERMIT2_ADDRESS = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
 
-// Create a CDP client for swap creation
+// Create a CDP client for swap quote creation
 const cdp = new CdpClient();
 
 async function main() {
@@ -112,9 +112,9 @@ async function main() {
       );
     }
     
-    // Create the swap transaction using CDP API
+    // Create the swap quote transaction using CDP API
     console.log("\nCreating swap quote using CDP API...");
-    const swapResponse = await cdp.evm.createSwap({
+    const swapResponse = await cdp.evm.createSwapQuote({
       network: NETWORK,
       buyToken: buyToken.address as `0x${string}`,
       sellToken: sellToken.address as `0x${string}`,

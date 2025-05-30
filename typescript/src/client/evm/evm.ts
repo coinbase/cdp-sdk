@@ -27,17 +27,16 @@ import {
   SignTypedDataOptions,
   UpdateEvmAccountOptions,
   ImportServerAccountOptions,
-  GetSwapQuoteOptions,
-  CreateSwapOptions,
-  GetSwapQuoteResult,
-  SwapQuoteUnavailableResult,
-  CreateSwapResult,
+  GetSwapPriceOptions,
+  CreateSwapQuoteOptions,
+  GetSwapPriceResult,
+  CreateSwapQuoteResult,
   SwapUnavailableResult,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
-import { createSwap } from "../../actions/evm/createSwap.js";
-import { getSwapQuote } from "../../actions/evm/getSwapQuote.js";
+import { createSwapQuote } from "../../actions/evm/createSwapQuote.js";
+import { getSwapPrice } from "../../actions/evm/getSwapPrice.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import {
   listTokenBalances,
@@ -394,49 +393,51 @@ export class EvmClient implements EvmClientInterface {
   }
 
   /**
-   * Gets a quote for a swap between two tokens on an EVM network.
+   * Gets the price for a swap between two tokens on an EVM network.
    *
-   * @param {GetSwapQuoteOptions} options - The options for getting a swap quote.
+   * @param {GetSwapPriceOptions} options - The options for getting a swap price.
    *
-   * @returns {Promise<GetSwapQuoteResult | SwapQuoteUnavailableResult>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
+   * @returns {Promise<GetSwapPriceResult | SwapUnavailableResult>} A promise that resolves to the swap price result or a response indicating that liquidity is unavailable.
    *
-   * @example **Getting a swap quote**
-   * ```ts
-   * const quote = await cdp.evm.getSwapQuote({
-   *   network: "ethereum",
+   * @example
+   * ```typescript
+   * const price = await cdp.evm.getSwapPrice({
+   *   network: "ethereum-mainnet",
    *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
    *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
-   *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+   *   sellAmount: BigInt("1000000000000000000"), // 1 WETH
    *   taker: "0x1234567890123456789012345678901234567890"
    * });
    * ```
    */
-  async getSwapQuote(
-    options: GetSwapQuoteOptions,
-  ): Promise<GetSwapQuoteResult | SwapQuoteUnavailableResult> {
-    return getSwapQuote(CdpOpenApiClient, options);
+  async getSwapPrice(
+    options: GetSwapPriceOptions,
+  ): Promise<GetSwapPriceResult | SwapUnavailableResult> {
+    return getSwapPrice(CdpOpenApiClient, options);
   }
 
   /**
-   * Creates a swap between two tokens on an EVM network.
+   * Creates a quote for a swap between two tokens on an EVM network.
    *
-   * @param {CreateSwapOptions} options - The options for creating a swap.
+   * @param {CreateSwapQuoteOptions} options - The options for creating a swap quote.
    *
-   * @returns {Promise<CreateSwapResult | SwapUnavailableResult>} A promise that resolves to the swap result or a response indicating that liquidity is unavailable.
+   * @returns {Promise<CreateSwapQuoteResult | SwapUnavailableResult>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
    *
-   * @example **Creating a swap**
-   * ```ts
-   * const swap = await cdp.evm.createSwap({
+   * @example
+   * ```typescript
+   * const swapQuote = await cdp.evm.createSwapQuote({
    *   network: "ethereum",
    *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
    *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
-   *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+   *   sellAmount: BigInt("1000000000000000000"), // 1 WETH
    *   taker: "0x1234567890123456789012345678901234567890"
    * });
    * ```
    */
-  async createSwap(options: CreateSwapOptions): Promise<CreateSwapResult | SwapUnavailableResult> {
-    return createSwap(CdpOpenApiClient, options);
+  async createSwapQuote(
+    options: CreateSwapQuoteOptions,
+  ): Promise<CreateSwapQuoteResult | SwapUnavailableResult> {
+    return createSwapQuote(CdpOpenApiClient, options);
   }
 
   /**

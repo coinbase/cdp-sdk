@@ -1,22 +1,22 @@
 import {
-  GetSwapQuoteOptions,
-  GetSwapQuoteResult,
-  SwapQuoteUnavailableResult,
+  GetSwapPriceOptions,
+  GetSwapPriceResult,
+  SwapUnavailableResult,
 } from "../../client/evm/evm.types.js";
-import { CdpOpenApiClientType, GetQuoteResponse } from "../../openapi-client/index.js";
+import { CdpOpenApiClientType, GetSwapPriceResponse } from "../../openapi-client/index.js";
 import { Address } from "../../types/misc.js";
 
 /**
- * Gets a quote for a swap between two tokens on an EVM network.
+ * Gets the price for a swap between two tokens on an EVM network.
  *
- * @param {CdpOpenApiClientType} client - The client to use to get the swap quote.
- * @param {GetSwapQuoteOptions} options - The options for getting a swap quote.
+ * @param {CdpOpenApiClientType} client - The client to use to get the swap price.
+ * @param {GetSwapPriceOptions} options - The options for getting a swap price.
  *
- * @returns {Promise<GetSwapQuoteResult | SwapQuoteUnavailableResult>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
+ * @returns {Promise<GetSwapPriceResult | SwapUnavailableResult>} A promise that resolves to the swap price result or a response indicating that liquidity is unavailable.
  *
- * @example **Getting a swap quote**
+ * @example **Getting a swap price**
  * ```ts
- * const quote = await getSwapQuote(client, {
+ * const price = await getSwapPrice(client, {
  *   network: "ethereum-mainnet",
  *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
  *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
@@ -25,12 +25,12 @@ import { Address } from "../../types/misc.js";
  * });
  * ```
  */
-export async function getSwapQuote(
+export async function getSwapPrice(
   client: CdpOpenApiClientType,
-  options: GetSwapQuoteOptions,
-): Promise<GetSwapQuoteResult | SwapQuoteUnavailableResult> {
-  // Call the getEvmSwapQuote function directly with the client's configured API
-  const response = await client.getEvmSwapQuote({
+  options: GetSwapPriceOptions,
+): Promise<GetSwapPriceResult | SwapUnavailableResult> {
+  // Call the getEvmSwapPrice function directly with the client's configured API
+  const response = await client.getEvmSwapPrice({
     network: options.network,
     buyToken: options.buyToken,
     sellToken: options.sellToken,
@@ -43,14 +43,14 @@ export async function getSwapQuote(
 
   // Check if liquidity is unavailable
   if (!response.liquidityAvailable) {
-    // Return the SwapQuoteUnavailableResult
+    // Return the SwapUnavailableResult
     return {
       liquidityAvailable: false,
     };
   }
 
-  // At this point we know it's a GetQuoteResponse since liquidityAvailable is true
-  const quoteResponse = response as GetQuoteResponse;
+  // At this point we know it's a GetSwapPriceResponse with liquidityAvailable as true
+  const quoteResponse = response as GetSwapPriceResponse;
   return {
     blockNumber: BigInt(quoteResponse.blockNumber),
     buyAmount: BigInt(quoteResponse.buyAmount),

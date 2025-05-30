@@ -4,17 +4,17 @@ import { Address, numberToHex, concat, size } from "viem";
 
 import { sendSwapTransaction } from "./sendSwapTransaction.js";
 import { sendTransaction } from "./sendTransaction.js";
-import { createSwap } from "./createSwap.js";
+import { createSwapQuote } from "./createSwapQuote.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
-import type { CreateSwapResult, SwapUnavailableResult } from "../../client/evm/evm.types.js";
+import type { CreateSwapQuoteResult, SwapUnavailableResult } from "../../client/evm/evm.types.js";
 
 // Mock dependencies
 vi.mock("./sendTransaction.js", () => ({
   sendTransaction: vi.fn(),
 }));
 
-vi.mock("./createSwap.js", () => ({
-  createSwap: vi.fn(),
+vi.mock("./createSwapQuote.js", () => ({
+  createSwapQuote: vi.fn(),
 }));
 
 vi.mock("viem", async () => {
@@ -37,7 +37,7 @@ describe("sendSwapTransaction", () => {
   const mockAddress = "0x1234567890123456789012345678901234567890" as Address;
   const mockNetwork = "base" as const;
   const mockTransactionHash = "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890";
-  let mockSwap: CreateSwapResult;
+  let mockSwap: CreateSwapQuoteResult;
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -245,7 +245,7 @@ describe("sendSwapTransaction", () => {
 
   it("should handle transaction with no value field", async () => {
     // Create a modified version of the transaction for the test
-    const modifiedSwap: CreateSwapResult = {
+    const modifiedSwap: CreateSwapQuoteResult = {
       ...mockSwap,
       transaction: mockSwap.transaction
         ? {
@@ -278,7 +278,7 @@ describe("sendSwapTransaction", () => {
 
   it("should handle transaction with no gas field", async () => {
     // Create a modified version of the transaction for the test
-    const modifiedSwap: CreateSwapResult = {
+    const modifiedSwap: CreateSwapQuoteResult = {
       ...mockSwap,
       transaction: mockSwap.transaction
         ? {
@@ -309,7 +309,7 @@ describe("sendSwapTransaction", () => {
     });
   });
 
-  it("should create swap when swapOptions is provided", async () => {
+  it("should create swap quote when swapOptions is provided", async () => {
     const swapOptions = {
       buyToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
       sellToken: "0x4200000000000000000000000000000000000006" as `0x${string}`,
@@ -317,7 +317,7 @@ describe("sendSwapTransaction", () => {
       taker: mockAddress,
     };
 
-    (createSwap as MockedFunction<typeof createSwap>).mockResolvedValue(mockSwap);
+    (createSwapQuote as MockedFunction<typeof createSwapQuote>).mockResolvedValue(mockSwap);
 
     const result = await sendSwapTransaction(CdpOpenApiClient, {
       address: mockAddress,
@@ -325,13 +325,13 @@ describe("sendSwapTransaction", () => {
       ...swapOptions,
     });
 
-    // Check that createSwap was called with the correct options
-    expect(createSwap).toHaveBeenCalledWith(CdpOpenApiClient, {
+    // Check that createSwapQuote was called with the correct options
+    expect(createSwapQuote).toHaveBeenCalledWith(CdpOpenApiClient, {
       ...swapOptions,
       network: mockNetwork,
     });
 
-    // Check that sendTransaction was called with the created swap
+    // Check that sendTransaction was called with the created swap quote
     expect(sendTransaction).toHaveBeenCalledWith(CdpOpenApiClient, {
       address: mockAddress,
       network: mockNetwork,
@@ -362,7 +362,9 @@ describe("sendSwapTransaction", () => {
       liquidityAvailable: false,
     };
 
-    (createSwap as MockedFunction<typeof createSwap>).mockResolvedValue(swapWithNoLiquidity);
+    (createSwapQuote as MockedFunction<typeof createSwapQuote>).mockResolvedValue(
+      swapWithNoLiquidity,
+    );
 
     await expect(
       sendSwapTransaction(CdpOpenApiClient, {
@@ -372,8 +374,8 @@ describe("sendSwapTransaction", () => {
       }),
     ).rejects.toThrow("Insufficient liquidity for swap");
 
-    // Check that createSwap was called
-    expect(createSwap).toHaveBeenCalledWith(CdpOpenApiClient, {
+    // Check that createSwapQuote was called
+    expect(createSwapQuote).toHaveBeenCalledWith(CdpOpenApiClient, {
       ...swapOptions,
       network: mockNetwork,
     });
@@ -400,7 +402,7 @@ describe("sendSwapTransaction", () => {
   });
 
   it("should throw error when swap has allowance issues", async () => {
-    const swapWithAllowanceIssue: CreateSwapResult = {
+    const swapWithAllowanceIssue: CreateSwapQuoteResult = {
       ...mockSwap,
       issues: {
         allowance: {
@@ -427,7 +429,7 @@ describe("sendSwapTransaction", () => {
     expect(sendTransaction).not.toHaveBeenCalled();
   });
 
-  it("should throw error when swapOptions is provided and created swap has allowance issues", async () => {
+  it("should throw error when swapOptions is provided and created swap quote has allowance issues", async () => {
     const swapOptions = {
       buyToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
       sellToken: "0x4200000000000000000000000000000000000006" as `0x${string}`,
@@ -435,7 +437,7 @@ describe("sendSwapTransaction", () => {
       taker: mockAddress,
     };
 
-    const swapWithAllowanceIssue: CreateSwapResult = {
+    const swapWithAllowanceIssue: CreateSwapQuoteResult = {
       ...mockSwap,
       issues: {
         allowance: {
@@ -447,7 +449,9 @@ describe("sendSwapTransaction", () => {
       },
     };
 
-    (createSwap as MockedFunction<typeof createSwap>).mockResolvedValue(swapWithAllowanceIssue);
+    (createSwapQuote as MockedFunction<typeof createSwapQuote>).mockResolvedValue(
+      swapWithAllowanceIssue,
+    );
 
     await expect(
       sendSwapTransaction(CdpOpenApiClient, {
@@ -460,8 +464,8 @@ describe("sendSwapTransaction", () => {
         "Please approve the Permit2 contract (0x000000000022D473030F116dDEE9F6B43aC78BA3) to spend your tokens.",
     );
 
-    // Check that createSwap was called
-    expect(createSwap).toHaveBeenCalledWith(CdpOpenApiClient, {
+    // Check that createSwapQuote was called
+    expect(createSwapQuote).toHaveBeenCalledWith(CdpOpenApiClient, {
       ...swapOptions,
       network: mockNetwork,
     });

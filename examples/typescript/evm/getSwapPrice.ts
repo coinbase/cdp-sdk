@@ -1,7 +1,7 @@
-// Usage: pnpm tsx evm/getSwapQuote.ts
+// Usage: pnpm tsx evm/getSwapPrice.ts
 
 /**
- * This example demonstrates how to get a swap quote without executing the swap.
+ * This example demonstrates how to get a swap price without executing the swap.
  * This is useful for:
  * 
  * 1. Displaying exchange rates and estimated output amounts to users
@@ -9,7 +9,7 @@
  * 3. Previewing gas costs and detecting potential issues (balance, allowance)
  * 4. Calculating price impact and exchange rates with slippage
  * 
- * The quote includes all the same information as createSwap but without the
+ * The price includes all the same information as createSwapQuote but without the
  * transaction data needed for execution. Use this when you only need pricing
  * information or want to validate a swap before creating the full transaction.
  */
@@ -44,8 +44,8 @@ async function main() {
     const sellToken = TOKENS.WETH;
     const buyToken = TOKENS.USDC;
     
-    // Get a quote for swapping WETH to USDC on Ethereum mainnet
-    const swapQuote = await cdp.evm.getSwapQuote({
+    // Get a price for swapping WETH to USDC on Ethereum mainnet
+    const swapPrice = await cdp.evm.getSwapPrice({
       network: "ethereum",
       buyToken: buyToken.address as `0x${string}`,
       sellToken: sellToken.address as `0x${string}`,
@@ -54,23 +54,23 @@ async function main() {
     }) as any;
 
     // Check for liquidity
-    if (!swapQuote.liquidityAvailable) {
+    if (!swapPrice.liquidityAvailable) {
       console.log("Insufficient liquidity available for this swap.");
       return;
     }
 
     // At this point we know liquidityAvailable is true and we can access all properties
-    console.log("\nSwap Quote:");
+    console.log("\nSwap Price:");
     console.log("-------------");
-    console.log(`Buy Amount: ${formatUnits(swapQuote.buyAmount, buyToken.decimals)} ${buyToken.symbol}`);
-    console.log(`Min Buy Amount: ${formatUnits(swapQuote.minBuyAmount, buyToken.decimals)} ${buyToken.symbol}`);
-    console.log(`Sell Amount: ${formatUnits(swapQuote.sellAmount, sellToken.decimals)} ${sellToken.symbol}`);
-    console.log(`Gas Estimate: ${swapQuote.gas}`);
+    console.log(`Buy Amount: ${formatUnits(swapPrice.buyAmount, buyToken.decimals)} ${buyToken.symbol}`);
+    console.log(`Min Buy Amount: ${formatUnits(swapPrice.minBuyAmount, buyToken.decimals)} ${buyToken.symbol}`);
+    console.log(`Sell Amount: ${formatUnits(swapPrice.sellAmount, sellToken.decimals)} ${sellToken.symbol}`);
+    console.log(`Gas Estimate: ${swapPrice.gas}`);
     
     // Calculate and display price ratios
-    const sellAmountBigInt = BigInt(swapQuote.sellAmount);
-    const buyAmountBigInt = BigInt(swapQuote.buyAmount);
-    const minBuyAmountBigInt = BigInt(swapQuote.minBuyAmount);
+    const sellAmountBigInt = BigInt(swapPrice.sellAmount);
+    const buyAmountBigInt = BigInt(swapPrice.buyAmount);
+    const minBuyAmountBigInt = BigInt(swapPrice.minBuyAmount);
     
     // Calculate exchange rate: How many buy tokens per 1 sell token
     const sellToBuyRate = Number(buyAmountBigInt) / (10 ** buyToken.decimals) * 
@@ -101,23 +101,23 @@ async function main() {
     console.log(`Maximum price impact: ${((sellToBuyRate - minSellToBuyRate) / sellToBuyRate * 100).toFixed(2)}%`);
 
     // Check for any issues
-    if (swapQuote.issues.allowance) {
+    if (swapPrice.issues.allowance) {
       console.log("\nAllowance Issues:");
-      console.log(`Current Allowance: ${swapQuote.issues.allowance.currentAllowance}`);
-      console.log(`Spender: ${swapQuote.issues.allowance.spender}`);
+      console.log(`Current Allowance: ${swapPrice.issues.allowance.currentAllowance}`);
+      console.log(`Spender: ${swapPrice.issues.allowance.spender}`);
     }
     
-    if (swapQuote.issues.balance) {
+    if (swapPrice.issues.balance) {
       console.log("\nBalance Issues:");
-      console.log(`Current Balance: ${swapQuote.issues.balance.currentBalance}`);
-      console.log(`Required Balance: ${swapQuote.issues.balance.requiredBalance}`);
+      console.log(`Current Balance: ${swapPrice.issues.balance.currentBalance}`);
+      console.log(`Required Balance: ${swapPrice.issues.balance.requiredBalance}`);
     }
 
-    if (swapQuote.issues.simulationIncomplete) {
+    if (swapPrice.issues.simulationIncomplete) {
       console.log("\n⚠️ WARNING: Simulation incomplete. Results may not be accurate.");
     }
   } catch (error) {
-    console.error("Error getting swap quote:", error);
+    console.error("Error getting swap price:", error);
   }
 }
 
