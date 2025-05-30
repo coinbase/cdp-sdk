@@ -17,7 +17,7 @@
 import { CdpClient } from "@coinbase/cdp-sdk";
 import { 
   formatUnits, 
-  parseEther, 
+  parseUnits, 
   createPublicClient, 
   createWalletClient,
   http, 
@@ -98,7 +98,7 @@ async function main() {
     const buyToken = TOKENS.USDC;
     
     // Set the amount we want to sell
-    const sellAmount = parseEther("0.1"); // 0.1 WETH
+    const sellAmount = parseUnits("0.1", sellToken.decimals); // 0.1 WETH
     
     console.log(`\nInitiating swap of ${formatEther(sellAmount)} ${sellToken.symbol} for ${buyToken.symbol}`);
 
