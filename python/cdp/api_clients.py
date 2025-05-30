@@ -2,6 +2,7 @@ from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
 from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
+from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
 from cdp.openapi_client.cdp_api_client import CdpApiClient
@@ -38,6 +39,7 @@ class ApiClients:
         self._faucets: FaucetsApi | None = None
         self._solana_accounts: SolanaAccountsApi | None = None
         self._policies: PolicyEngineApi | None = None
+        self._payments: PaymentsAlphaApi | None = None
 
     @property
     def evm_accounts(self) -> EVMAccountsApi:
@@ -128,6 +130,21 @@ class ApiClients:
         if self._policies is None:
             self._policies = PolicyEngineApi(api_client=self._cdp_client)
         return self._policies
+
+    @property
+    def payments(self) -> PaymentsAlphaApi:
+        """Get the PaymentsAlphaApi client instance.
+
+        Returns:
+            PaymentsAlphaApi: The PaymentsAlphaApi client instance.
+
+        Note:
+            This property lazily initializes the PaymentsAlphaApi client on first access.
+
+        """
+        if self._payments is None:
+            self._payments = PaymentsAlphaApi(api_client=self._cdp_client)
+        return self._payments
 
     async def close(self):
         """Close the CDP client asynchronously."""

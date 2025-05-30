@@ -22,6 +22,7 @@ from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
 from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
+from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
 
@@ -40,8 +41,13 @@ from cdp.openapi_client.exceptions import ApiException
 # import models into sdk package
 from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccountRequest
 from cdp.openapi_client.models.create_evm_smart_account_request import CreateEvmSmartAccountRequest
+from cdp.openapi_client.models.create_payment_transfer_quote201_response import CreatePaymentTransferQuote201Response
+from cdp.openapi_client.models.create_payment_transfer_quote_request import CreatePaymentTransferQuoteRequest
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.create_solana_account_request import CreateSolanaAccountRequest
+from cdp.openapi_client.models.crypto_rail import CryptoRail
+from cdp.openapi_client.models.crypto_rail_address import CryptoRailAddress
+from cdp.openapi_client.models.crypto_rail_networks_inner import CryptoRailNetworksInner
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.error import Error
@@ -53,6 +59,7 @@ from cdp.openapi_client.models.evm_call import EvmCall
 from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
+from cdp.openapi_client.models.fee import Fee
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.list_evm_accounts200_response import ListEvmAccounts200Response
 from cdp.openapi_client.models.list_evm_smart_accounts200_response import ListEvmSmartAccounts200Response
@@ -61,6 +68,12 @@ from cdp.openapi_client.models.list_evm_token_balances_network import ListEvmTok
 from cdp.openapi_client.models.list_policies200_response import ListPolicies200Response
 from cdp.openapi_client.models.list_response import ListResponse
 from cdp.openapi_client.models.list_solana_accounts200_response import ListSolanaAccounts200Response
+from cdp.openapi_client.models.payment_method import PaymentMethod
+from cdp.openapi_client.models.payment_method_limits import PaymentMethodLimits
+from cdp.openapi_client.models.payment_method_limits_source_limit import PaymentMethodLimitsSourceLimit
+from cdp.openapi_client.models.payment_method_limits_target_limit import PaymentMethodLimitsTargetLimit
+from cdp.openapi_client.models.payment_method_request import PaymentMethodRequest
+from cdp.openapi_client.models.payment_rail_action import PaymentRailAction
 from cdp.openapi_client.models.policy import Policy
 from cdp.openapi_client.models.prepare_user_operation_request import PrepareUserOperationRequest
 from cdp.openapi_client.models.request_evm_faucet200_response import RequestEvmFaucet200Response
@@ -93,6 +106,9 @@ from cdp.openapi_client.models.solana_account import SolanaAccount
 from cdp.openapi_client.models.token import Token
 from cdp.openapi_client.models.token_amount import TokenAmount
 from cdp.openapi_client.models.token_balance import TokenBalance
+from cdp.openapi_client.models.transfer import Transfer
+from cdp.openapi_client.models.transfer_source import TransferSource
+from cdp.openapi_client.models.transfer_target import TransferTarget
 from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest

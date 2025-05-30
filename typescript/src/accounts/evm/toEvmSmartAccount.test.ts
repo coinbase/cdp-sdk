@@ -5,6 +5,8 @@ import { Address } from "../../types/misc.js";
 import {
   CdpOpenApiClientType,
   EvmSmartAccount as EvmSmartAccountModel,
+  PaymentMethod,
+  Transfer,
 } from "../../openapi-client/index.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import type { TransferOptions } from "../../actions/evm/transfer/types.js";
@@ -23,7 +25,8 @@ describe("toEvmSmartAccount", () => {
   let mockAddress: Address;
   let mockSmartAccount: EvmSmartAccountModel;
   let mockUserOp: UserOperation;
-
+  let mockPaymentMethods: PaymentMethod[];
+  let mockTransfer: Transfer;
   beforeEach(() => {
     mockUserOp = {
       userOpHash: "0xuserophash",
@@ -33,9 +36,45 @@ describe("toEvmSmartAccount", () => {
       transactionHash: "0xtransactionhash",
     };
 
+    mockPaymentMethods = [
+      {
+        id: "0xmockpaymentmethodid",
+        type: "card",
+        actions: ["source"],
+        currency: "usd",
+      },
+    ];
+
+    mockTransfer = {
+      id: "0xmocktransferid",
+      sourceType: "payment_method",
+      source: {
+        id: "0xmockpaymentmethodid",
+      },
+      targetType: "crypto_rail",
+      target: {
+        network: "base",
+        address: mockAddress,
+        symbol: "usdc",
+      },
+      sourceAmount: "0.000001",
+      sourceCurrency: "usd",
+      targetAmount: "0.000001",
+      targetCurrency: "usdc",
+      userAmount: "0.000001",
+      userCurrency: "usd",
+      fees: [],
+      status: "pending",
+      createdAt: "2021-01-01T00:00:00.000Z",
+      updatedAt: "2021-01-01T00:00:00.000Z",
+    };
+
     mockApiClient = {
       signEvmTransaction: vi.fn().mockResolvedValue({ signedTransaction: "0xmocktransaction" }),
       getUserOperation: vi.fn().mockResolvedValue(mockUserOp),
+      getPaymentMethods: vi.fn().mockResolvedValue(mockPaymentMethods),
+      createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockTransfer }),
+      getPaymentTransfer: vi.fn().mockResolvedValue({ ...mockTransfer, status: "completed" }),
     } as unknown as CdpOpenApiClientType;
 
     mockAddress = "0x123456789abcdef" as Address;
@@ -70,6 +109,9 @@ describe("toEvmSmartAccount", () => {
       waitForUserOperation: expect.any(Function),
       getUserOperation: expect.any(Function),
       requestFaucet: expect.any(Function),
+      fund: expect.any(Function),
+      waitForFundOperationReceipt: expect.any(Function),
+      quoteFund: expect.any(Function),
     });
   });
 
@@ -149,5 +191,77 @@ describe("toEvmSmartAccount", () => {
     expect(mockApiClient.getUserOperation).toHaveBeenCalledWith(mockAddress, "0xuserophash");
 
     expect(userOp).toEqual(mockUserOp);
+  });
+
+  it("should call apiClient payment APIs when quoteFund is called", async () => {
+    const smartAccount = toEvmSmartAccount(mockApiClient, {
+      smartAccount: mockSmartAccount,
+      owner: mockOwner,
+    });
+
+    await smartAccount.quoteFund({
+      network: "base",
+      token: "usdc",
+      amount: parseUnits("0.000001", 6),
+    });
+
+    expect(mockApiClient.getPaymentMethods).toHaveBeenCalled();
+    expect(mockApiClient.createPaymentTransferQuote).toHaveBeenCalledWith({
+      sourceType: "payment_method",
+      source: {
+        id: "0xmockpaymentmethodid",
+      },
+      targetType: "crypto_rail",
+      target: {
+        network: "base",
+        address: mockAddress,
+        currency: "usdc",
+      },
+      amount: "0.000001",
+      currency: "usdc",
+    });
+  });
+
+  it("should call apiClient payment APIs when fund is called", async () => {
+    const smartAccount = toEvmSmartAccount(mockApiClient, {
+      smartAccount: mockSmartAccount,
+      owner: mockOwner,
+    });
+
+    await smartAccount.fund({
+      network: "base",
+      token: "usdc",
+      amount: parseUnits("0.000001", 6),
+    });
+
+    expect(mockApiClient.getPaymentMethods).toHaveBeenCalled();
+    expect(mockApiClient.createPaymentTransferQuote).toHaveBeenCalledWith({
+      sourceType: "payment_method",
+      source: {
+        id: "0xmockpaymentmethodid",
+      },
+      targetType: "crypto_rail",
+      target: {
+        network: "base",
+        address: mockAddress,
+        currency: "usdc",
+      },
+      amount: "0.000001",
+      currency: "usdc",
+      execute: true,
+    });
+  });
+
+  it("should call apiClient getPaymentTransfer when waitForFundOperationReceipt is called", async () => {
+    const smartAccount = toEvmSmartAccount(mockApiClient, {
+      smartAccount: mockSmartAccount,
+      owner: mockOwner,
+    });
+
+    await smartAccount.waitForFundOperationReceipt({
+      transferId: "0xmocktransferid",
+    });
+
+    expect(mockApiClient.getPaymentTransfer).toHaveBeenCalledWith("0xmocktransferid");
   });
 });
