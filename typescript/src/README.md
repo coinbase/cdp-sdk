@@ -136,6 +136,26 @@ const account = await cdp.solana.getOrCreateAccount({
 });
 ```
 
+### Creating EVM or Solana accounts with policies
+
+#### Create an EVM account with policy as follows:
+
+```typescript
+const account = await cdp.evm.createAccount({
+  name: "AccountWithPolicy",
+  accountPolicy: "abcdef12-3456-7890-1234-567890123456"
+})
+```
+
+#### Create a Solana account with policy as follows:
+
+```typescript
+const account = await cdp.solana.createAccount({
+  name: "AccountWithPolicy",
+  accountPolicy: "abcdef12-3456-7890-1234-567890123456"
+})
+```
+
 ### Updating EVM or Solana accounts
 
 #### Update an EVM account as follows:
