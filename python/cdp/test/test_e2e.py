@@ -1160,6 +1160,42 @@ async def test_list_policies(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_create_evm_account_with_policy(cdp_client):
+    """Test creating an EVM account with a policy."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Test Policy for evm account",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                        EvmAddressCriterion(
+                            addresses=["0x000000000000000000000000000000000000dEaD"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+            ],
+        )
+    )
+    account_name = generate_random_name()
+    account = await cdp_client.evm.create_account(
+        name=account_name,
+        account_policy=policy.id,
+    )
+    assert account is not None
+    assert account.name == account_name
+    assert account.policies is not None
+    assert policy.id in account.policies
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_update_evm_account(cdp_client):
     """Test updating an EVM account."""
     original_name = generate_random_name()
@@ -1184,6 +1220,38 @@ async def test_update_evm_account(cdp_client):
     assert retrieved_account is not None
     assert retrieved_account.address == account_to_update.address
     assert retrieved_account.name == updated_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_create_solana_account_with_policy(cdp_client):
+    """Test creating a Solana account with a policy."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Test Policy for solana account",
+            rules=[
+                SignSolanaTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolanaAddressCriterion(
+                            addresses=["123456789abcdef123456789abcdef12"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+            ],
+        )
+    )
+    account_name = generate_random_name()
+    account = await cdp_client.solana.create_account(
+        name=account_name,
+        account_policy=policy.id,
+    )
+    assert account is not None
+    assert account.name == account_name
+    assert account.policies is not None
+    assert policy.id in account.policies
 
 
 @pytest.mark.e2e

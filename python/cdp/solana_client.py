@@ -31,12 +31,14 @@ class SolanaClient:
     async def create_account(
         self,
         name: str | None = None,
+        account_policy: str | None = None,
         idempotency_key: str | None = None,
     ) -> SolanaAccount:
         """Create a Solana account.
 
         Args:
             name (str, optional): The name. Defaults to None.
+            account_policy (str, optional): The ID of the account-level policy to apply to the account. Defaults to None.
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
         Returns:
@@ -45,7 +47,10 @@ class SolanaClient:
         """
         response = await self.api_clients.solana_accounts.create_solana_account(
             x_idempotency_key=idempotency_key,
-            create_solana_account_request=CreateSolanaAccountRequest(name=name),
+            create_solana_account_request=CreateSolanaAccountRequest(
+                name=name,
+                account_policy=account_policy,
+            ),
         )
 
         return SolanaAccount(
