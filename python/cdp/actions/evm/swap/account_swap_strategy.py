@@ -2,7 +2,7 @@
 
 from web3 import Web3
 
-from cdp.actions.evm.swap.types import CreateSwapResult, SwapResult
+from cdp.actions.evm.swap.types import SwapQuoteResult, SwapResult
 from cdp.api_clients import ApiClients
 from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
@@ -15,7 +15,7 @@ class AccountSwapStrategy:
         self,
         api_clients: ApiClients,
         from_account: EvmServerAccount,
-        swap_data: CreateSwapResult,
+        swap_data: SwapQuoteResult,
         network: str | None = None,
         permit2_signature: str | None = None,
     ) -> SwapResult:
@@ -24,7 +24,7 @@ class AccountSwapStrategy:
         Args:
             api_clients: The API clients instance
             from_account: The account to execute the swap from
-            swap_data: The swap data from createSwap
+            swap_data: The swap data from create_swap
             network: The network to execute on (optional, can be determined from account)
             permit2_signature: Optional pre-signed Permit2 signature
 
@@ -84,10 +84,10 @@ class AccountSwapStrategy:
         # Return the swap result
         return SwapResult(
             transaction_hash=tx_hash,
-            from_token=swap_data.from_token,
-            to_token=swap_data.to_token,
-            from_amount=swap_data.from_amount,
-            to_amount=swap_data.to_amount,
+            from_token=swap_data.sell_token,
+            to_token=swap_data.buy_token,
+            from_amount=swap_data.sell_amount,
+            to_amount=swap_data.buy_amount,
             quote_id=swap_data.quote_id,
             network=network,
         )

@@ -47,7 +47,7 @@ from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccoun
 from cdp.update_account_types import UpdateAccountOptions
 
 if TYPE_CHECKING:
-    from cdp.actions.evm.swap.types import SwapQuote, SwapTransaction
+    from cdp.actions.evm.swap.types import SwapQuote, SwapQuoteResult, SwapTransaction
 
 
 class EvmClient:
@@ -673,59 +673,109 @@ class EvmClient:
 
     async def create_swap(
         self,
-        from_token: str,
-        to_token: str,
-        amount: str | int,
-        network: str,
-        wallet_address: str,
-        slippage_percentage: float = 1.0,
-    ) -> "SwapTransaction":
-        """Create a swap transaction.
+        buy_token: str | None = None,
+        sell_token: str | None = None,
+        sell_amount: str | int | None = None,
+        network: str | None = None,
+        taker: str | None = None,
+        slippage_bps: int | None = None,
+        swap_params: Any | None = None,
+    ) -> "SwapQuoteResult":
+        """Create a swap quote with transaction data.
+
+        This method follows the OpenAPI spec field names.
 
         Args:
-            from_token (str): The contract address of the token to swap from.
-            to_token (str): The contract address of the token to swap to.
-            amount (str | int): The amount to swap (in smallest unit or as string).
-            network (str): The network to create the swap on.
-            wallet_address (str): The wallet address that will execute the swap.
-            slippage_percentage (float): The maximum acceptable slippage percentage.
+            buy_token (str, optional): The contract address of the token to buy.
+            sell_token (str, optional): The contract address of the token to sell.
+            sell_amount (str | int, optional): The amount to sell (in smallest unit).
+            network (str, optional): The network to create the swap on.
+            taker (str, optional): The address that will execute the swap.
+            slippage_bps (int, optional): The maximum slippage in basis points (100 = 1%).
+            swap_params (SwapParams, optional): Alternatively, provide all params as object.
 
         Returns:
-            SwapTransaction: The swap transaction data.
+            SwapQuoteResult: The swap quote with transaction data.
+
+        Examples:
+            **Using individual parameters**:
+            ```python
+            quote = await cdp.evm.create_swap(
+                buy_token="0x4200000000000000000000000000000000000006",  # WETH
+                sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+                sell_amount="100000000",  # 100 USDC
+                network="base",
+                taker=account.address,
+                slippage_bps=100  # 1%
+            )
+            ```
+
+            **Using SwapParams**:
+            ```python
+            from cdp.actions.evm.swap import SwapParams
+
+            params = SwapParams(
+                buy_token="0x4200000000000000000000000000000000000006",
+                sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                sell_amount="100000000",
+                network="base",
+                taker=account.address
+            )
+            quote = await cdp.evm.create_swap(swap_params=params)
+            ```
 
         """
-        from cdp.actions.evm.swap.types import SwapTransaction
+        from cdp.actions.evm.swap.types import Permit2Data, SwapParams, SwapQuoteResult
         from cdp.openapi_client.models.create_evm_swap_request import CreateEvmSwapRequest
         from cdp.openapi_client.models.create_swap_response import CreateSwapResponse
         from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
 
-        # Convert amount to string if it's an integer
-        amount_str = str(amount)
+        # Handle SwapParams or individual parameters
+        if swap_params:
+            if isinstance(swap_params, dict):
+                swap_params = SwapParams(**swap_params)
+            buy_token = swap_params.buy_token
+            sell_token = swap_params.sell_token
+            sell_amount = swap_params.sell_amount
+            network = swap_params.network
+            taker = swap_params.taker
+            slippage_bps = swap_params.slippage_bps
+        else:
+            # Validate required parameters
+            if not all([buy_token, sell_token, sell_amount, network, taker]):
+                raise ValueError(
+                    "All of buy_token, sell_token, sell_amount, network, and taker are required"
+                )
 
-        # Normalize addresses to lowercase
-        from_address = from_token.lower()
-        to_address = to_token.lower()
+        # Convert amount to string if needed
+        sell_amount_str = str(sell_amount)
 
-        # Convert network to EvmSwapsNetwork enum
+        # Normalize addresses
+        buy_address = buy_token.lower()
+        sell_address = sell_token.lower()
+        taker_address = taker.lower()
+
+        # Convert network to enum
         network_enum = EvmSwapsNetwork(network)
 
-        # Convert slippage percentage to basis points (1% = 100 bps)
-        slippage_bps = int(slippage_percentage * 100)
+        # Default slippage to 100 bps (1%) if not provided
+        if slippage_bps is None:
+            slippage_bps = 100
 
         # Create swap request
         request = CreateEvmSwapRequest(
             network=network_enum,
-            buy_token=to_address,
-            sell_token=from_address,
-            sell_amount=amount_str,
-            taker=wallet_address,
+            buy_token=buy_address,
+            sell_token=sell_address,
+            sell_amount=sell_amount_str,
+            taker=taker_address,
             slippage_bps=slippage_bps,
         )
 
-        # Create swap via API - use raw response to avoid oneOf deserialization issues
+        # Call API
         response = await self.api_clients.evm_swaps.create_evm_swap_without_preload_content(request)
 
-        # Read and parse the response manually
+        # Parse response
         import json
 
         raw_data = await response.read()
@@ -737,7 +787,7 @@ class EvmClient:
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON response from create swap API: {e}") from e
 
-        # Check if liquidity is available
+        # Check liquidity
         if not response_json.get("liquidityAvailable", False):
             raise ValueError("Swap unavailable: Insufficient liquidity")
 
@@ -752,27 +802,95 @@ class EvmClient:
         requires_signature = False
 
         if swap_data.permit2 and swap_data.permit2.eip712:
-            from cdp.actions.evm.swap.types import Permit2Data
-
-            # The eip712 field might be an EIP712Message object, convert to dict
+            # Convert eip712 to dict
             eip712_obj = swap_data.permit2.eip712
             if hasattr(eip712_obj, "to_dict"):
                 eip712_dict = eip712_obj.to_dict()
             elif hasattr(eip712_obj, "model_dump"):
                 eip712_dict = eip712_obj.model_dump()
             else:
-                # If it's already a dict or can be converted
                 eip712_dict = dict(eip712_obj) if not isinstance(eip712_obj, dict) else eip712_obj
 
             permit2_data = Permit2Data(eip712=eip712_dict, hash=swap_data.permit2.hash)
             requires_signature = True
 
-        # Convert response to SwapTransaction
-        return SwapTransaction(
+        # Generate quote ID
+        import hashlib
+
+        quote_id = hashlib.sha256(
+            f"{buy_token}:{sell_token}:{sell_amount_str}:{swap_data.buy_amount}:{network}".encode()
+        ).hexdigest()[:16]
+
+        # Convert to SwapQuoteResult
+        return SwapQuoteResult(
+            quote_id=quote_id,
+            buy_token=buy_token,
+            sell_token=sell_token,
+            buy_amount=swap_data.buy_amount,
+            sell_amount=sell_amount_str,
+            min_buy_amount=swap_data.min_buy_amount,
             to=tx_data.to,
             data=tx_data.data,
-            value=int(tx_data.value) if tx_data.value else 0,
-            transaction=None,  # Raw transaction not provided in the response
+            value=tx_data.value if tx_data.value else "0",
+            gas_limit=int(tx_data.gas) if hasattr(tx_data, "gas") and tx_data.gas else None,
+            gas_price=tx_data.gas_price if hasattr(tx_data, "gas_price") else None,
+            max_fee_per_gas=tx_data.max_fee_per_gas
+            if hasattr(tx_data, "max_fee_per_gas")
+            else None,
+            max_priority_fee_per_gas=tx_data.max_priority_fee_per_gas
+            if hasattr(tx_data, "max_priority_fee_per_gas")
+            else None,
+            network=network,
             permit2_data=permit2_data,
             requires_signature=requires_signature,
+        )
+
+    async def createSwap(  # noqa: N802
+        self,
+        from_token: str,
+        to_token: str,
+        amount: str | int,
+        network: str,
+        wallet_address: str,
+        slippage_percentage: float = 1.0,
+    ) -> "SwapTransaction":
+        """Create a swap transaction (DEPRECATED).
+
+        DEPRECATED: Use create_swap() instead for OpenAPI-aligned field names.
+
+        Args:
+            from_token (str): The contract address of the token to swap from.
+            to_token (str): The contract address of the token to swap to.
+            amount (str | int): The amount to swap (in smallest unit or as string).
+            network (str): The network to create the swap on.
+            wallet_address (str): The wallet address that will execute the swap.
+            slippage_percentage (float): The maximum acceptable slippage percentage.
+
+        Returns:
+            SwapTransaction: The swap transaction data.
+
+        """
+        from cdp.actions.evm.swap.types import SwapTransaction
+
+        # Convert slippage percentage to basis points
+        slippage_bps = int(slippage_percentage * 100)
+
+        # Call the new create_swap method
+        quote_result = await self.create_swap(
+            buy_token=to_token,
+            sell_token=from_token,
+            sell_amount=amount,
+            network=network,
+            taker=wallet_address,
+            slippage_bps=slippage_bps,
+        )
+
+        # Convert SwapQuoteResult to SwapTransaction
+        return SwapTransaction(
+            to=quote_result.to,
+            data=quote_result.data,
+            value=int(quote_result.value),
+            transaction=None,
+            permit2_data=quote_result.permit2_data,
+            requires_signature=quote_result.requires_signature,
         )

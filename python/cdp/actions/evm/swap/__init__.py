@@ -1,21 +1,31 @@
-"""Swap action module for EVM accounts."""
+"""EVM swap functionality."""
 
-from cdp.actions.evm.swap.account_swap_strategy import AccountSwapStrategy
+from cdp.actions.evm.swap.account_swap_strategy import (
+    AccountSwapStrategy,
+    account_swap_strategy,
+)
 from cdp.actions.evm.swap.swap import swap
 from cdp.actions.evm.swap.types import (
-    CreateSwapOptions,
-    CreateSwapResult,
+    Permit2Data,
     SwapOptions,
+    SwapParams,
     SwapQuote,
+    SwapQuoteResult,
     SwapResult,
+    SwapStrategy,
+    SwapTransaction,
 )
 
 __all__ = [
-    "swap",
-    "CreateSwapOptions",
-    "CreateSwapResult",
-    "SwapOptions",
-    "SwapQuote",
-    "SwapResult",
     "AccountSwapStrategy",
+    "Permit2Data",
+    "SwapOptions",
+    "SwapParams",
+    "SwapQuote",
+    "SwapQuoteResult",
+    "SwapResult",
+    "SwapStrategy",
+    "SwapTransaction",
+    "account_swap_strategy",
+    "swap",
 ]

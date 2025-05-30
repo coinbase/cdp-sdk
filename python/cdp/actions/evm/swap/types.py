@@ -9,25 +9,26 @@ from pydantic import BaseModel, Field, field_validator
 SUPPORTED_SWAP_NETWORKS = ["base", "ethereum"]
 
 
-class CreateSwapOptions(BaseModel):
-    """Options for creating a swap."""
+class SwapParams(BaseModel):
+    """Parameters for creating a swap, aligned with OpenAPI spec."""
 
-    from_token: str = Field(description="The contract address of the token to swap from")
-    to_token: str = Field(description="The contract address of the token to swap to")
-    amount: str | int = Field(description="The amount to swap (in smallest unit or as string)")
-    network: str = Field(description="The network to execute the swap on (base or ethereum only)")
-    slippage_percentage: float | None = Field(
-        default=0.5, description="Maximum slippage percentage (default: 0.5%)"
+    buy_token: str = Field(description="The contract address of the token to buy")
+    sell_token: str = Field(description="The contract address of the token to sell")
+    sell_amount: str | int = Field(description="The amount to sell (in smallest unit or as string)")
+    network: str = Field(description="The network to execute the swap on")
+    taker: str | None = Field(default=None, description="The address that will execute the swap")
+    slippage_bps: int | None = Field(
+        default=100, description="Maximum slippage in basis points (100 = 1%)"
     )
 
-    @field_validator("slippage_percentage")
+    @field_validator("slippage_bps")
     @classmethod
-    def validate_slippage(cls, v: float | None) -> float:
-        """Validate slippage percentage."""
+    def validate_slippage_bps(cls, v: int | None) -> int:
+        """Validate slippage basis points."""
         if v is None:
-            return 0.5
-        if v < 0 or v > 100:
-            raise ValueError("Slippage percentage must be between 0 and 100")
+            return 100  # 1% default
+        if v < 0 or v > 10000:
+            raise ValueError("Slippage basis points must be between 0 and 10000")
         return v
 
     @field_validator("network")
@@ -38,13 +39,13 @@ class CreateSwapOptions(BaseModel):
             raise ValueError(f"Network must be one of: {', '.join(SUPPORTED_SWAP_NETWORKS)}")
         return v
 
-    @field_validator("amount")
+    @field_validator("sell_amount")
     @classmethod
     def validate_amount(cls, v: str | int) -> str:
         """Validate and convert amount to string."""
         return str(v)
 
-    @field_validator("from_token", "to_token")
+    @field_validator("buy_token", "sell_token")
     @classmethod
     def validate_token_address(cls, v: str) -> str:
         """Validate token address format."""
@@ -52,15 +53,26 @@ class CreateSwapOptions(BaseModel):
             raise ValueError("Token address must be a valid Ethereum address (0x + 40 hex chars)")
         return v.lower()  # Normalize to lowercase
 
+    @field_validator("taker")
+    @classmethod
+    def validate_taker_address(cls, v: str | None) -> str | None:
+        """Validate taker address format."""
+        if v is None:
+            return None
+        if not v.startswith("0x") or len(v) != 42:
+            raise ValueError("Taker address must be a valid Ethereum address (0x + 40 hex chars)")
+        return v.lower()  # Normalize to lowercase
 
-class CreateSwapResult(BaseModel):
-    """Result from createSwap API call."""
+
+class SwapQuoteResult(BaseModel):
+    """Result from create_swap API call containing quote and transaction data."""
 
     quote_id: str = Field(description="The quote ID from the swap service")
-    from_token: str = Field(description="The token address being swapped from")
-    to_token: str = Field(description="The token address being swapped to")
-    from_amount: str = Field(description="The amount being swapped")
-    to_amount: str = Field(description="The expected amount to receive")
+    buy_token: str = Field(description="The token address being bought")
+    sell_token: str = Field(description="The token address being sold")
+    buy_amount: str = Field(description="The expected amount to receive")
+    sell_amount: str = Field(description="The amount being sold")
+    min_buy_amount: str = Field(description="The minimum amount to receive after slippage")
     to: str = Field(description="The contract address to send the transaction to")
     data: str = Field(description="The transaction data")
     value: str = Field(description="The transaction value in wei")
@@ -70,39 +82,41 @@ class CreateSwapResult(BaseModel):
     max_priority_fee_per_gas: str | None = Field(
         default=None, description="Max priority fee per gas for EIP-1559"
     )
+    network: str = Field(description="The network for this swap")
+    permit2_data: Any | None = Field(default=None, description="Permit2 signature data if required")
+    requires_signature: bool = Field(
+        default=False, description="Whether Permit2 signature is needed"
+    )
 
 
 class SwapOptions(BaseModel):
     """Options for executing a swap.
 
-    Either create_swap_options or create_swap_result must be provided, but not both.
-
-    - If create_swap_options is provided, the SDK will call createSwap under the hood
-    - If create_swap_result is provided, the SDK will use the pre-created swap data
+    This supports multiple patterns:
+    1. swap_params: New OpenAPI-aligned parameters
+    2. swap_quote_result: Pre-created swap quote from create_swap
     """
 
-    create_swap_options: CreateSwapOptions | None = Field(
-        default=None, description="Options to create a swap (SDK will call createSwap)"
-    )
-    create_swap_result: CreateSwapResult | None = Field(
-        default=None, description="Pre-created swap result from calling createSwap"
-    )
-
-    @field_validator("create_swap_result")
-    @classmethod
-    def validate_mutually_exclusive(cls, v, info):
-        """Ensure only one of create_swap_options or create_swap_result is provided."""
-        if v is not None and info.data.get("create_swap_options") is not None:
-            raise ValueError(
-                "Only one of create_swap_options or create_swap_result can be provided"
-            )
-        return v
+    swap_params: SwapParams | None = None
+    swap_quote_result: SwapQuoteResult | None = None
 
     def __init__(self, **data):
         """Initialize SwapOptions with validation."""
         super().__init__(**data)
-        if self.create_swap_options is None and self.create_swap_result is None:
-            raise ValueError("Either create_swap_options or create_swap_result must be provided")
+
+        # Count how many options are provided
+        options_count = sum(
+            x is not None
+            for x in [
+                self.swap_params,
+                self.swap_quote_result,
+            ]
+        )
+
+        if options_count == 0:
+            raise ValueError("One of swap_params or swap_quote_result must be provided")
+        elif options_count > 1:
+            raise ValueError("Only one of swap_params or swap_quote_result can be provided")
 
 
 class SwapQuote(BaseModel):
@@ -118,23 +132,21 @@ class SwapQuote(BaseModel):
 
 
 class Permit2Data(BaseModel):
-    """Permit2 signature data for ERC20 token swaps."""
+    """Permit2 signature data for token swaps."""
 
     eip712: dict[str, Any] = Field(description="EIP-712 typed data to sign")
-    hash: str = Field(description="Hash of the Permit2 message")
+    hash: str = Field(description="The hash of the permit data")
 
 
 class SwapTransaction(BaseModel):
-    """A swap transaction ready to be signed and sent."""
+    """A swap transaction ready to be sent."""
 
     to: str = Field(description="The contract address to send the transaction to")
-    data: str = Field(description="The transaction data (calldata)")
-    value: int = Field(description="The amount of ETH to send with the transaction (in wei)")
-    transaction: str | None = Field(default=None, description="The raw transaction if available")
+    data: str = Field(description="The transaction data")
+    value: int = Field(description="The transaction value in wei")
+    transaction: Any | None = Field(default=None, description="The raw transaction object")
     permit2_data: Permit2Data | None = Field(default=None, description="Permit2 data if required")
-    requires_signature: bool = Field(
-        default=False, description="Whether the transaction requires a Permit2 signature"
-    )
+    requires_signature: bool = Field(default=False, description="Whether signature is required")
 
 
 class SwapResult(BaseModel):
@@ -156,16 +168,18 @@ class SwapStrategy(Protocol):
         self,
         api_clients: Any,
         from_account: BaseAccount,
-        swap_options: SwapOptions,
-        quote: SwapQuote,
+        swap_data: SwapQuoteResult,
+        network: str | None = None,
+        permit2_signature: str | None = None,
     ) -> SwapResult:
         """Execute a swap using the strategy.
 
         Args:
             api_clients: The API clients instance
             from_account: The account to swap from
-            swap_options: The swap options
-            quote: The swap quote
+            swap_data: The swap data
+            network: The network to execute on
+            permit2_signature: Optional Permit2 signature
 
         Returns:
             SwapResult: The result of the swap

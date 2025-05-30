@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from cdp.actions.evm.swap.types import SwapQuote, SwapTransaction
+from cdp.actions.evm.swap.types import SwapQuote, SwapQuoteResult
 from cdp.api_clients import ApiClients
 from cdp.evm_client import EvmClient
 
@@ -167,22 +167,25 @@ class TestCreateSwap:
         )
 
         # Create swap
-        swap_tx = await evm_client.create_swap(
-            from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-            to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-            amount="1000000000000000000",
+        swap_quote = await evm_client.create_swap(
+            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            sell_amount="1000000000000000000",
             network="base",
-            wallet_address="0x9876543210987654321098765432109876543210",
-            slippage_percentage=1.0,
+            taker="0x9876543210987654321098765432109876543210",
+            slippage_bps=100,  # 1%
         )
 
         # Verify
-        assert isinstance(swap_tx, SwapTransaction)
-        assert swap_tx.to == "0x1234567890123456789012345678901234567890"
-        assert swap_tx.data == "0xabcdef"
-        assert swap_tx.value == 1000000000000000000
-        assert not swap_tx.requires_signature
-        assert swap_tx.permit2_data is None
+        assert isinstance(swap_quote, SwapQuoteResult)
+        assert swap_quote.to == "0x1234567890123456789012345678901234567890"
+        assert swap_quote.data == "0xabcdef"
+        assert swap_quote.value == "1000000000000000000"
+        assert swap_quote.buy_amount == "2000000000"
+        assert swap_quote.sell_amount == "1000000000000000000"
+        assert swap_quote.min_buy_amount == "1980000000"
+        assert not swap_quote.requires_signature
+        assert swap_quote.permit2_data is None
 
     @pytest.mark.asyncio
     async def test_create_swap_token_to_token_with_permit2(self, evm_client, mock_api_clients):
@@ -229,19 +232,19 @@ class TestCreateSwap:
         )
 
         # Create swap
-        swap_tx = await evm_client.create_swap(
-            from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-            to_token="0x4200000000000000000000000000000000000006",  # WETH
-            amount="1000000000",
+        swap_quote = await evm_client.create_swap(
+            sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            buy_token="0x4200000000000000000000000000000000000006",  # WETH
+            sell_amount="1000000000",
             network="base",
-            wallet_address="0x9876543210987654321098765432109876543210",
+            taker="0x9876543210987654321098765432109876543210",
         )
 
         # Verify
-        assert swap_tx.requires_signature
-        assert swap_tx.permit2_data is not None
-        assert swap_tx.permit2_data.hash == "0x" + "a" * 64
-        assert swap_tx.value == 0
+        assert swap_quote.requires_signature
+        assert swap_quote.permit2_data is not None
+        assert swap_quote.permit2_data.hash == "0x" + "a" * 64
+        assert swap_quote.value == "0"
 
     @pytest.mark.asyncio
     async def test_create_swap_custom_slippage(self, evm_client, mock_api_clients):
@@ -276,12 +279,12 @@ class TestCreateSwap:
 
         # Create swap with 2.5% slippage
         await evm_client.create_swap(
-            from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-            to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-            amount="1000000000000000000",
+            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            sell_amount="1000000000000000000",
             network="ethereum",
-            wallet_address="0x9876543210987654321098765432109876543210",
-            slippage_percentage=2.5,
+            taker="0x9876543210987654321098765432109876543210",
+            slippage_bps=250,  # 2.5%
         )
 
         # Verify slippage was converted to basis points (250)
@@ -302,11 +305,11 @@ class TestCreateSwap:
         # Should raise error
         with pytest.raises(ValueError, match="Invalid JSON response"):
             await evm_client.create_swap(
-                from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-                to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                amount="1000000000000000000",
+                sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                sell_amount="1000000000000000000",
                 network="base",
-                wallet_address="0x9876543210987654321098765432109876543210",
+                taker="0x9876543210987654321098765432109876543210",
             )
 
     @pytest.mark.asyncio
@@ -322,9 +325,9 @@ class TestCreateSwap:
         # Should raise error
         with pytest.raises(ValueError, match="Empty response"):
             await evm_client.create_swap(
-                from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-                to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                amount="1000000000000000000",
+                sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                sell_amount="1000000000000000000",
                 network="base",
-                wallet_address="0x9876543210987654321098765432109876543210",
+                taker="0x9876543210987654321098765432109876543210",
             )
