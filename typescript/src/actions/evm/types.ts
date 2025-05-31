@@ -12,12 +12,26 @@ import { Hex } from "../../types/misc.js";
 
 import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTokenBalances.js";
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
+import type {
+  SendSwapTransactionOptions,
+  SendSwapTransactionResult,
+} from "./sendSwapTransaction.js";
 import type { SendTransactionOptions, TransactionResult } from "./sendTransaction.js";
 import type { TransferOptions } from "./transfer/types.js";
 import type {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "./waitForUserOperation.js";
+
+/**
+ * Options for executing a token swap.
+ */
+export type SwapOptions = Omit<SendSwapTransactionOptions, "address">;
+
+/**
+ * Result of executing a token swap.
+ */
+export type SwapResult = SendSwapTransactionResult;
 
 type Actions = {
   /**
@@ -249,6 +263,61 @@ export type AccountActions = Actions & {
    * ```
    */
   sendTransaction: (options: Omit<SendTransactionOptions, "address">) => Promise<TransactionResult>;
+
+  /**
+   * Executes a token swap on the specified network.
+   * This method handles all the steps required for a swap, including Permit2 signatures if needed.
+   *
+   * @param {SwapOptions} options - Configuration options for the swap.
+   * @param {string} [options.network] - The network to execute the swap on
+   * @param {CreateSwapQuoteResult} [options.swapQuote] - The swap quote returned by the createSwapQuote method.
+   * @param {CreateSwapQuoteOptions} [options.swapOptions] - Options to create a swap quote. The function will call createSwapQuote internally.
+   * @param {string} [options.idempotencyKey] - Optional idempotency key for the request.
+   *
+   * @returns A promise that resolves to the transaction hash.
+   *
+   * @throws {Error} If liquidity is not available when using swapOptions.
+   *
+   * @example **Using a pre-created swap quote**
+   * ```ts
+   * // First create a swap quote
+   * const swapQuote = await cdp.evm.createSwapQuote({
+   *   network: "base",
+   *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+   *   taker: account.address
+   * });
+   *
+   * // Check if liquidity is available
+   * if (!swapQuote.liquidityAvailable) {
+   *   console.error("Insufficient liquidity for swap");
+   *   return;
+   * }
+   *
+   * // Execute the swap
+   * const { transactionHash } = await account.swap({
+   *   swapQuote: swapQuote
+   * });
+   *
+   * console.log(`Swap executed with transaction hash: ${transactionHash}`);
+   * ```
+   *
+   * @example **Using swap options (all-in-one)**
+   * ```ts
+   * // Create and execute swap in one call
+   * const { transactionHash } = await account.swap({
+   *   network: "base",
+   *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+   *   taker: account.address
+   * });
+   *
+   * console.log(`Swap executed with transaction hash: ${transactionHash}`);
+   * ```
+   */
+  swap: (options: SwapOptions) => Promise<SwapResult>;
 };
 
 export type SmartAccountActions = Actions & {

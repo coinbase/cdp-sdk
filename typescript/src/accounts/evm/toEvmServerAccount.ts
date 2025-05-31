@@ -19,15 +19,18 @@ import {
   type RequestFaucetOptions,
   type RequestFaucetResult,
 } from "../../actions/evm/requestFaucet.js";
+import { sendSwapTransaction } from "../../actions/evm/sendSwapTransaction.js";
 import { sendTransaction } from "../../actions/evm/sendTransaction.js";
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 
 import type { EvmServerAccount } from "./types.js";
+import type { SendSwapTransactionOptions } from "../../actions/evm/sendSwapTransaction.js";
 import type {
   SendTransactionOptions,
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
+import type { SwapOptions, SwapResult } from "../../actions/evm/types.js";
 import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
 import type { Address, EIP712Message, Hash, Hex } from "../../types/misc.js";
 
@@ -120,6 +123,12 @@ export function toEvmServerAccount(
       options: WaitForFundOperationOptions,
     ): Promise<WaitForFundOperationResult> {
       return waitForFundOperationReceipt(apiClient, options);
+    },
+    async swap(options: SwapOptions): Promise<SwapResult> {
+      return sendSwapTransaction(apiClient, {
+        ...options,
+        address: this.address,
+      } as SendSwapTransactionOptions);
     },
     name: options.account.name,
     type: "evm-server",
