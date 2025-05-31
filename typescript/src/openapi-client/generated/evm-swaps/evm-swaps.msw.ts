@@ -23,8 +23,8 @@ export const getGetEvmSwapPriceResponseGetSwapPriceResponseMock = (
   ...{
     ...{
       blockNumber: faker.helpers.fromRegExp("^[1-9]\d*$"),
-      buyAmount: faker.helpers.fromRegExp("^(0|[1-9]\d*)$"),
-      buyToken: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
+      toAmount: faker.helpers.fromRegExp("^(0|[1-9]\d*)$"),
+      toToken: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
       fees: {
         gasFee: {
           ...{
@@ -52,9 +52,9 @@ export const getGetEvmSwapPriceResponseGetSwapPriceResponseMock = (
         simulationIncomplete: faker.datatype.boolean(),
       },
       liquidityAvailable: faker.datatype.boolean(),
-      minBuyAmount: faker.helpers.fromRegExp("^(0|[1-9]\d*)$"),
-      sellAmount: faker.helpers.fromRegExp("^(0|[1-9]\d*)$"),
-      sellToken: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
+      minToAmount: faker.helpers.fromRegExp("^(0|[1-9]\d*)$"),
+      fromAmount: faker.helpers.fromRegExp("^(0|[1-9]\d*)$"),
+      fromToken: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
     },
     ...{
       gas: faker.helpers.arrayElement([faker.helpers.fromRegExp("^\d+$"), null]),
@@ -116,8 +116,8 @@ export const getCreateEvmSwapQuoteResponseCreateSwapQuoteResponseMock = (
     },
     ...{
       blockNumber: faker.helpers.fromRegExp("^[1-9]\d*$"),
-      buyAmount: faker.helpers.fromRegExp("^(0|[1-9]\d*)$"),
-      buyToken: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
+      toAmount: faker.helpers.fromRegExp("^(0|[1-9]\d*)$"),
+      toToken: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
       fees: {
         gasFee: {
           ...{
@@ -145,9 +145,9 @@ export const getCreateEvmSwapQuoteResponseCreateSwapQuoteResponseMock = (
         simulationIncomplete: faker.datatype.boolean(),
       },
       liquidityAvailable: faker.datatype.boolean(),
-      minBuyAmount: faker.helpers.fromRegExp("^(0|[1-9]\d*)$"),
-      sellAmount: faker.helpers.fromRegExp("^(0|[1-9]\d*)$"),
-      sellToken: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
+      minToAmount: faker.helpers.fromRegExp("^(0|[1-9]\d*)$"),
+      fromAmount: faker.helpers.fromRegExp("^(0|[1-9]\d*)$"),
+      fromToken: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
     },
   },
   ...overrideResponse,

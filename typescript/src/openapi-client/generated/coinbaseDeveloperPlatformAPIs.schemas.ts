@@ -204,25 +204,25 @@ export const EvmSwapsNetwork = {
 } as const;
 
 /**
- * The 0x-prefixed contract address of the token to buy.
+ * The 0x-prefixed contract address of the token to receive.
  * @pattern ^0x[a-fA-F0-9]{40}$
  */
-export type BuyToken = string;
+export type ToToken = string;
 
 /**
- * The 0x-prefixed contract address of the token to sell.
+ * The 0x-prefixed contract address of the token to send.
  * @pattern ^0x[a-fA-F0-9]{40}$
  */
-export type SellToken = string;
+export type FromToken = string;
 
 /**
- * The amount of the `sellToken` to sell in atomic units of the token. For example, `1000000000000000000` when selling ETH equates to 1 ETH, `1000000` when selling USDC equates to 1 USDC, etc.
+ * The amount of the `fromToken` to send in atomic units of the token. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
  * @pattern ^\d+$
  */
-export type SellAmount = string;
+export type FromAmount = string;
 
 /**
- * The 0x-prefixed address that holds the `sellToken` balance and has the `Permit2` allowance set for the swap.
+ * The 0x-prefixed address that holds the `fromToken` balance and has the `Permit2` allowance set for the swap.
  * @pattern ^0x[a-fA-F0-9]{40}$
  */
 export type Taker = string;
@@ -240,7 +240,7 @@ export type SignerAddress = string;
 export type GasPrice = string;
 
 /**
- * The maximum acceptable slippage of the `buyToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
+ * The maximum acceptable slippage of the `toToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
  * @minimum 0
  * @maximum 10000
  */
@@ -293,7 +293,7 @@ export type CommonSwapResponseFees = {
  */
 export type CommonSwapResponseIssuesAllowance = {
   /**
-   * The current allowance of the `sellToken` by the `taker`.
+   * The current allowance of the `fromToken` by the `taker`.
    * @pattern ^\d+$
    */
   currentAllowance: string;
@@ -305,7 +305,7 @@ export type CommonSwapResponseIssuesAllowance = {
 } | null;
 
 /**
- * Details of the balance of the `sellToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
+ * Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
  * @nullable
  */
 export type CommonSwapResponseIssuesBalance = {
@@ -315,7 +315,7 @@ export type CommonSwapResponseIssuesBalance = {
    */
   token: string;
   /**
-   * The current balance of the `sellToken` by the `taker`.
+   * The current balance of the `fromToken` by the `taker`.
    * @pattern ^\d+$
    */
   currentBalance: string;
@@ -336,11 +336,11 @@ export type CommonSwapResponseIssues = {
    */
   allowance: CommonSwapResponseIssuesAllowance;
   /**
-   * Details of the balance of the `sellToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
+   * Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
    * @nullable
    */
   balance: CommonSwapResponseIssuesBalance;
-  /** This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `sellToken`. Note that this does not necessarily mean that the trade will revert. */
+  /** This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `fromToken`. Note that this does not necessarily mean that the trade will revert. */
   simulationIncomplete: boolean;
 };
 
@@ -351,15 +351,15 @@ export interface CommonSwapResponse {
    */
   blockNumber: string;
   /**
-   * The amount of the `buyToken` that will be received in atomic units of the `buyToken`. For example, `1000000000000000000` when buying ETH equates to 1 ETH, `1000000` when buying USDC equates to 1 USDC, etc.
+   * The amount of the `toToken` that will be received in atomic units of the `toToken`. For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc.
    * @pattern ^(0|[1-9]\d*)$
    */
-  buyAmount: string;
+  toAmount: string;
   /**
-   * The 0x-prefixed contract address of the token that will be bought.
+   * The 0x-prefixed contract address of the token that will be received.
    * @pattern ^0x[a-fA-F0-9]{40}$
    */
-  buyToken: string;
+  toToken: string;
   /** The estimated fees for the swap. */
   fees: CommonSwapResponseFees;
   /** An object containing potential issues discovered during validation that could prevent the swap from being executed successfully. */
@@ -367,20 +367,20 @@ export interface CommonSwapResponse {
   /** Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false. */
   liquidityAvailable: boolean;
   /**
-   * The minimum amount of the `buyToken` that must be received for the swap to succeed, in atomic units of the `buyToken`.  For example, `1000000000000000000` when buying ETH equates to 1 ETH, `1000000` when buying USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.
+   * The minimum amount of the `toToken` that must be received for the swap to succeed, in atomic units of the `toToken`.  For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.
    * @pattern ^(0|[1-9]\d*)$
    */
-  minBuyAmount: string;
+  minToAmount: string;
   /**
-   * The amount of the `sellToken` that will be sold in this swap, in atomic units of the `sellToken`. For example, `1000000000000000000` when selling ETH equates to 1 ETH, `1000000` when selling USDC equates to 1 USDC, etc.
+   * The amount of the `fromToken` that will be sent in this swap, in atomic units of the `fromToken`. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
    * @pattern ^(0|[1-9]\d*)$
    */
-  sellAmount: string;
+  fromAmount: string;
   /**
-   * The 0x-prefixed contract address of the token that will be sold.
+   * The 0x-prefixed contract address of the token that will be sent.
    * @pattern ^0x[a-fA-F0-9]{40}$
    */
-  sellToken: string;
+  fromToken: string;
 }
 
 export type GetSwapPriceResponseAllOf = {
@@ -410,7 +410,7 @@ export interface SwapUnavailableResponse {
 export type GetSwapPriceResponseWrapper = GetSwapPriceResponse | SwapUnavailableResponse;
 
 /**
- * The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `sellToken` is the native token or the transaction is a native token wrap / unwrap.
+ * The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `fromToken` is the native token or the transaction is a native token wrap / unwrap.
  * @nullable
  */
 export type CreateSwapQuoteResponseAllOfPermit2 = {
@@ -452,7 +452,7 @@ export type CreateSwapQuoteResponseAllOfTransaction = {
 
 export type CreateSwapQuoteResponseAllOf = {
   /**
-   * The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `sellToken` is the native token or the transaction is a native token wrap / unwrap.
+   * The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `fromToken` is the native token or the transaction is a native token wrap / unwrap.
    * @nullable
    */
   permit2: CreateSwapQuoteResponseAllOfPermit2;
@@ -1294,9 +1294,9 @@ export type SendUserOperationBody = {
 
 export type GetEvmSwapPriceParams = {
   network: EvmSwapsNetwork;
-  buyToken: BuyToken;
-  sellToken: SellToken;
-  sellAmount: SellAmount;
+  toToken: ToToken;
+  fromToken: FromToken;
+  fromAmount: FromAmount;
   taker: Taker;
   signerAddress?: SignerAddress;
   gasPrice?: GasPrice;
@@ -1306,22 +1306,22 @@ export type GetEvmSwapPriceParams = {
 export type CreateEvmSwapQuoteBody = {
   network: EvmSwapsNetwork;
   /**
-   * The 0x-prefixed contract address of the token to buy.
+   * The 0x-prefixed contract address of the token to receive.
    * @pattern ^0x[a-fA-F0-9]{40}$
    */
-  buyToken: string;
+  toToken: string;
   /**
-   * The 0x-prefixed contract address of the token to sell.
+   * The 0x-prefixed contract address of the token to send.
    * @pattern ^0x[a-fA-F0-9]{40}$
    */
-  sellToken: string;
+  fromToken: string;
   /**
-   * The amount of the `sellToken` to sell in atomic units of the token. For example, `1000000000000000000` when selling ETH equates to 1 ETH, `1000000` when selling USDC equates to 1 USDC, etc.
+   * The amount of the `fromToken` to send in atomic units of the token. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
    * @pattern ^\d+$
    */
-  sellAmount: string;
+  fromAmount: string;
   /**
-   * The 0x-prefixed address that holds the `sellToken` balance and has the `Permit2` allowance set for the swap.
+   * The 0x-prefixed address that holds the `fromToken` balance and has the `Permit2` allowance set for the swap.
    * @pattern ^0x[a-fA-F0-9]{40}$
    */
   taker: string;
@@ -1336,7 +1336,7 @@ export type CreateEvmSwapQuoteBody = {
    */
   gasPrice?: string;
   /**
-   * The maximum acceptable slippage of the `buyToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
+   * The maximum acceptable slippage of the `toToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
    * @minimum 0
    * @maximum 10000
    */

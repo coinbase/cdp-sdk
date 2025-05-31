@@ -25,9 +25,9 @@ import { Address, Hex } from "../../types/misc.js";
  * ```ts
  * const swapQuote = await createSwapQuote(client, {
  *   network: "ethereum",
- *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
- *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
- *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+ *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+ *   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+ *   fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
  *   taker: "0x1234567890123456789012345678901234567890"
  * });
  * ```
@@ -39,9 +39,9 @@ export async function createSwapQuote(
   // Call the createEvmSwapQuote function directly with the client's configured API
   const response = await client.createEvmSwapQuote({
     network: options.network,
-    buyToken: options.buyToken,
-    sellToken: options.sellToken,
-    sellAmount: options.sellAmount.toString(),
+    toToken: options.toToken,
+    fromToken: options.fromToken,
+    fromAmount: options.fromAmount.toString(),
     taker: options.taker,
     signerAddress: options.signerAddress,
     gasPrice: options.gasPrice?.toString(),
@@ -61,11 +61,11 @@ export async function createSwapQuote(
   const result: CreateSwapQuoteResult = {
     liquidityAvailable: true,
     network: options.network,
-    buyToken: swapResponse.buyToken as Address,
-    sellToken: swapResponse.sellToken as Address,
-    sellAmount: BigInt(swapResponse.sellAmount),
-    buyAmount: BigInt(swapResponse.buyAmount),
-    minBuyAmount: BigInt(swapResponse.minBuyAmount),
+    toToken: swapResponse.toToken as Address,
+    fromToken: swapResponse.fromToken as Address,
+    fromAmount: BigInt(swapResponse.fromAmount),
+    toAmount: BigInt(swapResponse.toAmount),
+    minToAmount: BigInt(swapResponse.minToAmount),
     blockNumber: BigInt(swapResponse.blockNumber),
     fees: {
       gasFee: swapResponse.fees.gasFee

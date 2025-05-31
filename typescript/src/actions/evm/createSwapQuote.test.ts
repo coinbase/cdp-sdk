@@ -36,9 +36,9 @@ describe("createSwapQuote", () => {
 
     const result = (await createSwapQuote(mockClient, {
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
     })) as SwapUnavailableResult;
 
@@ -49,8 +49,8 @@ describe("createSwapQuote", () => {
   it("should successfully return a transformed swap quote when liquidity is available", async () => {
     const mockResponse: CreateSwapQuoteResponse = {
       blockNumber: "12345678",
-      buyAmount: "5000000000",
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      toAmount: "5000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       fees: {
         gasFee: {
           amount: "1000000",
@@ -74,9 +74,9 @@ describe("createSwapQuote", () => {
         simulationIncomplete: false,
       },
       liquidityAvailable: true,
-      minBuyAmount: "4950000000",
-      sellAmount: "1000000000000000000",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      minToAmount: "4950000000",
+      fromAmount: "1000000000000000000",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       permit2: {
         hash: "0xpermit2hash",
         eip712: {
@@ -118,17 +118,17 @@ describe("createSwapQuote", () => {
 
     const result = await createSwapQuote(mockClient, {
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
     });
 
     expect(mockClient.createEvmSwapQuote).toHaveBeenCalledWith({
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: "1000000000000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: "1000000000000000000",
       taker: "0x1234567890123456789012345678901234567890",
       signerAddress: undefined,
       gasPrice: undefined,
@@ -146,11 +146,11 @@ describe("createSwapQuote", () => {
 
     // Check transformed values
     expect(swapResult.blockNumber).toBe(BigInt("12345678"));
-    expect(swapResult.buyAmount).toBe(BigInt("5000000000"));
-    expect(swapResult.buyToken).toBe("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48");
-    expect(swapResult.sellAmount).toBe(BigInt("1000000000000000000"));
-    expect(swapResult.sellToken).toBe("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2");
-    expect(swapResult.minBuyAmount).toBe(BigInt("4950000000"));
+    expect(swapResult.toAmount).toBe(BigInt("5000000000"));
+    expect(swapResult.toToken).toBe("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48");
+    expect(swapResult.fromAmount).toBe(BigInt("1000000000000000000"));
+    expect(swapResult.fromToken).toBe("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2");
+    expect(swapResult.minToAmount).toBe(BigInt("4950000000"));
     expect(swapResult.gas).toBe(BigInt("250000"));
     expect(swapResult.gasPrice).toBe(BigInt("20000000000"));
 
@@ -197,13 +197,13 @@ describe("createSwapQuote", () => {
     mockClient.createEvmSwapQuote = vi.fn().mockResolvedValue({
       liquidityAvailable: true,
       blockNumber: "12345678",
-      buyAmount: "5000000000",
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      toAmount: "5000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       fees: { gasFee: null, protocolFee: null },
       issues: { allowance: null, balance: null, simulationIncomplete: false },
-      minBuyAmount: "4950000000",
-      sellAmount: "1000000000000000000",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      minToAmount: "4950000000",
+      fromAmount: "1000000000000000000",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       permit2: null,
       transaction: {
         to: "0xRouterAddress",
@@ -216,9 +216,9 @@ describe("createSwapQuote", () => {
 
     await createSwapQuote(mockClient, {
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
       signerAddress: "0xSignerAddress",
       gasPrice: BigInt("25000000000"),
@@ -227,9 +227,9 @@ describe("createSwapQuote", () => {
 
     expect(mockClient.createEvmSwapQuote).toHaveBeenCalledWith({
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: "1000000000000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: "1000000000000000000",
       taker: "0x1234567890123456789012345678901234567890",
       signerAddress: "0xSignerAddress",
       gasPrice: "25000000000",
@@ -240,8 +240,8 @@ describe("createSwapQuote", () => {
   it("should handle null fields in the response", async () => {
     const mockResponse: CreateSwapQuoteResponse = {
       blockNumber: "12345678",
-      buyAmount: "5000000000",
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      toAmount: "5000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       fees: { gasFee: null, protocolFee: null },
       issues: {
         allowance: null,
@@ -249,9 +249,9 @@ describe("createSwapQuote", () => {
         simulationIncomplete: false,
       },
       liquidityAvailable: true,
-      minBuyAmount: "4950000000",
-      sellAmount: "1000000000000000000",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      minToAmount: "4950000000",
+      fromAmount: "1000000000000000000",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       permit2: null,
       transaction: {
         to: "0xRouterAddress",
@@ -266,9 +266,9 @@ describe("createSwapQuote", () => {
 
     const result = await createSwapQuote(mockClient, {
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
     });
 
@@ -292,14 +292,14 @@ describe("createSwapQuote", () => {
   it("should add an execute method to the result when liquidity is available", async () => {
     const mockResponse: CreateSwapQuoteResponse = {
       blockNumber: "12345678",
-      buyAmount: "5000000000",
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      toAmount: "5000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       fees: { gasFee: null, protocolFee: null },
       issues: { allowance: null, balance: null, simulationIncomplete: false },
       liquidityAvailable: true,
-      minBuyAmount: "4950000000",
-      sellAmount: "1000000000000000000",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      minToAmount: "4950000000",
+      fromAmount: "1000000000000000000",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       permit2: null,
       transaction: {
         to: "0xRouterAddress",
@@ -314,9 +314,9 @@ describe("createSwapQuote", () => {
 
     const result = await createSwapQuote(mockClient, {
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
     });
 
@@ -336,7 +336,7 @@ describe("createSwapQuote", () => {
     const swapResponse = await swapResult.execute({
       idempotencyKey: "test-key",
     });
-    
+
     // Verify sendSwapTransaction was called with correct parameters
     expect(sendSwapTransaction).toHaveBeenCalledWith(mockClient, {
       address: "0x1234567890123456789012345678901234567890", // This is the taker address
@@ -354,14 +354,14 @@ describe("createSwapQuote", () => {
   it("should call execute method without idempotency key", async () => {
     const mockResponse: CreateSwapQuoteResponse = {
       blockNumber: "12345678",
-      buyAmount: "5000000000",
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      toAmount: "5000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       fees: { gasFee: null, protocolFee: null },
       issues: { allowance: null, balance: null, simulationIncomplete: false },
       liquidityAvailable: true,
-      minBuyAmount: "4950000000",
-      sellAmount: "1000000000000000000",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      minToAmount: "4950000000",
+      fromAmount: "1000000000000000000",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       permit2: null,
       transaction: {
         to: "0xRouterAddress",
@@ -376,14 +376,14 @@ describe("createSwapQuote", () => {
 
     const result = await createSwapQuote(mockClient, {
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
     });
 
     const swapResult = result as CreateSwapQuoteResult;
-    
+
     // Mock the sendSwapTransaction response
     const mockTransactionHash = "0xmocktransactionhash" as Hex;
     (sendSwapTransaction as any).mockResolvedValue({
@@ -392,7 +392,7 @@ describe("createSwapQuote", () => {
 
     // Call execute without options
     await swapResult.execute({});
-    
+
     // Verify sendSwapTransaction was called without idempotencyKey
     expect(sendSwapTransaction).toHaveBeenCalledWith(mockClient, {
       address: "0x1234567890123456789012345678901234567890", // This is the taker address
@@ -405,14 +405,14 @@ describe("createSwapQuote", () => {
   it("should use signerAddress when provided in createSwapQuote", async () => {
     const mockResponse: CreateSwapQuoteResponse = {
       blockNumber: "12345678",
-      buyAmount: "5000000000",
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      toAmount: "5000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       fees: { gasFee: null, protocolFee: null },
       issues: { allowance: null, balance: null, simulationIncomplete: false },
       liquidityAvailable: true,
-      minBuyAmount: "4950000000",
-      sellAmount: "1000000000000000000",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      minToAmount: "4950000000",
+      fromAmount: "1000000000000000000",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       permit2: null,
       transaction: {
         to: "0xRouterAddress",
@@ -429,15 +429,15 @@ describe("createSwapQuote", () => {
     const signerAddress = "0xabcdef1234567890abcdef1234567890abcdef12";
     const result = await createSwapQuote(mockClient, {
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: BigInt("1000000000000000000"),
       taker: takerAddress,
       signerAddress: signerAddress,
     });
 
     const swapResult = result as CreateSwapQuoteResult;
-    
+
     // Mock the sendSwapTransaction response
     const mockTransactionHash = "0xmocktransactionhash" as Hex;
     (sendSwapTransaction as any).mockResolvedValue({
@@ -446,7 +446,7 @@ describe("createSwapQuote", () => {
 
     // Call execute
     await swapResult.execute({});
-    
+
     // Verify sendSwapTransaction was called with the signerAddress, not taker
     expect(sendSwapTransaction).toHaveBeenCalledWith(mockClient, {
       address: signerAddress,

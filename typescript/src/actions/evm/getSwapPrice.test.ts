@@ -1,11 +1,11 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { getSwapPrice } from "./getSwapPrice.js";
 import { GetSwapPriceResult, SwapUnavailableResult } from "../../client/evm/evm.types.js";
-import { 
+import {
   CdpOpenApiClientType,
   GetSwapPriceResponse,
   SwapUnavailableResponse,
-  EvmSwapsNetwork 
+  EvmSwapsNetwork,
 } from "../../openapi-client/index.js";
 import { Address } from "../../types/misc.js";
 
@@ -30,9 +30,9 @@ describe("getSwapPrice", () => {
 
     const result = (await getSwapPrice(mockClient, {
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
     })) as SwapUnavailableResult;
 
@@ -43,8 +43,8 @@ describe("getSwapPrice", () => {
   it("should successfully return a transformed swap price when liquidity is available", async () => {
     const mockResponse: GetSwapPriceResponse = {
       blockNumber: "12345678",
-      buyAmount: "5000000000",
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      toAmount: "5000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       fees: {
         gasFee: {
           amount: "1000000",
@@ -68,9 +68,9 @@ describe("getSwapPrice", () => {
         simulationIncomplete: false,
       },
       liquidityAvailable: true,
-      minBuyAmount: "4950000000",
-      sellAmount: "1000000000000000000",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      minToAmount: "4950000000",
+      fromAmount: "1000000000000000000",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       gas: "150000",
       gasPrice: "20000000000",
     };
@@ -79,17 +79,17 @@ describe("getSwapPrice", () => {
 
     const result = await getSwapPrice(mockClient, {
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
     });
 
     expect(mockClient.getEvmSwapPrice).toHaveBeenCalledWith({
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: "1000000000000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: "1000000000000000000",
       taker: "0x1234567890123456789012345678901234567890",
       signerAddress: undefined,
       gasPrice: undefined,
@@ -104,11 +104,11 @@ describe("getSwapPrice", () => {
 
     // Check transformed values
     expect(quoteResult.blockNumber).toBe(BigInt("12345678"));
-    expect(quoteResult.buyAmount).toBe(BigInt("5000000000"));
-    expect(quoteResult.buyToken).toBe("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48");
-    expect(quoteResult.sellAmount).toBe(BigInt("1000000000000000000"));
-    expect(quoteResult.sellToken).toBe("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2");
-    expect(quoteResult.minBuyAmount).toBe(BigInt("4950000000"));
+    expect(quoteResult.toAmount).toBe(BigInt("5000000000"));
+    expect(quoteResult.toToken).toBe("0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48");
+    expect(quoteResult.fromAmount).toBe(BigInt("1000000000000000000"));
+    expect(quoteResult.fromToken).toBe("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2");
+    expect(quoteResult.minToAmount).toBe(BigInt("4950000000"));
     expect(quoteResult.gas).toBe(BigInt("150000"));
     expect(quoteResult.gasPrice).toBe(BigInt("20000000000"));
 
@@ -139,22 +139,22 @@ describe("getSwapPrice", () => {
     mockClient.getEvmSwapPrice = vi.fn().mockResolvedValue({
       liquidityAvailable: true,
       blockNumber: "12345678",
-      buyAmount: "5000000000",
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      toAmount: "5000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       fees: { gasFee: null, protocolFee: null },
       issues: { allowance: null, balance: null, simulationIncomplete: false },
-      minBuyAmount: "4950000000",
-      sellAmount: "1000000000000000000",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      minToAmount: "4950000000",
+      fromAmount: "1000000000000000000",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       gas: "150000",
       gasPrice: "20000000000",
     });
 
     await getSwapPrice(mockClient, {
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
       signerAddress: "0xSignerAddress",
       gasPrice: BigInt("25000000000"),
@@ -163,9 +163,9 @@ describe("getSwapPrice", () => {
 
     expect(mockClient.getEvmSwapPrice).toHaveBeenCalledWith({
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: "1000000000000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: "1000000000000000000",
       taker: "0x1234567890123456789012345678901234567890",
       signerAddress: "0xSignerAddress",
       gasPrice: "25000000000",
@@ -176,8 +176,8 @@ describe("getSwapPrice", () => {
   it("should handle null fees in the response", async () => {
     const mockResponse: GetSwapPriceResponse = {
       blockNumber: "12345678",
-      buyAmount: "5000000000",
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      toAmount: "5000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       fees: { gasFee: null, protocolFee: null },
       issues: {
         allowance: null,
@@ -185,9 +185,9 @@ describe("getSwapPrice", () => {
         simulationIncomplete: false,
       },
       liquidityAvailable: true,
-      minBuyAmount: "4950000000",
-      sellAmount: "1000000000000000000",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      minToAmount: "4950000000",
+      fromAmount: "1000000000000000000",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       gas: "150000",
       gasPrice: "20000000000",
     };
@@ -196,9 +196,9 @@ describe("getSwapPrice", () => {
 
     const result = await getSwapPrice(mockClient, {
       network,
-      buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: BigInt("1000000000000000000"),
       taker: "0x1234567890123456789012345678901234567890",
     });
 

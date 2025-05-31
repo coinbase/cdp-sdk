@@ -48,12 +48,12 @@ interface SendSwapTransactionWithSwapOptions extends BaseSendSwapTransactionOpti
    * The network to execute the swap on (e.g., "ethereum", "base").
    */
   network: SendEvmTransactionBodyNetwork;
-  /** The token to buy (destination token). */
-  buyToken: Address;
-  /** The token to sell (source token). */
-  sellToken: Address;
-  /** The amount to sell in atomic units of the token. */
-  sellAmount: bigint;
+  /** The token to receive (destination token). */
+  toToken: Address;
+  /** The token to send (source token). */
+  fromToken: Address;
+  /** The amount to send in atomic units of the token. */
+  fromAmount: bigint;
   /** The address that will perform the swap. */
   taker: Address;
   /** The signer address (only needed if taker is a smart contract). */
@@ -87,7 +87,7 @@ export interface SendSwapTransactionResult {
  * Handles any permit2 signatures required for the swap.
  *
  * If you encounter token allowance issues, you'll need to perform a token approval transaction first to allow
- * the Permit2 contract to spend the appropriate amount of your buyToken.
+ * the Permit2 contract to spend the appropriate amount of your fromToken.
  * See `examples/typescript/evm/account.sendSwapTransaction.ts` for example code on handling token approvals.
  *
  * @param {CdpOpenApiClientType} client - The client to use for sending the swap.
@@ -106,9 +106,9 @@ export interface SendSwapTransactionResult {
  * // First create a swap quote
  * const swapQuote = await cdp.evm.createSwapQuote({
  *   network: "base",
- *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
- *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
- *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+ *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+ *   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+ *   fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
  *   taker: account.address
  * });
  *
@@ -133,9 +133,9 @@ export interface SendSwapTransactionResult {
  * const result = await sendSwapTransaction(client, {
  *   address: account.address,
  *   network: "base",
- *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
- *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
- *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+ *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+ *   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+ *   fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
  *   taker: account.address
  * });
  *
@@ -158,9 +158,9 @@ export async function sendSwapTransaction(
     // Create the swap quote using the provided options (SendSwapTransactionWithSwapOptions)
     swapResult = await createSwapQuote(client, {
       network: options.network as CreateSwapQuoteOptions["network"],
-      buyToken: options.buyToken,
-      sellToken: options.sellToken,
-      sellAmount: options.sellAmount,
+      toToken: options.toToken,
+      fromToken: options.fromToken,
+      fromAmount: options.fromAmount,
       taker: options.taker,
       signerAddress: options.signerAddress,
       gasPrice: options.gasPrice,

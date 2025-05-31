@@ -94,12 +94,12 @@ export type { ServerAccount, SmartAccount };
 export interface CreateSwapQuoteOptions {
   /** The network to create a swap quote on. */
   network: EvmSwapsNetwork;
-  /** The token to buy (destination token). */
-  buyToken: Address;
-  /** The token to sell (source token). */
-  sellToken: Address;
-  /** The amount to sell in atomic units of the token. */
-  sellAmount: bigint;
+  /** The token to receive (destination token). */
+  toToken: Address;
+  /** The token to send (source token). */
+  fromToken: Address;
+  /** The amount to send in atomic units of the token. */
+  fromAmount: bigint;
   /** The address that will perform the swap. */
   taker: Address;
   /** The signer address (only needed if taker is a smart contract). */
@@ -116,12 +116,12 @@ export interface CreateSwapQuoteOptions {
 export interface GetSwapPriceOptions {
   /** The network to get a price from. */
   network: EvmSwapsNetwork;
-  /** The token to buy (destination token). */
-  buyToken: Address;
-  /** The token to sell (source token). */
-  sellToken: Address;
-  /** The amount to sell in atomic units of the token. */
-  sellAmount: bigint;
+  /** The token to receive (destination token). */
+  toToken: Address;
+  /** The token to send (source token). */
+  fromToken: Address;
+  /** The amount to send in atomic units of the token. */
+  fromAmount: bigint;
   /** The address that will perform the swap. */
   taker: Address;
   /** The signer address (only needed if taker is a smart contract). */
@@ -138,16 +138,16 @@ export interface GetSwapPriceOptions {
 export interface GetSwapPriceResult {
   /** Whether liquidity is available for the swap. */
   liquidityAvailable: true;
-  /** The token to buy (destination token). */
-  buyToken: Address;
-  /** The token to sell (source token). */
-  sellToken: Address;
-  /** The amount to sell in atomic units of the token. */
-  sellAmount: bigint;
-  /** The amount to buy in atomic units of the token. */
-  buyAmount: bigint;
-  /** The minimum amount to buy after slippage in atomic units of the token. */
-  minBuyAmount: bigint;
+  /** The token to receive (destination token). */
+  toToken: Address;
+  /** The token to send (source token). */
+  fromToken: Address;
+  /** The amount to send in atomic units of the token. */
+  fromAmount: bigint;
+  /** The amount to receive in atomic units of the token. */
+  toAmount: bigint;
+  /** The minimum amount to receive after slippage in atomic units of the token. */
+  minToAmount: bigint;
   /** The block number at which the liquidity conditions were examined. */
   blockNumber: bigint;
   /** The estimated fees for the swap. */
@@ -192,16 +192,16 @@ export interface CreateSwapQuoteResult {
   liquidityAvailable: true;
   /** The network for which this swap quote was created. */
   network: EvmSwapsNetwork;
-  /** The token to buy (destination token). */
-  buyToken: Address;
-  /** The token to sell (source token). */
-  sellToken: Address;
-  /** The amount to sell in atomic units of the token. */
-  sellAmount: bigint;
-  /** The amount to buy in atomic units of the token. */
-  buyAmount: bigint;
-  /** The minimum amount to buy after slippage in atomic units of the token. */
-  minBuyAmount: bigint;
+  /** The token to receive (destination token). */
+  toToken: Address;
+  /** The token to send (source token). */
+  fromToken: Address;
+  /** The amount to send in atomic units of the token. */
+  fromAmount: bigint;
+  /** The amount to receive in atomic units of the token. */
+  toAmount: bigint;
+  /** The minimum amount to receive after slippage in atomic units of the token. */
+  minToAmount: bigint;
   /** The block number at which the liquidity conditions were examined. */
   blockNumber: bigint;
   /** The estimated fees for the swap. */
@@ -512,7 +512,7 @@ export interface SwapFees {
  * Details of allowance issues for a swap.
  */
 export interface SwapAllowanceIssue {
-  /** The current allowance of the sellToken by the taker. */
+  /** The current allowance of the fromToken by the taker. */
   currentAllowance: bigint;
   /** The address to set the allowance on. */
   spender: Address;
@@ -524,7 +524,7 @@ export interface SwapAllowanceIssue {
 export interface SwapBalanceIssue {
   /** The contract address of the token. */
   token: Address;
-  /** The current balance of the sellToken by the taker. */
+  /** The current balance of the fromToken by the taker. */
   currentBalance: bigint;
   /** The amount of the token that the taker must hold. */
   requiredBalance: bigint;
@@ -536,7 +536,7 @@ export interface SwapBalanceIssue {
 export interface SwapIssues {
   /** Details of the allowances that the taker must set. Null if no allowance is required. */
   allowance?: SwapAllowanceIssue;
-  /** Details of the balance of the sellToken that the taker must hold. Null if sufficient balance. */
+  /** Details of the balance of the fromToken that the taker must hold. Null if sufficient balance. */
   balance?: SwapBalanceIssue;
   /** True when the transaction cannot be validated (e.g., insufficient balance). */
   simulationIncomplete: boolean;

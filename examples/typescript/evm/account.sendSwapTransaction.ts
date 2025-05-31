@@ -79,21 +79,21 @@ async function main() {
 
   try {
     // Define the tokens we're working with
-    const sellToken = TOKENS.WETH;
-    const buyToken = TOKENS.USDC;
+    const fromToken = TOKENS.WETH;
+    const toToken = TOKENS.USDC;
     
-    // Set the amount we want to sell
-    const sellAmount = parseUnits("0.1", sellToken.decimals); // 0.1 WETH
+    // Set the amount we want to send
+    const fromAmount = parseUnits("0.1", fromToken.decimals); // 0.1 WETH
     
-    console.log(`\nInitiating swap of ${formatEther(sellAmount)} ${sellToken.symbol} for ${buyToken.symbol}`);
+    console.log(`\nInitiating swap of ${formatEther(fromAmount)} ${fromToken.symbol} for ${toToken.symbol}`);
 
-    // Handle token allowance check and approval if needed (applicable when selling non-native assets only)
-    if (!sellToken.isNativeAsset) {
+    // Handle token allowance check and approval if needed (applicable when sending non-native assets only)
+    if (!fromToken.isNativeAsset) {
       await handleTokenAllowance(
         ownerAccount.address as `0x${string}`, 
-        sellToken.address as `0x${string}`,
-        sellToken.symbol,
-        sellAmount
+        fromToken.address as `0x${string}`,
+        fromToken.symbol,
+        fromAmount
       );
     }
     
@@ -105,9 +105,9 @@ async function main() {
       // Create and execute the swap in one call - simpler but less control
       const result = await ownerAccount.swap({
         network: NETWORK,
-        buyToken: buyToken.address as `0x${string}`,
-        sellToken: sellToken.address as `0x${string}`,
-        sellAmount,
+        toToken: toToken.address as `0x${string}`,
+        fromToken: fromToken.address as `0x${string}`,
+        fromAmount,
         taker: ownerAccount.address,
         slippageBps: 100, // 1% slippage tolerance
       });
@@ -118,9 +118,9 @@ async function main() {
       // Step 1: Create the swap quote
       const swapQuote = await cdp.evm.createSwapQuote({
         network: NETWORK,
-        buyToken: buyToken.address as `0x${string}`,
-        sellToken: sellToken.address as `0x${string}`,
-        sellAmount,
+        toToken: toToken.address as `0x${string}`,
+        fromToken: fromToken.address as `0x${string}`,
+        fromAmount,
         taker: ownerAccount.address,
         slippageBps: 100, // 1% slippage tolerance
       });
@@ -132,8 +132,8 @@ async function main() {
       }
       
       // Step 3: Optionally inspect swap details
-      console.log(`Buy Amount: ${formatUnits(swapQuote.buyAmount, buyToken.decimals)} ${buyToken.symbol}`);
-      console.log(`Min Buy Amount: ${formatUnits(swapQuote.minBuyAmount, buyToken.decimals)} ${buyToken.symbol}`);
+      console.log(`Receive Amount: ${formatUnits(swapQuote.toAmount, toToken.decimals)} ${toToken.symbol}`);
+      console.log(`Min Receive Amount: ${formatUnits(swapQuote.minToAmount, toToken.decimals)} ${toToken.symbol}`);
       if (swapQuote.fees?.gasFee) {
         console.log(`Gas Fee: ${formatEther(swapQuote.fees.gasFee.amount)} ${swapQuote.fees.gasFee.token}`);
       }
@@ -181,16 +181,16 @@ async function main() {
 /**
  * Handles token allowance check and approval if needed
  * @param ownerAddress - The address of the token owner
- * @param tokenAddress - The address of the token to be sold
+ * @param tokenAddress - The address of the token to be sent
  * @param tokenSymbol - The symbol of the token (e.g., WETH, USDC)
- * @param sellAmount - The amount to be sold
+ * @param fromAmount - The amount to be sent
  * @returns A promise that resolves when allowance is sufficient
  */
 async function handleTokenAllowance(
   ownerAddress: `0x${string}`, 
   tokenAddress: `0x${string}`,
   tokenSymbol: string,
-  sellAmount: bigint
+  fromAmount: bigint
 ): Promise<void> {
   // Check allowance before attempting the swap
   const currentAllowance = await getAllowance(
@@ -200,19 +200,19 @@ async function handleTokenAllowance(
   );
   
   // If allowance is insufficient, approve tokens
-  if (currentAllowance < sellAmount) {
-    console.log(`\nAllowance insufficient. Current: ${formatEther(currentAllowance)}, Required: ${formatEther(sellAmount)}`);
+  if (currentAllowance < fromAmount) {
+    console.log(`\nAllowance insufficient. Current: ${formatEther(currentAllowance)}, Required: ${formatEther(fromAmount)}`);
     
     // Set the allowance to the required amount
     await approveTokenAllowance(
       ownerAddress,
       tokenAddress,
       PERMIT2_ADDRESS as `0x${string}`,
-      sellAmount
+      fromAmount
     );
-    console.log(`Set allowance to ${formatEther(sellAmount)} ${tokenSymbol}`);
+    console.log(`Set allowance to ${formatEther(fromAmount)} ${tokenSymbol}`);
   } else {
-    console.log(`\nToken allowance sufficient. Current: ${formatEther(currentAllowance)} ${tokenSymbol}, Required: ${formatEther(sellAmount)} ${tokenSymbol}`);
+    console.log(`\nToken allowance sufficient. Current: ${formatEther(currentAllowance)} ${tokenSymbol}, Required: ${formatEther(fromAmount)} ${tokenSymbol}`);
   }
 }
 

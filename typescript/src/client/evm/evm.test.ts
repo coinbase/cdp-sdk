@@ -124,6 +124,10 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         listTokenBalances: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+        swap: vi.fn(),
       };
 
       const createEvmAccountMock = CdpOpenApiClient.createEvmAccount as MockedFunction<
@@ -177,6 +181,9 @@ describe("EvmClient", () => {
         waitForUserOperation: vi.fn(),
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
       };
 
       const createEvmSmartAccountMock = CdpOpenApiClient.createEvmSmartAccount as MockedFunction<
@@ -220,6 +227,10 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         listTokenBalances: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+        swap: vi.fn(),
       };
 
       const getEvmAccountMock = CdpOpenApiClient.getEvmAccount as MockedFunction<
@@ -257,6 +268,10 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         listTokenBalances: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+        swap: vi.fn(),
       };
 
       const getEvmAccountByNameMock = CdpOpenApiClient.getEvmAccountByName as MockedFunction<
@@ -308,6 +323,9 @@ describe("EvmClient", () => {
         waitForUserOperation: vi.fn(),
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
       };
 
       const getEvmSmartAccountMock = CdpOpenApiClient.getEvmSmartAccount as MockedFunction<
@@ -345,6 +363,10 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         listTokenBalances: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+        swap: vi.fn(),
       };
 
       const getEvmAccountMock = CdpOpenApiClient.getEvmAccountByName as MockedFunction<
@@ -394,6 +416,9 @@ describe("EvmClient", () => {
         waitForUserOperation: vi.fn(),
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
       };
       const userOpHash = "0xhash";
       const transactionHash = "0xtransactionhash" as Hex;
@@ -439,6 +464,10 @@ describe("EvmClient", () => {
           requestFaucet: vi.fn(),
           sendTransaction: vi.fn(),
           listTokenBalances: vi.fn(),
+          quoteFund: vi.fn(),
+          fund: vi.fn(),
+          waitForFundOperationReceipt: vi.fn(),
+          swap: vi.fn(),
         },
         {
           address: "0x456",
@@ -451,6 +480,10 @@ describe("EvmClient", () => {
           requestFaucet: vi.fn(),
           sendTransaction: vi.fn(),
           listTokenBalances: vi.fn(),
+          quoteFund: vi.fn(),
+          fund: vi.fn(),
+          waitForFundOperationReceipt: vi.fn(),
+          swap: vi.fn(),
         },
       ];
 
@@ -539,6 +572,9 @@ describe("EvmClient", () => {
         waitForUserOperation: vi.fn(),
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
       };
 
       const network = "sepolia" as EvmUserOperationNetwork;
@@ -647,6 +683,9 @@ describe("EvmClient", () => {
         waitForUserOperation: vi.fn(),
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
       };
 
       const network = "sepolia" as EvmUserOperationNetwork;
@@ -891,6 +930,10 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         policies: [updateData.accountPolicy],
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+        swap: vi.fn(),
       };
 
       const updateEvmAccountMock = CdpOpenApiClient.updateEvmAccount as MockedFunction<
@@ -943,6 +986,10 @@ describe("EvmClient", () => {
         listTokenBalances: vi.fn(),
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+        swap: vi.fn(),
       };
 
       const updateEvmAccountMock = CdpOpenApiClient.updateEvmAccount as MockedFunction<
@@ -993,6 +1040,10 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         listTokenBalances: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+        swap: vi.fn(),
       };
 
       const mockEncryptedKey = Buffer.from("encrypted-private-key");
@@ -1052,6 +1103,10 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         listTokenBalances: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+        swap: vi.fn(),
       };
 
       const mockEncryptedKey = Buffer.from("encrypted-private-key");
@@ -1109,9 +1164,9 @@ describe("EvmClient", () => {
   describe("getSwapPrice", () => {
     it("should get a swap price", async () => {
       const network = "ethereum";
-      const buyToken = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
-      const sellToken = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-      const sellAmount = BigInt("1000000000000000000"); // 1 ETH in wei
+      const toToken = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+      const fromToken = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+      const fromAmount = BigInt("1000000000000000000"); // 1 ETH in wei
       const taker = "0x1234567890123456789012345678901234567890";
       const gasPrice = BigInt("5000000000"); // 5 Gwei
       const slippageBps = 50; // 0.5%
@@ -1119,16 +1174,16 @@ describe("EvmClient", () => {
       const mockResponse: GetSwapPriceResponse = {
         liquidityAvailable: true,
         blockNumber: "12345678",
-        buyAmount: "5000000000",
-        buyToken,
+        toAmount: "5000000000",
+        toToken,
         fees: {
           gasFee: {
             amount: "1000000",
-            token: sellToken,
+            token: fromToken,
           },
           protocolFee: {
             amount: "500000",
-            token: sellToken,
+            token: fromToken,
           },
         },
         issues: {
@@ -1136,9 +1191,9 @@ describe("EvmClient", () => {
           balance: null,
           simulationIncomplete: false,
         },
-        minBuyAmount: "4950000000",
-        sellAmount: "1000000000000000000",
-        sellToken,
+        minToAmount: "4950000000",
+        fromAmount: "1000000000000000000",
+        fromToken,
         gas: "150000",
         gasPrice: "5000000000",
       };
@@ -1148,9 +1203,9 @@ describe("EvmClient", () => {
 
       const result = await client.getSwapPrice({
         network,
-        buyToken,
-        sellToken,
-        sellAmount,
+        toToken,
+        fromToken,
+        fromAmount,
         taker,
         gasPrice,
         slippageBps,
@@ -1158,9 +1213,9 @@ describe("EvmClient", () => {
 
       expect(getSwapPrice).toHaveBeenCalledWith(CdpOpenApiClient, {
         network,
-        buyToken,
-        sellToken,
-        sellAmount,
+        toToken,
+        fromToken,
+        fromAmount,
         taker,
         gasPrice,
         slippageBps,
@@ -1178,9 +1233,9 @@ describe("EvmClient", () => {
 
       const result = await client.getSwapPrice({
         network: "ethereum",
-        buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-        sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-        sellAmount: BigInt("1000000000000000000"),
+        toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        fromAmount: BigInt("1000000000000000000"),
         taker: "0x1234567890123456789012345678901234567890",
       });
 
@@ -1191,25 +1246,25 @@ describe("EvmClient", () => {
   describe("createSwapQuote", () => {
     it("should create a swap quote", async () => {
       const network = "ethereum";
-      const buyToken = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
-      const sellToken = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-      const sellAmount = BigInt("1000000000000000000"); // 1 ETH in wei
+      const toToken = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+      const fromToken = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+      const fromAmount = BigInt("1000000000000000000"); // 1 ETH in wei
       const taker = "0x1234567890123456789012345678901234567890";
       const slippageBps = 50; // 0.5%
 
       const mockResponse: CreateSwapQuoteResponse = {
         liquidityAvailable: true,
         blockNumber: "12345678",
-        buyAmount: "5000000000",
-        buyToken,
+        toAmount: "5000000000",
+        toToken,
         fees: {
           gasFee: {
             amount: "1000000",
-            token: sellToken,
+            token: fromToken,
           },
           protocolFee: {
             amount: "500000",
-            token: sellToken,
+            token: fromToken,
           },
         },
         issues: {
@@ -1217,9 +1272,9 @@ describe("EvmClient", () => {
           balance: null,
           simulationIncomplete: false,
         },
-        minBuyAmount: "4950000000",
-        sellAmount: "1000000000000000000",
-        sellToken,
+        minToAmount: "4950000000",
+        fromAmount: "1000000000000000000",
+        fromToken,
         permit2: null,
         transaction: {
           to: "0xRouterAddress",
@@ -1235,18 +1290,18 @@ describe("EvmClient", () => {
 
       const result = await client.createSwapQuote({
         network,
-        buyToken,
-        sellToken,
-        sellAmount,
+        toToken,
+        fromToken,
+        fromAmount,
         taker,
         slippageBps,
       });
 
       expect(createSwapQuote).toHaveBeenCalledWith(CdpOpenApiClient, {
         network,
-        buyToken,
-        sellToken,
-        sellAmount,
+        toToken,
+        fromToken,
+        fromAmount,
         taker,
         slippageBps,
       });
@@ -1263,9 +1318,9 @@ describe("EvmClient", () => {
 
       const result = await client.createSwapQuote({
         network: "ethereum",
-        buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-        sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-        sellAmount: BigInt("1000000000000000000"),
+        toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        fromAmount: BigInt("1000000000000000000"),
         taker: "0x1234567890123456789012345678901234567890",
       });
 

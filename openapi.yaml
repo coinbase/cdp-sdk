@@ -1506,20 +1506,20 @@ paths:
           schema:
             $ref: '#/components/schemas/EvmSwapsNetwork'
         - in: query
-          name: buyToken
+          name: toToken
           required: true
           schema:
-            $ref: '#/components/schemas/buyToken'
+            $ref: '#/components/schemas/toToken'
         - in: query
-          name: sellToken
+          name: fromToken
           required: true
           schema:
-            $ref: '#/components/schemas/sellToken'
+            $ref: '#/components/schemas/fromToken'
         - in: query
-          name: sellAmount
+          name: fromAmount
           required: true
           schema:
-            $ref: '#/components/schemas/sellAmount'
+            $ref: '#/components/schemas/fromAmount'
         - in: query
           name: taker
           required: true
@@ -1552,8 +1552,8 @@ paths:
                   summary: Successful swap price retrieval
                   value:
                     blockNumber: '17038723'
-                    buyAmount: '1000000000000000000'
-                    buyToken: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+                    toAmount: '1000000000000000000'
+                    toToken: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
                     fees:
                       gasFee:
                         amount: '1000000000000000000'
@@ -1571,9 +1571,9 @@ paths:
                         requiredBalance: '1000000000000000000'
                       simulationIncomplete: false
                     liquidityAvailable: true
-                    minBuyAmount: '900000000000000000'
-                    sellAmount: '1000000000000000000'
-                    sellToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                    minToAmount: '900000000000000000'
+                    fromAmount: '1000000000000000000'
+                    fromToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
                     gas: '100000'
                     gasPrice: '1000000000'
                 unavailable:
@@ -1625,25 +1625,25 @@ paths:
               properties:
                 network:
                   $ref: '#/components/schemas/EvmSwapsNetwork'
-                buyToken:
+                toToken:
                   type: string
                   pattern: ^0x[a-fA-F0-9]{40}$
-                  description: The 0x-prefixed contract address of the token to buy.
+                  description: The 0x-prefixed contract address of the token to receive.
                   example: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
-                sellToken:
+                fromToken:
                   type: string
                   pattern: ^0x[a-fA-F0-9]{40}$
-                  description: The 0x-prefixed contract address of the token to sell.
+                  description: The 0x-prefixed contract address of the token to send.
                   example: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
-                sellAmount:
+                fromAmount:
                   type: string
                   pattern: ^\d+$
-                  description: The amount of the `sellToken` to sell in atomic units of the token. For example, `1000000000000000000` when selling ETH equates to 1 ETH, `1000000` when selling USDC equates to 1 USDC, etc.
+                  description: The amount of the `fromToken` to send in atomic units of the token. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
                   example: '1000000000000000000'
                 taker:
                   type: string
                   pattern: ^0x[a-fA-F0-9]{40}$
-                  description: The 0x-prefixed address that holds the `sellToken` balance and has the `Permit2` allowance set for the swap.
+                  description: The 0x-prefixed address that holds the `fromToken` balance and has the `Permit2` allowance set for the swap.
                   example: '0xAc0974bec39a17e36ba4a6b4d238ff944bacb478'
                 signerAddress:
                   type: string
@@ -1659,14 +1659,14 @@ paths:
                   type: integer
                   minimum: 0
                   maximum: 10000
-                  description: The maximum acceptable slippage of the `buyToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
+                  description: The maximum acceptable slippage of the `toToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
                   default: 100
                   example: 100
               required:
                 - network
-                - buyToken
-                - sellToken
-                - sellAmount
+                - toToken
+                - fromToken
+                - fromAmount
                 - taker
       responses:
         '201':
@@ -1680,8 +1680,8 @@ paths:
                   summary: Successful swap quote creation
                   value:
                     blockNumber: '17038723'
-                    buyAmount: '1000000000000000000'
-                    buyToken: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+                    toAmount: '1000000000000000000'
+                    toToken: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
                     fees:
                       gasFee:
                         amount: '1000000000000000000'
@@ -1699,9 +1699,9 @@ paths:
                         requiredBalance: '1000000000000000000'
                       simulationIncomplete: false
                     liquidityAvailable: true
-                    minBuyAmount: '900000000000000000'
-                    sellAmount: '1000000000000000000'
-                    sellToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                    minToAmount: '900000000000000000'
+                    fromAmount: '1000000000000000000'
+                    fromToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
                     permit2:
                       hash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
                       eip712:
@@ -3767,25 +3767,25 @@ components:
         - ethereum
       description: The network on which to perform the swap.
       example: base
-    buyToken:
+    toToken:
       type: string
       pattern: ^0x[a-fA-F0-9]{40}$
-      description: The 0x-prefixed contract address of the token to buy.
+      description: The 0x-prefixed contract address of the token to receive.
       example: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
-    sellToken:
+    fromToken:
       type: string
       pattern: ^0x[a-fA-F0-9]{40}$
-      description: The 0x-prefixed contract address of the token to sell.
+      description: The 0x-prefixed contract address of the token to send.
       example: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
-    sellAmount:
+    fromAmount:
       type: string
       pattern: ^\d+$
-      description: The amount of the `sellToken` to sell in atomic units of the token. For example, `1000000000000000000` when selling ETH equates to 1 ETH, `1000000` when selling USDC equates to 1 USDC, etc.
+      description: The amount of the `fromToken` to send in atomic units of the token. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
       example: '1000000000000000000'
     taker:
       type: string
       pattern: ^0x[a-fA-F0-9]{40}$
-      description: The 0x-prefixed address that holds the `sellToken` balance and has the `Permit2` allowance set for the swap.
+      description: The 0x-prefixed address that holds the `fromToken` balance and has the `Permit2` allowance set for the swap.
       example: '0xAc0974bec39a17e36ba4a6b4d238ff944bacb478'
     signerAddress:
       type: string
@@ -3801,7 +3801,7 @@ components:
       type: integer
       minimum: 0
       maximum: 10000
-      description: The maximum acceptable slippage of the `buyToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
+      description: The maximum acceptable slippage of the `toToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
       default: 100
       example: 100
     TokenFee:
@@ -3828,15 +3828,15 @@ components:
           pattern: ^[1-9]\d*$
           description: The block number at which the liquidity conditions were examined.
           example: '17038723'
-        buyAmount:
+        toAmount:
           type: string
           pattern: ^(0|[1-9]\d*)$
-          description: The amount of the `buyToken` that will be received in atomic units of the `buyToken`. For example, `1000000000000000000` when buying ETH equates to 1 ETH, `1000000` when buying USDC equates to 1 USDC, etc.
+          description: The amount of the `toToken` that will be received in atomic units of the `toToken`. For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc.
           example: '1000000000000000000'
-        buyToken:
+        toToken:
           type: string
           pattern: ^0x[a-fA-F0-9]{40}$
-          description: The 0x-prefixed contract address of the token that will be bought.
+          description: The 0x-prefixed contract address of the token that will be received.
           example: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
         fees:
           type: object
@@ -3876,7 +3876,7 @@ components:
                 currentAllowance:
                   type: string
                   pattern: ^\d+$
-                  description: The current allowance of the `sellToken` by the `taker`.
+                  description: The current allowance of the `fromToken` by the `taker`.
                   example: '1000000000'
                 spender:
                   type: string
@@ -3892,7 +3892,7 @@ components:
             balance:
               type: object
               nullable: true
-              description: Details of the balance of the `sellToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
+              description: Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
               properties:
                 token:
                   type: string
@@ -3901,7 +3901,7 @@ components:
                 currentBalance:
                   type: string
                   pattern: ^\d+$
-                  description: The current balance of the `sellToken` by the `taker`.
+                  description: The current balance of the `fromToken` by the `taker`.
                   example: '10000000'
                 requiredBalance:
                   type: string
@@ -3918,7 +3918,7 @@ components:
                 requiredBalance: '1000000000000000000'
             simulationIncomplete:
               type: boolean
-              description: This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `sellToken`. Note that this does not necessarily mean that the trade will revert.
+              description: This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `fromToken`. Note that this does not necessarily mean that the trade will revert.
               example: false
           required:
             - allowance
@@ -3939,35 +3939,35 @@ components:
             - true
           description: Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
           example: true
-        minBuyAmount:
+        minToAmount:
           type: string
           pattern: ^(0|[1-9]\d*)$
-          description: The minimum amount of the `buyToken` that must be received for the swap to succeed, in atomic units of the `buyToken`.  For example, `1000000000000000000` when buying ETH equates to 1 ETH, `1000000` when buying USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.
+          description: The minimum amount of the `toToken` that must be received for the swap to succeed, in atomic units of the `toToken`.  For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.
           example: '900000000000000000'
-        sellAmount:
+        fromAmount:
           type: string
           pattern: ^(0|[1-9]\d*)$
-          description: The amount of the `sellToken` that will be sold in this swap, in atomic units of the `sellToken`. For example, `1000000000000000000` when selling ETH equates to 1 ETH, `1000000` when selling USDC equates to 1 USDC, etc.
+          description: The amount of the `fromToken` that will be sent in this swap, in atomic units of the `fromToken`. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
           example: '1000000000000000000'
-        sellToken:
+        fromToken:
           type: string
           pattern: ^0x[a-fA-F0-9]{40}$
-          description: The 0x-prefixed contract address of the token that will be sold.
+          description: The 0x-prefixed contract address of the token that will be sent.
           example: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
       required:
         - blockNumber
-        - buyAmount
-        - buyToken
+        - toAmount
+        - toToken
         - fees
         - issues
         - liquidityAvailable
-        - minBuyAmount
-        - sellAmount
-        - sellToken
+        - minToAmount
+        - fromAmount
+        - fromToken
       example:
         blockNumber: '17038723'
-        buyAmount: '1000000000000000000'
-        buyToken: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+        toAmount: '1000000000000000000'
+        toToken: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
         fees:
           gasFee:
             amount: '1000000000000000000'
@@ -3985,9 +3985,9 @@ components:
             requiredBalance: '1000000000000000000'
           simulationIncomplete: false
         liquidityAvailable: true
-        minBuyAmount: '900000000000000000'
-        sellAmount: '1000000000000000000'
-        sellToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+        minToAmount: '900000000000000000'
+        fromAmount: '1000000000000000000'
+        fromToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
     GetSwapPriceResponse:
       allOf:
         - $ref: '#/components/schemas/CommonSwapResponse'
@@ -4032,7 +4032,7 @@ components:
             permit2:
               type: object
               nullable: true
-              description: The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `sellToken` is the native token or the transaction is a native token wrap / unwrap.
+              description: The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `fromToken` is the native token or the transaction is a native token wrap / unwrap.
               properties:
                 hash:
                   type: string

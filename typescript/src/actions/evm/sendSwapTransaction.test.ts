@@ -45,11 +45,11 @@ describe("sendSwapTransaction", () => {
     mockSwap = {
       liquidityAvailable: true,
       network: mockNetwork,
-      sellToken: "0x4200000000000000000000000000000000000006",
-      buyToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-      sellAmount: BigInt("1000000000000000000"),
-      buyAmount: BigInt("1800000000"),
-      minBuyAmount: BigInt("1782000000"),
+      fromToken: "0x4200000000000000000000000000000000000006",
+      toToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      fromAmount: BigInt("1000000000000000000"),
+      toAmount: BigInt("1800000000"),
+      minToAmount: BigInt("1782000000"),
       blockNumber: BigInt("123456"),
       fees: {
         gasFee: undefined,
@@ -307,9 +307,9 @@ describe("sendSwapTransaction", () => {
 
   it("should create swap quote when swapOptions is provided", async () => {
     const swapOptions = {
-      buyToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
-      sellToken: "0x4200000000000000000000000000000000000006" as `0x${string}`,
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
+      fromToken: "0x4200000000000000000000000000000000000006" as `0x${string}`,
+      fromAmount: BigInt("1000000000000000000"),
       taker: mockAddress,
     };
 
@@ -347,9 +347,9 @@ describe("sendSwapTransaction", () => {
 
   it("should throw error when swapOptions is provided but liquidity is not available", async () => {
     const swapOptions = {
-      buyToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
-      sellToken: "0x4200000000000000000000000000000000000006" as `0x${string}`,
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
+      fromToken: "0x4200000000000000000000000000000000000006" as `0x${string}`,
+      fromAmount: BigInt("1000000000000000000"),
       taker: mockAddress,
     };
 
@@ -425,9 +425,9 @@ describe("sendSwapTransaction", () => {
 
   it("should throw error when swapOptions is provided and created swap quote has allowance issues", async () => {
     const swapOptions = {
-      buyToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
-      sellToken: "0x4200000000000000000000000000000000000006" as `0x${string}`,
-      sellAmount: BigInt("1000000000000000000"),
+      toToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
+      fromToken: "0x4200000000000000000000000000000000000006" as `0x${string}`,
+      fromAmount: BigInt("1000000000000000000"),
       taker: mockAddress,
     };
 

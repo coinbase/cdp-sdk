@@ -56,27 +56,27 @@ async function main() {
 
   try {
     // Define the tokens we're working with
-    const sellToken = TOKENS.WETH;
-    const buyToken = TOKENS.USDC;
+    const fromToken = TOKENS.WETH;
+    const toToken = TOKENS.USDC;
     
-    // Set the amount we want to sell
-    const sellAmount = parseUnits("0.1", sellToken.decimals); // 0.1 WETH
+    // Set the amount we want to send
+    const fromAmount = parseUnits("0.1", fromToken.decimals); // 0.1 WETH
     
-    console.log(`\nCreating a swap quote for ${formatEther(sellAmount)} ${sellToken.symbol} to ${buyToken.symbol}`);
+    console.log(`\nCreating a swap quote for ${formatEther(fromAmount)} ${fromToken.symbol} to ${toToken.symbol}`);
     
     // Create the swap quote transaction
     console.log("\nFetching swap quote...");
     const swapQuote = await cdp.evm.createSwapQuote({
       network: NETWORK,
-      buyToken: buyToken.address as `0x${string}`,
-      sellToken: sellToken.address as `0x${string}`,
-      sellAmount,
+      toToken: toToken.address as `0x${string}`,
+      fromToken: fromToken.address as `0x${string}`,
+      fromAmount,
       taker: ownerAccount.address,
       slippageBps: 100, // 1% slippage tolerance
     });
     
     // Log swap details
-    logSwapInfo(swapQuote, sellToken, buyToken);
+    logSwapInfo(swapQuote, fromToken, toToken);
     
     // Validate the swap for any issues
     validateSwap(swapQuote);
@@ -108,13 +108,13 @@ async function main() {
 /**
  * Logs information about the swap
  * @param swapQuote - The swap transaction data
- * @param sellToken - The token being sold
- * @param buyToken - The token being bought
+ * @param fromToken - The token being sent
+ * @param toToken - The token being received
  */
 function logSwapInfo(
   swapQuote: any,
-  sellToken: typeof TOKENS.WETH,
-  buyToken: typeof TOKENS.USDC
+  fromToken: typeof TOKENS.WETH,
+  toToken: typeof TOKENS.USDC
 ): void {
   if (!swapQuote.liquidityAvailable) {
     return;
@@ -122,42 +122,42 @@ function logSwapInfo(
 
   console.log("\nSwap Quote Details:");
   console.log("-------------------");
-  console.log(`Buy Amount: ${formatUnits(BigInt(swapQuote.buyAmount), buyToken.decimals)} ${buyToken.symbol}`);
-  console.log(`Min Buy Amount: ${formatUnits(BigInt(swapQuote.minBuyAmount), buyToken.decimals)} ${buyToken.symbol}`);
-  console.log(`Sell Amount: ${formatUnits(BigInt(swapQuote.sellAmount), sellToken.decimals)} ${sellToken.symbol}`);
+  console.log(`Receive Amount: ${formatUnits(BigInt(swapQuote.toAmount), toToken.decimals)} ${toToken.symbol}`);
+  console.log(`Min Receive Amount: ${formatUnits(BigInt(swapQuote.minToAmount), toToken.decimals)} ${toToken.symbol}`);
+  console.log(`Send Amount: ${formatUnits(BigInt(swapQuote.fromAmount), fromToken.decimals)} ${fromToken.symbol}`);
   
   // Calculate and display price ratios
-  const sellAmountBigInt = BigInt(swapQuote.sellAmount);
-  const buyAmountBigInt = BigInt(swapQuote.buyAmount);
-  const minBuyAmountBigInt = BigInt(swapQuote.minBuyAmount);
+  const fromAmountBigInt = BigInt(swapQuote.fromAmount);
+  const toAmountBigInt = BigInt(swapQuote.toAmount);
+  const minToAmountBigInt = BigInt(swapQuote.minToAmount);
   
-  // Calculate exchange rate: How many buy tokens per 1 sell token
-  const sellToBuyRate = Number(buyAmountBigInt) / (10 ** buyToken.decimals) * 
-                       (10 ** sellToken.decimals) / Number(sellAmountBigInt);
+  // Calculate exchange rate: How many toTokens per 1 fromToken
+  const fromToToRate = Number(toAmountBigInt) / (10 ** toToken.decimals) * 
+                       (10 ** fromToken.decimals) / Number(fromAmountBigInt);
   
   // Calculate minimum exchange rate with slippage applied
-  const minSellToBuyRate = Number(minBuyAmountBigInt) / (10 ** buyToken.decimals) * 
-                         (10 ** sellToken.decimals) / Number(sellAmountBigInt);
+  const minFromToToRate = Number(minToAmountBigInt) / (10 ** toToken.decimals) * 
+                         (10 ** fromToken.decimals) / Number(fromAmountBigInt);
   
-  // Calculate maximum buyToken to sellToken ratio with slippage
-  const maxBuyToSellRate = Number(sellAmountBigInt) / (10 ** sellToken.decimals) *
-                         (10 ** buyToken.decimals) / Number(minBuyAmountBigInt);
+  // Calculate maximum toToken to fromToken ratio with slippage
+  const maxToToFromRate = Number(fromAmountBigInt) / (10 ** fromToken.decimals) *
+                         (10 ** toToken.decimals) / Number(minToAmountBigInt);
 
-  // Calculate exchange rate: How many sell tokens per 1 buy token
-  const buyToSellRate = Number(sellAmountBigInt) / (10 ** sellToken.decimals) *
-                       (10 ** buyToken.decimals) / Number(buyAmountBigInt);
+  // Calculate exchange rate: How many fromTokens per 1 toToken
+  const toToFromRate = Number(fromAmountBigInt) / (10 ** fromToken.decimals) *
+                       (10 ** toToken.decimals) / Number(toAmountBigInt);
   
   console.log("\nToken Price Calculations:");
   console.log("------------------------");
-  console.log(`1 ${sellToken.symbol} = ${sellToBuyRate.toFixed(buyToken.decimals)} ${buyToken.symbol}`);
-  console.log(`1 ${buyToken.symbol} = ${buyToSellRate.toFixed(sellToken.decimals)} ${sellToken.symbol}`);
+  console.log(`1 ${fromToken.symbol} = ${fromToToRate.toFixed(toToken.decimals)} ${toToken.symbol}`);
+  console.log(`1 ${toToken.symbol} = ${toToFromRate.toFixed(fromToken.decimals)} ${fromToken.symbol}`);
   
   // Calculate effective exchange rate with slippage applied
   console.log("\nWith Slippage Applied (Worst Case):");
   console.log("----------------------------------");
-  console.log(`1 ${sellToken.symbol} = ${minSellToBuyRate.toFixed(buyToken.decimals)} ${buyToken.symbol} (minimum)`);
-  console.log(`1 ${buyToken.symbol} = ${maxBuyToSellRate.toFixed(sellToken.decimals)} ${sellToken.symbol} (maximum)`);
-  console.log(`Maximum price impact: ${((sellToBuyRate - minSellToBuyRate) / sellToBuyRate * 100).toFixed(2)}%`);
+  console.log(`1 ${fromToken.symbol} = ${minFromToToRate.toFixed(toToken.decimals)} ${toToken.symbol} (minimum)`);
+  console.log(`1 ${toToken.symbol} = ${maxToToFromRate.toFixed(fromToken.decimals)} ${fromToken.symbol} (maximum)`);
+  console.log(`Maximum price impact: ${((fromToToRate - minFromToToRate) / fromToToRate * 100).toFixed(2)}%`);
   
   console.log("\nSuggested Gas Details:");
   console.log("----------------------------------");

@@ -18,9 +18,9 @@ import { Address } from "../../types/misc.js";
  * ```ts
  * const price = await getSwapPrice(client, {
  *   network: "ethereum-mainnet",
- *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
- *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
- *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+ *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+ *   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+ *   fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
  *   taker: "0x1234567890123456789012345678901234567890"
  * });
  * ```
@@ -32,9 +32,9 @@ export async function getSwapPrice(
   // Call the getEvmSwapPrice function directly with the client's configured API
   const response = await client.getEvmSwapPrice({
     network: options.network,
-    buyToken: options.buyToken,
-    sellToken: options.sellToken,
-    sellAmount: options.sellAmount.toString(),
+    toToken: options.toToken,
+    fromToken: options.fromToken,
+    fromAmount: options.fromAmount.toString(),
     taker: options.taker,
     signerAddress: options.signerAddress,
     gasPrice: options.gasPrice?.toString(),
@@ -53,8 +53,8 @@ export async function getSwapPrice(
   const quoteResponse = response as GetSwapPriceResponse;
   return {
     blockNumber: BigInt(quoteResponse.blockNumber),
-    buyAmount: BigInt(quoteResponse.buyAmount),
-    buyToken: quoteResponse.buyToken as Address,
+    toAmount: BigInt(quoteResponse.toAmount),
+    toToken: quoteResponse.toToken as Address,
     fees: {
       gasFee: quoteResponse.fees.gasFee
         ? {
@@ -86,9 +86,9 @@ export async function getSwapPrice(
       simulationIncomplete: quoteResponse.issues.simulationIncomplete,
     },
     liquidityAvailable: true,
-    minBuyAmount: BigInt(quoteResponse.minBuyAmount),
-    sellAmount: BigInt(quoteResponse.sellAmount),
-    sellToken: quoteResponse.sellToken as Address,
+    minToAmount: BigInt(quoteResponse.minToAmount),
+    fromAmount: BigInt(quoteResponse.fromAmount),
+    fromToken: quoteResponse.fromToken as Address,
     gas: quoteResponse.gas ? BigInt(quoteResponse.gas) : undefined,
     gasPrice: quoteResponse.gasPrice ? BigInt(quoteResponse.gasPrice) : undefined,
   };
