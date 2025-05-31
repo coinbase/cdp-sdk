@@ -153,6 +153,58 @@ describe("EvmClient", () => {
       });
       expect(result).toBe(mockServerAccount);
     });
+
+    it("should create a server account with a policy", async () => {
+      const policyId = "550e8400-e29b-41d4-a716-446655440000";
+      const account = {
+        address: "0x123",
+        policies: [policyId],
+      };
+      const createOptions: CreateServerAccountOptions = {
+        name: "test-account",
+        accountPolicy: policyId,
+        idempotencyKey: "test-key",
+      };
+      const mockServerAccount: EvmServerAccount = {
+        address: "0x123" as const,
+        sign: vi.fn().mockResolvedValue("0xsignature"),
+        signMessage: vi.fn().mockResolvedValue("0xsignature"),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature"),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+        type: "evm-server" as const,
+        transfer: vi.fn(),
+        requestFaucet: vi.fn(),
+        sendTransaction: vi.fn(),
+        listTokenBalances: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+      };
+
+      const createEvmAccountMock = CdpOpenApiClient.createEvmAccount as MockedFunction<
+        typeof CdpOpenApiClient.createEvmAccount
+      >;
+      createEvmAccountMock.mockResolvedValue(account);
+
+      const toEvmServerAccountMock = toEvmServerAccount as MockedFunction<
+        typeof toEvmServerAccount
+      >;
+      toEvmServerAccountMock.mockReturnValue(mockServerAccount);
+
+      const result = await client.createAccount(createOptions);
+
+      expect(CdpOpenApiClient.createEvmAccount).toHaveBeenCalledWith(
+        {
+          name: createOptions.name,
+          accountPolicy: createOptions.accountPolicy,
+        },
+        createOptions.idempotencyKey,
+      );
+      expect(toEvmServerAccount).toHaveBeenCalledWith(CdpOpenApiClient, {
+        account,
+      });
+      expect(result).toBe(mockServerAccount);
+    });
   });
 
   describe("createSmartAccount", () => {
@@ -929,6 +981,9 @@ describe("EvmClient", () => {
         listTokenBalances: vi.fn(),
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
         policies: [updateData.accountPolicy],
         quoteFund: vi.fn(),
         fund: vi.fn(),

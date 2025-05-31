@@ -303,6 +303,8 @@ export interface UserOperation {
 export interface CreateServerAccountOptions {
   /** The name of the account. */
   name?: string;
+  /** The policy ID to apply to the account. */
+  accountPolicy?: string;
   /** The idempotency key. */
   idempotencyKey?: string;
 }

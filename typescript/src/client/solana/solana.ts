@@ -56,7 +56,10 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async createAccount(options: CreateAccountOptions = {}): Promise<SolanaAccount> {
     const openApiAccount = await CdpOpenApiClient.createSolanaAccount(
-      options,
+      {
+        name: options.name,
+        accountPolicy: options.accountPolicy,
+      },
       options.idempotencyKey,
     );
 

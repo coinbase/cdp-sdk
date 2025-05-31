@@ -33,7 +33,6 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
 from cdp.openapi_client.models.sign_evm_typed_data200_response import SignEvmTypedData200Response
-from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
 
 
@@ -74,6 +73,39 @@ async def test_create_account(server_account_model_factory):
     mock_evm_accounts_api.create_evm_account.assert_called_once_with(
         x_idempotency_key=test_idempotency_key,
         create_evm_account_request=CreateEvmAccountRequest(name=test_name),
+    )
+
+    assert result.address == evm_server_account_model.address
+    assert result.name == evm_server_account_model.name
+
+
+@pytest.mark.asyncio
+async def test_create_account_with_policy(server_account_model_factory):
+    """Test creating an EVM account with a policy."""
+    evm_server_account_model = server_account_model_factory()
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+    mock_evm_accounts_api.create_evm_account = AsyncMock(return_value=evm_server_account_model)
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    test_name = "test-account"
+    test_account_policy = "abcdef12-3456-7890-1234-567890123456"
+    test_idempotency_key = "65514b9d-ffa1-4d46-ac59-ac88b5f651ae"
+
+    result = await client.create_account(
+        name=test_name,
+        account_policy=test_account_policy,
+        idempotency_key=test_idempotency_key,
+    )
+
+    mock_evm_accounts_api.create_evm_account.assert_called_once_with(
+        x_idempotency_key=test_idempotency_key,
+        create_evm_account_request=CreateEvmAccountRequest(
+            name=test_name,
+            account_policy=test_account_policy,
+        ),
     )
 
     assert result.address == evm_server_account_model.address
@@ -768,7 +800,7 @@ async def test_update_account(server_account_model_factory):
 
     mock_evm_accounts_api.update_evm_account.assert_called_once_with(
         address=test_address,
-        update_evm_account_request=UpdateEvmAccountRequest(
+        create_evm_account_request=CreateEvmAccountRequest(
             name=test_name,
             account_policy=test_account_policy,
         ),

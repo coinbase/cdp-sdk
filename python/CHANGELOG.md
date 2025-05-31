@@ -2,6 +2,15 @@
 
 <!-- towncrier release notes start -->
 
+## [1.10.0] - 2025-05-30
+
+### Features
+
+- Added support for funding an EVM account with eth or usdc using a linked debit card ([#156](https://github.com/coinbase/cdp-sdk/pull/156))
+- Added eth-account compatibility ([#162](https://github.com/coinbase/cdp-sdk/pull/162))
+- Added ability to create account with policy ([#166](https://github.com/coinbase/cdp-sdk/pull/166))
+
+
 ## [1.9.0] - 2025-05-29
 
 ### Features

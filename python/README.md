@@ -182,6 +182,24 @@ async def main():
 asyncio.run(main())
 ```
 
+### Creating EVM or Solana accounts with policies
+
+#### Create an EVM account with policy as follows:
+```python
+account = await cdp.evm.create_account(
+    name="AccountWithPolicy",
+    account_policy="abcdef12-3456-7890-1234-567890123456",
+)
+```
+
+#### Create a Solana account with policy as follows:
+```python
+account = await cdp.solana.create_account(
+    name="AccountWithPolicy",
+    account_policy="abcdef12-3456-7890-1234-567890123456",
+)
+```
+
 ### Updating EVM or Solana accounts
 
 #### Update an EVM account as follows:
@@ -421,6 +439,54 @@ async def main():
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         print(f"Transaction confirmed in block {tx_receipt.blockNumber}")
         print(f"Transaction status: {'Success' if tx_receipt.status == 1 else 'Failed'}")
+
+
+asyncio.run(main())
+```
+
+CDP SDK server accounts are compatible with `eth-account`'s BaseAccount interface via `EvmLocalAccount`. With it, you may sign a hash, message, typed data, or a transaction.
+
+```python
+import asyncio
+
+from cdp import CdpClient
+from dotenv import load_dotenv
+from cdp.evm_local_account import EvmLocalAccount
+from web3 import Web3
+
+load_dotenv()
+
+
+async def main():
+    async with CdpClient() as cdp:
+        account = await cdp.evm.get_or_create_account(name="MyServerAccount")
+        evm_local_account = EvmLocalAccount(account)
+
+        # Sign a transaction.
+        w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
+        nonce = w3.eth.get_transaction_count(evm_local_account.address)
+        transaction = evm_local_account.sign_transaction(
+            transaction_dict={
+                "to": "0x000000000000000000000000000000000000dEaD",
+                "value": 10000000000,
+                "chainId": 84532,
+                "gas": 21000,
+                "maxFeePerGas": 1000000000,
+                "maxPriorityFeePerGas": 1000000000,
+                "nonce": nonce,
+                "type": "0x2",
+            }
+        )
+
+        faucet_hash = await cdp.evm.request_faucet(
+            address=evm_local_account.address, network="base-sepolia", token="eth"
+        )
+        w3.eth.wait_for_transaction_receipt(faucet_hash)
+
+        # Use Web3 to send the transaction.
+        tx_hash = w3.eth.send_raw_transaction(transaction.raw_transaction)
+        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        print(f"Transaction receipt: {tx_receipt}")
 
 
 asyncio.run(main())

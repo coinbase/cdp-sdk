@@ -46,6 +46,35 @@ describe("SolanaClient", () => {
         transfer: expect.any(Function),
       });
     });
+
+    it("should create a Solana account with a policy", async () => {
+      const createSolanaAccountMock = CdpOpenApiClient.createSolanaAccount as MockedFunction<
+        typeof CdpOpenApiClient.createSolanaAccount
+      >;
+      const policyId = "550e8400-e29b-41d4-a716-446655440000";
+      createSolanaAccountMock.mockResolvedValue({
+        address: "cdpSolanaAccount",
+        policies: [policyId],
+      });
+
+      const result = await client.createAccount({
+        accountPolicy: policyId,
+      });
+      expect(result).toEqual({
+        address: "cdpSolanaAccount",
+        requestFaucet: expect.any(Function),
+        signMessage: expect.any(Function),
+        signTransaction: expect.any(Function),
+        transfer: expect.any(Function),
+        policies: [policyId],
+      });
+      expect(createSolanaAccountMock).toHaveBeenCalledWith(
+        {
+          accountPolicy: policyId,
+        },
+        undefined,
+      );
+    });
   });
 
   describe("getAccount", () => {

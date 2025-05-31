@@ -29,7 +29,8 @@ class CreateEvmAccountRequest(BaseModel):
     CreateEvmAccountRequest
     """ # noqa: E501
     name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all EVM accounts in the developer's CDP Project.")
-    __properties: ClassVar[List[str]] = ["name"]
+    account_policy: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The ID of the account-level policy to apply to the account.", alias="accountPolicy")
+    __properties: ClassVar[List[str]] = ["name", "accountPolicy"]
 
     @field_validator('name')
     def name_validate_regular_expression(cls, value):
@@ -39,6 +40,16 @@ class CreateEvmAccountRequest(BaseModel):
 
         if not re.match(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
             raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
+        return value
+
+    @field_validator('account_policy')
+    def account_policy_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value):
+            raise ValueError(r"must validate the regular expression /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/")
         return value
 
     model_config = ConfigDict(
@@ -92,7 +103,8 @@ class CreateEvmAccountRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "name": obj.get("name")
+            "name": obj.get("name"),
+            "accountPolicy": obj.get("accountPolicy")
         })
         return _obj
 

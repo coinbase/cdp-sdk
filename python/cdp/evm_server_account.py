@@ -124,9 +124,10 @@ class EvmServerAccount(BaseAccount, BaseModel):
         message_hex = (
             message_body.hex() if isinstance(message_body, bytes) else HexBytes(message_body).hex()
         )
-        sign_evm_message_request = SignEvmMessageRequest(message=message_hex)
-        signature_response = self.__evm_accounts_api.sign_evm_message(
-            self.address, sign_evm_message_request, x_idempotency_key=idempotency_key
+        signature_response = await self.__evm_accounts_api.sign_evm_message(
+            address=self.address,
+            sign_evm_message_request=SignEvmMessageRequest(message=message_hex),
+            x_idempotency_key=idempotency_key,
         )
 
         message_hash = _hash_eip191_message(signable_message)

@@ -41,7 +41,6 @@ from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageReq
 from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
-from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
 
 
@@ -54,12 +53,16 @@ class EvmClient:
         wrap_class_with_error_tracking(EvmSmartAccount)
 
     async def create_account(
-        self, name: str | None = None, idempotency_key: str | None = None
+        self,
+        name: str | None = None,
+        account_policy: str | None = None,
+        idempotency_key: str | None = None,
     ) -> EvmServerAccount:
         """Create an EVM account.
 
         Args:
             name (str, optional): The name. Defaults to None.
+            account_policy (str, optional): The ID of the account-level policy to apply to the account. Defaults to None.
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
         Returns:
@@ -68,7 +71,10 @@ class EvmClient:
         """
         evm_account = await self.api_clients.evm_accounts.create_evm_account(
             x_idempotency_key=idempotency_key,
-            create_evm_account_request=CreateEvmAccountRequest(name=name),
+            create_evm_account_request=CreateEvmAccountRequest(
+                name=name,
+                account_policy=account_policy,
+            ),
         )
         return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
 
@@ -539,7 +545,7 @@ class EvmClient:
         """
         account = await self.api_clients.evm_accounts.update_evm_account(
             address=address,
-            update_evm_account_request=UpdateEvmAccountRequest(
+            create_evm_account_request=CreateEvmAccountRequest(
                 name=update.name, account_policy=update.account_policy
             ),
             x_idempotency_key=idempotency_key,

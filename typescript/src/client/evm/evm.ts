@@ -110,6 +110,7 @@ export class EvmClient implements EvmClientInterface {
     const openApiAccount = await CdpOpenApiClient.createEvmAccount(
       {
         name: options.name,
+        accountPolicy: options.accountPolicy,
       },
       options.idempotencyKey,
     );

@@ -211,32 +211,39 @@ describe("CDP Client E2E Tests", () => {
     expect(signedHash).toBeDefined();
   });
 
-  it("should update a Solana account", async () => {
-    // Create a new account to update
-    const originalName = generateRandomName();
-    const accountToUpdate = await cdp.solana.createAccount({ name: originalName });
-    expect(accountToUpdate).toBeDefined();
-    expect(accountToUpdate.name).toBe(originalName);
-
-    // Update the account with a new name
-    const updatedName = generateRandomName();
-    const updatedAccount = await cdp.solana.updateAccount({
-      address: accountToUpdate.address,
-      update: {
-        name: updatedName,
+  it("should create an EVM account with a policy", async () => {
+    // Create a new policy
+    const policy = await cdp.policies.createPolicy({
+      policy: {
+        scope: "account",
+        description: "Test policy for e2e evm account",
+        rules: [
+          {
+            action: "reject",
+            operation: "signEvmTransaction",
+            criteria: [
+              {
+                type: "ethValue",
+                ethValue: "1100000000000000000", // 1 ETH
+                operator: ">",
+              },
+            ],
+          },
+        ],
       },
     });
+    expect(policy).toBeDefined();
 
-    // Verify the update was successful
-    expect(updatedAccount).toBeDefined();
-    expect(updatedAccount.address).toBe(accountToUpdate.address);
-    expect(updatedAccount.name).toBe(updatedName);
-
-    // Verify we can get the updated account by its new name
-    const retrievedAccount = await cdp.solana.getAccount({ name: updatedName });
-    expect(retrievedAccount).toBeDefined();
-    expect(retrievedAccount.address).toBe(accountToUpdate.address);
-    expect(retrievedAccount.name).toBe(updatedName);
+    // Create a new account with the policy
+    const name = generateRandomName();
+    const account = await cdp.evm.createAccount({
+      name: name,
+      accountPolicy: policy.id,
+    });
+    expect(account).toBeDefined();
+    expect(account.name).toBe(name);
+    expect(account.policies).toBeDefined();
+    expect(account.policies!.some(p => p === policy.id)).toBe(true);
   });
 
   it("should update an EVM account", async () => {
@@ -262,6 +269,69 @@ describe("CDP Client E2E Tests", () => {
 
     // Verify we can get the updated account by its new name
     const retrievedAccount = await cdp.evm.getAccount({ name: updatedName });
+    expect(retrievedAccount).toBeDefined();
+    expect(retrievedAccount.address).toBe(accountToUpdate.address);
+    expect(retrievedAccount.name).toBe(updatedName);
+  });
+
+  it("should create a Solana account with a policy", async () => {
+    // Create a new policy
+    const policy = await cdp.policies.createPolicy({
+      policy: {
+        scope: "account",
+        description: "Test policy for e2e solana account",
+        rules: [
+          {
+            action: "accept",
+            operation: "signSolTransaction",
+            criteria: [
+              {
+                type: "solAddress",
+                addresses: ["DtdSSG8ZJRZVv5Jx7K1MeWp7Zxcu19GD5wQRGRpQ9uMF"],
+                operator: "in",
+              },
+            ],
+          },
+        ],
+      },
+    });
+    expect(policy).toBeDefined();
+
+    // Create a new account with the policy
+    const name = generateRandomName();
+    const account = await cdp.solana.createAccount({
+      name: name,
+      accountPolicy: policy.id,
+    });
+    expect(account).toBeDefined();
+    expect(account.name).toBe(name);
+    expect(account.policies).toBeDefined();
+    expect(account.policies!.some(p => p === policy.id)).toBe(true);
+  });
+
+  it("should update a Solana account", async () => {
+    // Create a new account to update
+    const originalName = generateRandomName();
+    const accountToUpdate = await cdp.solana.createAccount({ name: originalName });
+    expect(accountToUpdate).toBeDefined();
+    expect(accountToUpdate.name).toBe(originalName);
+
+    // Update the account with a new name
+    const updatedName = generateRandomName();
+    const updatedAccount = await cdp.solana.updateAccount({
+      address: accountToUpdate.address,
+      update: {
+        name: updatedName,
+      },
+    });
+
+    // Verify the update was successful
+    expect(updatedAccount).toBeDefined();
+    expect(updatedAccount.address).toBe(accountToUpdate.address);
+    expect(updatedAccount.name).toBe(updatedName);
+
+    // Verify we can get the updated account by its new name
+    const retrievedAccount = await cdp.solana.getAccount({ name: updatedName });
     expect(retrievedAccount).toBeDefined();
     expect(retrievedAccount.address).toBe(accountToUpdate.address);
     expect(retrievedAccount.name).toBe(updatedName);
@@ -979,7 +1049,9 @@ describe("CDP Client E2E Tests", () => {
     });
 
     it("should list policies", async () => {
-      const result = await cdp.policies.listPolicies();
+      const result = await cdp.policies.listPolicies({
+        pageSize: 100,
+      });
 
       expect(result).toBeDefined();
       expect(result.policies).toBeDefined();
@@ -993,6 +1065,7 @@ describe("CDP Client E2E Tests", () => {
     it("should list policies with scope filter", async () => {
       const result = await cdp.policies.listPolicies({
         scope: "account",
+        pageSize: 100,
       });
 
       expect(result).toBeDefined();
