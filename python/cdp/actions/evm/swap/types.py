@@ -202,7 +202,7 @@ class SwapStrategy(Protocol):
         api_clients: Any,
         from_account: BaseAccount,
         swap_data: SwapQuoteResult,
-        network: str | None = None,
+        network: str,
         permit2_signature: str | None = None,
     ) -> SwapResult:
         """Execute a swap using the strategy.

@@ -277,17 +277,17 @@ async def test_execute_swap_contract_addresses():
 
 
 @pytest.mark.asyncio
-async def test_execute_swap_missing_network():
-    """Test executing swap with missing network in swap data but provided as parameter."""
+async def test_execute_swap_network_parameter():
+    """Test executing swap with network provided as parameter."""
     # Arrange
     mock_api_clients = MagicMock(spec=ApiClients)
     mock_from_account = MagicMock(spec=EvmServerAccount)
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash789")
     strategy = AccountSwapStrategy()
 
-    # Create swap quote without network field - we'll mock it
+    # Create swap quote
     swap_quote = MagicMock(spec=SwapQuoteResult)
-    swap_quote.network = None
+    swap_quote.network = "base"
     swap_quote.quote_id = "quote-789"
     swap_quote.buy_token = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
     swap_quote.sell_token = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
@@ -311,15 +311,6 @@ async def test_execute_swap_missing_network():
 
     # Assert - should succeed with provided network
     assert result.network == "base"
-
-    # Act & Assert - no network provided at all
-    with pytest.raises(ValueError, match="Network must be provided"):
-        await strategy.execute_swap(
-            api_clients=mock_api_clients,
-            from_account=mock_from_account,
-            swap_data=swap_quote,
-            network=None,
-        )
 
 
 def test_singleton_instance():

@@ -16,7 +16,7 @@ class AccountSwapStrategy:
         api_clients: ApiClients,
         from_account: EvmServerAccount,
         swap_data: SwapQuoteResult,
-        network: str | None = None,
+        network: str,
         permit2_signature: str | None = None,
     ) -> SwapResult:
         """Execute a swap for a regular EVM account.
@@ -25,20 +25,13 @@ class AccountSwapStrategy:
             api_clients: The API clients instance
             from_account: The account to execute the swap from
             swap_data: The swap data from create_swap
-            network: The network to execute on (optional, will use network from swap_data if not provided)
+            network: The network to execute on
             permit2_signature: Optional pre-signed Permit2 signature
 
         Returns:
             SwapResult: The result of the swap transaction
 
         """
-        # Use network from swap_data if not provided
-        if network is None:
-            network = swap_data.network
-
-        if network is None:
-            raise ValueError("Network must be provided either in swap_data or as a parameter")
-
         # Handle Permit2 signature if provided
         if permit2_signature:
             # Append signature data to calldata
