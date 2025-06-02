@@ -97,9 +97,17 @@ async def test_import_account(cdp_client):
     """Test importing an account."""
     account = Account.create()
     random_name = generate_random_name()
+
+    import_account_options = {
+        "private_key": account.key.hex(),
+        "name": random_name,
+    }
+
+    if os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY"):
+        import_account_options["encryption_public_key"] = os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY")
+
     imported_account = await cdp_client.evm.import_account(
-        private_key=account.key.hex(),
-        name=random_name,
+        **import_account_options,
     )
     assert imported_account is not None
     assert imported_account.address == account.address
@@ -1536,9 +1544,9 @@ async def _ensure_sufficient_eth_balance(cdp_client, account):
 
         # Verify the balance is now sufficient
         new_balance = w3.eth.get_balance(account.address)
-        assert (
-            new_balance >= min_required_balance
-        ), f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
+        assert new_balance >= min_required_balance, (
+            f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
+        )
         return new_balance
     else:
         print(f"ETH balance is sufficient: {w3.from_wei(eth_balance, 'ether')} ETH")

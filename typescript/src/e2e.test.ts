@@ -16,7 +16,11 @@ import {
 } from "viem";
 import { baseSepolia } from "viem/chains";
 import { CdpClient, CdpClientOptions } from "./client/cdp.js";
-import type { ServerAccount as Account, SmartAccount } from "./client/evm/evm.types.js";
+import type {
+  ServerAccount as Account,
+  ImportServerAccountOptions,
+  SmartAccount,
+} from "./client/evm/evm.types.js";
 import {
   Keypair,
   PublicKey,
@@ -185,11 +189,17 @@ describe("CDP Client E2E Tests", () => {
     const privateKey = generatePrivateKey();
     const randomName = generateRandomName();
 
-    logger.log("Importing account with private key");
-    const importedAccount = await cdp.evm.importAccount({
-      privateKey: privateKey,
+    const importAccountOptions: ImportServerAccountOptions = {
+      privateKey,
       name: randomName,
-    });
+    };
+
+    if (process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY) {
+      importAccountOptions.encryptionPublicKey = process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY;
+    }
+
+    logger.log("Importing account with private key");
+    const importedAccount = await cdp.evm.importAccount(importAccountOptions);
 
     expect(importedAccount).toBeDefined();
     expect(importedAccount.address).toBeDefined();
