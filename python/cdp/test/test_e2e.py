@@ -1544,9 +1544,9 @@ async def _ensure_sufficient_eth_balance(cdp_client, account):
 
         # Verify the balance is now sufficient
         new_balance = w3.eth.get_balance(account.address)
-        assert new_balance >= min_required_balance, (
-            f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
-        )
+        assert (
+            new_balance >= min_required_balance
+        ), f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
         return new_balance
     else:
         print(f"ETH balance is sufficient: {w3.from_wei(eth_balance, 'ether')} ETH")
