@@ -771,6 +771,69 @@ To help you get started with token swaps in your application, we provide the fol
 - [Execute a swap transaction using CDP Accounts (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.swap.py)
 - [Execute a swap transaction using an external account (ie, web3.py)](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/create_swap_quote_viem.py)
 
+### EVM Smart Accounts
+
+For EVM, we support Smart Accounts which are account-abstraction (ERC-4337) accounts. Currently there is only support for Base Sepolia and Base Mainnet for Smart Accounts.
+
+#### Create an EVM account and a smart account as follows:
+
+```python
+import asyncio
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        evm_account = await cdp.evm.create_account()
+        smart_account = await cdp.evm.create_smart_account(
+            owner=evm_account
+        )
+
+asyncio.run(main())
+```
+
+#### Sending User Operations
+
+```python
+import asyncio
+from cdp.evm_call_types import EncodedCall
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        user_operation = await cdp.evm.send_user_operation(
+            smart_account=smart_account,
+            network="base-sepolia",
+            calls=[
+                EncodedCall(
+                    to="0x0000000000000000000000000000000000000000",
+                    value=0,
+                    data="0x"
+                )
+            ]
+        )
+
+asyncio.run(main())
+```
+
+#### In Base Sepolia, all user operations are gasless by default. If you'd like to specify a different paymaster, you can do so as follows:
+
+```python
+import asyncio
+from cdp.evm_call_types import EncodedCall
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        user_operation = await cdp.evm.send_user_operation(
+            smart_account=smart_account,
+            network="base-sepolia",
+            calls=[],
+            paymaster_url="https://some-paymaster-url.com"
+        )
+
+asyncio.run(main())
+```
+
 ## Account Actions
 
 Account objects have actions that can be used to interact with the account. These can be used in place of the `cdp` client.
