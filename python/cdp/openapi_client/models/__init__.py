@@ -32,6 +32,7 @@ from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
 from cdp.openapi_client.models.evm_account import EvmAccount
 from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
 from cdp.openapi_client.models.evm_call import EvmCall
+from cdp.openapi_client.models.evm_message_criterion import EvmMessageCriterion
 from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
@@ -64,8 +65,11 @@ from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransacti
 from cdp.openapi_client.models.send_user_operation_request import SendUserOperationRequest
 from cdp.openapi_client.models.sign_evm_hash200_response import SignEvmHash200Response
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
+from cdp.openapi_client.models.sign_evm_hash_rule import SignEvmHashRule
 from cdp.openapi_client.models.sign_evm_message200_response import SignEvmMessage200Response
+from cdp.openapi_client.models.sign_evm_message_criteria_inner import SignEvmMessageCriteriaInner
 from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageRequest
+from cdp.openapi_client.models.sign_evm_message_rule import SignEvmMessageRule
 from cdp.openapi_client.models.sign_evm_transaction200_response import SignEvmTransaction200Response
 from cdp.openapi_client.models.sign_evm_transaction_criteria_inner import SignEvmTransactionCriteriaInner
 from cdp.openapi_client.models.sign_evm_transaction_request import SignEvmTransactionRequest

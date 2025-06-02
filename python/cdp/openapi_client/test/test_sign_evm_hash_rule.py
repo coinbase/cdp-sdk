@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.rule import Rule
+from cdp.openapi_client.models.sign_evm_hash_rule import SignEvmHashRule
 
-class TestRule(unittest.TestCase):
-    """Rule unit test stubs"""
+class TestSignEvmHashRule(unittest.TestCase):
+    """SignEvmHashRule unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,28 @@ class TestRule(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> Rule:
-        """Test Rule
+    def make_instance(self, include_optional) -> SignEvmHashRule:
+        """Test SignEvmHashRule
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `Rule`
+        # uncomment below to create an instance of `SignEvmHashRule`
         """
-        model = Rule()
+        model = SignEvmHashRule()
         if include_optional:
-            return Rule(
+            return SignEvmHashRule(
                 action = 'accept',
-                operation = 'signEvmHash',
-                criteria = [{type=solAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}]
+                operation = 'signEvmHash'
             )
         else:
-            return Rule(
+            return SignEvmHashRule(
                 action = 'accept',
                 operation = 'signEvmHash',
-                criteria = [{type=solAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}],
         )
         """
 
-    def testRule(self):
-        """Test Rule"""
+    def testSignEvmHashRule(self):
+        """Test SignEvmHashRule"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

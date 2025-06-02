@@ -30,7 +30,7 @@ class SendEvmTransactionRule(BaseModel):
     """ # noqa: E501
     action: StrictStr = Field(description="Whether matching the rule will cause the request to be rejected or accepted.")
     operation: StrictStr = Field(description="The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.")
-    criteria: List[SendEvmTransactionCriteriaInner] = Field(description="A schema for specifying the rejection criteria for the SignEvmTransaction operation.")
+    criteria: List[SendEvmTransactionCriteriaInner] = Field(description="A schema for specifying criteria for the SignEvmTransaction operation.")
     __properties: ClassVar[List[str]] = ["action", "operation", "criteria"]
 
     @field_validator('action')
