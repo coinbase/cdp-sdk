@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Usage: uv run python evm/get_swap_price.py
+
 """
 Example: Get Swap Price
 
@@ -8,56 +10,52 @@ outputs to users before they commit to a swap.
 """
 
 import asyncio
-import os
 from decimal import Decimal
 
 from cdp import CdpClient
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 async def main():
     """Get a swap price quote."""
-    # Get API credentials from environment
-    api_key_name = os.environ.get("CDP_API_KEY_NAME")
-    api_key_private_key = os.environ.get("CDP_API_KEY_PRIVATE_KEY")
-    
-    # Create CDP client
-    cdp = CdpClient(api_key_name, api_key_private_key)
-    
-    # Token addresses on Base
-    USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-    WETH = "0x4200000000000000000000000000000000000006"
-    
-    # Get a price quote for swapping 100 USDC to WETH
-    print("Getting swap price quote...")
-    print(f"From: 100 USDC")
-    print(f"To: WETH")
-    print(f"Network: Base\n")
-    
-    try:
-        # Get the quote
-        quote = await cdp.evm.get_quote(
-            from_token=USDC,
-            to_token=WETH,
-            amount="100000000",  # 100 USDC (6 decimals)
-            network="base"
-        )
+    async with CdpClient() as cdp:
+        # Token addresses on Base
+        USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+        WETH = "0x4200000000000000000000000000000000000006"
         
-        # Display the quote details
-        print("📊 Price Quote:")
-        print(f"   Quote ID: {quote.quote_id}")
-        print(f"   From: {Decimal(quote.from_amount) / Decimal(10**6):.2f} USDC")
-        print(f"   To: {Decimal(quote.to_amount) / Decimal(10**18):.6f} WETH")
+        # Get a price quote for swapping 100 USDC to WETH
+        print("Getting swap price quote...")
+        print(f"From: 100 USDC")
+        print(f"To: WETH")
+        print(f"Network: Base\n")
         
-        # Calculate and display the price
-        from_amount_decimal = Decimal(quote.from_amount) / Decimal(10**6)
-        to_amount_decimal = Decimal(quote.to_amount) / Decimal(10**18)
-        price_per_usdc = to_amount_decimal / from_amount_decimal
-        
-        print(f"   Price: 1 USDC = {price_per_usdc:.8f} WETH")
-        print(f"   Expires at: {quote.expires_at}")
-        
-    except Exception as e:
-        print(f"❌ Error getting quote: {e}")
+        try:
+            # Get the quote
+            quote = await cdp.evm.get_quote(
+                from_token=USDC,
+                to_token=WETH,
+                amount="100000000",  # 100 USDC (6 decimals)
+                network="base"
+            )
+            
+            # Display the quote details
+            print("📊 Price Quote:")
+            print(f"   Quote ID: {quote.quote_id}")
+            print(f"   From: {Decimal(quote.from_amount) / Decimal(10**6):.2f} USDC")
+            print(f"   To: {Decimal(quote.to_amount) / Decimal(10**18):.6f} WETH")
+            
+            # Calculate and display the price
+            from_amount_decimal = Decimal(quote.from_amount) / Decimal(10**6)
+            to_amount_decimal = Decimal(quote.to_amount) / Decimal(10**18)
+            price_per_usdc = to_amount_decimal / from_amount_decimal
+            
+            print(f"   Price: 1 USDC = {price_per_usdc:.8f} WETH")
+            print(f"   Expires at: {quote.expires_at}")
+            
+        except Exception as e:
+            print(f"❌ Error getting quote: {e}")
 
 
 if __name__ == "__main__":
