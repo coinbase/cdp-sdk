@@ -25,36 +25,36 @@ from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
 from typing import Optional, Set
 from typing_extensions import Self
 
-class CreateEvmSwapRequest(BaseModel):
+class CreateEvmSwapQuoteRequest(BaseModel):
     """
-    CreateEvmSwapRequest
+    CreateEvmSwapQuoteRequest
     """ # noqa: E501
     network: EvmSwapsNetwork
-    buy_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token to buy.", alias="buyToken")
-    sell_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token to sell.", alias="sellToken")
-    sell_amount: Annotated[str, Field(strict=True)] = Field(description="The amount of the `sellToken` to sell in atomic units of the token. For example, `1000000000000000000` when selling ETH equates to 1 ETH, `1000000` when selling USDC equates to 1 USDC, etc.", alias="sellAmount")
-    taker: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed address that holds the `sellToken` balance and has the `Permit2` allowance set for the swap.")
+    to_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token to receive.", alias="toToken")
+    from_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token to send.", alias="fromToken")
+    from_amount: Annotated[str, Field(strict=True)] = Field(description="The amount of the `fromToken` to send in atomic units of the token. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.", alias="fromAmount")
+    taker: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed address that holds the `fromToken` balance and has the `Permit2` allowance set for the swap.")
     signer_address: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The 0x-prefixed Externally Owned Account (EOA) address that will sign the `Permit2` EIP-712 permit message. This is only needed if `taker` is a smart contract.", alias="signerAddress")
     gas_price: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The target gas price for the swap transaction, in Wei. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. If not provided, the API will use an estimate based on the current network conditions.", alias="gasPrice")
-    slippage_bps: Optional[Annotated[int, Field(le=10000, strict=True, ge=0)]] = Field(default=100, description="The maximum acceptable slippage of the `buyToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).", alias="slippageBps")
-    __properties: ClassVar[List[str]] = ["network", "buyToken", "sellToken", "sellAmount", "taker", "signerAddress", "gasPrice", "slippageBps"]
+    slippage_bps: Optional[Annotated[int, Field(le=10000, strict=True, ge=0)]] = Field(default=100, description="The maximum acceptable slippage of the `toToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).", alias="slippageBps")
+    __properties: ClassVar[List[str]] = ["network", "toToken", "fromToken", "fromAmount", "taker", "signerAddress", "gasPrice", "slippageBps"]
 
-    @field_validator('buy_token')
-    def buy_token_validate_regular_expression(cls, value):
+    @field_validator('to_token')
+    def to_token_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^0x[a-fA-F0-9]{40}$", value):
             raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{40}$/")
         return value
 
-    @field_validator('sell_token')
-    def sell_token_validate_regular_expression(cls, value):
+    @field_validator('from_token')
+    def from_token_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^0x[a-fA-F0-9]{40}$", value):
             raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{40}$/")
         return value
 
-    @field_validator('sell_amount')
-    def sell_amount_validate_regular_expression(cls, value):
+    @field_validator('from_amount')
+    def from_amount_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^\d+$", value):
             raise ValueError(r"must validate the regular expression /^\d+$/")
@@ -105,7 +105,7 @@ class CreateEvmSwapRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CreateEvmSwapRequest from a JSON string"""
+        """Create an instance of CreateEvmSwapQuoteRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -130,7 +130,7 @@ class CreateEvmSwapRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CreateEvmSwapRequest from a dict"""
+        """Create an instance of CreateEvmSwapQuoteRequest from a dict"""
         if obj is None:
             return None
 
@@ -139,9 +139,9 @@ class CreateEvmSwapRequest(BaseModel):
 
         _obj = cls.model_validate({
             "network": obj.get("network"),
-            "buyToken": obj.get("buyToken"),
-            "sellToken": obj.get("sellToken"),
-            "sellAmount": obj.get("sellAmount"),
+            "toToken": obj.get("toToken"),
+            "fromToken": obj.get("fromToken"),
+            "fromAmount": obj.get("fromAmount"),
             "taker": obj.get("taker"),
             "signerAddress": obj.get("signerAddress"),
             "gasPrice": obj.get("gasPrice"),

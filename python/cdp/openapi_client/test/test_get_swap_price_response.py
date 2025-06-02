@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.get_quote_response import GetQuoteResponse
+from cdp.openapi_client.models.get_swap_price_response import GetSwapPriceResponse
 
-class TestGetQuoteResponse(unittest.TestCase):
-    """GetQuoteResponse unit test stubs"""
+class TestGetSwapPriceResponse(unittest.TestCase):
+    """GetSwapPriceResponse unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,46 +26,46 @@ class TestGetQuoteResponse(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> GetQuoteResponse:
-        """Test GetQuoteResponse
+    def make_instance(self, include_optional) -> GetSwapPriceResponse:
+        """Test GetSwapPriceResponse
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `GetQuoteResponse`
+        # uncomment below to create an instance of `GetSwapPriceResponse`
         """
-        model = GetQuoteResponse()
+        model = GetSwapPriceResponse()
         if include_optional:
-            return GetQuoteResponse(
+            return GetSwapPriceResponse(
                 block_number = '17038723',
-                buy_amount = '1000000000000000000',
-                buy_token = '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+                to_amount = '1000000000000000000',
+                to_token = '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
                 fees = {"gasFee":{"amount":"1000000000000000000","token":"0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"},"protocolFee":{"amount":"1000000000000000000","token":"0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"}},
                 issues = {"allowance":{"currentAllowance":"1000000000","spender":"0x000000000022D473030F116dDEE9F6B43aC78BA3"},"balance":{"token":"0x6B175474E89094C44Da98b954EedeAC495271d0F","currentBalance":"900000000000000000","requiredBalance":"1000000000000000000"},"simulationIncomplete":false},
                 liquidity_available = True,
-                min_buy_amount = '900000000000000000',
-                sell_amount = '1000000000000000000',
-                sell_token = '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+                min_to_amount = '900000000000000000',
+                from_amount = '1000000000000000000',
+                from_token = '0x6B175474E89094C44Da98b954EedeAC495271d0F',
                 gas = '100000',
                 gas_price = '1000000000'
             )
         else:
-            return GetQuoteResponse(
+            return GetSwapPriceResponse(
                 block_number = '17038723',
-                buy_amount = '1000000000000000000',
-                buy_token = '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+                to_amount = '1000000000000000000',
+                to_token = '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
                 fees = {"gasFee":{"amount":"1000000000000000000","token":"0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"},"protocolFee":{"amount":"1000000000000000000","token":"0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"}},
                 issues = {"allowance":{"currentAllowance":"1000000000","spender":"0x000000000022D473030F116dDEE9F6B43aC78BA3"},"balance":{"token":"0x6B175474E89094C44Da98b954EedeAC495271d0F","currentBalance":"900000000000000000","requiredBalance":"1000000000000000000"},"simulationIncomplete":false},
                 liquidity_available = True,
-                min_buy_amount = '900000000000000000',
-                sell_amount = '1000000000000000000',
-                sell_token = '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+                min_to_amount = '900000000000000000',
+                from_amount = '1000000000000000000',
+                from_token = '0x6B175474E89094C44Da98b954EedeAC495271d0F',
                 gas = '100000',
                 gas_price = '1000000000',
         )
         """
 
-    def testGetQuoteResponse(self):
-        """Test GetQuoteResponse"""
+    def testGetSwapPriceResponse(self):
+        """Test GetSwapPriceResponse"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

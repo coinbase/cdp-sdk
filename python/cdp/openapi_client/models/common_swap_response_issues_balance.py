@@ -26,10 +26,10 @@ from typing_extensions import Self
 
 class CommonSwapResponseIssuesBalance(BaseModel):
     """
-    Details of the balance of the `sellToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
+    Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
     """ # noqa: E501
     token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token.")
-    current_balance: Annotated[str, Field(strict=True)] = Field(description="The current balance of the `sellToken` by the `taker`.", alias="currentBalance")
+    current_balance: Annotated[str, Field(strict=True)] = Field(description="The current balance of the `fromToken` by the `taker`.", alias="currentBalance")
     required_balance: Annotated[str, Field(strict=True)] = Field(description="The amount of the token that the `taker` must hold.", alias="requiredBalance")
     __properties: ClassVar[List[str]] = ["token", "currentBalance", "requiredBalance"]
 

@@ -599,7 +599,6 @@ class EvmClient:
         """
         from cdp.actions.evm.swap.types import SwapQuote
         from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
-        from cdp.openapi_client.models.get_quote_response import GetQuoteResponse
 
         # Convert amount to string if it's an integer
         amount_str = str(amount)
@@ -636,12 +635,15 @@ class EvmClient:
         if not response_json.get("liquidityAvailable", False):
             raise ValueError("Swap unavailable: Insufficient liquidity")
 
-        # Parse as GetQuoteResponse
-        quote_data = GetQuoteResponse.from_dict(response_json)
+        # Extract the output amount from response
+        # API uses toAmount/fromAmount but we need to map to our quote model
+        to_amount = response_json.get("toAmount")
+        if not to_amount:
+            raise ValueError("Missing toAmount in response")
 
         # Calculate price ratio
         from_amount_decimal = float(amount_str)
-        to_amount_decimal = float(quote_data.buy_amount)
+        to_amount_decimal = float(to_amount)
         price_ratio = (
             str(to_amount_decimal / from_amount_decimal) if from_amount_decimal > 0 else "0"
         )
@@ -650,7 +652,7 @@ class EvmClient:
         import hashlib
 
         quote_id = hashlib.sha256(
-            f"{from_token}:{to_token}:{amount_str}:{quote_data.buy_amount}".encode()
+            f"{from_token}:{to_token}:{amount_str}:{to_amount}".encode()
         ).hexdigest()[:16]
 
         # Get expiry time (if available in response)
@@ -666,7 +668,7 @@ class EvmClient:
             from_token=from_token,
             to_token=to_token,
             from_amount=amount_str,
-            to_amount=quote_data.buy_amount,
+            to_amount=to_amount,
             price_ratio=price_ratio,
             expires_at=expires_at.isoformat() + "Z",
         )
@@ -680,6 +682,7 @@ class EvmClient:
         taker: str | None = None,
         slippage_bps: int | None = None,
         swap_params: Any | None = None,
+        from_account: Any | None = None,
     ) -> "SwapQuoteResult":
         """Create a swap quote with transaction data.
 
@@ -693,6 +696,7 @@ class EvmClient:
             taker (str, optional): The address that will execute the swap.
             slippage_bps (int, optional): The maximum slippage in basis points (100 = 1%).
             swap_params (SwapParams, optional): Alternatively, provide all params as object.
+            from_account (BaseAccount, optional): The account that will execute the swap (enables execute()).
 
         Returns:
             SwapQuoteResult: The swap quote with transaction data.
@@ -724,10 +728,25 @@ class EvmClient:
             quote = await cdp.evm.create_swap(swap_params=params)
             ```
 
+            **With account for direct execution**:
+            ```python
+            quote = await cdp.evm.create_swap(
+                buy_token="0x4200000000000000000000000000000000000006",
+                sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                sell_amount="100000000",
+                network="base",
+                taker=account.address,
+                from_account=account  # Enables quote.execute()
+            )
+            txn_hash = await quote.execute()
+            ```
+
         """
         from cdp.actions.evm.swap.types import Permit2Data, SwapParams, SwapQuoteResult
-        from cdp.openapi_client.models.create_evm_swap_request import CreateEvmSwapRequest
-        from cdp.openapi_client.models.create_swap_response import CreateSwapResponse
+        from cdp.openapi_client.models.create_evm_swap_quote_request import (
+            CreateEvmSwapQuoteRequest,
+        )
+        from cdp.openapi_client.models.create_swap_quote_response import CreateSwapQuoteResponse
         from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
 
         # Handle SwapParams or individual parameters
@@ -763,17 +782,19 @@ class EvmClient:
             slippage_bps = 100
 
         # Create swap request
-        request = CreateEvmSwapRequest(
+        request = CreateEvmSwapQuoteRequest(
             network=network_enum,
-            buy_token=buy_address,
-            sell_token=sell_address,
-            sell_amount=sell_amount_str,
+            to_token=buy_address,  # Note: API uses to_token for what user wants to buy
+            from_token=sell_address,  # and from_token for what user wants to sell
+            from_amount=sell_amount_str,
             taker=taker_address,
             slippage_bps=slippage_bps,
         )
 
         # Call API
-        response = await self.api_clients.evm_swaps.create_evm_swap_without_preload_content(request)
+        response = await self.api_clients.evm_swaps.create_evm_swap_quote_without_preload_content(
+            request
+        )
 
         # Parse response
         import json
@@ -791,8 +812,8 @@ class EvmClient:
         if not response_json.get("liquidityAvailable", False):
             raise ValueError("Swap unavailable: Insufficient liquidity")
 
-        # Parse as CreateSwapResponse
-        swap_data = CreateSwapResponse.from_dict(response_json)
+        # Parse as CreateSwapQuoteResponse
+        swap_data = CreateSwapQuoteResponse.from_dict(response_json)
 
         # Extract transaction data
         tx_data = swap_data.transaction
@@ -818,17 +839,17 @@ class EvmClient:
         import hashlib
 
         quote_id = hashlib.sha256(
-            f"{buy_token}:{sell_token}:{sell_amount_str}:{swap_data.buy_amount}:{network}".encode()
+            f"{buy_token}:{sell_token}:{sell_amount_str}:{swap_data.to_amount}:{network}".encode()
         ).hexdigest()[:16]
 
         # Convert to SwapQuoteResult
-        return SwapQuoteResult(
+        result = SwapQuoteResult(
             quote_id=quote_id,
             buy_token=buy_token,
             sell_token=sell_token,
-            buy_amount=swap_data.buy_amount,
+            buy_amount=swap_data.to_amount,  # API uses to_amount for what user receives
             sell_amount=sell_amount_str,
-            min_buy_amount=swap_data.min_buy_amount,
+            min_buy_amount=swap_data.min_to_amount,  # API uses min_to_amount
             to=tx_data.to,
             data=tx_data.data,
             value=tx_data.value if tx_data.value else "0",
@@ -844,6 +865,13 @@ class EvmClient:
             permit2_data=permit2_data,
             requires_signature=requires_signature,
         )
+
+        # Set account and api_clients if provided to enable execute()
+        if from_account is not None:
+            result._from_account = from_account
+            result._api_clients = self.api_clients
+
+        return result
 
     async def createSwap(  # noqa: N802
         self,

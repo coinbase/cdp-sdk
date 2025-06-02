@@ -95,69 +95,84 @@ class TestSwapParams:
 class TestSwapOptions:
     """Test SwapOptions."""
 
-    def test_swap_options_with_swap_params(self):
+    def test_swap_options_with_params(self):
         """Test SwapOptions with SwapParams."""
-        swap_params = SwapParams(
+        params = SwapParams(
             buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
             sell_amount="1000000000000000000",
             network="base",
         )
-        options = SwapOptions(swap_params=swap_params)
-        assert options.swap_params == swap_params
-        assert options.swap_quote_result is None
+        options = SwapOptions(swap_params=params)
+        assert options.swap_params == params
+        assert options.swapQuote is None
 
-    def test_swap_options_with_swap_quote_result(self):
+    def test_swap_options_with_quote_result(self):
         """Test SwapOptions with SwapQuoteResult."""
-        result = SwapQuoteResult(
-            quote_id="test-quote",
+        quote = SwapQuoteResult(
+            quote_id="quote-123",
             buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
             buy_amount="2000000000",
             sell_amount="1000000000000000000",
             min_buy_amount="1900000000",
-            to="0x1234567890123456789012345678901234567890",
-            data="0xabcdef",
+            to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
+            data="0x1234abcd",
             value="0",
             network="base",
         )
-        options = SwapOptions(swap_quote_result=result)
-        assert options.swap_quote_result == result
+        options = SwapOptions(swapQuote=quote)
+        assert options.swapQuote == quote
         assert options.swap_params is None
 
-    def test_swap_options_mutually_exclusive(self):
-        """Test that SwapOptions enforces mutual exclusivity."""
-        swap_params = SwapParams(
+    def test_swap_options_backward_compatibility(self):
+        """Test SwapOptions backward compatibility with swap_quote_result."""
+        quote = SwapQuoteResult(
+            quote_id="quote-123",
             buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-            sell_amount="1000",
-            network="base",
-        )
-        result = SwapQuoteResult(
-            quote_id="test-quote",
-            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-            buy_amount="2000",
-            sell_amount="1000",
-            min_buy_amount="1900",
-            to="0x1234567890123456789012345678901234567890",
-            data="0xabcdef",
+            buy_amount="2000000000",
+            sell_amount="1000000000000000000",
+            min_buy_amount="1900000000",
+            to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
+            data="0x1234abcd",
             value="0",
             network="base",
         )
+        # Should still work with old parameter name
+        options = SwapOptions(swap_quote_result=quote)
+        assert options.swapQuote == quote
+        assert options.swap_params is None
 
-        with pytest.raises(
-            ValueError,
-            match="Only one of swap_params or swap_quote_result can be provided",
-        ):
-            SwapOptions(swap_params=swap_params, swap_quote_result=result)
-
-    def test_swap_options_requires_one(self):
-        """Test that SwapOptions requires at least one option."""
-        with pytest.raises(
-            ValueError, match="One of swap_params or swap_quote_result must be provided"
-        ):
+    def test_swap_options_no_options(self):
+        """Test SwapOptions with no options."""
+        with pytest.raises(ValueError, match="One of swap_params or swapQuote must be provided"):
             SwapOptions()
+
+    def test_swap_options_multiple_options(self):
+        """Test SwapOptions with multiple options."""
+        params = SwapParams(
+            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            sell_amount="1000000000000000000",
+            network="base",
+        )
+        quote = SwapQuoteResult(
+            quote_id="quote-123",
+            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            buy_amount="2000000000",
+            sell_amount="1000000000000000000",
+            min_buy_amount="1900000000",
+            to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
+            data="0x1234abcd",
+            value="0",
+            network="base",
+        )
+        with pytest.raises(
+            ValueError, match="Only one of swap_params or swapQuote can be provided"
+        ):
+            SwapOptions(swap_params=params, swapQuote=quote)
 
 
 class TestSwapResult:

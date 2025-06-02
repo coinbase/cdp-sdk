@@ -31,15 +31,15 @@ class CommonSwapResponse(BaseModel):
     CommonSwapResponse
     """ # noqa: E501
     block_number: Annotated[str, Field(strict=True)] = Field(description="The block number at which the liquidity conditions were examined.", alias="blockNumber")
-    buy_amount: Annotated[str, Field(strict=True)] = Field(description="The amount of the `buyToken` that will be received in atomic units of the `buyToken`. For example, `1000000000000000000` when buying ETH equates to 1 ETH, `1000000` when buying USDC equates to 1 USDC, etc.", alias="buyAmount")
-    buy_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token that will be bought.", alias="buyToken")
+    to_amount: Annotated[str, Field(strict=True)] = Field(description="The amount of the `toToken` that will be received in atomic units of the `toToken`. For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc.", alias="toAmount")
+    to_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token that will be received.", alias="toToken")
     fees: CommonSwapResponseFees
     issues: CommonSwapResponseIssues
     liquidity_available: StrictBool = Field(description="Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.", alias="liquidityAvailable")
-    min_buy_amount: Annotated[str, Field(strict=True)] = Field(description="The minimum amount of the `buyToken` that must be received for the swap to succeed, in atomic units of the `buyToken`.  For example, `1000000000000000000` when buying ETH equates to 1 ETH, `1000000` when buying USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.", alias="minBuyAmount")
-    sell_amount: Annotated[str, Field(strict=True)] = Field(description="The amount of the `sellToken` that will be sold in this swap, in atomic units of the `sellToken`. For example, `1000000000000000000` when selling ETH equates to 1 ETH, `1000000` when selling USDC equates to 1 USDC, etc.", alias="sellAmount")
-    sell_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token that will be sold.", alias="sellToken")
-    __properties: ClassVar[List[str]] = ["blockNumber", "buyAmount", "buyToken", "fees", "issues", "liquidityAvailable", "minBuyAmount", "sellAmount", "sellToken"]
+    min_to_amount: Annotated[str, Field(strict=True)] = Field(description="The minimum amount of the `toToken` that must be received for the swap to succeed, in atomic units of the `toToken`.  For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.", alias="minToAmount")
+    from_amount: Annotated[str, Field(strict=True)] = Field(description="The amount of the `fromToken` that will be sent in this swap, in atomic units of the `fromToken`. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.", alias="fromAmount")
+    from_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token that will be sent.", alias="fromToken")
+    __properties: ClassVar[List[str]] = ["blockNumber", "toAmount", "toToken", "fees", "issues", "liquidityAvailable", "minToAmount", "fromAmount", "fromToken"]
 
     @field_validator('block_number')
     def block_number_validate_regular_expression(cls, value):
@@ -48,36 +48,36 @@ class CommonSwapResponse(BaseModel):
             raise ValueError(r"must validate the regular expression /^[1-9]\d*$/")
         return value
 
-    @field_validator('buy_amount')
-    def buy_amount_validate_regular_expression(cls, value):
+    @field_validator('to_amount')
+    def to_amount_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^(0|[1-9]\d*)$", value):
             raise ValueError(r"must validate the regular expression /^(0|[1-9]\d*)$/")
         return value
 
-    @field_validator('buy_token')
-    def buy_token_validate_regular_expression(cls, value):
+    @field_validator('to_token')
+    def to_token_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^0x[a-fA-F0-9]{40}$", value):
             raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{40}$/")
         return value
 
-    @field_validator('min_buy_amount')
-    def min_buy_amount_validate_regular_expression(cls, value):
+    @field_validator('min_to_amount')
+    def min_to_amount_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^(0|[1-9]\d*)$", value):
             raise ValueError(r"must validate the regular expression /^(0|[1-9]\d*)$/")
         return value
 
-    @field_validator('sell_amount')
-    def sell_amount_validate_regular_expression(cls, value):
+    @field_validator('from_amount')
+    def from_amount_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^(0|[1-9]\d*)$", value):
             raise ValueError(r"must validate the regular expression /^(0|[1-9]\d*)$/")
         return value
 
-    @field_validator('sell_token')
-    def sell_token_validate_regular_expression(cls, value):
+    @field_validator('from_token')
+    def from_token_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^0x[a-fA-F0-9]{40}$", value):
             raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{40}$/")
@@ -141,14 +141,14 @@ class CommonSwapResponse(BaseModel):
 
         _obj = cls.model_validate({
             "blockNumber": obj.get("blockNumber"),
-            "buyAmount": obj.get("buyAmount"),
-            "buyToken": obj.get("buyToken"),
+            "toAmount": obj.get("toAmount"),
+            "toToken": obj.get("toToken"),
             "fees": CommonSwapResponseFees.from_dict(obj["fees"]) if obj.get("fees") is not None else None,
             "issues": CommonSwapResponseIssues.from_dict(obj["issues"]) if obj.get("issues") is not None else None,
             "liquidityAvailable": obj.get("liquidityAvailable"),
-            "minBuyAmount": obj.get("minBuyAmount"),
-            "sellAmount": obj.get("sellAmount"),
-            "sellToken": obj.get("sellToken")
+            "minToAmount": obj.get("minToAmount"),
+            "fromAmount": obj.get("fromAmount"),
+            "fromToken": obj.get("fromToken")
         })
         return _obj
 

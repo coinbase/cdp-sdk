@@ -20,10 +20,10 @@ from typing_extensions import Annotated
 from pydantic import Field, field_validator
 from typing import Optional
 from typing_extensions import Annotated
-from cdp.openapi_client.models.create_evm_swap_request import CreateEvmSwapRequest
-from cdp.openapi_client.models.create_swap_response_wrapper import CreateSwapResponseWrapper
+from cdp.openapi_client.models.create_evm_swap_quote_request import CreateEvmSwapQuoteRequest
+from cdp.openapi_client.models.create_swap_quote_response_wrapper import CreateSwapQuoteResponseWrapper
 from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
-from cdp.openapi_client.models.get_swap_quote_response_wrapper import GetSwapQuoteResponseWrapper
+from cdp.openapi_client.models.get_swap_price_response_wrapper import GetSwapPriceResponseWrapper
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
 from cdp.openapi_client.api_response import ApiResponse
@@ -44,9 +44,9 @@ class EVMSwapsApi:
 
 
     @validate_call
-    async def create_evm_swap(
+    async def create_evm_swap_quote(
         self,
-        create_evm_swap_request: CreateEvmSwapRequest,
+        create_evm_swap_quote_request: CreateEvmSwapQuoteRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -59,13 +59,13 @@ class EVMSwapsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> CreateSwapResponseWrapper:
-        """Create a swap
+    ) -> CreateSwapQuoteResponseWrapper:
+        """Create a swap quote
 
-        Create a swap, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
+        Create a swap quote, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
 
-        :param create_evm_swap_request: (required)
-        :type create_evm_swap_request: CreateEvmSwapRequest
+        :param create_evm_swap_quote_request: (required)
+        :type create_evm_swap_quote_request: CreateEvmSwapQuoteRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -88,8 +88,8 @@ class EVMSwapsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._create_evm_swap_serialize(
-            create_evm_swap_request=create_evm_swap_request,
+        _param = self._create_evm_swap_quote_serialize(
+            create_evm_swap_quote_request=create_evm_swap_quote_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -97,7 +97,7 @@ class EVMSwapsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateSwapResponseWrapper",
+            '201': "CreateSwapQuoteResponseWrapper",
             '400': "Error",
             '403': "Error",
             '500': "Error",
@@ -116,9 +116,9 @@ class EVMSwapsApi:
 
 
     @validate_call
-    async def create_evm_swap_with_http_info(
+    async def create_evm_swap_quote_with_http_info(
         self,
-        create_evm_swap_request: CreateEvmSwapRequest,
+        create_evm_swap_quote_request: CreateEvmSwapQuoteRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -131,13 +131,13 @@ class EVMSwapsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[CreateSwapResponseWrapper]:
-        """Create a swap
+    ) -> ApiResponse[CreateSwapQuoteResponseWrapper]:
+        """Create a swap quote
 
-        Create a swap, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
+        Create a swap quote, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
 
-        :param create_evm_swap_request: (required)
-        :type create_evm_swap_request: CreateEvmSwapRequest
+        :param create_evm_swap_quote_request: (required)
+        :type create_evm_swap_quote_request: CreateEvmSwapQuoteRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -160,8 +160,8 @@ class EVMSwapsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._create_evm_swap_serialize(
-            create_evm_swap_request=create_evm_swap_request,
+        _param = self._create_evm_swap_quote_serialize(
+            create_evm_swap_quote_request=create_evm_swap_quote_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -169,7 +169,7 @@ class EVMSwapsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateSwapResponseWrapper",
+            '201': "CreateSwapQuoteResponseWrapper",
             '400': "Error",
             '403': "Error",
             '500': "Error",
@@ -188,9 +188,9 @@ class EVMSwapsApi:
 
 
     @validate_call
-    async def create_evm_swap_without_preload_content(
+    async def create_evm_swap_quote_without_preload_content(
         self,
-        create_evm_swap_request: CreateEvmSwapRequest,
+        create_evm_swap_quote_request: CreateEvmSwapQuoteRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -204,12 +204,12 @@ class EVMSwapsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Create a swap
+        """Create a swap quote
 
-        Create a swap, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
+        Create a swap quote, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
 
-        :param create_evm_swap_request: (required)
-        :type create_evm_swap_request: CreateEvmSwapRequest
+        :param create_evm_swap_quote_request: (required)
+        :type create_evm_swap_quote_request: CreateEvmSwapQuoteRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -232,8 +232,8 @@ class EVMSwapsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._create_evm_swap_serialize(
-            create_evm_swap_request=create_evm_swap_request,
+        _param = self._create_evm_swap_quote_serialize(
+            create_evm_swap_quote_request=create_evm_swap_quote_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -241,7 +241,7 @@ class EVMSwapsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '201': "CreateSwapResponseWrapper",
+            '201': "CreateSwapQuoteResponseWrapper",
             '400': "Error",
             '403': "Error",
             '500': "Error",
@@ -255,9 +255,9 @@ class EVMSwapsApi:
         return response_data.response
 
 
-    def _create_evm_swap_serialize(
+    def _create_evm_swap_quote_serialize(
         self,
-        create_evm_swap_request,
+        create_evm_swap_quote_request,
         _request_auth,
         _content_type,
         _headers,
@@ -283,8 +283,8 @@ class EVMSwapsApi:
         # process the header parameters
         # process the form parameters
         # process the body parameter
-        if create_evm_swap_request is not None:
-            _body_params = create_evm_swap_request
+        if create_evm_swap_quote_request is not None:
+            _body_params = create_evm_swap_quote_request
 
 
         # set the HTTP header `Accept`
@@ -333,12 +333,12 @@ class EVMSwapsApi:
 
 
     @validate_call
-    async def get_evm_swap_quote(
+    async def get_evm_swap_price(
         self,
         network: EvmSwapsNetwork,
-        buy_token: Annotated[str, Field(strict=True)],
-        sell_token: Annotated[str, Field(strict=True)],
-        sell_amount: Annotated[str, Field(strict=True)],
+        to_token: Annotated[str, Field(strict=True)],
+        from_token: Annotated[str, Field(strict=True)],
+        from_amount: Annotated[str, Field(strict=True)],
         taker: Annotated[str, Field(strict=True)],
         signer_address: Optional[Annotated[str, Field(strict=True)]] = None,
         gas_price: Optional[Annotated[str, Field(strict=True)]] = None,
@@ -355,19 +355,19 @@ class EVMSwapsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> GetSwapQuoteResponseWrapper:
-        """Get a quote for a swap
+    ) -> GetSwapPriceResponseWrapper:
+        """Get a price estimate for a swap
 
-        Get a quote for a swap between two tokens on an EVM network.
+        Get a price estimate for a swap between two tokens on an EVM network.
 
         :param network: (required)
         :type network: EvmSwapsNetwork
-        :param buy_token: (required)
-        :type buy_token: str
-        :param sell_token: (required)
-        :type sell_token: str
-        :param sell_amount: (required)
-        :type sell_amount: str
+        :param to_token: (required)
+        :type to_token: str
+        :param from_token: (required)
+        :type from_token: str
+        :param from_amount: (required)
+        :type from_amount: str
         :param taker: (required)
         :type taker: str
         :param signer_address:
@@ -398,11 +398,11 @@ class EVMSwapsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_evm_swap_quote_serialize(
+        _param = self._get_evm_swap_price_serialize(
             network=network,
-            buy_token=buy_token,
-            sell_token=sell_token,
-            sell_amount=sell_amount,
+            to_token=to_token,
+            from_token=from_token,
+            from_amount=from_amount,
             taker=taker,
             signer_address=signer_address,
             gas_price=gas_price,
@@ -414,7 +414,7 @@ class EVMSwapsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetSwapQuoteResponseWrapper",
+            '200': "GetSwapPriceResponseWrapper",
             '400': "Error",
             '403': "Error",
             '500': "Error",
@@ -433,12 +433,12 @@ class EVMSwapsApi:
 
 
     @validate_call
-    async def get_evm_swap_quote_with_http_info(
+    async def get_evm_swap_price_with_http_info(
         self,
         network: EvmSwapsNetwork,
-        buy_token: Annotated[str, Field(strict=True)],
-        sell_token: Annotated[str, Field(strict=True)],
-        sell_amount: Annotated[str, Field(strict=True)],
+        to_token: Annotated[str, Field(strict=True)],
+        from_token: Annotated[str, Field(strict=True)],
+        from_amount: Annotated[str, Field(strict=True)],
         taker: Annotated[str, Field(strict=True)],
         signer_address: Optional[Annotated[str, Field(strict=True)]] = None,
         gas_price: Optional[Annotated[str, Field(strict=True)]] = None,
@@ -455,19 +455,19 @@ class EVMSwapsApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[GetSwapQuoteResponseWrapper]:
-        """Get a quote for a swap
+    ) -> ApiResponse[GetSwapPriceResponseWrapper]:
+        """Get a price estimate for a swap
 
-        Get a quote for a swap between two tokens on an EVM network.
+        Get a price estimate for a swap between two tokens on an EVM network.
 
         :param network: (required)
         :type network: EvmSwapsNetwork
-        :param buy_token: (required)
-        :type buy_token: str
-        :param sell_token: (required)
-        :type sell_token: str
-        :param sell_amount: (required)
-        :type sell_amount: str
+        :param to_token: (required)
+        :type to_token: str
+        :param from_token: (required)
+        :type from_token: str
+        :param from_amount: (required)
+        :type from_amount: str
         :param taker: (required)
         :type taker: str
         :param signer_address:
@@ -498,11 +498,11 @@ class EVMSwapsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_evm_swap_quote_serialize(
+        _param = self._get_evm_swap_price_serialize(
             network=network,
-            buy_token=buy_token,
-            sell_token=sell_token,
-            sell_amount=sell_amount,
+            to_token=to_token,
+            from_token=from_token,
+            from_amount=from_amount,
             taker=taker,
             signer_address=signer_address,
             gas_price=gas_price,
@@ -514,7 +514,7 @@ class EVMSwapsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetSwapQuoteResponseWrapper",
+            '200': "GetSwapPriceResponseWrapper",
             '400': "Error",
             '403': "Error",
             '500': "Error",
@@ -533,12 +533,12 @@ class EVMSwapsApi:
 
 
     @validate_call
-    async def get_evm_swap_quote_without_preload_content(
+    async def get_evm_swap_price_without_preload_content(
         self,
         network: EvmSwapsNetwork,
-        buy_token: Annotated[str, Field(strict=True)],
-        sell_token: Annotated[str, Field(strict=True)],
-        sell_amount: Annotated[str, Field(strict=True)],
+        to_token: Annotated[str, Field(strict=True)],
+        from_token: Annotated[str, Field(strict=True)],
+        from_amount: Annotated[str, Field(strict=True)],
         taker: Annotated[str, Field(strict=True)],
         signer_address: Optional[Annotated[str, Field(strict=True)]] = None,
         gas_price: Optional[Annotated[str, Field(strict=True)]] = None,
@@ -556,18 +556,18 @@ class EVMSwapsApi:
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
     ) -> RESTResponseType:
-        """Get a quote for a swap
+        """Get a price estimate for a swap
 
-        Get a quote for a swap between two tokens on an EVM network.
+        Get a price estimate for a swap between two tokens on an EVM network.
 
         :param network: (required)
         :type network: EvmSwapsNetwork
-        :param buy_token: (required)
-        :type buy_token: str
-        :param sell_token: (required)
-        :type sell_token: str
-        :param sell_amount: (required)
-        :type sell_amount: str
+        :param to_token: (required)
+        :type to_token: str
+        :param from_token: (required)
+        :type from_token: str
+        :param from_amount: (required)
+        :type from_amount: str
         :param taker: (required)
         :type taker: str
         :param signer_address:
@@ -598,11 +598,11 @@ class EVMSwapsApi:
         :return: Returns the result object.
         """ # noqa: E501
 
-        _param = self._get_evm_swap_quote_serialize(
+        _param = self._get_evm_swap_price_serialize(
             network=network,
-            buy_token=buy_token,
-            sell_token=sell_token,
-            sell_amount=sell_amount,
+            to_token=to_token,
+            from_token=from_token,
+            from_amount=from_amount,
             taker=taker,
             signer_address=signer_address,
             gas_price=gas_price,
@@ -614,7 +614,7 @@ class EVMSwapsApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "GetSwapQuoteResponseWrapper",
+            '200': "GetSwapPriceResponseWrapper",
             '400': "Error",
             '403': "Error",
             '500': "Error",
@@ -628,12 +628,12 @@ class EVMSwapsApi:
         return response_data.response
 
 
-    def _get_evm_swap_quote_serialize(
+    def _get_evm_swap_price_serialize(
         self,
         network,
-        buy_token,
-        sell_token,
-        sell_amount,
+        to_token,
+        from_token,
+        from_amount,
         taker,
         signer_address,
         gas_price,
@@ -664,17 +664,17 @@ class EVMSwapsApi:
             
             _query_params.append(('network', network.value))
             
-        if buy_token is not None:
+        if to_token is not None:
             
-            _query_params.append(('buyToken', buy_token))
+            _query_params.append(('toToken', to_token))
             
-        if sell_token is not None:
+        if from_token is not None:
             
-            _query_params.append(('sellToken', sell_token))
+            _query_params.append(('fromToken', from_token))
             
-        if sell_amount is not None:
+        if from_amount is not None:
             
-            _query_params.append(('sellAmount', sell_amount))
+            _query_params.append(('fromAmount', from_amount))
             
         if taker is not None:
             

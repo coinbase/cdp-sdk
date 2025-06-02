@@ -3,7 +3,7 @@
 from typing import Any, Protocol
 
 from eth_account.signers.base import BaseAccount
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, PrivateAttr, field_validator
 
 # Supported networks for swap
 SUPPORTED_SWAP_NETWORKS = ["base", "ethereum"]
@@ -88,20 +88,53 @@ class SwapQuoteResult(BaseModel):
         default=False, description="Whether Permit2 signature is needed"
     )
 
+    # Private fields to store the account that created this quote
+    _from_account: BaseAccount | None = PrivateAttr(default=None)
+    _api_clients: Any | None = PrivateAttr(default=None)
+
+    async def execute(self) -> str:
+        """Execute the swap quote.
+
+        Returns:
+            str: The transaction hash of the executed swap.
+
+        Raises:
+            ValueError: If the quote was not created through an account's swap method.
+
+        """
+        if self._from_account is None or self._api_clients is None:
+            raise ValueError(
+                "This swap quote cannot be executed directly. " "Use account.swap(quote) instead."
+            )
+
+        from cdp.actions.evm.swap import AccountSwapStrategy, SwapOptions, swap
+
+        result = await swap(
+            api_clients=self._api_clients,
+            from_account=self._from_account,
+            swap_options=SwapOptions(swapQuote=self),
+            swap_strategy=AccountSwapStrategy(),
+        )
+        return result.transaction_hash
+
 
 class SwapOptions(BaseModel):
     """Options for executing a swap.
 
     This supports multiple patterns:
     1. swap_params: New OpenAPI-aligned parameters
-    2. swap_quote_result: Pre-created swap quote from create_swap
+    2. swapQuote: Pre-created swap quote from create_swap
     """
 
     swap_params: SwapParams | None = None
-    swap_quote_result: SwapQuoteResult | None = None
+    swapQuote: SwapQuoteResult | None = None  # noqa: N815
 
     def __init__(self, **data):
         """Initialize SwapOptions with validation."""
+        # Handle backward compatibility
+        if "swap_quote_result" in data:
+            data["swapQuote"] = data.pop("swap_quote_result")
+
         super().__init__(**data)
 
         # Count how many options are provided
@@ -109,14 +142,14 @@ class SwapOptions(BaseModel):
             x is not None
             for x in [
                 self.swap_params,
-                self.swap_quote_result,
+                self.swapQuote,
             ]
         )
 
         if options_count == 0:
-            raise ValueError("One of swap_params or swap_quote_result must be provided")
+            raise ValueError("One of swap_params or swapQuote must be provided")
         elif options_count > 1:
-            raise ValueError("Only one of swap_params or swap_quote_result can be provided")
+            raise ValueError("Only one of swap_params or swapQuote can be provided")
 
 
 class SwapQuote(BaseModel):

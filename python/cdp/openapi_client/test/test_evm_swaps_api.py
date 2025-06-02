@@ -27,17 +27,17 @@ class TestEVMSwapsApi(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self) -> None:
         await self.api.api_client.close()
 
-    async def test_create_evm_swap(self) -> None:
-        """Test case for create_evm_swap
+    async def test_create_evm_swap_quote(self) -> None:
+        """Test case for create_evm_swap_quote
 
-        Create a swap
+        Create a swap quote
         """
         pass
 
-    async def test_get_evm_swap_quote(self) -> None:
-        """Test case for get_evm_swap_quote
+    async def test_get_evm_swap_price(self) -> None:
+        """Test case for get_evm_swap_price
 
-        Get a quote for a swap
+        Get a price estimate for a swap
         """
         pass
 

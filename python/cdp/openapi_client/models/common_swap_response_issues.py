@@ -31,7 +31,7 @@ class CommonSwapResponseIssues(BaseModel):
     """ # noqa: E501
     allowance: Optional[CommonSwapResponseIssuesAllowance]
     balance: Optional[CommonSwapResponseIssuesBalance]
-    simulation_incomplete: StrictBool = Field(description="This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `sellToken`. Note that this does not necessarily mean that the trade will revert.", alias="simulationIncomplete")
+    simulation_incomplete: StrictBool = Field(description="This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `fromToken`. Note that this does not necessarily mean that the trade will revert.", alias="simulationIncomplete")
     __properties: ClassVar[List[str]] = ["allowance", "balance", "simulationIncomplete"]
 
     model_config = ConfigDict(

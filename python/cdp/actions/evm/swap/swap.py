@@ -59,7 +59,7 @@ async def swap(
         result = await swap(
             api_clients=api_clients,
             from_account=account,
-            swap_options=SwapOptions(swap_quote_result=swap_quote),
+            swap_options=SwapOptions(swapQuote=swap_quote),
             swap_strategy=AccountSwapStrategy()
         )
         ```
@@ -104,9 +104,9 @@ async def swap(
         swap_data = swap_quote
         network = params.network
 
-    elif swap_options.swap_quote_result:
+    elif swap_options.swapQuote:
         # Pattern 2: Pre-created swap quote
-        swap_quote = swap_options.swap_quote_result
+        swap_quote = swap_options.swapQuote
 
         # Handle Permit2 signature if required
         if swap_quote.requires_signature and swap_quote.permit2_data:

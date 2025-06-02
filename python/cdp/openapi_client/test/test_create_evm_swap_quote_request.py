@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.create_evm_swap_request import CreateEvmSwapRequest
+from cdp.openapi_client.models.create_evm_swap_quote_request import CreateEvmSwapQuoteRequest
 
-class TestCreateEvmSwapRequest(unittest.TestCase):
-    """CreateEvmSwapRequest unit test stubs"""
+class TestCreateEvmSwapQuoteRequest(unittest.TestCase):
+    """CreateEvmSwapQuoteRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,37 +26,37 @@ class TestCreateEvmSwapRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CreateEvmSwapRequest:
-        """Test CreateEvmSwapRequest
+    def make_instance(self, include_optional) -> CreateEvmSwapQuoteRequest:
+        """Test CreateEvmSwapQuoteRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CreateEvmSwapRequest`
+        # uncomment below to create an instance of `CreateEvmSwapQuoteRequest`
         """
-        model = CreateEvmSwapRequest()
+        model = CreateEvmSwapQuoteRequest()
         if include_optional:
-            return CreateEvmSwapRequest(
+            return CreateEvmSwapQuoteRequest(
                 network = 'base',
-                buy_token = '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
-                sell_token = '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-                sell_amount = '1000000000000000000',
+                to_token = '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+                from_token = '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+                from_amount = '1000000000000000000',
                 taker = '0xAc0974bec39a17e36ba4a6b4d238ff944bacb478',
                 signer_address = '0x922f49447d8a07e3bd95bd0d56f35241523fbab8',
                 gas_price = '1000000000',
                 slippage_bps = 100
             )
         else:
-            return CreateEvmSwapRequest(
+            return CreateEvmSwapQuoteRequest(
                 network = 'base',
-                buy_token = '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
-                sell_token = '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-                sell_amount = '1000000000000000000',
+                to_token = '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+                from_token = '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+                from_amount = '1000000000000000000',
                 taker = '0xAc0974bec39a17e36ba4a6b4d238ff944bacb478',
         )
         """
 
-    def testCreateEvmSwapRequest(self):
-        """Test CreateEvmSwapRequest"""
+    def testCreateEvmSwapQuoteRequest(self):
+        """Test CreateEvmSwapQuoteRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

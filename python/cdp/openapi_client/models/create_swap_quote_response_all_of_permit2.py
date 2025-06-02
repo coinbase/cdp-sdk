@@ -25,9 +25,9 @@ from cdp.openapi_client.models.eip712_message import EIP712Message
 from typing import Optional, Set
 from typing_extensions import Self
 
-class CreateSwapResponseAllOfPermit2(BaseModel):
+class CreateSwapQuoteResponseAllOfPermit2(BaseModel):
     """
-    The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `sellToken` is the native token or the transaction is a native token wrap / unwrap.
+    The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `fromToken` is the native token or the transaction is a native token wrap / unwrap.
     """ # noqa: E501
     hash: Annotated[str, Field(strict=True)] = Field(description="The hash for the approval according to [EIP-712](https://eips.ethereum.org/EIPS/eip-712). Computing the hash of the `eip712` field should match the value of this field.")
     eip712: EIP712Message
@@ -58,7 +58,7 @@ class CreateSwapResponseAllOfPermit2(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CreateSwapResponseAllOfPermit2 from a JSON string"""
+        """Create an instance of CreateSwapQuoteResponseAllOfPermit2 from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -86,7 +86,7 @@ class CreateSwapResponseAllOfPermit2(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CreateSwapResponseAllOfPermit2 from a dict"""
+        """Create an instance of CreateSwapQuoteResponseAllOfPermit2 from a dict"""
         if obj is None:
             return None
 

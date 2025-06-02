@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.create_swap_response_all_of_permit2 import CreateSwapResponseAllOfPermit2
+from cdp.openapi_client.models.create_swap_quote_response_all_of_permit2 import CreateSwapQuoteResponseAllOfPermit2
 
-class TestCreateSwapResponseAllOfPermit2(unittest.TestCase):
-    """CreateSwapResponseAllOfPermit2 unit test stubs"""
+class TestCreateSwapQuoteResponseAllOfPermit2(unittest.TestCase):
+    """CreateSwapQuoteResponseAllOfPermit2 unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,28 +26,28 @@ class TestCreateSwapResponseAllOfPermit2(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CreateSwapResponseAllOfPermit2:
-        """Test CreateSwapResponseAllOfPermit2
+    def make_instance(self, include_optional) -> CreateSwapQuoteResponseAllOfPermit2:
+        """Test CreateSwapQuoteResponseAllOfPermit2
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CreateSwapResponseAllOfPermit2`
+        # uncomment below to create an instance of `CreateSwapQuoteResponseAllOfPermit2`
         """
-        model = CreateSwapResponseAllOfPermit2()
+        model = CreateSwapQuoteResponseAllOfPermit2()
         if include_optional:
-            return CreateSwapResponseAllOfPermit2(
+            return CreateSwapQuoteResponseAllOfPermit2(
                 hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
                 eip712 = {"domain":{"name":"Permit2","chainId":1,"verifyingContract":"0x000000000022D473030F116dDEE9F6B43aC78BA3"},"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"PermitTransferFrom":[{"name":"permitted","type":"TokenPermissions"},{"name":"spender","type":"address"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}],"TokenPermissions":[{"name":"token","type":"address"},{"name":"amount","type":"uint256"}]},"primaryType":"PermitTransferFrom","message":{"permitted":{"token":"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48","amount":"1000000"},"spender":"0xFfFfFfFFfFFfFFfFFfFFFFFffFFFffffFfFFFfFf","nonce":"123456","deadline":"1717123200"}}
             )
         else:
-            return CreateSwapResponseAllOfPermit2(
+            return CreateSwapQuoteResponseAllOfPermit2(
                 hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
                 eip712 = {"domain":{"name":"Permit2","chainId":1,"verifyingContract":"0x000000000022D473030F116dDEE9F6B43aC78BA3"},"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"PermitTransferFrom":[{"name":"permitted","type":"TokenPermissions"},{"name":"spender","type":"address"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}],"TokenPermissions":[{"name":"token","type":"address"},{"name":"amount","type":"uint256"}]},"primaryType":"PermitTransferFrom","message":{"permitted":{"token":"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48","amount":"1000000"},"spender":"0xFfFfFfFFfFFfFFfFFfFFFFFffFFFffffFfFFFfFf","nonce":"123456","deadline":"1717123200"}},
         )
         """
 
-    def testCreateSwapResponseAllOfPermit2(self):
-        """Test CreateSwapResponseAllOfPermit2"""
+    def testCreateSwapQuoteResponseAllOfPermit2(self):
+        """Test CreateSwapQuoteResponseAllOfPermit2"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

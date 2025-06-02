@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.create_swap_response_all_of_transaction import CreateSwapResponseAllOfTransaction
+from cdp.openapi_client.models.create_swap_quote_response_all_of_transaction import CreateSwapQuoteResponseAllOfTransaction
 
-class TestCreateSwapResponseAllOfTransaction(unittest.TestCase):
-    """CreateSwapResponseAllOfTransaction unit test stubs"""
+class TestCreateSwapQuoteResponseAllOfTransaction(unittest.TestCase):
+    """CreateSwapQuoteResponseAllOfTransaction unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,16 +26,16 @@ class TestCreateSwapResponseAllOfTransaction(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CreateSwapResponseAllOfTransaction:
-        """Test CreateSwapResponseAllOfTransaction
+    def make_instance(self, include_optional) -> CreateSwapQuoteResponseAllOfTransaction:
+        """Test CreateSwapQuoteResponseAllOfTransaction
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CreateSwapResponseAllOfTransaction`
+        # uncomment below to create an instance of `CreateSwapQuoteResponseAllOfTransaction`
         """
-        model = CreateSwapResponseAllOfTransaction()
+        model = CreateSwapQuoteResponseAllOfTransaction()
         if include_optional:
-            return CreateSwapResponseAllOfTransaction(
+            return CreateSwapQuoteResponseAllOfTransaction(
                 to = '0x000000000022D473030F116dDEE9F6B43aC78BA3',
                 data = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
                 gas = '100000',
@@ -43,7 +43,7 @@ class TestCreateSwapResponseAllOfTransaction(unittest.TestCase):
                 value = '1000000000000000000'
             )
         else:
-            return CreateSwapResponseAllOfTransaction(
+            return CreateSwapQuoteResponseAllOfTransaction(
                 to = '0x000000000022D473030F116dDEE9F6B43aC78BA3',
                 data = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
                 gas = '100000',
@@ -52,8 +52,8 @@ class TestCreateSwapResponseAllOfTransaction(unittest.TestCase):
         )
         """
 
-    def testCreateSwapResponseAllOfTransaction(self):
-        """Test CreateSwapResponseAllOfTransaction"""
+    def testCreateSwapQuoteResponseAllOfTransaction(self):
+        """Test CreateSwapQuoteResponseAllOfTransaction"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

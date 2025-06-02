@@ -25,18 +25,19 @@ class AccountSwapStrategy:
             api_clients: The API clients instance
             from_account: The account to execute the swap from
             swap_data: The swap data from create_swap
-            network: The network to execute on (optional, can be determined from account)
+            network: The network to execute on (optional, will use network from swap_data if not provided)
             permit2_signature: Optional pre-signed Permit2 signature
 
         Returns:
             SwapResult: The result of the swap transaction
 
         """
-        # If network not provided, get it from the account
+        # Use network from swap_data if not provided
         if network is None:
-            # For now, we'll require network to be passed
-            # In the future, we could store network info on the account
-            raise ValueError("Network must be provided for swap execution")
+            network = swap_data.network
+
+        if network is None:
+            raise ValueError("Network must be provided either in swap_data or as a parameter")
 
         # Handle Permit2 signature if provided
         if permit2_signature:

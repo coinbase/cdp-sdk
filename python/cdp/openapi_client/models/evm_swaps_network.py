@@ -29,7 +29,6 @@ class EvmSwapsNetwork(str, Enum):
     """
     BASE = 'base'
     ETHEREUM = 'ethereum'
-    ETHEREUM_MINUS_SEPOLIA = 'ethereum-sepolia'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

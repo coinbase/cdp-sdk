@@ -23,25 +23,27 @@ from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.common_swap_response_fees import CommonSwapResponseFees
 from cdp.openapi_client.models.common_swap_response_issues import CommonSwapResponseIssues
+from cdp.openapi_client.models.create_swap_quote_response_all_of_permit2 import CreateSwapQuoteResponseAllOfPermit2
+from cdp.openapi_client.models.create_swap_quote_response_all_of_transaction import CreateSwapQuoteResponseAllOfTransaction
 from typing import Optional, Set
 from typing_extensions import Self
 
-class GetQuoteResponse(BaseModel):
+class CreateSwapQuoteResponse(BaseModel):
     """
-    GetQuoteResponse
+    CreateSwapQuoteResponse
     """ # noqa: E501
     block_number: Annotated[str, Field(strict=True)] = Field(description="The block number at which the liquidity conditions were examined.", alias="blockNumber")
-    buy_amount: Annotated[str, Field(strict=True)] = Field(description="The amount of the `buyToken` that will be received in atomic units of the `buyToken`. For example, `1000000000000000000` when buying ETH equates to 1 ETH, `1000000` when buying USDC equates to 1 USDC, etc.", alias="buyAmount")
-    buy_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token that will be bought.", alias="buyToken")
+    to_amount: Annotated[str, Field(strict=True)] = Field(description="The amount of the `toToken` that will be received in atomic units of the `toToken`. For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc.", alias="toAmount")
+    to_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token that will be received.", alias="toToken")
     fees: CommonSwapResponseFees
     issues: CommonSwapResponseIssues
     liquidity_available: StrictBool = Field(description="Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.", alias="liquidityAvailable")
-    min_buy_amount: Annotated[str, Field(strict=True)] = Field(description="The minimum amount of the `buyToken` that must be received for the swap to succeed, in atomic units of the `buyToken`.  For example, `1000000000000000000` when buying ETH equates to 1 ETH, `1000000` when buying USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.", alias="minBuyAmount")
-    sell_amount: Annotated[str, Field(strict=True)] = Field(description="The amount of the `sellToken` that will be sold in this swap, in atomic units of the `sellToken`. For example, `1000000000000000000` when selling ETH equates to 1 ETH, `1000000` when selling USDC equates to 1 USDC, etc.", alias="sellAmount")
-    sell_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token that will be sold.", alias="sellToken")
-    gas: Optional[Annotated[str, Field(strict=True)]] = Field(description="The estimated gas limit that should be used to send the transaction to guarantee settlement.")
-    gas_price: Annotated[str, Field(strict=True)] = Field(description="The gas price, in Wei, that should be used to send the transaction. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. The transaction should be sent with this gas price to guarantee settlement.", alias="gasPrice")
-    __properties: ClassVar[List[str]] = ["blockNumber", "buyAmount", "buyToken", "fees", "issues", "liquidityAvailable", "minBuyAmount", "sellAmount", "sellToken", "gas", "gasPrice"]
+    min_to_amount: Annotated[str, Field(strict=True)] = Field(description="The minimum amount of the `toToken` that must be received for the swap to succeed, in atomic units of the `toToken`.  For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.", alias="minToAmount")
+    from_amount: Annotated[str, Field(strict=True)] = Field(description="The amount of the `fromToken` that will be sent in this swap, in atomic units of the `fromToken`. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.", alias="fromAmount")
+    from_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token that will be sent.", alias="fromToken")
+    permit2: Optional[CreateSwapQuoteResponseAllOfPermit2]
+    transaction: CreateSwapQuoteResponseAllOfTransaction
+    __properties: ClassVar[List[str]] = ["blockNumber", "toAmount", "toToken", "fees", "issues", "liquidityAvailable", "minToAmount", "fromAmount", "fromToken", "permit2", "transaction"]
 
     @field_validator('block_number')
     def block_number_validate_regular_expression(cls, value):
@@ -50,56 +52,39 @@ class GetQuoteResponse(BaseModel):
             raise ValueError(r"must validate the regular expression /^[1-9]\d*$/")
         return value
 
-    @field_validator('buy_amount')
-    def buy_amount_validate_regular_expression(cls, value):
+    @field_validator('to_amount')
+    def to_amount_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^(0|[1-9]\d*)$", value):
             raise ValueError(r"must validate the regular expression /^(0|[1-9]\d*)$/")
         return value
 
-    @field_validator('buy_token')
-    def buy_token_validate_regular_expression(cls, value):
+    @field_validator('to_token')
+    def to_token_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^0x[a-fA-F0-9]{40}$", value):
             raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{40}$/")
         return value
 
-    @field_validator('min_buy_amount')
-    def min_buy_amount_validate_regular_expression(cls, value):
+    @field_validator('min_to_amount')
+    def min_to_amount_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^(0|[1-9]\d*)$", value):
             raise ValueError(r"must validate the regular expression /^(0|[1-9]\d*)$/")
         return value
 
-    @field_validator('sell_amount')
-    def sell_amount_validate_regular_expression(cls, value):
+    @field_validator('from_amount')
+    def from_amount_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^(0|[1-9]\d*)$", value):
             raise ValueError(r"must validate the regular expression /^(0|[1-9]\d*)$/")
         return value
 
-    @field_validator('sell_token')
-    def sell_token_validate_regular_expression(cls, value):
+    @field_validator('from_token')
+    def from_token_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^0x[a-fA-F0-9]{40}$", value):
             raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{40}$/")
-        return value
-
-    @field_validator('gas')
-    def gas_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^\d+$", value):
-            raise ValueError(r"must validate the regular expression /^\d+$/")
-        return value
-
-    @field_validator('gas_price')
-    def gas_price_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^\d+$", value):
-            raise ValueError(r"must validate the regular expression /^\d+$/")
         return value
 
     model_config = ConfigDict(
@@ -120,7 +105,7 @@ class GetQuoteResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of GetQuoteResponse from a JSON string"""
+        """Create an instance of CreateSwapQuoteResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -147,16 +132,22 @@ class GetQuoteResponse(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of issues
         if self.issues:
             _dict['issues'] = self.issues.to_dict()
-        # set to None if gas (nullable) is None
+        # override the default output from pydantic by calling `to_dict()` of permit2
+        if self.permit2:
+            _dict['permit2'] = self.permit2.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of transaction
+        if self.transaction:
+            _dict['transaction'] = self.transaction.to_dict()
+        # set to None if permit2 (nullable) is None
         # and model_fields_set contains the field
-        if self.gas is None and "gas" in self.model_fields_set:
-            _dict['gas'] = None
+        if self.permit2 is None and "permit2" in self.model_fields_set:
+            _dict['permit2'] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of GetQuoteResponse from a dict"""
+        """Create an instance of CreateSwapQuoteResponse from a dict"""
         if obj is None:
             return None
 
@@ -165,16 +156,16 @@ class GetQuoteResponse(BaseModel):
 
         _obj = cls.model_validate({
             "blockNumber": obj.get("blockNumber"),
-            "buyAmount": obj.get("buyAmount"),
-            "buyToken": obj.get("buyToken"),
+            "toAmount": obj.get("toAmount"),
+            "toToken": obj.get("toToken"),
             "fees": CommonSwapResponseFees.from_dict(obj["fees"]) if obj.get("fees") is not None else None,
             "issues": CommonSwapResponseIssues.from_dict(obj["issues"]) if obj.get("issues") is not None else None,
             "liquidityAvailable": obj.get("liquidityAvailable"),
-            "minBuyAmount": obj.get("minBuyAmount"),
-            "sellAmount": obj.get("sellAmount"),
-            "sellToken": obj.get("sellToken"),
-            "gas": obj.get("gas"),
-            "gasPrice": obj.get("gasPrice")
+            "minToAmount": obj.get("minToAmount"),
+            "fromAmount": obj.get("fromAmount"),
+            "fromToken": obj.get("fromToken"),
+            "permit2": CreateSwapQuoteResponseAllOfPermit2.from_dict(obj["permit2"]) if obj.get("permit2") is not None else None,
+            "transaction": CreateSwapQuoteResponseAllOfTransaction.from_dict(obj["transaction"]) if obj.get("transaction") is not None else None
         })
         return _obj
 

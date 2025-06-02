@@ -18,24 +18,24 @@ import json
 import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
-from cdp.openapi_client.models.get_quote_response import GetQuoteResponse
+from cdp.openapi_client.models.get_swap_price_response import GetSwapPriceResponse
 from cdp.openapi_client.models.swap_unavailable_response import SwapUnavailableResponse
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-GETSWAPQUOTERESPONSEWRAPPER_ONE_OF_SCHEMAS = ["GetQuoteResponse", "SwapUnavailableResponse"]
+GETSWAPPRICERESPONSEWRAPPER_ONE_OF_SCHEMAS = ["GetSwapPriceResponse", "SwapUnavailableResponse"]
 
-class GetSwapQuoteResponseWrapper(BaseModel):
+class GetSwapPriceResponseWrapper(BaseModel):
     """
-    A wrapper for the response of a swap quote operation.
+    A wrapper for the response of a swap price operation.
     """
-    # data type: GetQuoteResponse
-    oneof_schema_1_validator: Optional[GetQuoteResponse] = None
+    # data type: GetSwapPriceResponse
+    oneof_schema_1_validator: Optional[GetSwapPriceResponse] = None
     # data type: SwapUnavailableResponse
     oneof_schema_2_validator: Optional[SwapUnavailableResponse] = None
-    actual_instance: Optional[Union[GetQuoteResponse, SwapUnavailableResponse]] = None
-    one_of_schemas: Set[str] = { "GetQuoteResponse", "SwapUnavailableResponse" }
+    actual_instance: Optional[Union[GetSwapPriceResponse, SwapUnavailableResponse]] = None
+    one_of_schemas: Set[str] = { "GetSwapPriceResponse", "SwapUnavailableResponse" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -55,12 +55,12 @@ class GetSwapQuoteResponseWrapper(BaseModel):
 
     @field_validator('actual_instance')
     def actual_instance_must_validate_oneof(cls, v):
-        instance = GetSwapQuoteResponseWrapper.model_construct()
+        instance = GetSwapPriceResponseWrapper.model_construct()
         error_messages = []
         match = 0
-        # validate data type: GetQuoteResponse
-        if not isinstance(v, GetQuoteResponse):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `GetQuoteResponse`")
+        # validate data type: GetSwapPriceResponse
+        if not isinstance(v, GetSwapPriceResponse):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `GetSwapPriceResponse`")
         else:
             match += 1
         # validate data type: SwapUnavailableResponse
@@ -70,10 +70,10 @@ class GetSwapQuoteResponseWrapper(BaseModel):
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in GetSwapQuoteResponseWrapper with oneOf schemas: GetQuoteResponse, SwapUnavailableResponse. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in GetSwapPriceResponseWrapper with oneOf schemas: GetSwapPriceResponse, SwapUnavailableResponse. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in GetSwapQuoteResponseWrapper with oneOf schemas: GetQuoteResponse, SwapUnavailableResponse. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in GetSwapPriceResponseWrapper with oneOf schemas: GetSwapPriceResponse, SwapUnavailableResponse. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -88,9 +88,9 @@ class GetSwapQuoteResponseWrapper(BaseModel):
         error_messages = []
         match = 0
 
-        # deserialize data into GetQuoteResponse
+        # deserialize data into GetSwapPriceResponse
         try:
-            instance.actual_instance = GetQuoteResponse.from_json(json_str)
+            instance.actual_instance = GetSwapPriceResponse.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
@@ -103,10 +103,10 @@ class GetSwapQuoteResponseWrapper(BaseModel):
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into GetSwapQuoteResponseWrapper with oneOf schemas: GetQuoteResponse, SwapUnavailableResponse. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into GetSwapPriceResponseWrapper with oneOf schemas: GetSwapPriceResponse, SwapUnavailableResponse. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into GetSwapQuoteResponseWrapper with oneOf schemas: GetQuoteResponse, SwapUnavailableResponse. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into GetSwapPriceResponseWrapper with oneOf schemas: GetSwapPriceResponse, SwapUnavailableResponse. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -120,7 +120,7 @@ class GetSwapQuoteResponseWrapper(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], GetQuoteResponse, SwapUnavailableResponse]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], GetSwapPriceResponse, SwapUnavailableResponse]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

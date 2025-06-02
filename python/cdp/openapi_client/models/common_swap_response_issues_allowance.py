@@ -28,7 +28,7 @@ class CommonSwapResponseIssuesAllowance(BaseModel):
     """
     Details of the allowances that the taker must set in order to execute the swap successfully. Null if no allowance is required.
     """ # noqa: E501
-    current_allowance: Annotated[str, Field(strict=True)] = Field(description="The current allowance of the `sellToken` by the `taker`.", alias="currentAllowance")
+    current_allowance: Annotated[str, Field(strict=True)] = Field(description="The current allowance of the `fromToken` by the `taker`.", alias="currentAllowance")
     spender: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed address of to set the allowance on.")
     __properties: ClassVar[List[str]] = ["currentAllowance", "spender"]
 

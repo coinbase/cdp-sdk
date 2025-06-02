@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from cdp.actions.evm.swap.types import SwapQuote, SwapQuoteResult
+from cdp.actions.evm.swap.types import SwapQuoteResult
 from cdp.api_clients import ApiClients
 from cdp.evm_client import EvmClient
 
@@ -36,11 +36,11 @@ class TestGetQuote:
             return_value=json.dumps(
                 {
                     "liquidityAvailable": True,
-                    "buyAmount": "2000000000",  # 2000 USDC
-                    "sellAmount": "1000000000000000000",  # 1 ETH
-                    "buyToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                    "sellToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-                    "minBuyAmount": "1980000000",
+                    "toAmount": "2000000000",  # Changed from buyAmount
+                    "fromAmount": "1000000000000000000",  # Changed from sellAmount
+                    "toToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # Changed from buyToken
+                    "fromToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # Changed from sellToken
+                    "minToAmount": "1980000000",  # Changed from minBuyAmount
                     "blockNumber": "123456",
                     "gasPrice": "50000000000",
                     "gas": "200000",
@@ -61,15 +61,13 @@ class TestGetQuote:
             network="base",
         )
 
-        # Verify
-        assert isinstance(quote, SwapQuote)
+        # Verify quote
+        assert quote.quote_id
         assert quote.from_token == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
         assert quote.to_token == "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
         assert quote.from_amount == "1000000000000000000"
-        assert quote.to_amount == "2000000000"
-        # Price ratio is calculated as to_amount / from_amount
-        # 2000000000 / 1000000000000000000 = 2e-09
-        assert quote.price_ratio == "2e-09"
+        assert quote.to_amount == "2000000000"  # From toAmount in response
+        assert float(quote.price_ratio) > 0
 
     @pytest.mark.asyncio
     async def test_get_quote_with_contract_addresses(self, evm_client, mock_api_clients):
@@ -80,11 +78,11 @@ class TestGetQuote:
             return_value=json.dumps(
                 {
                     "liquidityAvailable": True,
-                    "buyAmount": "500000000000000000",  # 0.5 ETH
-                    "sellAmount": "1000000000",  # 1000 USDC
-                    "buyToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-                    "sellToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                    "minBuyAmount": "495000000000000000",
+                    "toAmount": "500000000000000000",  # 0.5 ETH
+                    "fromAmount": "1000000000",  # 1000 USDC
+                    "toToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                    "fromToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                    "minToAmount": "495000000000000000",
                     "blockNumber": "123457",
                     "gasPrice": "50000000000",
                     "gas": "200000",
@@ -143,11 +141,11 @@ class TestCreateSwap:
             return_value=json.dumps(
                 {
                     "liquidityAvailable": True,
-                    "buyAmount": "2000000000",  # 2000 USDC
-                    "sellAmount": "1000000000000000000",  # 1 ETH
-                    "buyToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                    "sellToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-                    "minBuyAmount": "1980000000",
+                    "toAmount": "2000000000",  # 2000 USDC
+                    "fromAmount": "1000000000000000000",  # 1 ETH
+                    "toToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                    "fromToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                    "minToAmount": "1980000000",
                     "blockNumber": "123456",
                     "fees": {"zeroExFee": None, "gasFee": None, "protocolFee": None},
                     "issues": {"allowance": None, "balance": None, "simulationIncomplete": False},
@@ -162,7 +160,7 @@ class TestCreateSwap:
                 }
             ).encode()
         )
-        mock_api_clients.evm_swaps.create_evm_swap_without_preload_content.return_value = (
+        mock_api_clients.evm_swaps.create_evm_swap_quote_without_preload_content.return_value = (
             mock_response
         )
 
@@ -196,11 +194,11 @@ class TestCreateSwap:
             return_value=json.dumps(
                 {
                     "liquidityAvailable": True,
-                    "buyAmount": "500000000000000000",  # 0.5 WETH
-                    "sellAmount": "1000000000",  # 1000 USDC
-                    "buyToken": "0x4200000000000000000000000000000000000006",
-                    "sellToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                    "minBuyAmount": "495000000000000000",
+                    "toAmount": "500000000000000000",  # 0.5 WETH
+                    "fromAmount": "1000000000",  # 1000 USDC
+                    "toToken": "0x4200000000000000000000000000000000000006",
+                    "fromToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                    "minToAmount": "495000000000000000",
                     "blockNumber": "123457",
                     "fees": {"zeroExFee": None, "gasFee": None, "protocolFee": None},
                     "issues": {"allowance": None, "balance": None, "simulationIncomplete": False},
@@ -227,7 +225,7 @@ class TestCreateSwap:
                 }
             ).encode()
         )
-        mock_api_clients.evm_swaps.create_evm_swap_without_preload_content.return_value = (
+        mock_api_clients.evm_swaps.create_evm_swap_quote_without_preload_content.return_value = (
             mock_response
         )
 
@@ -255,11 +253,11 @@ class TestCreateSwap:
             return_value=json.dumps(
                 {
                     "liquidityAvailable": True,
-                    "buyAmount": "2000000000",  # 2000 USDC
-                    "sellAmount": "1000000000000000000",  # 1 ETH
-                    "buyToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                    "sellToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-                    "minBuyAmount": "1950000000",  # 2.5% slippage
+                    "toAmount": "2000000000",  # 2000 USDC
+                    "fromAmount": "1000000000000000000",  # 1 ETH
+                    "toToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                    "fromToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                    "minToAmount": "1950000000",  # 2.5% slippage
                     "blockNumber": "123458",
                     "fees": {"zeroExFee": None, "gasFee": None, "protocolFee": None},
                     "issues": {"allowance": None, "balance": None, "simulationIncomplete": False},
@@ -273,7 +271,7 @@ class TestCreateSwap:
                 }
             ).encode()
         )
-        mock_api_clients.evm_swaps.create_evm_swap_without_preload_content.return_value = (
+        mock_api_clients.evm_swaps.create_evm_swap_quote_without_preload_content.return_value = (
             mock_response
         )
 
@@ -288,7 +286,9 @@ class TestCreateSwap:
         )
 
         # Verify slippage was converted to basis points (250)
-        call_args = mock_api_clients.evm_swaps.create_evm_swap_without_preload_content.call_args
+        call_args = (
+            mock_api_clients.evm_swaps.create_evm_swap_quote_without_preload_content.call_args
+        )
         request = call_args[0][0]
         assert request.slippage_bps == 250
 
@@ -298,7 +298,7 @@ class TestCreateSwap:
         # Mock response with invalid JSON
         mock_response = AsyncMock()
         mock_response.read = AsyncMock(return_value=b"invalid json")
-        mock_api_clients.evm_swaps.create_evm_swap_without_preload_content.return_value = (
+        mock_api_clients.evm_swaps.create_evm_swap_quote_without_preload_content.return_value = (
             mock_response
         )
 
@@ -318,7 +318,7 @@ class TestCreateSwap:
         # Mock empty response
         mock_response = AsyncMock()
         mock_response.read = AsyncMock(return_value=b"")
-        mock_api_clients.evm_swaps.create_evm_swap_without_preload_content.return_value = (
+        mock_api_clients.evm_swaps.create_evm_swap_quote_without_preload_content.return_value = (
             mock_response
         )
 

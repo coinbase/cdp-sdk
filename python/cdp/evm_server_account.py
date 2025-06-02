@@ -277,14 +277,14 @@ class EvmServerAccount(BaseAccount, BaseModel):
             transfer_strategy=account_transfer_strategy,
         )
 
-    async def swap(self, swap_args):
+    async def swap(self, swapQuote):  # noqa: N803
         """Swap tokens from one asset to another.
 
         Args:
-            swap_args: The options for the swap. Can be either:
+            swapQuote: The swap quote. Can be either:
                 1. SwapParams - New OpenAPI-aligned parameters
                 2. SwapQuoteResult - Pre-created swap quote from create_swap
-                3. SwapOptions with swap_params or swap_quote_result
+                3. SwapOptions with swap_params or swapQuote
                 4. Dict with fields matching SwapParams
 
         Returns:
@@ -335,34 +335,41 @@ class EvmServerAccount(BaseAccount, BaseModel):
         # Handle different input formats
         swap_options = None
 
-        if isinstance(swap_args, dict):
+        if isinstance(swapQuote, dict):
             # New format - create SwapParams
             # Auto-populate taker if not provided
-            if "taker" not in swap_args:
-                swap_args["taker"] = self.address
-            swap_options = SwapOptions(swap_params=SwapParams(**swap_args))
+            if "taker" not in swapQuote:
+                swapQuote["taker"] = self.address
+            swap_options = SwapOptions(swap_params=SwapParams(**swapQuote))
 
-        elif isinstance(swap_args, SwapParams):
+        elif isinstance(swapQuote, SwapParams):
             # New SwapParams
             # Auto-populate taker if not provided
-            if swap_args.taker is None:
-                swap_args.taker = self.address
-            swap_options = SwapOptions(swap_params=swap_args)
+            if swapQuote.taker is None:
+                swapQuote.taker = self.address
+            swap_options = SwapOptions(swap_params=swapQuote)
 
-        elif isinstance(swap_args, SwapQuoteResult):
+        elif isinstance(swapQuote, SwapQuoteResult):
             # Pre-created swap quote
-            swap_options = SwapOptions(swap_quote_result=swap_args)
+            # Set the account and api_clients on the quote to enable execute()
+            swapQuote._from_account = self
+            swapQuote._api_clients = self.__api_clients
+            swap_options = SwapOptions(swapQuote=swapQuote)
 
-        elif isinstance(swap_args, SwapOptions):
+        elif isinstance(swapQuote, SwapOptions):
             # Already SwapOptions, use as is
-            swap_options = swap_args
+            swap_options = swapQuote
             # Auto-populate taker for swap_params if needed
             if swap_options.swap_params and swap_options.swap_params.taker is None:
                 swap_options.swap_params.taker = self.address
+            # Set account and api_clients for swapQuote if present
+            if swap_options.swapQuote:
+                swap_options.swapQuote._from_account = self
+                swap_options.swapQuote._api_clients = self.__api_clients
 
         else:
             raise ValueError(
-                "swap_args must be a dict, SwapParams, SwapQuoteResult, or SwapOptions instance"
+                "swapQuote must be a dict, SwapParams, SwapQuoteResult, or SwapOptions instance"
             )
 
         return await swap(
