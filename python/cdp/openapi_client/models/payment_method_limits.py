@@ -18,39 +18,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from cdp.openapi_client.models.payment_method_limits_source_limit import PaymentMethodLimitsSourceLimit
+from cdp.openapi_client.models.payment_method_limits_target_limit import PaymentMethodLimitsTargetLimit
 from typing import Optional, Set
 from typing_extensions import Self
 
-class UpdateEvmAccountRequest(BaseModel):
+class PaymentMethodLimits(BaseModel):
     """
-    UpdateEvmAccountRequest
+    The limits of the payment method.
     """ # noqa: E501
-    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all EVM accounts in the developer's CDP Project.")
-    account_policy: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The ID of the account-level policy to apply to the account.", alias="accountPolicy")
-    __properties: ClassVar[List[str]] = ["name", "accountPolicy"]
-
-    @field_validator('name')
-    def name_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
-        return value
-
-    @field_validator('account_policy')
-    def account_policy_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value):
-            raise ValueError(r"must validate the regular expression /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/")
-        return value
+    source_limit: Optional[PaymentMethodLimitsSourceLimit] = Field(default=None, alias="sourceLimit")
+    target_limit: Optional[PaymentMethodLimitsTargetLimit] = Field(default=None, alias="targetLimit")
+    __properties: ClassVar[List[str]] = ["sourceLimit", "targetLimit"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -70,7 +51,7 @@ class UpdateEvmAccountRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of UpdateEvmAccountRequest from a JSON string"""
+        """Create an instance of PaymentMethodLimits from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -91,11 +72,17 @@ class UpdateEvmAccountRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of source_limit
+        if self.source_limit:
+            _dict['sourceLimit'] = self.source_limit.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of target_limit
+        if self.target_limit:
+            _dict['targetLimit'] = self.target_limit.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of UpdateEvmAccountRequest from a dict"""
+        """Create an instance of PaymentMethodLimits from a dict"""
         if obj is None:
             return None
 
@@ -103,8 +90,8 @@ class UpdateEvmAccountRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "name": obj.get("name"),
-            "accountPolicy": obj.get("accountPolicy")
+            "sourceLimit": PaymentMethodLimitsSourceLimit.from_dict(obj["sourceLimit"]) if obj.get("sourceLimit") is not None else None,
+            "targetLimit": PaymentMethodLimitsTargetLimit.from_dict(obj["targetLimit"]) if obj.get("targetLimit") is not None else None
         })
         return _obj
 

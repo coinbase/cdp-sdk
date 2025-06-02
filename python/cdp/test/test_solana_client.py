@@ -62,6 +62,42 @@ async def test_create_account():
 
 
 @pytest.mark.asyncio
+async def test_create_account_with_policy():
+    """Test creating a Solana account with a policy."""
+    mock_solana_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.solana_accounts = mock_solana_accounts_api
+
+    mock_sol_account = AsyncMock()
+    mock_sol_account.address = "test_sol_address"
+    mock_sol_account.name = "test-sol-account"
+    mock_solana_accounts_api.create_solana_account = AsyncMock(return_value=mock_sol_account)
+
+    client = SolanaClient(api_clients=mock_api_clients)
+
+    test_name = "test-sol-account"
+    test_account_policy = "abcdef12-3456-7890-1234-567890123456"
+    test_idempotency_key = "test-idempotency-key"
+
+    result = await client.create_account(
+        name=test_name,
+        account_policy=test_account_policy,
+        idempotency_key=test_idempotency_key,
+    )
+
+    mock_solana_accounts_api.create_solana_account.assert_called_once_with(
+        x_idempotency_key=test_idempotency_key,
+        create_solana_account_request=CreateSolanaAccountRequest(
+            name=test_name,
+            account_policy=test_account_policy,
+        ),
+    )
+
+    assert result.address == mock_sol_account.address
+    assert result.name == mock_sol_account.name
+
+
+@pytest.mark.asyncio
 async def test_get_account():
     """Test getting a Solana account by address."""
     mock_solana_accounts_api = AsyncMock()

@@ -579,6 +579,236 @@ Account names are guaranteed to be unique across all Solana accounts in the deve
 }
 
 /**
+ * The action of the payment method.
+ */
+export type PaymentRailAction = (typeof PaymentRailAction)[keyof typeof PaymentRailAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PaymentRailAction = {
+  source: "source",
+  target: "target",
+} as const;
+
+/**
+ * The type of payment method.
+ */
+export type PaymentMethodType = (typeof PaymentMethodType)[keyof typeof PaymentMethodType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PaymentMethodType = {
+  card: "card",
+  fiat_account: "fiat_account",
+} as const;
+
+/**
+ * The limit for this payment method being used as a source for transfers.
+ */
+export type PaymentMethodLimitsSourceLimit = {
+  /** The amount of the limit. */
+  amount?: string;
+  /** The currency of the limit. */
+  currency?: string;
+};
+
+/**
+ * The limit for this payment method being used as a target for transfers.
+ */
+export type PaymentMethodLimitsTargetLimit = {
+  /** The amount of the limit. */
+  amount?: string;
+  /** The currency of the limit. */
+  currency?: string;
+};
+
+/**
+ * The limits of the payment method.
+ */
+export type PaymentMethodLimits = {
+  /** The limit for this payment method being used as a source for transfers. */
+  sourceLimit?: PaymentMethodLimitsSourceLimit;
+  /** The limit for this payment method being used as a target for transfers. */
+  targetLimit?: PaymentMethodLimitsTargetLimit;
+};
+
+/**
+ * The fiat payment method object.
+ */
+export interface PaymentMethod {
+  /**
+   * The ID of the payment method which previously was added.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  id: string;
+  /** The type of payment method. */
+  type: PaymentMethodType;
+  /** The currency of the payment method. */
+  currency: string;
+  /** The actions for the payment method. */
+  actions: PaymentRailAction[];
+  /** The limits of the payment method. */
+  limits?: PaymentMethodLimits;
+}
+
+/**
+ * The networks of the asset.
+ */
+export type CryptoRailNetworksItem = {
+  /** The name of the network. */
+  name?: string;
+  /** The chain ID of the network. */
+  chainId?: number;
+  /** The contract address of the asset on the network. */
+  contractAddress?: string;
+};
+
+/**
+ * The crypto rails available.
+ */
+export interface CryptoRail {
+  /** The currency symbol of the asset. */
+  currency: string;
+  /** The name of the asset. */
+  name: string;
+  /** All available networks of the asset. */
+  networks: CryptoRailNetworksItem[];
+  /** The actions for the crypto rail. */
+  actions: PaymentRailAction[];
+}
+
+/**
+ * The fiat payment method request object.
+ */
+export interface PaymentMethodRequest {
+  /**
+   * The ID of the payment method.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  id: string;
+}
+
+/**
+ * The source of the transfer.
+ */
+export type TransferSource = PaymentMethodRequest;
+
+/**
+ * The crypto rail input object which specifies the symbol, network, and address which is the source or destination wallet address.
+ */
+export interface CryptoRailAddress {
+  /** The symbol of the currency of the payment rail. */
+  currency: string;
+  /** The network of the payment rail. */
+  network: string;
+  /** The address of the payment rail. This is the source or destination wallet address. It is not a contract address. */
+  address: string;
+}
+
+/**
+ * The target of the transfer.
+ */
+export type TransferTarget = CryptoRailAddress;
+
+/**
+ * The type of fee.
+ */
+export type FeeType = (typeof FeeType)[keyof typeof FeeType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const FeeType = {
+  exchange_fee: "exchange_fee",
+  network_fee: "network_fee",
+} as const;
+
+/**
+ * The fee for the transfer.
+ */
+export interface Fee {
+  /** The type of fee. */
+  type: FeeType;
+  /** The amount of the fee. */
+  amount: string;
+  /** The currency of the fee. */
+  currency: string;
+  /** The description of the fee. */
+  description?: string;
+}
+
+/**
+ * The type of the source of the transfer.
+ */
+export type TransferSourceType = (typeof TransferSourceType)[keyof typeof TransferSourceType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const TransferSourceType = {
+  payment_method: "payment_method",
+} as const;
+
+/**
+ * The type of the target of the transfer.
+ */
+export type TransferTargetType = (typeof TransferTargetType)[keyof typeof TransferTargetType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const TransferTargetType = {
+  crypto_rail: "crypto_rail",
+} as const;
+
+/**
+ * The status of the transfer.
+ */
+export type TransferStatus = (typeof TransferStatus)[keyof typeof TransferStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const TransferStatus = {
+  created: "created",
+  pending: "pending",
+  started: "started",
+  completed: "completed",
+  failed: "failed",
+} as const;
+
+/**
+ * The transfer object.
+ */
+export interface Transfer {
+  /**
+   * The ID of the transfer.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  id: string;
+  /** The type of the source of the transfer. */
+  sourceType: TransferSourceType;
+  /** The source of the transfer. */
+  source: PaymentMethodRequest;
+  /** The type of the target of the transfer. */
+  targetType: TransferTargetType;
+  /** The target of the transfer. */
+  target: CryptoRailAddress;
+  /** The amount the source will transfer. */
+  sourceAmount: string;
+  /** The currency the source will transfer. */
+  sourceCurrency: string;
+  /** The amount the target will receive. */
+  targetAmount: string;
+  /** The currency the target will receive. */
+  targetCurrency: string;
+  /** The amount the customer put in to transfer. */
+  userAmount: string;
+  /** The currency the customer put in to transfer. */
+  userCurrency: string;
+  /** The fees for the transfer. */
+  fees: Fee[];
+  /** The status of the transfer. */
+  status: TransferStatus;
+  /** The UTC date and time in ISO 8601 format the transfer was created. */
+  createdAt: string;
+  /** The UTC date and time in ISO 8601 format the transfer was updated. */
+  updatedAt: string;
+  /** The transaction hash or transaction signature of the transfer. */
+  transactionHash?: string;
+}
+
+/**
  * Internal server error.
  */
 export type InternalServerErrorResponse = Error;
@@ -645,6 +875,11 @@ Account names must be unique across all EVM accounts in the developer's CDP Proj
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /**
+   * The ID of the account-level policy to apply to the account.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  accountPolicy?: string;
 };
 
 export type UpdateEvmAccountBody = {
@@ -936,6 +1171,11 @@ Account names must be unique across all Solana accounts in the developer's CDP P
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /**
+   * The ID of the account-level policy to apply to the account.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  accountPolicy?: string;
 };
 
 export type UpdateSolanaAccountBody = {
@@ -997,4 +1237,52 @@ export type RequestSolanaFaucetBody = {
 export type RequestSolanaFaucet200 = {
   /** The signature identifying the transaction that requested the funds. */
   transactionSignature: string;
+};
+
+export type GetCryptoRailsParams = {
+  /**
+   * Comma separated list of networks to filter the rails by.
+   */
+  networks?: string;
+};
+
+/**
+ * The type of the source of the transfer.
+ */
+export type CreatePaymentTransferQuoteBodySourceType =
+  (typeof CreatePaymentTransferQuoteBodySourceType)[keyof typeof CreatePaymentTransferQuoteBodySourceType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CreatePaymentTransferQuoteBodySourceType = {
+  payment_method: "payment_method",
+} as const;
+
+/**
+ * The type of the target of the transfer.
+ */
+export type CreatePaymentTransferQuoteBodyTargetType =
+  (typeof CreatePaymentTransferQuoteBodyTargetType)[keyof typeof CreatePaymentTransferQuoteBodyTargetType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CreatePaymentTransferQuoteBodyTargetType = {
+  crypto_rail: "crypto_rail",
+} as const;
+
+export type CreatePaymentTransferQuoteBody = {
+  /** The type of the source of the transfer. */
+  sourceType: CreatePaymentTransferQuoteBodySourceType;
+  source: TransferSource;
+  /** The type of the target of the transfer. */
+  targetType: CreatePaymentTransferQuoteBodyTargetType;
+  target: TransferTarget;
+  /** The amount of the transfer, which is either for the source currency to buy, or the target currency to receive. */
+  amount: string;
+  /** The currency of the transfer. This can be specified as the source currency, which would be used to buy, or else the target currency, which is how much will be received. */
+  currency: string;
+  /** Whether to execute the transfer. If true, the transfer will be committed and executed. If false, the quote will be generated and returned. */
+  execute?: boolean;
+};
+
+export type CreatePaymentTransferQuote201 = {
+  transfer: Transfer;
 };

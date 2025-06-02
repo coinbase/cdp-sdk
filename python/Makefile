@@ -37,6 +37,11 @@ install:
 	fi
 	uv pip install -e ".[dev]" || (echo "Error: Failed to install dependencies" && exit 1)
 
+# Python 3.10 has some mocking bugs in pytests, so we skip those tests
+.PHONY: test-3.10
+test-3.10:
+	uv pip install ".[dev]" && DISABLE_CDP_ERROR_REPORTING=true uv run pytest -k "not test_e2e.py and not test_wait_for_fund_operation_receipt.py" || (echo "Error: Tests failed" && exit 1)
+
 .PHONY: test
 test:
 	uv pip install ".[dev]" && DISABLE_CDP_ERROR_REPORTING=true uv run pytest -k "not test_e2e.py" || (echo "Error: Tests failed" && exit 1)

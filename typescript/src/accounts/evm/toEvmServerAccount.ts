@@ -1,5 +1,14 @@
 import { type TransactionSerializable, serializeTransaction } from "viem";
 
+import { FundOptions, fund } from "../../actions/evm/fund/fund.js";
+import { Quote } from "../../actions/evm/fund/Quote.js";
+import { QuoteFundOptions, quoteFund } from "../../actions/evm/fund/quoteFund.js";
+import { FundOperationResult } from "../../actions/evm/fund/types.js";
+import {
+  WaitForFundOperationOptions,
+  WaitForFundOperationResult,
+  waitForFundOperationReceipt,
+} from "../../actions/evm/fund/waitForFundOperationReceipt.js";
 import {
   listTokenBalances,
   type ListTokenBalancesResult,
@@ -94,6 +103,23 @@ export function toEvmServerAccount(
         ...options,
         address: this.address,
       });
+    },
+    async quoteFund(options: Omit<QuoteFundOptions, "address">): Promise<Quote> {
+      return quoteFund(apiClient, {
+        ...options,
+        address: this.address,
+      });
+    },
+    async fund(options: Omit<FundOptions, "address">): Promise<FundOperationResult> {
+      return fund(apiClient, {
+        ...options,
+        address: this.address,
+      });
+    },
+    async waitForFundOperationReceipt(
+      options: WaitForFundOperationOptions,
+    ): Promise<WaitForFundOperationResult> {
+      return waitForFundOperationReceipt(apiClient, options);
     },
     name: options.account.name,
     type: "evm-server",

@@ -80,6 +80,38 @@ tags:
   - name: Faucets
     x-audience: public
     description: The Faucet APIs enable you to request funds on supported test networks. Faucets are for testing purposes and make development easier by providing a source of funds.
+  - name: Payments (Alpha)
+    x-audience: public
+    description: |-
+      The Payments APIs enable you to create and manage payment transfers.
+      The Payments APIs are currently in alpha and are subject to change. The following payment apis are supported.
+      ### API Reference
+      - `GET /v2/payments/rails/payment-methods`: Get fiat payment methods.
+      - `GET /v2/payments/rails/crypto`: Get crypto rails.
+      - `POST /v2/payments/transfers`: Create a transfer quote.
+      - `POST /v2/payments/transfers/{transferId}/execute`: Execute a transfer quote.
+      - `GET  /v2/payments/transfers/{transferId}`: Get a transfer by transferId.
+      ### Payment Rails
+      Payment rails are the the source or the target of a transfer.
+      We support the following payment rails:
+      - Crypto rails: Onchain currency and networks to send and receive crypto (e.g. Currency: USDC, Network: Ethereum, Solana, Bitcoin, Polygon, Avalanche).
+      - Payment methods: Payment methods that are previously added in your account (e.g Debit Card).
+      ### Transfer
+      A Transfer is a money movement between two payment rails. we support the following transfer types:
+      - Fiat to Crypto transfer
+
+        - Source: a payment method (payment method that is already added in your account. e.g. Card)
+
+        - Target: onchain address to receive crypto
+
+      ### Create a Transfer
+      1. Use `/v2/payments/rails/payment-methods` and `/v2/payments/rails/crypto` to get all available payment rails.
+      2. Choose the payment rails to use as source and target, and the amount to transfer.
+          - Use `/v2/payments/transfers` to create a transfer quote.
+          - Optionally, you can set `execute` to true to execute the transfer quote immediately.
+
+      3. Once you have a transfer quote, use `/v2/payments/transfers/{transferId}/execute` to execute a transfer quote.
+      4. Use `/v2/payments/transfers/{transferId}` to get a transfer by transferId.
   - name: Policy Engine
     x-audience: public
     description: |-
@@ -165,10 +197,10 @@ tags:
       Project-level policies are applied to all accounts in a CDP Project. They will apply retroactively even if the project-level policy is created after the account was created. To disable a project-level policy, you must remove the project-level policy from the CDP Project using the `deletePolicy` operation.
 
       Account-level policies can be applied in two ways:
-      - By specifying the `policies` field in the request body of the `createEvmAccount` and
+      - By specifying the `accountPolicy` field in the request body of the `createEvmAccount` and
         `createSolAccount` operations.
 
-      - By specifying the `policies` field in the request body of the `updateEvmAccount` and
+      - By specifying the `accountPolicy` field in the request body of the `updateEvmAccount` and
         `updateSolanaAccount` operations.
 
 
@@ -181,6 +213,14 @@ tags:
       A criterion based on the value of the transaction. The transaction's `value` field is compared to the criterion's `ethValue` field using the `operator` field.
       #### evmAddress
       A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
+
+      ### SendEvmTransaction Criteria
+      #### ethValue
+      A criterion based on the value of the transaction. The transaction's `value` field is compared to the criterion's `ethValue` field using the `operator` field.
+      #### evmAddress
+      A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
+      #### evmNetwork
+      A criterion based on the intended network of the transaction. The `network` field in the `sendEvmTransaction` request body is compared to the criterion's `networks` field using the `operator` field.
 
       ### SignSolTransaction Criteria
       #### solAddress
@@ -298,6 +338,12 @@ paths:
                     Account names must be unique across all EVM accounts in the developer's CDP Project.
                   example: my-wallet
                   pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                accountPolicy:
+                  type: string
+                  x-audience: public
+                  description: The ID of the account-level policy to apply to the account.
+                  pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  example: 123e4567-e89b-12d3-a456-426614174000
       responses:
         '201':
           description: Successfully created EVM account.
@@ -2311,6 +2357,12 @@ paths:
                     Account names must be unique across all Solana accounts in the developer's CDP Project.
                   example: my-wallet
                   pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                accountPolicy:
+                  type: string
+                  x-audience: public
+                  description: The ID of the account-level policy to apply to the account.
+                  pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  example: 123e4567-e89b-12d3-a456-426614174000
       responses:
         '201':
           description: Successfully created Solana account.
@@ -2829,6 +2881,321 @@ paths:
                   value:
                     errorType: faucet_limit_exceeded
                     errorMessage: Faucet limit reached for this address. Please try again later.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/payments/rails/payment-methods:
+    get:
+      summary: Get the fiat payment methods
+      description: Gets the fiat payment methods that can be used to send funds or receive funds. This is the list of payment methods configured for your account.
+      operationId: getPaymentMethods
+      tags:
+        - Payments (Alpha)
+      responses:
+        '200':
+          description: Successfully retrieved the payment methods.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentMethod'
+                example:
+                  - id: 8e03978e-40d5-43e8-bc93-6894a57f9324
+                    type: card
+                    currency: USD
+                    actions:
+                      - source
+                      - target
+                    limits:
+                      sourceLimit:
+                        amount: '100'
+                        currency: USD
+                      targetLimit:
+                        amount: '100'
+                        currency: USD
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Authentication error.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/payments/rails/crypto:
+    get:
+      summary: Get the crypto rails
+      description: Gets the crypto rails that can be used to send funds or receive funds.
+      operationId: getCryptoRails
+      tags:
+        - Payments (Alpha)
+      parameters:
+        - name: networks
+          description: Comma separated list of networks to filter the rails by.
+          in: query
+          required: false
+          schema:
+            type: string
+            example: base,ethereum
+      responses:
+        '200':
+          description: Successfully retrieved crypto rails.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CryptoRail'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Authentication error.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/payments/transfers:
+    post:
+      summary: Create a transfer quote
+      description: Creates a new transfer quote, which can then be executed using the Execute a transfer quote endpoint. If you want to automatically execute the transfer without needing to confirm, specify execute as true.
+      operationId: createPaymentTransferQuote
+      tags:
+        - Payments (Alpha)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sourceType:
+                  type: string
+                  enum:
+                    - payment_method
+                  description: The type of the source of the transfer.
+                source:
+                  $ref: '#/components/schemas/TransferSource'
+                targetType:
+                  type: string
+                  enum:
+                    - crypto_rail
+                  description: The type of the target of the transfer.
+                target:
+                  $ref: '#/components/schemas/TransferTarget'
+                amount:
+                  type: string
+                  description: The amount of the transfer, which is either for the source currency to buy, or the target currency to receive.
+                currency:
+                  type: string
+                  description: The currency of the transfer. This can be specified as the source currency, which would be used to buy, or else the target currency, which is how much will be received.
+                execute:
+                  type: boolean
+                  default: false
+                  description: Whether to execute the transfer. If true, the transfer will be committed and executed. If false, the quote will be generated and returned.
+              required:
+                - sourceType
+                - source
+                - targetType
+                - target
+                - amount
+                - currency
+      responses:
+        '201':
+          description: Successfully created a transfer.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transfer:
+                    $ref: '#/components/schemas/Transfer'
+                required:
+                  - transfer
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid fiat rail.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Authentication error.
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Rate limit exceeded.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v2/payments/transfers/{transferId}/execute:
+    post:
+      summary: Execute a transfer quote
+      description: Executes a transfer quote which was created using the Create a transfer quote endpoint.
+      operationId: executePaymentTransferQuote
+      tags:
+        - Payments (Alpha)
+      parameters:
+        - name: transferId
+          description: The ID of the transfer.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: Successfully committed a transfer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid transfer ID.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Authentication error.
+        '404':
+          description: Transfer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Transfer with the given ID does not exist.
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Rate limit exceeded.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/payments/transfers/{transferId}:
+    get:
+      summary: Get a transfer by ID
+      description: Gets a transfer by ID.
+      operationId: getPaymentTransfer
+      tags:
+        - Payments (Alpha)
+      parameters:
+        - name: transferId
+          description: The ID of the transfer.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: Successfully got a transfer by ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid transfer ID.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Authentication error.
+        '404':
+          description: Transfer not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Transfer with the given ID does not exist.
         '500':
           $ref: '#/components/responses/InternalServerError'
         '502':
@@ -4136,6 +4503,364 @@ components:
             - 123e4567-e89b-12d3-a456-426614174000
       required:
         - address
+    PaymentRailAction:
+      description: The action of the payment method.
+      type: string
+      enum:
+        - source
+        - target
+      example: source
+    PaymentMethod:
+      type: object
+      description: The fiat payment method object.
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+          description: The ID of the payment method which previously was added.
+        type:
+          type: string
+          enum:
+            - card
+            - fiat_account
+          example: card
+          description: The type of payment method.
+        currency:
+          type: string
+          example: USD
+          description: The currency of the payment method.
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentRailAction'
+          example:
+            - source
+            - target
+          description: The actions for the payment method.
+        limits:
+          type: object
+          description: The limits of the payment method.
+          properties:
+            sourceLimit:
+              type: object
+              description: The limit for this payment method being used as a source for transfers.
+              properties:
+                amount:
+                  type: string
+                  description: The amount of the limit.
+                  example: '100'
+                currency:
+                  type: string
+                  description: The currency of the limit.
+                  example: USD
+            targetLimit:
+              type: object
+              description: The limit for this payment method being used as a target for transfers.
+              properties:
+                amount:
+                  type: string
+                  description: The amount of the limit.
+                  example: '100'
+                currency:
+                  type: string
+                  description: The currency of the limit.
+                  example: USD
+          example:
+            sourceLimit:
+              value: '100.00'
+              currency: USD
+            targetLimit:
+              value: '100.00'
+              currency: USD
+      required:
+        - id
+        - type
+        - currency
+        - actions
+      example:
+        id: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        type: card
+        currency: USD
+        actions:
+          - source
+          - target
+        limits:
+          sourceLimit:
+            value: '100.00'
+            currency: USD
+    CryptoRail:
+      description: The crypto rails available.
+      type: object
+      properties:
+        currency:
+          type: string
+          example: USDC
+          description: The currency symbol of the asset.
+        name:
+          type: string
+          example: USD Coin
+          description: The name of the asset.
+        networks:
+          description: All available networks of the asset.
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: base
+                description: The name of the network.
+              chainId:
+                type: integer
+                format: int64
+                example: 8453
+                description: The chain ID of the network.
+              contractAddress:
+                type: string
+                example: '0xd9aa0e1babc7397f2c6cb2f9b6edb6f6953b4d62'
+                description: The contract address of the asset on the network.
+            description: The networks of the asset.
+          example:
+            - name: base
+              chainId: 8453
+              contractAddress: '0xd9aa0e1babc7397f2c6cb2f9b6edb6f6953b4d62'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentRailAction'
+          example:
+            - source
+            - target
+          description: The actions for the crypto rail.
+      required:
+        - currency
+        - name
+        - networks
+        - actions
+      example:
+        name: USD Coin
+        currency: USDC
+        networks:
+          - name: base
+            chainId: 8453
+            contractAddress: '0xd9aa0e1babc7397f2c6cb2f9b6edb6f6953b4d62'
+        actions:
+          - source
+          - target
+    PaymentMethodRequest:
+      description: The fiat payment method request object.
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          description: The ID of the payment method.
+          example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+      required:
+        - id
+      example:
+        id: 8e03978e-40d5-43e8-bc93-6894a57f9324
+    TransferSource:
+      description: The source of the transfer.
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/PaymentMethodRequest'
+    CryptoRailAddress:
+      type: object
+      description: The crypto rail input object which specifies the symbol, network, and address which is the source or destination wallet address.
+      properties:
+        currency:
+          type: string
+          description: The symbol of the currency of the payment rail.
+          example: USDC
+        network:
+          type: string
+          description: The network of the payment rail.
+          example: base
+        address:
+          type: string
+          description: The address of the payment rail. This is the source or destination wallet address. It is not a contract address.
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      required:
+        - currency
+        - network
+        - address
+    TransferTarget:
+      description: The target of the transfer.
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/CryptoRailAddress'
+    Fee:
+      type: object
+      description: The fee for the transfer.
+      properties:
+        type:
+          type: string
+          enum:
+            - exchange_fee
+            - network_fee
+          description: The type of fee.
+          example: exchange_fee
+        amount:
+          type: string
+          description: The amount of the fee.
+          example: '10.25'
+        currency:
+          type: string
+          description: The currency of the fee.
+          example: USD
+        description:
+          type: string
+          example: Operation Fee to cover the cost of bank processing.
+          description: The description of the fee.
+      required:
+        - type
+        - amount
+        - currency
+      example:
+        type: exchange_fee
+        amount: '10.25'
+        currency: USD
+        description: Exchange Fee to cover the cost of bank processing.
+    Transfer:
+      type: object
+      description: The transfer object.
+      properties:
+        id:
+          type: string
+          pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+          description: The ID of the transfer.
+        sourceType:
+          type: string
+          enum:
+            - payment_method
+          description: The type of the source of the transfer.
+          example: payment_method
+        source:
+          type: object
+          oneOf:
+            - $ref: '#/components/schemas/PaymentMethodRequest'
+          description: The source of the transfer.
+          example:
+            id: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        targetType:
+          type: string
+          enum:
+            - crypto_rail
+          description: The type of the target of the transfer.
+          example: crypto_rail
+        target:
+          type: object
+          oneOf:
+            - $ref: '#/components/schemas/CryptoRailAddress'
+          description: The target of the transfer.
+          example:
+            currency: USDC
+            network: base
+            address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        sourceAmount:
+          type: string
+          description: The amount the source will transfer.
+          example: '110.50'
+        sourceCurrency:
+          type: string
+          description: The currency the source will transfer.
+          example: USD
+        targetAmount:
+          type: string
+          description: The amount the target will receive.
+          example: '100'
+        targetCurrency:
+          type: string
+          description: The currency the target will receive.
+          example: USD
+        userAmount:
+          type: string
+          description: The amount the customer put in to transfer.
+          example: '100'
+        userCurrency:
+          type: string
+          description: The currency the customer put in to transfer.
+          example: USD
+        fees:
+          type: array
+          description: The fees for the transfer.
+          items:
+            $ref: '#/components/schemas/Fee'
+          example:
+            - type: exchange_fee
+              amount: '10.25'
+              currency: USD
+            - type: network_fee
+              amount: '0.25'
+              currency: USD
+        status:
+          type: string
+          enum:
+            - created
+            - pending
+            - started
+            - completed
+            - failed
+          description: The status of the transfer.
+          example: created
+        createdAt:
+          type: string
+          example: '2021-01-01T00:00:00Z'
+          description: The UTC date and time in ISO 8601 format the transfer was created.
+        updatedAt:
+          type: string
+          example: '2021-01-01T00:00:00Z'
+          description: The UTC date and time in ISO 8601 format the transfer was updated.
+        transactionHash:
+          type: string
+          description: The transaction hash or transaction signature of the transfer.
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      required:
+        - id
+        - sourceType
+        - source
+        - targetType
+        - target
+        - sourceAmount
+        - sourceCurrency
+        - targetAmount
+        - targetCurrency
+        - userAmount
+        - userCurrency
+        - fees
+        - status
+        - createdAt
+        - updatedAt
+      example:
+        id: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        sourceType: payment_method
+        source:
+          id: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        targetType: crypto_rail
+        target:
+          currency: USDC
+          network: base
+          address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        sourceAmount: '110.50'
+        sourceCurrency: USD
+        targetAmount: '100'
+        targetCurrency: USD
+        userAmount: '100'
+        userCurrency: USD
+        fees:
+          - type: exchange_fee
+            amount: '10.25'
+            currency: USD
+          - type: network_fee
+            amount: '0.25'
+            currency: USD
+        status: completed
+        createdAt: '2021-01-01T00:00:00Z'
+        updatedAt: '2021-01-01T00:00:00Z'
+        transactionHash: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
   responses:
     InternalServerError:
       description: Internal server error.

@@ -110,12 +110,16 @@ class EvmClient:
         return hashlib.sha256(data.encode()).hexdigest()[:16]
 
     async def create_account(
-        self, name: str | None = None, idempotency_key: str | None = None
+        self,
+        name: str | None = None,
+        account_policy: str | None = None,
+        idempotency_key: str | None = None,
     ) -> EvmServerAccount:
         """Create an EVM account.
 
         Args:
             name (str, optional): The name. Defaults to None.
+            account_policy (str, optional): The ID of the account-level policy to apply to the account. Defaults to None.
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
         Returns:
@@ -124,7 +128,10 @@ class EvmClient:
         """
         evm_account = await self.api_clients.evm_accounts.create_evm_account(
             x_idempotency_key=idempotency_key,
-            create_evm_account_request=CreateEvmAccountRequest(name=name),
+            create_evm_account_request=CreateEvmAccountRequest(
+                name=name,
+                account_policy=account_policy,
+            ),
         )
         return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
 
