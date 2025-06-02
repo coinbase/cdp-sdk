@@ -1,4 +1,7 @@
 import base64
+import datetime
+import hashlib
+import json
 import re
 
 # TYPE_CHECKING imports for type annotations
@@ -57,6 +60,54 @@ class EvmClient:
         self.api_clients = api_clients
         wrap_class_with_error_tracking(EvmServerAccount)
         wrap_class_with_error_tracking(EvmSmartAccount)
+
+    def _parse_json_response(self, raw_data: bytes, operation: str) -> dict[str, Any]:
+        """Parse JSON response with common error handling.
+
+        Args:
+            raw_data: The raw response data
+            operation: Description of the operation for error messages
+
+        Returns:
+            dict: Parsed JSON response
+
+        Raises:
+            ValueError: If response is empty or invalid JSON
+
+        """
+        if not raw_data:
+            raise ValueError(f"Empty response from {operation}")
+
+        try:
+            return json.loads(raw_data.decode("utf-8"))
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON response from {operation}: {e}") from e
+
+    def _check_swap_liquidity(self, response_json: dict[str, Any]) -> None:
+        """Check if swap liquidity is available.
+
+        Args:
+            response_json: The parsed swap response
+
+        Raises:
+            ValueError: If liquidity is not available
+
+        """
+        if not response_json.get("liquidityAvailable", False):
+            raise ValueError("Swap unavailable: Insufficient liquidity")
+
+    def _generate_swap_quote_id(self, *components: Any) -> str:
+        """Generate a quote ID from components.
+
+        Args:
+            *components: Variable number of components to hash
+
+        Returns:
+            str: A 16-character quote ID
+
+        """
+        data = ":".join(str(c) for c in components)
+        return hashlib.sha256(data.encode()).hexdigest()[:16]
 
     async def create_account(
         self, name: str | None = None, idempotency_key: str | None = None
@@ -620,20 +671,11 @@ class EvmClient:
         )
 
         # Read and parse the response manually
-        import json
-
         raw_data = await response.read()
-        if not raw_data:
-            raise ValueError("Empty response from swap quote API")
-
-        try:
-            response_json = json.loads(raw_data.decode("utf-8"))
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON response from swap quote API: {e}") from e
+        response_json = self._parse_json_response(raw_data, "swap quote API")
 
         # Check if liquidity is available
-        if not response_json.get("liquidityAvailable", False):
-            raise ValueError("Swap unavailable: Insufficient liquidity")
+        self._check_swap_liquidity(response_json)
 
         # Extract the output amount from response
         # API uses toAmount/fromAmount but we need to map to our quote model
@@ -649,15 +691,9 @@ class EvmClient:
         )
 
         # Generate a quote ID from response data
-        import hashlib
-
-        quote_id = hashlib.sha256(
-            f"{from_token}:{to_token}:{amount_str}:{to_amount}".encode()
-        ).hexdigest()[:16]
+        quote_id = self._generate_swap_quote_id(from_token, to_token, amount_str, to_amount)
 
         # Get expiry time (if available in response)
-        import datetime
-
         expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
             minutes=5
         )  # Default 5 min expiry
@@ -797,20 +833,11 @@ class EvmClient:
         )
 
         # Parse response
-        import json
-
         raw_data = await response.read()
-        if not raw_data:
-            raise ValueError("Empty response from create swap API")
-
-        try:
-            response_json = json.loads(raw_data.decode("utf-8"))
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON response from create swap API: {e}") from e
+        response_json = self._parse_json_response(raw_data, "create swap API")
 
         # Check liquidity
-        if not response_json.get("liquidityAvailable", False):
-            raise ValueError("Swap unavailable: Insufficient liquidity")
+        self._check_swap_liquidity(response_json)
 
         # Parse as CreateSwapQuoteResponse
         swap_data = CreateSwapQuoteResponse.from_dict(response_json)
@@ -836,11 +863,9 @@ class EvmClient:
             requires_signature = True
 
         # Generate quote ID
-        import hashlib
-
-        quote_id = hashlib.sha256(
-            f"{buy_token}:{sell_token}:{sell_amount_str}:{swap_data.to_amount}:{network}".encode()
-        ).hexdigest()[:16]
+        quote_id = self._generate_swap_quote_id(
+            buy_token, sell_token, sell_amount_str, swap_data.to_amount, network
+        )
 
         # Convert to SwapQuoteResult
         result = SwapQuoteResult(
