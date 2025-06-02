@@ -1049,16 +1049,28 @@ describe("CDP Client E2E Tests", () => {
     });
 
     it("should list policies", async () => {
-      const result = await cdp.policies.listPolicies({
+      const policies: Policy[] = [];
+      let result = await cdp.policies.listPolicies({
         pageSize: 100,
       });
+      policies.push(...result.policies);
+
+      // Paginate through all policies so that we can find our test policy.
+      // This will not be necessary once we consistently remove policies from the e2e project.
+      while (result.nextPageToken) {
+        result = await cdp.policies.listPolicies({
+          pageSize: 100,
+          pageToken: result.nextPageToken,
+        });
+        policies.push(...result.policies);
+      }
 
       expect(result).toBeDefined();
-      expect(result.policies).toBeDefined();
-      expect(Array.isArray(result.policies)).toBe(true);
+      expect(policies).toBeDefined();
+      expect(Array.isArray(policies)).toBe(true);
 
       // Find our test policy
-      const testPolicy = result.policies.find(p => p.id === testPolicyId);
+      const testPolicy = policies.find(p => p.id === testPolicyId);
       expect(testPolicy).toBeDefined();
     });
 
