@@ -155,6 +155,8 @@ export interface CreateServerAccountOptions {
  * Options for importing an EVM server account.
  */
 export interface ImportServerAccountOptions {
+  /** The public RSA key used to encrypt the private key when importing an EVM account. */
+  encryptionPublicKey?: string;
   /** The name of the account. */
   name?: string;
   /** The idempotency key. */
