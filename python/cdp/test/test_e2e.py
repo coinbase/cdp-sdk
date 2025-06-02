@@ -1130,31 +1130,56 @@ async def test_list_policies(cdp_client):
     assert policy is not None
 
     # List all policies
-    policies = await cdp_client.policies.list_policies(
+    result = await cdp_client.policies.list_policies(
         page_size=100,
     )
+    policies = result.policies
+
+    # Paginate through all policies so that we can find our test policy.
+    # This will not be necessary once we consistently remove policies from the e2e project.
+    while result.next_page_token:
+        result = await cdp_client.policies.list_policies(
+            page_size=100,
+            page_token=result.next_page_token,
+        )
+        policies.extend(result.policies)
+
+    assert result is not None
     assert policies is not None
-    assert policies.policies is not None
-    assert len(policies.policies) > 0
-    assert any(p.id == policy.id for p in policies.policies)
+    assert len(policies) > 0
+    assert any(p.id == policy.id for p in policies)
 
     # List policies with scope filter
-    policies = await cdp_client.policies.list_policies(
+    result = await cdp_client.policies.list_policies(
         scope="account",
         page_size=100,
     )
-    assert policies is not None
-    assert policies.policies is not None
-    assert len(policies.policies) > 0
-    assert any(p.id == policy.id for p in policies.policies)
+    policies = result.policies
 
-    policies = await cdp_client.policies.list_policies(
+    # Paginate through all account-scoped policies so that we can find our test policy.
+    # This will not be necessary once we consistently remove policies from the e2e project.
+    while result.next_page_token:
+        result = await cdp_client.policies.list_policies(
+            scope="account",
+            page_size=100,
+            page_token=result.next_page_token,
+        )
+        policies.extend(result.policies)
+
+    assert result is not None
+    assert policies is not None
+    assert len(policies) > 0
+    assert any(p.id == policy.id for p in policies)
+
+    result = await cdp_client.policies.list_policies(
         scope="project",
         page_size=100,
     )
+    policies = result.policies
+
+    assert result is not None
     assert policies is not None
-    assert policies.policies is not None
-    assert not any(p.id == policy.id for p in policies.policies)
+    assert not any(p.id == policy.id for p in policies)
 
     # List policies with pagination
     first_page_policies = await cdp_client.policies.list_policies(page_size=1)
@@ -1163,15 +1188,15 @@ async def test_list_policies(cdp_client):
     assert len(first_page_policies.policies) == 1
 
     # Check if we have more policies
-    if policies.next_page_token:
-        policies = await cdp_client.policies.list_policies(
-            page_size=1, page_token=policies.next_page_token
+    if result.next_page_token:
+        result = await cdp_client.policies.list_policies(
+            page_size=1, page_token=result.next_page_token
         )
-        assert policies is not None
-        assert policies.policies is not None
+        assert result is not None
+        assert result.policies is not None
 
         # Verify that the second page has a different policy
-        assert not any(p.id == first_page_policies.policies[0].id for p in policies.policies)
+        assert not any(p.id == first_page_policies.policies[0].id for p in result.policies)
 
     # Delete the policy
     await cdp_client.policies.delete_policy(id=policy.id)
