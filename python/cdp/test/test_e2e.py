@@ -1451,6 +1451,7 @@ async def test_evm_local_account_sign_typed_data_with_full_message(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="Skipping due to nonce issue with concurrent test")
 async def test_evm_local_account_sign_and_send_transaction(cdp_client):
     """Test signing a transaction with an EVM local account."""
     account = await cdp_client.evm.get_or_create_account(name=test_account_name)
