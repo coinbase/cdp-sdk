@@ -650,182 +650,126 @@ tx_hash = await sender.transfer(
 )
 ```
 
-### Swapping tokens
+### EVM Swaps
 
-#### EVM
+You can use the CDP SDK to swap tokens on EVM networks.
 
-For complete examples, check out [account.swap.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.swap.py) and [smartAccount.swap.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smartAccount.swap.py).
+The SDK provides three approaches for performing token swaps:
 
-You can swap tokens between different assets using the `swap` function. The SDK supports swapping tokens on supported EVM networks with automatic slippage protection and optimal routing.
+#### 1. All-in-one pattern (Recommended)
 
-#### Basic Token Swap with Regular Account
-
-```python
-from cdp.actions.evm.swap import SwapOptions
-
-async def main():
-    async with CdpClient() as cdp:
-        account = await cdp.evm.create_account(name="SwapAccount")
-        
-        # Swap 0.001 ETH to USDC
-        swap_result = await account.swap(
-            SwapOptions(
-                from_asset="eth",
-                to_asset="usdc",
-                amount="0.001",  # 0.001 ETH
-                network="base-sepolia",
-                slippage_percentage=0.5,  # 0.5% slippage tolerance
-            )
-        )
-        
-        print(f"Swap completed!")
-        print(f"Transaction hash: {swap_result.transaction_hash}")
-        print(f"Swapped {swap_result.from_amount} {swap_result.from_asset} for {swap_result.to_amount} {swap_result.to_asset}")
-```
-
-#### Using Dictionary Parameters
-
-You can also pass swap parameters as a dictionary:
+The simplest approach for performing swaps. Creates and executes the swap in a single line of code:
 
 ```python
-swap_result = await account.swap({
-    "from_asset": "usdc",
-    "to_asset": "eth",
-    "amount": "1000000",  # 1 USDC in atomic units (6 decimals)
-    "network": "base-sepolia",
-    "slippage_percentage": 1.0,  # 1% slippage tolerance
+# Retrieve an existing EVM account with funds already in it
+account = await cdp.evm.get_or_create_account(name="MyExistingFundedAccount")
+
+# Execute a swap directly on an EVM account in one line
+result = await account.swap({
+    "network": "base",
+    "buy_token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
+    "sell_token": "0x4200000000000000000000000000000000000006",  # WETH on Base
+    "sell_amount": "1000000000000000000",  # 1 WETH in wei
+    "slippage_bps": 100,  # 1% slippage tolerance
 })
+
+print(f"Swap executed: {result.transaction_hash}")
 ```
 
-#### Using Contract Addresses
-
-You can specify tokens using their contract addresses instead of symbols:
+You can also use the `SwapParams` object for better type safety:
 
 ```python
-swap_result = await account.swap(
-    SwapOptions(
-        from_asset="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
-        to_asset="0x4200000000000000000000000000000000000006",   # WETH on Base
-        amount="1000000",  # 1 USDC
+from cdp.actions.evm.swap import SwapParams
+
+result = await account.swap(
+    SwapParams(
         network="base",
-        slippage_percentage=0.5,
+        buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
+        sell_token="0x4200000000000000000000000000000000000006",  # WETH on Base
+        sell_amount="1000000000000000000",  # 1 WETH in wei
+        slippage_bps=100,  # 1% slippage tolerance
     )
 )
 ```
 
-#### Gasless Swaps with Smart Accounts
+#### 2. Get pricing information
 
-Smart Accounts can perform gasless swaps on supported networks like Base:
-
-```python
-from eth_account import Account
-
-async def main():
-    async with CdpClient() as cdp:
-        # Create an owner account for the smart account
-        owner = await cdp.evm.create_account(name="smart-account-owner")
-        
-        # Create a smart account
-        smart_account = await cdp.evm.create_smart_account(owner=owner)
-        
-        # Perform gasless swap
-        swap_result = await smart_account.swap(
-            SwapOptions(
-                from_asset="eth",
-                to_asset="usdc",
-                amount="0.001",  # 0.001 ETH
-                network="base-sepolia",
-                slippage_percentage=1.0,  # 1% slippage tolerance
-            )
-        )
-        
-        print(f"Gasless swap completed!")
-        print(f"User operation hash: {swap_result.transaction_hash}")
-        print(f"Status: {swap_result.status}")
-```
-
-#### Swap Result
-
-The `swap` function returns a `SwapResult` object containing:
-
-- `transaction_hash`: The transaction or user operation hash
-- `from_asset`: The source token
-- `to_asset`: The destination token
-- `from_amount`: The amount of source token swapped
-- `to_amount`: The amount of destination token received
-- `status`: The swap status ("completed", "pending", or "failed")
-
-#### Supported Networks and Tokens
-
-The swap functionality supports:
-
-- **Networks**: Base, Base Sepolia, Ethereum, and other EVM-compatible networks
-- **Tokens**: ETH, USDC, WETH, and other ERC-20 tokens
-- **Token formats**: Token symbols (e.g., "eth", "usdc") or contract addresses
-- **Amount formats**: Decimal strings (e.g., "0.001") or atomic units (e.g., "1000000")
-
-### EVM Smart Accounts
-
-For EVM, we support Smart Accounts which are account-abstraction (ERC-4337) accounts. Currently there is only support for Base Sepolia and Base Mainnet for Smart Accounts.
-
-#### Create an EVM account and a smart account as follows:
+Use `get_quote` for quick price estimates and display purposes. This is ideal for showing exchange rates without committing to a swap:
 
 ```python
-import asyncio
-from cdp import CdpClient
+swap_price = await cdp.evm.get_quote(
+    network="ethereum",
+    to_token="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",  # USDC
+    from_token="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",  # WETH
+    amount="1000000000000000000",  # 1 WETH in wei
+)
 
-async def main():
-    async with CdpClient() as cdp:
-        evm_account = await cdp.evm.create_account()
-        smart_account = await cdp.evm.create_smart_account(
-            owner=evm_account
-        )
-
-asyncio.run(main())
+print(f"You'll receive: {swap_price.to_amount} USDC")
+print(f"Price ratio: {swap_price.price_ratio}")
 ```
 
-#### Sending User Operations
+**Note**: `get_quote` does not reserve funds or signal commitment to swap, making it suitable for more frequent price updates with less strict rate limiting - although the data may be slightly less precise.
+
+#### 3. Create and execute separately
+
+Use `create_swap` when you need full control over the swap process. This returns complete transaction data for execution:
+
+**Important**: `create_swap` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `get_quote` to prevent abuse.
 
 ```python
-import asyncio
-from cdp.evm_call_types import EncodedCall
-from cdp import CdpClient
+# Retrieve an existing EVM account with funds already in it
+account = await cdp.evm.get_or_create_account(name="MyExistingFundedAccount")
 
-async def main():
-    async with CdpClient() as cdp:
-        user_operation = await cdp.evm.send_user_operation(
-            smart_account=smart_account,
-            network="base-sepolia",
-            calls=[
-                EncodedCall(
-                    to="0x0000000000000000000000000000000000000000",
-                    value=0,
-                    data="0x"
-                )
-            ]
-        )
+# Step 1: Create a swap quote with full transaction details
+swap_quote = await cdp.evm.create_swap(
+    network="base",
+    buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+    sell_token="0x4200000000000000000000000000000000000006",  # WETH
+    sell_amount="1000000000000000000",  # 1 WETH in wei
+    taker=account.address,
+    slippage_bps=100,  # 1% slippage tolerance
+)
 
-asyncio.run(main())
+# Step 2: Check if liquidity is available, and/or perform other analysis on the swap quote
+if not swap_quote.buy_amount:
+    print("Insufficient liquidity for swap")
+    return
+
+# Step 3: Execute using the quote (two options)
+
+# Option 3A: Use the execute method on the quote (if created with from_account)
+swap_quote_with_account = await cdp.evm.create_swap(
+    network="base",
+    buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+    sell_token="0x4200000000000000000000000000000000000006",  # WETH
+    sell_amount="1000000000000000000",  # 1 WETH in wei
+    taker=account.address,
+    slippage_bps=100,
+    from_account=account  # Pass account to enable execute()
+)
+transaction_hash = await swap_quote_with_account.execute()
+
+# Option 3B: Pass the quote to account.swap()
+result = await account.swap(swap_quote)
+print(f"Swap executed: {result.transaction_hash}")
 ```
 
-#### In Base Sepolia, all user operations are gasless by default. If you'd like to specify a different paymaster, you can do so as follows:
+#### When to use each approach:
 
-```python
-import asyncio
-from cdp.evm_call_types import EncodedCall
-from cdp import CdpClient
+- **All-in-one (`account.swap()`)**: Best for most use cases. Simple, handles everything automatically.
+- **Price only (`get_quote`)**: For displaying exchange rates, building price calculators, or checking liquidity without executing. Suitable when frequent price updates are needed - although the data may be slightly less precise.
+- **Create then execute (`create_swap`)**: When you need to inspect swap details, implement custom logic, or handle complex scenarios before execution. Note: May reserve funds on-chain and is more strictly rate-limited.
 
-async def main():
-    async with CdpClient() as cdp:
-    user_operation = await cdp.evm.send_user_operation(
-        smart_account=smart_account,
-        network="base-sepolia",
-        calls=[],
-            paymaster_url="https://some-paymaster-url.com"
-        )
+All approaches handle Permit2 signatures automatically for ERC20 token swaps. Make sure tokens have proper allowances set for the Permit2 contract before swapping.
 
-asyncio.run(main())
-```
+#### Example implementations
+
+To help you get started with token swaps in your application, we provide the following fully-working examples demonstrating different scenarios:
+
+- [Get a swap price estimate](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/get_swap_price.py)
+- [Create a concrete swap quote for execution](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/create_swap_quote.py)
+- [Execute a swap transaction using CDP Accounts (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.swap.py)
+- [Execute a swap transaction using an external account (ie, web3.py)](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/create_swap_quote_viem.py)
 
 ## Account Actions
 
