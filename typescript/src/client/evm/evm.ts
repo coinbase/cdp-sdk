@@ -160,6 +160,8 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async importAccount(options: ImportServerAccountOptions): Promise<ServerAccount> {
+    const encryptionPublicKey = options.encryptionPublicKey || ImportEvmAccountPublicRSAKey;
+
     const privateKeyHex = options.privateKey.startsWith("0x")
       ? options.privateKey.slice(2)
       : options.privateKey;
@@ -173,7 +175,7 @@ export class EvmClient implements EvmClientInterface {
 
       const encryptedPrivateKey = publicEncrypt(
         {
-          key: ImportEvmAccountPublicRSAKey,
+          key: encryptionPublicKey,
           padding: constants.RSA_PKCS1_OAEP_PADDING,
           oaepHash: "sha256",
         },

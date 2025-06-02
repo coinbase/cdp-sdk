@@ -81,6 +81,7 @@ class EvmClient:
     async def import_account(
         self,
         private_key: str,
+        encryption_public_key: str | None = ImportEvmAccountPublicRSAKey,
         name: str | None = None,
         idempotency_key: str | None = None,
     ) -> EvmServerAccount:
@@ -88,6 +89,7 @@ class EvmClient:
 
         Args:
             private_key (str): The private key of the account.
+            encryption_public_key (str, optional): The public RSA key used to encrypt the private key when importing an EVM account. Defaults to the known public key.
             name (str, optional): The name. Defaults to None.
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
@@ -101,7 +103,7 @@ class EvmClient:
 
         try:
             private_key_bytes = bytes.fromhex(private_key_hex)
-            public_key = load_pem_public_key(ImportEvmAccountPublicRSAKey.encode())
+            public_key = load_pem_public_key(encryption_public_key.encode())
             encrypted_private_key = public_key.encrypt(
                 private_key_bytes,
                 padding.OAEP(
