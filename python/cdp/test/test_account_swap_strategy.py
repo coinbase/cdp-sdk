@@ -24,11 +24,11 @@ async def test_execute_swap_eth_to_usdc():
 
     swap_quote = SwapQuoteResult(
         quote_id="quote-123",
-        buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-        sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-        buy_amount="2000000000",
-        sell_amount="1000000000000000000",
-        min_buy_amount="1950000000",
+        to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+        from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+        to_amount="2000000000",
+        from_amount="1000000000000000000",
+        min_to_amount="1950000000",
         to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",  # Valid swap contract address
         data="0xcalldata",
         value="1000000000000000000",
@@ -76,11 +76,11 @@ async def test_execute_swap_with_permit2_signature():
     # Create swap data
     swap_quote = SwapQuoteResult(
         quote_id="quote-456",
-        buy_token="0x4200000000000000000000000000000000000006",  # WETH
-        sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-        buy_amount="500000000000000000",
-        sell_amount="1000000000",
-        min_buy_amount="490000000000000000",
+        to_token="0x4200000000000000000000000000000000000006",  # WETH
+        from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+        to_amount="500000000000000000",
+        from_amount="1000000000",
+        min_to_amount="490000000000000000",
         to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
         data="0xbaseCalldata",
         value="0",
@@ -129,11 +129,11 @@ async def test_execute_swap_without_permit2():
 
     swap_quote = SwapQuoteResult(
         quote_id="quote-123",
-        buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-        sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-        buy_amount="2000000000",
-        sell_amount="1000000000000000000",
-        min_buy_amount="1950000000",
+        to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+        from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+        to_amount="2000000000",
+        from_amount="1000000000000000000",
+        min_to_amount="1950000000",
         to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
         data="0xcalldata",
         value="1000000000000000000",
@@ -172,11 +172,11 @@ async def test_execute_swap_with_gas_parameters():
 
     swap_quote = SwapQuoteResult(
         quote_id="quote-456",
-        buy_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-        sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-        buy_amount="500000000000000000",  # 0.5 ETH
-        sell_amount="1000000000",  # 1000 USDC
-        min_buy_amount="480000000000000000",  # Min amount after slippage
+        to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+        from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+        to_amount="500000000000000000",  # 0.5 ETH
+        from_amount="1000000000",  # 1000 USDC
+        min_to_amount="480000000000000000",  # Min amount after slippage
         to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
         data="0x5678efgh",
         value="0",
@@ -215,11 +215,11 @@ async def test_execute_swap_custom_network():
 
     swap_quote = SwapQuoteResult(
         quote_id="quote-789",
-        buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-        sell_token="0x4200000000000000000000000000000000000006",  # WETH
-        buy_amount="4000000000",  # 4000 USDC
-        sell_amount="2000000000000000000",  # 2 WETH
-        min_buy_amount="3800000000",  # Min amount after slippage
+        to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+        from_token="0x4200000000000000000000000000000000000006",  # WETH
+        to_amount="4000000000",  # 4000 USDC
+        from_amount="2000000000000000000",  # 2 WETH
+        min_to_amount="3800000000",  # Min amount after slippage
         to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
         data="0x9abcijkl",
         value="0",
@@ -251,11 +251,11 @@ async def test_execute_swap_contract_addresses():
 
     swap_quote = SwapQuoteResult(
         quote_id="quote-012",
-        buy_token="0x4200000000000000000000000000000000000006",  # WETH on Base
-        sell_token="0x036CbD53842c5426634e7929541eC2318f3dCF7e",  # USDC on Base
-        buy_amount="2500000000000000000",  # 2.5 WETH
-        sell_amount="1000000000",  # 1000 USDC
-        min_buy_amount="2400000000000000000",  # Min amount after slippage
+        to_token="0x4200000000000000000000000000000000000006",  # WETH on Base
+        from_token="0x036CbD53842c5426634e7929541eC2318f3dCF7e",  # USDC on Base
+        to_amount="2500000000000000000",  # 2.5 WETH
+        from_amount="1000000000",  # 1000 USDC
+        min_to_amount="2400000000000000000",  # Min amount after slippage
         to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
         data="0xdefmnopq",
         value="0",
@@ -289,11 +289,11 @@ async def test_execute_swap_network_parameter():
     swap_quote = MagicMock(spec=SwapQuoteResult)
     swap_quote.network = "base"
     swap_quote.quote_id = "quote-789"
-    swap_quote.buy_token = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-    swap_quote.sell_token = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
-    swap_quote.buy_amount = "1000000000"
-    swap_quote.sell_amount = "500000000000000000"
-    swap_quote.min_buy_amount = "950000000"
+    swap_quote.to_token = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    swap_quote.from_token = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+    swap_quote.to_amount = "1000000000"
+    swap_quote.from_amount = "500000000000000000"
+    swap_quote.min_to_amount = "950000000"
     swap_quote.to = "0xdef1c0ded9bec7f1a1670819833240f027b25eff"
     swap_quote.data = "0xcalldata"
     swap_quote.value = "500000000000000000"

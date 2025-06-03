@@ -32,6 +32,9 @@ from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
+from cdp.actions.evm.swap import SwapOptions
+from cdp.actions.evm.swap.send_swap_transaction import send_swap_transaction
+from cdp.actions.evm.swap.types import SwapQuoteResult
 from cdp.api_clients import ApiClients
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
@@ -288,106 +291,105 @@ class EvmServerAccount(BaseAccount, BaseModel):
             transfer_strategy=account_transfer_strategy,
         )
 
-    async def swap(self, swapQuote):  # noqa: N803
+    async def swap(self, options):
         """Swap tokens from one asset to another.
 
         Args:
-            swapQuote: The swap quote. Can be either:
-                1. SwapParams - New OpenAPI-aligned parameters
-                2. SwapQuoteResult - Pre-created swap quote from create_swap_quote
-                3. SwapOptions with swap_params or swapQuote
-                4. Dict with fields matching SwapParams
+            options: The swap options. Must be a SwapOptions instance containing either:
+                - Direct swap parameters (network, from_token, to_token, from_amount, taker, slippage_bps)
+                - A pre-created swap quote (swap_quote)
 
         Returns:
             The result of the swap.
 
         Examples:
-            **Simple swap with new API (one-step)**:
-            >>> from cdp.actions.evm.swap import SwapParams
+            **Direct swap with parameters**:
+            >>> from cdp.actions.evm.swap import SwapOptions
             >>> result = await account.swap(
-            ...     SwapParams(
-            ...         buy_token="0x4200000000000000000000000000000000000006",  # WETH
-            ...         sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-            ...         sell_amount="100000000",  # 100 USDC
+            ...     SwapOptions(
             ...         network="base",
+            ...         from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            ...         to_token="0x4200000000000000000000000000000000000006",  # WETH
+            ...         from_amount="100000000",  # 100 USDC
+            ...         taker=account.address,
+            ...         slippage_bps=100  # 1% slippage
             ...     )
             ... )
 
-            **Two-step swap with quote inspection**:
+            **Swap with pre-created quote**:
             >>> # First create a quote
             >>> quote = await cdp.evm.create_swap_quote(
-            ...     buy_token="0x4200000000000000000000000000000000000006",
-            ...     sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            ...     sell_amount="100000000",
+            ...     from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            ...     to_token="0x4200000000000000000000000000000000000006",
+            ...     from_amount="100000000",
             ...     network="base",
             ...     taker=account.address
             ... )
-            >>> print(f"Expected output: {quote.buy_amount}")
-            >>> # Then execute if satisfied
-            >>> result = await account.swap(quote)
-
-            **Using dict syntax with new API**:
-            >>> result = await account.swap({
-            ...     "buy_token": "0x4200000000000000000000000000000000000006",
-            ...     "sell_token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            ...     "sell_amount": "100000000",
-            ...     "network": "base",
-            ... })
+            >>> # Then execute with the quote
+            >>> result = await account.swap(
+            ...     SwapOptions(swap_quote=quote)
+            ... )
 
         """
-        from cdp.actions.evm.swap import (
-            AccountSwapStrategy,
-            SwapOptions,
-            SwapParams,
-            SwapQuoteResult,
-            swap,
+        # Validate that options is a SwapOptions instance
+        if not isinstance(options, SwapOptions):
+            raise TypeError("swap() expects a SwapOptions instance")
+
+        return await send_swap_transaction(
+            api_clients=self.__api_clients, account=self, options=options
         )
 
-        # Handle different input formats
-        swap_options = None
+    async def quote_swap(
+        self,
+        from_token: str,
+        to_token: str,
+        from_amount: str | int,
+        network: str,
+        slippage_bps: int | None = None,
+    ) -> "SwapQuoteResult":
+        """Get a quote for swapping tokens.
 
-        if isinstance(swapQuote, dict):
-            # New format - create SwapParams
-            # Auto-populate taker if not provided
-            if "taker" not in swapQuote:
-                swapQuote["taker"] = self.address
-            swap_options = SwapOptions(swap_params=SwapParams(**swapQuote))
+        This is a convenience method that calls the underlying create_swap_quote
+        with the account's address as the taker.
 
-        elif isinstance(swapQuote, SwapParams):
-            # New SwapParams
-            # Auto-populate taker if not provided
-            if swapQuote.taker is None:
-                swapQuote.taker = self.address
-            swap_options = SwapOptions(swap_params=swapQuote)
+        Args:
+            from_token: The contract address of the token to swap from
+            to_token: The contract address of the token to swap to
+            from_amount: The amount to swap from (in smallest unit)
+            network: The network to execute the swap on
+            slippage_bps: Maximum slippage in basis points (100 = 1%). Defaults to 100.
 
-        elif isinstance(swapQuote, SwapQuoteResult):
-            # Pre-created swap quote
-            # Set the account and api_clients on the quote to enable execute()
-            swapQuote._from_account = self
-            swapQuote._api_clients = self.__api_clients
-            swap_options = SwapOptions(swapQuote=swapQuote)
+        Returns:
+            SwapQuoteResult: The swap quote with transaction data
 
-        elif isinstance(swapQuote, SwapOptions):
-            # Already SwapOptions, use as is
-            swap_options = swapQuote
-            # Auto-populate taker for swap_params if needed
-            if swap_options.swap_params and swap_options.swap_params.taker is None:
-                swap_options.swap_params.taker = self.address
-            # Set account and api_clients for swapQuote if present
-            if swap_options.swapQuote:
-                swap_options.swapQuote._from_account = self
-                swap_options.swapQuote._api_clients = self.__api_clients
+        Examples:
+            >>> # Get a quote for swapping USDC to WETH
+            >>> quote = await account.quote_swap(
+            ...     from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            ...     to_token="0x4200000000000000000000000000000000000006",  # WETH
+            ...     from_amount="100000000",  # 100 USDC
+            ...     network="base"
+            ... )
+            >>> print(f"Expected output: {quote.to_amount}")
+            >>>
+            >>> # Execute the quote if satisfied
+            >>> result = await account.swap(quote)
 
-        else:
-            raise ValueError(
-                "swapQuote must be a dict, SwapParams, SwapQuoteResult, or SwapOptions instance"
-            )
+        """
+        from cdp.evm_client import EvmClient
 
-        return await swap(
-            api_clients=self.__api_clients,
-            from_account=self,
-            swap_options=swap_options,
-            swap_strategy=AccountSwapStrategy(),
+        # Create an EVM client instance
+        evm_client = EvmClient(self.__api_clients)
+
+        # Call create_swap_quote with the account as taker and from_account
+        return await evm_client.create_swap_quote(
+            from_token=from_token,
+            to_token=to_token,
+            from_amount=from_amount,
+            network=network,
+            taker=self.address,
+            slippage_bps=slippage_bps,
+            from_account=self,  # This enables quote.execute()
         )
 
     async def request_faucet(

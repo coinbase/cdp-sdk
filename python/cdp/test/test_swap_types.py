@@ -18,23 +18,23 @@ class TestSwapParams:
     def test_swap_params_basic(self):
         """Test basic SwapParams creation."""
         params = SwapParams(
-            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-            sell_amount="1000000000000000000",
+            from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+            from_amount="1000000000000000000",
             network="base",
         )
-        assert params.buy_token == "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"  # lowercase
-        assert params.sell_token == "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"  # lowercase
-        assert params.sell_amount == "1000000000000000000"
+        assert params.from_token == "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"  # lowercase
+        assert params.to_token == "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"  # lowercase
+        assert params.from_amount == "1000000000000000000"
         assert params.network == "base"
         assert params.slippage_bps == 100  # default (1%)
 
     def test_swap_params_with_slippage(self):
         """Test SwapParams with custom slippage."""
         params = SwapParams(
-            buy_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-            sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-            sell_amount="1000000",
+            from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+            to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            from_amount="1000000",
             network="ethereum",
             slippage_bps=200,  # 2%
         )
@@ -44,9 +44,9 @@ class TestSwapParams:
         """Test SwapParams with invalid slippage."""
         with pytest.raises(ValueError, match="Slippage basis points must be between 0 and 10000"):
             SwapParams(
-                buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-                sell_amount="1000",
+                from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                from_amount="1000",
                 network="base",
                 slippage_bps=10001,  # > 100%
             )
@@ -55,39 +55,39 @@ class TestSwapParams:
         """Test SwapParams with unsupported network."""
         with pytest.raises(ValueError, match="Network must be one of"):
             SwapParams(
-                buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-                sell_amount="1000",
+                from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                from_amount="1000",
                 network="polygon",  # not supported
             )
 
     def test_swap_params_amount_as_int(self):
         """Test SwapParams with amount as int."""
         params = SwapParams(
-            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-            sell_amount=1000000000000000000,
+            from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            from_amount=1000000000000000000,
             network="base",
         )
-        assert params.sell_amount == "1000000000000000000"
+        assert params.from_amount == "1000000000000000000"
 
     def test_swap_params_invalid_token_address(self):
         """Test SwapParams with invalid token address."""
         # Too short address
         with pytest.raises(ValueError, match="Token address must be a valid Ethereum address"):
             SwapParams(
-                buy_token="0x123",  # Too short
-                sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                sell_amount="1000",
+                from_token="0x123",  # Too short
+                to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                from_amount="1000",
                 network="base",
             )
 
         # Not hex format
         with pytest.raises(ValueError, match="Token address must be a valid Ethereum address"):
             SwapParams(
-                buy_token="not-an-address",
-                sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                sell_amount="1000",
+                from_token="not-an-address",
+                to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                from_amount="1000",
                 network="base",
             )
 
@@ -96,83 +96,91 @@ class TestSwapOptions:
     """Test SwapOptions."""
 
     def test_swap_options_with_params(self):
-        """Test SwapOptions with SwapParams."""
-        params = SwapParams(
-            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-            sell_amount="1000000000000000000",
+        """Test SwapOptions with direct parameters."""
+        options = SwapOptions(
             network="base",
+            from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            from_amount="1000000000000000000",
+            taker="0x1234567890123456789012345678901234567890",
+            slippage_bps=100,
         )
-        options = SwapOptions(swap_params=params)
-        assert options.swap_params == params
-        assert options.swapQuote is None
+        assert options.network == "base"
+        assert options.from_token == "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+        assert options.to_token == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+        assert options.from_amount == "1000000000000000000"
+        assert options.taker == "0x1234567890123456789012345678901234567890"
+        assert options.slippage_bps == 100
+        assert options.swap_quote is None
 
     def test_swap_options_with_quote_result(self):
         """Test SwapOptions with SwapQuoteResult."""
         quote = SwapQuoteResult(
             quote_id="quote-123",
-            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-            buy_amount="2000000000",
-            sell_amount="1000000000000000000",
-            min_buy_amount="1900000000",
+            to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            to_amount="2000000000",
+            from_amount="1000000000000000000",
+            min_to_amount="1900000000",
             to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
             data="0x1234abcd",
             value="0",
             network="base",
         )
-        options = SwapOptions(swapQuote=quote)
-        assert options.swapQuote == quote
-        assert options.swap_params is None
+        options = SwapOptions(swap_quote=quote)
+        assert options.swap_quote == quote
 
-    def test_swap_options_backward_compatibility(self):
-        """Test SwapOptions backward compatibility with swap_quote_result."""
+    def test_swap_options_with_swap_quote_alias(self):
+        """Test SwapOptions with swap quote."""
         quote = SwapQuoteResult(
             quote_id="quote-123",
-            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-            buy_amount="2000000000",
-            sell_amount="1000000000000000000",
-            min_buy_amount="1900000000",
+            to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            to_amount="2000000000",
+            from_amount="1000000000000000000",
+            min_to_amount="1900000000",
             to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
             data="0x1234abcd",
             value="0",
             network="base",
         )
-        # Should still work with old parameter name
-        options = SwapOptions(swap_quote_result=quote)
-        assert options.swapQuote == quote
-        assert options.swap_params is None
+        # Test using swap_quote parameter
+        options = SwapOptions(swap_quote=quote)
+        assert options.swap_quote == quote
 
     def test_swap_options_no_options(self):
         """Test SwapOptions with no options."""
-        with pytest.raises(ValueError, match="One of swap_params or swapQuote must be provided"):
+        with pytest.raises(
+            ValueError, match="SwapOptions must contain either direct swap parameters"
+        ):
             SwapOptions()
 
     def test_swap_options_multiple_options(self):
         """Test SwapOptions with multiple options."""
-        params = SwapParams(
-            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-            sell_amount="1000000000000000000",
-            network="base",
-        )
         quote = SwapQuoteResult(
             quote_id="quote-123",
-            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-            buy_amount="2000000000",
-            sell_amount="1000000000000000000",
-            min_buy_amount="1900000000",
+            to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            to_amount="2000000000",
+            from_amount="1000000000000000000",
+            min_to_amount="1900000000",
             to="0xdef1c0ded9bec7f1a1670819833240f027b25eff",
             data="0x1234abcd",
             value="0",
             network="base",
         )
         with pytest.raises(
-            ValueError, match="Only one of swap_params or swapQuote can be provided"
+            ValueError,
+            match="SwapOptions cannot contain both direct swap parameters and a swap_quote",
         ):
-            SwapOptions(swap_params=params, swapQuote=quote)
+            SwapOptions(
+                network="base",
+                from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                from_amount="1000000000000000000",
+                taker="0x1234567890123456789012345678901234567890",
+                swap_quote=quote,
+            )
 
 
 class TestSwapResult:

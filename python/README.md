@@ -652,124 +652,68 @@ tx_hash = await sender.transfer(
 
 ### EVM Swaps
 
-You can use the CDP SDK to swap tokens on EVM networks.
+The SDK provides support for EVM-based token swaps. You can swap tokens with different approaches:
 
-The SDK provides three approaches for performing token swaps:
-
-#### 1. All-in-one pattern (Recommended)
-
-The simplest approach for performing swaps. Creates and executes the swap in a single line of code:
+#### Direct swap with parameters
+Easily perform a swap with a single method call:
 
 ```python
-# Retrieve an existing EVM account with funds already in it
-account = await cdp.evm.get_or_create_account(name="MyExistingFundedAccount")
+from cdp import *
+from cdp.actions.evm.swap import SwapOptions
 
-# Execute a swap directly on an EVM account in one line
-result = await account.swap({
-    "network": "base",
-    "buy_token": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
-    "sell_token": "0x4200000000000000000000000000000000000006",  # WETH on Base
-    "sell_amount": "1000000000000000000",  # 1 WETH in wei
-    "slippage_bps": 100,  # 1% slippage tolerance
-})
-
-print(f"Swap executed: {result.transaction_hash}")
-```
-
-You can also use the `SwapParams` object for better type safety:
-
-```python
-from cdp.actions.evm.swap import SwapParams
-
+# Swap USDC to ETH
 result = await account.swap(
-    SwapParams(
+    SwapOptions(
         network="base",
-        buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
-        sell_token="0x4200000000000000000000000000000000000006",  # WETH on Base
-        sell_amount="1000000000000000000",  # 1 WETH in wei
-        slippage_bps=100,  # 1% slippage tolerance
+        from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+        to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+        from_amount="100000000",  # 100 USDC (6 decimals)
+        taker=account.address,
+        slippage_bps=100  # 1% slippage
     )
 )
+print(f"Transaction hash: {result.transaction_hash}")
+print(f"Received: {result.to_amount}")
 ```
 
-#### 2. Get pricing information
-
-Use `get_swap_price` for quick price estimates and display purposes. This is ideal for showing exchange rates without committing to a swap:
+#### Get pricing information
+Get swap price without executing:
 
 ```python
-swap_price = await cdp.evm.get_swap_price(
-    network="ethereum",
-    to_token="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",  # USDC
-    from_token="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",  # WETH
-    amount="1000000000000000000",  # 1 WETH in wei
+# Get price for swapping 1 ETH to USDC
+price = await cdp.evm.get_swap_price(
+    from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+    to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+    from_amount="1000000000000000000",  # 1 ETH (18 decimals)
+    network="base"
 )
-
-print(f"You'll receive: {swap_price.to_amount} USDC")
-print(f"Price ratio: {swap_price.price_ratio}")
+print(f"Expected output: {price.to_amount} USDC")
+print(f"Price ratio: {price.price_ratio}")
 ```
 
-**Note**: `get_swap_price` does not reserve funds or signal commitment to swap, making it suitable for more frequent price updates with less strict rate limiting - although the data may be slightly less precise.
-
-#### 3. Create and execute separately
-
-Use `create_swap_quote` when you need full control over the swap process. This returns complete transaction data for execution:
-
-**Important**: `create_swap_quote` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `get_swap_price` to prevent abuse.
+#### Create and execute separately
+For more control, create the swap quote first:
 
 ```python
-# Retrieve an existing EVM account with funds already in it
-account = await cdp.evm.get_or_create_account(name="MyExistingFundedAccount")
-
-# Step 1: Create a swap quote with full transaction details
-swap_quote = await cdp.evm.create_swap_quote(
+# Create quote
+quote = await cdp.evm.create_swap_quote(
+    from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+    to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+    from_amount="100000000",  # 100 USDC
     network="base",
-    buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-    sell_token="0x4200000000000000000000000000000000000006",  # WETH
-    sell_amount="1000000000000000000",  # 1 WETH in wei
     taker=account.address,
-    slippage_bps=100,  # 1% slippage tolerance
+    slippage_bps=100  # 1% slippage
 )
 
-# Step 2: Check if liquidity is available, and/or perform other analysis on the swap quote
-if not swap_quote.buy_amount:
-    print("Insufficient liquidity for swap")
-    return
+# Review quote details
+print(f"Expected output: {quote.to_amount}")
+print(f"Min output: {quote.min_to_amount}")
 
-# Step 3: Execute using the quote (two options)
-
-# Option 3A: Use the execute method on the quote (if created with from_account)
-swap_quote_with_account = await cdp.evm.create_swap_quote(
-    network="base",
-    buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-    sell_token="0x4200000000000000000000000000000000000006",  # WETH
-    sell_amount="1000000000000000000",  # 1 WETH in wei
-    taker=account.address,
-    slippage_bps=100,
-    from_account=account  # Pass account to enable execute()
+# Execute if satisfied
+result = await account.swap(
+    SwapOptions(swap_quote=quote)
 )
-transaction_hash = await swap_quote_with_account.execute()
-
-# Option 3B: Pass the quote to account.swap()
-result = await account.swap(swap_quote)
-print(f"Swap executed: {result.transaction_hash}")
 ```
-
-#### When to use each approach:
-
-- **All-in-one (`account.swap()`)**: Best for most use cases. Simple, handles everything automatically.
-- **Price only (`get_swap_price`)**: For displaying exchange rates, building price calculators, or checking liquidity without executing. Suitable when frequent price updates are needed - although the data may be slightly less precise.
-- **Create then execute (`create_swap_quote`)**: When you need to inspect swap details, implement custom logic, or handle complex scenarios before execution. Note: May reserve funds on-chain and is more strictly rate-limited.
-
-All approaches handle Permit2 signatures automatically for ERC20 token swaps. Make sure tokens have proper allowances set for the Permit2 contract before swapping.
-
-#### Example implementations
-
-To help you get started with token swaps in your application, we provide the following fully-working examples demonstrating different scenarios:
-
-- [Get a swap price estimate](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/get_swap_price.py)
-- [Create a concrete swap quote for execution](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/create_swap_quote.py)
-- [Execute a swap transaction using CDP Accounts (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.swap.py)
-- [Execute a swap transaction using an external account (ie, web3.py)](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/create_swap_quote_viem.py)
 
 ### EVM Smart Accounts
 

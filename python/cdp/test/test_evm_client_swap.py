@@ -57,7 +57,7 @@ class TestGetSwapPrice:
         price = await evm_client.get_swap_price(
             from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
             to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-            amount="1000000000000000000",
+            from_amount="1000000000000000000",
             network="base",
         )
 
@@ -99,7 +99,7 @@ class TestGetSwapPrice:
         price = await evm_client.get_swap_price(
             from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-            amount="1000000000",
+            from_amount="1000000000",
             network="ethereum",
         )
 
@@ -124,7 +124,7 @@ class TestGetSwapPrice:
             await evm_client.get_swap_price(
                 from_token="0x0000000000000000000000000000000000000000",  # ETH contract address
                 to_token="0x036CbD53842c5426634e7929541eC2318f3dCF7e",  # USDC contract address
-                amount="1000000000000000000000",  # Very large amount
+                from_amount="1000000000000000000000",  # Very large amount
                 network="base",
             )
 
@@ -166,9 +166,9 @@ class TestCreateSwapQuote:
 
         # Create swap
         swap_quote = await evm_client.create_swap_quote(
-            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-            sell_amount="1000000000000000000",
+            from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+            to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            from_amount="1000000000000000000",
             network="base",
             taker="0x9876543210987654321098765432109876543210",
             slippage_bps=100,  # 1%
@@ -179,9 +179,9 @@ class TestCreateSwapQuote:
         assert swap_quote.to == "0x1234567890123456789012345678901234567890"
         assert swap_quote.data == "0xabcdef"
         assert swap_quote.value == "1000000000000000000"
-        assert swap_quote.buy_amount == "2000000000"
-        assert swap_quote.sell_amount == "1000000000000000000"
-        assert swap_quote.min_buy_amount == "1980000000"
+        assert swap_quote.to_amount == "2000000000"
+        assert swap_quote.from_amount == "1000000000000000000"
+        assert swap_quote.min_to_amount == "1980000000"
         assert not swap_quote.requires_signature
         assert swap_quote.permit2_data is None
 
@@ -233,9 +233,9 @@ class TestCreateSwapQuote:
 
         # Create swap
         swap_quote = await evm_client.create_swap_quote(
-            sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-            buy_token="0x4200000000000000000000000000000000000006",  # WETH
-            sell_amount="1000000000",
+            from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            to_token="0x4200000000000000000000000000000000000006",  # WETH
+            from_amount="1000000000",
             network="base",
             taker="0x9876543210987654321098765432109876543210",
         )
@@ -279,9 +279,9 @@ class TestCreateSwapQuote:
 
         # Create swap with 2.5% slippage
         await evm_client.create_swap_quote(
-            sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-            buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-            sell_amount="1000000000000000000",
+            from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+            to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            from_amount="1000000000000000000",
             network="ethereum",
             taker="0x9876543210987654321098765432109876543210",
             slippage_bps=250,  # 2.5%
@@ -307,9 +307,9 @@ class TestCreateSwapQuote:
         # Should raise error
         with pytest.raises(ValueError, match="Invalid JSON response"):
             await evm_client.create_swap_quote(
-                sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-                buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                sell_amount="1000000000000000000",
+                from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                from_amount="1000000000000000000",
                 network="base",
                 taker="0x9876543210987654321098765432109876543210",
             )
@@ -327,9 +327,9 @@ class TestCreateSwapQuote:
         # Should raise error
         with pytest.raises(ValueError, match="Empty response"):
             await evm_client.create_swap_quote(
-                sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-                buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                sell_amount="1000000000000000000",
+                from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+                to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                from_amount="1000000000000000000",
                 network="base",
                 taker="0x9876543210987654321098765432109876543210",
             )

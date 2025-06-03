@@ -14,14 +14,14 @@ async def swap(
 ) -> SwapResult:
     """Execute a token swap.
 
-    This function supports multiple patterns:
-    1. Provide SwapParams - New OpenAPI-aligned parameters
-    2. Provide SwapQuoteResult - Pre-created swap quote from create_swap_quote
+    This function supports two patterns:
+    1. Direct swap parameters in SwapOptions
+    2. Pre-created swap quote in SwapOptions
 
     Args:
         api_clients: The API clients instance
         from_account: The account to swap from
-        swap_options: The swap options containing one of the supported patterns
+        swap_options: The swap options containing either direct parameters or a swap quote
         swap_strategy: The strategy to use for executing the swap
 
     Returns:
@@ -32,19 +32,18 @@ async def swap(
         Exception: If the swap fails
 
     Examples:
-        **Using SwapParams (new API)**:
+        **Using direct parameters**:
         ```python
         result = await swap(
             api_clients=api_clients,
             from_account=account,
             swap_options=SwapOptions(
-                swap_params=SwapParams(
-                    buy_token="0x4200000000000000000000000000000000000006",  # WETH
-                    sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-                    sell_amount="1000000",  # 1 USDC
-                    network="base",
-                    taker=account.address
-                )
+                network="base",
+                from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+                to_token="0x4200000000000000000000000000000000000006",  # WETH
+                from_amount="1000000",  # 1 USDC
+                taker=account.address,
+                slippage_bps=100
             ),
             swap_strategy=AccountSwapStrategy()
         )
@@ -59,26 +58,9 @@ async def swap(
         result = await swap(
             api_clients=api_clients,
             from_account=account,
-            swap_options=SwapOptions(swapQuote=swap_quote),
+            swap_options=SwapOptions(swap_quote=swap_quote),
             swap_strategy=AccountSwapStrategy()
         )
-        ```
-
-        **Example with direct parameters**:
-        ```python
-        result = await account.swap(
-            buy_token="0x4200000000000000000000000000000000000006",
-            sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            sell_amount="100000000",
-            network="base",
-            slippage_bps=100
-        )
-        ```
-
-        **Example with pre-created quote**:
-        ```python
-        swap_quote = await cdp.evm.create_swap_quote(...)
-        result = await account.swap(swap_quote)
         ```
 
     """
@@ -93,37 +75,9 @@ async def swap(
     network = None
     permit2_signature = None
 
-    if swap_options.swap_params:
-        # Pattern 1: New API with SwapParams
-        params = swap_options.swap_params
-
-        # Create the swap
-        swap_quote = await evm_client.create_swap_quote(
-            buy_token=params.buy_token,
-            sell_token=params.sell_token,
-            sell_amount=params.sell_amount,
-            network=params.network,
-            taker=params.taker or from_account.address,
-            slippage_bps=params.slippage_bps,
-        )
-
-        # Handle Permit2 signature if required
-        if swap_quote.requires_signature and swap_quote.permit2_data:
-            # Sign the Permit2 typed data
-            typed_data = swap_quote.permit2_data.eip712
-            permit2_signature = await from_account.sign_typed_data(
-                domain=typed_data["domain"],
-                types=typed_data["types"],
-                primary_type=typed_data["primaryType"],
-                message=typed_data["message"],
-            )
-
-        swap_data = swap_quote
-        network = params.network
-
-    elif swap_options.swapQuote:
-        # Pattern 2: Pre-created swap quote
-        swap_quote = swap_options.swapQuote
+    if swap_options.swap_quote is not None:
+        # Pattern 1: Pre-created swap quote
+        swap_quote = swap_options.swap_quote
 
         # Handle Permit2 signature if required
         if swap_quote.requires_signature and swap_quote.permit2_data:
@@ -138,6 +92,32 @@ async def swap(
 
         swap_data = swap_quote
         network = swap_quote.network
+
+    else:
+        # Pattern 2: Direct parameters
+        # Create the swap quote from parameters
+        swap_quote = await evm_client.create_swap_quote(
+            from_token=swap_options.from_token,
+            to_token=swap_options.to_token,
+            from_amount=swap_options.from_amount,
+            network=swap_options.network,
+            taker=swap_options.taker or from_account.address,
+            slippage_bps=swap_options.slippage_bps,
+        )
+
+        # Handle Permit2 signature if required
+        if swap_quote.requires_signature and swap_quote.permit2_data:
+            # Sign the Permit2 typed data
+            typed_data = swap_quote.permit2_data.eip712
+            permit2_signature = await from_account.sign_typed_data(
+                domain=typed_data["domain"],
+                types=typed_data["types"],
+                primary_type=typed_data["primaryType"],
+                message=typed_data["message"],
+            )
+
+        swap_data = swap_quote
+        network = swap_options.network
 
     # Execute the swap using the appropriate strategy
     result = await swap_strategy.execute_swap(

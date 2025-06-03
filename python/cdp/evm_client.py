@@ -642,7 +642,7 @@ class EvmClient:
         self,
         from_token: str,
         to_token: str,
-        amount: str | int,
+        from_amount: str | int,
         network: str,
     ) -> "SwapQuote":
         """Get a swap price for swapping tokens.
@@ -650,7 +650,7 @@ class EvmClient:
         Args:
             from_token (str): The contract address of the token to swap from.
             to_token (str): The contract address of the token to swap to.
-            amount (str | int): The amount to swap (in smallest unit or as string).
+            from_amount (str | int): The amount to swap from (in smallest unit or as string).
             network (str): The network to get the price for.
 
         Returns:
@@ -661,7 +661,7 @@ class EvmClient:
         from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
 
         # Convert amount to string if it's an integer
-        amount_str = str(amount)
+        amount_str = str(from_amount)
 
         # Normalize addresses to lowercase
         from_address = from_token.lower()
@@ -720,9 +720,9 @@ class EvmClient:
 
     async def create_swap_quote(
         self,
-        buy_token: str | None = None,
-        sell_token: str | None = None,
-        sell_amount: str | int | None = None,
+        from_token: str | None = None,
+        to_token: str | None = None,
+        from_amount: str | int | None = None,
         network: str | None = None,
         taker: str | None = None,
         slippage_bps: int | None = None,
@@ -734,9 +734,9 @@ class EvmClient:
         This method follows the OpenAPI spec field names.
 
         Args:
-            buy_token (str, optional): The contract address of the token to buy.
-            sell_token (str, optional): The contract address of the token to sell.
-            sell_amount (str | int, optional): The amount to sell (in smallest unit).
+            from_token (str, optional): The contract address of the token to swap from.
+            to_token (str, optional): The contract address of the token to swap to.
+            from_amount (str | int, optional): The amount to swap from (in smallest unit).
             network (str, optional): The network to create the swap on.
             taker (str, optional): The address that will execute the swap.
             slippage_bps (int, optional): The maximum slippage in basis points (100 = 1%).
@@ -750,9 +750,9 @@ class EvmClient:
             **Using individual parameters**:
             ```python
             quote = await cdp.evm.create_swap_quote(
-                buy_token="0x4200000000000000000000000000000000000006",  # WETH
-                sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-                sell_amount="100000000",  # 100 USDC
+                from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+                to_token="0x4200000000000000000000000000000000000006",  # WETH
+                from_amount="100000000",  # 100 USDC
                 network="base",
                 taker=account.address,
                 slippage_bps=100  # 1%
@@ -764,9 +764,9 @@ class EvmClient:
             from cdp.actions.evm.swap import SwapParams
 
             params = SwapParams(
-                buy_token="0x4200000000000000000000000000000000000006",
-                sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                sell_amount="100000000",
+                from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                to_token="0x4200000000000000000000000000000000000006",
+                from_amount="100000000",
                 network="base",
                 taker=account.address
             )
@@ -776,9 +776,9 @@ class EvmClient:
             **With account for direct execution**:
             ```python
             quote = await cdp.evm.create_swap_quote(
-                buy_token="0x4200000000000000000000000000000000000006",
-                sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                sell_amount="100000000",
+                from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+                to_token="0x4200000000000000000000000000000000000006",  # WETH
+                from_amount="100000000",
                 network="base",
                 taker=account.address,
                 from_account=account  # Enables quote.execute()
@@ -798,25 +798,25 @@ class EvmClient:
         if swap_params:
             if isinstance(swap_params, dict):
                 swap_params = SwapParams(**swap_params)
-            buy_token = swap_params.buy_token
-            sell_token = swap_params.sell_token
-            sell_amount = swap_params.sell_amount
+            from_token = swap_params.from_token
+            to_token = swap_params.to_token
+            from_amount = swap_params.from_amount
             network = swap_params.network
             taker = swap_params.taker
             slippage_bps = swap_params.slippage_bps
         else:
             # Validate required parameters
-            if not all([buy_token, sell_token, sell_amount, network, taker]):
+            if not all([from_token, to_token, from_amount, network, taker]):
                 raise ValueError(
-                    "All of buy_token, sell_token, sell_amount, network, and taker are required"
+                    "All of from_token, to_token, from_amount, network, and taker are required"
                 )
 
         # Convert amount to string if needed
-        sell_amount_str = str(sell_amount)
+        from_amount_str = str(from_amount)
 
         # Normalize addresses
-        buy_address = buy_token.lower()
-        sell_address = sell_token.lower()
+        from_address = from_token.lower()
+        to_address = to_token.lower()
         taker_address = taker.lower()
 
         # Convert network to enum
@@ -829,9 +829,9 @@ class EvmClient:
         # Create swap request
         request = CreateEvmSwapQuoteRequest(
             network=network_enum,
-            to_token=buy_address,  # Note: API uses to_token for what user wants to buy
-            from_token=sell_address,  # and from_token for what user wants to sell
-            from_amount=sell_amount_str,
+            to_token=to_address,  # Note: API uses to_token for what user wants to buy
+            from_token=from_address,  # and from_token for what user wants to sell
+            from_amount=from_amount_str,
             taker=taker_address,
             slippage_bps=slippage_bps,
         )
@@ -873,17 +873,17 @@ class EvmClient:
 
         # Generate quote ID
         quote_id = self._generate_swap_quote_id(
-            buy_token, sell_token, sell_amount_str, swap_data.to_amount, network
+            from_token, to_token, from_amount_str, swap_data.to_amount, network
         )
 
         # Convert to SwapQuoteResult
         result = SwapQuoteResult(
             quote_id=quote_id,
-            buy_token=buy_token,
-            sell_token=sell_token,
-            buy_amount=swap_data.to_amount,  # API uses to_amount for what user receives
-            sell_amount=sell_amount_str,
-            min_buy_amount=swap_data.min_to_amount,  # API uses min_to_amount
+            from_token=from_token,
+            to_token=to_token,
+            from_amount=from_amount_str,
+            to_amount=swap_data.to_amount,  # API uses to_amount for what user receives
+            min_to_amount=swap_data.min_to_amount,  # API uses min_to_amount
             to=tx_data.to,
             data=tx_data.data,
             value=tx_data.value if tx_data.value else "0",
@@ -939,9 +939,9 @@ class EvmClient:
 
         # Call the new create_swap method
         quote_result = await self.create_swap_quote(
-            buy_token=to_token,
-            sell_token=from_token,
-            sell_amount=amount,
+            from_token=from_token,
+            to_token=to_token,
+            from_amount=amount,
             network=network,
             taker=wallet_address,
             slippage_bps=slippage_bps,
