@@ -897,6 +897,16 @@ try {
 }
 ```
 
+#### Supported Policy Rules
+
+We currently support the following policy rules:
+
+- `SendEvmTransactionRule`
+- `SignEvmHashRule`
+- `SignEvmMessageRule`
+- `SignEvmTransactionRule`
+- `SignSolanaTransactionRule`
+
 ## Authentication tools
 
 This SDK also contains simple tools for authenticating REST API requests to the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). See the [Auth README](src/auth/README.md) for more details.
