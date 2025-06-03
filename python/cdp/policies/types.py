@@ -103,6 +103,49 @@ class SendEvmTransactionRule(BaseModel):
     )
 
 
+class SignEvmHashRule(BaseModel):
+    """Type representing a 'signEvmHash' policy rule that can accept or reject specific operations."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow signing, 'reject' will block it.",
+    )
+    operation: Literal["signEvmHash"] = Field(
+        "signEvmHash",
+        description="The operation to which this rule applies. Must be 'signEvmHash'.",
+    )
+
+
+class EvmMessageCriterion(BaseModel):
+    """Type representing a 'evmMessage' criterion that can be used to govern the behavior of projects and accounts."""
+
+    type: Literal["evmMessage"] = Field(
+        "evmMessage",
+        description="The type of criterion, must be 'evmMessage' for EVM message-based rules.",
+    )
+    match: str = Field(
+        ...,
+        description="A regular expression the message is matched against. Accepts valid regular expression syntax described by [RE2](https://github.com/google/re2/wiki/Syntax).",
+    )
+
+
+class SignEvmMessageRule(BaseModel):
+    """Type representing a 'signEvmMessage' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow signing, 'reject' will block it.",
+    )
+    operation: Literal["signEvmMessage"] = Field(
+        "signEvmMessage",
+        description="The operation to which this rule applies. Must be 'signEvmMessage'.",
+    )
+    criteria: list[EvmMessageCriterion] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
 class SignEvmTransactionRule(BaseModel):
     """Type representing a 'signEvmTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
 
@@ -169,7 +212,13 @@ PolicyScope = Literal["project", "account"]
 
 
 """Type representing a policy rule that can accept or reject specific operations based on a set of criteria."""
-Rule = SendEvmTransactionRule | SignEvmTransactionRule | SignSolanaTransactionRule
+Rule = (
+    SendEvmTransactionRule
+    | SignEvmTransactionRule
+    | SignEvmHashRule
+    | SignEvmMessageRule
+    | SignSolanaTransactionRule
+)
 
 
 class Policy(BaseModel):

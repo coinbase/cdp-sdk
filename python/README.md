@@ -964,6 +964,16 @@ policy = await cdp.policies.update_policy(
 policy = await cdp.policies.delete_policy(id="__POLICY_ID__")
 ```
 
+#### Supported Policy Rules
+
+We currently support the following policy rules:
+
+- `SendEvmTransactionRule`
+- `SignEvmHashRule`
+- `SignEvmMessageRule`
+- `SignEvmTransactionRule`
+- `SignSolanaTransactionRule`
+
 ## Authentication tools
 
 This SDK also contains simple tools for authenticating REST API requests to the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). See the [Auth README](cdp/auth/README.md) for more details.
