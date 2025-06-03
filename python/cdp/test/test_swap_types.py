@@ -8,7 +8,6 @@ from cdp.actions.evm.swap.types import (
     SwapQuote,
     SwapQuoteResult,
     SwapResult,
-    SwapTransaction,
 )
 
 
@@ -227,21 +226,3 @@ class TestSwapQuote:
         assert quote.to_amount == "2000000000"
         assert quote.price_ratio == "2000"
         assert quote.expires_at == "2024-01-01T00:00:00Z"
-
-
-class TestSwapTransaction:
-    """Test SwapTransaction."""
-
-    def test_swap_transaction_basic(self):
-        """Test basic SwapTransaction."""
-        tx = SwapTransaction(
-            to="0x1234567890123456789012345678901234567890",
-            data="0xabcdef",
-            value=0,
-        )
-        assert tx.to == "0x1234567890123456789012345678901234567890"
-        assert tx.data == "0xabcdef"
-        assert tx.value == 0
-        assert tx.transaction is None
-        assert tx.permit2_data is None
-        assert tx.requires_signature is False

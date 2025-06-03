@@ -50,7 +50,7 @@ from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccoun
 from cdp.update_account_types import UpdateAccountOptions
 
 if TYPE_CHECKING:
-    from cdp.actions.evm.swap.types import SwapQuote, SwapQuoteResult, SwapTransaction
+    from cdp.actions.evm.swap.types import SwapQuote, SwapQuoteResult
 
 
 class EvmClient:
@@ -879,53 +879,3 @@ class EvmClient:
             result._api_clients = self.api_clients
 
         return result
-
-    async def createSwap(  # noqa: N802
-        self,
-        from_token: str,
-        to_token: str,
-        amount: str | int,
-        network: str,
-        wallet_address: str,
-        slippage_percentage: float = 1.0,
-    ) -> "SwapTransaction":
-        """Create a swap transaction (DEPRECATED).
-
-        DEPRECATED: Use create_swap_quote() instead for OpenAPI-aligned field names.
-
-        Args:
-            from_token (str): The contract address of the token to swap from.
-            to_token (str): The contract address of the token to swap to.
-            amount (str | int): The amount to swap (in smallest unit or as string).
-            network (str): The network to create the swap on.
-            wallet_address (str): The wallet address that will execute the swap.
-            slippage_percentage (float): The maximum acceptable slippage percentage.
-
-        Returns:
-            SwapTransaction: The swap transaction data.
-
-        """
-        from cdp.actions.evm.swap.types import SwapTransaction
-
-        # Convert slippage percentage to basis points
-        slippage_bps = int(slippage_percentage * 100)
-
-        # Call the new create_swap method
-        quote_result = await self.create_swap_quote(
-            from_token=from_token,
-            to_token=to_token,
-            from_amount=amount,
-            network=network,
-            taker=wallet_address,
-            slippage_bps=slippage_bps,
-        )
-
-        # Convert SwapQuoteResult to SwapTransaction
-        return SwapTransaction(
-            to=quote_result.to,
-            data=quote_result.data,
-            value=int(quote_result.value),
-            transaction=None,
-            permit2_data=quote_result.permit2_data,
-            requires_signature=quote_result.requires_signature,
-        )

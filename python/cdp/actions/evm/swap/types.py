@@ -192,17 +192,6 @@ class Permit2Data(BaseModel):
     hash: str = Field(description="The hash of the permit data")
 
 
-class SwapTransaction(BaseModel):
-    """A swap transaction ready to be sent."""
-
-    to: str = Field(description="The contract address to send the transaction to")
-    data: str = Field(description="The transaction data")
-    value: int = Field(description="The transaction value in wei")
-    transaction: Any | None = Field(default=None, description="The raw transaction object")
-    permit2_data: Permit2Data | None = Field(default=None, description="Permit2 data if required")
-    requires_signature: bool = Field(default=False, description="Whether signature is required")
-
-
 class SwapResult(BaseModel):
     """Result of a swap transaction."""
 

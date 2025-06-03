@@ -15,7 +15,6 @@ from cdp.actions.evm.swap.types import (
     SwapQuoteResult,
     SwapResult,
     SwapStrategy,
-    SwapTransaction,
 )
 
 __all__ = [
@@ -31,5 +30,4 @@ __all__ = [
     "SwapQuoteResult",
     "SwapResult",
     "SwapStrategy",
-    "SwapTransaction",
 ]
