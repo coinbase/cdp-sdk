@@ -638,23 +638,23 @@ class EvmClient:
             interval_seconds,
         )
 
-    async def get_quote(
+    async def get_swap_price(
         self,
         from_token: str,
         to_token: str,
         amount: str | int,
         network: str,
     ) -> "SwapQuote":
-        """Get a quote for swapping tokens.
+        """Get a swap price for swapping tokens.
 
         Args:
             from_token (str): The contract address of the token to swap from.
             to_token (str): The contract address of the token to swap to.
             amount (str | int): The amount to swap (in smallest unit or as string).
-            network (str): The network to get the quote for.
+            network (str): The network to get the price for.
 
         Returns:
-            SwapQuote: The swap quote with estimated output amount and route.
+            SwapQuote: The swap price with estimated output amount.
 
         """
         from cdp.actions.evm.swap.types import SwapQuote
@@ -718,7 +718,7 @@ class EvmClient:
             expires_at=expires_at.isoformat() + "Z",
         )
 
-    async def create_swap(
+    async def create_swap_quote(
         self,
         buy_token: str | None = None,
         sell_token: str | None = None,
@@ -749,7 +749,7 @@ class EvmClient:
         Examples:
             **Using individual parameters**:
             ```python
-            quote = await cdp.evm.create_swap(
+            quote = await cdp.evm.create_swap_quote(
                 buy_token="0x4200000000000000000000000000000000000006",  # WETH
                 sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
                 sell_amount="100000000",  # 100 USDC
@@ -770,12 +770,12 @@ class EvmClient:
                 network="base",
                 taker=account.address
             )
-            quote = await cdp.evm.create_swap(swap_params=params)
+            quote = await cdp.evm.create_swap_quote(swap_params=params)
             ```
 
             **With account for direct execution**:
             ```python
-            quote = await cdp.evm.create_swap(
+            quote = await cdp.evm.create_swap_quote(
                 buy_token="0x4200000000000000000000000000000000000006",
                 sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
                 sell_amount="100000000",
@@ -938,7 +938,7 @@ class EvmClient:
         slippage_bps = int(slippage_percentage * 100)
 
         # Call the new create_swap method
-        quote_result = await self.create_swap(
+        quote_result = await self.create_swap_quote(
             buy_token=to_token,
             sell_token=from_token,
             sell_amount=amount,

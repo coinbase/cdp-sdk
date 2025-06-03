@@ -24,12 +24,12 @@ def evm_client(mock_api_clients):
     return EvmClient(mock_api_clients)
 
 
-class TestGetQuote:
-    """Test get_quote functionality."""
+class TestGetSwapPrice:
+    """Test get_swap_price functionality."""
 
     @pytest.mark.asyncio
-    async def test_get_quote_success(self, evm_client, mock_api_clients):
-        """Test successful quote retrieval."""
+    async def test_get_swap_price_success(self, evm_client, mock_api_clients):
+        """Test successful price retrieval."""
         # Mock response
         mock_response = AsyncMock()
         mock_response.read = AsyncMock(
@@ -53,25 +53,25 @@ class TestGetQuote:
             mock_response
         )
 
-        # Call get_quote
-        quote = await evm_client.get_quote(
+        # Call get_swap_price
+        price = await evm_client.get_swap_price(
             from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
             to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             amount="1000000000000000000",
             network="base",
         )
 
-        # Verify quote
-        assert quote.quote_id
-        assert quote.from_token == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
-        assert quote.to_token == "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
-        assert quote.from_amount == "1000000000000000000"
-        assert quote.to_amount == "2000000000"  # From toAmount in response
-        assert float(quote.price_ratio) > 0
+        # Verify price
+        assert price.quote_id
+        assert price.from_token == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+        assert price.to_token == "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+        assert price.from_amount == "1000000000000000000"
+        assert price.to_amount == "2000000000"  # From toAmount in response
+        assert float(price.price_ratio) > 0
 
     @pytest.mark.asyncio
-    async def test_get_quote_with_contract_addresses(self, evm_client, mock_api_clients):
-        """Test quote with contract addresses."""
+    async def test_get_swap_price_with_contract_addresses(self, evm_client, mock_api_clients):
+        """Test price with contract addresses."""
         # Mock response
         mock_response = AsyncMock()
         mock_response.read = AsyncMock(
@@ -96,7 +96,7 @@ class TestGetQuote:
         )
 
         # Call with contract addresses
-        quote = await evm_client.get_quote(
+        price = await evm_client.get_swap_price(
             from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
             amount="1000000000",
@@ -104,12 +104,12 @@ class TestGetQuote:
         )
 
         # Verify
-        assert quote.from_amount == "1000000000"
-        assert quote.to_amount == "500000000000000000"
+        assert price.from_amount == "1000000000"
+        assert price.to_amount == "500000000000000000"
 
     @pytest.mark.asyncio
-    async def test_get_quote_insufficient_liquidity(self, evm_client, mock_api_clients):
-        """Test quote with insufficient liquidity."""
+    async def test_get_swap_price_insufficient_liquidity(self, evm_client, mock_api_clients):
+        """Test price with insufficient liquidity."""
         # Mock response
         mock_response = AsyncMock()
         mock_response.read = AsyncMock(
@@ -121,7 +121,7 @@ class TestGetQuote:
 
         # Should raise error
         with pytest.raises(ValueError, match="Insufficient liquidity"):
-            await evm_client.get_quote(
+            await evm_client.get_swap_price(
                 from_token="0x0000000000000000000000000000000000000000",  # ETH contract address
                 to_token="0x036CbD53842c5426634e7929541eC2318f3dCF7e",  # USDC contract address
                 amount="1000000000000000000000",  # Very large amount
@@ -129,11 +129,11 @@ class TestGetQuote:
             )
 
 
-class TestCreateSwap:
-    """Test create_swap functionality."""
+class TestCreateSwapQuote:
+    """Test create_swap_quote functionality."""
 
     @pytest.mark.asyncio
-    async def test_create_swap_eth_to_token(self, evm_client, mock_api_clients):
+    async def test_create_swap_quote_eth_to_token(self, evm_client, mock_api_clients):
         """Test creating ETH to token swap."""
         # Mock response
         mock_response = AsyncMock()
@@ -165,7 +165,7 @@ class TestCreateSwap:
         )
 
         # Create swap
-        swap_quote = await evm_client.create_swap(
+        swap_quote = await evm_client.create_swap_quote(
             sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
             buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             sell_amount="1000000000000000000",
@@ -186,7 +186,9 @@ class TestCreateSwap:
         assert swap_quote.permit2_data is None
 
     @pytest.mark.asyncio
-    async def test_create_swap_token_to_token_with_permit2(self, evm_client, mock_api_clients):
+    async def test_create_swap_quote_token_to_token_with_permit2(
+        self, evm_client, mock_api_clients
+    ):
         """Test creating token to token swap with Permit2."""
         # Mock response
         mock_response = AsyncMock()
@@ -230,7 +232,7 @@ class TestCreateSwap:
         )
 
         # Create swap
-        swap_quote = await evm_client.create_swap(
+        swap_quote = await evm_client.create_swap_quote(
             sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             buy_token="0x4200000000000000000000000000000000000006",  # WETH
             sell_amount="1000000000",
@@ -245,7 +247,7 @@ class TestCreateSwap:
         assert swap_quote.value == "0"
 
     @pytest.mark.asyncio
-    async def test_create_swap_custom_slippage(self, evm_client, mock_api_clients):
+    async def test_create_swap_quote_custom_slippage(self, evm_client, mock_api_clients):
         """Test creating swap with custom slippage."""
         # Mock response
         mock_response = AsyncMock()
@@ -276,7 +278,7 @@ class TestCreateSwap:
         )
 
         # Create swap with 2.5% slippage
-        await evm_client.create_swap(
+        await evm_client.create_swap_quote(
             sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
             buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             sell_amount="1000000000000000000",
@@ -293,8 +295,8 @@ class TestCreateSwap:
         assert request.slippage_bps == 250
 
     @pytest.mark.asyncio
-    async def test_create_swap_invalid_json_response(self, evm_client, mock_api_clients):
-        """Test create_swap with invalid JSON response."""
+    async def test_create_swap_quote_invalid_json_response(self, evm_client, mock_api_clients):
+        """Test create_swap_quote with invalid JSON response."""
         # Mock response with invalid JSON
         mock_response = AsyncMock()
         mock_response.read = AsyncMock(return_value=b"invalid json")
@@ -304,7 +306,7 @@ class TestCreateSwap:
 
         # Should raise error
         with pytest.raises(ValueError, match="Invalid JSON response"):
-            await evm_client.create_swap(
+            await evm_client.create_swap_quote(
                 sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
                 buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
                 sell_amount="1000000000000000000",
@@ -313,8 +315,8 @@ class TestCreateSwap:
             )
 
     @pytest.mark.asyncio
-    async def test_create_swap_empty_response(self, evm_client, mock_api_clients):
-        """Test create_swap with empty response."""
+    async def test_create_swap_quote_empty_response(self, evm_client, mock_api_clients):
+        """Test create_swap_quote with empty response."""
         # Mock empty response
         mock_response = AsyncMock()
         mock_response.read = AsyncMock(return_value=b"")
@@ -324,7 +326,7 @@ class TestCreateSwap:
 
         # Should raise error
         with pytest.raises(ValueError, match="Empty response"):
-            await evm_client.create_swap(
+            await evm_client.create_swap_quote(
                 sell_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
                 buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
                 sell_amount="1000000000000000000",

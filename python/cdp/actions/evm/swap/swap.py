@@ -16,7 +16,7 @@ async def swap(
 
     This function supports multiple patterns:
     1. Provide SwapParams - New OpenAPI-aligned parameters
-    2. Provide SwapQuoteResult - Pre-created swap quote from create_swap
+    2. Provide SwapQuoteResult - Pre-created swap quote from create_swap_quote
 
     Args:
         api_clients: The API clients instance
@@ -53,7 +53,7 @@ async def swap(
         **Using pre-created swap quote**:
         ```python
         # First create the swap
-        swap_quote = await cdp.evm.create_swap(...)
+        swap_quote = await cdp.evm.create_swap_quote(...)
 
         # Then execute it
         result = await swap(
@@ -62,6 +62,23 @@ async def swap(
             swap_options=SwapOptions(swapQuote=swap_quote),
             swap_strategy=AccountSwapStrategy()
         )
+        ```
+
+        **Example with direct parameters**:
+        ```python
+        result = await account.swap(
+            buy_token="0x4200000000000000000000000000000000000006",
+            sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            sell_amount="100000000",
+            network="base",
+            slippage_bps=100
+        )
+        ```
+
+        **Example with pre-created quote**:
+        ```python
+        swap_quote = await cdp.evm.create_swap_quote(...)
+        result = await account.swap(swap_quote)
         ```
 
     """
@@ -81,7 +98,7 @@ async def swap(
         params = swap_options.swap_params
 
         # Create the swap
-        swap_quote = await evm_client.create_swap(
+        swap_quote = await evm_client.create_swap_quote(
             buy_token=params.buy_token,
             sell_token=params.sell_token,
             sell_amount=params.sell_amount,

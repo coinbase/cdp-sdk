@@ -294,7 +294,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
         Args:
             swapQuote: The swap quote. Can be either:
                 1. SwapParams - New OpenAPI-aligned parameters
-                2. SwapQuoteResult - Pre-created swap quote from create_swap
+                2. SwapQuoteResult - Pre-created swap quote from create_swap_quote
                 3. SwapOptions with swap_params or swapQuote
                 4. Dict with fields matching SwapParams
 
@@ -315,7 +315,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
             **Two-step swap with quote inspection**:
             >>> # First create a quote
-            >>> quote = await cdp.evm.create_swap(
+            >>> quote = await cdp.evm.create_swap_quote(
             ...     buy_token="0x4200000000000000000000000000000000000006",
             ...     sell_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             ...     sell_amount="100000000",

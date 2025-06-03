@@ -65,7 +65,7 @@ class SwapParams(BaseModel):
 
 
 class SwapQuoteResult(BaseModel):
-    """Result from create_swap API call containing quote and transaction data."""
+    """Result from create_swap_quote API call containing quote and transaction data."""
 
     quote_id: str = Field(description="The quote ID from the swap service")
     buy_token: str = Field(description="The token address being bought")
@@ -119,11 +119,11 @@ class SwapQuoteResult(BaseModel):
 
 
 class SwapOptions(BaseModel):
-    """Options for executing a swap.
+    """Options for initiating a swap transaction.
 
-    This supports multiple patterns:
-    1. swap_params: New OpenAPI-aligned parameters
-    2. swapQuote: Pre-created swap quote from create_swap
+    Contains one of:
+    1. swap_params: SwapParams object with swap parameters (new API)
+    2. swapQuote: Pre-created swap quote from create_swap_quote
     """
 
     swap_params: SwapParams | None = None

@@ -694,10 +694,10 @@ result = await account.swap(
 
 #### 2. Get pricing information
 
-Use `get_quote` for quick price estimates and display purposes. This is ideal for showing exchange rates without committing to a swap:
+Use `get_swap_price` for quick price estimates and display purposes. This is ideal for showing exchange rates without committing to a swap:
 
 ```python
-swap_price = await cdp.evm.get_quote(
+swap_price = await cdp.evm.get_swap_price(
     network="ethereum",
     to_token="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",  # USDC
     from_token="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",  # WETH
@@ -708,20 +708,20 @@ print(f"You'll receive: {swap_price.to_amount} USDC")
 print(f"Price ratio: {swap_price.price_ratio}")
 ```
 
-**Note**: `get_quote` does not reserve funds or signal commitment to swap, making it suitable for more frequent price updates with less strict rate limiting - although the data may be slightly less precise.
+**Note**: `get_swap_price` does not reserve funds or signal commitment to swap, making it suitable for more frequent price updates with less strict rate limiting - although the data may be slightly less precise.
 
 #### 3. Create and execute separately
 
-Use `create_swap` when you need full control over the swap process. This returns complete transaction data for execution:
+Use `create_swap_quote` when you need full control over the swap process. This returns complete transaction data for execution:
 
-**Important**: `create_swap` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `get_quote` to prevent abuse.
+**Important**: `create_swap_quote` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `get_swap_price` to prevent abuse.
 
 ```python
 # Retrieve an existing EVM account with funds already in it
 account = await cdp.evm.get_or_create_account(name="MyExistingFundedAccount")
 
 # Step 1: Create a swap quote with full transaction details
-swap_quote = await cdp.evm.create_swap(
+swap_quote = await cdp.evm.create_swap_quote(
     network="base",
     buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
     sell_token="0x4200000000000000000000000000000000000006",  # WETH
@@ -738,7 +738,7 @@ if not swap_quote.buy_amount:
 # Step 3: Execute using the quote (two options)
 
 # Option 3A: Use the execute method on the quote (if created with from_account)
-swap_quote_with_account = await cdp.evm.create_swap(
+swap_quote_with_account = await cdp.evm.create_swap_quote(
     network="base",
     buy_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
     sell_token="0x4200000000000000000000000000000000000006",  # WETH
@@ -757,8 +757,8 @@ print(f"Swap executed: {result.transaction_hash}")
 #### When to use each approach:
 
 - **All-in-one (`account.swap()`)**: Best for most use cases. Simple, handles everything automatically.
-- **Price only (`get_quote`)**: For displaying exchange rates, building price calculators, or checking liquidity without executing. Suitable when frequent price updates are needed - although the data may be slightly less precise.
-- **Create then execute (`create_swap`)**: When you need to inspect swap details, implement custom logic, or handle complex scenarios before execution. Note: May reserve funds on-chain and is more strictly rate-limited.
+- **Price only (`get_swap_price`)**: For displaying exchange rates, building price calculators, or checking liquidity without executing. Suitable when frequent price updates are needed - although the data may be slightly less precise.
+- **Create then execute (`create_swap_quote`)**: When you need to inspect swap details, implement custom logic, or handle complex scenarios before execution. Note: May reserve funds on-chain and is more strictly rate-limited.
 
 All approaches handle Permit2 signatures automatically for ERC20 token swaps. Make sure tokens have proper allowances set for the Permit2 contract before swapping.
 

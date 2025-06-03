@@ -24,9 +24,9 @@ class AccountSwapStrategy:
         Args:
             api_clients: The API clients instance
             from_account: The account to execute the swap from
-            swap_data: The swap data from create_swap
+            swap_data: The swap data from create_swap_quote
             network: The network to execute on
-            permit2_signature: Optional pre-signed Permit2 signature
+            permit2_signature: Optional Permit2 signature for ERC20 swaps
 
         Returns:
             SwapResult: The result of the swap transaction
