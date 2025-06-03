@@ -720,13 +720,12 @@ class EvmClient:
 
     async def create_swap_quote(
         self,
-        from_token: str | None = None,
-        to_token: str | None = None,
-        from_amount: str | int | None = None,
-        network: str | None = None,
-        taker: str | None = None,
+        from_token: str,
+        to_token: str,
+        from_amount: str | int,
+        network: str,
+        taker: str,
         slippage_bps: int | None = None,
-        swap_params: Any | None = None,
         from_account: Any | None = None,
     ) -> "SwapQuoteResult":
         """Create a swap quote with transaction data.
@@ -734,13 +733,12 @@ class EvmClient:
         This method follows the OpenAPI spec field names.
 
         Args:
-            from_token (str, optional): The contract address of the token to swap from.
-            to_token (str, optional): The contract address of the token to swap to.
-            from_amount (str | int, optional): The amount to swap from (in smallest unit).
-            network (str, optional): The network to create the swap on.
-            taker (str, optional): The address that will execute the swap.
+            from_token (str): The contract address of the token to swap from.
+            to_token (str): The contract address of the token to swap to.
+            from_amount (str | int): The amount to swap from (in smallest unit).
+            network (str): The network to create the swap on.
+            taker (str): The address that will execute the swap.
             slippage_bps (int, optional): The maximum slippage in basis points (100 = 1%).
-            swap_params (SwapParams, optional): Alternatively, provide all params as object.
             from_account (BaseAccount, optional): The account that will execute the swap (enables execute()).
 
         Returns:
@@ -759,20 +757,6 @@ class EvmClient:
             )
             ```
 
-            **Using SwapParams**:
-            ```python
-            from cdp.actions.evm.swap import SwapParams
-
-            params = SwapParams(
-                from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                to_token="0x4200000000000000000000000000000000000006",
-                from_amount="100000000",
-                network="base",
-                taker=account.address
-            )
-            quote = await cdp.evm.create_swap_quote(swap_params=params)
-            ```
-
             **With account for direct execution**:
             ```python
             quote = await cdp.evm.create_swap_quote(
@@ -787,29 +771,18 @@ class EvmClient:
             ```
 
         """
-        from cdp.actions.evm.swap.types import Permit2Data, SwapParams, SwapQuoteResult
+        from cdp.actions.evm.swap.types import Permit2Data, SwapQuoteResult
         from cdp.openapi_client.models.create_evm_swap_quote_request import (
             CreateEvmSwapQuoteRequest,
         )
         from cdp.openapi_client.models.create_swap_quote_response import CreateSwapQuoteResponse
         from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
 
-        # Handle SwapParams or individual parameters
-        if swap_params:
-            if isinstance(swap_params, dict):
-                swap_params = SwapParams(**swap_params)
-            from_token = swap_params.from_token
-            to_token = swap_params.to_token
-            from_amount = swap_params.from_amount
-            network = swap_params.network
-            taker = swap_params.taker
-            slippage_bps = swap_params.slippage_bps
-        else:
-            # Validate required parameters
-            if not all([from_token, to_token, from_amount, network, taker]):
-                raise ValueError(
-                    "All of from_token, to_token, from_amount, network, and taker are required"
-                )
+        # Validate required parameters
+        if not all([from_token, to_token, from_amount, network, taker]):
+            raise ValueError(
+                "All of from_token, to_token, from_amount, network, and taker are required"
+            )
 
         # Convert amount to string if needed
         from_amount_str = str(from_amount)
@@ -918,7 +891,7 @@ class EvmClient:
     ) -> "SwapTransaction":
         """Create a swap transaction (DEPRECATED).
 
-        DEPRECATED: Use create_swap() instead for OpenAPI-aligned field names.
+        DEPRECATED: Use create_swap_quote() instead for OpenAPI-aligned field names.
 
         Args:
             from_token (str): The contract address of the token to swap from.

@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
-# Usage: uv run python evm/create_swap_quote.py
+# Usage: uv run python evm/account_quote_swap.py
 
 """
-Example: Create Swap Quote and Execute
+Example: Create Swap Quote with Account Convenience Method
 
-This example demonstrates the two-step swap process:
-1. Create a swap quote to inspect the details
-2. Execute the swap if satisfied with the quote
-
-This approach allows you to show users exactly what they'll receive
-before they commit to the swap.
+This example demonstrates using the account.quote_swap() convenience method.
+This is a shortcut that automatically sets the account as the taker and
+enables direct execution via quote.execute().
 """
 
 import asyncio
@@ -22,7 +19,7 @@ load_dotenv()
 
 
 async def main():
-    """Create a swap quote and execute it."""
+    """Create a swap quote using account convenience method."""
     async with CdpClient() as cdp:
         # Get or create an account
         print("Getting account...")
@@ -33,16 +30,14 @@ async def main():
         USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
         WETH = "0x4200000000000000000000000000000000000006"
         
-        # Step 1: Create a swap quote
-        print("Step 1: Creating swap quote...")
-        quote = await cdp.evm.create_swap_quote(
+        # Create a swap quote using the account method
+        print("Creating swap quote...")
+        quote = await account.quote_swap(
             from_token=USDC,
             to_token=WETH,
-            from_amount="1000000",  # 1 USDC (6 decimals)
+            from_amount="2000000",  # 2 USDC (6 decimals)
             network="base",
-            taker=account.address,
             slippage_bps=100,  # 1% slippage
-            from_account=account  # This enables quote.execute()
         )
         
         # Display the quote details
@@ -63,20 +58,20 @@ async def main():
         if quote.requires_signature:
             print(f"   ⚠️  Permit2 signature required")
         
-        # Ask for confirmation (in real app, this would be a UI interaction)
-        print("\n🔄 Ready to execute swap...")
+        # The quote can be executed directly since it was created via account.quote_swap()
+        print("\n✅ Quote is ready for execution")
+        print("   You can execute it with: await quote.execute()")
+        print("   Or pass it to: await account.swap(SwapOptions(swap_quote=quote))")
         
-        try:
-            # Step 2: Execute the swap using the quote
-            print("Executing swap...")
-            tx_hash = await quote.execute()
-            
-            print(f"\n✅ Swap executed successfully!")
-            print(f"   Transaction hash: {tx_hash}")
-            print(f"   View on Basescan: https://basescan.org/tx/{tx_hash}")
-            
-        except Exception as e:
-            print(f"\n❌ Error executing swap: {e}")
+        # Optionally execute the swap
+        # print("\n🔄 Executing swap...")
+        # try:
+        #     tx_hash = await quote.execute()
+        #     print(f"\n✅ Swap executed successfully!")
+        #     print(f"   Transaction hash: {tx_hash}")
+        #     print(f"   View on Basescan: https://basescan.org/tx/{tx_hash}")
+        # except Exception as e:
+        #     print(f"\n❌ Error executing swap: {e}")
 
 
 if __name__ == "__main__":
