@@ -1,3 +1,4 @@
+import asyncio
 import contextlib
 import functools
 import hashlib
@@ -84,6 +85,35 @@ async def send_event(event: EventData) -> None:
     )
 
 
+def _run_async_in_sync(coroutine):
+    """Run an async coroutine in a sync context.
+
+    Args:
+        coroutine: The coroutine to run
+
+    Returns:
+        Any: The result of the coroutine, or None if it fails
+
+    """
+    try:
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        # Check if loop is already running (e.g., in Jupyter notebooks)
+        if loop.is_running():
+            # We can't run the coroutine in an already running loop
+            # This is a limitation of asyncio, so we skip analytics
+            return None
+
+        return loop.run_until_complete(coroutine)
+    except Exception:
+        # If anything goes wrong, silently fail to avoid breaking the SDK
+        return None
+
+
 def wrap_with_error_tracking(func):
     """Wrap a method with error tracking.
 
@@ -127,7 +157,16 @@ def wrap_with_error_tracking(func):
                 if not should_track_error(error):
                     raise error
 
-                # Can't await in sync function, so we'll skip analytics for sync methods
+                event_data = ErrorEventData(
+                    method=func.__name__,
+                    message=str(error),
+                    stack=traceback.format_exc(),
+                    name="error",
+                )
+
+                # Try to send analytics event from sync context
+                with contextlib.suppress(Exception):
+                    _run_async_in_sync(send_event(event_data))
 
                 raise error
 
