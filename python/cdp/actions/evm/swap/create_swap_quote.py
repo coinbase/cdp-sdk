@@ -4,7 +4,7 @@ import hashlib
 import json
 from typing import Any
 
-from cdp.actions.evm.swap.types import Permit2Data, SwapQuoteResult
+from cdp.actions.evm.swap.types import Permit2Data, QuoteSwapResult, SwapUnavailableResult
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_evm_swap_quote_request import (
     CreateEvmSwapQuoteRequest,
@@ -36,20 +36,6 @@ def _parse_json_response(raw_data: bytes, operation: str) -> dict[str, Any]:
         raise ValueError(f"Invalid JSON response from {operation}: {e}") from e
 
 
-def _check_swap_liquidity(response_json: dict[str, Any]) -> None:
-    """Check if swap liquidity is available.
-
-    Args:
-        response_json: The parsed swap response
-
-    Raises:
-        ValueError: If liquidity is not available
-
-    """
-    if not response_json.get("liquidityAvailable", False):
-        raise ValueError("Swap unavailable: Insufficient liquidity")
-
-
 def _generate_swap_quote_id(*components: Any) -> str:
     """Generate a quote ID from components.
 
@@ -73,7 +59,7 @@ async def create_swap_quote(
     taker: str,
     slippage_bps: int | None = None,
     from_account: Any | None = None,
-) -> SwapQuoteResult:
+) -> QuoteSwapResult | SwapUnavailableResult:
     """Create a swap quote with transaction data.
 
     This method follows the OpenAPI spec field names.
@@ -89,7 +75,7 @@ async def create_swap_quote(
         from_account: The account that will execute the swap (enables execute())
 
     Returns:
-        SwapQuoteResult: The swap quote with transaction data
+        QuoteSwapResult | SwapUnavailableResult: The swap quote with transaction data or SwapUnavailableResult
 
     """
     # Validate required parameters
@@ -130,9 +116,12 @@ async def create_swap_quote(
     raw_data = await response.read()
     response_json = _parse_json_response(raw_data, "create swap API")
 
-    # Check liquidity
-    _check_swap_liquidity(response_json)
+    # Check if liquidity is unavailable
+    if not response_json.get("liquidityAvailable", False):
+        # Return the SwapUnavailableResult
+        return SwapUnavailableResult(liquidity_available=False)
 
+    # At this point we know liquidity is available
     # Parse as CreateSwapQuoteResponse
     swap_data = CreateSwapQuoteResponse.from_dict(response_json)
 
@@ -161,8 +150,8 @@ async def create_swap_quote(
         from_token, to_token, from_amount_str, swap_data.to_amount, network
     )
 
-    # Convert to SwapQuoteResult
-    result = SwapQuoteResult(
+    # Convert to QuoteSwapResult
+    result = QuoteSwapResult(
         quote_id=quote_id,
         from_token=from_token,
         to_token=to_token,

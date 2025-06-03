@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from web3 import Web3
 
-from cdp.actions.evm.swap.types import SwapQuoteResult, SwapResult
+from cdp.actions.evm.swap.types import QuoteSwapResult, SwapResult
 from cdp.api_clients import ApiClients
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 
@@ -19,7 +19,7 @@ class AccountSwapStrategy:
         self,
         api_clients: ApiClients,
         from_account: "EvmServerAccount",
-        swap_data: SwapQuoteResult,
+        swap_data: QuoteSwapResult,
         network: str,
         permit2_signature: str | None = None,
     ) -> SwapResult:

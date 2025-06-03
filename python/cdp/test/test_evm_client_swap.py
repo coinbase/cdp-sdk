@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from cdp.actions.evm.swap.types import SwapQuoteResult
+from cdp.actions.evm.swap.types import QuoteSwapResult, SwapUnavailableResult
 from cdp.api_clients import ApiClients
 from cdp.evm_client import EvmClient
 
@@ -175,7 +175,7 @@ class TestCreateSwapQuote:
         )
 
         # Verify
-        assert isinstance(swap_quote, SwapQuoteResult)
+        assert isinstance(swap_quote, QuoteSwapResult)
         assert swap_quote.to == "0x1234567890123456789012345678901234567890"
         assert swap_quote.data == "0xabcdef"
         assert swap_quote.value == "1000000000000000000"
@@ -333,3 +333,29 @@ class TestCreateSwapQuote:
                 network="base",
                 taker="0x9876543210987654321098765432109876543210",
             )
+
+    @pytest.mark.asyncio
+    async def test_create_swap_quote_insufficient_liquidity(self, evm_client, mock_api_clients):
+        """Test create_swap_quote with insufficient liquidity."""
+        # Mock response
+        mock_response = AsyncMock()
+        mock_response.read = AsyncMock(
+            return_value=json.dumps({"liquidityAvailable": False}).encode()
+        )
+        mock_api_clients.evm_swaps.create_evm_swap_quote_without_preload_content.return_value = (
+            mock_response
+        )
+
+        # Create swap
+        swap_quote = await evm_client.create_swap_quote(
+            from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+            to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            from_amount="1000000000000000000",
+            network="base",
+            taker="0x9876543210987654321098765432109876543210",
+            slippage_bps=100,  # 1%
+        )
+
+        # Verify we got SwapUnavailableResult
+        assert isinstance(swap_quote, SwapUnavailableResult)
+        assert swap_quote.liquidity_available is False

@@ -15,6 +15,7 @@ import json
 from decimal import Decimal
 
 from cdp import CdpClient
+from cdp.actions.evm.swap.types import SwapUnavailableResult
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -45,6 +46,12 @@ async def main():
                 slippage_bps=150,  # 1.5% slippage
                 # Note: Don't pass from_account since we'll execute externally
             )
+            
+            # Check if liquidity is available
+            if isinstance(quote, SwapUnavailableResult):
+                print("\n❌ Swap unavailable: Insufficient liquidity")
+                print("   Try a smaller amount or a different token pair")
+                return
             
             # Display quote details
             print("📊 Swap Quote Details:")

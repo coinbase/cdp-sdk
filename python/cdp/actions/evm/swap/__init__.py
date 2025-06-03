@@ -11,12 +11,13 @@ from cdp.actions.evm.swap.swap import swap
 from cdp.actions.evm.swap.types import (
     SUPPORTED_SWAP_NETWORKS,
     Permit2Data,
+    QuoteSwapResult,
     SwapOptions,
     SwapParams,
     SwapQuote,
-    SwapQuoteResult,
     SwapResult,
     SwapStrategy,
+    SwapUnavailableResult,
 )
 
 __all__ = [
@@ -31,7 +32,8 @@ __all__ = [
     "SwapOptions",
     "SwapParams",
     "SwapQuote",
-    "SwapQuoteResult",
+    "QuoteSwapResult",
     "SwapResult",
     "SwapStrategy",
+    "SwapUnavailableResult",
 ]

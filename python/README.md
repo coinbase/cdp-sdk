@@ -709,29 +709,45 @@ quote = await cdp.evm.create_swap_quote(
     slippage_bps=500  # 5% slippage
 )
 
-# Step 2: Review quote details
-print(f"Quote ID: {quote.quote_id}")
-print(f"Expected output: {quote.to_amount} WETH")
-print(f"Min output: {quote.min_to_amount} WETH")
+# Check if liquidity is available
+if hasattr(quote, 'liquidity_available') and not quote.liquidity_available:
+    print("Swap unavailable: Insufficient liquidity")
+else:
+    # Step 2: Review quote details
+    print(f"Quote ID: {quote.quote_id}")
+    print(f"Expected output: {quote.to_amount} WETH")
+    print(f"Min output: {quote.min_to_amount} WETH")
 
-# Step 3: Execute if satisfied
-result = await account.swap(
-    SwapOptions(swap_quote=quote)
-)
-print(f"Transaction hash: {result.transaction_hash}")
+    # Step 3: Execute if satisfied
+    result = await account.swap(
+        SwapOptions(swap_quote=quote)
+    )
+    print(f"Transaction hash: {result.transaction_hash}")
 ```
+
+**Note**: `create_swap_quote` returns either a `QuoteSwapResult` when liquidity is available, or a `SwapUnavailableResult` when liquidity is insufficient. Always check `quote.liquidity_available` before attempting to execute.
 
 #### Account convenience method
 Use `account.quote_swap()` to automatically set the account as taker:
 
 ```python
-# Create quote with account as taker
+# Create quote with account as taker (default)
 quote = await account.quote_swap(
     from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
     to_token="0x4200000000000000000000000000000000000006",  # WETH
     from_amount="100000000",
     network="base",
     slippage_bps=100
+)
+
+# Create quote with custom taker address
+quote = await account.quote_swap(
+    from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+    to_token="0x4200000000000000000000000000000000000006",  # WETH
+    from_amount="100000000",
+    network="base",
+    slippage_bps=100,
+    taker="0x9F663335Cd6Ad02a37B633602E98866CF944124d"  # Different recipient
 )
 
 # Execute directly on the quote

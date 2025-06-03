@@ -9,6 +9,14 @@ from pydantic import BaseModel, Field, PrivateAttr, field_validator
 SUPPORTED_SWAP_NETWORKS = ["base", "ethereum"]
 
 
+class SwapUnavailableResult(BaseModel):
+    """Result indicating that a swap quote is unavailable due to insufficient liquidity."""
+
+    liquidity_available: bool = Field(
+        default=False, description="Always False for unavailable swaps"
+    )
+
+
 class SwapParams(BaseModel):
     """Parameters for creating a swap, aligned with OpenAPI spec."""
 
@@ -66,9 +74,10 @@ class SwapParams(BaseModel):
         return v.lower()  # Normalize to lowercase
 
 
-class SwapQuoteResult(BaseModel):
+class QuoteSwapResult(BaseModel):
     """Result from create_swap_quote API call containing quote and transaction data."""
 
+    liquidity_available: bool = Field(default=True, description="Always True for available swaps")
     quote_id: str = Field(description="The quote ID from the swap service")
     from_token: str = Field(description="The token address being swapped from")
     to_token: str = Field(description="The token address being swapped to")
@@ -139,7 +148,7 @@ class SwapOptions(BaseModel):
     )
 
     # Pre-created swap quote
-    swap_quote: SwapQuoteResult | None = Field(
+    swap_quote: QuoteSwapResult | None = Field(
         default=None, description="A pre-created swap quote from create_swap_quote"
     )
 
@@ -211,7 +220,7 @@ class SwapStrategy(Protocol):
         self,
         api_clients: Any,
         from_account: BaseAccount,
-        swap_data: SwapQuoteResult,
+        swap_data: QuoteSwapResult,
         network: str,
         permit2_signature: str | None = None,
     ) -> SwapResult:

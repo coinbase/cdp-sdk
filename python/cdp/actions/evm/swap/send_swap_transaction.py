@@ -4,7 +4,7 @@ from typing import Any
 
 from cdp.actions.evm.swap.account_swap_strategy import AccountSwapStrategy
 from cdp.actions.evm.swap.swap import swap
-from cdp.actions.evm.swap.types import SwapOptions, SwapResult
+from cdp.actions.evm.swap.types import SwapOptions, SwapResult, SwapUnavailableResult
 from cdp.api_clients import ApiClients
 
 
@@ -94,6 +94,10 @@ async def send_swap_transaction(
             slippage_bps=options.slippage_bps,
             from_account=account,
         )
+
+        # Check if liquidity is unavailable
+        if isinstance(swap_quote, SwapUnavailableResult):
+            raise ValueError("Swap unavailable: Insufficient liquidity")
 
         # Execute the swap
         return await swap(

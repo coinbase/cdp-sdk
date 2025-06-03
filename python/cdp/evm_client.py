@@ -1,8 +1,6 @@
 import base64
 import re
-
-# TYPE_CHECKING imports for type annotations
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Union
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -51,7 +49,7 @@ from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccoun
 from cdp.update_account_types import UpdateAccountOptions
 
 if TYPE_CHECKING:
-    from cdp.actions.evm.swap.types import SwapQuote, SwapQuoteResult
+    from cdp.actions.evm.swap.types import QuoteSwapResult, SwapQuote, SwapUnavailableResult
 
 
 class EvmClient:
@@ -627,7 +625,7 @@ class EvmClient:
         taker: str,
         slippage_bps: int | None = None,
         from_account: Any | None = None,
-    ) -> "SwapQuoteResult":
+    ) -> Union["QuoteSwapResult", "SwapUnavailableResult"]:
         """Create a swap quote with transaction data.
 
         This method follows the OpenAPI spec field names.
@@ -642,7 +640,7 @@ class EvmClient:
             from_account (BaseAccount, optional): The account that will execute the swap (enables execute()).
 
         Returns:
-            SwapQuoteResult: The swap quote with transaction data.
+            Union[QuoteSwapResult, SwapUnavailableResult]: The swap quote with transaction data or SwapUnavailableResult if liquidity is insufficient.
 
         Examples:
             **Using individual parameters**:

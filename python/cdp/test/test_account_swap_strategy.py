@@ -8,7 +8,7 @@ from cdp.actions.evm.swap.account_swap_strategy import (
     AccountSwapStrategy,
     account_swap_strategy,
 )
-from cdp.actions.evm.swap.types import SwapQuoteResult, SwapResult
+from cdp.actions.evm.swap.types import QuoteSwapResult, SwapResult
 from cdp.api_clients import ApiClients
 from cdp.evm_server_account import EvmServerAccount
 
@@ -22,7 +22,7 @@ async def test_execute_swap_eth_to_usdc():
     mock_from_account.address = "0x1234567890123456789012345678901234567890"
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash123")
 
-    swap_quote = SwapQuoteResult(
+    swap_quote = QuoteSwapResult(
         quote_id="quote-123",
         to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
         from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
@@ -74,7 +74,7 @@ async def test_execute_swap_with_permit2_signature():
     strategy = AccountSwapStrategy()
 
     # Create swap data
-    swap_quote = SwapQuoteResult(
+    swap_quote = QuoteSwapResult(
         quote_id="quote-456",
         to_token="0x4200000000000000000000000000000000000006",  # WETH
         from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
@@ -127,7 +127,7 @@ async def test_execute_swap_without_permit2():
     mock_from_account.address = "0x1234567890123456789012345678901234567890"
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash123")
 
-    swap_quote = SwapQuoteResult(
+    swap_quote = QuoteSwapResult(
         quote_id="quote-123",
         to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
         from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
@@ -170,7 +170,7 @@ async def test_execute_swap_with_gas_parameters():
     mock_from_account.address = "0x2345678901234567890123456789012345678901"
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash456")
 
-    swap_quote = SwapQuoteResult(
+    swap_quote = QuoteSwapResult(
         quote_id="quote-456",
         to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
         from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
@@ -213,7 +213,7 @@ async def test_execute_swap_custom_network():
     mock_from_account.address = "0x3456789012345678901234567890123456789012"
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash789")
 
-    swap_quote = SwapQuoteResult(
+    swap_quote = QuoteSwapResult(
         quote_id="quote-789",
         to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
         from_token="0x4200000000000000000000000000000000000006",  # WETH
@@ -249,7 +249,7 @@ async def test_execute_swap_contract_addresses():
     mock_from_account.address = "0x4567890123456789012345678901234567890123"
     mock_from_account.send_transaction = AsyncMock(return_value="0xtxhash012")
 
-    swap_quote = SwapQuoteResult(
+    swap_quote = QuoteSwapResult(
         quote_id="quote-012",
         to_token="0x4200000000000000000000000000000000000006",  # WETH on Base
         from_token="0x036CbD53842c5426634e7929541eC2318f3dCF7e",  # USDC on Base
@@ -286,7 +286,7 @@ async def test_execute_swap_network_parameter():
     strategy = AccountSwapStrategy()
 
     # Create swap quote
-    swap_quote = MagicMock(spec=SwapQuoteResult)
+    swap_quote = MagicMock(spec=QuoteSwapResult)
     swap_quote.network = "base"
     swap_quote.quote_id = "quote-789"
     swap_quote.to_token = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"

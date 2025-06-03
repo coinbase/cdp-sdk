@@ -3,10 +3,10 @@
 import pytest
 
 from cdp.actions.evm.swap.types import (
+    QuoteSwapResult,
     SwapOptions,
     SwapParams,
     SwapQuote,
-    SwapQuoteResult,
     SwapResult,
 )
 
@@ -113,8 +113,8 @@ class TestSwapOptions:
         assert options.swap_quote is None
 
     def test_swap_options_with_quote_result(self):
-        """Test SwapOptions with SwapQuoteResult."""
-        quote = SwapQuoteResult(
+        """Test SwapOptions with QuoteSwapResult."""
+        quote = QuoteSwapResult(
             quote_id="quote-123",
             to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
@@ -131,7 +131,7 @@ class TestSwapOptions:
 
     def test_swap_options_with_swap_quote_alias(self):
         """Test SwapOptions with swap quote."""
-        quote = SwapQuoteResult(
+        quote = QuoteSwapResult(
             quote_id="quote-123",
             to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
@@ -156,7 +156,7 @@ class TestSwapOptions:
 
     def test_swap_options_multiple_options(self):
         """Test SwapOptions with multiple options."""
-        quote = SwapQuoteResult(
+        quote = QuoteSwapResult(
             quote_id="quote-123",
             to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
