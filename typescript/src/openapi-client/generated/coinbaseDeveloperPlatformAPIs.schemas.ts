@@ -728,6 +728,63 @@ export interface SendEvmTransactionRule {
 }
 
 /**
+ * The type of criterion to use. This should be `evmMessage`.
+ */
+export type EvmMessageCriterionType =
+  (typeof EvmMessageCriterionType)[keyof typeof EvmMessageCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmMessageCriterionType = {
+  evmMessage: "evmMessage",
+} as const;
+
+/**
+ * A schema for specifying a criterion for the message being signed.
+ */
+export interface EvmMessageCriterion {
+  /** The type of criterion to use. This should be `evmMessage`. */
+  type: EvmMessageCriterionType;
+  /** A regular expression the message is matched against. Accepts valid regular expression syntax described by [RE2](https://github.com/google/re2/wiki/Syntax). */
+  match: string;
+}
+
+/**
+ * A schema for specifying the rejection criteria for the SignEvmMessage operation.
+ */
+export type SignEvmMessageCriteria = EvmMessageCriterion[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SignEvmMessageRuleAction =
+  (typeof SignEvmMessageRuleAction)[keyof typeof SignEvmMessageRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmMessageRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SignEvmMessageRuleOperation =
+  (typeof SignEvmMessageRuleOperation)[keyof typeof SignEvmMessageRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmMessageRuleOperation = {
+  signEvmMessage: "signEvmMessage",
+} as const;
+
+export interface SignEvmMessageRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SignEvmMessageRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SignEvmMessageRuleOperation;
+  criteria: SignEvmMessageCriteria;
+}
+
+/**
  * The type of criterion to use. This should be `solAddress`.
  */
 export type SolAddressCriterionType =
@@ -799,9 +856,44 @@ export interface SignSolTransactionRule {
 }
 
 /**
+ * Whether any attempts to sign a hash will be accepted or rejected. This rule does not accept any criteria.
+ */
+export type SignEvmHashRuleAction =
+  (typeof SignEvmHashRuleAction)[keyof typeof SignEvmHashRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmHashRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies.
+ */
+export type SignEvmHashRuleOperation =
+  (typeof SignEvmHashRuleOperation)[keyof typeof SignEvmHashRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmHashRuleOperation = {
+  signEvmHash: "signEvmHash",
+} as const;
+
+export interface SignEvmHashRule {
+  /** Whether any attempts to sign a hash will be accepted or rejected. This rule does not accept any criteria. */
+  action: SignEvmHashRuleAction;
+  /** The operation to which the rule applies. */
+  operation: SignEvmHashRuleOperation;
+}
+
+/**
  * A rule that limits the behavior of an account.
  */
-export type Rule = SignEvmTransactionRule | SendEvmTransactionRule | SignSolTransactionRule;
+export type Rule =
+  | SignEvmTransactionRule
+  | SendEvmTransactionRule
+  | SignEvmMessageRule
+  | SignSolTransactionRule
+  | SignEvmHashRule;
 
 /**
  * The scope of the policy. Only one project-level policy can exist at any time.
