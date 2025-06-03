@@ -1,11 +1,15 @@
 from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
 from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
+from cdp.openapi_client.models.evm_message_criterion import EvmMessageCriterion
 from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from cdp.openapi_client.models.rule import Rule
 from cdp.openapi_client.models.send_evm_transaction_criteria_inner import (
     SendEvmTransactionCriteriaInner,
 )
 from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransactionRule
+from cdp.openapi_client.models.sign_evm_hash_rule import SignEvmHashRule
+from cdp.openapi_client.models.sign_evm_message_criteria_inner import SignEvmMessageCriteriaInner
+from cdp.openapi_client.models.sign_evm_message_rule import SignEvmMessageRule
 from cdp.openapi_client.models.sign_evm_transaction_criteria_inner import (
     SignEvmTransactionCriteriaInner,
 )
@@ -58,6 +62,15 @@ openapi_criterion_mapping = {
             )
         ),
     },
+    "signEvmHash": {},
+    "signEvmMessage": {
+        "evmMessage": lambda c: SignEvmMessageCriteriaInner(
+            actual_instance=EvmMessageCriterion(
+                match=c.match,
+                type="evmMessage",
+            )
+        ),
+    },
     "signSolTransaction": {
         "solAddress": lambda c: SignSolTransactionCriteriaInner(
             actual_instance=SolAddressCriterion(
@@ -73,6 +86,8 @@ openapi_criterion_mapping = {
 openapi_rule_mapping = {
     "sendEvmTransaction": SendEvmTransactionRule,
     "signEvmTransaction": SignEvmTransactionRule,
+    "signEvmHash": SignEvmHashRule,
+    "signEvmMessage": SignEvmMessageRule,
     "signSolTransaction": SignSolTransactionRule,
 }
 
@@ -92,6 +107,19 @@ def map_request_rules_to_openapi_format(request_rules: list[RuleType]) -> list[R
         if rule.operation not in openapi_criterion_mapping:
             raise ValueError(f"Unknown operation {rule.operation}")
 
+        rule_cls = openapi_rule_mapping[rule.operation]
+
+        if not hasattr(rule, "criteria"):
+            rules.append(
+                Rule(
+                    actual_instance=rule_cls(
+                        action=rule.action,
+                        operation=rule.operation,
+                    )
+                )
+            )
+            continue
+
         criteria_builders = openapi_criterion_mapping[rule.operation]
         criteria = []
 
@@ -102,7 +130,6 @@ def map_request_rules_to_openapi_format(request_rules: list[RuleType]) -> list[R
                 )
             criteria.append(criteria_builders[criterion.type](criterion))
 
-        rule_cls = openapi_rule_mapping[rule.operation]
         rules.append(
             Rule(
                 actual_instance=rule_cls(

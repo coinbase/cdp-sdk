@@ -11,9 +11,13 @@ from cdp.policies.types import (
     EvmNetworkCriterion,
     SendEvmTransactionRule,
     SignEvmTransactionRule,
+    SignEvmHashRule,
+    SignEvmMessageRule,
+    EvmMessageCriterion,
     SignSolanaTransactionRule,
     SolanaAddressCriterion,
 )
+
 load_dotenv()
 
 async def main():
@@ -41,6 +45,17 @@ async def main():
                         EvmAddressCriterion(
                             addresses=["0x1234567890123456789012345678901234567890"],
                             operator="in",
+                        ),
+                    ],
+                ),
+                SignEvmHashRule(
+                    action="accept",
+                ),
+                SignEvmMessageRule(
+                    action="accept",
+                    criteria=[
+                        EvmMessageCriterion(
+                            match=".*",
                         ),
                     ],
                 ),

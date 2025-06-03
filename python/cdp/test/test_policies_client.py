@@ -7,7 +7,7 @@ from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.list_policies200_response import ListPolicies200Response
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
-from cdp.policies.rules.request_transformer import map_request_rules_to_openapi_format
+from cdp.policies.request_transformer import map_request_rules_to_openapi_format
 from cdp.policies.types import (
     CreatePolicyOptions,
     UpdatePolicyOptions,

@@ -2,9 +2,12 @@ from cdp.openapi_client.models.rule import Rule
 from cdp.policies.types import (
     EthValueCriterion as EthValueCriterionModel,
     EvmAddressCriterion as EvmAddressCriterionModel,
+    EvmMessageCriterion as EvmMessageCriterionModel,
     EvmNetworkCriterion as EvmNetworkCriterionModel,
     Rule as RuleType,
     SendEvmTransactionRule as SendEvmTransactionRuleModel,
+    SignEvmHashRule as SignEvmHashRuleModel,
+    SignEvmMessageRule as SignEvmMessageRuleModel,
     SignEvmTransactionRule as SignEvmTransactionRuleModel,
     SignSolanaTransactionRule as SignSolanaTransactionRuleModel,
     SolanaAddressCriterion as SolanaAddressCriterionModel,
@@ -25,6 +28,10 @@ response_criterion_mapping = {
             addresses=c.addresses, operator=c.operator
         ),
     },
+    "signEvmHash": {},
+    "signEvmMessage": {
+        "evmMessage": lambda c: EvmMessageCriterionModel(match=c.match),
+    },
     "signSolTransaction": {
         "solAddress": lambda c: SolanaAddressCriterionModel(
             addresses=c.addresses, operator=c.operator
@@ -32,10 +39,12 @@ response_criterion_mapping = {
     },
 }
 
-# Rule class mapping
+# Response rule class mapping
 response_rule_mapping = {
     "sendEvmTransaction": SendEvmTransactionRuleModel,
     "signEvmTransaction": SignEvmTransactionRuleModel,
+    "signEvmHash": SignEvmHashRuleModel,
+    "signEvmMessage": SignEvmMessageRuleModel,
     "signSolTransaction": SignSolanaTransactionRuleModel,
 }
 
@@ -59,6 +68,12 @@ def map_openapi_rules_to_response_format(openapi_rules: list[Rule]) -> list[Rule
         if operation not in response_criterion_mapping:
             raise ValueError(f"Unknown operation {operation}")
 
+        rule_class = response_rule_mapping[operation]
+
+        if not hasattr(instance, "criteria"):
+            response_rules.append(rule_class(action=instance.action))
+            continue
+
         criteria_constructors = response_criterion_mapping[operation]
         criteria = []
 
@@ -68,7 +83,6 @@ def map_openapi_rules_to_response_format(openapi_rules: list[Rule]) -> list[Rule
                 raise ValueError(f"Unknown criterion type {criterion.type}")
             criteria.append(criteria_constructors[criterion.type](criterion))
 
-        rule_class = response_rule_mapping[operation]
         response_rules.append(rule_class(action=instance.action, criteria=criteria))
 
     return response_rules
