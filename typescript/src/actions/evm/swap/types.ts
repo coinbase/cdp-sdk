@@ -1,4 +1,8 @@
-import type { CreateSwapQuoteResult } from "../../../client/evm/evm.types.js";
+import type {
+  CreateSwapQuoteOptions,
+  CreateSwapQuoteResult,
+  SwapUnavailableResult,
+} from "../../../client/evm/evm.types.js";
 import type { SendEvmTransactionBodyNetwork } from "../../../openapi-client/index.js";
 import type { Address, Hex } from "../../../types/misc.js";
 
@@ -68,6 +72,16 @@ export interface SendSwapTransactionResult {
    */
   transactionHash: Hex;
 }
+
+/**
+ * Options for creating a swap quote (account-level).
+ */
+export type QuoteSwapOptions = CreateSwapQuoteOptions;
+
+/**
+ * Result of creating a swap quote (account-level).
+ */
+export type QuoteSwapResult = CreateSwapQuoteResult | SwapUnavailableResult;
 
 /**
  * Options for executing a token swap (account-level).
