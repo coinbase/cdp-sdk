@@ -669,11 +669,11 @@ class EvmClient:
         network_enum = EvmSwapsNetwork(network)
 
         # Get quote from API - use the raw response to avoid oneOf deserialization issues
-        response = await self.api_clients.evm_swaps.get_evm_swap_quote_without_preload_content(
+        response = await self.api_clients.evm_swaps.get_evm_swap_price_without_preload_content(
             network=network_enum,
-            buy_token=to_address,
-            sell_token=from_address,
-            sell_amount=amount_str,
+            to_token=to_address,
+            from_token=from_address,
+            from_amount=amount_str,
             taker="0x0000000000000000000000000000000000010000",  # Valid placeholder address
         )
 

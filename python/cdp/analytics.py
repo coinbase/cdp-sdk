@@ -94,28 +94,44 @@ def wrap_with_error_tracking(func):
         The wrapped function.
 
     """
+    if inspect.iscoroutinefunction(func):
+        # Original function is async
+        @functools.wraps(func)
+        async def async_wrapper(*args, **kwargs):
+            try:
+                return await func(*args, **kwargs)
+            except Exception as error:
+                if not should_track_error(error):
+                    raise error
 
-    @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
-        try:
-            return await func(*args, **kwargs)
-        except Exception as error:
-            if not should_track_error(error):
+                event_data = ErrorEventData(
+                    method=func.__name__,
+                    message=str(error),
+                    stack=traceback.format_exc(),
+                    name="error",
+                )
+
+                with contextlib.suppress(Exception):
+                    await send_event(event_data)
+
                 raise error
 
-            event_data = ErrorEventData(
-                method=func.__name__,
-                message=str(error),
-                stack=traceback.format_exc(),
-                name="error",
-            )
+        return async_wrapper
+    else:
+        # Original function is sync
+        @functools.wraps(func)
+        def sync_wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as error:
+                if not should_track_error(error):
+                    raise error
 
-            with contextlib.suppress(Exception):
-                await send_event(event_data)
+                # Can't await in sync function, so we'll skip analytics for sync methods
 
-            raise error
+                raise error
 
-    return wrapper
+        return sync_wrapper
 
 
 def wrap_class_with_error_tracking(cls):

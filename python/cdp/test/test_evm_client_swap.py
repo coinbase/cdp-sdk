@@ -49,7 +49,7 @@ class TestGetQuote:
                 }
             ).encode()
         )
-        mock_api_clients.evm_swaps.get_evm_swap_quote_without_preload_content.return_value = (
+        mock_api_clients.evm_swaps.get_evm_swap_price_without_preload_content.return_value = (
             mock_response
         )
 
@@ -91,7 +91,7 @@ class TestGetQuote:
                 }
             ).encode()
         )
-        mock_api_clients.evm_swaps.get_evm_swap_quote_without_preload_content.return_value = (
+        mock_api_clients.evm_swaps.get_evm_swap_price_without_preload_content.return_value = (
             mock_response
         )
 
@@ -115,7 +115,7 @@ class TestGetQuote:
         mock_response.read = AsyncMock(
             return_value=json.dumps({"liquidityAvailable": False}).encode()
         )
-        mock_api_clients.evm_swaps.get_evm_swap_quote_without_preload_content.return_value = (
+        mock_api_clients.evm_swaps.get_evm_swap_price_without_preload_content.return_value = (
             mock_response
         )
 
