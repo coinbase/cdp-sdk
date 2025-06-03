@@ -652,67 +652,131 @@ tx_hash = await sender.transfer(
 
 ### EVM Swaps
 
-The SDK provides support for EVM-based token swaps. You can swap tokens with different approaches:
+The SDK provides comprehensive support for EVM-based token swaps with multiple approaches to suit different use cases.
 
 #### Direct swap with parameters
-Easily perform a swap with a single method call:
+The simplest way to perform a swap with a single method call:
 
 ```python
-from cdp import *
+from cdp import CdpClient
 from cdp.actions.evm.swap import SwapOptions
 
-# Swap USDC to ETH
-result = await account.swap(
-    SwapOptions(
-        network="base",
-        from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-        to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-        from_amount="100000000",  # 100 USDC (6 decimals)
-        taker=account.address,
-        slippage_bps=100  # 1% slippage
+async with CdpClient() as cdp:
+    account = await cdp.evm.get_or_create_account(name="swap-example")
+    
+    # Swap 100 USDC to WETH
+    result = await account.swap(
+        SwapOptions(
+            network="base",
+            from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            to_token="0x4200000000000000000000000000000000000006",  # WETH
+            from_amount="100000000",  # 100 USDC (6 decimals)
+            taker=account.address,
+            slippage_bps=100  # 1% slippage
+        )
     )
-)
-print(f"Transaction hash: {result.transaction_hash}")
-print(f"Received: {result.to_amount}")
+    print(f"Transaction hash: {result.transaction_hash}")
+    print(f"Received: {result.to_amount} WETH")
 ```
 
 #### Get pricing information
-Get swap price without executing:
+Get swap prices without executing to show users expected outcomes:
 
 ```python
-# Get price for swapping 1 ETH to USDC
+# Get price for swapping 1 WETH to USDC
 price = await cdp.evm.get_swap_price(
-    from_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+    from_token="0x4200000000000000000000000000000000000006",  # WETH
     to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-    from_amount="1000000000000000000",  # 1 ETH (18 decimals)
+    from_amount="1000000000000000000",  # 1 WETH (18 decimals)
     network="base"
 )
 print(f"Expected output: {price.to_amount} USDC")
 print(f"Price ratio: {price.price_ratio}")
+print(f"Expires at: {price.expires_at}")
 ```
 
 #### Create and execute separately
-For more control, create the swap quote first:
+For more control, create a swap quote first to inspect details before execution:
 
 ```python
-# Create quote
+# Step 1: Create quote
 quote = await cdp.evm.create_swap_quote(
     from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-    to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+    to_token="0x4200000000000000000000000000000000000006",  # WETH
     from_amount="100000000",  # 100 USDC
     network="base",
     taker=account.address,
-    slippage_bps=100  # 1% slippage
+    slippage_bps=500  # 5% slippage
 )
 
-# Review quote details
-print(f"Expected output: {quote.to_amount}")
-print(f"Min output: {quote.min_to_amount}")
+# Step 2: Review quote details
+print(f"Quote ID: {quote.quote_id}")
+print(f"Expected output: {quote.to_amount} WETH")
+print(f"Min output: {quote.min_to_amount} WETH")
 
-# Execute if satisfied
+# Step 3: Execute if satisfied
 result = await account.swap(
     SwapOptions(swap_quote=quote)
 )
+print(f"Transaction hash: {result.transaction_hash}")
+```
+
+#### Account convenience method
+Use `account.quote_swap()` to automatically set the account as taker:
+
+```python
+# Create quote with account as taker
+quote = await account.quote_swap(
+    from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+    to_token="0x4200000000000000000000000000000000000006",  # WETH
+    from_amount="100000000",
+    network="base",
+    slippage_bps=100
+)
+
+# Execute directly on the quote
+tx_hash = await quote.execute()
+print(f"Transaction hash: {tx_hash}")
+```
+
+#### Enable direct execution on quotes
+Pass `from_account` when creating quotes to enable `quote.execute()`:
+
+```python
+# Create quote with execution capability
+quote = await cdp.evm.create_swap_quote(
+    from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+    to_token="0x4200000000000000000000000000000000000006",  # WETH
+    from_amount="100000000",
+    network="base",
+    taker=account.address,
+    from_account=account  # Enables quote.execute()
+)
+
+# Execute directly
+tx_hash = await quote.execute()
+```
+
+#### Smart Account swaps
+Smart accounts also support swapping:
+
+```python
+smart_account = await cdp.evm.create_smart_account(owner=account)
+
+# Swap using smart account
+result = await smart_account.swap(
+    SwapOptions(
+        network="base",
+        from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+        to_token="0x4200000000000000000000000000000000000006",  # WETH
+        from_amount="100000000",
+        taker=smart_account.address,
+        slippage_bps=100
+    )
+)
+
+# Wait for user operation to complete
+await smart_account.wait_for_user_operation(user_op_hash=result.user_op_hash)
 ```
 
 ### EVM Smart Accounts
@@ -807,6 +871,7 @@ EvmAccount supports the following actions:
 - `send_transaction`
 - `transfer`
 - `swap`
+- `quote_swap`
 
 EvmSmartAccount supports the following actions:
 
