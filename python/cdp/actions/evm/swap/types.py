@@ -99,8 +99,9 @@ class QuoteSwapResult(BaseModel):
         default=False, description="Whether Permit2 signature is needed"
     )
 
-    # Private fields to store the account that created this quote
-    _from_account: BaseAccount | None = PrivateAttr(default=None)
+    # Private fields to store context for execute()
+    _taker: str | None = PrivateAttr(default=None)
+    _signer_address: str | None = PrivateAttr(default=None)
     _api_clients: Any | None = PrivateAttr(default=None)
 
     async def execute(self) -> str:
@@ -110,21 +111,25 @@ class QuoteSwapResult(BaseModel):
             str: The transaction hash of the executed swap.
 
         Raises:
-            ValueError: If the quote was not created through an account's swap method.
+            ValueError: If the quote was not created with proper context.
 
         """
-        if self._from_account is None or self._api_clients is None:
+        if self._taker is None or self._api_clients is None:
             raise ValueError(
-                "This swap quote cannot be executed directly. " "Use account.swap(quote) instead."
+                "This swap quote cannot be executed directly. "
+                "Use account.swap(SwapOptions(swap_quote=quote)) instead."
             )
 
-        from cdp.actions.evm.swap import AccountSwapStrategy, SwapOptions, swap
+        from cdp.actions.evm.swap import send_swap_transaction
 
-        result = await swap(
+        # Use signer_address if available (for smart accounts), otherwise use taker
+        address = self._signer_address or self._taker
+
+        result = await send_swap_transaction(
             api_clients=self._api_clients,
-            from_account=self._from_account,
-            swap_options=SwapOptions(swap_quote=self),
-            swap_strategy=AccountSwapStrategy(),
+            address=address,
+            network=self.network,
+            swap_quote=self,
         )
         return result.transaction_hash
 

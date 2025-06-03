@@ -1,108 +1,73 @@
 """Send swap transaction function for EVM accounts."""
 
-from typing import Any
+from typing import TYPE_CHECKING
 
-from cdp.actions.evm.swap.account_swap_strategy import AccountSwapStrategy
-from cdp.actions.evm.swap.swap import swap
-from cdp.actions.evm.swap.types import SwapOptions, SwapResult, SwapUnavailableResult
-from cdp.api_clients import ApiClients
+from cdp.actions.evm.swap.types import QuoteSwapResult, SwapOptions, SwapResult
+
+if TYPE_CHECKING:
+    from cdp.api_clients import ApiClients
 
 
 async def send_swap_transaction(
-    api_clients: ApiClients,
-    account: Any,
-    options: SwapOptions,
+    api_clients: "ApiClients",
+    address: str,
+    network: str,
+    swap_quote: QuoteSwapResult,
 ) -> SwapResult:
-    """Send a swap transaction with the given options.
+    """Send a swap transaction using a pre-created quote.
 
-    This function handles both direct swap parameters and pre-created swap quotes,
+    This function executes a swap using a quote created by create_swap_quote,
     matching the TypeScript SDK pattern.
 
     Args:
         api_clients: The API clients instance
-        account: The account executing the swap
-        options: The swap options containing either direct parameters or a swap quote
+        address: The address executing the swap
+        network: The network to execute on
+        swap_quote: The pre-created swap quote
 
     Returns:
         SwapResult: The result of the swap transaction
 
     Raises:
-        ValueError: If the options are invalid
+        ValueError: If the quote is invalid
         Exception: If the swap fails
 
-    Examples:
-        **Direct swap with parameters**:
+    Example:
         ```python
-        result = await send_swap_transaction(
+        # First create a quote
+        quote = await create_swap_quote(
             api_clients=api_clients,
-            account=account,
-            options=SwapOptions(
-                network="base",
-                from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-                to_token="0x4200000000000000000000000000000000000006",  # WETH
-                from_amount="100000000",  # 100 USDC
-                taker=account.address,
-                slippage_bps=100  # 1%
-            )
+            from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            to_token="0x4200000000000000000000000000000000000006",  # WETH
+            from_amount="100000000",
+            network="base",
+            taker=address,
+            slippage_bps=100
         )
-        ```
 
-        **Swap with pre-created quote**:
-        ```python
+        # Then execute it
         result = await send_swap_transaction(
             api_clients=api_clients,
-            account=account,
-            options=SwapOptions(
-                swap_quote=swap_quote
-            )
+            address=address,
+            network="base",
+            swap_quote=quote
         )
         ```
 
     """
-    # Determine which type of swap we're doing
-    if options.swap_quote is not None:
-        # Pre-created swap quote path
-        swap_data = options.swap_quote
+    # Import here to avoid circular imports
+    from cdp.actions.evm.swap.account_swap_strategy import AccountSwapStrategy
+    from cdp.actions.evm.swap.swap import swap
+    from cdp.evm_client import EvmClient
 
-        # Set the account and api_clients on the quote to enable execute()
-        swap_data._from_account = account
-        swap_data._api_clients = api_clients
+    # Get the account from the address
+    evm_client = EvmClient(api_clients)
+    account = await evm_client.get_account(address=address)
 
-        # Use the existing swap function with the quote
-        return await swap(
-            api_clients=api_clients,
-            from_account=account,
-            swap_options=SwapOptions(swap_quote=swap_data),
-            swap_strategy=AccountSwapStrategy(),
-        )
-
-    else:
-        # Direct parameters path
-        # Import here to avoid circular imports
-        from cdp.evm_client import EvmClient
-
-        # Create an EVM client instance
-        evm_client = EvmClient(api_clients)
-
-        # Create the swap quote from parameters
-        swap_quote = await evm_client.create_swap_quote(
-            from_token=options.from_token,
-            to_token=options.to_token,
-            from_amount=options.from_amount,
-            network=options.network,
-            taker=options.taker or account.address,
-            slippage_bps=options.slippage_bps,
-            from_account=account,
-        )
-
-        # Check if liquidity is unavailable
-        if isinstance(swap_quote, SwapUnavailableResult):
-            raise ValueError("Swap unavailable: Insufficient liquidity")
-
-        # Execute the swap
-        return await swap(
-            api_clients=api_clients,
-            from_account=account,
-            swap_options=SwapOptions(swap_quote=swap_quote),
-            swap_strategy=AccountSwapStrategy(),
-        )
+    # Execute the swap using the account
+    return await swap(
+        api_clients=api_clients,
+        from_account=account,
+        swap_options=SwapOptions(swap_quote=swap_quote),
+        swap_strategy=AccountSwapStrategy(),
+    )

@@ -624,7 +624,7 @@ class EvmClient:
         network: str,
         taker: str,
         slippage_bps: int | None = None,
-        from_account: Any | None = None,
+        signer_address: str | None = None,
     ) -> Union["QuoteSwapResult", "SwapUnavailableResult"]:
         """Create a swap quote with transaction data.
 
@@ -637,7 +637,7 @@ class EvmClient:
             network (str): The network to create the swap on.
             taker (str): The address that will execute the swap.
             slippage_bps (int, optional): The maximum slippage in basis points (100 = 1%).
-            from_account (BaseAccount, optional): The account that will execute the swap (enables execute()).
+            signer_address (str, optional): The address that will sign the transaction (for smart accounts).
 
         Returns:
             Union[QuoteSwapResult, SwapUnavailableResult]: The swap quote with transaction data or SwapUnavailableResult if liquidity is insufficient.
@@ -655,17 +655,16 @@ class EvmClient:
             )
             ```
 
-            **With account for direct execution**:
+            **With signer address for smart accounts**:
             ```python
             quote = await cdp.evm.create_swap_quote(
                 from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
                 to_token="0x4200000000000000000000000000000000000006",  # WETH
                 from_amount="100000000",
                 network="base",
-                taker=account.address,
-                from_account=account  # Enables quote.execute()
+                taker=smart_account.address,
+                signer_address=owner.address  # Owner signs for smart account
             )
-            txn_hash = await quote.execute()
             ```
 
         """
@@ -677,5 +676,5 @@ class EvmClient:
             network,
             taker,
             slippage_bps,
-            from_account,
+            signer_address,
         )

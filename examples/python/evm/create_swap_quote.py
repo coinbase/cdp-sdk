@@ -43,7 +43,7 @@ async def main():
             network="base",
             taker=account.address,
             slippage_bps=100,  # 1% slippage
-            from_account=account  # This enables quote.execute()
+            signer_address=account.address  # This enables quote.execute()
         )
         
         # Check if liquidity is available

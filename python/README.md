@@ -756,7 +756,7 @@ print(f"Transaction hash: {tx_hash}")
 ```
 
 #### Enable direct execution on quotes
-Pass `from_account` when creating quotes to enable `quote.execute()`:
+Pass `signer_address` when creating quotes to enable `quote.execute()`:
 
 ```python
 # Create quote with execution capability
@@ -766,7 +766,7 @@ quote = await cdp.evm.create_swap_quote(
     from_amount="100000000",
     network="base",
     taker=account.address,
-    from_account=account  # Enables quote.execute()
+    signer_address=account.address  # Enables quote.execute()
 )
 
 # Execute directly

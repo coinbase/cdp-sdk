@@ -56,33 +56,54 @@ async def create_swap_quote(
     to_token: str,
     from_amount: str | int,
     network: str,
-    taker: str,
+    taker: str | None = None,
     slippage_bps: int | None = None,
-    from_account: Any | None = None,
+    signer_address: str | None = None,
 ) -> QuoteSwapResult | SwapUnavailableResult:
-    """Create a swap quote with transaction data.
+    """Create a quote for swapping tokens on EVM networks.
 
-    This method follows the OpenAPI spec field names.
+    Creates a quote to swap one token for another, which can be executed later.
+    Returns either a QuoteSwapResult with transaction details or a SwapUnavailableResult
+    if liquidity is insufficient.
 
     Args:
-        api_clients: The API clients instance
+        api_clients: The API clients instance for making requests
         from_token: The contract address of the token to swap from
         to_token: The contract address of the token to swap to
         from_amount: The amount to swap from (in smallest unit)
-        network: The network to create the swap on
-        taker: The address that will execute the swap
-        slippage_bps: The maximum slippage in basis points (100 = 1%)
-        from_account: The account that will execute the swap (enables execute())
+        network: The network to execute on ("base" or "ethereum")
+        taker: The address that will execute the swap (required)
+        slippage_bps: Maximum slippage in basis points (100 = 1%, default: 100)
+        signer_address: The address that will sign the transaction (for smart accounts)
 
     Returns:
-        QuoteSwapResult | SwapUnavailableResult: The swap quote with transaction data or SwapUnavailableResult
+        Union[QuoteSwapResult, SwapUnavailableResult]: Either a swap quote with
+            transaction details or an unavailable result if liquidity is insufficient
+
+    Raises:
+        ValueError: If parameters are invalid
+        Exception: If the API request fails
+
+    Examples:
+        Create a swap quote for 100 USDC to WETH:
+            >>> quote = await create_swap_quote(
+            ...     api_clients=cdp.api_clients,
+            ...     from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            ...     to_token="0x4200000000000000000000000000000000000006",  # WETH
+            ...     from_amount="100000000",  # 100 USDC (6 decimals)
+            ...     network="base",
+            ...     taker="0x742d35Cc6634C0532925a3b844Bc9e7595f1234",
+            ...     slippage_bps=100  # 1% slippage
+            ... )
+
+        Execute the quote:
+            >>> if hasattr(quote, 'execute'):
+            ...     tx_hash = await quote.execute()
 
     """
     # Validate required parameters
-    if not all([from_token, to_token, from_amount, network, taker]):
-        raise ValueError(
-            "All of from_token, to_token, from_amount, network, and taker are required"
-        )
+    if not taker:
+        raise ValueError("taker is required for create_swap_quote")
 
     # Convert amount to string if needed
     from_amount_str = str(from_amount)
@@ -102,10 +123,11 @@ async def create_swap_quote(
     # Create swap request
     request = CreateEvmSwapQuoteRequest(
         network=network_enum,
-        to_token=to_address,  # Note: API uses to_token for what user wants to buy
-        from_token=from_address,  # and from_token for what user wants to sell
+        from_token=from_address,
+        to_token=to_address,
         from_amount=from_amount_str,
         taker=taker_address,
+        signer_address=signer_address,
         slippage_bps=slippage_bps,
     )
 
@@ -152,6 +174,7 @@ async def create_swap_quote(
 
     # Convert to QuoteSwapResult
     result = QuoteSwapResult(
+        liquidity_available=True,
         quote_id=quote_id,
         from_token=from_token,
         to_token=to_token,
@@ -172,9 +195,9 @@ async def create_swap_quote(
         requires_signature=requires_signature,
     )
 
-    # Set account and api_clients if provided to enable execute()
-    if from_account is not None:
-        result._from_account = from_account
-        result._api_clients = api_clients
+    # Store taker and signer_address for execute()
+    result._taker = taker
+    result._signer_address = signer_address
+    result._api_clients = api_clients
 
     return result

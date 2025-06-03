@@ -33,7 +33,6 @@ from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.actions.evm.swap import SwapOptions
-from cdp.actions.evm.swap.send_swap_transaction import send_swap_transaction
 from cdp.actions.evm.swap.types import QuoteSwapResult, SwapResult
 from cdp.api_clients import ApiClients
 from cdp.evm_token_balances import ListTokenBalancesResult
@@ -338,8 +337,44 @@ class EvmServerAccount(BaseAccount, BaseModel):
         if not isinstance(options, SwapOptions):
             raise TypeError("swap() expects a SwapOptions instance")
 
-        return await send_swap_transaction(
-            api_clients=self.__api_clients, account=self, options=options
+        from cdp.actions.evm.swap import AccountSwapStrategy, swap
+        from cdp.actions.evm.swap.types import SwapUnavailableResult
+        from cdp.evm_client import EvmClient
+
+        # Handle pre-created quote
+        if options.swap_quote is not None:
+            return await swap(
+                api_clients=self.__api_clients,
+                from_account=self,
+                swap_options=options,
+                swap_strategy=AccountSwapStrategy(),
+            )
+
+        # Handle direct parameters - create quote first
+        # Create an EVM client instance
+        evm_client = EvmClient(self.__api_clients)
+
+        # Create the swap quote from parameters
+        swap_quote = await evm_client.create_swap_quote(
+            from_token=options.from_token,
+            to_token=options.to_token,
+            from_amount=options.from_amount,
+            network=options.network,
+            taker=options.taker or self.address,
+            slippage_bps=options.slippage_bps,
+            signer_address=self.address,  # Pass account address as signer
+        )
+
+        # Check if liquidity is unavailable
+        if isinstance(swap_quote, SwapUnavailableResult):
+            raise ValueError("Swap unavailable: Insufficient liquidity")
+
+        # Execute the swap
+        return await swap(
+            api_clients=self.__api_clients,
+            from_account=self,
+            swap_options=SwapOptions(swap_quote=swap_quote),
+            swap_strategy=AccountSwapStrategy(),
         )
 
     async def quote_swap(
@@ -400,9 +435,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
         # Use provided taker or default to account address
         swap_taker = taker if taker is not None else self.address
 
-        # Note: signer_address is accepted for future smart account support
-        # but not currently used in the implementation
-
         # Call create_swap_quote with the specified taker
         return await evm_client.create_swap_quote(
             from_token=from_token,
@@ -411,7 +443,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             network=network,
             taker=swap_taker,
             slippage_bps=slippage_bps,
-            from_account=self,  # This enables quote.execute()
+            signer_address=signer_address,
         )
 
     async def request_faucet(
