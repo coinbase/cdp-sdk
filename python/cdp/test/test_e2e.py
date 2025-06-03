@@ -24,8 +24,11 @@ from cdp.policies.types import (
     CreatePolicyOptions,
     EthValueCriterion,
     EvmAddressCriterion,
+    EvmMessageCriterion,
     EvmNetworkCriterion,
     SendEvmTransactionRule,
+    SignEvmHashRule,
+    SignEvmMessageRule,
     SignEvmTransactionRule,
     SignSolanaTransactionRule,
     SolanaAddressCriterion,
@@ -857,6 +860,17 @@ async def test_create_account_policy(cdp_client):
                         ),
                     ],
                 ),
+                SignEvmHashRule(
+                    action="accept",
+                ),
+                SignEvmMessageRule(
+                    action="accept",
+                    criteria=[
+                        EvmMessageCriterion(
+                            match=".*",
+                        ),
+                    ],
+                ),
             ],
         )
     )
@@ -865,7 +879,7 @@ async def test_create_account_policy(cdp_client):
     assert policy.scope == "account"
     assert policy.description == "E2E Test Policy"
     assert policy.rules is not None
-    assert len(policy.rules) == 3
+    assert len(policy.rules) == 5
     assert policy.rules[0].action == "accept"
     assert policy.rules[0].operation == "signEvmTransaction"
     assert policy.rules[0].criteria is not None
@@ -893,6 +907,14 @@ async def test_create_account_policy(cdp_client):
     assert policy.rules[2].criteria[0].type == "solAddress"
     assert policy.rules[2].criteria[0].addresses == ["123456789abcdef123456789abcdef12"]
     assert policy.rules[2].criteria[0].operator == "in"
+    assert policy.rules[3].action == "accept"
+    assert policy.rules[3].operation == "signEvmHash"
+    assert policy.rules[4].action == "accept"
+    assert policy.rules[4].operation == "signEvmMessage"
+    assert policy.rules[4].criteria is not None
+    assert len(policy.rules[4].criteria) == 1
+    assert policy.rules[4].criteria[0].type == "evmMessage"
+    assert policy.rules[4].criteria[0].match == ".*"
 
     # Delete the policy
     await cdp_client.policies.delete_policy(id=policy.id)
