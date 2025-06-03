@@ -108,7 +108,7 @@ class SignEvmHashRule(BaseModel):
 
     action: Action = Field(
         ...,
-        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the transaction, 'reject' will block it.",
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow signing, 'reject' will block it.",
     )
     operation: Literal["signEvmHash"] = Field(
         "signEvmHash",
