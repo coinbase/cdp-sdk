@@ -34,6 +34,7 @@ import { SolanaAccount } from "./accounts/solana/types.js";
 import type { Policy } from "./policies/types.js";
 import type { WaitForUserOperationReturnType } from "./actions/evm/waitForUserOperation.js";
 import { TimeoutError } from "./errors.js";
+import { SignEvmTransactionRule } from "./policies/schema.js";
 
 dotenv.config();
 
@@ -1026,6 +1027,20 @@ describe("CDP Client E2E Tests", () => {
                 },
               ],
             },
+            {
+              action: "accept",
+              operation: "signEvmHash",
+            },
+            {
+              action: "accept",
+              operation: "signEvmMessage",
+              criteria: [
+                {
+                  type: "evmMessage",
+                  match: ".*",
+                },
+              ],
+            },
           ],
         },
       });
@@ -1036,11 +1051,15 @@ describe("CDP Client E2E Tests", () => {
       expect(createdPolicy.description).toBe("Test policy for e2e tests");
       expect(createdPolicy.createdAt).toBeDefined();
       expect(createdPolicy.updatedAt).toBeDefined();
-      expect(createdPolicy.rules).toHaveLength(2);
+      expect(createdPolicy.rules).toHaveLength(4);
       expect(createdPolicy.rules[0].action).toBe("reject");
       expect(createdPolicy.rules[0].operation).toBe("signEvmTransaction");
       expect(createdPolicy.rules[1].action).toBe("reject");
       expect(createdPolicy.rules[1].operation).toBe("sendEvmTransaction");
+      expect(createdPolicy.rules[2].action).toBe("accept");
+      expect(createdPolicy.rules[2].operation).toBe("signEvmHash");
+      expect(createdPolicy.rules[3].action).toBe("accept");
+      expect(createdPolicy.rules[3].operation).toBe("signEvmMessage");
 
       // Save the policy ID for other tests
       testPolicyId = createdPolicy.id;
@@ -1055,7 +1074,7 @@ describe("CDP Client E2E Tests", () => {
       expect(policy.id).toBe(testPolicyId);
       expect(policy.scope).toBe("account");
       expect(policy.description).toBe("Test policy for e2e tests");
-      expect(policy.rules).toHaveLength(2);
+      expect(policy.rules).toHaveLength(4);
     });
 
     it("should list policies", async () => {
@@ -1157,7 +1176,8 @@ describe("CDP Client E2E Tests", () => {
       expect(updatedPolicy.id).toBe(testPolicyId);
       expect(updatedPolicy.description).toBe("Updated test policy description");
       expect(updatedPolicy.rules).toHaveLength(1);
-      expect(updatedPolicy.rules[0].criteria).toHaveLength(2);
+      expect("criteria" in updatedPolicy.rules[0]).toBe(true);
+      expect((updatedPolicy.rules[0] as SignEvmTransactionRule).criteria).toHaveLength(2);
     });
 
     it("should delete a policy", async () => {
