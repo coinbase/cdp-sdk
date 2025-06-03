@@ -7,12 +7,19 @@ import {
   WaitForFundOperationResult,
 } from "./fund/waitForFundOperationReceipt.js";
 import { SendUserOperationOptions, SendUserOperationReturnType } from "./sendUserOperation.js";
-import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
+import {
+  GetUserOperationOptions,
+  UserOperation,
+  CreateSwapQuoteOptions,
+  CreateSwapQuoteResult,
+  SwapUnavailableResult,
+} from "../../client/evm/evm.types.js";
 import { Hex } from "../../types/misc.js";
 
 import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTokenBalances.js";
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
 import type { SendTransactionOptions, TransactionResult } from "./sendTransaction.js";
+import type { SwapOptions, SwapResult } from "./swap/types.js";
 import type { TransferOptions } from "./transfer/types.js";
 import type {
   WaitForUserOperationOptions,
@@ -249,6 +256,93 @@ export type AccountActions = Actions & {
    * ```
    */
   sendTransaction: (options: Omit<SendTransactionOptions, "address">) => Promise<TransactionResult>;
+
+  /**
+   * Creates a swap quote without executing the transaction.
+   * This is useful when you need to get swap details before executing the swap.
+   *
+   * @param {Omit<CreateSwapQuoteOptions, "taker">} options - Configuration options for creating the swap quote.
+   * @param {string} options.network - The network to create the quote on
+   * @param {string} options.sellToken - The token address to sell
+   * @param {string} options.buyToken - The token address to buy
+   * @param {bigint} [options.sellAmount] - The amount of sellToken to sell (exclusive with buyAmount)
+   * @param {bigint} [options.buyAmount] - The amount of buyToken to buy (exclusive with sellAmount)
+   * @param {string} [options.idempotencyKey] - Optional idempotency key for the request
+   *
+   * @returns A promise that resolves to the swap quote or a response indicating that liquidity is unavailable.
+   *
+   * @example
+   * ```ts
+   * const swapQuote = await account.quoteSwap({
+   *   network: "base",
+   *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+   * });
+   *
+   * if (swapQuote.liquidityAvailable) {
+   *   console.log(`Can swap for ${swapQuote.buyAmount} USDC`);
+   * }
+   * ```
+   */
+  quoteSwap: (
+    options: CreateSwapQuoteOptions,
+  ) => Promise<CreateSwapQuoteResult | SwapUnavailableResult>;
+
+  /**
+   * Executes a token swap on the specified network.
+   * This method handles all the steps required for a swap, including Permit2 signatures if needed.
+   *
+   * @param {SwapOptions} options - Configuration options for the swap.
+   * @param {string} [options.network] - The network to execute the swap on
+   * @param {CreateSwapQuoteResult} [options.swapQuote] - The swap quote returned by the createSwapQuote method.
+   * @param {CreateSwapQuoteOptions} [options.swapOptions] - Options to create a swap quote. The function will call createSwapQuote internally.
+   * @param {string} [options.idempotencyKey] - Optional idempotency key for the request.
+   *
+   * @returns A promise that resolves to the transaction hash.
+   *
+   * @throws {Error} If liquidity is not available when using swapOptions.
+   *
+   * @example **Using a pre-created swap quote**
+   * ```ts
+   * // First create a swap quote
+   * const swapQuote = await cdp.evm.createSwapQuote({
+   *   network: "base",
+   *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+   *   taker: account.address
+   * });
+   *
+   * // Check if liquidity is available
+   * if (!swapQuote.liquidityAvailable) {
+   *   console.error("Insufficient liquidity for swap");
+   *   return;
+   * }
+   *
+   * // Execute the swap
+   * const { transactionHash } = await account.swap({
+   *   swapQuote: swapQuote
+   * });
+   *
+   * console.log(`Swap executed with transaction hash: ${transactionHash}`);
+   * ```
+   *
+   * @example **Using swap options (all-in-one)**
+   * ```ts
+   * // Create and execute swap in one call
+   * const { transactionHash } = await account.swap({
+   *   network: "base",
+   *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+   *   taker: account.address
+   * });
+   *
+   * console.log(`Swap executed with transaction hash: ${transactionHash}`);
+   * ```
+   */
+  swap: (options: SwapOptions) => Promise<SwapResult>;
 };
 
 export type SmartAccountActions = Actions & {

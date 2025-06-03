@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.12.0
+
+### Minor Changes
+
+- [#150](https://github.com/coinbase/cdp-sdk/pull/150) - Added support for swaps on EVM networks for EOAs.
+
 ## 1.11.0
 
 ### Minor Changes
