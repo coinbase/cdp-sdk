@@ -773,28 +773,6 @@ quote = await cdp.evm.create_swap_quote(
 tx_hash = await quote.execute()
 ```
 
-#### Smart Account swaps
-Smart accounts also support swapping:
-
-```python
-smart_account = await cdp.evm.create_smart_account(owner=account)
-
-# Swap using smart account
-result = await smart_account.swap(
-    SwapOptions(
-        network="base",
-        from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-        to_token="0x4200000000000000000000000000000000000006",  # WETH
-        from_amount="100000000",
-        taker=smart_account.address,
-        slippage_bps=100
-    )
-)
-
-# Wait for user operation to complete
-await smart_account.wait_for_user_operation(user_op_hash=result.user_op_hash)
-```
-
 ### EVM Smart Accounts
 
 For EVM, we support Smart Accounts which are account-abstraction (ERC-4337) accounts. Currently there is only support for Base Sepolia and Base Mainnet for Smart Accounts.
@@ -897,7 +875,6 @@ EvmSmartAccount supports the following actions:
 - `wait_for_user_operation`
 - `get_user_operation`
 - `transfer`
-- `swap`
 
 SolanaAccount supports the following actions:
 
@@ -936,7 +913,6 @@ policy = await cdp.policies.create_policy(
     )
 )
 ```
-
 ### Create an Account-level policy
 
 This policy will accept any transaction with a value less than or equal to 1 ETH to a specific address.
@@ -1083,3 +1059,4 @@ For feature requests, feedback, or questions, please reach out to us in the
 ## Security
 
 If you discover a security vulnerability within this SDK, please see our [Security Policy](https://github.com/coinbase/cdp-sdk/tree/main/SECURITY.md) for disclosure information.
+
