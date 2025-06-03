@@ -113,6 +113,8 @@ tags:
         - An `operation` corresponds to a CDP v2 API:
             - `signEvmTransaction` or `signSolTransaction` for signing transactions (to set a transaction limit)
             - `sendEvmTransaction` for signing a transaction, and sending it to a supported network
+            - `signEvmHash` for signing an arbitrary 32 byte hash.
+            - `signEvmMessage` for signing an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message.
       - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected. Only `signEvmTransaction` and `signSolTransaction` operations are currently supported.
       ## Policy Scope
       Policies can be applied at the project and/or account level:
@@ -211,7 +213,11 @@ tags:
       A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
       #### evmNetwork
       A criterion based on the intended network of the transaction. The `network` field in the `sendEvmTransaction` request body is compared to the criterion's `networks` field using the `operator` field.
-
+      ### SignEvmHash Criteria
+      The `signEvmHash` operation does not accept any criteria. To prevent this operation from being executed by any account, specify a rule with `signEvmHash` as the operation, and `reject` as its action.
+      ### SignEvmMessage Criteria
+      #### evmMessage
+      A criterion based on the intended message to be signed. The `match` field in the criteria is a [RE2](https://github.com/google/re2/wiki/Syntax) compliant regular expression that will be executed against the message in the API request.
       ### SignSolTransaction Criteria
       #### solAddress
       A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
@@ -3604,7 +3610,7 @@ components:
         - operator
     SignEvmTransactionCriteria:
       type: array
-      description: A schema for specifying the rejection criteria for the SignEvmTransaction operation.
+      description: A schema for specifying criteria for the SignEvmTransaction operation.
       items:
         oneOf:
           - $ref: '#/components/schemas/EthValueCriterion'
@@ -3676,7 +3682,7 @@ components:
     SendEvmTransactionCriteria:
       x-audience: public
       type: array
-      description: A schema for specifying the rejection criteria for the SignEvmTransaction operation.
+      description: A schema for specifying criteria for the SignEvmTransaction operation.
       items:
         oneOf:
           - $ref: '#/components/schemas/EthValueCriterion'
@@ -3708,6 +3714,56 @@ components:
             - sendEvmTransaction
         criteria:
           $ref: '#/components/schemas/SendEvmTransactionCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    EvmMessageCriterion:
+      type: object
+      x-audience: public
+      description: A schema for specifying a criterion for the message being signed.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `evmMessage`.
+          example: evmMessage
+          enum:
+            - evmMessage
+        match:
+          type: string
+          description: A regular expression the message is matched against. Accepts valid regular expression syntax described by [RE2](https://github.com/google/re2/wiki/Syntax).
+          example: ^hello ([a-z]+)$
+      required:
+        - type
+        - match
+    SignEvmMessageCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying the rejection criteria for the SignEvmMessage operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EvmMessageCriterion'
+      example:
+        - type: evmMessage
+          match: ^hello ([a-z]+)$
+    SignEvmMessageRule:
+      x-audience: public
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: signEvmMessage
+          enum:
+            - signEvmMessage
+        criteria:
+          $ref: '#/components/schemas/SignEvmMessageCriteria'
       required:
         - action
         - operation
@@ -3745,7 +3801,7 @@ components:
     SignSolTransactionCriteria:
       type: array
       x-audience: public
-      description: A schema for specifying the rejection criteria for the SignSolTransaction operation.
+      description: A schema for specifying criteria for the SignSolTransaction operation.
       items:
         oneOf:
           - $ref: '#/components/schemas/SolAddressCriterion'
@@ -3775,13 +3831,34 @@ components:
         - action
         - operation
         - criteria
+    SignEvmHashRule:
+      x-audience: public
+      properties:
+        action:
+          type: string
+          description: Whether any attempts to sign a hash will be accepted or rejected. This rule does not accept any criteria.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies.
+          example: signEvmHash
+          enum:
+            - signEvmHash
+      required:
+        - action
+        - operation
     Rule:
       type: object
       description: A rule that limits the behavior of an account.
       oneOf:
         - $ref: '#/components/schemas/SignEvmTransactionRule'
         - $ref: '#/components/schemas/SendEvmTransactionRule'
+        - $ref: '#/components/schemas/SignEvmMessageRule'
         - $ref: '#/components/schemas/SignSolTransactionRule'
+        - $ref: '#/components/schemas/SignEvmHashRule'
       example:
         action: accept
         operation: signEvmTransaction
