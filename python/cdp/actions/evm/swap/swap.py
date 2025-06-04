@@ -42,7 +42,6 @@ async def swap(
                 from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
                 to_token="0x4200000000000000000000000000000000000006",  # WETH
                 from_amount="1000000",  # 1 USDC
-                taker=account.address,
                 slippage_bps=100
             ),
             swap_strategy=AccountSwapStrategy()
@@ -101,7 +100,7 @@ async def swap(
             to_token=swap_options.to_token,
             from_amount=swap_options.from_amount,
             network=swap_options.network,
-            taker=swap_options.taker or from_account.address,
+            taker=from_account.address,  # Always use account address as taker
             slippage_bps=swap_options.slippage_bps,
         )
 

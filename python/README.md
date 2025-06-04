@@ -671,7 +671,6 @@ async with CdpClient() as cdp:
             from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             to_token="0x4200000000000000000000000000000000000006",  # WETH
             from_amount="100000000",  # 100 USDC (6 decimals)
-            taker=account.address,
             slippage_bps=100  # 1% slippage
         )
     )

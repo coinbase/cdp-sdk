@@ -57,7 +57,6 @@ async def main():
                     from_token=USDC,
                     to_token=WETH,
                     from_amount="5000000",  # 5 USDC (6 decimals)
-                    taker=account.address,
                     slippage_bps=200  # 2% slippage
                 )
             )

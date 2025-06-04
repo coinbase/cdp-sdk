@@ -101,14 +101,12 @@ class TestSwapOptions:
             from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
             from_amount="1000000000000000000",
-            taker="0x1234567890123456789012345678901234567890",
             slippage_bps=100,
         )
         assert options.network == "base"
         assert options.from_token == "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
         assert options.to_token == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
         assert options.from_amount == "1000000000000000000"
-        assert options.taker == "0x1234567890123456789012345678901234567890"
         assert options.slippage_bps == 100
         assert options.swap_quote is None
 
@@ -177,7 +175,6 @@ class TestSwapOptions:
                 from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
                 to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
                 from_amount="1000000000000000000",
-                taker="0x1234567890123456789012345678901234567890",
                 swap_quote=quote,
             )
 

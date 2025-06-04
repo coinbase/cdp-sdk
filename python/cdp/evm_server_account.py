@@ -295,11 +295,10 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
         Args:
             options: The swap options. Must be a SwapOptions instance containing either:
-                - Direct swap parameters (network, from_token, to_token, from_amount, taker, slippage_bps)
+                - Direct swap parameters (network, from_token, to_token, from_amount, slippage_bps)
                 - A pre-created swap quote (swap_quote)
 
-                Note: The taker parameter allows specifying a different recipient address.
-                In the future, a signer_address parameter will support smart accounts.
+                Note: The account address is always used as the taker.
 
         Returns:
             SwapResult: The result of the swap transaction.
@@ -313,7 +312,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ...         from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             ...         to_token="0x4200000000000000000000000000000000000006",  # WETH
             ...         from_amount="100000000",  # 100 USDC
-            ...         taker=account.address,  # Can be a different address
             ...         slippage_bps=100  # 1% slippage
             ...     )
             ... )
@@ -325,7 +323,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ...     to_token="0x4200000000000000000000000000000000000006",
             ...     from_amount="100000000",
             ...     network="base",
-            ...     taker=account.address  # Or any other recipient address
+            ...     taker=account.address
             ... )
             >>> # Then execute with the quote
             >>> result = await account.swap(
@@ -354,13 +352,13 @@ class EvmServerAccount(BaseAccount, BaseModel):
         # Create an EVM client instance
         evm_client = EvmClient(self.__api_clients)
 
-        # Create the swap quote from parameters
+        # Create the swap quote from parameters, always using account address as taker
         swap_quote = await evm_client.create_swap_quote(
             from_token=options.from_token,
             to_token=options.to_token,
             from_amount=options.from_amount,
             network=options.network,
-            taker=options.taker or self.address,
+            taker=self.address,  # Always use account address as taker
             slippage_bps=options.slippage_bps,
             signer_address=self.address,  # Pass account address as signer
         )
