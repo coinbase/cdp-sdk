@@ -20,6 +20,8 @@ import {
   type RequestFaucetResult,
 } from "../../actions/evm/requestFaucet.js";
 import { sendTransaction } from "../../actions/evm/sendTransaction.js";
+import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
+import { sendSwapTransaction } from "../../actions/evm/swap/sendSwapTransaction.js";
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 
@@ -28,6 +30,13 @@ import type {
   SendTransactionOptions,
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
+import type {
+  SendSwapTransactionOptions,
+  SwapOptions,
+  SwapResult,
+  QuoteSwapOptions,
+  QuoteSwapResult,
+} from "../../actions/evm/swap/types.js";
 import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
 import type { Address, EIP712Message, Hash, Hex } from "../../types/misc.js";
 
@@ -120,6 +129,18 @@ export function toEvmServerAccount(
       options: WaitForFundOperationOptions,
     ): Promise<WaitForFundOperationResult> {
       return waitForFundOperationReceipt(apiClient, options);
+    },
+    async quoteSwap(options: QuoteSwapOptions): Promise<QuoteSwapResult> {
+      return createSwapQuote(apiClient, {
+        ...options,
+        taker: this.address,
+      });
+    },
+    async swap(options: SwapOptions): Promise<SwapResult> {
+      return sendSwapTransaction(apiClient, {
+        ...options,
+        address: this.address,
+      } as SendSwapTransactionOptions);
     },
     name: options.account.name,
     type: "evm-server",

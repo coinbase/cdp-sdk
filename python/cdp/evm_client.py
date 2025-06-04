@@ -45,7 +45,6 @@ from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageReq
 from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
-from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
 
 if TYPE_CHECKING:
@@ -555,7 +554,7 @@ class EvmClient:
         """
         account = await self.api_clients.evm_accounts.update_evm_account(
             address=address,
-            update_evm_account_request=UpdateEvmAccountRequest(
+            create_evm_account_request=CreateEvmAccountRequest(
                 name=update.name, account_policy=update.account_policy
             ),
             x_idempotency_key=idempotency_key,
