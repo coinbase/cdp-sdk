@@ -46,6 +46,20 @@ const policy = await cdp.policies.createPolicy({
           },
         ],
       },
+      {
+        action: "accept",
+        operation: "signEvmHash",
+      },
+      {
+        action: "accept",
+        operation: "signEvmMessage",
+        criteria: [
+          {
+            type: "evmMessage",
+            match: ".*",
+          },
+        ],
+      },
     ],
   },
 });

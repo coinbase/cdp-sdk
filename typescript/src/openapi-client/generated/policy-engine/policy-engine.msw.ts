@@ -12,6 +12,7 @@ import { HttpResponse, delay, http } from "msw";
 import type {
   EthValueCriterion,
   EvmAddressCriterion,
+  EvmMessageCriterion,
   EvmNetworkCriterion,
   ListPolicies200,
   Policy,
@@ -50,6 +51,13 @@ export const getListPoliciesResponseEvmNetworkCriterionMock = (
     networks: faker.helpers.arrayElements(["base-sepolia", "base"] as const),
     operator: faker.helpers.arrayElement(["in", "not in"] as const),
   },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseEvmMessageCriterionMock = (
+  overrideResponse: Partial<EvmMessageCriterion> = {},
+): EvmMessageCriterion => ({
+  ...{ type: faker.helpers.arrayElement(["evmMessage"] as const), match: faker.string.alpha(20) },
   ...overrideResponse,
 });
 
@@ -110,6 +118,18 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
               },
               {
                 action: faker.helpers.arrayElement(["reject", "accept"] as const),
+                operation: faker.helpers.arrayElement(["signEvmMessage"] as const),
+                criteria: Array.from(
+                  { length: faker.number.int({ min: 1, max: 10 }) },
+                  (_, i) => i + 1,
+                ).map(() =>
+                  faker.helpers.arrayElement([
+                    { ...getListPoliciesResponseEvmMessageCriterionMock() },
+                  ]),
+                ),
+              },
+              {
+                action: faker.helpers.arrayElement(["reject", "accept"] as const),
                 operation: faker.helpers.arrayElement(["signSolTransaction"] as const),
                 criteria: Array.from(
                   { length: faker.number.int({ min: 1, max: 10 }) },
@@ -119,6 +139,10 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
                     { ...getListPoliciesResponseSolAddressCriterionMock() },
                   ]),
                 ),
+              },
+              {
+                action: faker.helpers.arrayElement(["reject", "accept"] as const),
+                operation: faker.helpers.arrayElement(["signEvmHash"] as const),
               },
             ]),
         ),
@@ -162,6 +186,13 @@ export const getCreatePolicyResponseEvmNetworkCriterionMock = (
     networks: faker.helpers.arrayElements(["base-sepolia", "base"] as const),
     operator: faker.helpers.arrayElement(["in", "not in"] as const),
   },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseEvmMessageCriterionMock = (
+  overrideResponse: Partial<EvmMessageCriterion> = {},
+): EvmMessageCriterion => ({
+  ...{ type: faker.helpers.arrayElement(["evmMessage"] as const), match: faker.string.alpha(20) },
   ...overrideResponse,
 });
 
@@ -218,6 +249,16 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
       },
       {
         action: faker.helpers.arrayElement(["reject", "accept"] as const),
+        operation: faker.helpers.arrayElement(["signEvmMessage"] as const),
+        criteria: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() =>
+          faker.helpers.arrayElement([{ ...getCreatePolicyResponseEvmMessageCriterionMock() }]),
+        ),
+      },
+      {
+        action: faker.helpers.arrayElement(["reject", "accept"] as const),
         operation: faker.helpers.arrayElement(["signSolTransaction"] as const),
         criteria: Array.from(
           { length: faker.number.int({ min: 1, max: 10 }) },
@@ -225,6 +266,10 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
         ).map(() =>
           faker.helpers.arrayElement([{ ...getCreatePolicyResponseSolAddressCriterionMock() }]),
         ),
+      },
+      {
+        action: faker.helpers.arrayElement(["reject", "accept"] as const),
+        operation: faker.helpers.arrayElement(["signEvmHash"] as const),
       },
     ]),
   ),
@@ -265,6 +310,13 @@ export const getGetPolicyByIdResponseEvmNetworkCriterionMock = (
     networks: faker.helpers.arrayElements(["base-sepolia", "base"] as const),
     operator: faker.helpers.arrayElement(["in", "not in"] as const),
   },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseEvmMessageCriterionMock = (
+  overrideResponse: Partial<EvmMessageCriterion> = {},
+): EvmMessageCriterion => ({
+  ...{ type: faker.helpers.arrayElement(["evmMessage"] as const), match: faker.string.alpha(20) },
   ...overrideResponse,
 });
 
@@ -321,6 +373,16 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
       },
       {
         action: faker.helpers.arrayElement(["reject", "accept"] as const),
+        operation: faker.helpers.arrayElement(["signEvmMessage"] as const),
+        criteria: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() =>
+          faker.helpers.arrayElement([{ ...getGetPolicyByIdResponseEvmMessageCriterionMock() }]),
+        ),
+      },
+      {
+        action: faker.helpers.arrayElement(["reject", "accept"] as const),
         operation: faker.helpers.arrayElement(["signSolTransaction"] as const),
         criteria: Array.from(
           { length: faker.number.int({ min: 1, max: 10 }) },
@@ -328,6 +390,10 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
         ).map(() =>
           faker.helpers.arrayElement([{ ...getGetPolicyByIdResponseSolAddressCriterionMock() }]),
         ),
+      },
+      {
+        action: faker.helpers.arrayElement(["reject", "accept"] as const),
+        operation: faker.helpers.arrayElement(["signEvmHash"] as const),
       },
     ]),
   ),
@@ -368,6 +434,13 @@ export const getUpdatePolicyResponseEvmNetworkCriterionMock = (
     networks: faker.helpers.arrayElements(["base-sepolia", "base"] as const),
     operator: faker.helpers.arrayElement(["in", "not in"] as const),
   },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseEvmMessageCriterionMock = (
+  overrideResponse: Partial<EvmMessageCriterion> = {},
+): EvmMessageCriterion => ({
+  ...{ type: faker.helpers.arrayElement(["evmMessage"] as const), match: faker.string.alpha(20) },
   ...overrideResponse,
 });
 
@@ -424,6 +497,16 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
       },
       {
         action: faker.helpers.arrayElement(["reject", "accept"] as const),
+        operation: faker.helpers.arrayElement(["signEvmMessage"] as const),
+        criteria: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() =>
+          faker.helpers.arrayElement([{ ...getUpdatePolicyResponseEvmMessageCriterionMock() }]),
+        ),
+      },
+      {
+        action: faker.helpers.arrayElement(["reject", "accept"] as const),
         operation: faker.helpers.arrayElement(["signSolTransaction"] as const),
         criteria: Array.from(
           { length: faker.number.int({ min: 1, max: 10 }) },
@@ -431,6 +514,10 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
         ).map(() =>
           faker.helpers.arrayElement([{ ...getUpdatePolicyResponseSolAddressCriterionMock() }]),
         ),
+      },
+      {
+        action: faker.helpers.arrayElement(["reject", "accept"] as const),
+        operation: faker.helpers.arrayElement(["signEvmHash"] as const),
       },
     ]),
   ),

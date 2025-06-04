@@ -108,6 +108,20 @@ export const EvmNetworkCriterionSchema = z.object({
 export type EvmNetworkCriterion = z.infer<typeof EvmNetworkCriterionSchema>;
 
 /**
+ * Schema for EVM message criterions
+ */
+export const EvmMessageCriterionSchema = z.object({
+  /** The type of criterion, must be "evmMessage" for EVM message-based rules. */
+  type: z.literal("evmMessage"),
+  /**
+   * A regular expression the message is matched against.
+   * Accepts valid regular expression syntax described by [RE2](https://github.com/google/re2/wiki/Syntax).
+   */
+  match: z.string().min(1),
+});
+export type EvmMessageCriterion = z.infer<typeof EvmMessageCriterionSchema>;
+
+/**
  * Schema for Solana address criterions
  */
 export const SolAddressCriterionSchema = z.object({
@@ -139,6 +153,19 @@ export const SignEvmTransactionCriteriaSchema = z
  * Can contain up to 10 individual criterion objects of ETH value or EVM address types.
  */
 export type SignEvmTransactionCriteria = z.infer<typeof SignEvmTransactionCriteriaSchema>;
+
+/**
+ * Schema for criteria used in SignEvmMessage operations
+ */
+export const SignEvmMessageCriteriaSchema = z
+  .array(z.discriminatedUnion("type", [EvmMessageCriterionSchema]))
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the signEvmMessage operation.
+ * Can contain up to 10 individual EVM message criterion objects.
+ */
+export type SignEvmMessageCriteria = z.infer<typeof SignEvmMessageCriteriaSchema>;
 
 /**
  * Schema for criteria used in SendEvmTransaction operations
@@ -227,6 +254,47 @@ export const SignEvmTransactionRuleSchema = z.object({
 export type SignEvmTransactionRule = z.infer<typeof SignEvmTransactionRuleSchema>;
 
 /**
+ * Type representing a 'signEvmHash' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SignEvmHashRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the signing, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "signEvmHash".
+   */
+  operation: z.literal("signEvmHash"),
+});
+export type SignEvmHashRule = z.infer<typeof SignEvmHashRuleSchema>;
+
+/**
+ * Type representing a 'signEvmMessage' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SignEvmMessageRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the signing, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "signEvmMessage".
+   */
+  operation: z.literal("signEvmMessage"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SignEvmMessageCriteriaSchema,
+});
+export type SignEvmMessageRule = z.infer<typeof SignEvmMessageRuleSchema>;
+
+/**
  * Type representing a 'sendEvmTransaction' policy rule that can accept or reject specific operations
  * based on a set of criteria.
  */
@@ -277,6 +345,8 @@ export type SignSolTransactionRule = z.infer<typeof SignSolTransactionRuleSchema
  */
 export const RuleSchema = z.discriminatedUnion("operation", [
   SignEvmTransactionRuleSchema,
+  SignEvmHashRuleSchema,
+  SignEvmMessageRuleSchema,
   SendEvmTransactionRuleSchema,
   SignSolTransactionRuleSchema,
 ]);
