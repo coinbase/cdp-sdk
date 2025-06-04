@@ -1,5 +1,13 @@
 # CDP SDK Changelog
 
+## 1.13.0
+
+### Minor Changes
+
+- [#176](https://github.com/coinbase/cdp-sdk/pull/176) [`ee515c0`](https://github.com/coinbase/cdp-sdk/commit/ee515c0b9daefe92e6de178bee5cf2289ac41bfe) Thanks [@sddioulde](https://github.com/sddioulde)! - Added support for signEvmHash and signEvmMessage policy rules
+
+- [#184](https://github.com/coinbase/cdp-sdk/pull/184) [`467283c`](https://github.com/coinbase/cdp-sdk/pull/184/commits/467283ccdfb4df4f2f4d89b15c343b4756a5e0a8) Removed taker field parameter from account.swap() method
+
 ## 1.12.0
 
 ### Minor Changes
