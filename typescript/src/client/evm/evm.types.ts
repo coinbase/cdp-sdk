@@ -18,6 +18,7 @@ import type {
 } from "../../actions/evm/sendUserOperation.js";
 import type { SmartAccountActions } from "../../actions/evm/types.js";
 import type {
+  EvmSwapsNetwork,
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
@@ -38,6 +39,8 @@ export type EvmClientInterface = Omit<
   | "getEvmAccount" // mapped to getAccount
   | "getEvmAccountByName" // mapped to getAccount
   | "getEvmSmartAccount" // mapped to getSmartAccount
+  | "getEvmSwapPrice" // mapped to getSwapPrice
+  | "createEvmSwapQuote" // mapped to createSwapQuote
   | "getUserOperation"
   | "updateEvmAccount" // mapped to updateAccount
   | "listEvmAccounts" // mapped to listAccounts
@@ -59,6 +62,12 @@ export type EvmClientInterface = Omit<
   importAccount: (options: ImportServerAccountOptions) => Promise<ServerAccount>;
   getAccount: (options: GetServerAccountOptions) => Promise<ServerAccount>;
   getSmartAccount: (options: GetSmartAccountOptions) => Promise<SmartAccount>;
+  getSwapPrice: (
+    options: GetSwapPriceOptions,
+  ) => Promise<GetSwapPriceResult | SwapUnavailableResult>;
+  createSwapQuote: (
+    options: CreateSwapQuoteOptions,
+  ) => Promise<CreateSwapQuoteResult | SwapUnavailableResult>;
   getOrCreateAccount: (options: GetOrCreateServerAccountOptions) => Promise<ServerAccount>;
   getUserOperation: (options: GetUserOperationOptions) => Promise<UserOperation>;
   updateAccount: (options: UpdateEvmAccountOptions) => Promise<ServerAccount>;
@@ -78,6 +87,153 @@ export type EvmClientInterface = Omit<
 };
 
 export type { ServerAccount, SmartAccount };
+
+/**
+ * Options for creating a swap quote between two tokens on an EVM network.
+ */
+export interface CreateSwapQuoteOptions {
+  /** The network to create a swap quote on. */
+  network: EvmSwapsNetwork;
+  /** The token to receive (destination token). */
+  toToken: Address;
+  /** The token to send (source token). */
+  fromToken: Address;
+  /** The amount to send in atomic units of the token. */
+  fromAmount: bigint;
+  /** The address that will perform the swap. */
+  taker?: Address;
+  /** The signer address (only needed if taker is a smart contract). */
+  signerAddress?: Address;
+  /** The gas price in Wei. */
+  gasPrice?: bigint;
+  /** The slippage tolerance in basis points (0-10000). */
+  slippageBps?: number;
+}
+
+/**
+ * Options for getting a swap price.
+ */
+export interface GetSwapPriceOptions {
+  /** The network to get a price from. */
+  network: EvmSwapsNetwork;
+  /** The token to receive (destination token). */
+  toToken: Address;
+  /** The token to send (source token). */
+  fromToken: Address;
+  /** The amount to send in atomic units of the token. */
+  fromAmount: bigint;
+  /** The address that will perform the swap. */
+  taker: Address;
+  /** The signer address (only needed if taker is a smart contract). */
+  signerAddress?: Address;
+  /** The gas price in Wei. */
+  gasPrice?: bigint;
+  /** The slippage tolerance in basis points (0-10000). */
+  slippageBps?: number;
+}
+
+/**
+ * Result of getting a swap price.
+ */
+export interface GetSwapPriceResult {
+  /** Whether liquidity is available for the swap. */
+  liquidityAvailable: true;
+  /** The token to receive (destination token). */
+  toToken: Address;
+  /** The token to send (source token). */
+  fromToken: Address;
+  /** The amount to send in atomic units of the token. */
+  fromAmount: bigint;
+  /** The amount to receive in atomic units of the token. */
+  toAmount: bigint;
+  /** The minimum amount to receive after slippage in atomic units of the token. */
+  minToAmount: bigint;
+  /** The block number at which the liquidity conditions were examined. */
+  blockNumber: bigint;
+  /** The estimated fees for the swap. */
+  fees: SwapFees;
+  /** Potential issues discovered during validation. */
+  issues: SwapIssues;
+  /** The gas estimate for the swap. */
+  gas?: bigint;
+  /** The gas price in Wei. */
+  gasPrice?: bigint;
+}
+
+/**
+ * Result when liquidity is unavailable for a swap.
+ */
+export interface SwapUnavailableResult {
+  /** Whether liquidity is available for the swap. */
+  liquidityAvailable: false;
+}
+
+/**
+ * Options for executing a swap quote.
+ */
+export interface ExecuteSwapQuoteOptions {
+  /** Optional idempotency key for the request. */
+  idempotencyKey?: string;
+}
+
+/**
+ * Result of executing a swap quote.
+ */
+export interface ExecuteSwapQuoteResult {
+  /** The transaction hash of the executed swap. */
+  transactionHash: Hex;
+}
+
+/**
+ * Result of creating a swap quote.
+ */
+export interface CreateSwapQuoteResult {
+  /** Whether liquidity is available for the swap. */
+  liquidityAvailable: true;
+  /** The network for which this swap quote was created. */
+  network: EvmSwapsNetwork;
+  /** The token to receive (destination token). */
+  toToken: Address;
+  /** The token to send (source token). */
+  fromToken: Address;
+  /** The amount to send in atomic units of the token. */
+  fromAmount: bigint;
+  /** The amount to receive in atomic units of the token. */
+  toAmount: bigint;
+  /** The minimum amount to receive after slippage in atomic units of the token. */
+  minToAmount: bigint;
+  /** The block number at which the liquidity conditions were examined. */
+  blockNumber: bigint;
+  /** The estimated fees for the swap. */
+  fees: SwapFees;
+  /** Potential issues discovered during validation. */
+  issues: SwapIssues;
+  /** The transaction to execute the swap. */
+  transaction?: {
+    /** The contract address to send the transaction to. */
+    to: Address;
+    /** The transaction data. */
+    data: Hex;
+    /** The value to send with the transaction in Wei. */
+    value: bigint;
+    /** The gas limit for the transaction. */
+    gas: bigint;
+    /** The gas price for the transaction in Wei. */
+    gasPrice: bigint;
+  };
+  /** Permit2 data if required for the swap. */
+  permit2?: {
+    /** EIP-712 typed data for signing. */
+    eip712: EIP712Message;
+  };
+  /**
+   * Execute the swap using the quote.
+   *
+   * @param {ExecuteSwapQuoteOptions} options - Options for executing the swap.
+   * @returns {Promise<ExecuteSwapQuoteResult>} A promise that resolves to the swap execution result.
+   */
+  execute: (options?: ExecuteSwapQuoteOptions) => Promise<ExecuteSwapQuoteResult>;
+}
 
 /**
  * Options for getting a user operation.
@@ -297,7 +453,7 @@ export interface SignMessageOptions {
 }
 
 /**
- * Options for signing an EVM message.
+ * Options for signing an EVM typed data message.
  */
 export interface SignTypedDataOptions {
   /** The address of the account. */
@@ -335,6 +491,60 @@ export interface SignatureResult {
 }
 
 /**
+ * A fee in a specific token.
+ */
+export interface TokenFee {
+  /** The amount of the fee in atomic units of the token. */
+  amount: bigint;
+  /** The contract address of the token that the fee is paid in. */
+  token: Address;
+}
+
+/**
+ * The estimated fees for a swap.
+ */
+export interface SwapFees {
+  /** The estimated gas fee for the swap. */
+  gasFee?: TokenFee;
+  /** The estimated protocol fee for the swap. */
+  protocolFee?: TokenFee;
+}
+
+/**
+ * Details of allowance issues for a swap.
+ */
+export interface SwapAllowanceIssue {
+  /** The current allowance of the fromToken by the taker. */
+  currentAllowance: bigint;
+  /** The address to set the allowance on. */
+  spender: Address;
+}
+
+/**
+ * Details of balance issues for a swap.
+ */
+export interface SwapBalanceIssue {
+  /** The contract address of the token. */
+  token: Address;
+  /** The current balance of the fromToken by the taker. */
+  currentBalance: bigint;
+  /** The amount of the token that the taker must hold. */
+  requiredBalance: bigint;
+}
+
+/**
+ * Potential issues discovered during swap validation.
+ */
+export interface SwapIssues {
+  /** Details of the allowances that the taker must set. Null if no allowance is required. */
+  allowance?: SwapAllowanceIssue;
+  /** Details of the balance of the fromToken that the taker must hold. Null if sufficient balance. */
+  balance?: SwapBalanceIssue;
+  /** True when the transaction cannot be validated (e.g., insufficient balance). */
+  simulationIncomplete: boolean;
+}
+
+/**
  * Options for waiting for a user operation.
  */
 export interface WaitForUserOperationOptions {
@@ -345,3 +555,15 @@ export interface WaitForUserOperationOptions {
   /** The wait options. */
   waitOptions?: WaitOptions;
 }
+
+/**
+ * Legacy type aliases for backwards compatibility.
+ *
+ * @deprecated Use the new type names instead.
+ */
+export type CreateSwapOptions = CreateSwapQuoteOptions;
+export type CreateSwapResult = CreateSwapQuoteResult;
+export type GetSwapQuoteOptions = GetSwapPriceOptions;
+export type GetSwapQuoteResult = GetSwapPriceResult;
+export type SwapQuoteUnavailableResult = SwapUnavailableResult;
+export type SwapPriceUnavailableResult = SwapUnavailableResult;
