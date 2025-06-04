@@ -21,6 +21,10 @@ load_dotenv()
 async def main():
     """Get a swap price quote."""
     async with CdpClient() as cdp:
+        # Get or create an account to use as the taker
+        account = await cdp.evm.get_or_create_account(name="PriceCheckAccount")
+        print(f"Using account: {account.address}\n")
+        
         # Token addresses on Base
         USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
         WETH = "0x4200000000000000000000000000000000000006"
@@ -37,7 +41,8 @@ async def main():
                 from_token=USDC,
                 to_token=WETH,
                 from_amount="100000000",  # 100 USDC (6 decimals)
-                network="base"
+                network="base",
+                taker=account.address  # Address that will perform the swap
             )
             
             # Display the quote details
