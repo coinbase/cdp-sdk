@@ -688,7 +688,8 @@ price = await cdp.evm.get_swap_price(
     from_token="0x4200000000000000000000000000000000000006",  # WETH
     to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
     from_amount="1000000000000000000",  # 1 WETH (18 decimals)
-    network="base"
+    network="base",
+    taker=account.address  # Required taker parameter
 )
 print(f"Expected output: {price.to_amount} USDC")
 print(f"Price ratio: {price.price_ratio}")
