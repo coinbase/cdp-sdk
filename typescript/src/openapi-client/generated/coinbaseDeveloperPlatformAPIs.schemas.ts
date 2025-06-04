@@ -193,6 +193,281 @@ export interface EvmUserOperation {
 }
 
 /**
+ * The network on which to perform the swap.
+ */
+export type EvmSwapsNetwork = (typeof EvmSwapsNetwork)[keyof typeof EvmSwapsNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmSwapsNetwork = {
+  base: "base",
+  ethereum: "ethereum",
+} as const;
+
+/**
+ * The 0x-prefixed contract address of the token to receive.
+ * @pattern ^0x[a-fA-F0-9]{40}$
+ */
+export type ToToken = string;
+
+/**
+ * The 0x-prefixed contract address of the token to send.
+ * @pattern ^0x[a-fA-F0-9]{40}$
+ */
+export type FromToken = string;
+
+/**
+ * The amount of the `fromToken` to send in atomic units of the token. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
+ * @pattern ^\d+$
+ */
+export type FromAmount = string;
+
+/**
+ * The 0x-prefixed address that holds the `fromToken` balance and has the `Permit2` allowance set for the swap.
+ * @pattern ^0x[a-fA-F0-9]{40}$
+ */
+export type Taker = string;
+
+/**
+ * The 0x-prefixed Externally Owned Account (EOA) address that will sign the `Permit2` EIP-712 permit message. This is only needed if `taker` is a smart contract.
+ * @pattern ^0x[a-fA-F0-9]{40}$
+ */
+export type SignerAddress = string;
+
+/**
+ * The target gas price for the swap transaction, in Wei. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. If not provided, the API will use an estimate based on the current network conditions.
+ * @pattern ^\d+$
+ */
+export type GasPrice = string;
+
+/**
+ * The maximum acceptable slippage of the `toToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
+ * @minimum 0
+ * @maximum 10000
+ */
+export type SlippageBps = number;
+
+export interface TokenFee {
+  /**
+   * The estimated amount of the fee in atomic units of the `token`. For example, `1000000000000000` if the fee is in ETH equates to 0.001 ETH, `10000` if the fee is in USDC equates to 0.01 USDC, etc.
+   * @pattern ^\d+$
+   */
+  amount: string;
+  /**
+   * The contract address of the token that the fee is paid in. The address `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` is used for the native token of the network (e.g. ETH).
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  token: string;
+}
+
+/**
+ * The estimated gas fee for the swap.
+ * @nullable
+ */
+export type CommonSwapResponseFeesGasFee = TokenFee | null;
+
+/**
+ * The estimated protocol fee for the swap.
+ * @nullable
+ */
+export type CommonSwapResponseFeesProtocolFee = TokenFee | null;
+
+/**
+ * The estimated fees for the swap.
+ */
+export type CommonSwapResponseFees = {
+  /**
+   * The estimated gas fee for the swap.
+   * @nullable
+   */
+  gasFee: CommonSwapResponseFeesGasFee;
+  /**
+   * The estimated protocol fee for the swap.
+   * @nullable
+   */
+  protocolFee: CommonSwapResponseFeesProtocolFee;
+};
+
+/**
+ * Details of the allowances that the taker must set in order to execute the swap successfully. Null if no allowance is required.
+ * @nullable
+ */
+export type CommonSwapResponseIssuesAllowance = {
+  /**
+   * The current allowance of the `fromToken` by the `taker`.
+   * @pattern ^\d+$
+   */
+  currentAllowance: string;
+  /**
+   * The 0x-prefixed address of to set the allowance on.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  spender: string;
+} | null;
+
+/**
+ * Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
+ * @nullable
+ */
+export type CommonSwapResponseIssuesBalance = {
+  /**
+   * The 0x-prefixed contract address of the token.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  token: string;
+  /**
+   * The current balance of the `fromToken` by the `taker`.
+   * @pattern ^\d+$
+   */
+  currentBalance: string;
+  /**
+   * The amount of the token that the `taker` must hold.
+   * @pattern ^\d+$
+   */
+  requiredBalance: string;
+} | null;
+
+/**
+ * An object containing potential issues discovered during validation that could prevent the swap from being executed successfully.
+ */
+export type CommonSwapResponseIssues = {
+  /**
+   * Details of the allowances that the taker must set in order to execute the swap successfully. Null if no allowance is required.
+   * @nullable
+   */
+  allowance: CommonSwapResponseIssuesAllowance;
+  /**
+   * Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
+   * @nullable
+   */
+  balance: CommonSwapResponseIssuesBalance;
+  /** This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `fromToken`. Note that this does not necessarily mean that the trade will revert. */
+  simulationIncomplete: boolean;
+};
+
+export interface CommonSwapResponse {
+  /**
+   * The block number at which the liquidity conditions were examined.
+   * @pattern ^[1-9]\d*$
+   */
+  blockNumber: string;
+  /**
+   * The amount of the `toToken` that will be received in atomic units of the `toToken`. For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc.
+   * @pattern ^(0|[1-9]\d*)$
+   */
+  toAmount: string;
+  /**
+   * The 0x-prefixed contract address of the token that will be received.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  toToken: string;
+  /** The estimated fees for the swap. */
+  fees: CommonSwapResponseFees;
+  /** An object containing potential issues discovered during validation that could prevent the swap from being executed successfully. */
+  issues: CommonSwapResponseIssues;
+  /** Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false. */
+  liquidityAvailable: boolean;
+  /**
+   * The minimum amount of the `toToken` that must be received for the swap to succeed, in atomic units of the `toToken`.  For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.
+   * @pattern ^(0|[1-9]\d*)$
+   */
+  minToAmount: string;
+  /**
+   * The amount of the `fromToken` that will be sent in this swap, in atomic units of the `fromToken`. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
+   * @pattern ^(0|[1-9]\d*)$
+   */
+  fromAmount: string;
+  /**
+   * The 0x-prefixed contract address of the token that will be sent.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  fromToken: string;
+}
+
+export type GetSwapPriceResponseAllOf = {
+  /**
+   * The estimated gas limit that should be used to send the transaction to guarantee settlement.
+   * @nullable
+   * @pattern ^\d+$
+   */
+  gas: string | null;
+  /**
+   * The gas price, in Wei, that should be used to send the transaction. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. The transaction should be sent with this gas price to guarantee settlement.
+   * @pattern ^\d+$
+   */
+  gasPrice: string;
+};
+
+export type GetSwapPriceResponse = CommonSwapResponse & GetSwapPriceResponseAllOf;
+
+export interface SwapUnavailableResponse {
+  /** Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false. */
+  liquidityAvailable: boolean;
+}
+
+/**
+ * A wrapper for the response of a swap price operation.
+ */
+export type GetSwapPriceResponseWrapper = GetSwapPriceResponse | SwapUnavailableResponse;
+
+/**
+ * The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `fromToken` is the native token or the transaction is a native token wrap / unwrap.
+ * @nullable
+ */
+export type CreateSwapQuoteResponseAllOfPermit2 = {
+  /**
+   * The hash for the approval according to [EIP-712](https://eips.ethereum.org/EIPS/eip-712). Computing the hash of the `eip712` field should match the value of this field.
+   * @pattern ^0x[a-fA-F0-9]{64}$
+   */
+  hash: string;
+  eip712: EIP712Message;
+} | null;
+
+/**
+ * The details of the transaction to be signed and submitted to execute the swap.
+ */
+export type CreateSwapQuoteResponseAllOfTransaction = {
+  /**
+   * The 0x-prefixed address of the contract to call.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  to: string;
+  /** The hex-encoded call data to send to the contract. */
+  data: string;
+  /**
+   * The estimated gas limit that should be used to send the transaction to guarantee settlement.
+   * @pattern ^\d+$
+   */
+  gas: string;
+  /**
+   * The gas price, in Wei, that should be used to send the transaction. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. The transaction should be sent with this gas price to guarantee settlement.
+   * @pattern ^\d+$
+   */
+  gasPrice: string;
+  /**
+   * The value of the transaction in Wei.
+   * @pattern ^\d+$
+   */
+  value: string;
+};
+
+export type CreateSwapQuoteResponseAllOf = {
+  /**
+   * The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `fromToken` is the native token or the transaction is a native token wrap / unwrap.
+   * @nullable
+   */
+  permit2: CreateSwapQuoteResponseAllOfPermit2;
+  /** The details of the transaction to be signed and submitted to execute the swap. */
+  transaction: CreateSwapQuoteResponseAllOfTransaction;
+};
+
+export type CreateSwapQuoteResponse = CreateSwapQuoteResponseAllOf & CommonSwapResponse;
+
+/**
+ * A wrapper for the response of a swap quote operation.
+ */
+export type CreateSwapQuoteResponseWrapper = CreateSwapQuoteResponse | SwapUnavailableResponse;
+
+/**
  * The name of the supported EVM networks in human-readable format.
  */
 export type ListEvmTokenBalancesNetwork =
@@ -329,7 +604,7 @@ export interface EvmAddressCriterion {
 export type SignEvmTransactionCriteriaItem = EthValueCriterion | EvmAddressCriterion;
 
 /**
- * A schema for specifying the rejection criteria for the SignEvmTransaction operation.
+ * A schema for specifying criteria for the SignEvmTransaction operation.
  */
 export type SignEvmTransactionCriteria = SignEvmTransactionCriteriaItem[];
 
@@ -417,7 +692,7 @@ export type SendEvmTransactionCriteriaItem =
   | EvmNetworkCriterion;
 
 /**
- * A schema for specifying the rejection criteria for the SignEvmTransaction operation.
+ * A schema for specifying criteria for the SignEvmTransaction operation.
  */
 export type SendEvmTransactionCriteria = SendEvmTransactionCriteriaItem[];
 
@@ -488,7 +763,7 @@ export interface SolAddressCriterion {
 }
 
 /**
- * A schema for specifying the rejection criteria for the SignSolTransaction operation.
+ * A schema for specifying criteria for the SignSolTransaction operation.
  */
 export type SignSolTransactionCriteria = SolAddressCriterion[];
 
@@ -1015,6 +1290,57 @@ export type PrepareUserOperationBody = {
 export type SendUserOperationBody = {
   /** The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28. */
   signature: string;
+};
+
+export type GetEvmSwapPriceParams = {
+  network: EvmSwapsNetwork;
+  toToken: ToToken;
+  fromToken: FromToken;
+  fromAmount: FromAmount;
+  taker: Taker;
+  signerAddress?: SignerAddress;
+  gasPrice?: GasPrice;
+  slippageBps?: SlippageBps;
+};
+
+export type CreateEvmSwapQuoteBody = {
+  network: EvmSwapsNetwork;
+  /**
+   * The 0x-prefixed contract address of the token to receive.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  toToken: string;
+  /**
+   * The 0x-prefixed contract address of the token to send.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  fromToken: string;
+  /**
+   * The amount of the `fromToken` to send in atomic units of the token. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
+   * @pattern ^\d+$
+   */
+  fromAmount: string;
+  /**
+   * The 0x-prefixed address that holds the `fromToken` balance and has the `Permit2` allowance set for the swap.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  taker: string;
+  /**
+   * The 0x-prefixed Externally Owned Account (EOA) address that will sign the `Permit2` EIP-712 permit message. This is only needed if `taker` is a smart contract.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  signerAddress?: string;
+  /**
+   * The target gas price for the swap transaction, in Wei. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. If not provided, the API will use an estimate based on the current network conditions.
+   * @pattern ^\d+$
+   */
+  gasPrice?: string;
+  /**
+   * The maximum acceptable slippage of the `toToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
+   * @minimum 0
+   * @maximum 10000
+   */
+  slippageBps?: number;
 };
 
 export type ListEvmTokenBalancesParams = {

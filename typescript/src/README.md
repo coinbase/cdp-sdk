@@ -7,6 +7,15 @@
 - [Installation](#installation)
 - [API Keys](#api-keys)
 - [Usage](#usage)
+  - [Initialization](#initialization)
+  - [Creating Accounts](#creating-evm-or-solana-accounts)
+  - [Updating Accounts](#updating-evm-or-solana-accounts)
+  - [Testnet Faucet](#testnet-faucet)
+  - [Sending Transactions](#sending-transactions)
+  - [EVM Smart Accounts](#evm-smart-accounts)
+  - [EVM Swaps](#evm-swaps)
+  - [Transferring Tokens](#transferring-tokens)
+  - [Account Actions](#account-actions)
 - [Policy Management](#policy-management)
 - [Authentication tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
@@ -341,6 +350,114 @@ const userOperation = await cdp.sendUserOperation({
   paymasterUrl: "https://some-paymaster-url.com",
 });
 ```
+
+### EVM Swaps
+
+You can use the CDP SDK to swap tokens on EVM networks.
+
+The SDK provides three approaches for performing token swaps:
+
+#### 1. All-in-one pattern (Recommended)
+
+The simplest approach for performing swaps. Creates and executes the swap in a single line of code:
+
+```typescript
+// Retrieve an existing EVM account with funds already in it
+const account = await cdp.evm.getOrCreateAccount({ name: "MyExistingFundedAccount" });
+
+// Execute a swap directly on an EVM account in one line
+const { transactionHash } = await account.swap({
+  network: "base",
+  toToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
+  fromToken: "0x4200000000000000000000000000000000000006", // WETH on Base
+  fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+  taker: account.address,
+  slippageBps: 100, // 1% slippage tolerance
+});
+
+console.log(`Swap executed: ${transactionHash}`);
+```
+
+#### 2. Get pricing information
+
+Use `getSwapPrice` for quick price estimates and display purposes. This is ideal for showing exchange rates without committing to a swap:
+
+```typescript
+const swapPrice = await cdp.evm.getSwapPrice({
+  network: "ethereum",
+  toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+  fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+  fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+  taker: "0x1234567890123456789012345678901234567890"
+});
+
+if (swapPrice.liquidityAvailable) {
+  console.log(`You'll receive: ${swapPrice.toAmount} USDC`);
+  console.log(`Minimum after slippage: ${swapPrice.minToAmount} USDC`);
+}
+```
+
+**Note:** `getSwapPrice` does not reserve funds or signal commitment to swap, making it suitable for more frequent price updates with less strict rate limiting - although the data may be slightly less precise.
+
+#### 3. Create and execute separately
+
+Use `createSwapQuote` when you need full control over the swap process. This returns complete transaction data for execution:
+
+**Important:** `createSwapQuote` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `getSwapPrice` to prevent abuse.
+
+```typescript
+// Retrieve an existing EVM account with funds already in it
+const account = await cdp.evm.getOrCreateAccount({ name: "MyExistingFundedAccount" });
+
+// Step 1: Create a swap quote with full transaction details
+const swapQuote = await account.quoteSwap({
+  network: "base",
+  toToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+  fromToken: "0x4200000000000000000000000000000000000006", // WETH
+  fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+  slippageBps: 100, // 1% slippage tolerance
+});
+
+// Step 2: Check if liquidity is available, and/or perform other analysis on the swap quote
+if (!swapQuote.liquidityAvailable) {
+  console.error("Insufficient liquidity for swap");
+  return;
+}
+
+// Step 3: Execute using the quote (two options)
+// Option 3A: Use the execute method on the quote
+const { transactionHash } = await swapQuote.execute({});
+
+// Option 3B: Pass the quote to account.swap()
+const { transactionHash } = await account.swap({
+  swapQuote: swapQuote
+});
+```
+
+#### When to use each approach:
+
+- **All-in-one (`account.swap()`)**: Best for most use cases. Simple, handles everything automatically.
+- **Price only (`getSwapPrice`)**: For displaying exchange rates, building price calculators, or checking liquidity without executing. Suitable when frequent price updates are needed - although the data may be slightly less precise.
+- **Create then execute (`createSwapQuote`)**: When you need to inspect swap details, implement custom logic, or handle complex scenarios before execution. Note: May reserve funds on-chain and is more strictly rate-limited.
+
+All approaches handle Permit2 signatures automatically for ERC20 token swaps. Make sure tokens have proper allowances set for the Permit2 contract before swapping.
+
+#### Example implementations
+
+To help you get started with token swaps in your application, we provide the following fully-working examples demonstrating different scenarios:
+
+**Core swap patterns:**
+- [Get a swap price estimate](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/getSwapPrice.ts) - Price estimation without commitment
+- [Create a concrete swap quote for execution](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/createSwapQuote.ts) - Direct API usage with explicit taker
+- [Execute a swap transaction using CDP Wallets (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.swap.ts) - All-in-one swap execution
+
+**Account-based swap examples:**
+- [Quote swap using account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.quoteSwap.ts) - Account convenience method for creating quotes
+- [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
+
+**External wallet integration:**
+- [Execute a swap transaction using an external account (Viem)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.swap.ts) - Full swap execution with viem wallets
+- [Create swap quotes using Viem wallets](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.quoteSwap.ts) - Quote creation with external wallets
 
 ### Transferring tokens
 
