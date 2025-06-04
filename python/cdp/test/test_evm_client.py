@@ -33,7 +33,6 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
 from cdp.openapi_client.models.sign_evm_typed_data200_response import SignEvmTypedData200Response
-from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
 
 
@@ -801,7 +800,7 @@ async def test_update_account(server_account_model_factory):
 
     mock_evm_accounts_api.update_evm_account.assert_called_once_with(
         address=test_address,
-        update_evm_account_request=UpdateEvmAccountRequest(
+        create_evm_account_request=CreateEvmAccountRequest(
             name=test_name,
             account_policy=test_account_policy,
         ),

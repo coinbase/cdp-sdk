@@ -27,6 +27,11 @@ import {
   SignTypedDataOptions,
   UpdateEvmAccountOptions,
   ImportServerAccountOptions,
+  GetSwapPriceOptions,
+  CreateSwapQuoteOptions,
+  GetSwapPriceResult,
+  CreateSwapQuoteResult,
+  SwapUnavailableResult,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
@@ -47,6 +52,8 @@ import {
   SendUserOperationOptions,
   SendUserOperationReturnType,
 } from "../../actions/evm/sendUserOperation.js";
+import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
+import { getSwapPrice } from "../../actions/evm/swap/getSwapPrice.js";
 import {
   waitForUserOperation,
   WaitForUserOperationReturnType,
@@ -386,6 +393,54 @@ export class EvmClient implements EvmClientInterface {
 
       throw error;
     }
+  }
+
+  /**
+   * Gets the price for a swap between two tokens on an EVM network.
+   *
+   * @param {GetSwapPriceOptions} options - The options for getting a swap price.
+   *
+   * @returns {Promise<GetSwapPriceResult | SwapUnavailableResult>} A promise that resolves to the swap price result or a response indicating that liquidity is unavailable.
+   *
+   * @example
+   * ```typescript
+   * const price = await cdp.evm.getSwapPrice({
+   *   network: "ethereum-mainnet",
+   *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *   fromAmount: BigInt("1000000000000000000"), // 1 WETH
+   *   taker: "0x1234567890123456789012345678901234567890"
+   * });
+   * ```
+   */
+  async getSwapPrice(
+    options: GetSwapPriceOptions,
+  ): Promise<GetSwapPriceResult | SwapUnavailableResult> {
+    return getSwapPrice(CdpOpenApiClient, options);
+  }
+
+  /**
+   * Creates a quote for a swap between two tokens on an EVM network.
+   *
+   * @param {CreateSwapQuoteOptions} options - The options for creating a swap quote.
+   *
+   * @returns {Promise<CreateSwapQuoteResult | SwapUnavailableResult>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
+   *
+   * @example
+   * ```typescript
+   * const swapQuote = await cdp.evm.createSwapQuote({
+   *   network: "ethereum",
+   *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *   fromAmount: BigInt("1000000000000000000"), // 1 WETH
+   *   taker: "0x1234567890123456789012345678901234567890"
+   * });
+   * ```
+   */
+  async createSwapQuote(
+    options: CreateSwapQuoteOptions,
+  ): Promise<CreateSwapQuoteResult | SwapUnavailableResult> {
+    return createSwapQuote(CdpOpenApiClient, options);
   }
 
   /**
