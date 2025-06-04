@@ -63,7 +63,7 @@ async function main() {
       fromToken: fromToken.address as Address,
       fromAmount: parseEther("0.1"), // 0.1 WETH in wei
       taker: ownerAccount.address,
-    }) as any;
+    });
 
     // Check for liquidity
     if (!swapPrice.liquidityAvailable) {

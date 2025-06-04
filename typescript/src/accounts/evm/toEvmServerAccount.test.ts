@@ -289,6 +289,7 @@ describe("toEvmServerAccount", () => {
     expect(sendSwapTransaction).toHaveBeenCalledWith(mockApiClient, {
       ...swapOptions,
       address: mockAddress,
+      taker: mockAddress,
     });
 
     expect(result).toEqual({ transactionHash: "0xswaptransactionhash" });
