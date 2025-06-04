@@ -254,6 +254,7 @@ export type AccountActions = Actions & {
   /**
    * Creates a swap quote without executing the transaction.
    * This is useful when you need to get swap details before executing the swap.
+   * The taker is automatically set to the account's address.
    *
    * @param {QuoteSwapOptions} options - Configuration options for creating the swap quote.
    * @param {string} options.network - The network to create the quote on

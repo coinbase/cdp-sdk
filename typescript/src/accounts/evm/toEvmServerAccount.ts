@@ -133,7 +133,7 @@ export function toEvmServerAccount(
     async quoteSwap(options: QuoteSwapOptions): Promise<QuoteSwapResult> {
       return createSwapQuote(apiClient, {
         ...options,
-        taker: options.taker || this.address,
+        taker: this.address,
       });
     },
     async swap(options: SwapOptions): Promise<SwapResult> {

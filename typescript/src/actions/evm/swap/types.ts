@@ -76,7 +76,7 @@ export interface SendSwapTransactionResult {
 /**
  * Options for creating a swap quote (account-level).
  */
-export type QuoteSwapOptions = CreateSwapQuoteOptions;
+export type QuoteSwapOptions = Omit<CreateSwapQuoteOptions, "taker">;
 
 /**
  * Result of creating a swap quote (account-level).
