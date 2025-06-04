@@ -42,7 +42,7 @@ async def main():
                 to_token=WETH,
                 from_amount="100000000",  # 100 USDC (6 decimals)
                 network="base",
-                taker=account.address  # Address that will perform the swap
+                taker=account.address  # Address where the from_token balance is located
             )
             
             # Display the quote details
