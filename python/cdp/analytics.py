@@ -1,3 +1,4 @@
+import asyncio
 import contextlib
 import functools
 import hashlib
@@ -84,6 +85,35 @@ async def send_event(event: EventData) -> None:
     )
 
 
+def _run_async_in_sync(coroutine):
+    """Run an async coroutine in a sync context.
+
+    Args:
+        coroutine: The coroutine to run
+
+    Returns:
+        Any: The result of the coroutine, or None if it fails
+
+    """
+    try:
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        # Check if loop is already running (e.g., in Jupyter notebooks)
+        if loop.is_running():
+            # We can't run the coroutine in an already running loop
+            # This is a limitation of asyncio, so we skip analytics
+            return None
+
+        return loop.run_until_complete(coroutine)
+    except Exception:
+        # If anything goes wrong, silently fail to avoid breaking the SDK
+        return None
+
+
 def wrap_with_error_tracking(func):
     """Wrap a method with error tracking.
 
@@ -94,28 +124,53 @@ def wrap_with_error_tracking(func):
         The wrapped function.
 
     """
+    if inspect.iscoroutinefunction(func):
+        # Original function is async
+        @functools.wraps(func)
+        async def async_wrapper(*args, **kwargs):
+            try:
+                return await func(*args, **kwargs)
+            except Exception as error:
+                if not should_track_error(error):
+                    raise error
 
-    @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
-        try:
-            return await func(*args, **kwargs)
-        except Exception as error:
-            if not should_track_error(error):
+                event_data = ErrorEventData(
+                    method=func.__name__,
+                    message=str(error),
+                    stack=traceback.format_exc(),
+                    name="error",
+                )
+
+                with contextlib.suppress(Exception):
+                    await send_event(event_data)
+
                 raise error
 
-            event_data = ErrorEventData(
-                method=func.__name__,
-                message=str(error),
-                stack=traceback.format_exc(),
-                name="error",
-            )
+        return async_wrapper
+    else:
+        # Original function is sync
+        @functools.wraps(func)
+        def sync_wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as error:
+                if not should_track_error(error):
+                    raise error
 
-            with contextlib.suppress(Exception):
-                await send_event(event_data)
+                event_data = ErrorEventData(
+                    method=func.__name__,
+                    message=str(error),
+                    stack=traceback.format_exc(),
+                    name="error",
+                )
 
-            raise error
+                # Try to send analytics event from sync context
+                with contextlib.suppress(Exception):
+                    _run_async_in_sync(send_event(event_data))
 
-    return wrapper
+                raise error
+
+        return sync_wrapper
 
 
 def wrap_class_with_error_tracking(cls):

@@ -1,6 +1,6 @@
 import base64
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any, Union
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -12,6 +12,10 @@ from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.actions.evm.send_user_operation import send_user_operation
+from cdp.actions.evm.swap import (
+    create_swap_quote as swap_create_swap_quote,
+    get_swap_price as swap_get_swap_price,
+)
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.analytics import wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
@@ -41,7 +45,11 @@ from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageReq
 from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
+from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
+
+if TYPE_CHECKING:
+    from cdp.actions.evm.swap.types import QuoteSwapResult, SwapQuote, SwapUnavailableResult
 
 
 class EvmClient:
@@ -547,7 +555,7 @@ class EvmClient:
         """
         account = await self.api_clients.evm_accounts.update_evm_account(
             address=address,
-            create_evm_account_request=CreateEvmAccountRequest(
+            update_evm_account_request=UpdateEvmAccountRequest(
                 name=update.name, account_policy=update.account_policy
             ),
             x_idempotency_key=idempotency_key,
@@ -579,4 +587,94 @@ class EvmClient:
             user_op_hash,
             timeout_seconds,
             interval_seconds,
+        )
+
+    async def get_swap_price(
+        self,
+        from_token: str,
+        to_token: str,
+        from_amount: str | int,
+        network: str,
+    ) -> "SwapQuote":
+        """Get a swap price for swapping tokens.
+
+        Args:
+            from_token (str): The contract address of the token to swap from.
+            to_token (str): The contract address of the token to swap to.
+            from_amount (str | int): The amount to swap from (in smallest unit or as string).
+            network (str): The network to get the price for.
+
+        Returns:
+            SwapQuote: The swap price with estimated output amount.
+
+        """
+        return await swap_get_swap_price(
+            self.api_clients,
+            from_token,
+            to_token,
+            from_amount,
+            network,
+        )
+
+    async def create_swap_quote(
+        self,
+        from_token: str,
+        to_token: str,
+        from_amount: str | int,
+        network: str,
+        taker: str,
+        slippage_bps: int | None = None,
+        signer_address: str | None = None,
+    ) -> Union["QuoteSwapResult", "SwapUnavailableResult"]:
+        """Create a swap quote with transaction data.
+
+        This method follows the OpenAPI spec field names.
+
+        Args:
+            from_token (str): The contract address of the token to swap from.
+            to_token (str): The contract address of the token to swap to.
+            from_amount (str | int): The amount to swap from (in smallest unit).
+            network (str): The network to create the swap on.
+            taker (str): The address that will execute the swap.
+            slippage_bps (int, optional): The maximum slippage in basis points (100 = 1%).
+            signer_address (str, optional): The address that will sign the transaction (for smart accounts).
+
+        Returns:
+            Union[QuoteSwapResult, SwapUnavailableResult]: The swap quote with transaction data or SwapUnavailableResult if liquidity is insufficient.
+
+        Examples:
+            **Using individual parameters**:
+            ```python
+            quote = await cdp.evm.create_swap_quote(
+                from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+                to_token="0x4200000000000000000000000000000000000006",  # WETH
+                from_amount="100000000",  # 100 USDC
+                network="base",
+                taker=account.address,
+                slippage_bps=100  # 1%
+            )
+            ```
+
+            **With signer address for smart accounts**:
+            ```python
+            quote = await cdp.evm.create_swap_quote(
+                from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+                to_token="0x4200000000000000000000000000000000000006",  # WETH
+                from_amount="100000000",
+                network="base",
+                taker=smart_account.address,
+                signer_address=owner.address  # Owner signs for smart account
+            )
+            ```
+
+        """
+        return await swap_create_swap_quote(
+            self.api_clients,
+            from_token,
+            to_token,
+            from_amount,
+            network,
+            taker,
+            slippage_bps,
+            signer_address,
         )
