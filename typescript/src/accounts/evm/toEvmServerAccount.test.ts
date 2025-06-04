@@ -1,12 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toEvmServerAccount } from "./toEvmServerAccount.js";
 import { EvmAccount, EvmServerAccount } from "./types.js";
-import { Address, Hash } from "../../types/misc.js";
+import { Address, Hash, Hex } from "../../types/misc.js";
 import { parseUnits, Transaction } from "viem";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
 import { CdpOpenApiClientType, PaymentMethod, Transfer } from "../../openapi-client/index.js";
 import { TransferOptions } from "../../actions/evm/transfer/types.js";
+import { sendSwapTransaction } from "../../actions/evm/swap/sendSwapTransaction.js";
+import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
+import { SwapOptions } from "../../actions/evm/types.js";
 
 vi.mock("viem", async () => {
   const actual = await vi.importActual("viem");
@@ -19,6 +22,42 @@ vi.mock("viem", async () => {
 vi.mock("../../actions/evm/transfer/transfer.js", () => ({
   ...vi.importActual("../../actions/evm/transfer/transfer.js"),
   transfer: vi.fn().mockResolvedValue({ transactionHash: "0xmocktransactionhash" }),
+}));
+
+vi.mock("../../actions/evm/swap/sendSwapTransaction.js", () => ({
+  sendSwapTransaction: vi.fn().mockResolvedValue({ transactionHash: "0xswaptransactionhash" }),
+}));
+
+vi.mock("../../actions/evm/swap/createSwapQuote.js", () => ({
+  createSwapQuote: vi.fn().mockResolvedValue({
+    liquidityAvailable: true,
+    network: "base",
+    toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    fromAmount: BigInt("1000000000000000000"),
+    toAmount: BigInt("5000000000"),
+    minToAmount: BigInt("4950000000"),
+    blockNumber: BigInt("12345678"),
+    fees: {
+      gasFee: undefined,
+      protocolFee: undefined,
+    },
+    issues: {
+      allowance: undefined,
+      balance: undefined,
+      simulationIncomplete: false,
+    },
+    gas: BigInt("300000"),
+    gasPrice: BigInt("1500000000"),
+    transaction: {
+      to: "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+      data: "0x12345678",
+      gas: "300000",
+      value: "0",
+    },
+    permit2: undefined,
+    execute: vi.fn(),
+  }),
 }));
 
 describe("toEvmServerAccount", () => {
@@ -103,6 +142,8 @@ describe("toEvmServerAccount", () => {
       signMessage: expect.any(Function),
       signTransaction: expect.any(Function),
       signTypedData: expect.any(Function),
+      swap: expect.any(Function),
+      quoteSwap: expect.any(Function),
       transfer: expect.any(Function),
       type: "evm-server",
       waitForFundOperationReceipt: expect.any(Function),
@@ -148,7 +189,7 @@ describe("toEvmServerAccount", () => {
       domain: {
         name: "EIP712Domain",
         chainId: 1,
-        verifyingContract: "0x0000000000000000000000000000000000000000",
+        verifyingContract: "0x0000000000000000000000000000000000000000" as `0x${string}`,
       },
       types: {
         EIP712Domain: [
@@ -173,7 +214,7 @@ describe("toEvmServerAccount", () => {
   it("should call transfer action when transfer is called", async () => {
     const transferArgs: TransferOptions = {
       to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d" as Address,
-      amount: "0.000001",
+      amount: parseUnits("0.000001", 6),
       token: "usdc",
       network: "base-sepolia",
     };
@@ -186,6 +227,117 @@ describe("toEvmServerAccount", () => {
       transferArgs,
       accountTransferStrategy,
     );
+  });
+
+  it("should call sendSwapTransaction when swap is called", async () => {
+    const swapOptions = {
+      network: "base",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" as Address,
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
+      fromAmount: BigInt("1000000000000000000"),
+      taker: mockAddress,
+    } as SwapOptions;
+
+    const result = await serverAccount.swap(swapOptions);
+
+    expect(sendSwapTransaction).toHaveBeenCalledWith(mockApiClient, {
+      ...swapOptions,
+      address: mockAddress,
+    });
+
+    expect(result).toEqual({ transactionHash: "0xswaptransactionhash" });
+  });
+
+  it("should call sendSwapTransaction with pre-created swap quote", async () => {
+    const mockSwapQuote = {
+      liquidityAvailable: true,
+      network: "base",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" as Address,
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
+      fromAmount: BigInt("1000000000000000000"),
+      toAmount: BigInt("5000000000"),
+      minToAmount: BigInt("4950000000"),
+      blockNumber: BigInt("12345678"),
+      fees: {
+        gasFee: undefined,
+        protocolFee: undefined,
+      },
+      issues: {
+        allowance: undefined,
+        balance: undefined,
+        simulationIncomplete: false,
+      },
+      gas: BigInt("300000"),
+      gasPrice: BigInt("1500000000"),
+      transaction: {
+        to: "0x000000000022D473030F116dDEE9F6B43aC78BA3" as Address,
+        data: "0x12345678" as Hex,
+        gas: "300000",
+        value: "0",
+      },
+      permit2: undefined,
+      execute: vi.fn(),
+    };
+
+    const swapOptions = {
+      network: "base", // Network is still required for backward compatibility
+      swapQuote: mockSwapQuote,
+    } as SwapOptions;
+
+    const result = await serverAccount.swap(swapOptions);
+
+    expect(sendSwapTransaction).toHaveBeenCalledWith(mockApiClient, {
+      ...swapOptions,
+      address: mockAddress,
+    });
+
+    expect(result).toEqual({ transactionHash: "0xswaptransactionhash" });
+  });
+
+  it("should call createSwapQuote when quoteSwap is called", async () => {
+    const quoteOptions = {
+      network: "base",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" as Address,
+      fromAmount: BigInt("1000000000000000000"),
+    };
+
+    const result = await serverAccount.quoteSwap(quoteOptions);
+
+    expect(createSwapQuote).toHaveBeenCalledWith(mockApiClient, {
+      ...quoteOptions,
+      taker: mockAddress,
+    });
+
+    expect(result).toEqual({
+      liquidityAvailable: true,
+      network: "base",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: BigInt("1000000000000000000"),
+      toAmount: BigInt("5000000000"),
+      minToAmount: BigInt("4950000000"),
+      blockNumber: BigInt("12345678"),
+      fees: {
+        gasFee: undefined,
+        protocolFee: undefined,
+      },
+      issues: {
+        allowance: undefined,
+        balance: undefined,
+        simulationIncomplete: false,
+      },
+      gas: BigInt("300000"),
+      gasPrice: BigInt("1500000000"),
+      transaction: {
+        to: "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+        data: "0x12345678",
+        gas: "300000",
+        value: "0",
+      },
+      permit2: undefined,
+      execute: expect.any(Function),
+    });
   });
 
   it("should call apiClient payment APIs when quoteFund is called", async () => {
