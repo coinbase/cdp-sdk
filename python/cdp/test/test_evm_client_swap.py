@@ -59,6 +59,7 @@ class TestGetSwapPrice:
             to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             from_amount="1000000000000000000",
             network="base",
+            taker="0x1234567890123456789012345678901234567890",  # Test account address
         )
 
         # Verify price
@@ -101,6 +102,7 @@ class TestGetSwapPrice:
             to_token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
             from_amount="1000000000",
             network="ethereum",
+            taker="0x1234567890123456789012345678901234567890",  # Test account address
         )
 
         # Verify
@@ -126,6 +128,7 @@ class TestGetSwapPrice:
                 to_token="0x036CbD53842c5426634e7929541eC2318f3dCF7e",  # USDC contract address
                 from_amount="1000000000000000000000",  # Very large amount
                 network="base",
+                taker="0x1234567890123456789012345678901234567890",  # Test account address
             )
 
 

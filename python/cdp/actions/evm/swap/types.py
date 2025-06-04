@@ -140,6 +140,9 @@ class SwapOptions(BaseModel):
     Must contain EITHER:
     - Direct swap parameters (network, from_token, to_token, etc.)
     - A pre-created swap quote (swap_quote)
+
+    Note: For account.swap(), the taker is always the account address.
+    For global methods, use create_swap_quote() which requires explicit taker.
     """
 
     # Direct swap parameters
@@ -147,7 +150,6 @@ class SwapOptions(BaseModel):
     from_token: str | None = Field(default=None, description="The token address to swap from")
     to_token: str | None = Field(default=None, description="The token address to swap to")
     from_amount: str | int | None = Field(default=None, description="The amount to swap from")
-    taker: str | None = Field(default=None, description="The address that will execute the swap")
     slippage_bps: int | None = Field(
         default=None, description="Maximum slippage in basis points (100 = 1%)"
     )
@@ -163,8 +165,7 @@ class SwapOptions(BaseModel):
 
         # Check if we have direct parameters
         has_direct_params = all(
-            x is not None
-            for x in [self.network, self.from_token, self.to_token, self.from_amount, self.taker]
+            x is not None for x in [self.network, self.from_token, self.to_token, self.from_amount]
         )
 
         # Check if we have swap quote
@@ -173,7 +174,7 @@ class SwapOptions(BaseModel):
         if not has_direct_params and not has_swap_quote:
             raise ValueError(
                 "SwapOptions must contain either direct swap parameters "
-                "(network, from_token, to_token, from_amount, taker) or a swap_quote"
+                "(network, from_token, to_token, from_amount) or a swap_quote"
             )
 
         if has_direct_params and has_swap_quote:

@@ -67,6 +67,7 @@ async def get_swap_price(
     to_token: str,
     from_amount: str | int,
     network: str,
+    taker: str,
 ) -> SwapQuote:
     """Get a swap price for swapping tokens.
 
@@ -76,6 +77,7 @@ async def get_swap_price(
         to_token: The contract address of the token to swap to
         from_amount: The amount to swap from (in smallest unit or as string)
         network: The network to get the price for
+        taker: The address that will perform the swap
 
     Returns:
         SwapQuote: The swap price with estimated output amount
@@ -97,7 +99,7 @@ async def get_swap_price(
         to_token=to_address,
         from_token=from_address,
         from_amount=amount_str,
-        taker="0x0000000000000000000000000000000000010000",  # Valid placeholder address
+        taker=taker,
     )
 
     # Read and parse the response manually

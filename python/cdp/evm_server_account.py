@@ -295,11 +295,10 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
         Args:
             options: The swap options. Must be a SwapOptions instance containing either:
-                - Direct swap parameters (network, from_token, to_token, from_amount, taker, slippage_bps)
+                - Direct swap parameters (network, from_token, to_token, from_amount, slippage_bps)
                 - A pre-created swap quote (swap_quote)
 
-                Note: The taker parameter allows specifying a different recipient address.
-                In the future, a signer_address parameter will support smart accounts.
+                Note: The account address is always used as the taker.
 
         Returns:
             SwapResult: The result of the swap transaction.
@@ -313,7 +312,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ...         from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             ...         to_token="0x4200000000000000000000000000000000000006",  # WETH
             ...         from_amount="100000000",  # 100 USDC
-            ...         taker=account.address,  # Can be a different address
             ...         slippage_bps=100  # 1% slippage
             ...     )
             ... )
@@ -325,7 +323,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ...     to_token="0x4200000000000000000000000000000000000006",
             ...     from_amount="100000000",
             ...     network="base",
-            ...     taker=account.address  # Or any other recipient address
+            ...     taker=account.address
             ... )
             >>> # Then execute with the quote
             >>> result = await account.swap(
@@ -354,13 +352,13 @@ class EvmServerAccount(BaseAccount, BaseModel):
         # Create an EVM client instance
         evm_client = EvmClient(self.__api_clients)
 
-        # Create the swap quote from parameters
+        # Create the swap quote from parameters, always using account address as taker
         swap_quote = await evm_client.create_swap_quote(
             from_token=options.from_token,
             to_token=options.to_token,
             from_amount=options.from_amount,
             network=options.network,
-            taker=options.taker or self.address,
+            taker=self.address,  # Always use account address as taker
             slippage_bps=options.slippage_bps,
             signer_address=self.address,  # Pass account address as signer
         )
@@ -384,13 +382,12 @@ class EvmServerAccount(BaseAccount, BaseModel):
         from_amount: str | int,
         network: str,
         slippage_bps: int | None = None,
-        taker: str | None = None,
         signer_address: str | None = None,
     ) -> "QuoteSwapResult":
         """Get a quote for swapping tokens.
 
         This is a convenience method that calls the underlying create_swap_quote
-        with the specified or account's address as the taker.
+        with the account's address as the taker.
 
         Args:
             from_token: The contract address of the token to swap from
@@ -398,14 +395,13 @@ class EvmServerAccount(BaseAccount, BaseModel):
             from_amount: The amount to swap from (in smallest unit)
             network: The network to execute the swap on
             slippage_bps: Maximum slippage in basis points (100 = 1%). Defaults to 100.
-            taker: The address that will receive the swap output. Defaults to the account's address.
             signer_address: The address that will sign the transaction (for smart accounts). Currently unused.
 
         Returns:
             QuoteSwapResult: The swap quote with transaction data
 
         Examples:
-            >>> # Get a quote for swapping USDC to WETH (default taker is account)
+            >>> # Get a quote for swapping USDC to WETH (account as taker)
             >>> quote = await account.quote_swap(
             ...     from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             ...     to_token="0x4200000000000000000000000000000000000006",  # WETH
@@ -413,15 +409,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ...     network="base"
             ... )
             >>> print(f"Expected output: {quote.to_amount}")
-            >>>
-            >>> # Get a quote with custom taker address
-            >>> quote = await account.quote_swap(
-            ...     from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            ...     to_token="0x4200000000000000000000000000000000000006",
-            ...     from_amount="100000000",
-            ...     network="base",
-            ...     taker="0x9F663335Cd6Ad02a37B633602E98866CF944124d"  # Different recipient
-            ... )
             >>>
             >>> # Execute the quote if satisfied
             >>> result = await account.swap(SwapOptions(swap_quote=quote))
@@ -432,16 +419,13 @@ class EvmServerAccount(BaseAccount, BaseModel):
         # Create an EVM client instance
         evm_client = EvmClient(self.__api_clients)
 
-        # Use provided taker or default to account address
-        swap_taker = taker if taker is not None else self.address
-
-        # Call create_swap_quote with the specified taker
+        # Call create_swap_quote with the account address as taker
         return await evm_client.create_swap_quote(
             from_token=from_token,
             to_token=to_token,
             from_amount=from_amount,
             network=network,
-            taker=swap_taker,
+            taker=self.address,
             slippage_bps=slippage_bps,
             signer_address=signer_address,
         )

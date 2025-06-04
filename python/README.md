@@ -671,7 +671,6 @@ async with CdpClient() as cdp:
             from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             to_token="0x4200000000000000000000000000000000000006",  # WETH
             from_amount="100000000",  # 100 USDC (6 decimals)
-            taker=account.address,
             slippage_bps=100  # 1% slippage
         )
     )
@@ -688,7 +687,8 @@ price = await cdp.evm.get_swap_price(
     from_token="0x4200000000000000000000000000000000000006",  # WETH
     to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
     from_amount="1000000000000000000",  # 1 WETH (18 decimals)
-    network="base"
+    network="base",
+    taker=account.address  # Required taker parameter
 )
 print(f"Expected output: {price.to_amount} USDC")
 print(f"Price ratio: {price.price_ratio}")
@@ -731,23 +731,13 @@ else:
 Use `account.quote_swap()` to automatically set the account as taker:
 
 ```python
-# Create quote with account as taker (default)
+# Create quote with account as taker
 quote = await account.quote_swap(
     from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
     to_token="0x4200000000000000000000000000000000000006",  # WETH
     from_amount="100000000",
     network="base",
     slippage_bps=100
-)
-
-# Create quote with custom taker address
-quote = await account.quote_swap(
-    from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-    to_token="0x4200000000000000000000000000000000000006",  # WETH
-    from_amount="100000000",
-    network="base",
-    slippage_bps=100,
-    taker="0x9F663335Cd6Ad02a37B633602E98866CF944124d"  # Different recipient
 )
 
 # Execute directly on the quote
@@ -1059,4 +1049,5 @@ For feature requests, feedback, or questions, please reach out to us in the
 ## Security
 
 If you discover a security vulnerability within this SDK, please see our [Security Policy](https://github.com/coinbase/cdp-sdk/tree/main/SECURITY.md) for disclosure information.
+
 

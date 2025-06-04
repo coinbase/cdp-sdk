@@ -594,6 +594,7 @@ class EvmClient:
         to_token: str,
         from_amount: str | int,
         network: str,
+        taker: str,
     ) -> "SwapQuote":
         """Get a swap price for swapping tokens.
 
@@ -602,6 +603,7 @@ class EvmClient:
             to_token (str): The contract address of the token to swap to.
             from_amount (str | int): The amount to swap from (in smallest unit or as string).
             network (str): The network to get the price for.
+            taker (str): The address that will perform the swap.
 
         Returns:
             SwapQuote: The swap price with estimated output amount.
@@ -613,6 +615,7 @@ class EvmClient:
             to_token,
             from_amount,
             network,
+            taker,
         )
 
     async def create_swap_quote(
