@@ -15,12 +15,22 @@
 
 
 # import models into model package
+from cdp.openapi_client.models.common_swap_response import CommonSwapResponse
+from cdp.openapi_client.models.common_swap_response_fees import CommonSwapResponseFees
+from cdp.openapi_client.models.common_swap_response_issues import CommonSwapResponseIssues
+from cdp.openapi_client.models.common_swap_response_issues_allowance import CommonSwapResponseIssuesAllowance
+from cdp.openapi_client.models.common_swap_response_issues_balance import CommonSwapResponseIssuesBalance
 from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccountRequest
 from cdp.openapi_client.models.create_evm_smart_account_request import CreateEvmSmartAccountRequest
+from cdp.openapi_client.models.create_evm_swap_quote_request import CreateEvmSwapQuoteRequest
 from cdp.openapi_client.models.create_payment_transfer_quote201_response import CreatePaymentTransferQuote201Response
 from cdp.openapi_client.models.create_payment_transfer_quote_request import CreatePaymentTransferQuoteRequest
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.create_solana_account_request import CreateSolanaAccountRequest
+from cdp.openapi_client.models.create_swap_quote_response import CreateSwapQuoteResponse
+from cdp.openapi_client.models.create_swap_quote_response_all_of_permit2 import CreateSwapQuoteResponseAllOfPermit2
+from cdp.openapi_client.models.create_swap_quote_response_all_of_transaction import CreateSwapQuoteResponseAllOfTransaction
+from cdp.openapi_client.models.create_swap_quote_response_wrapper import CreateSwapQuoteResponseWrapper
 from cdp.openapi_client.models.crypto_rail import CryptoRail
 from cdp.openapi_client.models.crypto_rail_address import CryptoRailAddress
 from cdp.openapi_client.models.crypto_rail_networks_inner import CryptoRailNetworksInner
@@ -35,8 +45,11 @@ from cdp.openapi_client.models.evm_call import EvmCall
 from cdp.openapi_client.models.evm_message_criterion import EvmMessageCriterion
 from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount
+from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
 from cdp.openapi_client.models.fee import Fee
+from cdp.openapi_client.models.get_swap_price_response import GetSwapPriceResponse
+from cdp.openapi_client.models.get_swap_price_response_wrapper import GetSwapPriceResponseWrapper
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.list_evm_accounts200_response import ListEvmAccounts200Response
 from cdp.openapi_client.models.list_evm_smart_accounts200_response import ListEvmSmartAccounts200Response
@@ -83,11 +96,14 @@ from cdp.openapi_client.models.sign_solana_transaction200_response import SignSo
 from cdp.openapi_client.models.sign_solana_transaction_request import SignSolanaTransactionRequest
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
 from cdp.openapi_client.models.solana_account import SolanaAccount
+from cdp.openapi_client.models.swap_unavailable_response import SwapUnavailableResponse
 from cdp.openapi_client.models.token import Token
 from cdp.openapi_client.models.token_amount import TokenAmount
 from cdp.openapi_client.models.token_balance import TokenBalance
+from cdp.openapi_client.models.token_fee import TokenFee
 from cdp.openapi_client.models.transfer import Transfer
 from cdp.openapi_client.models.transfer_source import TransferSource
 from cdp.openapi_client.models.transfer_target import TransferTarget
+from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
