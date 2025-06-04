@@ -117,7 +117,7 @@ export const EvmMessageCriterionSchema = z.object({
    * A regular expression the message is matched against.
    * Accepts valid regular expression syntax described by [RE2](https://github.com/google/re2/wiki/Syntax).
    */
-  match: z.string(),
+  match: z.string().min(1),
 });
 export type EvmMessageCriterion = z.infer<typeof EvmMessageCriterionSchema>;
 
