@@ -119,7 +119,6 @@ async function main() {
         toToken: toToken.address as Address,
         fromToken: fromToken.address as Address,
         fromAmount,
-        taker: ownerAccount.address,
         slippageBps: 100, // 1% slippage tolerance
       });
 

@@ -84,9 +84,52 @@ export type QuoteSwapOptions = Omit<CreateSwapQuoteOptions, "taker">;
 export type QuoteSwapResult = CreateSwapQuoteResult | SwapUnavailableResult;
 
 /**
- * Options for executing a token swap (account-level).
+ * Options when providing an already created swap quote (account-level).
  */
-export type SwapOptions = Omit<SendSwapTransactionOptions, "address">;
+interface AccountQuoteBasedSwapOptions {
+  /**
+   * The swap quote returned by the createSwapQuote method.
+   */
+  swapQuote: CreateSwapQuoteResult;
+
+  /**
+   * Optional idempotency key for the request.
+   */
+  idempotencyKey?: string;
+}
+
+/**
+ * Options when creating a swap quote inline (account-level).
+ */
+interface AccountInlineSwapOptions {
+  /**
+   * The network to execute the swap on (e.g., "ethereum", "base").
+   */
+  network: SendEvmTransactionBodyNetwork;
+  /** The token to receive (destination token). */
+  toToken: Address;
+  /** The token to send (source token). */
+  fromToken: Address;
+  /** The amount to send in atomic units of the token. */
+  fromAmount: bigint;
+  /** The signer address (only needed if taker is a smart contract). */
+  signerAddress?: Address;
+  /** The gas price in Wei. */
+  gasPrice?: bigint;
+  /** The slippage tolerance in basis points (0-10000). */
+  slippageBps?: number;
+
+  /**
+   * Optional idempotency key for the request.
+   */
+  idempotencyKey?: string;
+}
+
+/**
+ * Options for executing a token swap (account-level).
+ * The taker is automatically set to the account's address.
+ */
+export type SwapOptions = AccountQuoteBasedSwapOptions | AccountInlineSwapOptions;
 
 /**
  * Result of executing a token swap (account-level).

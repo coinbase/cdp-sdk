@@ -371,7 +371,6 @@ const { transactionHash } = await account.swap({
   toToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
   fromToken: "0x4200000000000000000000000000000000000006", // WETH on Base
   fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
-  taker: account.address,
   slippageBps: 100, // 1% slippage tolerance
 });
 

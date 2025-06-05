@@ -31,7 +31,6 @@ import type {
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
 import type {
-  SendSwapTransactionOptions,
   SwapOptions,
   SwapResult,
   QuoteSwapOptions,
@@ -140,7 +139,8 @@ export function toEvmServerAccount(
       return sendSwapTransaction(apiClient, {
         ...options,
         address: this.address,
-      } as SendSwapTransactionOptions);
+        taker: this.address, // Always use account's address as taker
+      });
     },
     name: options.account.name,
     type: "evm-server",
