@@ -13,7 +13,16 @@ import { Hex } from "../../types/misc.js";
 import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTokenBalances.js";
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
 import type { SendTransactionOptions, TransactionResult } from "./sendTransaction.js";
-import type { SwapOptions, SwapResult, QuoteSwapOptions, QuoteSwapResult } from "./swap/types.js";
+import type {
+  SwapOptions,
+  SwapResult,
+  QuoteSwapOptions,
+  QuoteSwapResult,
+  SmartAccountSwapOptions,
+  SmartAccountSwapResult,
+  SmartAccountQuoteSwapOptions,
+  SmartAccountQuoteSwapResult,
+} from "./swap/types.js";
 import type { TransferOptions } from "./transfer/types.js";
 import type {
   WaitForUserOperationOptions,
@@ -330,7 +339,6 @@ export type AccountActions = Actions & {
    *   buyToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
    *   sellToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
    *   sellAmount: BigInt("1000000000000000000"), // 1 WETH in wei
-   *   taker: account.address
    * });
    *
    * console.log(`Swap executed with transaction hash: ${transactionHash}`);
@@ -499,4 +507,91 @@ export type SmartAccountActions = Actions & {
   getUserOperation: (
     options: Omit<GetUserOperationOptions, "smartAccount">,
   ) => Promise<UserOperation>;
+
+  /**
+   * Creates a swap quote without executing the transaction.
+   * This is useful when you need to get swap details before executing the swap.
+   * The taker is automatically set to the smart account's address.
+   *
+   * @param {SmartAccountQuoteSwapOptions} options - Configuration options for creating the swap quote.
+   * @param {string} options.network - The network to create the quote on
+   * @param {string} options.fromToken - The token address to sell
+   * @param {string} options.toToken - The token address to buy
+   * @param {bigint} options.fromAmount - The amount of fromToken to sell
+   * @param {string} [options.signerAddress] - The signer address (only needed if taker is a smart contract)
+   * @param {bigint} [options.gasPrice] - The gas price in Wei
+   * @param {number} [options.slippageBps] - The slippage tolerance in basis points (0-10000)
+   *
+   * @returns A promise that resolves to the swap quote or a response indicating that liquidity is unavailable.
+   *
+   * @example
+   * ```ts
+   * const swapQuote = await smartAccount.quoteSwap({
+   *   network: "base",
+   *   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *   fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+   * });
+   *
+   * if (swapQuote.liquidityAvailable) {
+   *   console.log(`Can swap for ${swapQuote.toAmount} USDC`);
+   * }
+   * ```
+   */
+  quoteSwap: (options: SmartAccountQuoteSwapOptions) => Promise<SmartAccountQuoteSwapResult>;
+
+  /**
+   * Executes a token swap on the specified network via a user operation.
+   * This method handles all the steps required for a swap, including Permit2 signatures if needed.
+   *
+   * @param {SmartAccountSwapOptions} options - Configuration options for the swap.
+   * @param {string} [options.network] - The network to execute the swap on
+   * @param {CreateSwapQuoteResult} [options.swapQuote] - The swap quote returned by the createSwapQuote method.
+   * @param {string} [options.paymasterUrl] - Optional paymaster URL for gas sponsorship
+   * @param {string} [options.idempotencyKey] - Optional idempotency key for the request.
+   *
+   * @returns A promise that resolves to the user operation result.
+   *
+   * @throws {Error} If liquidity is not available when using inline options.
+   *
+   * @example **Using a pre-created swap quote**
+   * ```ts
+   * // First create a swap quote
+   * const swapQuote = await cdp.evm.createSwapQuote({
+   *   network: "base",
+   *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *   fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+   *   taker: smartAccount.address
+   * });
+   *
+   * // Check if liquidity is available
+   * if (!swapQuote.liquidityAvailable) {
+   *   console.error("Insufficient liquidity for swap");
+   *   return;
+   * }
+   *
+   * // Execute the swap
+   * const { userOpHash } = await smartAccount.swap({
+   *   network: "base",
+   *   swapQuote: swapQuote
+   * });
+   *
+   * console.log(`Swap executed with user op hash: ${userOpHash}`);
+   * ```
+   *
+   * @example **Using inline options (all-in-one)**
+   * ```ts
+   * // Create and execute swap in one call
+   * const { userOpHash } = await smartAccount.swap({
+   *   network: "base",
+   *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+   *   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
+   *   fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+   * });
+   *
+   * console.log(`Swap executed with user op hash: ${userOpHash}`);
+   * ```
+   */
+  swap: (options: SmartAccountSwapOptions) => Promise<SmartAccountSwapResult>;
 };
