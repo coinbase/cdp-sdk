@@ -262,14 +262,17 @@ export class EvmClient implements EvmClientInterface {
     if (!options.name && !options.idempotencyKey) {
       throw new Error("Either name or idempotencyKey must be provided");
     }
-    
+
     const openApiSmartAccount = await (() => {
       if (options.name) {
         return CdpOpenApiClient.createEvmSmartAccountByName(options.name);
       }
-      return CdpOpenApiClient.createEvmSmartAccount({
-        owners: [options.owner.address],
-      }, options.idempotencyKey);
+      return CdpOpenApiClient.createEvmSmartAccount(
+        {
+          owners: [options.owner.address],
+        },
+        options.idempotencyKey,
+      );
     })();
 
     const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
@@ -281,7 +284,6 @@ export class EvmClient implements EvmClientInterface {
 
     return smartAccount;
   }
-  
 
   /**
    * Gets a CDP EVM account.
@@ -373,7 +375,6 @@ export class EvmClient implements EvmClientInterface {
 
     return smartAccount;
   }
-  
 
   /**
    * Gets a CDP EVM account, or creates one if it doesn't exist.
@@ -416,6 +417,25 @@ export class EvmClient implements EvmClientInterface {
     }
   }
 
+  /**
+   * Gets a CDP EVM smart account, or creates one if it doesn't exist.
+   * This method first attempts to retrieve an existing smart account with the given parameters.
+   * If no account exists, it creates a new one with the specified owner.
+   *
+   * @param {GetOrCreateSmartAccountOptions} options - Configuration options for getting or creating the smart account.
+   * @param {string} [options.name] - The name of the smart account to get or create.
+   * @param {Account} options.owner - The owner of the smart account.
+   *
+   * @returns {Promise<SmartAccount>} A promise that resolves to the retrieved or newly created smart account.
+   *
+   * @example
+   * ```ts
+   * const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+   *   name: "MySmartAccount",
+   *   owner: account,
+   * });
+   * ```
+   */
   async getOrCreateSmartAccount(options: GetOrCreateSmartAccountOptions): Promise<SmartAccount> {
     try {
       const account = await this.getSmartAccount(options);
