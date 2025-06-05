@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/viem.submitSwapOperation.ts
+// Usage: pnpm tsx evm/viem.sendSwapOperation.ts
 
 /**
  * This example demonstrates how to perform token swaps using viem's account abstraction
@@ -143,48 +143,50 @@ async function main() {
     });
 
     // Define the tokens we're working with
-    const sellToken = TOKENS.WETH;
-    const buyToken = TOKENS.USDC;
+    const fromToken = TOKENS.WETH;
+    const toToken = TOKENS.USDC;
     
-    // Set the amount we want to sell
-    const sellAmount = parseUnits("0.1", sellToken.decimals); // 0.1 WETH
+    // Set the amount we want to send
+    const fromAmount = parseUnits("0.1", fromToken.decimals); // 0.1 WETH
     
-    console.log(`\nInitiating swap of ${formatEther(sellAmount)} ${sellToken.symbol} for ${buyToken.symbol}`);
+    console.log(`\nInitiating swap of ${formatEther(fromAmount)} ${fromToken.symbol} for ${toToken.symbol}`);
     
     // Check and handle token allowance if needed
-    if (!sellToken.isNativeAsset) {
+    if (!fromToken.isNativeAsset) {
       await handleTokenAllowance(
         smartAccount.address,
         smartAccountClient,
         bundlerClient,
-        sellToken.address as Address,
-        sellToken.symbol,
-        sellAmount
+        fromToken.address as Address,
+        fromToken.symbol,
+        fromAmount
       );
     }
     
-    // Create the swap transaction using CDP API
+    // Create the swap quote using CDP API
     console.log("\nCreating swap quote using CDP API...");
-    const swapResult = await cdp.evm.createSwap({
+    const swapResult = await cdp.evm.createSwapQuote({
       network: NETWORK,
-      buyToken: buyToken.address as Address,
-      sellToken: sellToken.address as Address,
-      sellAmount,
+      toToken: toToken.address as Address,
+      fromToken: fromToken.address as Address,
+      fromAmount,
       taker: smartAccount.address,
+      signerAddress: owner.address, // Owner will sign permit2 messages
       slippageBps: 100, // 1% slippage tolerance
     });
     
-    // Check if swap is available (handle the union type)
-    if (!('transaction' in swapResult) || !swapResult.liquidityAvailable) {
-      console.log("\n❌ Swap unavailable. Insufficient liquidity or other issues.");
+    // Check if swap is available
+    if (!swapResult.liquidityAvailable) {
+      console.log("\n❌ Swap unavailable. Insufficient liquidity for this swap pair or amount.");
+      console.log("Try reducing the swap amount or using a different token pair.");
       return;
     }
     
-    // Type assertion after checking
-    const swap = swapResult as any;
+    // At this point, swapResult is CreateSwapQuoteResult
+    const swap = swapResult;
     
     // Log swap details
-    logSwapInfo(swap, sellToken, buyToken);
+    logSwapInfo(swap, fromToken, toToken);
     
     // Validate the swap
     if (!validateSwap(swap)) {
@@ -192,7 +194,7 @@ async function main() {
     }
     
     // Prepare the swap transaction data
-    let txData = swap.transaction.data as Hex;
+    let txData = swap.transaction!.data as Hex;
     
     // If permit2 is needed, sign it with the owner
     if (swap.permit2?.eip712) {
@@ -200,9 +202,9 @@ async function main() {
       
       const signature = await walletClient.signTypedData({
         account: owner,
-        domain: swap.permit2.eip712.domain as any,
-        types: swap.permit2.eip712.types as any,
-        primaryType: swap.permit2.eip712.primaryType as any,
+        domain: swap.permit2.eip712.domain,
+        types: swap.permit2.eip712.types,
+        primaryType: swap.permit2.eip712.primaryType,
         message: swap.permit2.eip712.message,
       });
       
@@ -221,8 +223,8 @@ async function main() {
     
     const userOpHash = await smartAccountClient.sendUserOperation({
       calls: [{
-        to: swap.transaction.to as Address,
-        value: BigInt(swap.transaction.value || 0),
+        to: swap.transaction!.to as Address,
+        value: swap.transaction!.value ? BigInt(swap.transaction!.value) : BigInt(0),
         data: txData,
       }],
     });
@@ -236,7 +238,7 @@ async function main() {
       hash: userOpHash,
     });
     
-    console.log("\nSwap User Operation Completed!");
+    console.log("\n🎉 Swap User Operation Completed!");
     console.log(`Transaction hash: ${receipt.receipt.transactionHash}`);
     console.log(`Block number: ${receipt.receipt.blockNumber}`);
     console.log(`Gas used: ${receipt.actualGasUsed}`);
@@ -252,9 +254,9 @@ async function main() {
  * @param smartAccountAddress - The smart account address
  * @param smartAccountClient - The smart account client
  * @param bundlerClient - The bundler client for waiting on operations
- * @param tokenAddress - The address of the token to be sold
+ * @param tokenAddress - The address of the token to be sent
  * @param tokenSymbol - The symbol of the token
- * @param sellAmount - The amount to be sold
+ * @param fromAmount - The amount to be sent
  */
 async function handleTokenAllowance(
   smartAccountAddress: Address,
@@ -262,7 +264,7 @@ async function handleTokenAllowance(
   bundlerClient: any,
   tokenAddress: Address,
   tokenSymbol: string,
-  sellAmount: bigint
+  fromAmount: bigint
 ): Promise<void> {
   // Check allowance
   const currentAllowance = await getAllowance(
@@ -271,14 +273,14 @@ async function handleTokenAllowance(
     tokenSymbol
   );
   
-  if (currentAllowance < sellAmount) {
-    console.log(`\nAllowance insufficient. Current: ${formatEther(currentAllowance)}, Required: ${formatEther(sellAmount)}`);
+  if (currentAllowance < fromAmount) {
+    console.log(`\n❌ Allowance insufficient. Current: ${formatEther(currentAllowance)}, Required: ${formatEther(fromAmount)}`);
     
     // Encode approval call
     const approveData = encodeFunctionData({
       abi: erc20Abi,
       functionName: 'approve',
-      args: [PERMIT2_ADDRESS as Address, sellAmount]
+      args: [PERMIT2_ADDRESS as Address, fromAmount]
     });
     
     // Send approval as user operation
@@ -299,9 +301,9 @@ async function handleTokenAllowance(
       hash: approvalOpHash,
     });
     
-    console.log(`Approval confirmed in block ${approvalReceipt.receipt.blockNumber} ✅`);
+    console.log(`✅ Approval confirmed in block ${approvalReceipt.receipt.blockNumber}`);
   } else {
-    console.log(`\nToken allowance sufficient. Current: ${formatEther(currentAllowance)} ${tokenSymbol}`);
+    console.log(`\n✅ Token allowance sufficient. Current: ${formatEther(currentAllowance)} ${tokenSymbol}`);
   }
 }
 
@@ -317,7 +319,7 @@ async function getAllowance(
   token: Address,
   symbol: string
 ): Promise<bigint> {
-  console.log(`\nChecking allowance for ${symbol} to Permit2 contract...`);
+  console.log(`\n🔍 Checking allowance for ${symbol} to Permit2 contract...`);
   
   try {
     const allowance = await publicClient.readContract({
@@ -337,64 +339,101 @@ async function getAllowance(
 
 /**
  * Logs information about the swap
- * @param swap - The swap transaction data
- * @param sellToken - The token being sold
- * @param buyToken - The token being bought
+ * @param swap - The swap quote data
+ * @param fromToken - The token being sent
+ * @param toToken - The token being received
  */
 function logSwapInfo(
   swap: any,
-  sellToken: typeof TOKENS.WETH,
-  buyToken: typeof TOKENS.USDC
+  fromToken: typeof TOKENS.WETH,
+  toToken: typeof TOKENS.USDC
 ): void {
-  if (!swap.liquidityAvailable) {
-    return;
+  console.log("\n📊 Swap Quote Details:");
+  console.log("======================");
+  
+  const fromAmountFormatted = formatUnits(BigInt(swap.fromAmount), fromToken.decimals);
+  const toAmountFormatted = formatUnits(BigInt(swap.toAmount), toToken.decimals);
+  const minToAmountFormatted = formatUnits(BigInt(swap.minToAmount), toToken.decimals);
+  
+  console.log(`📤 Sending: ${fromAmountFormatted} ${fromToken.symbol}`);
+  console.log(`📥 Receiving: ${toAmountFormatted} ${toToken.symbol}`);
+  console.log(`🔒 Minimum Receive: ${minToAmountFormatted} ${toToken.symbol}`);
+  
+  // Calculate exchange rate
+  const exchangeRate = Number(swap.toAmount) / Number(swap.fromAmount) * 
+                      Math.pow(10, fromToken.decimals - toToken.decimals);
+  console.log(`💱 Exchange Rate: 1 ${fromToken.symbol} = ${exchangeRate.toFixed(2)} ${toToken.symbol}`);
+  
+  // Calculate slippage
+  const slippagePercent = ((Number(swap.toAmount) - Number(swap.minToAmount)) / 
+                          Number(swap.toAmount) * 100);
+  console.log(`📉 Max Slippage: ${slippagePercent.toFixed(2)}%`);
+  
+  // Gas information
+  if (swap.transaction?.gas) {
+    console.log(`⛽ Estimated Gas: ${BigInt(swap.transaction.gas).toLocaleString()}`);
   }
-
-  console.log("\nSwap Details:");
-  console.log("-------------");
-  console.log(`Buy Amount: ${formatUnits(BigInt(swap.buyAmount), buyToken.decimals)} ${buyToken.symbol}`);
-  console.log(`Min Buy Amount: ${formatUnits(BigInt(swap.minBuyAmount), buyToken.decimals)} ${buyToken.symbol}`);
-  console.log(`Sell Amount: ${formatUnits(BigInt(swap.sellAmount), sellToken.decimals)} ${sellToken.symbol}`);
-  
-  // Calculate exchange rates
-  const sellAmountBigInt = BigInt(swap.sellAmount);
-  const buyAmountBigInt = BigInt(swap.buyAmount);
-  
-  const sellToBuyRate = Number(buyAmountBigInt) / (10 ** buyToken.decimals) * 
-                       (10 ** sellToken.decimals) / Number(sellAmountBigInt);
-  
-  console.log(`\nExchange Rate: 1 ${sellToken.symbol} = ${sellToBuyRate.toFixed(buyToken.decimals)} ${buyToken.symbol}`);
 }
 
 /**
  * Validates the swap for any issues
- * @param swap - The swap transaction data
+ * @param swap - The swap quote data
  * @returns true if swap is valid, false if there are issues
  */
 function validateSwap(swap: any): boolean {
+  console.log("\n🔍 Validation Results:");
+  console.log("======================");
+  
+  let isValid = true;
+  
+  // Check liquidity
   if (!swap.liquidityAvailable) {
-    console.log("Insufficient liquidity available for this swap.");
-    return false;
+    console.log("❌ Insufficient liquidity available");
+    isValid = false;
+  } else {
+    console.log("✅ Liquidity available");
   }
   
+  // Check balance issues
   if (swap.issues?.balance) {
-    console.log("\nBalance Issues:");
-    console.log(`Current Balance: ${swap.issues.balance.currentBalance}`);
-    console.log(`Required Balance: ${swap.issues.balance.requiredBalance}`);
-    console.log(`Token: ${swap.issues.balance.token}`);
-    console.log("\nInsufficient balance. Please add funds to your smart account.");
-    return false;
+    console.log("❌ Balance Issues:");
+    console.log(`   Current: ${swap.issues.balance.currentBalance}`);
+    console.log(`   Required: ${swap.issues.balance.requiredBalance}`);
+    console.log(`   Token: ${swap.issues.balance.token}`);
+    isValid = false;
+  } else {
+    console.log("✅ Sufficient balance");
   }
   
-  return true;
+  // Check allowance issues
+  if (swap.issues?.allowance) {
+    console.log("❌ Allowance Issues:");
+    console.log(`   Current: ${swap.issues.allowance.currentAllowance}`);
+    console.log(`   Required: ${swap.issues.allowance.requiredAllowance}`);
+    console.log(`   Spender: ${swap.issues.allowance.spender}`);
+    isValid = false;
+  } else {
+    console.log("✅ Sufficient allowance");
+  }
+  
+  // Check simulation
+  if (swap.issues?.simulationIncomplete) {
+    console.log("⚠️ WARNING: Simulation incomplete - transaction may fail");
+    // Not marking as invalid since this is just a warning
+  } else {
+    console.log("✅ Simulation complete");
+  }
+  
+  return isValid;
 }
 
-// Add note about dependencies
-console.log("\n📦 Note: This example requires additional dependencies:");
+// Add note about dependencies and configuration
+console.log("\n📦 Dependencies required:");
 console.log("   pnpm add permissionless viem@^2.0.0");
-console.log("\n🔧 Configuration needed:");
-console.log("   - BUNDLER_URL: Your bundler service endpoint");
-console.log("   - PAYMASTER_URL: (Optional) Your paymaster service endpoint");
-console.log("   - VIEM_PRIVATE_KEY: Private key for the smart account owner");
+console.log("\n🔧 Environment variables needed:");
+console.log("   - BUNDLER_URL: Your bundler service endpoint (required)");
+console.log("   - PAYMASTER_URL: Your paymaster service endpoint (optional)");
+console.log("   - VIEM_PRIVATE_KEY: Private key for the smart account owner (required)");
+console.log("\n💡 Bundler providers: Pimlico, Stackup, Alchemy Account Abstraction");
 
 main().catch(console.error); 
