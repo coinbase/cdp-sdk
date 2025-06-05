@@ -336,9 +336,11 @@ export interface GetServerAccountOptions {
  */
 export interface GetSmartAccountOptions {
   /** The address of the account. */
-  address: Address;
+  address?: Address;
   /** The owner of the account. */
   owner: Account;
+  /** The name of the account. */
+  name?: string;
 }
 
 /**
@@ -347,6 +349,16 @@ export interface GetSmartAccountOptions {
 export interface GetOrCreateServerAccountOptions {
   /** The name of the account. */
   name: string;
+}
+
+/**
+ * Options for getting an EVM account, or creating one if it doesn't exist.
+ */
+export interface GetOrCreateSmartAccountOptions {
+  /** The name of the account. */
+  name: string;
+  /** The owner of the account. */
+  owner: Account;
 }
 
 /**
@@ -426,6 +438,8 @@ export interface CreateSmartAccountOptions {
   owner: Account;
   /** The idempotency key. */
   idempotencyKey?: string;
+  /** The name of the account. */
+  name?: string;
 }
 
 /**
