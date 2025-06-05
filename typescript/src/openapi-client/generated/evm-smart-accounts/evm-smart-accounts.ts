@@ -52,6 +52,19 @@ export const createEvmSmartAccount = (
   );
 };
 /**
+ * Gets a Smart Account by its name.
+ * @summary Get a Smart Account by name
+ */
+export const getEvmSmartAccountByName = (
+  name: string,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmSmartAccount>(
+    { url: `/v2/evm/smart-accounts/by-name/${name}`, method: "GET" },
+    options,
+  );
+};
+/**
  * Gets a Smart Account by its address.
  * @summary Get a Smart Account by address
  */
@@ -125,6 +138,9 @@ export type ListEvmSmartAccountsResult = NonNullable<
 >;
 export type CreateEvmSmartAccountResult = NonNullable<
   Awaited<ReturnType<typeof createEvmSmartAccount>>
+>;
+export type GetEvmSmartAccountByNameResult = NonNullable<
+  Awaited<ReturnType<typeof getEvmSmartAccountByName>>
 >;
 export type GetEvmSmartAccountResult = NonNullable<Awaited<ReturnType<typeof getEvmSmartAccount>>>;
 export type PrepareUserOperationResult = NonNullable<

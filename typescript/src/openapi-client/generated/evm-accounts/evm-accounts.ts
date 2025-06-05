@@ -9,6 +9,10 @@ import type {
   CreateEvmAccountBody,
   EIP712Message,
   EvmAccount,
+  ExportEvmAccount200,
+  ExportEvmAccountBody,
+  ExportEvmAccountByName200,
+  ExportEvmAccountByNameBody,
   ImportEvmAccountBody,
   ListEvmAccounts200,
   ListEvmAccountsParams,
@@ -242,6 +246,44 @@ export const importEvmAccount = (
     options,
   );
 };
+/**
+ * Export an existing EVM account's private key. It is important to store the private key in a secure place after it's exported.
+ * @summary Export an EVM account
+ */
+export const exportEvmAccount = (
+  address: string,
+  exportEvmAccountBody: ExportEvmAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ExportEvmAccount200>(
+    {
+      url: `/v2/evm/accounts/${address}/export`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: exportEvmAccountBody,
+    },
+    options,
+  );
+};
+/**
+ * Export an existing EVM account's private key by its name. It is important to store the private key in a secure place after it's exported.
+ * @summary Export an EVM account by name
+ */
+export const exportEvmAccountByName = (
+  name: string,
+  exportEvmAccountByNameBody: ExportEvmAccountByNameBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ExportEvmAccountByName200>(
+    {
+      url: `/v2/evm/accounts/export/by-name/${name}`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: exportEvmAccountByNameBody,
+    },
+    options,
+  );
+};
 export type ListEvmAccountsResult = NonNullable<Awaited<ReturnType<typeof listEvmAccounts>>>;
 export type CreateEvmAccountResult = NonNullable<Awaited<ReturnType<typeof createEvmAccount>>>;
 export type GetEvmAccountResult = NonNullable<Awaited<ReturnType<typeof getEvmAccount>>>;
@@ -255,3 +297,7 @@ export type SignEvmHashResult = NonNullable<Awaited<ReturnType<typeof signEvmHas
 export type SignEvmMessageResult = NonNullable<Awaited<ReturnType<typeof signEvmMessage>>>;
 export type SignEvmTypedDataResult = NonNullable<Awaited<ReturnType<typeof signEvmTypedData>>>;
 export type ImportEvmAccountResult = NonNullable<Awaited<ReturnType<typeof importEvmAccount>>>;
+export type ExportEvmAccountResult = NonNullable<Awaited<ReturnType<typeof exportEvmAccount>>>;
+export type ExportEvmAccountByNameResult = NonNullable<
+  Awaited<ReturnType<typeof exportEvmAccountByName>>
+>;

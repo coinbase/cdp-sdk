@@ -16,6 +16,33 @@ servers:
 security:
   - apiKeyAuth: []
 tags:
+  - name: End User Accounts (Under Development)
+    x-audience: development
+    description: |-
+      The End User Accounts APIs enable you to create accounts associated with your end users.
+
+      There are two types of End User Account APIs:
+      - **/v2/end-users**: These are APIs accessed by the developer's servers, authenticated by the developer's CDP API key.
+        They allow the developer to create and view end user accounts, but crucially, do not allow the developer to
+        sign transactions or messages on behalf of the end user.
+
+      - **/v2/embedded-wallet-api**: These are APIs accessed directly by the end user via the CDP Frontend SDK.
+        These APIs require two types of authentication:
+
+
+      1. **Access Token**: A JWT signed by CDP, encoded in base64. This is used to identify the end user, and is
+           issued after the end user has signed in using one of the provided authentication methods.
+           The APIs provide multiple mechanisms for end user authentication, including developer-delegated JWT authentication,
+           email one-time-password (OTP) authentication, and social sign-in.
+
+
+       2. **Temporary Wallet Secret (TWS)**: Requests to signing-related endpoints must also be authenticated using a
+          **Temporary Wallet Secret** (TWS) generated on the end user's browser/device. Typically, this is done using the CDP Embedded Wallet SDK. The Temporary Wallet Secret
+          follows similar semantics to the Wallet Secret used by the EVM and Solana Account APIs, with the following key differences:
+
+         - The end user must register their TWS with the End User Accounts APIs before it can be used.
+         - Temporary Wallet Secrets have a time-to-live (TTL) defined by the `validUntil` field in the TWS registration request.
+         - A maximum of five TWS's can be registered for a single end user at any given time.
   - name: EVM Accounts
     x-audience: public
     description: |-
@@ -56,6 +83,26 @@ tags:
       Smart Accounts can be assigned an optional **name** at creation time for easier identification in subsequent API calls.
 
       A Smart Account has a single owner, which is another EVM Account which signs the Smart Account's transactions. The owner can be a CDP EVM account, or an account managed solely by the developer.
+  - name: EVM Swaps
+    x-audience: public
+    description: |-
+      A swap refers to the act of exchanging one token for another. The EVM Swap APIs enable you to create and manage swaps. A swap process involves:
+
+       1. A user approves token spending via smart contract.
+       2. The smart contract determines the exchange rate and facilitates the swap between the two tokens.
+       3. The transaction is completed atomically and the tokens are transferred to the user's wallet.
+
+      The Swap API supports:
+
+       - **Getting a price**: Estimate the amount of tokens you will receive for a given amount of exchanged tokens.
+       - **Creating a swap quote**: Return a swap transaction payload that you can use to sign and submit in order to execute the swap.
+
+      For the easiest experience creating, signing, and submitting a swap, we recommend using the [CDP SDK](https://github.com/coinbase/cdp-sdk/).
+
+      - [Python SDK examples](https://github.com/coinbase/cdp-sdk/tree/main/python#evm-swaps)
+      - [TypeScript SDK examples](https://github.com/coinbase/cdp-sdk/tree/main/typescript#evm-swaps)
+
+      To read more about using the EVM Swap APIs, please see our [Swap API docs](https://docs.cdp.coinbase.com/swaps/docs/welcome).
   - name: EVM Token Balances
     x-audience: public
     description: |-
@@ -251,6 +298,9 @@ tags:
 
 
       :::
+  - name: Wallet Secrets (Internal)
+    x-audience: internal
+    description: This is a CDP Portal-only API for registering a Wallet Secret for a CDP Project. It should not be exposed externally.
   - name: x402 Facilitator
     x-audience: public
     description: |-
@@ -260,6 +310,551 @@ tags:
       - `POST /v2/x402/verify`: Verify a payment with a supported scheme and network.
       - `POST /v2/x402/settle`: Settle a payment with a supported scheme and network.
 paths:
+  /v2/end-users:
+    post:
+      summary: Create an end user
+      description: |-
+        Creates an end user. An end user is an entity that owns a set of CDP EVM accounts, EVM smart accounts, and/or Solana accounts. 1 or more authentication methods must be associated with an end user.
+
+        This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+      operationId: createEndUser
+      tags:
+        - End User Accounts (Under Development)
+      x-audience: development
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  description: |-
+                    A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
+
+                    If `userId` is not provided in the request, the server will generate a random UUID.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+                authenticationMethods:
+                  $ref: '#/components/schemas/AuthenticationMethods'
+              required:
+                - authenticationMethods
+      responses:
+        '201':
+          description: Successfully created end user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUser'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: At least one authentication method must be provided.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v2/end-users/{userId}:
+    get:
+      x-audience: development
+      summary: Get an end user
+      description: |-
+        Gets an end user by ID.
+
+        This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+      operationId: getEndUser
+      tags:
+        - End User Accounts (Under Development)
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user to get.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+          example: e051beeb-7163-4527-a5b6-35e301529ff2
+      responses:
+        '200':
+          description: Successfully got end user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUser'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user with the given ID not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v2/embedded-wallet-api/auth/init:
+    post:
+      x-audience: development
+      security: []
+      summary: Initiate end user authentication
+      description: Initiates the authentication flow for an end user. This is an unauthenticated endpoint. The exact response depends on the authentication method specified in the request body.
+      operationId: initiateAuthentication
+      tags:
+        - End User Accounts (Under Development)
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiateAuthenticationRequest'
+      responses:
+        '200':
+          description: Successfully initiated authentication.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitiateEmailAuthenticationResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid email address.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v2/embedded-wallet-api/auth/verify/email:
+    post:
+      x-audience: development
+      security: []
+      summary: Verify end user email address
+      description: Verifies the end user's email address using a one-time password. This is an unauthenticated endpoint. The API returns an access token that can be used to authenticate subsequent requests to the Embedded Wallet APIs, as well as a refresh token set in the `Set-Cookie` header.
+      operationId: verifyEmailAuthentication
+      tags:
+        - End User Accounts (Under Development)
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailAuthenticationRequest'
+      responses:
+        '200':
+          description: Successfully verified email address.
+          headers:
+            Set-Cookie:
+              description: The refresh token for the end user. This token should be used to refresh the access token.
+              schema:
+                type: string
+                example: refreshToken=asdfoiuxcv9243kcxc980; HttpOnly; Secure; SameSite=None; Path=/v2//auth/refresh; Domain=api.cdp.coinbase.com; Expires=Fri, 20 Jun 2025 16:07:36 GMT;
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: The message to display to the end user.
+                    example: Your email address has been verified.
+                  accessToken:
+                    type: string
+                    description: The access token for the end user. This token should be used in subsequent requests to the Embedded Wallet APIs by specifing 'Bearer' as the prefix of the `Authorization` header.
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+                  validUntil:
+                    type: string
+                    description: The date and time until which the access token is valid, in ISO 8601 format.
+                    example: '2025-06-25T16:07:36Z'
+                    format: date-time
+                required:
+                  - message
+                  - accessToken
+                  - validUntil
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid one-time password.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Incorrect one-time password.
+        '404':
+          description: Authentication flow not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Authentication flow not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v2/embedded-wallet-api/auth/refresh:
+    post:
+      x-audience: development
+      security: []
+      summary: Refresh end user access token
+      description: Refreshes the access token for the end user. This is an unauthenticated endpoint, but it assumes that the refresh token provided in the various `verify` endpoints is set in the `Cookie` header.
+      operationId: refreshAccessToken
+      tags:
+        - End User Accounts (Under Development)
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                projectId:
+                  type: string
+                  description: The ID of the CDP Project.
+                  example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+                  pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+                grantType:
+                  type: string
+                  description: The type of grant to use for refreshing the access token, as required by the OAuth 2.0 specification.
+                  enum:
+                    - refreshToken
+                  example: refreshToken
+              required:
+                - projectId
+                - grantType
+      responses:
+        '200':
+          description: Successfully refreshed access token.
+          headers:
+            Set-Cookie:
+              description: The refresh token for the end user. This token should be used to refresh the access token.
+              schema:
+                type: string
+                example: refreshToken=asdfoiuxcv9243kcxc980; HttpOnly; Secure; SameSite=None; Path=/v2//auth/refresh; Domain=api.cdp.coinbase.com; Expires=Fri, 20 Jun 2025 16:07:36 GMT;
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: The refreshed access token for the end user.
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+                  validUntil:
+                    type: string
+                    format: date-time
+                    description: The date and time at which the refreshed access token will expire in ISO 8601 format.
+                    example: '2025-06-25T16:07:36Z'
+                required:
+                  - accessToken
+                  - validUntil
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Invalid refresh token.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/wallet-secrets:
+    put:
+      x-audience: development
+      security:
+        - endUserAuth: []
+      summary: Register a Temporary Wallet Secret
+      description: |-
+        Registers a Temporary Wallet Secret for a given end user. This secret is generated on the client-side by the end user's device/browser, typically with the CDP Embedded Wallet SDK, and is used to authenticate requests related to signing.
+
+
+        Temporary Wallet Secrets expire according to the provided TTL. A maximum of 5 Temporary Wallet Secrets can be registered at a given time for a specific end user. If the end user has more than 5 Temporary Wallet Secrets, the oldest one will be deleted to make space for the new one.
+
+        Temporary Wallet Secrets can be replaced by calling this API again with an already registered `walletSecretId`.
+
+
+        The following JavaScript code can be used to generate a Temporary Wallet Secret. The public key should be passed to this API.
+
+        ```javascript
+        window.crypto.subtle.generateKey(
+          {
+            name: "ECDSA",
+            namedCurve: "P-256", // secp256r1
+          },
+          true, // Allow key export
+          ["sign", "verify"] // Key usages
+        ).then(keyPair => {
+          return Promise.all([
+            window.crypto.subtle.exportKey("pkcs8", keyPair.privateKey),
+            window.crypto.subtle.exportKey("spki", keyPair.publicKey)
+          ]);
+        }).then(([privateKeyBuffer, publicKeyBuffer]) => {
+          const privateKeyBytes = new Uint8Array(privateKeyBuffer);
+          const publicKeyBytes = new Uint8Array(publicKeyBuffer);
+
+          // Safe way to convert large Uint8Arrays to strings
+          const privateKeyBase64 = btoa(
+            Array.from(privateKeyBytes)
+              .map(byte => String.fromCharCode(byte))
+              .join('')
+          );
+
+          const publicKeyBase64 = btoa(
+            Array.from(publicKeyBytes)
+              .map(byte => String.fromCharCode(byte))
+              .join('')
+          );
+
+          console.log(privateKeyBase64);
+          console.log(publicKeyBase64);
+
+          return { privateKeyBase64, publicKeyBase64 };
+        });
+
+        ```
+
+         
+      operationId: registerTemporaryWalletSecret
+      tags:
+        - End User Accounts (Under Development)
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the CDP Project.
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                publicKey:
+                  type: string
+                  description: The base64 encoded public key of the Temporary Wallet Secret.
+                  example: MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEaJ+Pk06OLqr05KFYrSopsF33nz8tymIDlLUq19cwmsGaZKkR6gOL1MZT6st6P2NkHOW6R+ZHFdCbymNQkmmLlA==
+                validUntil:
+                  type: string
+                  format: date-time
+                  description: The date and time at which the Temporary Wallet Secret will expire in ISO 8601 format.
+                  example: '2025-05-08T12:00:00Z'
+                walletSecretId:
+                  description: |-
+                    A stable, unique identifier for the Temporary Wallet Secret. The `walletSecretId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
+
+                    If `walletSecretId` is not provided in the request, the server will generate a random UUID.
+
+                    This field can be used to replace a previously registered Temporary Wallet Secret.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+              required:
+                - publicKey
+                - validUntil
+      responses:
+        '200':
+          description: Successfully registered Temporary Wallet Secret.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  walletSecretId:
+                    type: string
+                    description: A stable, unique identifier for the Temporary Wallet Secret.
+                    example: e051beeb-7163-4527-a5b6-35e301529ff2
+                  validUntil:
+                    type: string
+                    format: date-time
+                    description: The date and time at which the Temporary Wallet Secret will expire in ISO 8601 format.
+                    example: '2025-05-08T12:00:00Z'
+                required:
+                  - walletSecretId
+                  - validUntil
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid public key.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v2/embedded-wallet-api/projects/{projectId}/end-users/{userId}/evm/sign:
+    post:
+      x-audience: development
+      summary: Sign a hash
+      description: Signs an arbitrary 32 byte hash with the end user's given EVM account.
+      operationId: signEvmHashWithEndUserAccount
+      tags:
+        - End User Accounts (Under Development)
+      security:
+        - endUserAuth: []
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: The ID of the CDP Project.
+          schema:
+            type: string
+            pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+            example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+            example: e051beeb-7163-4527-a5b6-35e301529ff2
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hash:
+                  type: string
+                  description: The arbitrary 32 byte hash to sign.
+                  example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                address:
+                  type: string
+                  description: The 0x-prefixed address of the EVM account belonging to the end user.
+                  example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                  pattern: ^0x[0-9a-fA-F]{40}$
+                walletSecretId:
+                  description: The ID of the Temporary Wallet Secret that was used to sign the X-Wallet-Auth Header.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+              required:
+                - hash
+                - address
+                - walletSecretId
+      responses:
+        '200':
+          description: Successfully signed hash.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signature:
+                    type: string
+                    description: The signature of the hash, as a 0x-prefixed hex string.
+                    example: '0x1b0c9cf8cd4554c6c6d9e7311e88f1be075d7f25b418a044f4bf2c0a42a93e212ad0a8b54de9e0b5f7e3812de3f2c6cc79aa8c3e1c02e7ad14b4a8f42012c2c01b'
+                required:
+                  - signature
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Request body must be specified.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user with the given ID not found.
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/accounts:
     get:
       x-audience: public
@@ -314,6 +909,10 @@ paths:
       summary: Create an EVM account
       description: Creates a new EVM account.
       operationId: createEvmAccount
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
       tags:
         - EVM Accounts
       parameters:
@@ -560,7 +1159,7 @@ paths:
                 not_found:
                   value:
                     errorType: not_found
-                    errorMessage: EVM account with the given address not found.
+                    errorMessage: EVM account with the given name not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
         '502':
@@ -601,6 +1200,10 @@ paths:
       operationId: sendEvmTransaction
       tags:
         - EVM Accounts
+      x-billing:
+        x-audience: internal
+        units: 2
+        type: walletOperations
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -712,6 +1315,10 @@ paths:
       operationId: signEvmTransaction
       tags:
         - EVM Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -811,6 +1418,10 @@ paths:
       operationId: signEvmHash
       tags:
         - EVM Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -891,6 +1502,10 @@ paths:
       operationId: signEvmMessage
       tags:
         - EVM Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -968,6 +1583,10 @@ paths:
       operationId: signEvmTypedData
       tags:
         - EVM Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -1104,6 +1723,10 @@ paths:
       operationId: createEvmSmartAccount
       tags:
         - EVM Smart Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
       requestBody:
         content:
           application/json:
@@ -1118,6 +1741,14 @@ paths:
                     pattern: ^0x[0-9a-fA-F]{40}$
                   example:
                     - '0xfc807D1bE4997e5C7B33E4d8D57e60c5b0f02B1a'
+                name:
+                  type: string
+                  description: |-
+                    An optional name for the account.
+                    Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+                    Account names must be unique across all EVM accounts in the developer's CDP Project.
+                  example: my-smart-wallet
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
               required:
                 - owners
       responses:
@@ -1144,6 +1775,57 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/smart-accounts/by-name/{name}:
+    get:
+      x-audience: internal
+      summary: Get a Smart Account by name
+      description: Gets a Smart Account by its name.
+      operationId: getEvmSmartAccountByName
+      tags:
+        - EVM Smart Accounts
+      parameters:
+        - name: name
+          description: The name of the Smart Account.
+          in: path
+          required: true
+          schema:
+            type: string
+          example: my-account
+      responses:
+        '200':
+          description: Successfully got Smart Account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmSmartAccount'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'error: parameter "name" must be a string'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Smart Account with the given name not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/accounts/import:
     post:
       x-audience: public
@@ -1152,6 +1834,10 @@ paths:
       operationId: importEvmAccount
       tags:
         - EVM Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -1173,6 +1859,12 @@ paths:
                     Account names must be unique across all EVM accounts in the developer's CDP Project.
                   example: my-wallet
                   pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                accountPolicy:
+                  type: string
+                  x-audience: development
+                  description: The ID of the account-level policy to apply to the account.
+                  pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  example: 123e4567-e89b-12d3-a456-426614174000
               required:
                 - encryptedPrivateKey
       responses:
@@ -1215,6 +1907,185 @@ paths:
                   value:
                     errorType: already_exists
                     errorMessage: EVM account with the given address already exists.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/accounts/{address}/export:
+    post:
+      x-audience: development
+      summary: Export an EVM account
+      description: Export an existing EVM account's private key. It is important to store the private key in a secure place after it's exported.
+      operationId: exportEvmAccount
+      tags:
+        - EVM Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: address
+          description: The 0x-prefixed address of the EVM account. The address does not need to be checksummed.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                exportEncryptionKey:
+                  type: string
+                  description: The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key.
+                  example: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+              required:
+                - exportEncryptionKey
+      responses:
+        '200':
+          description: Successfully exported EVM account.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  encryptedPrivateKey:
+                    type: string
+                    description: The base64-encoded, encrypted private key of the EVM account which is a 32 byte raw private key. The private key is encrypted in transport using the exportEncryptionKey in the request.
+                    example: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+                required:
+                  - encryptedPrivateKey
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: EVM account with the given address not found.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given address not found.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/accounts/export/by-name/{name}:
+    post:
+      x-audience: development
+      summary: Export an EVM account by name
+      description: Export an existing EVM account's private key by its name. It is important to store the private key in a secure place after it's exported.
+      operationId: exportEvmAccountByName
+      tags:
+        - EVM Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: name
+          description: The name of the EVM account.
+          in: path
+          required: true
+          schema:
+            type: string
+          example: my-account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                exportEncryptionKey:
+                  type: string
+                  description: The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key.
+                  example: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+              required:
+                - exportEncryptionKey
+      responses:
+        '200':
+          description: Successfully exported EVM account.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  encryptedPrivateKey:
+                    type: string
+                    description: The base64-encoded, encrypted private key of the EVM account which is a 32 byte raw private key. The private key is encrypted in transport using the exportEncryptionKey in the request.
+                    example: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+                required:
+                  - encryptedPrivateKey
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'error: parameter "name" must be a string'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM account with the given name not found.
         '422':
           $ref: '#/components/responses/IdempotencyError'
         '500':
@@ -1420,6 +2291,10 @@ paths:
       operationId: sendUserOperation
       tags:
         - EVM Smart Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
       parameters:
         - name: address
           description: The address of the Smart Account to send the user operation from.
@@ -1478,6 +2353,303 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: User operation not found.
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Max concurrent user operations reached.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/swaps/quote:
+    get:
+      x-audience: public
+      summary: Get a price estimate for a swap
+      description: Get a price estimate for a swap between two tokens on an EVM network.
+      operationId: getEvmSwapPrice
+      tags:
+        - EVM Swaps
+      parameters:
+        - in: query
+          name: network
+          required: true
+          schema:
+            $ref: '#/components/schemas/EvmSwapsNetwork'
+        - in: query
+          name: toToken
+          required: true
+          schema:
+            $ref: '#/components/schemas/toToken'
+        - in: query
+          name: fromToken
+          required: true
+          schema:
+            $ref: '#/components/schemas/fromToken'
+        - in: query
+          name: fromAmount
+          required: true
+          schema:
+            $ref: '#/components/schemas/fromAmount'
+        - in: query
+          name: taker
+          required: true
+          schema:
+            $ref: '#/components/schemas/taker'
+        - in: query
+          name: signerAddress
+          required: false
+          schema:
+            $ref: '#/components/schemas/signerAddress'
+        - in: query
+          name: gasPrice
+          required: false
+          schema:
+            $ref: '#/components/schemas/gasPrice'
+        - in: query
+          name: slippageBps
+          required: false
+          schema:
+            $ref: '#/components/schemas/slippageBps'
+      responses:
+        '200':
+          description: A price estimate for the swap.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSwapPriceResponseWrapper'
+              examples:
+                success:
+                  summary: Successful swap price retrieval
+                  value:
+                    blockNumber: '17038723'
+                    toAmount: '1000000000000000000'
+                    toToken: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+                    fees:
+                      gasFee:
+                        amount: '1000000000000000000'
+                        token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+                      protocolFee:
+                        amount: '1000000000000000000'
+                        token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+                    issues:
+                      allowance:
+                        currentAllowance: '1000000000'
+                        spender: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+                      balance:
+                        token: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                        currentBalance: '1000000000000000000'
+                        requiredBalance: '1000000000000000000'
+                      simulationIncomplete: false
+                    liquidityAvailable: true
+                    minToAmount: '900000000000000000'
+                    fromAmount: '1000000000000000000'
+                    fromToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                    gas: '100000'
+                    gasPrice: '1000000000'
+                unavailable:
+                  summary: Swap with unavailable liquidity
+                  value:
+                    liquidityAvailable: false
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '403':
+          description: Taker not permitted to perform swap.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Taker not permitted to perform swap.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/swaps:
+    post:
+      x-audience: public
+      summary: Create a swap quote
+      description: Create a swap quote, which includes the payload to sign as well as the transaction data needed to execute the swap. The developer is responsible for signing the payload and submitting the transaction to the network in order to execute the swap.
+      operationId: createEvmSwapQuote
+      tags:
+        - EVM Swaps
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                network:
+                  $ref: '#/components/schemas/EvmSwapsNetwork'
+                toToken:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed contract address of the token to receive.
+                  example: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+                fromToken:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed contract address of the token to send.
+                  example: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                fromAmount:
+                  type: string
+                  pattern: ^\d+$
+                  description: The amount of the `fromToken` to send in atomic units of the token. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
+                  example: '1000000000000000000'
+                taker:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed address that holds the `fromToken` balance and has the `Permit2` allowance set for the swap.
+                  example: '0xAc0974bec39a17e36ba4a6b4d238ff944bacb478'
+                signerAddress:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed Externally Owned Account (EOA) address that will sign the `Permit2` EIP-712 permit message. This is only needed if `taker` is a smart contract.
+                  example: '0x922f49447d8a07e3bd95bd0d56f35241523fbab8'
+                gasPrice:
+                  type: string
+                  pattern: ^\d+$
+                  description: The target gas price for the swap transaction, in Wei. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. If not provided, the API will use an estimate based on the current network conditions.
+                  example: '1000000000'
+                slippageBps:
+                  type: integer
+                  minimum: 0
+                  maximum: 10000
+                  description: The maximum acceptable slippage of the `toToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
+                  default: 100
+                  example: 100
+              required:
+                - network
+                - toToken
+                - fromToken
+                - fromAmount
+                - taker
+      responses:
+        '201':
+          description: Successfully created swap quote.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSwapQuoteResponseWrapper'
+              examples:
+                success:
+                  summary: Successful swap quote creation
+                  value:
+                    blockNumber: '17038723'
+                    toAmount: '1000000000000000000'
+                    toToken: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+                    fees:
+                      gasFee:
+                        amount: '1000000000000000000'
+                        token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+                      protocolFee:
+                        amount: '1000000000000000000'
+                        token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+                    issues:
+                      allowance:
+                        currentAllowance: '1000000000'
+                        spender: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+                      balance:
+                        token: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                        currentBalance: '1000000000000000000'
+                        requiredBalance: '1000000000000000000'
+                      simulationIncomplete: false
+                    liquidityAvailable: true
+                    minToAmount: '900000000000000000'
+                    fromAmount: '1000000000000000000'
+                    fromToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                    permit2:
+                      hash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                      eip712:
+                        domain:
+                          name: Permit2
+                          chainId: 1
+                          verifyingContract: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+                        types:
+                          EIP712Domain:
+                            - name: name
+                              type: string
+                            - name: chainId
+                              type: uint256
+                            - name: verifyingContract
+                              type: address
+                          PermitTransferFrom:
+                            - name: permitted
+                              type: TokenPermissions
+                            - name: spender
+                              type: address
+                            - name: nonce
+                              type: uint256
+                            - name: deadline
+                              type: uint256
+                          TokenPermissions:
+                            - name: token
+                              type: address
+                            - name: amount
+                              type: uint256
+                        primaryType: PermitTransferFrom
+                        message:
+                          permitted:
+                            token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+                            amount: '1000000'
+                          spender: '0xFfFfFfFFfFFfFFfFFfFFFFFffFFFffffFfFFFfFf'
+                          nonce: '123456'
+                          deadline: '1717123200'
+                    transaction:
+                      to: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+                      data: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                      gas: '100000'
+                      gasPrice: '1000000000'
+                      value: '1000000000000000000'
+                unavailable:
+                  summary: Swap with unavailable liquidity
+                  value:
+                    liquidityAvailable: false
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '403':
+          description: Taker not permitted to perform swap.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Taker not permitted to perform swap.
         '500':
           $ref: '#/components/responses/InternalServerError'
         '502':
@@ -1595,7 +2767,7 @@ paths:
       description: |
         Request funds from the CDP Faucet on supported EVM test networks.
 
-        Faucets are available for ETH, USDC, EURC, and cbBTC on Base Sepolia and Ethereum Sepolia.
+        Faucets are available for ETH, USDC, EURC, and cbBTC on Base Sepolia and Ethereum Sepolia, and for ETH only on Ethereum Hoodi.
 
         To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested. 
         These limits are applied at both the CDP User level and the blockchain address level. 
@@ -1622,6 +2794,7 @@ paths:
                   enum:
                     - base-sepolia
                     - ethereum-sepolia
+                    - ethereum-hoodi
                   example: base-sepolia
                 address:
                   type: string
@@ -2049,6 +3222,10 @@ paths:
       operationId: createSolanaAccount
       tags:
         - Solana Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -2299,6 +3476,185 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/solana/accounts/{address}/export:
+    post:
+      x-audience: development
+      summary: Export an Solana account
+      description: Export an existing Solana account's private key. It is important to store the private key in a secure place after it's exported.
+      operationId: exportSolanaAccount
+      tags:
+        - Solana Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: address
+          description: The base58 encoded address of the Solana account.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+          example: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                exportEncryptionKey:
+                  type: string
+                  description: The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key.
+                  example: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+              required:
+                - exportEncryptionKey
+      responses:
+        '200':
+          description: Successfully exported Solana account.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  encryptedPrivateKey:
+                    type: string
+                    description: The base64-encoded, encrypted private key of the Solana account which is a 32 byte raw private key. The private key is encrypted in transport using the exportEncryptionKey in the request.
+                    example: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+                required:
+                  - encryptedPrivateKey
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Solana account with the given address not found.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Solana account with the given address not found.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/solana/accounts/export/by-name/{name}:
+    post:
+      x-audience: development
+      summary: Export a Solana account by name
+      description: Export an existing Solana account's private key by its name. It is important to store the private key in a secure place after it's exported.
+      operationId: exportSolanaAccountByName
+      tags:
+        - Solana Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: name
+          description: The name of the Solana account.
+          in: path
+          required: true
+          schema:
+            type: string
+          example: my-account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                exportEncryptionKey:
+                  type: string
+                  description: The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key.
+                  example: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+              required:
+                - exportEncryptionKey
+      responses:
+        '200':
+          description: Successfully exported Solana account.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  encryptedPrivateKey:
+                    type: string
+                    description: The base64-encoded, encrypted private key of the Solana account which is a 32 byte raw private key. The private key is encrypted in transport using the exportEncryptionKey in the request.
+                    example: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+                required:
+                  - encryptedPrivateKey
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'error: parameter "name" must be a string'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Solana account with the given name not found.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/solana/accounts/{address}/sign/transaction:
     post:
       x-audience: public
@@ -2317,6 +3673,10 @@ paths:
       operationId: signSolanaTransaction
       tags:
         - Solana Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -2419,6 +3779,10 @@ paths:
       operationId: signSolanaMessage
       tags:
         - Solana Accounts
+      x-billing:
+        x-audience: internal
+        units: 1
+        type: walletOperations
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -2591,6 +3955,298 @@ paths:
                   value:
                     errorType: faucet_limit_exceeded
                     errorMessage: Faucet limit reached for this address. Please try again later.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/wallet/secrets:
+    post:
+      x-audience: internal
+      summary: Register a Wallet Secret
+      description: |-
+        Registers a Wallet Secret for a CDP Project. This secret is configured in the CDP Portal, and is used to authenticate requests to the EVM and Solana Account APIs.
+
+
+        Wallet Secrets should be generated in the browser using the following JavaScript code. The private key should be returned to the developer, and the public key should be what is passed to this API.
+
+        ```javascript
+        window.crypto.subtle.generateKey(
+          {
+            name: "ECDSA",
+            namedCurve: "P-256", // secp256r1
+          },
+          true, // Allow key export
+          ["sign", "verify"] // Key usages
+        ).then(keyPair => {
+          return Promise.all([
+            window.crypto.subtle.exportKey("pkcs8", keyPair.privateKey),
+            window.crypto.subtle.exportKey("spki", keyPair.publicKey)
+          ]);
+        }).then(([privateKeyBuffer, publicKeyBuffer]) => {
+          const privateKeyBytes = new Uint8Array(privateKeyBuffer);
+          const publicKeyBytes = new Uint8Array(publicKeyBuffer);
+
+          // Safe way to convert large Uint8Arrays to strings
+          const privateKeyBase64 = btoa(
+            Array.from(privateKeyBytes)
+              .map(byte => String.fromCharCode(byte))
+              .join('')
+          );
+
+          const publicKeyBase64 = btoa(
+            Array.from(publicKeyBytes)
+              .map(byte => String.fromCharCode(byte))
+              .join('')
+          );
+
+          console.log(privateKeyBase64);
+          console.log(publicKeyBase64);
+
+          return { privateKeyBase64, publicKeyBase64 };
+        });
+        ```
+
+        This API is available only to the CDP Portal, and should not be exposed externally.
+      operationId: registerWalletSecret
+      tags:
+        - Wallet Secrets (Internal)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                publicKey:
+                  type: string
+                  description: The base64 encoded public key of the Wallet Secret.
+                  example: MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEaJ+Pk06OLqr05KFYrSopsF33nz8tymIDlLUq19cwmsGaZKkR6gOL1MZT6st6P2NkHOW6R+ZHFdCbymNQkmmLlA==
+              required:
+                - publicKey
+      responses:
+        '200':
+          description: Successfully registered Wallet Secret.
+        '409':
+          description: Already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                already_exists:
+                  value:
+                    errorType: already_exists
+                    errorMessage: Project already has a secret registered.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+    get:
+      x-audience: internal
+      summary: Get the currently active Wallet Secret
+      description: Gets the currently active Wallet Secret in the CDP project. This API is available only to the CDP Portal, and should not be exposed externally.
+      operationId: getWalletSecretMetadata
+      tags:
+        - Wallet Secrets (Internal)
+      responses:
+        '200':
+          description: Successfully got Wallet Secret.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletSecretMetadata'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Project has no registered Wallet Secret.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+    put:
+      x-audience: internal
+      summary: Update Wallet Secret
+      description: |-
+        Updates the Wallet Secret for a CDP Project. This updated secret is configured in the CDP Portal, and is used to authenticate requests to the EVM and Solana Account APIs. The existing Wallet Secret in the project will be unregistered and can no longer be used. 
+        This API is available only to the CDP Portal, and should not be exposed externally.
+      operationId: updateWalletSecret
+      tags:
+        - Wallet Secrets (Internal)
+      parameters:
+        - $ref: '#/components/parameters/SecondFactorProofToken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                publicKey:
+                  type: string
+                  description: The base64 encoded public key of the new Wallet Secret.
+                  example: MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEaJ+Pk06OLqr05KFYrSopsF33nz8tymIDlLUq19cwmsGaZKkR6gOL1MZT6st6P2NkHOW6R+ZHFdCbymNQkmmLlA==
+              required:
+                - publicKey
+      responses:
+        '200':
+          description: Successfully updated Wallet Secret.
+        '403':
+          description: User forbidden from performing the action.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: forbidden
+                    errorMessage: User forbidden from performing the action.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Project has no registered Wallet Secret.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/x402/verify:
+    post:
+      x-audience: development
+      summary: Verify a payment
+      description: Verify an x402 protocol payment with a specific scheme and network.
+      operationId: verifyX402Payment
+      tags:
+        - x402 Facilitator
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                x402Version:
+                  type: integer
+                  description: The version of the x402 payment protocol.
+                  enum:
+                    - 1
+                  example: 1
+                paymentPayload:
+                  $ref: '#/components/schemas/x402PaymentPayload'
+                paymentRequirements:
+                  $ref: '#/components/schemas/x402PaymentRequirements'
+              required:
+                - x402Version
+                - paymentPayload
+                - paymentRequirements
+      responses:
+        '200':
+          $ref: '#/components/responses/x402VerifyResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/x402/settle:
+    post:
+      x-audience: development
+      summary: Settle a payment
+      description: Settle an x402 protocol payment with a specific scheme and network.
+      operationId: settleX402Payment
+      tags:
+        - x402 Facilitator
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                x402Version:
+                  type: integer
+                  description: The version of the x402 payment protocol.
+                  example: 1
+                paymentPayload:
+                  $ref: '#/components/schemas/x402PaymentPayload'
+                paymentRequirements:
+                  $ref: '#/components/schemas/x402PaymentRequirements'
+              required:
+                - x402Version
+                - paymentPayload
+                - paymentRequirements
+      responses:
+        '200':
+          $ref: '#/components/responses/x402SettleResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/x402/supported:
+    get:
+      x-audience: development
+      summary: Get supported payment schemes and networks
+      description: Get the supported x402 protocol payment schemes and networks that the facilitator is able to verify and settle payments for.
+      operationId: supportedX402PaymentKinds
+      tags:
+        - x402 Facilitator
+      responses:
+        '200':
+          $ref: '#/components/responses/x402SupportedPaymentKindsResponse'
         '500':
           $ref: '#/components/responses/InternalServerError'
         '502':
@@ -2924,41 +4580,129 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: A JWT signed using the developer's own JWT private key (in the case of JWT authentication), or an end user JWT signed by CDP, encoded in base64. This is used for End User Account APIs.
+  parameters:
+    IdempotencyKey:
+      name: X-Idempotency-Key
+      in: header
+      required: false
+      description: |
+        An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+        When included, duplicate requests with the same key will return identical responses. 
+        Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
+      schema:
+        type: string
+        maxLength: 36
+        minLength: 36
+        pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+      example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+    XWalletAuth:
+      name: X-Wallet-Auth
+      in: header
+      required: true
+      description: |
+        A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+        [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token)
+        section of our Authentication docs for more details on how to generate your Wallet Token.
+      schema:
+        type: string
+      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywicm9sZSI6ImFkbWluIiwiZXhwIjoxNzAxOTgwMDAwfQ.HWvMTKmCCTxHaxjvZyLaC6UQ6TV3ErTDWBf7zmdH0Lw
+    SecondFactorProofToken:
+      name: Second-Factor-Proof-Token
+      in: header
+      required: true
+      x-audience: internal
+      description: |
+        A proof token is a randomly generated, short-lived token issued after a user successfully completes a 2FA process 
+        (e.g., SMS, Yubikey, etc.) on the CDP Portal. 
+        These tokens securely demonstrate that the user has passed 2FA and is authorized to perform operations requiring 2FA 
+        without having to reverify the challenge. 
+
+        Proof tokens are single-use and exclusively utilized by APIs that rely on session authentication.
+      schema:
+        type: string
+      example: pt-v1-6c8c8a7e-347a-58f3-bde8-2a3566f0491e
   schemas:
-    EvmAccount:
+    EmailAuthentication:
       type: object
+      description: Information about an end user who authenticates using a one-time password sent to their email address.
       properties:
-        address:
+        type:
           type: string
-          pattern: ^0x[0-9a-fA-F]{40}$
-          description: The 0x-prefixed, checksum EVM address.
-          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-        name:
+          description: The type of authentication information.
+          example: email
+          enum:
+            - email
+        email:
           type: string
-          description: |-
-            An optional name for the account.
-            Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
-            Account names are guaranteed to be unique across all EVM accounts in the developer's CDP Project.
-          example: my-account
-          pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
-        policies:
+          description: The email address of the end user.
+          example: user@example.com
+          format: email
+      required:
+        - type
+        - email
+    DeveloperJWTAuthentication:
+      type: object
+      description: Information about an end user who authenticates using a JWT issued by the developer.
+      properties:
+        type:
+          type: string
+          description: The type of authentication information.
+          enum:
+            - jwt
+          example: jwt
+        kid:
+          type: string
+          description: The key ID of the JWK used to sign the JWT.
+          example: NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg
+        sub:
+          type: string
+          description: The unique identifier for the end user that is captured in the `sub` claim of the JWT.
+          example: e051beeb-7163-4527-a5b6-35e301529ff2
+      required:
+        - type
+        - sub
+        - kid
+    AuthenticationMethod:
+      description: Information about how the end user is authenticated.
+      oneOf:
+        - $ref: '#/components/schemas/EmailAuthentication'
+        - $ref: '#/components/schemas/DeveloperJWTAuthentication'
+    AuthenticationMethods:
+      type: array
+      description: The list of valid authentication methods linked to the end user.
+      items:
+        $ref: '#/components/schemas/AuthenticationMethod'
+      example:
+        - type: email
+          email: user@example.com
+        - type: jwt
+          sub: e051beeb-7163-4527-a5b6-35e301529ff2
+          kid: NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg
+    EndUser:
+      type: object
+      description: Information about an end user.
+      properties:
+        userId:
+          description: A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
+          type: string
+          pattern: ^[a-zA-Z0-9-]{1,100}$
+          example: e051beeb-7163-4527-a5b6-35e301529ff2
+        authenticationMethods:
+          $ref: '#/components/schemas/AuthenticationMethods'
+        evmAccounts:
           type: array
-          x-audience: public
-          description: The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists.
+          description: The list of EVM accounts associated with the end user. Currently, only one EVM account is supported per end user.
           items:
             type: string
-            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+            description: The address of the EVM account associated with the end user.
+            pattern: ^0x[0-9a-fA-F]{40}$
+            example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
           example:
-            - 123e4567-e89b-12d3-a456-426614174000
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
       required:
-        - address
-    ListResponse:
-      type: object
-      properties:
-        nextPageToken:
-          type: string
-          description: The token for the next page of items, if any.
-          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - userId
+        - authenticationMethods
+        - evmAccount
     ErrorType:
       description: The code that indicates the type of error that occurred. These error codes can be used to determine how to handle the error.
       type: string
@@ -3252,6 +4996,127 @@ components:
         errorMessage: Invalid request.
         correlationId: 41deb8d59a9dc9a7-IAD
         errorLink: https://docs.cdp.coinbase.com/api-v2/docs/errors#invalid_request
+    InitiateEmailAuthenticationRequest:
+      type: object
+      description: The request body for an end user to initiate authentication using a one-time password sent to their email address.
+      properties:
+        projectId:
+          type: string
+          description: The ID of the CDP Project.
+          example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+        type:
+          type: string
+          description: The type of authentication information.
+          example: email
+          enum:
+            - email
+        email:
+          type: string
+          description: The email address of the end user.
+          example: user@example.com
+          format: email
+      required:
+        - type
+        - email
+        - projectId
+    InitiateAuthenticationRequest:
+      description: The request body for an end user to initiate authentication.
+      oneOf:
+        - $ref: '#/components/schemas/InitiateEmailAuthenticationRequest'
+    InitiateEmailAuthenticationNextStep:
+      type: object
+      description: The next step in the flow of the end user initiating authentication using a one-time password sent to their email address.
+      properties:
+        type:
+          type: string
+          description: The type of the next step.
+          example: verify-otp
+          enum:
+            - verify-otp
+        url:
+          type: string
+          description: The URL at which to send the verification code.
+          example: https://api.cdp.coinbase.com/platform/v2/embedded-wallet-api/auth/verify-email
+      example:
+        type: verify-otp
+        url: https://api.cdp.coinbase.com/platform/v2/embedded-wallet-api/auth/verify-email
+      required:
+        - type
+        - url
+    InitiateEmailAuthenticationResponse:
+      type: object
+      description: The response body for an end user to initiate authentication using a one-time password sent to their email address.
+      properties:
+        message:
+          type: string
+          description: The message to display to the end user.
+          example: A one-time password has been sent to your email address.
+        flowId:
+          type: string
+          description: The ID of the authentication flow, used to correlate verification requests with the initiation request.
+          example: 123e4567-e89b-12d3-a456-426614174000
+        nextStep:
+          $ref: '#/components/schemas/InitiateEmailAuthenticationNextStep'
+      required:
+        - message
+        - flowId
+        - nextStep
+    VerifyEmailAuthenticationRequest:
+      type: object
+      description: The request body for an end user to verify their email address using a one-time password.
+      properties:
+        projectId:
+          type: string
+          description: The ID of the CDP Project.
+          example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+          pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
+        flowId:
+          type: string
+          description: The ID of the authentication flow, used to correlate verification requests with the initiation request.
+          example: 123e4567-e89b-12d3-a456-426614174000
+        otp:
+          type: string
+          description: The one-time password sent to the end user's email address.
+          example: '123456'
+      required:
+        - projectId
+        - flowId
+        - otp
+    EvmAccount:
+      type: object
+      properties:
+        address:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{40}$
+          description: The 0x-prefixed, checksum EVM address.
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        name:
+          type: string
+          description: |-
+            An optional name for the account.
+            Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+            Account names are guaranteed to be unique across all EVM accounts in the developer's CDP Project.
+          example: my-account
+          pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+        policies:
+          type: array
+          x-audience: public
+          description: The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists.
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example:
+            - 123e4567-e89b-12d3-a456-426614174000
+      required:
+        - address
+    ListResponse:
+      type: object
+      properties:
+        nextPageToken:
+          type: string
+          description: The token for the next page of items, if any.
+          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
     EIP712Domain:
       type: object
       description: The domain of the EIP-712 typed data.
@@ -3467,6 +5332,333 @@ components:
         - userOpHash
         - calls
         - status
+    EvmSwapsNetwork:
+      type: string
+      enum:
+        - base
+        - ethereum
+      description: The network on which to perform the swap.
+      example: base
+    toToken:
+      type: string
+      pattern: ^0x[a-fA-F0-9]{40}$
+      description: The 0x-prefixed contract address of the token to receive.
+      example: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+    fromToken:
+      type: string
+      pattern: ^0x[a-fA-F0-9]{40}$
+      description: The 0x-prefixed contract address of the token to send.
+      example: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+    fromAmount:
+      type: string
+      pattern: ^\d+$
+      description: The amount of the `fromToken` to send in atomic units of the token. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
+      example: '1000000000000000000'
+    taker:
+      type: string
+      pattern: ^0x[a-fA-F0-9]{40}$
+      description: The 0x-prefixed address that holds the `fromToken` balance and has the `Permit2` allowance set for the swap.
+      example: '0xAc0974bec39a17e36ba4a6b4d238ff944bacb478'
+    signerAddress:
+      type: string
+      pattern: ^0x[a-fA-F0-9]{40}$
+      description: The 0x-prefixed Externally Owned Account (EOA) address that will sign the `Permit2` EIP-712 permit message. This is only needed if `taker` is a smart contract.
+      example: '0x922f49447d8a07e3bd95bd0d56f35241523fbab8'
+    gasPrice:
+      type: string
+      pattern: ^\d+$
+      description: The target gas price for the swap transaction, in Wei. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. If not provided, the API will use an estimate based on the current network conditions.
+      example: '1000000000'
+    slippageBps:
+      type: integer
+      minimum: 0
+      maximum: 10000
+      description: The maximum acceptable slippage of the `toToken` in basis points. If this parameter is set to 0, no slippage will be tolerated. If not provided, the default slippage tolerance is 100 bps (i.e., 1%).
+      default: 100
+      example: 100
+    TokenFee:
+      type: object
+      properties:
+        amount:
+          type: string
+          pattern: ^\d+$
+          description: The estimated amount of the fee in atomic units of the `token`. For example, `1000000000000000` if the fee is in ETH equates to 0.001 ETH, `10000` if the fee is in USDC equates to 0.01 USDC, etc.
+          example: '1000000000000000000'
+        token:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: The contract address of the token that the fee is paid in. The address `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` is used for the native token of the network (e.g. ETH).
+          example: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      required:
+        - amount
+        - token
+    CommonSwapResponse:
+      type: object
+      properties:
+        blockNumber:
+          type: string
+          pattern: ^[1-9]\d*$
+          description: The block number at which the liquidity conditions were examined.
+          example: '17038723'
+        toAmount:
+          type: string
+          pattern: ^(0|[1-9]\d*)$
+          description: The amount of the `toToken` that will be received in atomic units of the `toToken`. For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc.
+          example: '1000000000000000000'
+        toToken:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: The 0x-prefixed contract address of the token that will be received.
+          example: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+        fees:
+          type: object
+          description: The estimated fees for the swap.
+          properties:
+            gasFee:
+              type: object
+              nullable: true
+              description: The estimated gas fee for the swap.
+              allOf:
+                - $ref: '#/components/schemas/TokenFee'
+            protocolFee:
+              type: object
+              nullable: true
+              description: The estimated protocol fee for the swap.
+              allOf:
+                - $ref: '#/components/schemas/TokenFee'
+          required:
+            - gasFee
+            - protocolFee
+          example:
+            gasFee:
+              amount: '1000000000000000000'
+              token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+            protocolFee:
+              amount: '1000000000000000000'
+              token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        issues:
+          type: object
+          description: An object containing potential issues discovered during validation that could prevent the swap from being executed successfully.
+          properties:
+            allowance:
+              type: object
+              nullable: true
+              description: Details of the allowances that the taker must set in order to execute the swap successfully. Null if no allowance is required.
+              properties:
+                currentAllowance:
+                  type: string
+                  pattern: ^\d+$
+                  description: The current allowance of the `fromToken` by the `taker`.
+                  example: '1000000000'
+                spender:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed address of to set the allowance on.
+                  example: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+              required:
+                - currentAllowance
+                - spender
+              example:
+                currentAllowance: '1000000000'
+                spender: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+            balance:
+              type: object
+              nullable: true
+              description: Details of the balance of the `fromToken` that the `taker` must hold. Null if the `taker` has a sufficient balance.
+              properties:
+                token:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed contract address of the token.
+                currentBalance:
+                  type: string
+                  pattern: ^\d+$
+                  description: The current balance of the `fromToken` by the `taker`.
+                  example: '10000000'
+                requiredBalance:
+                  type: string
+                  pattern: ^\d+$
+                  description: The amount of the token that the `taker` must hold.
+                  example: '1000000000000000000'
+              required:
+                - token
+                - currentBalance
+                - requiredBalance
+              example:
+                token: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+                currentBalance: '1000000000000000000'
+                requiredBalance: '1000000000000000000'
+            simulationIncomplete:
+              type: boolean
+              description: This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `fromToken`. Note that this does not necessarily mean that the trade will revert.
+              example: false
+          required:
+            - allowance
+            - balance
+            - simulationIncomplete
+          example:
+            allowance:
+              currentAllowance: '1000000000'
+              spender: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+            balance:
+              token: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+              currentBalance: '900000000000000000'
+              requiredBalance: '1000000000000000000'
+            simulationIncomplete: false
+        liquidityAvailable:
+          type: boolean
+          enum:
+            - true
+          description: Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
+          example: true
+        minToAmount:
+          type: string
+          pattern: ^(0|[1-9]\d*)$
+          description: The minimum amount of the `toToken` that must be received for the swap to succeed, in atomic units of the `toToken`.  For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.
+          example: '900000000000000000'
+        fromAmount:
+          type: string
+          pattern: ^(0|[1-9]\d*)$
+          description: The amount of the `fromToken` that will be sent in this swap, in atomic units of the `fromToken`. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
+          example: '1000000000000000000'
+        fromToken:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: The 0x-prefixed contract address of the token that will be sent.
+          example: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+      required:
+        - blockNumber
+        - toAmount
+        - toToken
+        - fees
+        - issues
+        - liquidityAvailable
+        - minToAmount
+        - fromAmount
+        - fromToken
+      example:
+        blockNumber: '17038723'
+        toAmount: '1000000000000000000'
+        toToken: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607'
+        fees:
+          gasFee:
+            amount: '1000000000000000000'
+            token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+          protocolFee:
+            amount: '1000000000000000000'
+            token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        issues:
+          allowance:
+            currentAllowance: '1000000000'
+            spender: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+          balance:
+            token: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+            currentBalance: '1000000000000000000'
+            requiredBalance: '1000000000000000000'
+          simulationIncomplete: false
+        liquidityAvailable: true
+        minToAmount: '900000000000000000'
+        fromAmount: '1000000000000000000'
+        fromToken: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+    GetSwapPriceResponse:
+      allOf:
+        - $ref: '#/components/schemas/CommonSwapResponse'
+        - type: object
+          properties:
+            gas:
+              type: string
+              nullable: true
+              pattern: ^\d+$
+              description: The estimated gas limit that should be used to send the transaction to guarantee settlement.
+              example: '100000'
+            gasPrice:
+              type: string
+              pattern: ^\d+$
+              description: The gas price, in Wei, that should be used to send the transaction. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. The transaction should be sent with this gas price to guarantee settlement.
+              example: '1000000000'
+          required:
+            - gas
+            - gasPrice
+    SwapUnavailableResponse:
+      type: object
+      properties:
+        liquidityAvailable:
+          type: boolean
+          enum:
+            - false
+          description: Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
+          example: false
+      required:
+        - liquidityAvailable
+      example:
+        liquidityAvailable: false
+    GetSwapPriceResponseWrapper:
+      description: A wrapper for the response of a swap price operation.
+      oneOf:
+        - $ref: '#/components/schemas/GetSwapPriceResponse'
+        - $ref: '#/components/schemas/SwapUnavailableResponse'
+    CreateSwapQuoteResponse:
+      allOf:
+        - type: object
+          properties:
+            permit2:
+              type: object
+              nullable: true
+              description: The approval object which contains the necessary fields to submit an approval for this transaction. Null if the `fromToken` is the native token or the transaction is a native token wrap / unwrap.
+              properties:
+                hash:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{64}$
+                  description: The hash for the approval according to [EIP-712](https://eips.ethereum.org/EIPS/eip-712). Computing the hash of the `eip712` field should match the value of this field.
+                  example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                eip712:
+                  $ref: '#/components/schemas/EIP712Message'
+              required:
+                - hash
+                - eip712
+            transaction:
+              type: object
+              description: The details of the transaction to be signed and submitted to execute the swap.
+              properties:
+                to:
+                  type: string
+                  pattern: ^0x[a-fA-F0-9]{40}$
+                  description: The 0x-prefixed address of the contract to call.
+                  example: '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+                data:
+                  type: string
+                  description: The hex-encoded call data to send to the contract.
+                  example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+                gas:
+                  type: string
+                  pattern: ^\d+$
+                  description: The estimated gas limit that should be used to send the transaction to guarantee settlement.
+                  example: '100000'
+                gasPrice:
+                  type: string
+                  pattern: ^\d+$
+                  description: The gas price, in Wei, that should be used to send the transaction. For EIP-1559 transactions, this value should be seen as the `maxFeePerGas` value. The transaction should be sent with this gas price to guarantee settlement.
+                  example: '1000000000'
+                value:
+                  type: string
+                  pattern: ^\d+$
+                  description: The value of the transaction in Wei.
+                  example: '1000000000000000000'
+              required:
+                - to
+                - data
+                - gas
+                - gasPrice
+                - value
+          required:
+            - permit2
+            - transaction
+        - $ref: '#/components/schemas/CommonSwapResponse'
+    CreateSwapQuoteResponseWrapper:
+      description: A wrapper for the response of a swap quote operation.
+      oneOf:
+        - $ref: '#/components/schemas/CreateSwapQuoteResponse'
+        - $ref: '#/components/schemas/SwapUnavailableResponse'
     ListEvmTokenBalancesNetwork:
       type: string
       enum:
@@ -3608,6 +5800,273 @@ components:
         - type
         - addresses
         - operator
+    KnownAbiType:
+      type: string
+      description: |-
+        A reference to an established EIP standard. When referencing a `KnownAbiType` within a policy rule configuring an `EvmDataCriterion`, criteria will only decode function data officially documented in the standard. For more information on supported token standards, see the links below.
+          - [erc20 - Token Standard](https://eips.ethereum.org/EIPS/eip-20).
+          - [erc721 - Non-Fungible Token Standard](https://eips.ethereum.org/EIPS/eip-721).
+          - [erc1155 - Multi Token Standard](https://eips.ethereum.org/EIPS/eip-1155).
+      enum:
+        - erc20
+        - erc721
+        - erc1155
+    AbiParameter:
+      x-audience: development
+      type: object
+      description: Parameter definition for ABI functions, errors, and constructors.
+      required:
+        - type
+      properties:
+        name:
+          type: string
+          description: The name of the parameter.
+          example: tokenId
+        type:
+          type: string
+          description: The canonical type of the parameter.
+          example: uint256
+        internalType:
+          type: string
+          description: The internal Solidity type used by the compiler.
+          example: uint256
+        components:
+          type: array
+          description: Used for tuple types.
+          items:
+            $ref: '#/components/schemas/AbiParameter'
+          example:
+            - name: x
+              type: uint256
+      example:
+        name: tokenId
+        type: uint256
+        internalType: uint256
+    AbiStateMutability:
+      x-audience: development
+      type: string
+      description: State mutability of a function in Solidity.
+      enum:
+        - pure
+        - view
+        - nonpayable
+        - payable
+      example: view
+    AbiFunction:
+      x-audience: development
+      type: object
+      description: ABI function type for contract functions.
+      required:
+        - type
+        - name
+        - inputs
+        - outputs
+        - stateMutability
+      properties:
+        type:
+          description: The type of the ABI item, must be `function`.
+          type: string
+          enum:
+            - function
+          example: function
+        name:
+          type: string
+          description: The name of the ABI function.
+          example: approve
+        inputs:
+          type: array
+          description: The list of ABI parameters used for this function.
+          items:
+            $ref: '#/components/schemas/AbiParameter'
+          example:
+            - name: spender
+              type: address
+              internalType: address
+        outputs:
+          type: array
+          description: The values returned by this function.
+          items:
+            $ref: '#/components/schemas/AbiParameter'
+          example:
+            name: ''
+            type: bool
+            internalType: bool
+        constant:
+          type: boolean
+          description: Deprecated. Use pure or view from stateMutability instead.
+          example: false
+        payable:
+          type: boolean
+          description: Deprecated. Use payable or nonpayable from `stateMutability` instead.
+          example: false
+        stateMutability:
+          $ref: '#/components/schemas/AbiStateMutability'
+        gas:
+          type: integer
+          description: Deprecated. Vyper used to provide gas estimates.
+          example: 0
+      example:
+        type: function
+        name: balanceOf
+        inputs:
+          - name: owner
+            type: address
+            internalType: address
+        outputs:
+          - name: null
+            type: uint256
+            internalType: uint256
+        stateMutability: view
+    Abi:
+      x-audience: development
+      type: array
+      description: Contract ABI Specification following Solidity's external JSON interface format.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/AbiFunction'
+      example:
+        - type: function
+          name: approve
+          inputs:
+            - name: spender
+              type: address
+              internalType: address
+            - name: amount
+              type: uint256
+              internalType: uint256
+          outputs:
+            - name: null
+              type: bool
+              internalType: bool
+          stateMutability: nonpayable
+    EvmDataParameterCondition:
+      x-audience: development
+      type: object
+      properties:
+        name:
+          type: string
+          example: to
+          description: The name of the parameter to check against a transaction's calldata. If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter.
+        operator:
+          type: string
+          enum:
+            - '>'
+            - '>='
+            - <
+            - <=
+            - '=='
+          description: The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+          example: '=='
+        value:
+          type: string
+          example: '100000'
+          description: A single value to compare the value resolved at `name` to. All values are encoded as strings. Refer to the table in the documentation for how values should be encoded, and which operators are supported for each type.
+      required:
+        - name
+        - operator
+        - value
+    EvmDataParameterConditionList:
+      x-audience: development
+      type: object
+      properties:
+        name:
+          type: string
+          example: to
+          description: The name of the parameter to check against a transaction's calldata. If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter.
+        operator:
+          type: string
+          enum:
+            - in
+            - not in
+          description: The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `values` field will be on the right-hand side.
+          example: in
+        values:
+          type: array
+          items:
+            type: string
+            example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            description: A single potential value to compare against the resolved `name` value. All values are encoded as strings. Refer to the table in the documentation for how values should be encoded, and which operators are supported for each type.
+          description: Values to compare against the resolved `name` value. All values are encoded as strings. Refer to the table in the documentation for how values should be encoded, and which operators are supported for each type.
+          example:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      required:
+        - name
+        - operator
+        - values
+    EvmDataCondition:
+      type: object
+      x-audience: development
+      description: A single condition to apply against the function and encoded arguments in the transaction's `data` field. Each `parameter` configuration must be successfully evaluated against the corresponding function argument in order for a policy to be accepted.
+      properties:
+        function:
+          type: string
+          example: transfer
+          description: The name of a smart contract function being called.
+        params:
+          type: array
+          description: An optional list of parameter conditions to apply against encoded arguments in the transaction's `data` field.
+          items:
+            description: A list of parameter conditions to apply against encoded arguments in the transaction's `data` field.
+            oneOf:
+              - $ref: '#/components/schemas/EvmDataParameterCondition'
+              - $ref: '#/components/schemas/EvmDataParameterConditionList'
+          example:
+            - name: value
+              operator: <=
+              value: '10000'
+            - name: to
+              operator: in
+              values:
+                - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      example:
+        function: transfer
+        params:
+          - name: value
+            operator: <=
+            value: '10000'
+          - name: to
+            operator: in
+            values:
+              - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      required:
+        - function
+    EvmDataCriterion:
+      type: object
+      x-audience: development
+      description: A schema for specifying a criterion for the `data` field of an EVM transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `evmData`.
+          example: evmData
+          enum:
+            - evmData
+        abi:
+          description: The ABI of the smart contract being called. This can be a partial structure with only specific functions.
+          oneOf:
+            - $ref: '#/components/schemas/KnownAbiType'
+            - $ref: '#/components/schemas/Abi'
+          example: erc20
+        conditions:
+          type: array
+          description: A list of conditions to apply against the function and encoded arguments in the transaction's `data` field. Each condition must be met in order for this policy to be accepted or rejected.
+          items:
+            $ref: '#/components/schemas/EvmDataCondition'
+          example:
+            - function: approve
+            - function: transfer
+              params:
+                - name: value
+                  operator: <=
+                  value: '10000'
+                - name: to
+                  operator: in
+                  values:
+                    - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      required:
+        - type
+        - abi
+        - conditions
     SignEvmTransactionCriteria:
       type: array
       description: A schema for specifying criteria for the SignEvmTransaction operation.
@@ -3615,6 +6074,7 @@ components:
         oneOf:
           - $ref: '#/components/schemas/EthValueCriterion'
           - $ref: '#/components/schemas/EvmAddressCriterion'
+          - $ref: '#/components/schemas/EvmDataCriterion'
       example:
         - type: ethValue
           ethValue: '1000000'
@@ -3688,6 +6148,7 @@ components:
           - $ref: '#/components/schemas/EthValueCriterion'
           - $ref: '#/components/schemas/EvmAddressCriterion'
           - $ref: '#/components/schemas/EvmNetworkCriterion'
+          - $ref: '#/components/schemas/EvmDataCriterion'
       example:
         - type: ethValue
           ethValue: '1000000'
@@ -3764,6 +6225,249 @@ components:
             - signEvmMessage
         criteria:
           $ref: '#/components/schemas/SignEvmMessageCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    EvmTypedAddressCondition:
+      type: object
+      x-audience: development
+      description: A schema for specifying criterion for an address field of an EVM typed message. The address can be deeply nested within the typed data's message.
+      properties:
+        addresses:
+          type: array
+          description: A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 100 addresses per criterion.
+          items:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+            description: The 0x-prefixed EVM address that the value located at the message's path should be compared to.
+          example:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            - '0x1234567890123456789012345678901234567890'
+        operator:
+          type: string
+          description: The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+        path:
+          type: string
+          description: The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected.
+          example: targets[0].address
+      required:
+        - addresses
+        - operator
+        - path
+    EvmTypedNumericalCondition:
+      type: object
+      x-audience: development
+      description: A schema for specifying criterion for a numerical field of an EVM typed message. The value can be deeply nested within the typed data's message.
+      properties:
+        value:
+          type: string
+          pattern: ^[0-9]+$
+          description: The amount that the value located at the message's path should be compared to.
+          example: '1000000000000000000'
+        operator:
+          type: string
+          description: The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+          enum:
+            - '>'
+            - '>='
+            - <
+            - <=
+            - '=='
+          example: <=
+        path:
+          type: string
+          description: The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected.
+          example: targets[0].amount
+      required:
+        - value
+        - operator
+        - path
+    EvmTypedStringCondition:
+      type: object
+      x-audience: development
+      description: A schema for specifying criterion for a string field of an EVM typed message. The value can be deeply nested within the typed data's message.
+      properties:
+        match:
+          type: string
+          description: A regular expression the field is matched against.
+          example: ^hello ([a-z]+)$
+        path:
+          type: string
+          description: The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected.
+          example: targets[0].message
+      required:
+        - match
+        - path
+    SignEvmTypedDataFieldCriterion:
+      x-audience: development
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `evmTypedDataField`.
+          example: evmTypedDataField
+          enum:
+            - evmTypedDataField
+        types:
+          type: object
+          description: An object containing EIP-712 type definitions, as well as a primary type for the root message object.
+          example:
+            primaryType: Mail
+            types:
+              Person:
+                - name: name
+                  type: string
+                - name: wallet
+                  type: address
+                - name: score
+                  type: uint256
+              Mail:
+                - name: from
+                  type: Person
+                - name: to
+                  type: Person
+                - name: contents
+                  type: string
+          properties:
+            types:
+              type: object
+              description: EIP-712 compliant map of model names to model definitions.
+              additionalProperties:
+                type: array
+                description: Object containing names and types for fields within structured data.
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: The name of a key within an EIP-712 data structure.
+                    type:
+                      type: string
+                      description: The Solidity type of a value within an EIP-712 data structure.
+            primaryType:
+              type: string
+              description: The name of the root EIP-712 type. This value must be included in the `types` object.
+          required:
+            - types
+            - primaryType
+        conditions:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/EvmTypedAddressCondition'
+              - $ref: '#/components/schemas/EvmTypedNumericalCondition'
+              - $ref: '#/components/schemas/EvmTypedStringCondition'
+          description: A list of conditions to check against the data being signed. Each condition must be met for the rule to take effect.
+          example:
+            - addresses:
+                - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+              operator: in
+              path: to.wallet
+            - value: '50'
+              operator: '>='
+              path: to.score
+            - match: ^hello ([a-z]+)$
+              path: contents
+      required:
+        - type
+        - types
+        - conditions
+    SignEvmTypedDataVerifyingContractCriterion:
+      type: object
+      x-audience: development
+      description: A schema for specifying criterion for a domain's verifying contract.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `evmTypedDataVerifyingContract`.
+          example: evmTypedDataVerifyingContract
+          enum:
+            - evmTypedDataVerifyingContract
+        addresses:
+          type: array
+          description: A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 100 addresses per criterion.
+          items:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+            description: The 0x-prefixed EVM address that the domain's verifying contract should be compared to.
+          example:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            - '0x1234567890123456789012345678901234567890'
+        operator:
+          type: string
+          description: The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+      required:
+        - type
+        - addresses
+        - operator
+    SignEvmTypedDataCriteria:
+      x-audience: development
+      type: array
+      description: A schema for specifying criteria for the SignEvmTypedData operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/SignEvmTypedDataFieldCriterion'
+          - $ref: '#/components/schemas/SignEvmTypedDataVerifyingContractCriterion'
+      example:
+        - type: evmTypedDataField
+          types:
+            types:
+              Person:
+                - name: name
+                  type: string
+                - name: wallet
+                  type: address
+                - name: score
+                  type: uint256
+              Mail:
+                - name: from
+                  type: Person
+                - name: to
+                  type: Person
+                - name: contents
+                  type: string
+            primaryType: Mail
+          conditions:
+            - addresses:
+                - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+              operator: in
+              path: to.wallet
+            - value: '50'
+              operator: '>='
+              path: to.score
+            - match: ^hello ([a-z]+)$
+              path: contents
+        - type: evmTypedDataVerifyingContract
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+    SignEvmTypedDataRule:
+      x-audience: development
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: signEvmTypedData
+          enum:
+            - signEvmTypedData
+        criteria:
+          $ref: '#/components/schemas/SignEvmTypedDataCriteria'
       required:
         - action
         - operation
@@ -3857,6 +6561,7 @@ components:
         - $ref: '#/components/schemas/SignEvmTransactionRule'
         - $ref: '#/components/schemas/SendEvmTransactionRule'
         - $ref: '#/components/schemas/SignEvmMessageRule'
+        - $ref: '#/components/schemas/SignEvmTypedDataRule'
         - $ref: '#/components/schemas/SignSolTransactionRule'
         - $ref: '#/components/schemas/SignEvmHashRule'
       example:
@@ -3957,6 +6662,277 @@ components:
             - 123e4567-e89b-12d3-a456-426614174000
       required:
         - address
+    WalletSecretMetadata:
+      type: object
+      properties:
+        updatedAt:
+          type: string
+          description: The ISO 8601 timestamp at which the Wallet Secret was last updated.
+          example: '2025-03-25T12:00:00Z'
+      required:
+        - updatedAt
+    x402ExactEvmPayload:
+      type: object
+      description: The x402 protocol exact scheme payload for EVM networks. The scheme is implemented using ERC-3009. For more details, please see [EVM Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_evm.md).
+      properties:
+        signature:
+          type: string
+          description: The EIP-712 hex-encoded signature of the ERC-3009 authorization message.
+          example: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480'
+        authorization:
+          type: object
+          description: The authorization data for the ERC-3009 authorization message.
+          properties:
+            from:
+              type: string
+              pattern: ^0x[0-9a-fA-F]{40}$
+              description: The 0x-prefixed, checksum EVM address of the sender of the payment.
+              example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            to:
+              type: string
+              pattern: ^0x[0-9a-fA-F]{40}$
+              description: The 0x-prefixed, checksum EVM address of the recipient of the payment.
+              example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            value:
+              type: string
+              description: The value of the payment, in atomic units of the payment asset.
+              example: '1000000000000000000'
+            validAfter:
+              type: string
+              description: The unix timestamp after which the payment is valid.
+              example: '1716150000'
+            validBefore:
+              type: string
+              description: The unix timestamp before which the payment is valid.
+              example: '1716150000'
+            nonce:
+              type: string
+              description: The hex-encoded nonce of the payment.
+              example: '0x1234567890abcdef1234567890abcdef12345678'
+          example:
+            from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            value: '1000000000000000000'
+            validAfter: '1716150000'
+            validBefore: '1716150000'
+            nonce: '0x1234567890abcdef1234567890abcdef12345678'
+          required:
+            - from
+            - to
+            - value
+            - validAfter
+            - validBefore
+            - nonce
+      example:
+        signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480'
+        authorization:
+          from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          value: '1000000000000000000'
+          validAfter: '1716150000'
+          validBefore: '1716150000'
+          nonce: '0x1234567890abcdef1234567890abcdef12345678'
+      required:
+        - signature
+        - authorization
+    x402PaymentPayload:
+      type: object
+      description: The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+      properties:
+        x402Version:
+          type: integer
+          description: The version of the x402 protocol to use.
+          enum:
+            - 1
+          example: 1
+        scheme:
+          type: string
+          description: The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+          enum:
+            - exact
+          example: exact
+        network:
+          type: string
+          description: The network of the blockchain to send payment on.
+          enum:
+            - base-sepolia
+            - base
+          example: base
+        payload:
+          type: object
+          description: The payload of the payment depending on the x402Version, scheme, and network.
+          oneOf:
+            - $ref: '#/components/schemas/x402ExactEvmPayload'
+          example:
+            signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480'
+            authorization:
+              from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+              to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+              value: '1000000000000000000'
+              validAfter: '1716150000'
+              validBefore: '1716150000'
+              nonce: '0x1234567890abcdef1234567890abcdef12345678'
+      example:
+        x402Version: 1
+        scheme: exact
+        network: base
+        payload:
+          signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480'
+          authorization:
+            from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            value: '1000000000000000000'
+            validAfter: '1716150000'
+            validBefore: '1716150000'
+            nonce: '0x1234567890abcdef1234567890abcdef12345678'
+      required:
+        - x402Version
+        - scheme
+        - network
+        - payload
+    x402PaymentRequirements:
+      type: object
+      description: The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+      properties:
+        scheme:
+          type: string
+          description: The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+          enum:
+            - exact
+          example: exact
+        network:
+          type: string
+          description: The network of the blockchain to send payment on.
+          enum:
+            - base-sepolia
+            - base
+          example: base
+        maxAmountRequired:
+          type: string
+          description: The maximum amount required to pay for the resource in atomic units of the payment asset.
+          example: '1000000'
+        resource:
+          type: string
+          description: The URL of the resource to pay for.
+          example: https://api.example.com/premium/resource/123
+        description:
+          type: string
+          description: The description of the resource.
+          example: Premium API access for data analysis
+        mimeType:
+          type: string
+          description: The MIME type of the resource response.
+          example: application/json
+        outputSchema:
+          type: object
+          description: The optional JSON schema describing the resource output.
+          additionalProperties: true
+          example:
+            data: string
+        payTo:
+          type: string
+          description: |-
+            The destination to pay value to.
+
+            For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
+
+            For Solana-based networks, payTo will be a base58-encoded Solana address.
+          pattern: ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        maxTimeoutSeconds:
+          type: integer
+          description: The maximum time in seconds for the resource server to respond.
+          example: 10
+        asset:
+          type: string
+          description: |-
+            The asset to pay with.
+
+            For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
+
+            For Solana-based networks, the asset will be a base58-encoded Solana address.
+          pattern: ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        extra:
+          type: object
+          description: The optional additional scheme-specific payment info.
+          additionalProperties: true
+          example:
+            gasLimit: '1000000'
+      required:
+        - scheme
+        - network
+        - maxAmountRequired
+        - resource
+        - description
+        - mimeType
+        - payTo
+        - asset
+        - maxTimeoutSeconds
+    x402VerifyInvalidReason:
+      type: string
+      description: The reason the payment is invalid on the x402 protocol.
+      enum:
+        - insufficient_funds
+        - invalid_scheme
+        - invalid_network
+        - invalid_x402_version
+        - invalid_payment_requirements
+        - invalid_payload
+        - invalid_exact_evm_payload_authorization_value
+        - invalid_exact_evm_payload_authorization_valid_after
+        - invalid_exact_evm_payload_authorization_valid_before
+        - invalid_exact_evm_payload_authorization_typed_data_message
+        - invalid_exact_evm_payload_authorization_from_address_kyt
+        - invalid_exact_evm_payload_authorization_to_address_kyt
+        - invalid_exact_evm_payload_signature
+        - invalid_exact_evm_payload_signature_address
+      example: insufficient_funds
+    x402SettleErrorReason:
+      type: string
+      description: The reason the payment settlement errored on the x402 protocol.
+      enum:
+        - insufficient_funds
+        - invalid_scheme
+        - invalid_network
+        - invalid_x402_version
+        - invalid_payment_requirements
+        - invalid_payload
+        - invalid_exact_evm_payload_authorization_value
+        - invalid_exact_evm_payload_authorization_valid_after
+        - invalid_exact_evm_payload_authorization_valid_before
+        - invalid_exact_evm_payload_authorization_typed_data_message
+        - invalid_exact_evm_payload_authorization_from_address_kyt
+        - invalid_exact_evm_payload_authorization_to_address_kyt
+        - invalid_exact_evm_payload_signature_address
+      example: insufficient_funds
+    x402SupportedPaymentKind:
+      type: object
+      description: The supported payment kind for the x402 protocol. A kind is comprised of a scheme and a network, which together uniquely identify a way to move money on the x402 protocol. For more details, please see [x402 Schemes](https://github.com/coinbase/x402?tab=readme-ov-file#schemes).
+      properties:
+        x402Version:
+          type: integer
+          description: The version of the x402 payment protocol.
+          enum:
+            - 1
+          example: 1
+        scheme:
+          type: string
+          description: The scheme of the payment protocol.
+          enum:
+            - exact
+          example: exact
+        network:
+          type: string
+          description: The network of the blockchain.
+          enum:
+            - base-sepolia
+            - base
+          example: base
+      required:
+        - x402Version
+        - scheme
+        - network
     PaymentRailAction:
       description: The action of the payment method.
       type: string
@@ -4316,6 +7292,17 @@ components:
         updatedAt: '2021-01-01T00:00:00Z'
         transactionHash: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
   responses:
+    IdempotencyError:
+      description: Idempotency key conflict.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            idempotency_error:
+              value:
+                errorType: idempotency_error
+                errorMessage: Idempotency key '8e03978e-40d5-43e8-bc93-6894a57f9324' was already used with a different request payload. Please try again with a new idempotency key.
     InternalServerError:
       description: Internal server error.
       content:
@@ -4327,6 +7314,17 @@ components:
               value:
                 errorType: internal_server_error
                 errorMessage: An internal server error occurred. Please try again later.
+    AlreadyExistsError:
+      description: The resource already exists.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            idempotency_key_already_exists:
+              value:
+                errorType: already_exists
+                errorMessage: Another request with the same idempotency key is currently processing.
     BadGatewayError:
       description: Bad gateway.
       content:
@@ -4349,51 +7347,90 @@ components:
               value:
                 errorType: service_unavailable
                 errorMessage: Service unavailable. Please try again later.
-    IdempotencyError:
-      description: Idempotency key conflict.
+    x402VerifyResponse:
+      description: Successfully verified payment on the x402 protocol.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            idempotency_error:
-              value:
-                errorType: idempotency_error
-                errorMessage: Idempotency key '8e03978e-40d5-43e8-bc93-6894a57f9324' was already used with a different request payload. Please try again with a new idempotency key.
-    AlreadyExistsError:
-      description: The resource already exists.
+            type: object
+            properties:
+              isValid:
+                type: boolean
+                description: Indicates whether the payment is valid.
+                example: false
+              invalidReason:
+                $ref: '#/components/schemas/x402VerifyInvalidReason'
+              payer:
+                type: string
+                description: |-
+                  The onchain address of the client that is paying for the resource.
+
+                  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+
+                  For Solana-based networks, the payer will be a base58-encoded Solana address.
+                pattern: ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            required:
+              - isValid
+              - payer
+    x402SettleResponse:
+      description: Successfully settled payment on the x402 protocol.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
-          examples:
-            idempotency_key_already_exists:
-              value:
-                errorType: already_exists
-                errorMessage: Another request with the same idempotency key is currently processing.
-  parameters:
-    XWalletAuth:
-      name: X-Wallet-Auth
-      in: header
-      required: true
-      description: |
-        A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-        [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token)
-        section of our Authentication docs for more details on how to generate your Wallet Token.
-      schema:
-        type: string
-      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywicm9sZSI6ImFkbWluIiwiZXhwIjoxNzAxOTgwMDAwfQ.HWvMTKmCCTxHaxjvZyLaC6UQ6TV3ErTDWBf7zmdH0Lw
-    IdempotencyKey:
-      name: X-Idempotency-Key
-      in: header
-      required: false
-      description: |
-        An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
-        When included, duplicate requests with the same key will return identical responses. 
-        Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
-      schema:
-        type: string
-        maxLength: 36
-        minLength: 36
-        pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
-      example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+            type: object
+            properties:
+              success:
+                type: boolean
+                description: Indicates whether the payment settlement is successful.
+                example: false
+              errorReason:
+                $ref: '#/components/schemas/x402SettleErrorReason'
+              payer:
+                type: string
+                description: |-
+                  The onchain address of the client that is paying for the resource.
+
+                  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+
+                  For Solana-based networks, the payer will be a base58-encoded Solana address.
+                pattern: ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+              transaction:
+                type: string
+                description: |-
+                  The transaction of the settlement.
+                  For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
+                  For Solana-based networks, the transaction will be a base58-encoded Solana signature.
+                pattern: ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+              network:
+                type: string
+                description: The network where the settlement occurred.
+                example: base
+            required:
+              - success
+              - payer
+              - transaction
+              - network
+    x402SupportedPaymentKindsResponse:
+      description: Successfully retrieved supported payment kinds for the x402 protocol.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              kinds:
+                type: array
+                description: The list of supported payment kinds.
+                items:
+                  $ref: '#/components/schemas/x402SupportedPaymentKind'
+                example:
+                  - x402Version: 1
+                    scheme: exact
+                    network: base
+                  - x402Version: 1
+                    scheme: exact
+                    network: base-sepolia
+            required:
+              - kinds

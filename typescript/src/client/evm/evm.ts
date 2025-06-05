@@ -259,17 +259,11 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async createSmartAccount(options: CreateSmartAccountOptions): Promise<SmartAccount> {
-    if (!options.name && !options.idempotencyKey) {
-      throw new Error("Either name or idempotencyKey must be provided");
-    }
-
     const openApiSmartAccount = await (() => {
-      if (options.name) {
-        return CdpOpenApiClient.createEvmSmartAccountByName(options.name);
-      }
       return CdpOpenApiClient.createEvmSmartAccount(
         {
           owners: [options.owner.address],
+          name: options.name,
         },
         options.idempotencyKey,
       );
@@ -355,15 +349,13 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async getSmartAccount(options: GetSmartAccountOptions): Promise<SmartAccount> {
-    if (!options.address && !options.name) {
-      throw new Error("Either address or name must be provided");
-    }
-
-    const openApiSmartAccount = await (() => {
+    const openApiSmartAccount = await (async () => {
       if (options.address) {
         return CdpOpenApiClient.getEvmSmartAccount(options.address);
+      } else if (options.name) {
+        return CdpOpenApiClient.getEvmSmartAccountByName(options.name);
       }
-      return CdpOpenApiClient.getEvmSmartAccountByName(options.name);
+      throw new Error("Either address or name must be provided");
     })();
 
     const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
