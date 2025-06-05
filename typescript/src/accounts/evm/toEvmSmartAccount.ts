@@ -40,7 +40,7 @@ import type {
   SmartAccountQuoteSwapResult,
   SmartAccountSwapOptions,
   SmartAccountSwapResult,
-} from "../../actions/evm/types.js";
+} from "../../actions/evm/swap/types.js";
 import type {
   CdpOpenApiClientType,
   EvmSmartAccount as EvmSmartAccountModel,

@@ -1,6 +1,7 @@
 import { concat, numberToHex, size } from "viem";
 
 import { createSwapQuote } from "./createSwapQuote.js";
+import { createDeterministicUuidV4 } from "../../../utils/uuidV4.js";
 import { sendUserOperation } from "../sendUserOperation.js";
 
 import type { SendSwapOperationOptions, SendSwapOperationResult } from "./types.js";
@@ -128,24 +129,38 @@ export async function sendSwapOperation(
   let txData = swap.transaction.data as Hex;
 
   if (swap.permit2?.eip712) {
-    // For smart accounts, the owner signs the Permit2 EIP-712 message
+    /**
+     * Sign the Permit2 EIP-712 message.
+     * For smart accounts, the owner signs locally (no CDP client API call needed).
+     * Deterministically derive a new idempotency key from the provided idempotency key
+     * for permit2 signing to avoid key reuse in case it's needed in the future.
+     */
+    const permit2IdempotencyKey = idempotencyKey
+      ? createDeterministicUuidV4(idempotencyKey, "permit2")
+      : undefined;
+
+    // For smart accounts, the owner signs the Permit2 EIP-712 message locally
     const owner = smartAccount.owners[0];
 
-    const signature = await owner.signTypedData({
-      domain: swap.permit2.eip712.domain as Record<string, unknown>,
-      types: swap.permit2.eip712.types,
-      primaryType: swap.permit2.eip712.primaryType,
-      message: swap.permit2.eip712.message,
-    });
+    const signature = await client.signEvmTypedData(
+      owner.address,
+      {
+        domain: swap.permit2.eip712.domain,
+        types: swap.permit2.eip712.types,
+        primaryType: swap.permit2.eip712.primaryType,
+        message: swap.permit2.eip712.message,
+      },
+      permit2IdempotencyKey,
+    );
 
     // Calculate the signature length as a 32-byte hex value
-    const signatureLengthInHex = numberToHex(size(signature), {
+    const signatureLengthInHex = numberToHex(size(signature.signature as Hex), {
       signed: false,
       size: 32,
     });
 
     // Append the signature length and signature to the transaction data
-    txData = concat([txData, signatureLengthInHex, signature]);
+    txData = concat([txData, signatureLengthInHex, signature.signature as Hex]);
   }
 
   // Send the swap as a user operation
