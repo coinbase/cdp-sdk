@@ -153,19 +153,19 @@ export async function sendSwapOperation(
       permit2IdempotencyKey,
     );
 
-    // For smart accounts, we might need signature wrapper (currently not used)
+    // Wrap the Permit2 signature
     const permit2SignatureWrapper = buildSignatureWrapperForEOA({
       signatureHex: permit2Signature.signature as Hex,
       ownerIndex: 0n,
     });
 
-    // Calculate the signature length as a 32-byte hex value
+    // Calculate the Permit2 signature length as a 32-byte hex value
     const permit2SignatureLengthInHex = numberToHex(size(permit2SignatureWrapper as Hex), {
       signed: false,
       size: 32,
     });
 
-    // Append the signature length and signature to the transaction data
+    // Append the Permit2 signature length and signature to the transaction data
     txData = concat([txData, permit2SignatureLengthInHex, permit2SignatureWrapper as Hex]);
   }
 
