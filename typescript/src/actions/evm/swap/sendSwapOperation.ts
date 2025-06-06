@@ -1,4 +1,4 @@
-import { concat, encodeAbiParameters, encodePacked, numberToHex, size } from "viem";
+import { concat, encodeAbiParameters, encodePacked, numberToHex, pad, size, Signature } from "viem";
 
 import { createSwapQuote } from "./createSwapQuote.js";
 import { createDeterministicUuidV4 } from "../../../utils/uuidV4.js";
@@ -142,7 +142,7 @@ export async function sendSwapOperation(
     // For smart accounts, the owner signs the Permit2 EIP-712 message locally
     const owner = smartAccount.owners[0];
 
-    const signature = await client.signEvmTypedData(
+    const permit2Signature = await client.signEvmTypedData(
       owner.address,
       {
         domain: swap.permit2.eip712.domain,
@@ -154,19 +154,19 @@ export async function sendSwapOperation(
     );
 
     // For smart accounts, we might need signature wrapper (currently not used)
-    const signatureWrapper = buildSignatureWrapperForEOA({
-      signatureHex: signature.signature as Hex,
+    const permit2SignatureWrapper = buildSignatureWrapperForEOA({
+      signatureHex: permit2Signature.signature as Hex,
       ownerIndex: 0n,
     });
 
     // Calculate the signature length as a 32-byte hex value
-    const signatureLengthInHex = numberToHex(size(signatureWrapper as Hex), {
+    const permit2SignatureLengthInHex = numberToHex(size(permit2SignatureWrapper as Hex), {
       signed: false,
       size: 32,
     });
 
     // Append the signature length and signature to the transaction data
-    txData = concat([txData, signatureLengthInHex, signatureWrapper as Hex]);
+    txData = concat([txData, permit2SignatureLengthInHex, permit2SignatureWrapper as Hex]);
   }
 
   // Send the swap as a user operation
