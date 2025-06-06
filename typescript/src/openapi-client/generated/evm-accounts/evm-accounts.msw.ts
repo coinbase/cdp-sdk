@@ -11,6 +11,8 @@ import { HttpResponse, delay, http } from "msw";
 
 import type {
   EvmAccount,
+  ExportEvmAccount200,
+  ExportEvmAccountByName200,
   ListEvmAccounts200,
   SendEvmTransaction200,
   SignEvmHash200,
@@ -154,6 +156,17 @@ export const getImportEvmAccountResponseMock = (
     ),
     undefined,
   ]),
+  ...overrideResponse,
+});
+
+export const getExportEvmAccountResponseMock = (
+  overrideResponse: Partial<ExportEvmAccount200> = {},
+): ExportEvmAccount200 => ({ encryptedPrivateKey: faker.string.alpha(20), ...overrideResponse });
+
+export const getExportEvmAccountByNameResponseMock = (
+  overrideResponse: Partial<ExportEvmAccountByName200> = {},
+): ExportEvmAccountByName200 => ({
+  encryptedPrivateKey: faker.string.alpha(20),
   ...overrideResponse,
 });
 
@@ -399,6 +412,52 @@ export const getImportEvmAccountMockHandler = (
     );
   });
 };
+
+export const getExportEvmAccountMockHandler = (
+  overrideResponse?:
+    | ExportEvmAccount200
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<ExportEvmAccount200> | ExportEvmAccount200),
+) => {
+  return http.post("*/v2/evm/accounts/:address/export", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getExportEvmAccountResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getExportEvmAccountByNameMockHandler = (
+  overrideResponse?:
+    | ExportEvmAccountByName200
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<ExportEvmAccountByName200> | ExportEvmAccountByName200),
+) => {
+  return http.post("*/v2/evm/accounts/export/by-name/:name", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getExportEvmAccountByNameResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 export const getEvmAccountsMock = () => [
   getListEvmAccountsMockHandler(),
   getCreateEvmAccountMockHandler(),
@@ -411,4 +470,6 @@ export const getEvmAccountsMock = () => [
   getSignEvmMessageMockHandler(),
   getSignEvmTypedDataMockHandler(),
   getImportEvmAccountMockHandler(),
+  getExportEvmAccountMockHandler(),
+  getExportEvmAccountByNameMockHandler(),
 ];

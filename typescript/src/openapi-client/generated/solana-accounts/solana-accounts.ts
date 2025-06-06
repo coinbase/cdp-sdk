@@ -7,6 +7,10 @@
  */
 import type {
   CreateSolanaAccountBody,
+  ExportSolanaAccount200,
+  ExportSolanaAccountBody,
+  ExportSolanaAccountByName200,
+  ExportSolanaAccountByNameBody,
   ListSolanaAccounts200,
   ListSolanaAccountsParams,
   SignSolanaMessage200,
@@ -101,6 +105,44 @@ export const getSolanaAccountByName = (
   );
 };
 /**
+ * Export an existing Solana account's private key. It is important to store the private key in a secure place after it's exported.
+ * @summary Export an Solana account
+ */
+export const exportSolanaAccount = (
+  address: string,
+  exportSolanaAccountBody: ExportSolanaAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ExportSolanaAccount200>(
+    {
+      url: `/v2/solana/accounts/${address}/export`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: exportSolanaAccountBody,
+    },
+    options,
+  );
+};
+/**
+ * Export an existing Solana account's private key by its name. It is important to store the private key in a secure place after it's exported.
+ * @summary Export a Solana account by name
+ */
+export const exportSolanaAccountByName = (
+  name: string,
+  exportSolanaAccountByNameBody: ExportSolanaAccountByNameBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ExportSolanaAccountByName200>(
+    {
+      url: `/v2/solana/accounts/export/by-name/${name}`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: exportSolanaAccountByNameBody,
+    },
+    options,
+  );
+};
+/**
  * Signs a transaction with the given Solana account.
 The unsigned transaction should be serialized into a byte array and then encoded as base64.
 
@@ -159,6 +201,12 @@ export type UpdateSolanaAccountResult = NonNullable<
 >;
 export type GetSolanaAccountByNameResult = NonNullable<
   Awaited<ReturnType<typeof getSolanaAccountByName>>
+>;
+export type ExportSolanaAccountResult = NonNullable<
+  Awaited<ReturnType<typeof exportSolanaAccount>>
+>;
+export type ExportSolanaAccountByNameResult = NonNullable<
+  Awaited<ReturnType<typeof exportSolanaAccountByName>>
 >;
 export type SignSolanaTransactionResult = NonNullable<
   Awaited<ReturnType<typeof signSolanaTransaction>>
