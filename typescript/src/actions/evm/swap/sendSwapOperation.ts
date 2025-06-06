@@ -1,4 +1,4 @@
-import { concat, encodeAbiParameters, encodePacked, numberToHex, pad, size, Signature } from "viem";
+import { concat, encodeAbiParameters, encodePacked, numberToHex, size, sliceHex } from "viem";
 
 import { createSwapQuote } from "./createSwapQuote.js";
 import { createDeterministicUuidV4 } from "../../../utils/uuidV4.js";
@@ -205,9 +205,9 @@ function buildSignatureWrapperForEOA({
   ownerIndex: bigint;
 }) {
   // Decompose 65-byte hex signature into r (32 bytes), s (32 bytes), v (1 byte)
-  const r = signatureHex.slice(0, 66) as Hex; // 0x + 64 chars
-  const s = `0x${signatureHex.slice(66, 130)}` as Hex; // 64 chars
-  const v = parseInt(signatureHex.slice(130, 132), 16); // 2 chars
+  const r = sliceHex(signatureHex, 0, 32);
+  const s = sliceHex(signatureHex, 32, 64);
+  const v = Number(`0x${signatureHex.slice(130, 132)}`); // 130 = 2 + 64 + 64
 
   const signatureData = encodePacked(["bytes32", "bytes32", "uint8"], [r, s, v]);
   return encodeAbiParameters(
