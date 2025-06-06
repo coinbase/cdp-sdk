@@ -1,4 +1,4 @@
-import { concat, numberToHex, size } from "viem";
+import { concat, encodeAbiParameters, encodePacked, numberToHex, size } from "viem";
 
 import { createSwapQuote } from "./createSwapQuote.js";
 import { createDeterministicUuidV4 } from "../../../utils/uuidV4.js";
@@ -153,14 +153,20 @@ export async function sendSwapOperation(
       permit2IdempotencyKey,
     );
 
+    // For smart accounts, we might need signature wrapper (currently not used)
+    const signatureWrapper = buildSignatureWrapperForEOA({
+      signatureHex: signature.signature as Hex,
+      ownerIndex: 0n,
+    });
+
     // Calculate the signature length as a 32-byte hex value
-    const signatureLengthInHex = numberToHex(size(signature.signature as Hex), {
+    const signatureLengthInHex = numberToHex(size(signatureWrapper as Hex), {
       signed: false,
       size: 32,
     });
 
     // Append the signature length and signature to the transaction data
-    txData = concat([txData, signatureLengthInHex, signature.signature as Hex]);
+    txData = concat([txData, signatureLengthInHex, signatureWrapper as Hex]);
   }
 
   // Send the swap as a user operation
@@ -181,3 +187,51 @@ export async function sendSwapOperation(
 
   return result;
 }
+
+/**
+ * Builds a signature wrapper for smart accounts by decomposing hex signature into r, s, v components.
+ * Currently unused - reserved for future smart account signature format implementation.
+ *
+ * @param params - The signature parameters
+ * @param params.signatureHex - The hex signature to decompose
+ * @param params.ownerIndex - The owner index for the signature
+ * @returns The encoded signature wrapper
+ */
+function buildSignatureWrapperForEOA({
+  signatureHex,
+  ownerIndex,
+}: {
+  signatureHex: Hex;
+  ownerIndex: bigint;
+}) {
+  // Decompose 65-byte hex signature into r (32 bytes), s (32 bytes), v (1 byte)
+  const r = signatureHex.slice(0, 66) as Hex; // 0x + 64 chars
+  const s = `0x${signatureHex.slice(66, 130)}` as Hex; // 64 chars
+  const v = parseInt(signatureHex.slice(130, 132), 16); // 2 chars
+
+  const signatureData = encodePacked(["bytes32", "bytes32", "uint8"], [r, s, v]);
+  return encodeAbiParameters(
+    [SignatureWrapperStruct],
+    [
+      {
+        ownerIndex,
+        signatureData,
+      },
+    ],
+  );
+}
+
+const SignatureWrapperStruct = {
+  components: [
+    {
+      name: "ownerIndex",
+      type: "uint8",
+    },
+    {
+      name: "signatureData",
+      type: "bytes",
+    },
+  ],
+  name: "SignatureWrapper",
+  type: "tuple",
+};
