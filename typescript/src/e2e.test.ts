@@ -658,6 +658,32 @@ describe("CDP Client E2E Tests", () => {
     });
   });
 
+  describe("get or create smart account", () => {
+    it("should get or create a smart account", async () => {
+      const randomName = generateRandomName();
+      const owner = await cdp.evm.createAccount();
+      const account = await cdp.evm.getOrCreateSmartAccount({ name: randomName, owner });
+      expect(account.name).toBe(randomName);
+      expect(account.owners[0].address).toBe(owner.address);
+      
+      const account2 = await cdp.evm.getOrCreateSmartAccount({ name: randomName, owner });
+      expect(account2.name).toBe(randomName);
+      expect(account.address).toBe(account2.address);
+      expect(account2.owners[0].address).toBe(owner.address);
+    });
+
+    it("should handle race condition for smart accounts", async () => {
+      const randomName = generateRandomName();
+      const owner = await cdp.evm.createAccount();
+      const accountPromise1 = cdp.evm.getOrCreateSmartAccount({ name: randomName, owner });
+      const accountPromise2 = cdp.evm.getOrCreateSmartAccount({ name: randomName, owner });
+      const [account1, account2] = await Promise.all([accountPromise1, accountPromise2]);
+      expect(account1.address).toBe(account2.address);
+      expect(account1.owners[0].address).toBe(owner.address);
+      expect(account2.owners[0].address).toBe(owner.address);
+    });
+  });
+
   describe("server account actions", () => {
     describe("transfer", () => {
       it("should transfer eth", async () => {
