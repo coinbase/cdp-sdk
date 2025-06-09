@@ -184,31 +184,63 @@ describe("toEvmServerAccount", () => {
     });
   });
 
-  it("should call apiClient.signEvmTypedData when signTypedData is called", async () => {
-    const message = {
-      domain: {
-        name: "EIP712Domain",
-        chainId: 1,
-        verifyingContract: "0x0000000000000000000000000000000000000000" as `0x${string}`,
-      },
-      types: {
-        EIP712Domain: [
-          { name: "name", type: "string" },
-          { name: "chainId", type: "uint256" },
-          { name: "verifyingContract", type: "address" },
-        ],
-      },
-      primaryType: "EIP712Domain",
-      message: {
-        name: "EIP712Domain",
-        chainId: 1,
-        verifyingContract: "0x0000000000000000000000000000000000000000",
-      },
-    };
+  describe("signTypedData", () => {
+    it("should call apiClient.signEvmTypedData when signTypedData is called", async () => {
+      const message = {
+        domain: {
+          name: "EIP712Domain",
+          chainId: 1,
+          verifyingContract: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+        },
+        types: {
+          EIP712Domain: [
+            { name: "name", type: "string" },
+            { name: "chainId", type: "uint256" },
+            { name: "verifyingContract", type: "address" },
+          ],
+        },
+        primaryType: "EIP712Domain",
+        message: {
+          name: "EIP712Domain",
+          chainId: 1,
+          verifyingContract: "0x0000000000000000000000000000000000000000",
+        },
+      };
 
-    await serverAccount.signTypedData(message);
+      await serverAccount.signTypedData(message);
 
-    expect(mockApiClient.signEvmTypedData).toHaveBeenCalledWith(mockAddress, message);
+      expect(mockApiClient.signEvmTypedData).toHaveBeenCalledWith(mockAddress, message);
+    });
+
+    it("should include the EIP712Domain type if it is not provided", async () => {
+      const message = {
+        domain: {
+          name: "EIP712Domain",
+          chainId: 1,
+          verifyingContract: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+        },
+        types: {},
+        primaryType: "EIP712Domain",
+        message: {
+          name: "EIP712Domain",
+          chainId: 1,
+          verifyingContract: "0x0000000000000000000000000000000000000000",
+        },
+      };
+
+      await serverAccount.signTypedData(message);
+
+      expect(mockApiClient.signEvmTypedData).toHaveBeenCalledWith(mockAddress, {
+        ...message,
+        types: {
+          EIP712Domain: [
+            { name: "name", type: "string" },
+            { name: "chainId", type: "uint256" },
+            { name: "verifyingContract", type: "address" },
+          ],
+        },
+      });
+    });
   });
 
   it("should call transfer action when transfer is called", async () => {
