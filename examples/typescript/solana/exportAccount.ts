@@ -19,7 +19,7 @@ const exportedPrivateKeyByAddress = await cdp.solana.exportAccount({
 });
 console.log("Exported private key: ", exportedPrivateKeyByAddress);
 
-const keypairByAddress = Keypair.fromSecretKey(Buffer.from(exportedPrivateKeyByAddress, "base64"));
+const keypairByAddress = Keypair.fromSeed(Buffer.from(exportedPrivateKeyByAddress, "hex"));
 const publicKeyByAddress = keypairByAddress.publicKey.toBase58();
 console.log("Public key derived from private key:", publicKeyByAddress);
 
@@ -31,6 +31,6 @@ const exportedPrivateKeyByName = await cdp.solana.exportAccount({
 });
 console.log("Exported private key: ", exportedPrivateKeyByName);
 
-const keypairByName = Keypair.fromSecretKey(Buffer.from(exportedPrivateKeyByName, "base64"));
+const keypairByName = Keypair.fromSeed(Buffer.from(exportedPrivateKeyByName, "hex"));
 const publicKeyByName = keypairByName.publicKey.toBase58();
 console.log("Public key derived from private key:", publicKeyByName);

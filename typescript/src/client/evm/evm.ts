@@ -241,10 +241,6 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async exportAccount(options: ExportServerAccountOptions): Promise<string> {
-    if (!options.address && !options.name) {
-      throw new Error("Either address or name must be provided");
-    }
-
     try {
       const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
 

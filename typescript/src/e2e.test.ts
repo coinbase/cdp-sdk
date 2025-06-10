@@ -222,7 +222,7 @@ describe("CDP Client E2E Tests", () => {
     expect(signedHash).toBeDefined();
   });
 
-  it.only("should export an evm server account", async () => {
+  it("should export an evm server account", async () => {
     const privateKey = generatePrivateKey();
     const randomName = generateRandomName();
     const importedAccount = await cdp.evm.importAccount({
@@ -238,20 +238,16 @@ describe("CDP Client E2E Tests", () => {
     expect(exportedPrivateKeyByName).toBeDefined();
     expect(publicKeyByName).toBe(importedAccount.address);
 
-    // console.log("Private key: ", privateKey);
-    // console.log("Random name: ", randomName);
-    // const exportedPrivateKeyByAddress = await cdp.evm.exportAccount({
-    //   address: importedAccount.address,
-    // });
-    // console.log("Exported private key by address: ", exportedPrivateKeyByAddress);
-    // const publicKeyByAddress = privateKeyToAccount(`0x${exportedPrivateKeyByAddress}`).address;
-    // console.log("Public key by address: ", publicKeyByAddress);
+    const exportedPrivateKeyByAddress = await cdp.evm.exportAccount({
+      address: importedAccount.address,
+    });
+    const publicKeyByAddress = privateKeyToAccount(`0x${exportedPrivateKeyByAddress}`).address;
 
-    // expect(exportedPrivateKeyByAddress).toBeDefined();
-    // expect(publicKeyByAddress).toBe(importedAccount.address);
+    expect(exportedPrivateKeyByAddress).toBeDefined();
+    expect(publicKeyByAddress).toBe(importedAccount.address);
   });
 
-  it.only("should export a solana account", async () => {
+  it("should export a solana account", async () => {
     const randomName = generateRandomName();
     const account = await cdp.solana.createAccount({
       name: randomName,
@@ -266,20 +262,14 @@ describe("CDP Client E2E Tests", () => {
     expect(exportedPrivateKeyByName).toBeDefined();
     expect(publicKeyByName).toBe(account.address);
 
-    // console.log("Random name: ", randomName);
-    // console.log("Account: ", account.address);
-    // const exportedPrivateKeyByAddress = await cdp.solana.exportAccount({
-    //   address: account.address,
-    // });
-    // console.log("Exported private key by address: ", exportedPrivateKeyByAddress);
-    // const keypairByAddress = Keypair.fromSeed(
-    //   Buffer.from(exportedPrivateKeyByAddress, "hex"),
-    // );
-    // const publicKeyByAddress = keypairByAddress.publicKey.toBase58();
-    // console.log("Public key by address: ", publicKeyByAddress);
+    const exportedPrivateKeyByAddress = await cdp.solana.exportAccount({
+      address: account.address,
+    });
+    const keypairByAddress = Keypair.fromSeed(Buffer.from(exportedPrivateKeyByAddress, "hex"));
+    const publicKeyByAddress = keypairByAddress.publicKey.toBase58();
 
-    // expect(exportedPrivateKeyByAddress).toBeDefined();
-    // expect(publicKeyByAddress).toBe(account.address);
+    expect(exportedPrivateKeyByAddress).toBeDefined();
+    expect(publicKeyByAddress).toBe(account.address);
   });
 
   it("should create an EVM account with a policy", async () => {

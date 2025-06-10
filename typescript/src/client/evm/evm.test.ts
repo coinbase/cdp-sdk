@@ -1314,87 +1314,89 @@ describe("EvmClient", () => {
 
   describe("exportAccount", () => {
     it("should export an account by address", async () => {
-      const account = { address: "0x789" as Address };
-      const mockPublicKey = Buffer.from("public-key").toString("base64");
-      const mockPrivateKey = Buffer.from("private-key").toString("base64");
-      const mockEncryptedKey = Buffer.from("encrypted-private-key").toString("base64");
+      const testAddress = "0x789" as Address;
+      const testPublicKey = Buffer.from("public-key").toString("base64");
+      const testPrivateKey = Buffer.from("private-key").toString("base64");
+      const testEncryptedPrivateKey = Buffer.from("encrypted-private-key").toString("base64");
+      const testDecryptedPrivateKey = Buffer.from("decrypted-private-key").toString("hex");
 
       const generateExportEncryptionKeyPairMock = generateExportEncryptionKeyPair as MockedFunction<
         typeof generateExportEncryptionKeyPair
       >;
       generateExportEncryptionKeyPairMock.mockResolvedValue({
-        publicKey: mockPublicKey,
-        privateKey: mockPrivateKey,
+        publicKey: testPublicKey,
+        privateKey: testPrivateKey,
       });
-
-      const decryptWithPrivateKeyMock = decryptWithPrivateKey as MockedFunction<
-        typeof decryptWithPrivateKey
-      >;
-      decryptWithPrivateKeyMock.mockReturnValue(mockPrivateKey);
 
       const exportEvmAccountMock = CdpOpenApiClient.exportEvmAccount as MockedFunction<
         typeof CdpOpenApiClient.exportEvmAccount
       >;
       exportEvmAccountMock.mockResolvedValue({
-        encryptedPrivateKey: mockEncryptedKey,
-      });
-
-      const exportedPrivateKey = await client.exportAccount({
-        address: account.address,
-      });
-
-      expect(exportedPrivateKey).toBe(mockPrivateKey);
-      expect(generateExportEncryptionKeyPair).toHaveBeenCalled();
-      expect(CdpOpenApiClient.exportEvmAccount).toHaveBeenCalledWith(
-        account.address,
-        {
-          exportEncryptionKey: mockPublicKey,
-        },
-        undefined,
-      );
-      expect(decryptWithPrivateKey).toHaveBeenCalledWith(mockPrivateKey, mockEncryptedKey);
-    });
-
-    it("should export an account by name", async () => {
-      const account = { name: "test-account" };
-      const mockPublicKey = Buffer.from("public-key").toString("base64");
-      const mockPrivateKey = Buffer.from("private-key").toString("base64");
-      const mockEncryptedKey = Buffer.from("encrypted-private-key").toString("base64");
-
-      const generateExportEncryptionKeyPairMock = generateExportEncryptionKeyPair as MockedFunction<
-        typeof generateExportEncryptionKeyPair
-      >;
-      generateExportEncryptionKeyPairMock.mockResolvedValue({
-        publicKey: mockPublicKey,
-        privateKey: mockPrivateKey,
+        encryptedPrivateKey: testEncryptedPrivateKey,
       });
 
       const decryptWithPrivateKeyMock = decryptWithPrivateKey as MockedFunction<
         typeof decryptWithPrivateKey
       >;
-      decryptWithPrivateKeyMock.mockReturnValue(mockPrivateKey);
+      decryptWithPrivateKeyMock.mockReturnValue(testDecryptedPrivateKey);
+
+      const exportedPrivateKey = await client.exportAccount({
+        address: testAddress,
+      });
+
+      expect(exportedPrivateKey).toBe(testDecryptedPrivateKey);
+      expect(generateExportEncryptionKeyPair).toHaveBeenCalled();
+      expect(CdpOpenApiClient.exportEvmAccount).toHaveBeenCalledWith(
+        testAddress,
+        {
+          exportEncryptionKey: testPublicKey,
+        },
+        undefined,
+      );
+      expect(decryptWithPrivateKey).toHaveBeenCalledWith(testPrivateKey, testEncryptedPrivateKey);
+    });
+
+    it("should export an account by name", async () => {
+      const testName = "test-account";
+      const testPublicKey = Buffer.from("public-key").toString("base64");
+      const testPrivateKey = Buffer.from("private-key").toString("base64");
+      const testEncryptedPrivateKey = Buffer.from("encrypted-private-key").toString("base64");
+      const testDecryptedPrivateKey = Buffer.from("decrypted-private-key").toString("hex");
+
+      const generateExportEncryptionKeyPairMock = generateExportEncryptionKeyPair as MockedFunction<
+        typeof generateExportEncryptionKeyPair
+      >;
+      generateExportEncryptionKeyPairMock.mockResolvedValue({
+        publicKey: testPublicKey,
+        privateKey: testPrivateKey,
+      });
 
       const exportEvmAccountByNameMock = CdpOpenApiClient.exportEvmAccountByName as MockedFunction<
         typeof CdpOpenApiClient.exportEvmAccountByName
       >;
       exportEvmAccountByNameMock.mockResolvedValue({
-        encryptedPrivateKey: mockEncryptedKey,
+        encryptedPrivateKey: testEncryptedPrivateKey,
       });
+
+      const decryptWithPrivateKeyMock = decryptWithPrivateKey as MockedFunction<
+        typeof decryptWithPrivateKey
+      >;
+      decryptWithPrivateKeyMock.mockReturnValue(testDecryptedPrivateKey);
 
       const exportedPrivateKey = await client.exportAccount({
-        name: account.name,
+        name: testName,
       });
 
-      expect(exportedPrivateKey).toBe(mockPrivateKey);
+      expect(exportedPrivateKey).toBe(testDecryptedPrivateKey);
       expect(generateExportEncryptionKeyPair).toHaveBeenCalled();
       expect(CdpOpenApiClient.exportEvmAccountByName).toHaveBeenCalledWith(
-        account.name,
+        testName,
         {
-          exportEncryptionKey: mockPublicKey,
+          exportEncryptionKey: testPublicKey,
         },
         undefined,
       );
-      expect(decryptWithPrivateKey).toHaveBeenCalledWith(mockPrivateKey, mockEncryptedKey);
+      expect(decryptWithPrivateKey).toHaveBeenCalledWith(testPrivateKey, testEncryptedPrivateKey);
     });
 
     it("should throw an error if neither address nor name is provided", async () => {
