@@ -1,5 +1,6 @@
 import {
   CreateAccountOptions,
+  ExportAccountOptions,
   GetAccountOptions,
   GetOrCreateAccountOptions,
   ListAccountsOptions,
@@ -19,6 +20,7 @@ import { signTransaction } from "../../actions/solana/signTransaction.js";
 import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
+import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
 /**
  * The namespace containing all Solana methods.
@@ -70,6 +72,69 @@ export class SolanaClient implements SolanaClientInterface {
     Analytics.wrapObjectMethodsWithErrorTracking(account);
 
     return account;
+  }
+
+  /**
+   * Exports a CDP Solana account's private key.
+   * It is important to store the private key in a secure place after it's exported.
+   *
+   * @param {ExportAccountOptions} options - Parameters for exporting the Solana account.
+   * @param {string} options.address - The address of the account.
+   * @param {string} options.name - The name of the account.
+   *
+   * @returns A promise that resolves to the exported account's private key.
+   *
+   * @example **With an address**
+   * ```ts
+   * const privateKey = await cdp.solana.exportAccount({
+   *   address: "1234567890123456789012345678901234567890",
+   * });
+   * ```
+   *
+   * @example **With a name**
+   * ```ts
+   * const privateKey = await cdp.solana.exportAccount({
+   *   name: "MyAccount",
+   * });
+   * ```
+   */
+  async exportAccount(options: ExportAccountOptions): Promise<string> {
+    if (!options.address && !options.name) {
+      throw new Error("Either address or name must be provided");
+    }
+
+    try {
+      const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
+
+      if (options.address) {
+        const { encryptedPrivateKey } = await CdpOpenApiClient.exportSolanaAccount(
+          options.address,
+          {
+            exportEncryptionKey: publicKey,
+          },
+          options.idempotencyKey,
+        );
+        return decryptWithPrivateKey(privateKey, encryptedPrivateKey);
+      }
+
+      if (options.name) {
+        const { encryptedPrivateKey } = await CdpOpenApiClient.exportSolanaAccountByName(
+          options.name,
+          {
+            exportEncryptionKey: publicKey,
+          },
+          options.idempotencyKey,
+        );
+        return decryptWithPrivateKey(privateKey, encryptedPrivateKey);
+      }
+
+      throw new Error("Either address or name must be provided");
+    } catch (error) {
+      if (error instanceof APIError) {
+        throw error;
+      }
+      throw new Error(`Failed to export account: ${String(error)}`);
+    }
   }
 
   /**

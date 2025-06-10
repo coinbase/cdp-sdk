@@ -33,6 +33,7 @@ import {
   CreateSwapQuoteResult,
   SwapUnavailableResult,
   GetOrCreateSmartAccountOptions,
+  ExportServerAccountOptions,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
@@ -63,6 +64,7 @@ import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 import { Hex } from "../../types/misc.js";
+import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
 import type {
   TransactionResult,
@@ -210,6 +212,70 @@ export class EvmClient implements EvmClientInterface {
         throw error;
       }
       throw new Error(`Failed to import account: ${String(error)}`);
+    }
+  }
+
+  /**
+   * Exports a CDP EVM account's private key.
+   * It is important to store the private key in a secure place after it's exported.
+   *
+   * @param {ExportServerAccountOptions} options - Parameters for exporting the account.
+   * @param {string} options.address - The address of the account to export.
+   * @param {string} [options.name] - The name of the account to export.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
+   * @returns A promise that resolves to the exported account's private key.
+   *
+   * @example **With an address**
+   * ```ts
+   * const privateKey = await cdp.evm.exportAccount({
+   *   address: "0x1234567890123456789012345678901234567890",
+   * });
+   * ```
+   *
+   * @example **With a name**
+   * ```ts
+   * const privateKey = await cdp.evm.exportAccount({
+   *   name: "MyAccount",
+   * });
+   * ```
+   */
+  async exportAccount(options: ExportServerAccountOptions): Promise<string> {
+    if (!options.address && !options.name) {
+      throw new Error("Either address or name must be provided");
+    }
+
+    try {
+      const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
+
+      if (options.address) {
+        const { encryptedPrivateKey } = await CdpOpenApiClient.exportEvmAccount(
+          options.address,
+          {
+            exportEncryptionKey: publicKey,
+          },
+          options.idempotencyKey,
+        );
+        return decryptWithPrivateKey(privateKey, encryptedPrivateKey);
+      }
+
+      if (options.name) {
+        const { encryptedPrivateKey } = await CdpOpenApiClient.exportEvmAccountByName(
+          options.name,
+          {
+            exportEncryptionKey: publicKey,
+          },
+          options.idempotencyKey,
+        );
+        return decryptWithPrivateKey(privateKey, encryptedPrivateKey);
+      }
+
+      throw new Error("Either address or name must be provided");
+    } catch (error) {
+      if (error instanceof APIError) {
+        throw error;
+      }
+      throw new Error(`Failed to export account: ${String(error)}`);
     }
   }
 
