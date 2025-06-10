@@ -262,9 +262,9 @@ export class EvmClient implements EvmClientInterface {
     const openApiSmartAccount = await CdpOpenApiClient.createEvmSmartAccount(
       {
         owners: [options.owner.address],
-        name: options.name
+        name: options.name,
       },
-      options.idempotencyKey
+      options.idempotencyKey,
     );
 
     const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
