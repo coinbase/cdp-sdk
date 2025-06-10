@@ -373,7 +373,8 @@ describe("cdpApiClient", () => {
       ).rejects.toMatchObject({
         statusCode: 418,
         errorType: HttpErrorType.unexpected_error,
-        errorMessage: 'An unexpected error occurred: {"error":"Something went wrong","code":"ERR_001"}',
+        errorMessage:
+          'An unexpected error occurred: {"error":"Something went wrong","code":"ERR_001"}',
       });
     });
 
