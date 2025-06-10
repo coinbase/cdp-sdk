@@ -145,6 +145,15 @@ const account = await cdp.solana.getOrCreateAccount({
 });
 ```
 
+#### Get or Create a Smart Account as follows:
+```typescript
+const owner = await cdp.evm.createAccount();
+const account = await cdp.evm.getOrCreateSmartAccount({
+  name: "Account1",
+  owner
+});
+```
+
 ### Creating EVM or Solana accounts with policies
 
 #### Create an EVM account with policy as follows:
@@ -570,7 +579,6 @@ await sender.transfer({
   network: "base-sepolia",
 });
 ```
-
 #### Solana
 
 For complete examples, check out [solana/account.transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/account.transfer.ts).
@@ -975,3 +983,4 @@ Then, add the following line to your `jest.config` file:
 ```typescript
 setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
 ```
+

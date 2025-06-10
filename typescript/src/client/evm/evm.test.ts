@@ -33,6 +33,7 @@ import {
   EvmCall,
   GetOrCreateServerAccountOptions,
   ImportServerAccountOptions,
+  GetOrCreateSmartAccountOptions,
 } from "./evm.types.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { ImportEvmAccountPublicRSAKey } from "./constants.js";
@@ -45,6 +46,7 @@ vi.mock("../../openapi-client", () => {
       getEvmAccount: vi.fn(),
       getEvmAccountByName: vi.fn(),
       getEvmSmartAccount: vi.fn(),
+      getEvmSmartAccountByName: vi.fn(),
       getUserOperation: vi.fn(),
       importEvmAccount: vi.fn(),
       listEvmAccounts: vi.fn(),
@@ -128,6 +130,7 @@ describe("EvmClient", () => {
         fund: vi.fn(),
         waitForFundOperationReceipt: vi.fn(),
         swap: vi.fn(),
+        quoteSwap: vi.fn(),
       };
 
       const createEvmAccountMock = CdpOpenApiClient.createEvmAccount as MockedFunction<
@@ -179,6 +182,8 @@ describe("EvmClient", () => {
         quoteFund: vi.fn(),
         fund: vi.fn(),
         waitForFundOperationReceipt: vi.fn(),
+        swap: vi.fn(),
+        quoteSwap: vi.fn(),
       };
 
       const createEvmAccountMock = CdpOpenApiClient.createEvmAccount as MockedFunction<
@@ -419,6 +424,7 @@ describe("EvmClient", () => {
         fund: vi.fn(),
         waitForFundOperationReceipt: vi.fn(),
         swap: vi.fn(),
+        quoteSwap: vi.fn(),
       };
 
       const getEvmAccountMock = CdpOpenApiClient.getEvmAccountByName as MockedFunction<
@@ -445,6 +451,68 @@ describe("EvmClient", () => {
       expect(getEvmAccountMock).toHaveBeenCalledTimes(2);
       expect(createEvmAccountMock).toHaveBeenCalledTimes(1);
       expect(toEvmServerAccountMock).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("getOrCreateSmartAccount", () => {
+    it("should return a smart account", async () => {
+      const mockOwnerAccount: EvmAccount = {
+        address: "0xowner" as Address,
+        sign: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signMessage: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature" as Hex),
+      };
+
+      const getOrCreateOptions: GetOrCreateSmartAccountOptions = {
+        name: "test-smart-account",
+        owner: mockOwnerAccount,
+      };
+
+      const mockOpenApiSmartAccount = {
+        address: "0x456" as Address,
+        owners: [mockOwnerAccount.address],
+        name: "test-smart-account",
+      };
+
+      const mockSmartAccount: EvmSmartAccount = {
+        address: "0x456" as Address,
+        owners: [mockOwnerAccount],
+        name: "test-smart-account",
+        type: "evm-smart" as const,
+        transfer: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
+        listTokenBalances: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+      };
+
+      const getEvmSmartAccountMock = CdpOpenApiClient.getEvmSmartAccountByName as MockedFunction<
+        typeof CdpOpenApiClient.getEvmSmartAccountByName
+      >;
+      getEvmSmartAccountMock
+        .mockRejectedValueOnce(new APIError(404, "not_found", "Account not found"))
+        .mockResolvedValueOnce(mockOpenApiSmartAccount);
+
+      const createEvmSmartAccountMock = CdpOpenApiClient.createEvmSmartAccount as MockedFunction<
+        typeof CdpOpenApiClient.createEvmSmartAccount
+      >;
+      createEvmSmartAccountMock.mockResolvedValue(mockOpenApiSmartAccount);
+
+      const toEvmSmartAccountMock = toEvmSmartAccount as MockedFunction<typeof toEvmSmartAccount>;
+      toEvmSmartAccountMock.mockReturnValue(mockSmartAccount);
+
+      const result = await client.getOrCreateSmartAccount(getOrCreateOptions);
+      const result2 = await client.getOrCreateSmartAccount(getOrCreateOptions);
+      expect(result).toBe(mockSmartAccount);
+      expect(result2).toBe(mockSmartAccount);
+      expect(getEvmSmartAccountMock).toHaveBeenCalledTimes(2);
+      expect(createEvmSmartAccountMock).toHaveBeenCalledTimes(1);
+      expect(toEvmSmartAccountMock).toHaveBeenCalledTimes(2);
     });
   });
 
