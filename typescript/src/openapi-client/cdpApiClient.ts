@@ -180,15 +180,30 @@ export const cdpApiClient = async <T>(
               `${ERROR_DOCS_PAGE_URL}`,
               error.cause,
             );
-          default:
+          default: {
+            let errorText = "";
+
+            if (error.response.data) {
+              try {
+                errorText = JSON.stringify(error.response.data);
+              } catch {
+                errorText = String(error.response.data);
+              }
+            }
+
+            const errorMessage = errorText
+              ? `An unexpected error occurred: ${errorText}`
+              : "An unexpected error occurred.";
+
             throw new APIError(
               statusCode,
               HttpErrorType.unexpected_error,
-              "An unexpected error occurred.",
+              errorMessage,
               undefined,
               `${ERROR_DOCS_PAGE_URL}`,
               error.cause,
             );
+          }
         }
       }
     }
