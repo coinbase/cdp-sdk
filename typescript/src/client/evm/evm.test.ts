@@ -221,8 +221,11 @@ describe("EvmClient", () => {
         signTransaction: vi.fn().mockResolvedValue("0xsignature"),
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
       };
+
+      const name = "test-smart-account";
       const createOptions = {
         owner: owner,
+        name,
       };
       const openApiEvmSmartAccount: OpenApiEvmSmartAccount = {
         address: "0xabc",
@@ -232,6 +235,7 @@ describe("EvmClient", () => {
         address: "0xabc" as Hex,
         owners: [owner],
         type: "evm-smart",
+        name,
         transfer: vi.fn(),
         listTokenBalances: vi.fn(),
         sendUserOperation: vi.fn(),
@@ -256,6 +260,7 @@ describe("EvmClient", () => {
       expect(CdpOpenApiClient.createEvmSmartAccount).toHaveBeenCalledWith(
         {
           owners: [owner.address],
+          name,
         },
         undefined,
       );
@@ -362,6 +367,7 @@ describe("EvmClient", () => {
         signTransaction: vi.fn().mockResolvedValue("0xsignature"),
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
       };
+      const name = "test-smart-account";
       const openApiEvmSmartAccount: OpenApiEvmSmartAccount = {
         address: "0xabc",
         owners: [owner.address],
@@ -369,11 +375,13 @@ describe("EvmClient", () => {
       const getOptions: GetSmartAccountOptions = {
         address: "0xabc",
         owner,
+        name,
       };
       const smartAccount: EvmSmartAccount = {
         address: "0xabc" as const,
         owners: [owner],
         type: "evm-smart" as const,
+        name,
         transfer: vi.fn(),
         listTokenBalances: vi.fn(),
         sendUserOperation: vi.fn(),
