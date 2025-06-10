@@ -570,6 +570,7 @@ You can also pass another account as the `to` parameter:
 
 ```typescript
 const sender = await cdp.evm.createAccount({ name: "Sender" });
+
 const receiver = await cdp.evm.createAccount({ name: "Receiver" });
 
 await sender.transfer({
@@ -983,4 +984,3 @@ Then, add the following line to your `jest.config` file:
 ```typescript
 setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
 ```
-
