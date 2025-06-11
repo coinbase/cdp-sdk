@@ -1,6 +1,6 @@
 import base64
-import base58
 
+import base58
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
@@ -84,6 +84,7 @@ def decrypt_with_private_key(b64_private_key: str, b64_cipher: str) -> str:
     except Exception as e:
         raise Exception(f"Decryption failed: {e!s}") from e
 
+
 def format_solana_private_key(private_key: str) -> str:
     """Format a private key to a base58 string for easy import into Solana wallet apps.
 
@@ -92,6 +93,7 @@ def format_solana_private_key(private_key: str) -> str:
 
     Returns:
         str: The formatted private key as a base58 string
+
     """
     decoded_hex = bytes.fromhex(private_key)
     keypair = Keypair.from_seed(decoded_hex)

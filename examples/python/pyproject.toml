@@ -7,6 +7,7 @@ dependencies = [
     "solana>=0.36.6",
     "web3>=7.6.0",
     "dotenv",
+    "base58>=2.1.1",
 ]
 
 [tool.uv]
