@@ -12,7 +12,7 @@ async def main():
     async with CdpClient() as cdp:
         # Get or create account
         account = await cdp.solana.get_or_create_account(
-            name="Zal0611",
+            name="MyAccount",
         )
         print("Account: ", account.address)
 
@@ -34,7 +34,7 @@ async def main():
         print("--------------------------------")
         print("Exporting account by name...")
         exported_private_key_by_name = await cdp.solana.export_account(
-            name="Zal0611"
+            name="MyAccount"
         )
         print("Exported private key: ", exported_private_key_by_name)
 
