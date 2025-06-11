@@ -41,6 +41,13 @@ class TestEVMSmartAccountsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_get_evm_smart_account_by_name(self) -> None:
+        """Test case for get_evm_smart_account_by_name
+
+        Get a Smart Account by name
+        """
+        pass
+
     async def test_get_user_operation(self) -> None:
         """Test case for get_user_operation
 

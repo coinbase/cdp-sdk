@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.create_evm_smart_account_request import CreateEvmSmartAccountRequest
+from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 
-class TestCreateEvmSmartAccountRequest(unittest.TestCase):
-    """CreateEvmSmartAccountRequest unit test stubs"""
+class TestExportEvmAccountRequest(unittest.TestCase):
+    """ExportEvmAccountRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,27 +26,26 @@ class TestCreateEvmSmartAccountRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CreateEvmSmartAccountRequest:
-        """Test CreateEvmSmartAccountRequest
+    def make_instance(self, include_optional) -> ExportEvmAccountRequest:
+        """Test ExportEvmAccountRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CreateEvmSmartAccountRequest`
+        # uncomment below to create an instance of `ExportEvmAccountRequest`
         """
-        model = CreateEvmSmartAccountRequest()
+        model = ExportEvmAccountRequest()
         if include_optional:
-            return CreateEvmSmartAccountRequest(
-                owners = ["0xfc807D1bE4997e5C7B33E4d8D57e60c5b0f02B1a"],
-                name = 'my-smart-wallet'
+            return ExportEvmAccountRequest(
+                export_encryption_key = 'U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4='
             )
         else:
-            return CreateEvmSmartAccountRequest(
-                owners = ["0xfc807D1bE4997e5C7B33E4d8D57e60c5b0f02B1a"],
+            return ExportEvmAccountRequest(
+                export_encryption_key = 'U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=',
         )
         """
 
-    def testCreateEvmSmartAccountRequest(self):
-        """Test CreateEvmSmartAccountRequest"""
+    def testExportEvmAccountRequest(self):
+        """Test ExportEvmAccountRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

@@ -47,6 +47,9 @@ from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount
 from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
+from cdp.openapi_client.models.export_evm_account200_response import ExportEvmAccount200Response
+from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
+from cdp.openapi_client.models.export_solana_account200_response import ExportSolanaAccount200Response
 from cdp.openapi_client.models.fee import Fee
 from cdp.openapi_client.models.get_swap_price_response import GetSwapPriceResponse
 from cdp.openapi_client.models.get_swap_price_response_wrapper import GetSwapPriceResponseWrapper
