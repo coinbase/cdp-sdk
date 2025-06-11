@@ -32,7 +32,7 @@ export interface EvmTokenAmount {
   /** The amount of the token in the smallest indivisible unit of the token. */
   amount: bigint;
   /** The number of decimals in the token. */
-  decimals: bigint;
+  decimals: number;
 }
 /**
  * An EVM token balance.
@@ -95,7 +95,7 @@ export async function listTokenBalances(
       },
       amount: {
         amount: BigInt(balance.amount.amount),
-        decimals: BigInt(balance.amount.decimals),
+        decimals: balance.amount.decimals,
       },
     };
   });
