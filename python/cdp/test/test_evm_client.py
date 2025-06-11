@@ -534,8 +534,10 @@ async def test_get_or_create_smart_account(smart_account_model_factory, local_ac
             smart_account_model,
         ]
     )
-    mock_evm_smart_accounts_api.create_evm_smart_account = AsyncMock(return_value=smart_account_model)
-    
+    mock_evm_smart_accounts_api.create_evm_smart_account = AsyncMock(
+        return_value=smart_account_model
+    )
+
     test_name = "test-account"
     owner = local_account_factory()
     result = await client.get_or_create_smart_account(name=test_name, owner=owner)
