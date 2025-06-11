@@ -78,7 +78,7 @@ class SolanaClient:
             idempotency_key (str, optional): The idempotency key.
 
         Returns:
-            str: The decrypted private key.
+            str: The decrypted private key which is a base58 encoding of the account's full 64-byte private key.
 
         Raises:
             ValueError: If neither address nor name is provided.
