@@ -135,16 +135,28 @@ const account = await cdp.solana.createAccount();
 #### Export an EVM account as follows:
 
 ```typescript
+// by name
 const privateKey = await cdp.evm.exportAccount({
   name: "MyAccount",
+});
+
+// by address
+const privateKey = await cdp.evm.exportAccount({
+  address: "0x123",
 });
 ```
 
 #### Export a Solana account as follows:
 
 ```typescript
+// by name
 const privateKey = await cdp.solana.exportAccount({
   name: "MyAccount",
+});
+
+// by address
+const privateKey = await cdp.solana.exportAccount({
+  address: "Abc",
 });
 ```
 
