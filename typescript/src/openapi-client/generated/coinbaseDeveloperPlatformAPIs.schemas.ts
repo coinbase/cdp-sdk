@@ -1258,8 +1258,8 @@ Account names must be unique across all EVM accounts in the developer's CDP Proj
    */
   name?: string;
   /**
-   * The ID of the account-level policy to apply to the account.
-   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   * The ID of the account-level policy to apply to the account, or an empty string to unset attached policy.
+   * @pattern (^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)|(^$)
    */
   accountPolicy?: string;
 };
@@ -1344,6 +1344,13 @@ export type ListEvmSmartAccounts200 = ListEvmSmartAccounts200AllOf & ListRespons
 export type CreateEvmSmartAccountBody = {
   /** Today, only a single owner can be set for a Smart Account, but this is an array to allow setting multiple owners in the future. */
   owners: string[];
+  /**
+   * An optional name for the account.
+Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names must be unique across all EVM accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
 };
 
 export type ImportEvmAccountBody = {
@@ -1356,6 +1363,26 @@ Account names must be unique across all EVM accounts in the developer's CDP Proj
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+};
+
+export type ExportEvmAccountBody = {
+  /** The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key. */
+  exportEncryptionKey: string;
+};
+
+export type ExportEvmAccount200 = {
+  /** The base64-encoded, encrypted private key of the EVM account which is a 32 byte raw private key. The private key is encrypted in transport using the exportEncryptionKey in the request. */
+  encryptedPrivateKey: string;
+};
+
+export type ExportEvmAccountByNameBody = {
+  /** The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key. */
+  exportEncryptionKey: string;
+};
+
+export type ExportEvmAccountByName200 = {
+  /** The base64-encoded, encrypted private key of the EVM account which is a 32 byte raw private key. The private key is encrypted in transport using the exportEncryptionKey in the request. */
+  encryptedPrivateKey: string;
 };
 
 /**
@@ -1463,6 +1490,7 @@ export type RequestEvmFaucetBodyNetwork =
 export const RequestEvmFaucetBodyNetwork = {
   "base-sepolia": "base-sepolia",
   "ethereum-sepolia": "ethereum-sepolia",
+  "ethereum-hoodi": "ethereum-hoodi",
 } as const;
 
 /**
@@ -1604,10 +1632,30 @@ Account names must be unique across all Solana accounts in the developer's CDP P
    */
   name?: string;
   /**
-   * The ID of the account-level policy to apply to the account.
-   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   * The ID of the account-level policy to apply to the account, or an empty string to unset attached policy.
+   * @pattern (^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)|(^$)
    */
   accountPolicy?: string;
+};
+
+export type ExportSolanaAccountBody = {
+  /** The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key. */
+  exportEncryptionKey: string;
+};
+
+export type ExportSolanaAccount200 = {
+  /** The base64-encoded, encrypted private key of the Solana account which is a 32 byte raw private key. The private key is encrypted in transport using the exportEncryptionKey in the request. */
+  encryptedPrivateKey: string;
+};
+
+export type ExportSolanaAccountByNameBody = {
+  /** The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key. */
+  exportEncryptionKey: string;
+};
+
+export type ExportSolanaAccountByName200 = {
+  /** The base64-encoded, encrypted private key of the Solana account which is a 32 byte raw private key. The private key is encrypted in transport using the exportEncryptionKey in the request. */
+  encryptedPrivateKey: string;
 };
 
 export type SignSolanaTransactionBody = {
