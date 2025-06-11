@@ -302,11 +302,11 @@ describe("cdpApiClient", () => {
       });
     });
 
-    it("should handle unexpected status code error", async () => {
+    it("should handle unexpected status code error with no response data", async () => {
       const axiosError = {
         response: {
           status: 418, // I'm a teapot
-          data: {},
+          data: null,
         },
         request: {},
         isAxiosError: true,
@@ -324,6 +324,86 @@ describe("cdpApiClient", () => {
         statusCode: 418,
         errorType: HttpErrorType.unexpected_error,
         errorMessage: "An unexpected error occurred.",
+      });
+    });
+
+    it("should handle unexpected status code error with string response data", async () => {
+      const axiosError = {
+        response: {
+          status: 418,
+          data: "Custom error message from server",
+        },
+        request: {},
+        isAxiosError: true,
+      };
+
+      (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
+      (Axios.isAxiosError as any).mockReturnValue(true);
+
+      await expect(
+        cdpApiClient({
+          url: "/test-endpoint",
+          method: "GET",
+        }),
+      ).rejects.toMatchObject({
+        statusCode: 418,
+        errorType: HttpErrorType.unexpected_error,
+        errorMessage: 'An unexpected error occurred: "Custom error message from server"',
+      });
+    });
+
+    it("should handle unexpected status code error with object response data", async () => {
+      const axiosError = {
+        response: {
+          status: 418,
+          data: { error: "Something went wrong", code: "ERR_001" },
+        },
+        request: {},
+        isAxiosError: true,
+      };
+
+      (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
+      (Axios.isAxiosError as any).mockReturnValue(true);
+
+      await expect(
+        cdpApiClient({
+          url: "/test-endpoint",
+          method: "GET",
+        }),
+      ).rejects.toMatchObject({
+        statusCode: 418,
+        errorType: HttpErrorType.unexpected_error,
+        errorMessage:
+          'An unexpected error occurred: {"error":"Something went wrong","code":"ERR_001"}',
+      });
+    });
+
+    it("should handle unexpected status code error with circular reference in response data", async () => {
+      // Create object with circular reference
+      const circularObj: any = { error: "test error" };
+      circularObj.self = circularObj;
+
+      const axiosError = {
+        response: {
+          status: 418,
+          data: circularObj,
+        },
+        request: {},
+        isAxiosError: true,
+      };
+
+      (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
+      (Axios.isAxiosError as any).mockReturnValue(true);
+
+      await expect(
+        cdpApiClient({
+          url: "/test-endpoint",
+          method: "GET",
+        }),
+      ).rejects.toMatchObject({
+        statusCode: 418,
+        errorType: HttpErrorType.unexpected_error,
+        errorMessage: "An unexpected error occurred: [object Object]",
       });
     });
 

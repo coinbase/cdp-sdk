@@ -33,6 +33,7 @@ import {
   EvmCall,
   GetOrCreateServerAccountOptions,
   ImportServerAccountOptions,
+  GetOrCreateSmartAccountOptions,
 } from "./evm.types.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { ImportEvmAccountPublicRSAKey } from "./constants.js";
@@ -45,6 +46,7 @@ vi.mock("../../openapi-client", () => {
       getEvmAccount: vi.fn(),
       getEvmAccountByName: vi.fn(),
       getEvmSmartAccount: vi.fn(),
+      getEvmSmartAccountByName: vi.fn(),
       getUserOperation: vi.fn(),
       importEvmAccount: vi.fn(),
       listEvmAccounts: vi.fn(),
@@ -128,6 +130,7 @@ describe("EvmClient", () => {
         fund: vi.fn(),
         waitForFundOperationReceipt: vi.fn(),
         swap: vi.fn(),
+        quoteSwap: vi.fn(),
       };
 
       const createEvmAccountMock = CdpOpenApiClient.createEvmAccount as MockedFunction<
@@ -179,6 +182,8 @@ describe("EvmClient", () => {
         quoteFund: vi.fn(),
         fund: vi.fn(),
         waitForFundOperationReceipt: vi.fn(),
+        swap: vi.fn(),
+        quoteSwap: vi.fn(),
       };
 
       const createEvmAccountMock = CdpOpenApiClient.createEvmAccount as MockedFunction<
@@ -216,8 +221,11 @@ describe("EvmClient", () => {
         signTransaction: vi.fn().mockResolvedValue("0xsignature"),
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
       };
+
+      const name = "test-smart-account";
       const createOptions = {
         owner: owner,
+        name,
       };
       const openApiEvmSmartAccount: OpenApiEvmSmartAccount = {
         address: "0xabc",
@@ -227,6 +235,7 @@ describe("EvmClient", () => {
         address: "0xabc" as Hex,
         owners: [owner],
         type: "evm-smart",
+        name,
         transfer: vi.fn(),
         listTokenBalances: vi.fn(),
         sendUserOperation: vi.fn(),
@@ -251,6 +260,7 @@ describe("EvmClient", () => {
       expect(CdpOpenApiClient.createEvmSmartAccount).toHaveBeenCalledWith(
         {
           owners: [owner.address],
+          name,
         },
         undefined,
       );
@@ -357,6 +367,7 @@ describe("EvmClient", () => {
         signTransaction: vi.fn().mockResolvedValue("0xsignature"),
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
       };
+      const name = "test-smart-account";
       const openApiEvmSmartAccount: OpenApiEvmSmartAccount = {
         address: "0xabc",
         owners: [owner.address],
@@ -364,11 +375,13 @@ describe("EvmClient", () => {
       const getOptions: GetSmartAccountOptions = {
         address: "0xabc",
         owner,
+        name,
       };
       const smartAccount: EvmSmartAccount = {
         address: "0xabc" as const,
         owners: [owner],
         type: "evm-smart" as const,
+        name,
         transfer: vi.fn(),
         listTokenBalances: vi.fn(),
         sendUserOperation: vi.fn(),
@@ -419,6 +432,7 @@ describe("EvmClient", () => {
         fund: vi.fn(),
         waitForFundOperationReceipt: vi.fn(),
         swap: vi.fn(),
+        quoteSwap: vi.fn(),
       };
 
       const getEvmAccountMock = CdpOpenApiClient.getEvmAccountByName as MockedFunction<
@@ -445,6 +459,68 @@ describe("EvmClient", () => {
       expect(getEvmAccountMock).toHaveBeenCalledTimes(2);
       expect(createEvmAccountMock).toHaveBeenCalledTimes(1);
       expect(toEvmServerAccountMock).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("getOrCreateSmartAccount", () => {
+    it("should return a smart account", async () => {
+      const mockOwnerAccount: EvmAccount = {
+        address: "0xowner" as Address,
+        sign: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signMessage: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature" as Hex),
+      };
+
+      const getOrCreateOptions: GetOrCreateSmartAccountOptions = {
+        name: "test-smart-account",
+        owner: mockOwnerAccount,
+      };
+
+      const mockOpenApiSmartAccount = {
+        address: "0x456" as Address,
+        owners: [mockOwnerAccount.address],
+        name: "test-smart-account",
+      };
+
+      const mockSmartAccount: EvmSmartAccount = {
+        address: "0x456" as Address,
+        owners: [mockOwnerAccount],
+        name: "test-smart-account",
+        type: "evm-smart" as const,
+        transfer: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
+        listTokenBalances: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+      };
+
+      const getEvmSmartAccountMock = CdpOpenApiClient.getEvmSmartAccountByName as MockedFunction<
+        typeof CdpOpenApiClient.getEvmSmartAccountByName
+      >;
+      getEvmSmartAccountMock
+        .mockRejectedValueOnce(new APIError(404, "not_found", "Account not found"))
+        .mockResolvedValueOnce(mockOpenApiSmartAccount);
+
+      const createEvmSmartAccountMock = CdpOpenApiClient.createEvmSmartAccount as MockedFunction<
+        typeof CdpOpenApiClient.createEvmSmartAccount
+      >;
+      createEvmSmartAccountMock.mockResolvedValue(mockOpenApiSmartAccount);
+
+      const toEvmSmartAccountMock = toEvmSmartAccount as MockedFunction<typeof toEvmSmartAccount>;
+      toEvmSmartAccountMock.mockReturnValue(mockSmartAccount);
+
+      const result = await client.getOrCreateSmartAccount(getOrCreateOptions);
+      const result2 = await client.getOrCreateSmartAccount(getOrCreateOptions);
+      expect(result).toBe(mockSmartAccount);
+      expect(result2).toBe(mockSmartAccount);
+      expect(getEvmSmartAccountMock).toHaveBeenCalledTimes(2);
+      expect(createEvmSmartAccountMock).toHaveBeenCalledTimes(1);
+      expect(toEvmSmartAccountMock).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -914,9 +990,9 @@ describe("EvmClient", () => {
     const serverAmount2 = { amount: "2000000000000000000", decimals: 18 };
     const serverAmount3 = { amount: "3000000000000000000", decimals: 18 };
 
-    const clientAmount1 = { amount: BigInt(1000000000000000000), decimals: BigInt(18) };
-    const clientAmount2 = { amount: BigInt(2000000000000000000), decimals: BigInt(18) };
-    const clientAmount3 = { amount: BigInt(3000000000000000000), decimals: BigInt(18) };
+    const clientAmount1 = { amount: 1000000000000000000n, decimals: 18 };
+    const clientAmount2 = { amount: 2000000000000000000n, decimals: 18 };
+    const clientAmount3 = { amount: 3000000000000000000n, decimals: 18 };
 
     const serverTokenBalance1 = { token: token1, amount: serverAmount1 };
     const serverTokenBalance2 = { token: token2, amount: serverAmount2 };

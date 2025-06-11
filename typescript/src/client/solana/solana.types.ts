@@ -15,6 +15,8 @@ export type SolanaClientInterface = Omit<
   | "signSolanaMessage" // mapped to signMessage
   | "signSolanaTransaction" // mapped to signTransaction
   | "updateSolanaAccount" // mapped to updateAccount
+  | "exportSolanaAccount"
+  | "exportSolanaAccountByName"
 > & {
   createAccount: (options: CreateAccountOptions) => Promise<Account>;
   getAccount: (options: GetAccountOptions) => Promise<Account>;

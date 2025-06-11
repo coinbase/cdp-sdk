@@ -151,10 +151,24 @@ class CdpApiClient(ApiClient):
                 ) from None
 
             # Default to unexpected error
+            error_text = ""
+            
+            if e.body:
+                try:
+                    error_text = json.dumps(e.body)
+                except (TypeError, ValueError):
+                    error_text = str(e.body)
+            
+            error_message = (
+                f"An unexpected error occurred: {error_text}" 
+                if error_text 
+                else "An unexpected error occurred."
+            )
+            
             raise ApiError(
                 http_code=e.status or 500,
                 error_type="unexpected_error",
-                error_message="An unexpected error occurred.",
+                error_message=error_message,
                 error_link=ERROR_DOCS_PAGE_URL,
             ) from None
         except Exception as e:

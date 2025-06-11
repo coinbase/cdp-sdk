@@ -32,6 +32,7 @@ import {
   GetSwapPriceResult,
   CreateSwapQuoteResult,
   SwapUnavailableResult,
+  GetOrCreateSmartAccountOptions,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
@@ -261,6 +262,7 @@ export class EvmClient implements EvmClientInterface {
     const openApiSmartAccount = await CdpOpenApiClient.createEvmSmartAccount(
       {
         owners: [options.owner.address],
+        name: options.name,
       },
       options.idempotencyKey,
     );
@@ -326,7 +328,10 @@ export class EvmClient implements EvmClientInterface {
    * Gets a CDP EVM smart account.
    *
    * @param {GetSmartAccountOptions} options - Parameters for getting the smart account.
-   * @param {string} options.address - The address of the smart account to get.
+   * Either `address` or `name` must be provided.
+   * If both are provided, lookup will be done by `address` and `name` will be ignored.
+   * @param {string} [options.address] - The address of the smart account to get.
+   * @param {string} [options.name] - The name of the smart account to get.
    * @param {Account} options.owner - The owner of the smart account.
    * You must pass the signing-capable owner of the smart account so that the returned smart account
    * can be functional.
@@ -342,7 +347,14 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async getSmartAccount(options: GetSmartAccountOptions): Promise<SmartAccount> {
-    const openApiSmartAccount = await CdpOpenApiClient.getEvmSmartAccount(options.address);
+    const openApiSmartAccount = await (async () => {
+      if (options.address) {
+        return CdpOpenApiClient.getEvmSmartAccount(options.address);
+      } else if (options.name) {
+        return CdpOpenApiClient.getEvmSmartAccountByName(options.name);
+      }
+      throw new Error("Either address or name must be provided");
+    })();
 
     const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
       smartAccount: openApiSmartAccount,
@@ -385,6 +397,51 @@ export class EvmClient implements EvmClientInterface {
           const doesAccountAlreadyExist = error instanceof APIError && error.statusCode === 409;
           if (doesAccountAlreadyExist) {
             const account = await this.getAccount(options);
+            return account;
+          }
+          throw error;
+        }
+      }
+
+      throw error;
+    }
+  }
+
+  /**
+   * Gets a CDP EVM smart account, or creates one if it doesn't exist.
+   * This method first attempts to retrieve an existing smart account with the given parameters.
+   * If no account exists, it creates a new one with the specified owner.
+   *
+   * @param {GetOrCreateSmartAccountOptions} options - Configuration options for getting or creating the smart account.
+   * @param {string} [options.name] - The name of the smart account to get or create.
+   * @param {Account} options.owner - The owner of the smart account.
+   *
+   * @returns {Promise<SmartAccount>} A promise that resolves to the retrieved or newly created smart account.
+   *
+   * @example
+   * ```ts
+   * const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+   *   name: "MySmartAccount",
+   *   owner: account,
+   * });
+   * ```
+   */
+  async getOrCreateSmartAccount(options: GetOrCreateSmartAccountOptions): Promise<SmartAccount> {
+    try {
+      const account = await this.getSmartAccount(options);
+      return account;
+    } catch (error) {
+      // If it failed because the account doesn't exist, create it
+      const doesAccountNotExist = error instanceof APIError && error.statusCode === 404;
+      if (doesAccountNotExist) {
+        try {
+          const account = await this.createSmartAccount(options);
+          return account;
+        } catch (error) {
+          // If it failed because the account already exists, throw an error
+          const doesAccountAlreadyExist = error instanceof APIError && error.statusCode === 409;
+          if (doesAccountAlreadyExist) {
+            const account = await this.getSmartAccount(options);
             return account;
           }
           throw error;

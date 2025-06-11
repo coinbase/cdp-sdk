@@ -346,12 +346,14 @@ async def test_evm_request_faucet_for_account(cdp_client):
 @pytest.mark.asyncio
 async def test_list_evm_token_balances_for_account(cdp_client):
     """Test listing evm token balances for a server account."""
-    account = await cdp_client.evm.get_or_create_account(name="E2ETestAccount")
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
-    first_page = await account.list_token_balances(network="base-sepolia", page_size=1)
-    assert first_page is not None
-    assert len(first_page.balances) > 0
+    result = await account.list_token_balances(
+        network="base-sepolia",
+    )
+    assert result is not None
+    assert len(result.balances) > 0
 
 
 @pytest.mark.e2e
@@ -1338,7 +1340,7 @@ async def test_create_solana_account_with_policy(cdp_client):
 async def test_update_solana_account(cdp_client):
     """Test updating a Solana account."""
     original_name = generate_random_name()
-    account_to_update = await cdp_client.solana.create_account(name=original_name)
+    account_to_update = await cdp_client.solana.get_or_create_account(name=original_name)
     assert account_to_update is not None
     assert account_to_update.name == original_name
 

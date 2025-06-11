@@ -47,6 +47,20 @@ export const getCreateEvmSmartAccountResponseMock = (
   ...overrideResponse,
 });
 
+export const getGetEvmSmartAccountByNameResponseMock = (
+  overrideResponse: Partial<EvmSmartAccount> = {},
+): EvmSmartAccount => ({
+  address: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  owners: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+    faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  ),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
+
 export const getGetEvmSmartAccountResponseMock = (
   overrideResponse: Partial<EvmSmartAccount> = {},
 ): EvmSmartAccount => ({
@@ -179,6 +193,29 @@ export const getCreateEvmSmartAccountMockHandler = (
   });
 };
 
+export const getGetEvmSmartAccountByNameMockHandler = (
+  overrideResponse?:
+    | EvmSmartAccount
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<EvmSmartAccount> | EvmSmartAccount),
+) => {
+  return http.get("*/v2/evm/smart-accounts/by-name/:name", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetEvmSmartAccountByNameResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
 export const getGetEvmSmartAccountMockHandler = (
   overrideResponse?:
     | EvmSmartAccount
@@ -276,6 +313,7 @@ export const getSendUserOperationMockHandler = (
 export const getEvmSmartAccountsMock = () => [
   getListEvmSmartAccountsMockHandler(),
   getCreateEvmSmartAccountMockHandler(),
+  getGetEvmSmartAccountByNameMockHandler(),
   getGetEvmSmartAccountMockHandler(),
   getPrepareUserOperationMockHandler(),
   getGetUserOperationMockHandler(),

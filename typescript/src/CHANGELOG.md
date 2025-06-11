@@ -1,5 +1,21 @@
 # CDP SDK Changelog
 
+## 1.14.0
+
+### Minor Changes
+
+- [#183](https://github.com/coinbase/cdp-sdk/pull/183) [`c3c0d4c`](https://github.com/coinbase/cdp-sdk/commit/c3c0d4ccb332cf573924c9a3b5a5c3da4fbcf9f3) Thanks [@superadi04](https://github.com/superadi04)! - Added getOrCreateSmartAccount by name to the EVM client.
+
+  Also updated getSmartAccount to allow getting a smart account by name and createSmartAccount to allow creating a smart account with a name.
+
+### Patch Changes
+
+- [#190](https://github.com/coinbase/cdp-sdk/pull/190) [`040551a`](https://github.com/coinbase/cdp-sdk/commit/040551af8f8b64d39cb2ce774f39e0420e21db45) Thanks [@0xRAG](https://github.com/0xRAG)! - Updated type of EvmTokenAmount.decimals to be number instead of bigint
+
+- [#188](https://github.com/coinbase/cdp-sdk/pull/188) [`1ff0dd3`](https://github.com/coinbase/cdp-sdk/commit/1ff0dd371185ba8f659a116fb58105e7c26139e4) Thanks [@0xRAG](https://github.com/0xRAG)! - Fixed signTypedData to automatically infer EIP712Domain
+
+- [#191](https://github.com/coinbase/cdp-sdk/pull/191) [`334cc47`](https://github.com/coinbase/cdp-sdk/commit/334cc47ea564aefcf6bc06c6e05676d21121f5dd) Thanks [@derek-cb](https://github.com/derek-cb)! - Log response body for unexpected error scenarios
+
 ## 1.13.0
 
 ### Minor Changes

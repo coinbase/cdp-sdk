@@ -1,4 +1,4 @@
-import { type TransactionSerializable, serializeTransaction } from "viem";
+import { type TransactionSerializable, getTypesForEIP712Domain, serializeTransaction } from "viem";
 
 import { FundOptions, fund } from "../../actions/evm/fund/fund.js";
 import { Quote } from "../../actions/evm/fund/Quote.js";
@@ -84,6 +84,11 @@ export function toEvmServerAccount(
     },
 
     async signTypedData(message: EIP712Message) {
+      if (!message.types.EIP712Domain) {
+        message.types.EIP712Domain = getTypesForEIP712Domain({
+          domain: message.domain,
+        });
+      }
       const result = await apiClient.signEvmTypedData(options.account.address, message);
       return result.signature as Hex;
     },
