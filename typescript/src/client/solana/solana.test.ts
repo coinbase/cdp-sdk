@@ -4,7 +4,7 @@ import { CdpOpenApiClient } from "../../openapi-client/index.js";
 
 import { APIError } from "../../openapi-client/errors.js";
 import { SolanaClient } from "./solana.js";
-import { decryptWithPrivateKey } from "../../utils/export.js";
+import { decryptWithPrivateKey, formatSolanaPrivateKey } from "../../utils/export.js";
 import { generateExportEncryptionKeyPair } from "../../utils/export.js";
 import { Address } from "../../types/misc.js";
 
@@ -28,6 +28,7 @@ vi.mock("../../openapi-client/index.js", () => {
 vi.mock("../../utils/export.js", () => ({
   generateExportEncryptionKeyPair: vi.fn(),
   decryptWithPrivateKey: vi.fn(),
+  formatSolanaPrivateKey: vi.fn(),
 }));
 
 describe("SolanaClient", () => {
@@ -93,6 +94,8 @@ describe("SolanaClient", () => {
       const mockPublicKey = Buffer.from("public-key").toString("base64");
       const mockPrivateKey = Buffer.from("private-key").toString("base64");
       const mockEncryptedKey = Buffer.from("encrypted-private-key").toString("base64");
+      const mockDecryptedPrivateKey = Buffer.from("decrypted-private-key").toString("base64");
+      const mockFormattedPrivateKey = Buffer.from("formatted-private-key").toString("base64");
 
       const generateExportEncryptionKeyPairMock = generateExportEncryptionKeyPair as MockedFunction<
         typeof generateExportEncryptionKeyPair
@@ -105,7 +108,12 @@ describe("SolanaClient", () => {
       const decryptWithPrivateKeyMock = decryptWithPrivateKey as MockedFunction<
         typeof decryptWithPrivateKey
       >;
-      decryptWithPrivateKeyMock.mockReturnValue(mockPrivateKey);
+      decryptWithPrivateKeyMock.mockReturnValue(mockDecryptedPrivateKey);
+
+      const formatSolanaPrivateKeyMock = formatSolanaPrivateKey as MockedFunction<
+        typeof formatSolanaPrivateKey
+      >;
+      formatSolanaPrivateKeyMock.mockReturnValue(mockFormattedPrivateKey);
 
       const exportSolanaAccountMock = CdpOpenApiClient.exportSolanaAccount as MockedFunction<
         typeof CdpOpenApiClient.exportSolanaAccount
@@ -118,7 +126,7 @@ describe("SolanaClient", () => {
         address: account.address,
       });
 
-      expect(exportedPrivateKey).toBe(mockPrivateKey);
+      expect(exportedPrivateKey).toBe(mockFormattedPrivateKey);
       expect(generateExportEncryptionKeyPair).toHaveBeenCalled();
       expect(CdpOpenApiClient.exportSolanaAccount).toHaveBeenCalledWith(
         account.address,
@@ -128,6 +136,7 @@ describe("SolanaClient", () => {
         undefined,
       );
       expect(decryptWithPrivateKey).toHaveBeenCalledWith(mockPrivateKey, mockEncryptedKey);
+      expect(formatSolanaPrivateKey).toHaveBeenCalledWith(mockDecryptedPrivateKey);
     });
 
     it("should export an account by name", async () => {
@@ -135,6 +144,8 @@ describe("SolanaClient", () => {
       const mockPublicKey = Buffer.from("public-key").toString("base64");
       const mockPrivateKey = Buffer.from("private-key").toString("base64");
       const mockEncryptedKey = Buffer.from("encrypted-private-key").toString("base64");
+      const mockDecryptedPrivateKey = Buffer.from("decrypted-private-key").toString("base64");
+      const mockFormattedPrivateKey = Buffer.from("formatted-private-key").toString("base64");
 
       const generateExportEncryptionKeyPairMock = generateExportEncryptionKeyPair as MockedFunction<
         typeof generateExportEncryptionKeyPair
@@ -147,7 +158,12 @@ describe("SolanaClient", () => {
       const decryptWithPrivateKeyMock = decryptWithPrivateKey as MockedFunction<
         typeof decryptWithPrivateKey
       >;
-      decryptWithPrivateKeyMock.mockReturnValue(mockPrivateKey);
+      decryptWithPrivateKeyMock.mockReturnValue(mockDecryptedPrivateKey);
+
+      const formatSolanaPrivateKeyMock = formatSolanaPrivateKey as MockedFunction<
+        typeof formatSolanaPrivateKey
+      >;
+      formatSolanaPrivateKeyMock.mockReturnValue(mockFormattedPrivateKey);
 
       const exportSolanaAccountByNameMock =
         CdpOpenApiClient.exportSolanaAccountByName as MockedFunction<
@@ -161,7 +177,7 @@ describe("SolanaClient", () => {
         name: account.name,
       });
 
-      expect(exportedPrivateKey).toBe(mockPrivateKey);
+      expect(exportedPrivateKey).toBe(mockFormattedPrivateKey);
       expect(generateExportEncryptionKeyPair).toHaveBeenCalled();
       expect(CdpOpenApiClient.exportSolanaAccountByName).toHaveBeenCalledWith(
         account.name,
@@ -171,6 +187,7 @@ describe("SolanaClient", () => {
         undefined,
       );
       expect(decryptWithPrivateKey).toHaveBeenCalledWith(mockPrivateKey, mockEncryptedKey);
+      expect(formatSolanaPrivateKey).toHaveBeenCalledWith(mockDecryptedPrivateKey);
     });
 
     it("should throw an error if neither address nor name is provided", async () => {

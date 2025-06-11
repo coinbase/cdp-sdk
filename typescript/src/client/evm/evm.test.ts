@@ -1009,9 +1009,9 @@ describe("EvmClient", () => {
     const serverAmount2 = { amount: "2000000000000000000", decimals: 18 };
     const serverAmount3 = { amount: "3000000000000000000", decimals: 18 };
 
-    const clientAmount1 = { amount: 1000000000000000000n, decimals: 18 };
-    const clientAmount2 = { amount: 2000000000000000000n, decimals: 18 };
-    const clientAmount3 = { amount: 3000000000000000000n, decimals: 18 };
+    const clientAmount1 = { amount: BigInt(1000000000000000000), decimals: 18 };
+    const clientAmount2 = { amount: BigInt(2000000000000000000), decimals: 18 };
+    const clientAmount3 = { amount: BigInt(3000000000000000000), decimals: 18 };
 
     const serverTokenBalance1 = { token: token1, amount: serverAmount1 };
     const serverTokenBalance2 = { token: token2, amount: serverAmount2 };

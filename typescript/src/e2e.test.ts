@@ -35,6 +35,7 @@ import type { Policy } from "./policies/types.js";
 import type { WaitForUserOperationReturnType } from "./actions/evm/waitForUserOperation.js";
 import { TimeoutError } from "./errors.js";
 import { SignEvmTransactionRule } from "./policies/schema.js";
+import bs58 from "bs58";
 
 dotenv.config();
 
@@ -256,8 +257,8 @@ describe("CDP Client E2E Tests", () => {
     const exportedPrivateKeyByName = await cdp.solana.exportAccount({
       name: randomName,
     });
-    const keypairByName = Keypair.fromSeed(Buffer.from(exportedPrivateKeyByName, "hex"));
-    const publicKeyByName = keypairByName.publicKey.toBase58();
+    const keypairByName = bs58.decode(exportedPrivateKeyByName);
+    const publicKeyByName = bs58.encode(keypairByName.subarray(32));
 
     expect(exportedPrivateKeyByName).toBeDefined();
     expect(publicKeyByName).toBe(account.address);
@@ -265,8 +266,8 @@ describe("CDP Client E2E Tests", () => {
     const exportedPrivateKeyByAddress = await cdp.solana.exportAccount({
       address: account.address,
     });
-    const keypairByAddress = Keypair.fromSeed(Buffer.from(exportedPrivateKeyByAddress, "hex"));
-    const publicKeyByAddress = keypairByAddress.publicKey.toBase58();
+    const keypairByAddress = bs58.decode(exportedPrivateKeyByAddress);
+    const publicKeyByAddress = bs58.encode(keypairByAddress.subarray(32));
 
     expect(exportedPrivateKeyByAddress).toBeDefined();
     expect(publicKeyByAddress).toBe(account.address);
