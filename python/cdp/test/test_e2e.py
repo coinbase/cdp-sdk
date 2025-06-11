@@ -775,6 +775,32 @@ async def test_evm_get_or_create_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@pytest.mark.focus
+async def test_evm_get_or_create_smart_account(cdp_client):
+    """Test getting or creating an EVM account."""
+    random_name = "".join(
+        [random.choice(string.ascii_letters + string.digits)]
+        + [random.choice(string.ascii_letters + string.digits + "-") for _ in range(34)]
+        + [random.choice(string.ascii_letters + string.digits)]
+    )
+    
+    # Create the owner account first
+    owner = await cdp_client.evm.create_account()
+    
+    # Now use the owner to create/get the smart account
+    account = await cdp_client.evm.get_or_create_smart_account(name=random_name, owner=owner)
+    assert account is not None
+    
+    # Try to get the same account again - should return the existing one
+    account2 = await cdp_client.evm.get_or_create_smart_account(name=random_name, owner=owner)
+    assert account2 is not None
+    assert account.address == account2.address
+    assert account.name == account2.name
+    assert account.name == random_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_solana_get_or_create_account(cdp_client):
     """Test getting or creating a Solana account."""
     random_name = "".join(

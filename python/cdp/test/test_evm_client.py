@@ -520,6 +520,39 @@ async def test_create_smart_account(smart_account_model_factory):
 
 
 @pytest.mark.asyncio
+async def test_get_or_create_smart_account(smart_account_model_factory, local_account_factory):
+    """Test getting or creating an EVM smart account."""
+    mock_evm_smart_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
+    client = EvmClient(api_clients=mock_api_clients)
+
+    smart_account_model = smart_account_model_factory()
+    mock_evm_smart_accounts_api.get_evm_smart_account_by_name = AsyncMock(
+        side_effect=[
+            ApiError(404, "not_found", "Account not found"),
+            smart_account_model,
+        ]
+    )
+    mock_evm_smart_accounts_api.create_evm_smart_account = AsyncMock(return_value=smart_account_model)
+    
+    test_name = "test-account"
+    owner = local_account_factory()
+    result = await client.get_or_create_smart_account(name=test_name, owner=owner)
+    result2 = await client.get_or_create_smart_account(name=test_name, owner=owner)
+
+    assert mock_evm_smart_accounts_api.get_evm_smart_account_by_name.call_count == 2
+    mock_evm_smart_accounts_api.create_evm_smart_account.assert_called_once_with(
+        CreateEvmSmartAccountRequest(owners=[owner.address], name=test_name)
+    )
+
+    assert result.address == smart_account_model.address
+    assert result.name == smart_account_model.name
+    assert result2.address == smart_account_model.address
+    assert result2.name == smart_account_model.name
+
+
+@pytest.mark.asyncio
 @patch("cdp.evm_client.send_user_operation")
 async def test_send_user_operation(mock_send_user_operation, smart_account_model_factory):
     """Test sending a user operation for a smart account."""
