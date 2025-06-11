@@ -1,8 +1,9 @@
-import { concat, encodeAbiParameters, encodePacked, numberToHex, size, sliceHex } from "viem";
+import { concat, numberToHex, size } from "viem";
 
 import { createSwapQuote } from "./createSwapQuote.js";
 import { createDeterministicUuidV4 } from "../../../utils/uuidV4.js";
 import { sendUserOperation } from "../sendUserOperation.js";
+import { signAndWrapTypedDataForSmartAccount } from "../signAndWrapTypedDataForSmartAccount.js";
 
 import type { SendSwapOperationOptions, SendSwapOperationResult } from "./types.js";
 import type { EvmSmartAccount } from "../../../accounts/evm/types.js";
@@ -129,44 +130,28 @@ export async function sendSwapOperation(
   let txData = swap.transaction.data as Hex;
 
   if (swap.permit2?.eip712) {
-    /**
-     * Sign the Permit2 EIP-712 message.
-     * For smart accounts, the owner signs locally (no CDP client API call needed).
-     * Deterministically derive a new idempotency key from the provided idempotency key
-     * for permit2 signing to avoid key reuse in case it's needed in the future.
-     */
+    // Create the permit2 idempotency key
     const permit2IdempotencyKey = idempotencyKey
       ? createDeterministicUuidV4(idempotencyKey, "permit2")
       : undefined;
 
-    // For smart accounts, the owner signs the Permit2 EIP-712 message locally
-    const owner = smartAccount.owners[0];
-
-    const permit2Signature = await client.signEvmTypedData(
-      owner.address,
-      {
-        domain: swap.permit2.eip712.domain,
-        types: swap.permit2.eip712.types,
-        primaryType: swap.permit2.eip712.primaryType,
-        message: swap.permit2.eip712.message,
-      },
-      permit2IdempotencyKey,
-    );
-
-    // Wrap the Permit2 signature
-    const permit2SignatureWrapper = buildSignatureWrapperForEOA({
-      signatureHex: permit2Signature.signature as Hex,
+    // Sign and wrap the permit2 typed data according to the Coinbase Smart Wallet contract requirements for EIP-712 signatures
+    const { signature: wrappedSignature } = await signAndWrapTypedDataForSmartAccount(client, {
+      smartAccount,
+      chainId: BigInt(swap.permit2.eip712.domain.chainId || 1),
+      typedData: swap.permit2.eip712,
       ownerIndex: 0n,
+      idempotencyKey: permit2IdempotencyKey,
     });
 
     // Calculate the Permit2 signature length as a 32-byte hex value
-    const permit2SignatureLengthInHex = numberToHex(size(permit2SignatureWrapper as Hex), {
+    const permit2SignatureLengthInHex = numberToHex(size(wrappedSignature), {
       signed: false,
       size: 32,
     });
 
     // Append the Permit2 signature length and signature to the transaction data
-    txData = concat([txData, permit2SignatureLengthInHex, permit2SignatureWrapper as Hex]);
+    txData = concat([txData, permit2SignatureLengthInHex, wrappedSignature]);
   }
 
   // Send the swap as a user operation
@@ -187,51 +172,3 @@ export async function sendSwapOperation(
 
   return result;
 }
-
-/**
- * Builds a signature wrapper for smart accounts by decomposing hex signature into r, s, v components.
- * Currently unused - reserved for future smart account signature format implementation.
- *
- * @param params - The signature parameters
- * @param params.signatureHex - The hex signature to decompose
- * @param params.ownerIndex - The owner index for the signature
- * @returns The encoded signature wrapper
- */
-function buildSignatureWrapperForEOA({
-  signatureHex,
-  ownerIndex,
-}: {
-  signatureHex: Hex;
-  ownerIndex: bigint;
-}) {
-  // Decompose 65-byte hex signature into r (32 bytes), s (32 bytes), v (1 byte)
-  const r = sliceHex(signatureHex, 0, 32);
-  const s = sliceHex(signatureHex, 32, 64);
-  const v = Number(`0x${signatureHex.slice(130, 132)}`); // 130 = 2 + 64 + 64
-
-  const signatureData = encodePacked(["bytes32", "bytes32", "uint8"], [r, s, v]);
-  return encodeAbiParameters(
-    [SignatureWrapperStruct],
-    [
-      {
-        ownerIndex,
-        signatureData,
-      },
-    ],
-  );
-}
-
-const SignatureWrapperStruct = {
-  components: [
-    {
-      name: "ownerIndex",
-      type: "uint8",
-    },
-    {
-      name: "signatureData",
-      type: "bytes",
-    },
-  ],
-  name: "SignatureWrapper",
-  type: "tuple",
-};

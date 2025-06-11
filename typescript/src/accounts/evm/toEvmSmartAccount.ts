@@ -23,6 +23,7 @@ import {
   type SendUserOperationReturnType,
   sendUserOperation,
 } from "../../actions/evm/sendUserOperation.js";
+import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { sendSwapOperation } from "../../actions/evm/swap/sendSwapOperation.js";
 import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
@@ -32,7 +33,11 @@ import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
-import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
+import {
+  GetUserOperationOptions,
+  SmartAccountSignAndWrapTypedDataOptions,
+  UserOperation,
+} from "../../client/evm/evm.types.js";
 
 import type { EvmAccount, EvmSmartAccount } from "./types.js";
 import type {
@@ -45,7 +50,7 @@ import type {
   CdpOpenApiClientType,
   EvmSmartAccount as EvmSmartAccountModel,
 } from "../../openapi-client/index.js";
-import type { Address } from "../../types/misc.js";
+import type { Address, Hex } from "../../types/misc.js";
 
 /**
  * Options for converting a pre-existing EvmSmartAccount and owner to a EvmSmartAccount
@@ -150,6 +155,15 @@ export function toEvmSmartAccount(
         taker: this.address, // Always use smart account's address as taker
         signerAddress: this.owners[0].address, // Always use owner's address as signer
       });
+    },
+    async signAndWrapTypedData(
+      options: SmartAccountSignAndWrapTypedDataOptions,
+    ): Promise<{ signature: Hex }> {
+      const result = await signAndWrapTypedDataForSmartAccount(apiClient, {
+        smartAccount: account,
+        ...options,
+      });
+      return result;
     },
     name: options.smartAccount.name,
     type: "evm-smart",

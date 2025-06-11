@@ -567,3 +567,18 @@ export type GetSwapQuoteOptions = GetSwapPriceOptions;
 export type GetSwapQuoteResult = GetSwapPriceResult;
 export type SwapQuoteUnavailableResult = SwapUnavailableResult;
 export type SwapPriceUnavailableResult = SwapUnavailableResult;
+
+/**
+ * Options for signing and wrapping EIP-712 typed data with a smart account.
+ * This method handles the full smart account signature flow including replay-safe hashing.
+ */
+export interface SmartAccountSignAndWrapTypedDataOptions {
+  /** The chain ID for the signature (used for replay protection). */
+  chainId: bigint;
+  /** The EIP-712 typed data message to sign. */
+  typedData: EIP712Message;
+  /** The index of the owner to sign with (defaults to 0). */
+  ownerIndex?: bigint;
+  /** Optional idempotency key for the signing request. */
+  idempotencyKey?: string;
+}
