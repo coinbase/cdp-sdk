@@ -1,6 +1,6 @@
 import md5 from "md5";
 
-import { APIError } from "./openapi-client/errors.js";
+import { APIError, HttpErrorType } from "./openapi-client/errors.js";
 import { version } from "./version.js";
 
 /**
@@ -184,7 +184,7 @@ function shouldTrackError(error: unknown): boolean {
     return false;
   }
 
-  if (error instanceof APIError) {
+  if (error instanceof APIError && error.errorType !== HttpErrorType.unexpected_error) {
     return false;
   }
 
