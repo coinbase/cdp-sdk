@@ -224,7 +224,8 @@ export class EvmClient implements EvmClientInterface {
    * @param {string} [options.name] - The name of the account to export.
    * @param {string} [options.idempotencyKey] - An idempotency key.
    *
-   * @returns A promise that resolves to the exported account's private key.
+   * @returns A promise that resolves to the exported account's private key,
+   * which is the 32-byte private key hex string without a "0x" prefix.
    *
    * @example **With an address**
    * ```ts
