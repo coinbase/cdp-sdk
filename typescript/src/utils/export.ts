@@ -1,5 +1,8 @@
 import { generateKeyPair, privateDecrypt, constants, createPrivateKey } from "crypto";
 
+import { Keypair } from "@solana/web3.js";
+import bs58 from "bs58";
+
 /**
  * Generates a new RSA key pair with 4096-bit private key.
  * - Private key in PKCS1 DER format
@@ -70,4 +73,27 @@ export const decryptWithPrivateKey = (b64PrivateKey: string, b64Cipher: string):
   } catch (error) {
     throw new Error(`Decryption failed: ${String(error)}`);
   }
+};
+
+/**
+ * Format a private key to a base58 string for easy import into Solana wallet apps.
+ *
+ * @param privateKey - The private key as a hex string
+ * @returns The formatted private key as a base58 string
+ */
+export const formatSolanaPrivateKey = (privateKey: string): string => {
+  // Convert hex string to bytes
+  const privateKeyBytes = Buffer.from(privateKey, "hex");
+
+  // Create keypair from seed (private key)
+  const keypair = Keypair.fromSeed(privateKeyBytes);
+
+  // Combine private key and public key bytes
+  const fullKey = Buffer.concat([
+    keypair.secretKey.subarray(0, 32), // Private key
+    keypair.publicKey.toBytes(), // Public key
+  ]);
+
+  // Encode as base58
+  return bs58.encode(fullKey);
 };

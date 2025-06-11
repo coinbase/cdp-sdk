@@ -20,7 +20,11 @@ import { signTransaction } from "../../actions/solana/signTransaction.js";
 import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
-import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
+import {
+  decryptWithPrivateKey,
+  formatSolanaPrivateKey,
+  generateExportEncryptionKeyPair,
+} from "../../utils/export.js";
 
 /**
  * The namespace containing all Solana methods.
@@ -114,7 +118,8 @@ export class SolanaClient implements SolanaClientInterface {
           },
           options.idempotencyKey,
         );
-        return decryptWithPrivateKey(privateKey, encryptedPrivateKey);
+        const decryptedPrivateKey = decryptWithPrivateKey(privateKey, encryptedPrivateKey);
+        return formatSolanaPrivateKey(decryptedPrivateKey);
       }
 
       if (options.name) {
@@ -125,7 +130,8 @@ export class SolanaClient implements SolanaClientInterface {
           },
           options.idempotencyKey,
         );
-        return decryptWithPrivateKey(privateKey, encryptedPrivateKey);
+        const decryptedPrivateKey = decryptWithPrivateKey(privateKey, encryptedPrivateKey);
+        return formatSolanaPrivateKey(decryptedPrivateKey);
       }
 
       throw new Error("Either address or name must be provided");

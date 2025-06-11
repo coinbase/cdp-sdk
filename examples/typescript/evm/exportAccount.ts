@@ -11,7 +11,7 @@ console.log("Generated private key: ", privateKey);
 
 const account = await cdp.evm.importAccount({
   privateKey,
-  name: "MyAccount",
+  name: "MyImportedAccount",
 });
 console.log("Imported account: ", account.address);
 
@@ -30,7 +30,7 @@ console.log("Public key derived from private key:", publicKeyByAddress);
 console.log("--------------------------------");
 console.log("Exporting account by name...");
 const exportedPrivateKeyByName = await cdp.evm.exportAccount({
-  name: "MyAccount",
+  name: "MyImportedAccount",
 });
 console.log("Exported private key: ", exportedPrivateKeyByName);
 
