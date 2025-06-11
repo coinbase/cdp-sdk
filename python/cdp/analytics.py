@@ -202,4 +202,7 @@ def should_track_error(error: Exception) -> bool:
         True if the error should be tracked, False otherwise.
 
     """
-    return isinstance(error, Exception) and not isinstance(error, ApiError)
+    if isinstance(error, ApiError) and error.error_type != "unexpected_error":  # noqa: SIM103
+        return False
+
+    return True
