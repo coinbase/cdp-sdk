@@ -390,11 +390,8 @@ console.log(`Swap executed: ${transactionHash}`);
 **Smart Account:**
 ```typescript
 // Create or retrieve a smart account with funds already in it
-const owner = await cdp.evm.getOrCreateAccount({ name: "SmartAccountOwner" });
-const smartAccount = await cdp.evm.getOrCreateSmartAccount({
-  name: "MySmartAccount",
-  owner: owner
-});
+const owner = await cdp.evm.getOrCreateAccount({ name: "Owner" });
+const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MySmartAccount", owner });
 
 // Execute a swap directly on a smart account in one line
 const { userOpHash } = await smartAccount.swap({
@@ -460,24 +457,15 @@ if (!swapQuote.liquidityAvailable) {
   return;
 }
 
-// Step 3: Execute using the quote (two options)
-// Option 3A: Use the execute method on the quote
-const { transactionHash } = await swapQuote.execute({});
-
-// Option 3B: Pass the quote to account.swap()
-const { transactionHash } = await account.swap({
-  swapQuote: swapQuote
-});
+// Step 3: Execute using the quote
+const { transactionHash } = await swapQuote.execute();
 ```
 
 **Smart Account:**
 ```typescript
 // Create or retrieve a smart account with funds already in it
-const owner = await cdp.evm.getOrCreateAccount({ name: "SmartAccountOwner" });
-const smartAccount = await cdp.evm.getOrCreateSmartAccount({
-  name: "MySmartAccount",
-  owner: owner
-});
+const owner = await cdp.evm.getOrCreateAccount({ name: "Owner" });
+const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MySmartAccount", owner });
 
 // Step 1: Create a swap quote with full transaction details for smart account
 const swapQuote = await smartAccount.quoteSwap({
@@ -494,15 +482,8 @@ if (!swapQuote.liquidityAvailable) {
   return;
 }
 
-// Step 3: Execute using the quote (two options)
-// Option 3A: Use the execute method on the quote (returns user operation hash)
-const { userOpHash } = await swapQuote.execute({});
-
-// Option 3B: Pass the quote to smartAccount.swap()
-const { userOpHash } = await smartAccount.swap({
-  swapQuote: swapQuote,
-  // Optional: paymasterUrl: "https://paymaster.example.com"
-});
+// Step 3: Execute using the quote
+const { userOpHash } = await swapQuote.execute();
 
 // Wait for the user operation to complete
 const receipt = await smartAccount.waitForUserOperation({ userOpHash });
