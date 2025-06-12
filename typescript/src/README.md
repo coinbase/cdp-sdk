@@ -543,9 +543,15 @@ To help you get started with token swaps in your application, we provide the fol
 - [Quote swap using smart account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.quoteSwap.ts) - Smart account convenience method for creating quotes
 - [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
 
-**External wallet integration:**
-- [Execute a swap transaction using an external account (Viem)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.swap.ts) - Full swap execution with viem wallets
-- [Create swap quotes using Viem wallets](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.quoteSwap.ts) - Quote creation with external wallets
+**External wallet integration (viem):**
+- [Execute a swap transaction using viem account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.account.swap.ts) - All-in-one swap execution with viem wallets
+- [Two-step quote and execute process using viem account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.account.quoteSwapAndExecute.ts) - Detailed two-step approach with viem wallets
+
+**Advanced: External smart account integration (viem + account abstraction):**
+- [Execute a swap transaction using viem smart account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.smartAccount.swap.ts) - All-in-one smart account swap with custom bundler/paymaster setup
+- [Two-step quote and execute process using viem smart account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.smartAccount.quoteSwapAndExecute.ts) - Advanced account abstraction integration
+
+**Note:** The viem smart account examples require additional dependencies (`permissionless` package) and external service setup (bundler, optional paymaster). For simpler smart account usage, consider CDP's built-in smart account features instead.
 
 ### Transferring tokens
 
