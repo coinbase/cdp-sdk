@@ -9,7 +9,7 @@ const cdp = new CdpClient();
 const account = await cdp.solana.getOrCreateAccount({
   name: "MyAccount",
 });
-console.log("Account: ", account.address);
+console.log("Account:", account.address);
 
 // Exporting account by address
 console.log("--------------------------------");
