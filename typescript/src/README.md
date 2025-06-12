@@ -464,8 +464,8 @@ const { transactionHash } = await swapQuote.execute();
 **Smart Account:**
 ```typescript
 // Create or retrieve a smart account with funds already in it
-const owner = await cdp.evm.getOrCreateAccount({ name: "Owner" });
-const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MySmartAccount", owner });
+const owner = await cdp.evm.getOrCreateAccount({ name: "MyOwnerAccount" });
+const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MyExistingFundedSmartAccount", owner });
 
 // Step 1: Create a swap quote with full transaction details for smart account
 const swapQuote = await smartAccount.quoteSwap({
