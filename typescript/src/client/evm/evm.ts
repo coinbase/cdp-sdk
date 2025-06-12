@@ -220,7 +220,7 @@ export class EvmClient implements EvmClientInterface {
    * It is important to store the private key in a secure place after it's exported.
    *
    * @param {ExportServerAccountOptions} options - Parameters for exporting the account.
-   * @param {string} options.address - The address of the account to export.
+   * @param {string} [options.address] - The address of the account to export.
    * @param {string} [options.name] - The name of the account to export.
    * @param {string} [options.idempotencyKey] - An idempotency key.
    *
