@@ -433,9 +433,9 @@ if (swapPrice.liquidityAvailable) {
 
 #### 3. Create and execute separately
 
-Use `createSwapQuote` when you need full control over the swap process. This returns complete transaction data for execution:
+Use `account.quoteSwap()` / `smartAccount.quoteSwap()` when you need full control over the swap process. This returns complete transaction data for execution:
 
-**Important:** `createSwapQuote` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `getSwapPrice` to prevent abuse.
+**Important:** `quoteSwap()` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `getSwapPrice` to prevent abuse.
 
 **Regular Account (EOA):**
 ```typescript
@@ -494,7 +494,7 @@ console.log(`Status: ${receipt.status}`);
 
 - **All-in-one (`account.swap()` / `smartAccount.swap()`)**: Best for most use cases. Simple, handles everything automatically.
 - **Price only (`getSwapPrice`)**: For displaying exchange rates, building price calculators, or checking liquidity without executing. Suitable when frequent price updates are needed - although the data may be slightly less precise.
-- **Create then execute (`createSwapQuote`)**: When you need to inspect swap details, implement custom logic, or handle complex scenarios before execution. Note: May reserve funds on-chain and is more strictly rate-limited.
+- **Create then execute (`account.quoteSwap()` / `smartAccount.quoteSwap()`)**: When you need to inspect swap details, implement custom logic, or handle complex scenarios before execution. Note: May reserve funds on-chain and is more strictly rate-limited.
 
 #### Key differences between Regular Accounts (EOAs) and Smart Accounts:
 
