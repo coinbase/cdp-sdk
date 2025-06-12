@@ -1,4 +1,4 @@
-# Usage: uv run python evm/get_or_create_account.py
+# Usage: uv run python evm/get_or_create_smart_account.py
 
 import asyncio
 
@@ -10,23 +10,28 @@ load_dotenv()
 
 async def main():
     async with CdpClient() as cdp:
-        # Single account creation example
-        name = "Account1"
-        account = await cdp.evm.get_smart_account(name=name)
-        print("Account Address: ", account.address)
-        account2 = await cdp.evm.get_smart_account(name=name)
-        print("Account 2 Address: ", account2.address)
+        # Create an owner account
+        owner = await cdp.evm.create_account()
+        print("Created owner account:", owner.address)
+
+        # Create a smart account with the owner
+        name = "MySmartAccount"
+        account = await cdp.evm.get_or_create_smart_account(name=name, owner=owner)
+        print("Smart Account Address: ", account.address)
+
+        # Try to get the same smart account again - should return the existing one
+        account2 = await cdp.evm.get_or_create_smart_account(name=name, owner=owner)
+        print("Second Smart Account Address: ", account2.address)
         print("Are accounts equal? ", account.address == account2.address)
 
-        # Concurrent account creation example
-        account_coros = [
-            cdp.evm.get_or_create_smart_account(name="Account"),
-            cdp.evm.get_or_create_smart_account(name="Account"),
-            cdp.evm.get_or_create_smart_account(name="Account"),
-        ]
-        accounts = await asyncio.gather(*account_coros)
-        for i, acc in enumerate(accounts, 1):
-            print(f"EVM Account Address {i + 1}: ", acc.address)
+        # Create another owner account for a different smart account
+        owner2 = await cdp.evm.create_account()
+        print("\nCreated second owner account:", owner2.address)
+
+        # Create a smart account with the second owner
+        name2 = "MySecondSmartAccount"
+        account3 = await cdp.evm.get_or_create_smart_account(name=name2, owner=owner2)
+        print("Second Smart Account Address: ", account3.address)
 
 
 asyncio.run(main())

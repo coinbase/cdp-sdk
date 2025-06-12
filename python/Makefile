@@ -69,7 +69,7 @@ clean:
 .PHONY: python-client preprocess-openapi check-openapi
 preprocess-openapi:
 	@echo "Preprocessing OpenAPI spec to make X-Wallet-Auth optional..."
-	@python3 ../scripts/preprocess_openapi.py ../openapi.yaml ../openapi_preprocessed.yaml
+	@python ../scripts/preprocess_openapi.py ../openapi.yaml ../openapi_preprocessed.yaml
 
 check-openapi:
 	@make -C .. check-openapi || echo "NOTE: THERE IS A NEW OPENAPI FILE AVAILABLE. RUN 'make update-openapi' IN THE ROOT DIRECTORY TO UPDATE IT."
