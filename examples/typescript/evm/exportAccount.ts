@@ -7,7 +7,7 @@ import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 const cdp = new CdpClient();
 
 const privateKey = generatePrivateKey();
-console.log("Generated private key: ", privateKey);
+console.log("Generated private key:", privateKey);
 
 const account = await cdp.evm.importAccount({
   privateKey,
