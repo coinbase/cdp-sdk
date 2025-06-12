@@ -47,8 +47,6 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
 )
 from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
-from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
-from cdp.update_account_types import UpdateAccountOptions
 
 if TYPE_CHECKING:
     from cdp.actions.evm.swap.types import QuoteSwapResult, SwapQuote, SwapUnavailableResult
