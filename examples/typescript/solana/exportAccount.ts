@@ -17,7 +17,7 @@ console.log("Exporting account by address...");
 const exportedPrivateKeyByAddress = await cdp.solana.exportAccount({
   address: account.address,
 });
-console.log("Exported private key: ", exportedPrivateKeyByAddress);
+console.log("Exported private key:", exportedPrivateKeyByAddress);
 
 // Verify public key (last 32 bytes are the public key)
 const fullKeyBytesByAddress = bs58.decode(exportedPrivateKeyByAddress);
