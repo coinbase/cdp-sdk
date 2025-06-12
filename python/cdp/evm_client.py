@@ -156,32 +156,29 @@ class EvmClient:
             ValueError: If neither address nor name is provided.
 
         """
-        try:
-            public_key, private_key = generate_export_encryption_key_pair()
-            if address:
-                response = await self.api_clients.evm_accounts.export_evm_account(
-                    address=address,
-                    export_evm_account_request=ExportEvmAccountRequest(
-                        export_encryption_key=public_key,
-                    ),
-                    x_idempotency_key=idempotency_key,
-                )
-                return decrypt_with_private_key(private_key, response.encrypted_private_key)
-            elif name:
-                response = await self.api_clients.evm_accounts.export_evm_account_by_name(
-                    name=name,
-                    export_evm_account_request=ExportEvmAccountRequest(
-                        export_encryption_key=public_key,
-                    ),
-                    x_idempotency_key=idempotency_key,
-                )
-                return decrypt_with_private_key(private_key, response.encrypted_private_key)
-            else:
-                raise ValueError("Either address or name must be provided")
-        except ApiError as e:
-            raise e
-        except Exception as e:
-            raise ValueError(f"Failed to export account: {e}") from e
+        public_key, private_key = generate_export_encryption_key_pair()
+
+        if address:
+            response = await self.api_clients.evm_accounts.export_evm_account(
+                address=address,
+                export_evm_account_request=ExportEvmAccountRequest(
+                    export_encryption_key=public_key,
+                ),
+                x_idempotency_key=idempotency_key,
+            )
+            return decrypt_with_private_key(private_key, response.encrypted_private_key)
+
+        if name:
+            response = await self.api_clients.evm_accounts.export_evm_account_by_name(
+                name=name,
+                export_evm_account_request=ExportEvmAccountRequest(
+                    export_encryption_key=public_key,
+                ),
+                x_idempotency_key=idempotency_key,
+            )
+            return decrypt_with_private_key(private_key, response.encrypted_private_key)
+
+        raise ValueError("Either address or name must be provided")
 
     async def create_smart_account(self, owner: BaseAccount) -> EvmSmartAccount:
         """Create an EVM smart account.
