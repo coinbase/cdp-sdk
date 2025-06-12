@@ -103,44 +103,34 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async exportAccount(options: ExportAccountOptions): Promise<string> {
-    if (!options.address && !options.name) {
-      throw new Error("Either address or name must be provided");
-    }
+    const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
 
-    try {
-      const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
-
+    const { encryptedPrivateKey } = await (async () => {
       if (options.address) {
-        const { encryptedPrivateKey } = await CdpOpenApiClient.exportSolanaAccount(
+        return CdpOpenApiClient.exportSolanaAccount(
           options.address,
           {
             exportEncryptionKey: publicKey,
           },
           options.idempotencyKey,
         );
-        const decryptedPrivateKey = decryptWithPrivateKey(privateKey, encryptedPrivateKey);
-        return formatSolanaPrivateKey(decryptedPrivateKey);
       }
 
       if (options.name) {
-        const { encryptedPrivateKey } = await CdpOpenApiClient.exportSolanaAccountByName(
+        return CdpOpenApiClient.exportSolanaAccountByName(
           options.name,
           {
             exportEncryptionKey: publicKey,
           },
           options.idempotencyKey,
         );
-        const decryptedPrivateKey = decryptWithPrivateKey(privateKey, encryptedPrivateKey);
-        return formatSolanaPrivateKey(decryptedPrivateKey);
       }
 
       throw new Error("Either address or name must be provided");
-    } catch (error) {
-      if (error instanceof APIError) {
-        throw error;
-      }
-      throw new Error(`Failed to export account: ${String(error)}`);
-    }
+    })();
+
+    const decryptedPrivateKey = decryptWithPrivateKey(privateKey, encryptedPrivateKey);
+    return formatSolanaPrivateKey(decryptedPrivateKey);
   }
 
   /**

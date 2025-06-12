@@ -1,52 +1,52 @@
-import { publicEncrypt, constants } from "crypto";
+import { constants, publicEncrypt } from "crypto";
 
 import { Address } from "viem";
 
 import { ImportEvmAccountPublicRSAKey } from "./constants.js";
 import {
   CreateServerAccountOptions,
-  GetServerAccountOptions,
-  ListServerAccountsOptions,
   CreateSmartAccountOptions,
-  WaitForUserOperationOptions,
-  SignHashOptions,
-  SignatureResult,
-  SignMessageOptions,
-  SignTransactionOptions,
-  GetSmartAccountOptions,
-  SmartAccount,
-  ServerAccount,
+  CreateSwapQuoteOptions,
+  CreateSwapQuoteResult,
   EvmClientInterface,
-  ListServerAccountResult,
-  PrepareUserOperationOptions,
-  UserOperation,
+  ExportServerAccountOptions,
+  GetOrCreateServerAccountOptions,
+  GetOrCreateSmartAccountOptions,
+  GetServerAccountOptions,
+  GetSmartAccountOptions,
+  GetSwapPriceOptions,
+  GetSwapPriceResult,
   GetUserOperationOptions,
+  ImportServerAccountOptions,
+  ListServerAccountResult,
+  ListServerAccountsOptions,
   ListSmartAccountResult,
   ListSmartAccountsOptions,
-  GetOrCreateServerAccountOptions,
+  PrepareUserOperationOptions,
+  ServerAccount,
+  SignatureResult,
+  SignHashOptions,
+  SignMessageOptions,
+  SignTransactionOptions,
   SignTypedDataOptions,
-  UpdateEvmAccountOptions,
-  ImportServerAccountOptions,
-  GetSwapPriceOptions,
-  CreateSwapQuoteOptions,
-  GetSwapPriceResult,
-  CreateSwapQuoteResult,
+  SmartAccount,
   SwapUnavailableResult,
-  GetOrCreateSmartAccountOptions,
-  ExportServerAccountOptions,
+  UpdateEvmAccountOptions,
+  UserOperation,
+  WaitForUserOperationOptions,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import {
   listTokenBalances,
-  ListTokenBalancesResult,
   ListTokenBalancesOptions,
+  ListTokenBalancesResult,
 } from "../../actions/evm/listTokenBalances.js";
 import {
+  requestFaucet,
   RequestFaucetOptions,
   RequestFaucetResult,
-  requestFaucet,
 } from "../../actions/evm/requestFaucet.js";
 import { sendTransaction } from "../../actions/evm/sendTransaction.js";
 import {
@@ -67,8 +67,8 @@ import { Hex } from "../../types/misc.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
 import type {
-  TransactionResult,
   SendTransactionOptions,
+  TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
 
 /**
@@ -241,38 +241,33 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async exportAccount(options: ExportServerAccountOptions): Promise<string> {
-    try {
-      const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
+    const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
 
+    const { encryptedPrivateKey } = await (async () => {
       if (options.address) {
-        const { encryptedPrivateKey } = await CdpOpenApiClient.exportEvmAccount(
+        return CdpOpenApiClient.exportEvmAccount(
           options.address,
           {
             exportEncryptionKey: publicKey,
           },
           options.idempotencyKey,
         );
-        return decryptWithPrivateKey(privateKey, encryptedPrivateKey);
       }
 
       if (options.name) {
-        const { encryptedPrivateKey } = await CdpOpenApiClient.exportEvmAccountByName(
+        return CdpOpenApiClient.exportEvmAccountByName(
           options.name,
           {
             exportEncryptionKey: publicKey,
           },
           options.idempotencyKey,
         );
-        return decryptWithPrivateKey(privateKey, encryptedPrivateKey);
       }
 
       throw new Error("Either address or name must be provided");
-    } catch (error) {
-      if (error instanceof APIError) {
-        throw error;
-      }
-      throw new Error(`Failed to export account: ${String(error)}`);
-    }
+    })();
+
+    return decryptWithPrivateKey(privateKey, encryptedPrivateKey);
   }
 
   /**
