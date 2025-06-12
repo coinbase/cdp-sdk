@@ -37,6 +37,7 @@ import {
 } from "./evm.types.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { ImportEvmAccountPublicRSAKey } from "./constants.js";
+import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
 vi.mock("../../openapi-client", () => {
   return {
@@ -49,6 +50,8 @@ vi.mock("../../openapi-client", () => {
       getEvmSmartAccountByName: vi.fn(),
       getUserOperation: vi.fn(),
       importEvmAccount: vi.fn(),
+      exportEvmAccount: vi.fn(),
+      exportEvmAccountByName: vi.fn(),
       listEvmAccounts: vi.fn(),
       listEvmSmartAccounts: vi.fn(),
       listEvmTokenBalances: vi.fn(),
@@ -63,6 +66,7 @@ vi.mock("../../openapi-client", () => {
       updateEvmAccount: vi.fn(),
       getEvmSwapQuote: vi.fn(),
       createEvmSwap: vi.fn(),
+      getEvmSwapPrice: vi.fn(),
     },
   };
 });
@@ -89,6 +93,11 @@ vi.mock("../../actions/evm/sendUserOperation", () => ({
 
 vi.mock("../../actions/evm/waitForUserOperation", () => ({
   waitForUserOperation: vi.fn(),
+}));
+
+vi.mock("../../utils/export", () => ({
+  generateExportEncryptionKeyPair: vi.fn(),
+  decryptWithPrivateKey: vi.fn(),
 }));
 
 vi.mock("crypto", () => {
@@ -293,6 +302,7 @@ describe("EvmClient", () => {
         fund: vi.fn(),
         waitForFundOperationReceipt: vi.fn(),
         swap: vi.fn(),
+        quoteSwap: vi.fn(),
       };
 
       const getEvmAccountMock = CdpOpenApiClient.getEvmAccount as MockedFunction<
@@ -334,6 +344,7 @@ describe("EvmClient", () => {
         fund: vi.fn(),
         waitForFundOperationReceipt: vi.fn(),
         swap: vi.fn(),
+        quoteSwap: vi.fn(),
       };
 
       const getEvmAccountByNameMock = CdpOpenApiClient.getEvmAccountByName as MockedFunction<
@@ -596,6 +607,7 @@ describe("EvmClient", () => {
           fund: vi.fn(),
           waitForFundOperationReceipt: vi.fn(),
           swap: vi.fn(),
+          quoteSwap: vi.fn(),
         },
         {
           address: "0x456",
@@ -612,6 +624,7 @@ describe("EvmClient", () => {
           fund: vi.fn(),
           waitForFundOperationReceipt: vi.fn(),
           swap: vi.fn(),
+          quoteSwap: vi.fn(),
         },
       ];
 
@@ -891,7 +904,7 @@ describe("EvmClient", () => {
       const domain = {
         name: "EIP712Domain",
         chainId: 1,
-        verifyingContract: "0x0000000000000000000000000000000000000000",
+        verifyingContract: "0x0000000000000000000000000000000000000000" as Hex,
       };
       const types = {
         EIP712Domain: [
@@ -904,7 +917,7 @@ describe("EvmClient", () => {
       const message = {
         name: "EIP712Domain",
         chainId: 1,
-        verifyingContract: "0x0000000000000000000000000000000000000000",
+        verifyingContract: "0x0000000000000000000000000000000000000000" as Hex,
       };
       const signature = "0xsignature";
 
@@ -913,7 +926,13 @@ describe("EvmClient", () => {
       >;
       signTypedDataMock.mockResolvedValue({ signature });
 
-      const result = await client.signTypedData({ address, domain, types, primaryType, message });
+      const result = await client.signTypedData({
+        address,
+        domain,
+        types,
+        primaryType,
+        message,
+      });
 
       expect(result).toEqual({ signature });
     });
@@ -990,9 +1009,9 @@ describe("EvmClient", () => {
     const serverAmount2 = { amount: "2000000000000000000", decimals: 18 };
     const serverAmount3 = { amount: "3000000000000000000", decimals: 18 };
 
-    const clientAmount1 = { amount: 1000000000000000000n, decimals: 18 };
-    const clientAmount2 = { amount: 2000000000000000000n, decimals: 18 };
-    const clientAmount3 = { amount: 3000000000000000000n, decimals: 18 };
+    const clientAmount1 = { amount: BigInt(1000000000000000000), decimals: 18 };
+    const clientAmount2 = { amount: BigInt(2000000000000000000), decimals: 18 };
+    const clientAmount3 = { amount: BigInt(3000000000000000000), decimals: 18 };
 
     const serverTokenBalance1 = { token: token1, amount: serverAmount1 };
     const serverTokenBalance2 = { token: token2, amount: serverAmount2 };
@@ -1061,9 +1080,7 @@ describe("EvmClient", () => {
         fund: vi.fn(),
         waitForFundOperationReceipt: vi.fn(),
         policies: [updateData.accountPolicy],
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        quoteSwap: vi.fn(),
         swap: vi.fn(),
       };
 
@@ -1121,6 +1138,7 @@ describe("EvmClient", () => {
         fund: vi.fn(),
         waitForFundOperationReceipt: vi.fn(),
         swap: vi.fn(),
+        quoteSwap: vi.fn(),
       };
 
       const updateEvmAccountMock = CdpOpenApiClient.updateEvmAccount as MockedFunction<
@@ -1175,6 +1193,7 @@ describe("EvmClient", () => {
         fund: vi.fn(),
         waitForFundOperationReceipt: vi.fn(),
         swap: vi.fn(),
+        quoteSwap: vi.fn(),
       };
 
       const mockEncryptedKey = Buffer.from("encrypted-private-key");
@@ -1219,7 +1238,7 @@ describe("EvmClient", () => {
 
     it("should import a server account with private key without 0x prefix", async () => {
       const importOptions: ImportServerAccountOptions = {
-        privateKey: "abcdef1234567890",
+        privateKey: "abcdef1234567890" as Hex,
         name: "imported-account",
       };
       const account = { address: "0x789" };
@@ -1238,6 +1257,7 @@ describe("EvmClient", () => {
         fund: vi.fn(),
         waitForFundOperationReceipt: vi.fn(),
         swap: vi.fn(),
+        quoteSwap: vi.fn(),
       };
 
       const mockEncryptedKey = Buffer.from("encrypted-private-key");
@@ -1279,7 +1299,7 @@ describe("EvmClient", () => {
 
     it("should throw error when private key is empty", async () => {
       const importOptions: ImportServerAccountOptions = {
-        privateKey: "",
+        privateKey: "" as Hex,
         name: "empty-key-account",
       };
 
@@ -1289,6 +1309,100 @@ describe("EvmClient", () => {
 
       // Verify the API wasn't called
       expect(CdpOpenApiClient.importEvmAccount).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("exportAccount", () => {
+    it("should export an account by address", async () => {
+      const testAddress = "0x789" as Address;
+      const testPublicKey = Buffer.from("public-key").toString("base64");
+      const testPrivateKey = Buffer.from("private-key").toString("base64");
+      const testEncryptedPrivateKey = Buffer.from("encrypted-private-key").toString("base64");
+      const testDecryptedPrivateKey = Buffer.from("decrypted-private-key").toString("hex");
+
+      const generateExportEncryptionKeyPairMock = generateExportEncryptionKeyPair as MockedFunction<
+        typeof generateExportEncryptionKeyPair
+      >;
+      generateExportEncryptionKeyPairMock.mockResolvedValue({
+        publicKey: testPublicKey,
+        privateKey: testPrivateKey,
+      });
+
+      const exportEvmAccountMock = CdpOpenApiClient.exportEvmAccount as MockedFunction<
+        typeof CdpOpenApiClient.exportEvmAccount
+      >;
+      exportEvmAccountMock.mockResolvedValue({
+        encryptedPrivateKey: testEncryptedPrivateKey,
+      });
+
+      const decryptWithPrivateKeyMock = decryptWithPrivateKey as MockedFunction<
+        typeof decryptWithPrivateKey
+      >;
+      decryptWithPrivateKeyMock.mockReturnValue(testDecryptedPrivateKey);
+
+      const exportedPrivateKey = await client.exportAccount({
+        address: testAddress,
+      });
+
+      expect(exportedPrivateKey).toBe(testDecryptedPrivateKey);
+      expect(generateExportEncryptionKeyPair).toHaveBeenCalled();
+      expect(CdpOpenApiClient.exportEvmAccount).toHaveBeenCalledWith(
+        testAddress,
+        {
+          exportEncryptionKey: testPublicKey,
+        },
+        undefined,
+      );
+      expect(decryptWithPrivateKey).toHaveBeenCalledWith(testPrivateKey, testEncryptedPrivateKey);
+    });
+
+    it("should export an account by name", async () => {
+      const testName = "test-account";
+      const testPublicKey = Buffer.from("public-key").toString("base64");
+      const testPrivateKey = Buffer.from("private-key").toString("base64");
+      const testEncryptedPrivateKey = Buffer.from("encrypted-private-key").toString("base64");
+      const testDecryptedPrivateKey = Buffer.from("decrypted-private-key").toString("hex");
+
+      const generateExportEncryptionKeyPairMock = generateExportEncryptionKeyPair as MockedFunction<
+        typeof generateExportEncryptionKeyPair
+      >;
+      generateExportEncryptionKeyPairMock.mockResolvedValue({
+        publicKey: testPublicKey,
+        privateKey: testPrivateKey,
+      });
+
+      const exportEvmAccountByNameMock = CdpOpenApiClient.exportEvmAccountByName as MockedFunction<
+        typeof CdpOpenApiClient.exportEvmAccountByName
+      >;
+      exportEvmAccountByNameMock.mockResolvedValue({
+        encryptedPrivateKey: testEncryptedPrivateKey,
+      });
+
+      const decryptWithPrivateKeyMock = decryptWithPrivateKey as MockedFunction<
+        typeof decryptWithPrivateKey
+      >;
+      decryptWithPrivateKeyMock.mockReturnValue(testDecryptedPrivateKey);
+
+      const exportedPrivateKey = await client.exportAccount({
+        name: testName,
+      });
+
+      expect(exportedPrivateKey).toBe(testDecryptedPrivateKey);
+      expect(generateExportEncryptionKeyPair).toHaveBeenCalled();
+      expect(CdpOpenApiClient.exportEvmAccountByName).toHaveBeenCalledWith(
+        testName,
+        {
+          exportEncryptionKey: testPublicKey,
+        },
+        undefined,
+      );
+      expect(decryptWithPrivateKey).toHaveBeenCalledWith(testPrivateKey, testEncryptedPrivateKey);
+    });
+
+    it("should throw an error if neither address nor name is provided", async () => {
+      await expect(client.exportAccount({})).rejects.toThrow(
+        "Either address or name must be provided",
+      );
     });
   });
 

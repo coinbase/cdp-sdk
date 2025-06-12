@@ -15,10 +15,11 @@ export type SolanaClientInterface = Omit<
   | "signSolanaMessage" // mapped to signMessage
   | "signSolanaTransaction" // mapped to signTransaction
   | "updateSolanaAccount" // mapped to updateAccount
-  | "exportSolanaAccount"
-  | "exportSolanaAccountByName"
+  | "exportSolanaAccount" // mapped to exportAccount
+  | "exportSolanaAccountByName" // mapped to exportAccount
 > & {
   createAccount: (options: CreateAccountOptions) => Promise<Account>;
+  exportAccount: (options: ExportAccountOptions) => Promise<string>;
   getAccount: (options: GetAccountOptions) => Promise<Account>;
   getOrCreateAccount: (options: GetOrCreateAccountOptions) => Promise<Account>;
   updateAccount: (options: UpdateSolanaAccountOptions) => Promise<Account>;
@@ -44,6 +45,18 @@ export interface CreateAccountOptions {
   name?: string;
   /** The policy ID to apply to the account. */
   accountPolicy?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+}
+
+/**
+ * Options for exporting a Solana account.
+ */
+export interface ExportAccountOptions {
+  /** The address of the account. */
+  address?: string;
+  /** The name of the account. */
+  name?: string;
   /** The idempotency key. */
   idempotencyKey?: string;
 }

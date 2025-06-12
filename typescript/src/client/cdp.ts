@@ -5,7 +5,7 @@ import { EvmClient } from "./evm/evm.js";
 import { PoliciesClient } from "./policies/policies.js";
 import { SolanaClient } from "./solana/solana.js";
 
-interface CdpClientOptions {
+export interface CdpClientOptions {
   /** The API key ID. */
   apiKeyId?: string;
   /** The API key secret. */
