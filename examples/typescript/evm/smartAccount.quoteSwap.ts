@@ -114,23 +114,27 @@ async function main() {
     console.log("3. Wait for user operation confirmation");
     
     // Show how to execute the swap using the smartAccount.swap() method
-    console.log("\nTo execute this swap, you can use:");
-    console.log("```typescript");
-    console.log("// Execute the swap using the quote");
-    console.log("const result = await smartAccount.swap({");
-    console.log("  swapQuote: swapQuote,");
-    console.log("  // Optional: paymasterUrl: 'https://paymaster.example.com'");
-    console.log("});");
-    console.log(`// User operation hash: \${result.userOpHash}`);
-    console.log("");
-    console.log("// Or execute using the quote's execute() method");
-    console.log("const result = await swapQuote.execute();");
-    console.log("");
-    console.log("// Wait for user operation completion");
-    console.log("const receipt = await smartAccount.waitForUserOperation({");
-    console.log("  userOpHash: result.userOpHash");
-    console.log("});");
-    console.log("```");
+    console.log(
+      `
+\`\`\`typescript
+// Execute the swap using the quote
+const result = await smartAccount.swap({
+  swapQuote,
+  // Optional: paymasterUrl: 'https://paymaster.example.com'
+});
+
+// User operation hash: \${result.userOpHash}
+
+// Or execute using the quote's execute() method
+const result = await swapQuote.execute();
+
+// Wait for user operation completion
+const receipt = await smartAccount.waitForUserOperation({
+  userOpHash: result.userOpHash
+});
+\`\`\`
+`
+    );
     
   } catch (error) {
     console.error("Error creating smart account swap quote:", error);
