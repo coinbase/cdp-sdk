@@ -23,6 +23,8 @@ from cdp.openapi_client.models.create_evm_smart_account_request import (
 )
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
+from cdp.openapi_client.models.export_evm_account200_response import ExportEvmAccount200Response
+from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
@@ -33,6 +35,7 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
 from cdp.openapi_client.models.sign_evm_typed_data200_response import SignEvmTypedData200Response
+from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
 
 
@@ -282,6 +285,97 @@ async def test_import_account_invalid_private_key():
             private_key="0x123456789012345678901234567890123456789012345678901234567890123g",
             name="test-account",
         )
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_client.generate_export_encryption_key_pair")
+@patch("cdp.evm_client.decrypt_with_private_key")
+async def test_export_evm_account_by_address(
+    mock_decrypt_with_private_key,
+    mock_generate_export_encryption_key_pair,
+):
+    """Test exporting an EVM account by address."""
+    test_address = "0x1234567890123456789012345678901234567890"
+
+    test_public_key = "public_key"
+    test_private_key = "private_key"
+    mock_generate_export_encryption_key_pair.return_value = (test_public_key, test_private_key)
+
+    test_decrypted_private_key = "decrypted_private_key"
+    mock_decrypt_with_private_key.return_value = test_decrypted_private_key
+
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+
+    test_encrypted_private_key = "encrypted_private_key"
+    mock_evm_accounts_api.export_evm_account = AsyncMock(
+        return_value=ExportEvmAccount200Response(
+            encrypted_private_key=test_encrypted_private_key,
+        )
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    result = await client.export_account(address=test_address)
+
+    mock_generate_export_encryption_key_pair.assert_called_once()
+    mock_evm_accounts_api.export_evm_account.assert_called_once_with(
+        address=test_address,
+        export_evm_account_request=ExportEvmAccountRequest(
+            export_encryption_key=test_public_key,
+        ),
+        x_idempotency_key=None,
+    )
+    mock_decrypt_with_private_key.assert_called_once_with(
+        test_private_key, test_encrypted_private_key
+    )
+    assert result == test_decrypted_private_key
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_client.generate_export_encryption_key_pair")
+@patch("cdp.evm_client.decrypt_with_private_key")
+async def test_export_evm_account_by_name(
+    mock_decrypt_with_private_key,
+    mock_generate_export_encryption_key_pair,
+):
+    """Test exporting an EVM account by name."""
+    test_name = "test-account"
+    test_public_key = "public_key"
+    test_private_key = "private_key"
+    mock_generate_export_encryption_key_pair.return_value = (test_public_key, test_private_key)
+
+    test_decrypted_private_key = "decrypted_private_key"
+    mock_decrypt_with_private_key.return_value = test_decrypted_private_key
+
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+
+    test_encrypted_private_key = "encrypted_private_key"
+    mock_evm_accounts_api.export_evm_account_by_name = AsyncMock(
+        return_value=ExportEvmAccount200Response(
+            encrypted_private_key=test_encrypted_private_key,
+        )
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    result = await client.export_account(name=test_name)
+
+    mock_generate_export_encryption_key_pair.assert_called_once()
+    mock_evm_accounts_api.export_evm_account_by_name.assert_called_once_with(
+        name=test_name,
+        export_evm_account_request=ExportEvmAccountRequest(
+            export_encryption_key=test_public_key,
+        ),
+        x_idempotency_key=None,
+    )
+    mock_decrypt_with_private_key.assert_called_once_with(
+        test_private_key, test_encrypted_private_key
+    )
+    assert result == test_decrypted_private_key
 
 
 @pytest.mark.asyncio
@@ -800,7 +894,7 @@ async def test_update_account(server_account_model_factory):
 
     mock_evm_accounts_api.update_evm_account.assert_called_once_with(
         address=test_address,
-        create_evm_account_request=CreateEvmAccountRequest(
+        update_evm_account_request=UpdateEvmAccountRequest(
             name=test_name,
             account_policy=test_account_policy,
         ),

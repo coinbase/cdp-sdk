@@ -27,6 +27,7 @@ from cdp.evm_token_balances import (
     ListTokenBalancesResult,
 )
 from cdp.evm_transaction_types import TransactionRequestEIP1559
+from cdp.export import decrypt_with_private_key, generate_export_encryption_key_pair
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccountRequest
 from cdp.openapi_client.models.create_evm_smart_account_request import (
@@ -36,6 +37,7 @@ from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.evm_call import EvmCall
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
+from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.prepare_user_operation_request import (
     PrepareUserOperationRequest,
@@ -45,6 +47,7 @@ from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageReq
 from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
+from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
 
 if TYPE_CHECKING:
@@ -132,6 +135,50 @@ class EvmClient:
             raise e
         except Exception as e:
             raise ValueError(f"Failed to import account: {e}") from e
+
+    async def export_account(
+        self,
+        address: str | None = None,
+        name: str | None = None,
+        idempotency_key: str | None = None,
+    ) -> str:
+        """Export an EVM account.
+
+        Args:
+            address (str, optional): The address of the account.
+            name (str, optional): The name of the account.
+            idempotency_key (str, optional): The idempotency key.
+
+        Returns:
+            str: The decrypted private key which is a 32-byte private key hex string without a "0x" prefix.
+
+        Raises:
+            ValueError: If neither address nor name is provided.
+
+        """
+        public_key, private_key = generate_export_encryption_key_pair()
+
+        if address:
+            response = await self.api_clients.evm_accounts.export_evm_account(
+                address=address,
+                export_evm_account_request=ExportEvmAccountRequest(
+                    export_encryption_key=public_key,
+                ),
+                x_idempotency_key=idempotency_key,
+            )
+            return decrypt_with_private_key(private_key, response.encrypted_private_key)
+
+        if name:
+            response = await self.api_clients.evm_accounts.export_evm_account_by_name(
+                name=name,
+                export_evm_account_request=ExportEvmAccountRequest(
+                    export_encryption_key=public_key,
+                ),
+                x_idempotency_key=idempotency_key,
+            )
+            return decrypt_with_private_key(private_key, response.encrypted_private_key)
+
+        raise ValueError("Either address or name must be provided")
 
     async def create_smart_account(self, owner: BaseAccount) -> EvmSmartAccount:
         """Create an EVM smart account.
@@ -554,8 +601,9 @@ class EvmClient:
         """
         account = await self.api_clients.evm_accounts.update_evm_account(
             address=address,
-            create_evm_account_request=CreateEvmAccountRequest(
-                name=update.name, account_policy=update.account_policy
+            update_evm_account_request=UpdateEvmAccountRequest(
+                name=update.name,
+                account_policy=update.account_policy,
             ),
             x_idempotency_key=idempotency_key,
         )

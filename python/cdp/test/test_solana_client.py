@@ -1,10 +1,14 @@
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.create_solana_account_request import (
     CreateSolanaAccountRequest,
+)
+from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
+from cdp.openapi_client.models.export_solana_account200_response import (
+    ExportSolanaAccount200Response,
 )
 from cdp.openapi_client.models.list_solana_accounts200_response import (
     ListSolanaAccounts200Response as ListSolanaAccountsResponse,
@@ -95,6 +99,109 @@ async def test_create_account_with_policy():
 
     assert result.address == mock_sol_account.address
     assert result.name == mock_sol_account.name
+
+
+@pytest.mark.asyncio
+@patch("cdp.solana_client.generate_export_encryption_key_pair")
+@patch("cdp.solana_client.decrypt_with_private_key")
+@patch("cdp.solana_client.format_solana_private_key")
+async def test_export_solana_account_by_address(
+    mock_format_solana_private_key,
+    mock_decrypt_with_private_key,
+    mock_generate_export_encryption_key_pair,
+):
+    """Test exporting an Solana account by address."""
+    test_address = "test_sol_address"
+
+    test_public_key = "public_key"
+    test_private_key = "private_key"
+    mock_generate_export_encryption_key_pair.return_value = (test_public_key, test_private_key)
+
+    test_decrypted_private_key = "decrypted_private_key"
+    mock_decrypt_with_private_key.return_value = test_decrypted_private_key
+
+    test_formatted_private_key = "formatted_private_key"
+    mock_format_solana_private_key.return_value = test_formatted_private_key
+
+    mock_solana_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.solana_accounts = mock_solana_accounts_api
+
+    test_encrypted_private_key = "encrypted_private_key"
+    mock_solana_accounts_api.export_solana_account = AsyncMock(
+        return_value=ExportSolanaAccount200Response(
+            encrypted_private_key=test_encrypted_private_key,
+        )
+    )
+
+    client = SolanaClient(api_clients=mock_api_clients)
+
+    result = await client.export_account(address=test_address)
+
+    mock_generate_export_encryption_key_pair.assert_called_once()
+    mock_solana_accounts_api.export_solana_account.assert_called_once_with(
+        address=test_address,
+        export_evm_account_request=ExportEvmAccountRequest(
+            export_encryption_key=test_public_key,
+        ),
+        x_idempotency_key=None,
+    )
+    mock_decrypt_with_private_key.assert_called_once_with(
+        test_private_key, test_encrypted_private_key
+    )
+    mock_format_solana_private_key.assert_called_once_with(test_decrypted_private_key)
+    assert result == test_formatted_private_key
+
+
+@pytest.mark.asyncio
+@patch("cdp.solana_client.generate_export_encryption_key_pair")
+@patch("cdp.solana_client.decrypt_with_private_key")
+@patch("cdp.solana_client.format_solana_private_key")
+async def test_export_solana_account_by_name(
+    mock_format_solana_private_key,
+    mock_decrypt_with_private_key,
+    mock_generate_export_encryption_key_pair,
+):
+    """Test exporting an Solana account by name."""
+    test_name = "test-account"
+    test_public_key = "public_key"
+    test_private_key = "private_key"
+    mock_generate_export_encryption_key_pair.return_value = (test_public_key, test_private_key)
+
+    test_decrypted_private_key = "decrypted_private_key"
+    mock_decrypt_with_private_key.return_value = test_decrypted_private_key
+
+    test_formatted_private_key = "formatted_private_key"
+    mock_format_solana_private_key.return_value = test_formatted_private_key
+
+    mock_solana_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.solana_accounts = mock_solana_accounts_api
+
+    test_encrypted_private_key = "encrypted_private_key"
+    mock_solana_accounts_api.export_solana_account_by_name = AsyncMock(
+        return_value=ExportSolanaAccount200Response(
+            encrypted_private_key=test_encrypted_private_key,
+        )
+    )
+
+    client = SolanaClient(api_clients=mock_api_clients)
+
+    result = await client.export_account(name=test_name)
+
+    mock_generate_export_encryption_key_pair.assert_called_once()
+    mock_solana_accounts_api.export_solana_account_by_name.assert_called_once_with(
+        name=test_name,
+        export_evm_account_request=ExportEvmAccountRequest(
+            export_encryption_key=test_public_key,
+        ),
+        x_idempotency_key=None,
+    )
+    mock_decrypt_with_private_key.assert_called_once_with(
+        test_private_key, test_encrypted_private_key
+    )
+    mock_format_solana_private_key.assert_called_once_with(test_decrypted_private_key)
+    assert result == test_formatted_private_key
 
 
 @pytest.mark.asyncio
