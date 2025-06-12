@@ -156,6 +156,36 @@ async def main():
 asyncio.run(main())
 ```
 
+### Exporting EVM or Solana accounts
+
+#### Export an EVM account as follows:
+
+```python
+# by name
+private_key = await cdp.evm.export_account(
+  name="MyAccount",
+)
+
+# by address
+private_key = await cdp.evm.export_account(
+  address="0x123",
+)
+```
+
+#### Export a Solana account as follows:
+
+```python
+# by name
+private_key = await cdp.solana.export_account(
+  name="MyAccount",
+)
+
+# by address
+private_key = await cdp.solana.export_account(
+  address="Abc",
+)
+```
+
 #### Get or create an EVM account as follows:
 
 ```python
