@@ -390,8 +390,8 @@ console.log(`Swap executed: ${transactionHash}`);
 **Smart Account:**
 ```typescript
 // Create or retrieve a smart account with funds already in it
-const owner = await cdp.evm.getOrCreateAccount({ name: "Owner" });
-const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MySmartAccount", owner });
+const owner = await cdp.evm.getOrCreateAccount({ name: "MyOwnerAccount" });
+const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MyExistingFundedSmartAccount", owner });
 
 // Execute a swap directly on a smart account in one line
 const { userOpHash } = await smartAccount.swap({
