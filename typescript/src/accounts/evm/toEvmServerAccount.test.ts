@@ -9,7 +9,7 @@ import { CdpOpenApiClientType, PaymentMethod, Transfer } from "../../openapi-cli
 import { TransferOptions } from "../../actions/evm/transfer/types.js";
 import { sendSwapTransaction } from "../../actions/evm/swap/sendSwapTransaction.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
-import { SwapOptions } from "../../actions/evm/types.js";
+import { AccountSwapOptions } from "../../actions/evm/swap/types.js";
 
 vi.mock("viem", async () => {
   const actual = await vi.importActual("viem");
@@ -263,12 +263,12 @@ describe("toEvmServerAccount", () => {
 
   it("should call sendSwapTransaction when swap is called", async () => {
     const swapOptions = {
-      network: "base",
+      network: "base" as const,
       toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" as Address,
       fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
       fromAmount: BigInt("1000000000000000000"),
       taker: mockAddress,
-    } as SwapOptions;
+    } as AccountSwapOptions;
 
     const result = await serverAccount.swap(swapOptions);
 
@@ -282,8 +282,8 @@ describe("toEvmServerAccount", () => {
 
   it("should call sendSwapTransaction with pre-created swap quote", async () => {
     const mockSwapQuote = {
-      liquidityAvailable: true,
-      network: "base",
+      liquidityAvailable: true as const,
+      network: "base" as const,
       toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" as Address,
       fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
       fromAmount: BigInt("1000000000000000000"),
@@ -304,17 +304,17 @@ describe("toEvmServerAccount", () => {
       transaction: {
         to: "0x000000000022D473030F116dDEE9F6B43aC78BA3" as Address,
         data: "0x12345678" as Hex,
-        gas: "300000",
-        value: "0",
+        gas: BigInt("300000"),
+        value: BigInt("0"),
+        gasPrice: BigInt("1500000000"),
       },
       permit2: undefined,
       execute: vi.fn(),
     };
 
     const swapOptions = {
-      network: "base", // Network is still required for backward compatibility
       swapQuote: mockSwapQuote,
-    } as SwapOptions;
+    };
 
     const result = await serverAccount.swap(swapOptions);
 
@@ -329,7 +329,7 @@ describe("toEvmServerAccount", () => {
 
   it("should call createSwapQuote when quoteSwap is called", async () => {
     const quoteOptions = {
-      network: "base",
+      network: "base" as const,
       fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
       toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" as Address,
       fromAmount: BigInt("1000000000000000000"),

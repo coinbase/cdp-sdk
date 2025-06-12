@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 
 /**
- * Creates a deterministic UUIDv4 pattern from an input string.
+ * Deterministically generates a UUIDv4 from a given input string.
  * This is necessary when we need to generate downstream idempotency keys for operations that have multiple calls.
  *
  * @param input - The input string to derive from
@@ -12,7 +12,7 @@ export function createDeterministicUuidV4(input: string, salt = "salt"): string 
   const hash = createHash("sha256")
     .update(input + "-" + salt)
     .digest("hex");
-  // Format as UUIDv4: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+  // Format as UUIDv4: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
   return [
     hash.slice(0, 8),
     hash.slice(8, 12),
