@@ -519,11 +519,11 @@ To help you get started with token swaps in your application, we provide the fol
 - [Quote swap using smart account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.quoteSwap.ts) - Smart account convenience method for creating quotes
 - [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
 
-**BYO wallet (viem): regular account (EOA) swap examples**
-- [Execute a swap transaction using viem account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.account.swap.ts) - All-in-one swap execution with viem wallets
+**BYO wallet (viem) regular account (EOA) swap examples:**
+- [Execute a swap transaction using viem account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.account.swap.ts) - All-in-one swap execution with viem wallets
 - [Two-step quote and execute process using viem account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.account.quoteSwapAndExecute.ts) - Detailed two-step approach with viem wallets
 
-**BYO wallet (viem + account abstraction): smart account swap examples**
+**BYO wallet (viem + account abstraction) smart account swap examples:**
 - [Execute a swap transaction using viem smart account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.smartAccount.swap.ts) - All-in-one smart account swap with custom bundler/paymaster setup
 - [Two-step quote and execute process using viem smart account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.smartAccount.quoteSwapAndExecute.ts) - Advanced account abstraction integration
 
