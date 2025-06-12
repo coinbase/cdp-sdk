@@ -7,6 +7,7 @@ import type {
 import type {
   SendEvmTransactionBodyNetwork,
   EvmUserOperationNetwork,
+  EvmUserOperationStatus,
 } from "../../../openapi-client/index.js";
 import type { Address, Hex } from "../../../types/misc.js";
 
@@ -80,12 +81,12 @@ export interface SendSwapTransactionResult {
 /**
  * Options for creating a swap quote (account-level).
  */
-export type QuoteSwapOptions = Omit<CreateSwapQuoteOptions, "taker">;
+export type AccountQuoteSwapOptions = Omit<CreateSwapQuoteOptions, "taker">;
 
 /**
  * Result of creating a swap quote (account-level).
  */
-export type QuoteSwapResult = CreateSwapQuoteResult | SwapUnavailableResult;
+export type AccountQuoteSwapResult = CreateSwapQuoteResult | SwapUnavailableResult;
 
 /**
  * Options when providing an already created swap quote (account-level).
@@ -133,12 +134,12 @@ interface AccountInlineSwapOptions {
  * Options for executing a token swap (account-level).
  * The taker is automatically set to the account's address.
  */
-export type SwapOptions = AccountQuoteBasedSwapOptions | AccountInlineSwapOptions;
+export type AccountSwapOptions = AccountQuoteBasedSwapOptions | AccountInlineSwapOptions;
 
 /**
  * Result of executing a token swap (account-level).
  */
-export type SwapResult = SendSwapTransactionResult;
+export type AccountSwapResult = SendSwapTransactionResult;
 
 /**
  * Options for creating a swap quote (smart account-level).
@@ -279,7 +280,7 @@ export type SendSwapOperationResult = {
   /** The address of the smart wallet. */
   smartAccountAddress: Address;
   /** The status of the user operation. */
-  status: string;
+  status: typeof EvmUserOperationStatus.broadcast;
   /** The hash of the user operation. */
   userOpHash: Hex;
 };

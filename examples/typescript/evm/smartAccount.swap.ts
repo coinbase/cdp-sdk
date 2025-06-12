@@ -1,7 +1,15 @@
 // Usage: pnpm tsx evm/smartAccount.swap.ts
 
 /**
- * This example demonstrates how to perform token swaps using EVM smart accounts.
+ * This example demonstrates the recommended approach for performing token swaps
+ * using smart accounts with the CDP SDK's all-in-one swap pattern.
+ * 
+ * Why use smartAccount.swap() (all-in-one pattern)?
+ * - Simplest developer experience - one function call
+ * - Automatically handles quote creation and execution
+ * - Manages Permit2 signatures transparently
+ * - Built-in error handling for common issues
+ * - Best for 90% of smart account swap use cases
  * 
  * Smart account swaps work similarly to regular account swaps but use user operations
  * instead of direct transactions. Key differences:
@@ -25,6 +33,16 @@
  * - Allows inspection of swap details before execution
  * - Provides more control for complex scenarios
  * - Use when you need conditional logic based on swap details
+ * 
+ * Common features:
+ * - Both handle Permit2 signatures automatically for ERC20 swaps
+ * - Both check for and report liquidity issues
+ * - Both require proper token allowances (see handleTokenAllowance)
+ * - Both execute via user operations with optional paymaster support
+ * 
+ * Choose based on your needs:
+ * - Use Approach 1 for simple, direct swaps (recommended)
+ * - Use Approach 2 when you need to inspect details or add custom logic
  */
 
 import { CdpClient } from "@coinbase/cdp-sdk";
@@ -80,7 +98,8 @@ async function main() {
   console.log(`Owner account: ${ownerAccount.address}`);
 
   // Create a smart account
-  const smartAccount = await cdp.evm.createSmartAccount({ 
+  const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+    name: "SmartAccount",
     owner: ownerAccount
   });
   console.log(`Smart account: ${smartAccount.address}`);
@@ -98,7 +117,7 @@ async function main() {
     // Handle token allowance check and approval if needed (applicable when sending non-native assets only)
     if (!fromToken.isNativeAsset) {
       await handleTokenAllowance(
-        smartAccount.address as Address, 
+        smartAccount,
         fromToken.address as Address,
         fromToken.symbol,
         fromAmount
@@ -124,6 +143,42 @@ async function main() {
       console.log(`Smart account address: ${result.smartAccountAddress}`);
       console.log(`Status: ${result.status}`);
 
+      /* Alternative - Approach 2: Create swap quote first, inspect it, then send it separately
+      // This gives you more control to analyze the swap details before execution
+      
+      // Step 1: Create the swap quote
+      const swapQuote = await smartAccount.quoteSwap({
+        network: NETWORK,
+        toToken: toToken.address as Address,
+        fromToken: fromToken.address as Address,
+        fromAmount,
+        slippageBps: 100, // 1% slippage tolerance
+      });
+      
+      // Step 2: Check if liquidity is available
+      if (!swapQuote.liquidityAvailable) {
+        console.log("\n❌ Swap failed: Insufficient liquidity for this swap pair or amount.");
+        return;
+      }
+      
+      // Step 3: Optionally inspect swap details
+      console.log(`Receive Amount: ${formatUnits(swapQuote.toAmount, toToken.decimals)} ${toToken.symbol}`);
+      console.log(`Min Receive Amount: ${formatUnits(swapQuote.minToAmount, toToken.decimals)} ${toToken.symbol}`);
+      if (swapQuote.fees?.gasFee) {
+        console.log(`Gas Fee: ${formatEther(swapQuote.fees.gasFee.amount)} ${swapQuote.fees.gasFee.token}`);
+      }
+      
+      // Step 4: Execute the swap via user operation
+      // Option A: Using smartAccount.swap() with the pre-created swap quote
+      const result = await smartAccount.swap({
+        swapQuote: swapQuote,
+        // Optional: paymasterUrl: "https://paymaster.example.com"
+      });
+      
+      // Option B: Using the swap quote's execute() method directly
+      const result = await swapQuote.execute();
+      */
+
       // Wait for user operation completion
       const receipt = await smartAccount.waitForUserOperation({
         userOpHash: result.userOpHash,
@@ -146,168 +201,21 @@ async function main() {
       }
     }
 
-    console.log("\n" + "=".repeat(60));
-    
-    // Approach 2: Create-then-execute pattern (advanced)
-    console.log("\n=== APPROACH 2: Create-then-execute pattern ===");
-    
-    // Step 1: Create the swap quote
-    console.log("\n🔍 Step 1: Creating swap quote...");
-    const swapQuote = await smartAccount.quoteSwap({
-      network: NETWORK,
-      toToken: toToken.address as Address,
-      fromToken: fromToken.address as Address,
-      fromAmount,
-      slippageBps: 100, // 1% slippage tolerance
-    });
-
-    // Check if liquidity is available
-    if (!swapQuote.liquidityAvailable) {
-      console.log("\n❌ Swap failed: Insufficient liquidity for this swap pair or amount.");
-      console.log("Try reducing the swap amount or using a different token pair.");
-      return;
-    }
-
-    // Step 2: Inspect and validate the swap details
-    console.log("\n📊 Step 2: Analyzing swap quote...");
-    displaySwapQuoteDetails(swapQuote, fromToken, toToken);
-    
-    // Validate the swap for any issues
-    if (!validateSwapQuote(swapQuote)) {
-      console.log("\n❌ Swap validation failed. Aborting execution.");
-      return;
-    }
-
-    // Step 3: Execute the swap
-    console.log("\n🚀 Step 3: Executing swap via user operation...");
-    
-    const result2 = await smartAccount.swap({
-      swapQuote: swapQuote,
-      // Optional: paymasterUrl: "https://paymaster.example.com"
-    });
-
-    console.log(`\n✅ Smart account swap submitted successfully!`);
-    console.log(`User operation hash: ${result2.userOpHash}`);
-    console.log(`Smart account address: ${result2.smartAccountAddress}`);
-    console.log(`Status: ${result2.status}`);
-
-    // Wait for user operation completion
-    const receipt2 = await smartAccount.waitForUserOperation({
-      userOpHash: result2.userOpHash,
-    });
-
-    console.log("\n🎉 Smart Account Swap User Operation Completed!");
-    console.log(`Final status: ${receipt2.status}`);
-    
-    if (receipt2.status === "complete") {
-      console.log(`Transaction Explorer: https://basescan.org/tx/${receipt2.userOpHash}`);
-    }
-    
   } catch (error) {
     console.error("Error executing smart account swap:", error);
   }
 }
 
 /**
- * Displays detailed information about the swap quote
- * @param swapQuote - The swap quote data
- * @param fromToken - The token being sent
- * @param toToken - The token being received
- */
-function displaySwapQuoteDetails(
-  swapQuote: any,
-  fromToken: typeof TOKENS.WETH,
-  toToken: typeof TOKENS.USDC
-): void {
-  console.log("Smart Account Swap Quote Details:");
-  console.log("=================================");
-  
-  const fromAmountFormatted = formatUnits(BigInt(swapQuote.fromAmount), fromToken.decimals);
-  const toAmountFormatted = formatUnits(BigInt(swapQuote.toAmount), toToken.decimals);
-  const minToAmountFormatted = formatUnits(BigInt(swapQuote.minToAmount), toToken.decimals);
-  
-  console.log(`📤 Sending: ${fromAmountFormatted} ${fromToken.symbol}`);
-  console.log(`📥 Receiving: ${toAmountFormatted} ${toToken.symbol}`);
-  console.log(`🔒 Minimum Receive: ${minToAmountFormatted} ${toToken.symbol}`);
-  
-  // Calculate exchange rate
-  const exchangeRate = Number(swapQuote.toAmount) / Number(swapQuote.fromAmount) * 
-                      Math.pow(10, fromToken.decimals - toToken.decimals);
-  console.log(`💱 Exchange Rate: 1 ${fromToken.symbol} = ${exchangeRate.toFixed(2)} ${toToken.symbol}`);
-  
-  // Calculate slippage
-  const slippagePercent = ((Number(swapQuote.toAmount) - Number(swapQuote.minToAmount)) / 
-                          Number(swapQuote.toAmount) * 100);
-  console.log(`📉 Max Slippage: ${slippagePercent.toFixed(2)}%`);
-  
-  // Gas information
-  if (swapQuote.transaction?.gas) {
-    console.log(`⛽ Estimated Gas: ${swapQuote.transaction.gas.toLocaleString()}`);
-  }
-}
-
-/**
- * Validates the swap quote for any issues
- * @param swapQuote - The swap quote data
- * @returns true if swap is valid, false if there are issues
- */
-function validateSwapQuote(swapQuote: any): boolean {
-  console.log("\nValidation Results:");
-  console.log("==================");
-  
-  let isValid = true;
-  
-  // Check liquidity
-  if (!swapQuote.liquidityAvailable) {
-    console.log("❌ Insufficient liquidity available");
-    isValid = false;
-  } else {
-    console.log("✅ Liquidity available");
-  }
-  
-  // Check balance issues
-  if (swapQuote.issues?.balance) {
-    console.log("❌ Balance Issues:");
-    console.log(`   Current: ${swapQuote.issues.balance.currentBalance}`);
-    console.log(`   Required: ${swapQuote.issues.balance.requiredBalance}`);
-    console.log(`   Token: ${swapQuote.issues.balance.token}`);
-    isValid = false;
-  } else {
-    console.log("✅ Sufficient balance");
-  }
-  
-  // Check allowance issues
-  if (swapQuote.issues?.allowance) {
-    console.log("❌ Allowance Issues:");
-    console.log(`   Current: ${swapQuote.issues.allowance.currentAllowance}`);
-    console.log(`   Required: ${swapQuote.issues.allowance.requiredAllowance}`);
-    console.log(`   Spender: ${swapQuote.issues.allowance.spender}`);
-    isValid = false;
-  } else {
-    console.log("✅ Sufficient allowance");
-  }
-  
-  // Check simulation
-  if (swapQuote.issues?.simulationIncomplete) {
-    console.log("⚠️ WARNING: Simulation incomplete - transaction may fail");
-    // Not marking as invalid since this is just a warning
-  } else {
-    console.log("✅ Simulation complete");
-  }
-  
-  return isValid;
-}
-
-/**
  * Handles token allowance check and approval if needed for smart accounts
- * @param smartAccountAddress - The address of the smart account
+ * @param smartAccount - The smart account instance
  * @param tokenAddress - The address of the token to be sent
  * @param tokenSymbol - The symbol of the token (e.g., WETH, USDC)
  * @param fromAmount - The amount to be sent
  * @returns A promise that resolves when allowance is sufficient
  */
 async function handleTokenAllowance(
-  smartAccountAddress: Address, 
+  smartAccount: any,
   tokenAddress: Address,
   tokenSymbol: string,
   fromAmount: bigint
@@ -316,7 +224,7 @@ async function handleTokenAllowance(
   
   // Check allowance before attempting the swap
   const currentAllowance = await getAllowance(
-    smartAccountAddress, 
+    smartAccount.address as Address, 
     tokenAddress,
     tokenSymbol
   );
@@ -324,11 +232,66 @@ async function handleTokenAllowance(
   // If allowance is insufficient, approve tokens
   if (currentAllowance < fromAmount) {
     console.log(`❌ Allowance insufficient. Current: ${formatEther(currentAllowance)}, Required: ${formatEther(fromAmount)}`);
-    console.log(`⚠️  Note: For smart accounts, you'll need to submit a user operation to approve tokens.`);
-    console.log(`   This example assumes tokens are already approved or uses native assets.`);
+    
+    // Set the allowance to the required amount via user operation
+    await approveTokenAllowance(
+      smartAccount,
+      tokenAddress,
+      PERMIT2_ADDRESS,
+      fromAmount
+    );
+    console.log(`✅ Set allowance to ${formatEther(fromAmount)} ${tokenSymbol}`);
   } else {
     console.log(`✅ Token allowance sufficient. Current: ${formatEther(currentAllowance)} ${tokenSymbol}`);
   }
+}
+
+/**
+ * Handle approval for token allowance if needed for smart accounts
+ * This is necessary when swapping ERC20 tokens (not native ETH)
+ * The Permit2 contract needs approval to move tokens on behalf of the smart account
+ * @param smartAccount - The smart account instance
+ * @param tokenAddress - The token contract address
+ * @param spenderAddress - The address allowed to spend the tokens
+ * @param amount - The amount to approve
+ * @returns The user operation receipt
+ */
+async function approveTokenAllowance(
+  smartAccount: any,
+  tokenAddress: Address, 
+  spenderAddress: Address, 
+  amount: bigint
+) {
+  console.log(`\nApproving token allowance for ${tokenAddress} to spender ${spenderAddress}`);
+  
+  // Encode the approve function call
+  const data = encodeFunctionData({
+    abi: erc20Abi,
+    functionName: 'approve',
+    args: [spenderAddress, amount]
+  });
+  
+  // Send the approve transaction via user operation
+  const userOpResult = await smartAccount.sendUserOperation({
+    network: NETWORK,
+    calls: [
+      {
+        to: tokenAddress,
+        data,
+        value: BigInt(0),
+      }
+    ],
+  });
+  
+  console.log(`Approval user operation hash: ${userOpResult.userOpHash}`);
+  
+  // Wait for approval user operation to be confirmed
+  const receipt = await smartAccount.waitForUserOperation({
+    userOpHash: userOpResult.userOpHash,
+  });
+  
+  console.log(`Approval confirmed with status: ${receipt.status} ✅`);
+  return receipt;
 }
 
 /**

@@ -18,10 +18,10 @@ import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTo
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
 import type { SendTransactionOptions, TransactionResult } from "./sendTransaction.js";
 import type {
-  SwapOptions,
-  SwapResult,
-  QuoteSwapOptions,
-  QuoteSwapResult,
+  AccountSwapOptions,
+  AccountSwapResult,
+  AccountQuoteSwapOptions,
+  AccountQuoteSwapResult,
   SmartAccountSwapOptions,
   SmartAccountSwapResult,
   SmartAccountQuoteSwapOptions,
@@ -269,7 +269,7 @@ export type AccountActions = Actions & {
    * This is useful when you need to get swap details before executing the swap.
    * The taker is automatically set to the account's address.
    *
-   * @param {QuoteSwapOptions} options - Configuration options for creating the swap quote.
+   * @param {AccountQuoteSwapOptions} options - Configuration options for creating the swap quote.
    * @param {string} options.network - The network to create the quote on
    * @param {string} options.fromToken - The token address to send
    * @param {string} options.toToken - The token address to receive
@@ -294,14 +294,14 @@ export type AccountActions = Actions & {
    * }
    * ```
    */
-  quoteSwap: (options: QuoteSwapOptions) => Promise<QuoteSwapResult>;
+  quoteSwap: (options: AccountQuoteSwapOptions) => Promise<AccountQuoteSwapResult>;
 
   /**
    * Executes a token swap on the specified network.
    * This method handles all the steps required for a swap, including Permit2 signatures if needed.
    * The taker is automatically set to the account's address.
    *
-   * @param {SwapOptions} options - Configuration options for the swap.
+   * @param {AccountSwapOptions} options - Configuration options for the swap.
    * @param {string} [options.network] - The network to execute the swap on (required for inline swaps)
    * @param {CreateSwapQuoteResult} [options.swapQuote] - The swap quote returned by the createSwapQuote method
    * @param {string} [options.fromToken] - The token address to send (required for inline swaps)
@@ -351,7 +351,7 @@ export type AccountActions = Actions & {
    * console.log(`Swap executed with transaction hash: ${transactionHash}`);
    * ```
    */
-  swap: (options: SwapOptions) => Promise<SwapResult>;
+  swap: (options: AccountSwapOptions) => Promise<AccountSwapResult>;
 };
 
 export type SmartAccountActions = Actions & {

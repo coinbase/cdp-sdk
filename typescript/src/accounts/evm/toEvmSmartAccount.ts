@@ -146,6 +146,7 @@ export function toEvmSmartAccount(
         ...options,
         taker: this.address, // Always use smart account's address as taker
         signerAddress: this.owners[0].address, // Always use owner's address as signer
+        smartAccount: account, // Pass smart account for execute method support
       });
     },
     async swap(options: SmartAccountSwapOptions): Promise<SmartAccountSwapResult> {

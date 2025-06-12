@@ -2,7 +2,7 @@ import { createHash } from "crypto";
 
 /**
  * Creates a deterministic UUIDv4 pattern from an input string.
- * This is useful when we need to generate downstream idempotency keys for operations that have multiple calls.
+ * This is necessary when we need to generate downstream idempotency keys for operations that have multiple calls.
  *
  * @param input - The input string to derive from
  * @param salt - Optional salt to append to the input (defaults to "salt")
