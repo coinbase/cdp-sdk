@@ -86,8 +86,7 @@ export class SolanaClient implements SolanaClientInterface {
    * @param {string} [options.address] - The address of the account.
    * @param {string} [options.name] - The name of the account.
    *
-   * @returns A promise that resolves to the exported account's private key
-   * which is a base58 encoding of the account's full 64-byte private key.
+   * @returns A promise that resolves to the exported account's full 64-byte private key as a base58 encoded string.
    *
    * @example **With an address**
    * ```ts
