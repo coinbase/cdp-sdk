@@ -32,7 +32,7 @@ console.log("Exporting account by name...");
 const exportedPrivateKeyByName = await cdp.evm.exportAccount({
   name: "MyImportedAccount",
 });
-console.log("Exported private key: ", exportedPrivateKeyByName);
+console.log("Exported private key:", exportedPrivateKeyByName);
 
 const publicKeyByName = privateKeyToAccount(`0x${exportedPrivateKeyByName}`).address;
 console.log("Public key derived from private key:", publicKeyByName);
