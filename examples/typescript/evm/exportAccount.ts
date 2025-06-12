@@ -13,7 +13,7 @@ const account = await cdp.evm.importAccount({
   privateKey,
   name: "MyImportedAccount",
 });
-console.log("Imported account: ", account.address);
+console.log("Imported account:", account.address);
 
 // Exporting account by address
 console.log("--------------------------------");
