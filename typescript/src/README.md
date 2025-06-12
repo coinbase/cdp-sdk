@@ -362,7 +362,7 @@ const userOperation = await cdp.sendUserOperation({
 
 ### EVM Swaps
 
-You can use the CDP SDK to swap tokens on EVM networks.
+You can use the CDP SDK to swap tokens on EVM networks using both regular accounts (EOAs) and smart accounts.
 
 The SDK provides three approaches for performing token swaps:
 
@@ -370,6 +370,7 @@ The SDK provides three approaches for performing token swaps:
 
 The simplest approach for performing swaps. Creates and executes the swap in a single line of code:
 
+**Regular Account (EOA):**
 ```typescript
 // Retrieve an existing EVM account with funds already in it
 const account = await cdp.evm.getOrCreateAccount({ name: "MyExistingFundedAccount" });
@@ -384,6 +385,32 @@ const { transactionHash } = await account.swap({
 });
 
 console.log(`Swap executed: ${transactionHash}`);
+```
+
+**Smart Account:**
+```typescript
+// Create or retrieve a smart account with funds already in it
+const owner = await cdp.evm.getOrCreateAccount({ name: "SmartAccountOwner" });
+const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+  name: "MySmartAccount",
+  owner: owner
+});
+
+// Execute a swap directly on a smart account in one line
+const { userOpHash } = await smartAccount.swap({
+  network: "base",
+  toToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
+  fromToken: "0x4200000000000000000000000000000000000006", // WETH on Base
+  fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+  slippageBps: 100, // 1% slippage tolerance
+  // Optional: paymasterUrl: "https://paymaster.example.com" // For gas sponsorship
+});
+
+console.log(`Smart account swap executed: ${userOpHash}`);
+
+// Wait for the user operation to complete
+const receipt = await smartAccount.waitForUserOperation({ userOpHash });
+console.log(`Status: ${receipt.status}`);
 ```
 
 #### 2. Get pricing information
@@ -413,6 +440,7 @@ Use `createSwapQuote` when you need full control over the swap process. This ret
 
 **Important:** `createSwapQuote` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `getSwapPrice` to prevent abuse.
 
+**Regular Account (EOA):**
 ```typescript
 // Retrieve an existing EVM account with funds already in it
 const account = await cdp.evm.getOrCreateAccount({ name: "MyExistingFundedAccount" });
@@ -442,11 +470,57 @@ const { transactionHash } = await account.swap({
 });
 ```
 
+**Smart Account:**
+```typescript
+// Create or retrieve a smart account with funds already in it
+const owner = await cdp.evm.getOrCreateAccount({ name: "SmartAccountOwner" });
+const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+  name: "MySmartAccount",
+  owner: owner
+});
+
+// Step 1: Create a swap quote with full transaction details for smart account
+const swapQuote = await smartAccount.quoteSwap({
+  network: "base",
+  toToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+  fromToken: "0x4200000000000000000000000000000000000006", // WETH
+  fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+  slippageBps: 100, // 1% slippage tolerance
+});
+
+// Step 2: Check if liquidity is available, and/or perform other analysis on the swap quote
+if (!swapQuote.liquidityAvailable) {
+  console.error("Insufficient liquidity for swap");
+  return;
+}
+
+// Step 3: Execute using the quote (two options)
+// Option 3A: Use the execute method on the quote (returns user operation hash)
+const { userOpHash } = await swapQuote.execute({});
+
+// Option 3B: Pass the quote to smartAccount.swap()
+const { userOpHash } = await smartAccount.swap({
+  swapQuote: swapQuote,
+  // Optional: paymasterUrl: "https://paymaster.example.com"
+});
+
+// Wait for the user operation to complete
+const receipt = await smartAccount.waitForUserOperation({ userOpHash });
+console.log(`Status: ${receipt.status}`);
+```
+
 #### When to use each approach:
 
-- **All-in-one (`account.swap()`)**: Best for most use cases. Simple, handles everything automatically.
+- **All-in-one (`account.swap()` / `smartAccount.swap()`)**: Best for most use cases. Simple, handles everything automatically.
 - **Price only (`getSwapPrice`)**: For displaying exchange rates, building price calculators, or checking liquidity without executing. Suitable when frequent price updates are needed - although the data may be slightly less precise.
 - **Create then execute (`createSwapQuote`)**: When you need to inspect swap details, implement custom logic, or handle complex scenarios before execution. Note: May reserve funds on-chain and is more strictly rate-limited.
+
+#### Key differences between Regular Accounts (EOAs) and Smart Accounts:
+
+- **Regular accounts (EOAs)** return `transactionHash` and execute immediately on-chain
+- **Smart accounts** return `userOpHash` and execute via user operations with optional gas sponsorship through paymasters
+- **Smart accounts** require an owner account for signing operations
+- **Smart accounts** support batch operations and advanced account abstraction features
 
 All approaches handle Permit2 signatures automatically for ERC20 token swaps. Make sure tokens have proper allowances set for the Permit2 contract before swapping.
 
@@ -459,9 +533,15 @@ To help you get started with token swaps in your application, we provide the fol
 - [Create a concrete swap quote for execution](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/createSwapQuote.ts) - Direct API usage with explicit taker
 - [Execute a swap transaction using CDP Wallets (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.swap.ts) - All-in-one swap execution
 
-**Account-based swap examples:**
+**Regular account (EOA) swap examples:**
+- [Execute a swap transaction using account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.swap.ts) - All-in-one regular account swap execution
 - [Quote swap using account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.quoteSwap.ts) - Account convenience method for creating quotes
 - [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
+
+**Smart account swap examples:**
+- [Execute a swap transaction using smart account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.swap.ts) - All-in-one smart account swap execution with user operations and optional paymaster support
+- [Quote swap using smart account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.quoteSwap.ts) - Smart account convenience method for creating quotes
+- [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
 
 **External wallet integration:**
 - [Execute a swap transaction using an external account (Viem)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.swap.ts) - Full swap execution with viem wallets

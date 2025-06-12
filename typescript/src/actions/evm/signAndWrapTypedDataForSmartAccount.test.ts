@@ -90,17 +90,31 @@ describe("signAndWrapTypedDataForSmartAccount", () => {
 
   describe("signAndWrapTypedDataForSmartAccount", () => {
     it("should sign and wrap typed data for smart account", async () => {
-      const mockOriginalHash = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
-      const mockSignature = { signature: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab12" as Hex };
+      const mockOriginalHash =
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
+      const mockSignature = {
+        signature:
+          "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890ab12" as Hex,
+      };
       const mockWrappedSignature = "0xwrapped_signature" as Hex;
 
       (hashTypedData as MockedFunction<typeof hashTypedData>).mockReturnValue(mockOriginalHash);
-      (mockClient.signEvmTypedData as MockedFunction<typeof mockClient.signEvmTypedData>).mockResolvedValue(mockSignature);
+      (
+        mockClient.signEvmTypedData as MockedFunction<typeof mockClient.signEvmTypedData>
+      ).mockResolvedValue(mockSignature);
       (sliceHex as MockedFunction<typeof sliceHex>)
-        .mockReturnValueOnce("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex) // r
-        .mockReturnValueOnce("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex); // s
-      (encodePacked as MockedFunction<typeof encodePacked>).mockReturnValue("0xpacked_signature" as Hex);
-      (encodeAbiParameters as MockedFunction<typeof encodeAbiParameters>).mockReturnValue(mockWrappedSignature);
+        .mockReturnValueOnce(
+          "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex,
+        ) // r
+        .mockReturnValueOnce(
+          "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex,
+        ); // s
+      (encodePacked as MockedFunction<typeof encodePacked>).mockReturnValue(
+        "0xpacked_signature" as Hex,
+      );
+      (encodeAbiParameters as MockedFunction<typeof encodeAbiParameters>).mockReturnValue(
+        mockWrappedSignature,
+      );
 
       const result = await signAndWrapTypedDataForSmartAccount(mockClient, {
         smartAccount: mockSmartAccount,
@@ -146,7 +160,8 @@ describe("signAndWrapTypedDataForSmartAccount", () => {
 
     it("should handle custom owner index", async () => {
       const ownerIndex = 1n;
-      const mockOriginalHash = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
+      const mockOriginalHash =
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
       const mockSignature = { signature: "0xsignature" as Hex };
       const mockWrappedSignature = "0xwrapped_signature" as Hex;
 
@@ -160,12 +175,22 @@ describe("signAndWrapTypedDataForSmartAccount", () => {
       });
 
       (hashTypedData as MockedFunction<typeof hashTypedData>).mockReturnValue(mockOriginalHash);
-      (mockClient.signEvmTypedData as MockedFunction<typeof mockClient.signEvmTypedData>).mockResolvedValue(mockSignature);
+      (
+        mockClient.signEvmTypedData as MockedFunction<typeof mockClient.signEvmTypedData>
+      ).mockResolvedValue(mockSignature);
       (sliceHex as MockedFunction<typeof sliceHex>)
-        .mockReturnValueOnce("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex) // r
-        .mockReturnValueOnce("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex); // s
-      (encodePacked as MockedFunction<typeof encodePacked>).mockReturnValue("0xpacked_signature" as Hex);
-      (encodeAbiParameters as MockedFunction<typeof encodeAbiParameters>).mockReturnValue(mockWrappedSignature);
+        .mockReturnValueOnce(
+          "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex,
+        ) // r
+        .mockReturnValueOnce(
+          "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex,
+        ); // s
+      (encodePacked as MockedFunction<typeof encodePacked>).mockReturnValue(
+        "0xpacked_signature" as Hex,
+      );
+      (encodeAbiParameters as MockedFunction<typeof encodeAbiParameters>).mockReturnValue(
+        mockWrappedSignature,
+      );
 
       await signAndWrapTypedDataForSmartAccount(mockClient, {
         smartAccount: mockSmartAccount,
@@ -184,17 +209,28 @@ describe("signAndWrapTypedDataForSmartAccount", () => {
 
     it("should pass idempotency key to signEvmTypedData", async () => {
       const idempotencyKey = "test-idempotency-key";
-      const mockOriginalHash = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
+      const mockOriginalHash =
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
       const mockSignature = { signature: "0xsignature" as Hex };
       const mockWrappedSignature = "0xwrapped_signature" as Hex;
 
       (hashTypedData as MockedFunction<typeof hashTypedData>).mockReturnValue(mockOriginalHash);
-      (mockClient.signEvmTypedData as MockedFunction<typeof mockClient.signEvmTypedData>).mockResolvedValue(mockSignature);
+      (
+        mockClient.signEvmTypedData as MockedFunction<typeof mockClient.signEvmTypedData>
+      ).mockResolvedValue(mockSignature);
       (sliceHex as MockedFunction<typeof sliceHex>)
-        .mockReturnValueOnce("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex) // r
-        .mockReturnValueOnce("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex); // s
-      (encodePacked as MockedFunction<typeof encodePacked>).mockReturnValue("0xpacked_signature" as Hex);
-      (encodeAbiParameters as MockedFunction<typeof encodeAbiParameters>).mockReturnValue(mockWrappedSignature);
+        .mockReturnValueOnce(
+          "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex,
+        ) // r
+        .mockReturnValueOnce(
+          "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex,
+        ); // s
+      (encodePacked as MockedFunction<typeof encodePacked>).mockReturnValue(
+        "0xpacked_signature" as Hex,
+      );
+      (encodeAbiParameters as MockedFunction<typeof encodeAbiParameters>).mockReturnValue(
+        mockWrappedSignature,
+      );
 
       await signAndWrapTypedDataForSmartAccount(mockClient, {
         smartAccount: mockSmartAccount,
@@ -214,7 +250,8 @@ describe("signAndWrapTypedDataForSmartAccount", () => {
 
   describe("createReplaySafeTypedData", () => {
     it("should create replay-safe typed data", () => {
-      const mockOriginalHash = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
+      const mockOriginalHash =
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
       (hashTypedData as MockedFunction<typeof hashTypedData>).mockReturnValue(mockOriginalHash);
 
       const result = createReplaySafeTypedData({
@@ -252,7 +289,8 @@ describe("signAndWrapTypedDataForSmartAccount", () => {
 
     it("should handle different chain IDs", () => {
       const differentChainId = 8453n; // Base
-      const mockOriginalHash = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
+      const mockOriginalHash =
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
       (hashTypedData as MockedFunction<typeof hashTypedData>).mockReturnValue(mockOriginalHash);
 
       const result = createReplaySafeTypedData({
@@ -268,7 +306,8 @@ describe("signAndWrapTypedDataForSmartAccount", () => {
 
   describe("createSmartAccountSignatureWrapper", () => {
     it("should create signature wrapper with correct encoding", () => {
-      const mockSignatureHex = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12" as Hex;
+      const mockSignatureHex =
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12" as Hex;
       const ownerIndex = 0n;
       const mockR = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
       const mockS = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
@@ -279,7 +318,9 @@ describe("signAndWrapTypedDataForSmartAccount", () => {
         .mockReturnValueOnce(mockR) // r
         .mockReturnValueOnce(mockS); // s
       (encodePacked as MockedFunction<typeof encodePacked>).mockReturnValue(mockPackedSignature);
-      (encodeAbiParameters as MockedFunction<typeof encodeAbiParameters>).mockReturnValue(mockWrappedSignature);
+      (encodeAbiParameters as MockedFunction<typeof encodeAbiParameters>).mockReturnValue(
+        mockWrappedSignature,
+      );
 
       const result = createSmartAccountSignatureWrapper({
         signatureHex: mockSignatureHex,
@@ -326,7 +367,8 @@ describe("signAndWrapTypedDataForSmartAccount", () => {
     });
 
     it("should handle different owner indices", () => {
-      const mockSignatureHex = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12" as Hex;
+      const mockSignatureHex =
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12" as Hex;
       const ownerIndex = 2n;
       const mockR = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
       const mockS = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
@@ -337,7 +379,9 @@ describe("signAndWrapTypedDataForSmartAccount", () => {
         .mockReturnValueOnce(mockR) // r
         .mockReturnValueOnce(mockS); // s
       (encodePacked as MockedFunction<typeof encodePacked>).mockReturnValue(mockPackedSignature);
-      (encodeAbiParameters as MockedFunction<typeof encodeAbiParameters>).mockReturnValue(mockWrappedSignature);
+      (encodeAbiParameters as MockedFunction<typeof encodeAbiParameters>).mockReturnValue(
+        mockWrappedSignature,
+      );
 
       createSmartAccountSignatureWrapper({
         signatureHex: mockSignatureHex,
@@ -345,20 +389,18 @@ describe("signAndWrapTypedDataForSmartAccount", () => {
       });
 
       // Verify encodeAbiParameters was called with the correct owner index
-      expect(encodeAbiParameters).toHaveBeenCalledWith(
-        expect.any(Array),
-        [
-          {
-            ownerIndex: Number(ownerIndex), // Should be 2
-            signatureData: mockPackedSignature,
-          },
-        ],
-      );
+      expect(encodeAbiParameters).toHaveBeenCalledWith(expect.any(Array), [
+        {
+          ownerIndex: Number(ownerIndex), // Should be 2
+          signatureData: mockPackedSignature,
+        },
+      ]);
     });
 
     it("should extract v value correctly from signature", () => {
       // Test signature with different v value (0x1c at the end)
-      const mockSignatureHex = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1c" as Hex;
+      const mockSignatureHex =
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1c" as Hex;
       const ownerIndex = 0n;
       const mockR = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
       const mockS = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as Hex;
@@ -369,7 +411,9 @@ describe("signAndWrapTypedDataForSmartAccount", () => {
         .mockReturnValueOnce(mockR) // r
         .mockReturnValueOnce(mockS); // s
       (encodePacked as MockedFunction<typeof encodePacked>).mockReturnValue(mockPackedSignature);
-      (encodeAbiParameters as MockedFunction<typeof encodeAbiParameters>).mockReturnValue(mockWrappedSignature);
+      (encodeAbiParameters as MockedFunction<typeof encodeAbiParameters>).mockReturnValue(
+        mockWrappedSignature,
+      );
 
       createSmartAccountSignatureWrapper({
         signatureHex: mockSignatureHex,
@@ -383,4 +427,4 @@ describe("signAndWrapTypedDataForSmartAccount", () => {
       );
     });
   });
-}); 
+});

@@ -169,10 +169,16 @@ describe("sendSwapOperation", () => {
 
     const mockWrappedSignature = "0xabcdef1234567890" as `0x${string}`;
     const mockSignatureLength = 10;
-    const mockSignatureLengthHex = "0x0000000000000000000000000000000000000000000000000000000000000010" as `0x${string}`;
-    const mockConcatenatedData = "0x12345678000000000000000000000000000000000000000000000000000000000000001000xabcdef1234567890" as `0x${string}`;
+    const mockSignatureLengthHex =
+      "0x0000000000000000000000000000000000000000000000000000000000000010" as `0x${string}`;
+    const mockConcatenatedData =
+      "0x12345678000000000000000000000000000000000000000000000000000000000000001000xabcdef1234567890" as `0x${string}`;
 
-    (signAndWrapTypedDataForSmartAccount as MockedFunction<typeof signAndWrapTypedDataForSmartAccount>).mockResolvedValue({
+    (
+      signAndWrapTypedDataForSmartAccount as MockedFunction<
+        typeof signAndWrapTypedDataForSmartAccount
+      >
+    ).mockResolvedValue({
       signature: mockWrappedSignature,
     });
     (size as MockedFunction<typeof size>).mockReturnValue(mockSignatureLength);
@@ -301,8 +307,14 @@ describe("sendSwapOperation", () => {
     const idempotencyKey = "test-idempotency-key";
     const mockPermit2IdempotencyKey = "permit2-test-idempotency-key";
 
-    (createDeterministicUuidV4 as MockedFunction<typeof createDeterministicUuidV4>).mockReturnValue(mockPermit2IdempotencyKey);
-    (signAndWrapTypedDataForSmartAccount as MockedFunction<typeof signAndWrapTypedDataForSmartAccount>).mockResolvedValue({
+    (createDeterministicUuidV4 as MockedFunction<typeof createDeterministicUuidV4>).mockReturnValue(
+      mockPermit2IdempotencyKey,
+    );
+    (
+      signAndWrapTypedDataForSmartAccount as MockedFunction<
+        typeof signAndWrapTypedDataForSmartAccount
+      >
+    ).mockResolvedValue({
       signature: "0xabcdef1234567890" as `0x${string}`,
     });
 
@@ -489,4 +501,4 @@ describe("sendSwapOperation", () => {
     // Check that sendUserOperation was NOT called
     expect(sendUserOperation).not.toHaveBeenCalled();
   });
-}); 
+});
