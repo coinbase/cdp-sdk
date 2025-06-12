@@ -82,18 +82,8 @@ export const decryptWithPrivateKey = (b64PrivateKey: string, b64Cipher: string):
  * @returns The formatted private key as a base58 string
  */
 export const formatSolanaPrivateKey = (privateKey: string): string => {
-  // Convert hex string to bytes
   const privateKeyBytes = Buffer.from(privateKey, "hex");
-
-  // Create keypair from seed (private key)
   const keypair = Keypair.fromSeed(privateKeyBytes);
-
-  // Combine private key and public key bytes
-  const fullKey = Buffer.concat([
-    keypair.secretKey.subarray(0, 32), // Private key
-    keypair.publicKey.toBytes(), // Public key
-  ]);
-
-  // Encode as base58
+  const fullKey = Buffer.concat([keypair.secretKey.subarray(0, 32), keypair.publicKey.toBytes()]);
   return bs58.encode(fullKey);
 };
