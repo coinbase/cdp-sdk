@@ -198,9 +198,7 @@ class EvmClient:
             evm_smart_account.address, owner, evm_smart_account.name, self.api_clients
         )
 
-    async def get_or_create_smart_account(
-        self, owner: BaseAccount, name: str
-    ) -> EvmSmartAccount:
+    async def get_or_create_smart_account(self, owner: BaseAccount, name: str) -> EvmSmartAccount:
         """Get an EVM smart account, or create one if it doesn't exist.
 
         Args:
