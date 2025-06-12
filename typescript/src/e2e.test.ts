@@ -226,10 +226,16 @@ describe("CDP Client E2E Tests", () => {
   it("should export an evm server account", async () => {
     const privateKey = generatePrivateKey();
     const randomName = generateRandomName();
-    const importedAccount = await cdp.evm.importAccount({
+    const importAccountOptions: ImportServerAccountOptions = {
       privateKey,
       name: randomName,
-    });
+    };
+
+    if (process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY) {
+      importAccountOptions.encryptionPublicKey = process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY;
+    }
+
+    const importedAccount = await cdp.evm.importAccount(importAccountOptions);
 
     const exportedPrivateKeyByName = await cdp.evm.exportAccount({
       name: randomName,
