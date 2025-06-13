@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.13.0] - 2025-06-13
+
+### Features
+
+- Added get_or_create_smart_account and added optional name argument to get_smart_account and create_smart_account ([#198](https://github.com/coinbase/cdp-sdk/pull/198))
+
+
 ## [1.12.0] - 2025-06-12
 
 ### Features
