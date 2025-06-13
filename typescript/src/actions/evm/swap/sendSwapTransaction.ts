@@ -91,6 +91,13 @@ export async function sendSwapTransaction(
     swapResult = options.swapQuote;
   } else {
     // Create the swap quote using the provided options (InlineSendSwapTransactionOptions)
+    /**
+     * Deterministically derive a new idempotency key from the provided idempotency key for swap quote creation to avoid key reuse.
+     */
+    const swapQuoteIdempotencyKey = idempotencyKey
+      ? createDeterministicUuidV4(idempotencyKey, "createSwapQuote")
+      : undefined;
+
     swapResult = await createSwapQuote(client, {
       network: options.network as CreateSwapQuoteOptions["network"],
       toToken: options.toToken,
@@ -100,6 +107,7 @@ export async function sendSwapTransaction(
       signerAddress: options.signerAddress,
       gasPrice: options.gasPrice,
       slippageBps: options.slippageBps,
+      idempotencyKey: swapQuoteIdempotencyKey,
     });
   }
 
@@ -134,7 +142,7 @@ export async function sendSwapTransaction(
      * Deterministically derive a new idempotency key from the provided idempotency key for permit2 signing to avoid key reuse.
      */
     const permit2IdempotencyKey = idempotencyKey
-      ? createDeterministicUuidV4(idempotencyKey)
+      ? createDeterministicUuidV4(idempotencyKey, "permit2")
       : undefined;
 
     const signature = await client.signEvmTypedData(

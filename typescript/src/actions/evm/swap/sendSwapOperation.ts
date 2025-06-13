@@ -92,6 +92,13 @@ export async function sendSwapOperation(
     swapResult = options.swapQuote;
   } else {
     // Create the swap quote using the provided options (inline options)
+    /**
+     * Deterministically derive a new idempotency key from the provided idempotency key for swap quote creation to avoid key reuse.
+     */
+    const swapQuoteIdempotencyKey = idempotencyKey
+      ? createDeterministicUuidV4(idempotencyKey, "createSwapQuote")
+      : undefined;
+
     swapResult = await createSwapQuote(client, {
       network: options.network as CreateSwapQuoteOptions["network"],
       toToken: options.toToken,
@@ -101,6 +108,7 @@ export async function sendSwapOperation(
       signerAddress: options.signerAddress,
       gasPrice: options.gasPrice,
       slippageBps: options.slippageBps,
+      idempotencyKey: swapQuoteIdempotencyKey,
     });
   }
 

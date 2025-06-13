@@ -116,6 +116,8 @@ export interface CreateSwapQuoteOptions {
   gasPrice?: bigint;
   /** The slippage tolerance in basis points (0-10000). */
   slippageBps?: number;
+  /** The idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**
