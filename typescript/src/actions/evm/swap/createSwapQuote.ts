@@ -49,16 +49,19 @@ export async function createSwapQuote(
   const taker = options.taker as Address;
 
   // Call the createEvmSwapQuote function directly with the client's configured API
-  const response = await client.createEvmSwapQuote({
-    network: options.network,
-    toToken: options.toToken,
-    fromToken: options.fromToken,
-    fromAmount: options.fromAmount.toString(),
-    taker: taker,
-    signerAddress: options.signerAddress,
-    gasPrice: options.gasPrice?.toString(),
-    slippageBps: options.slippageBps,
-  });
+  const response = await client.createEvmSwapQuote(
+    {
+      network: options.network,
+      toToken: options.toToken,
+      fromToken: options.fromToken,
+      fromAmount: options.fromAmount.toString(),
+      taker: taker,
+      signerAddress: options.signerAddress,
+      gasPrice: options.gasPrice?.toString(),
+      slippageBps: options.slippageBps,
+    },
+    options.idempotencyKey,
+  );
 
   // Check if liquidity is unavailable
   if (!response.liquidityAvailable) {

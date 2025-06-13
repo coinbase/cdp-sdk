@@ -3,10 +3,16 @@ from cdp.actions.solana.sign_message import sign_message
 from cdp.actions.solana.sign_transaction import sign_transaction
 from cdp.analytics import wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
+from cdp.export import (
+    decrypt_with_private_key,
+    format_solana_private_key,
+    generate_export_encryption_key_pair,
+)
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.create_solana_account_request import (
     CreateSolanaAccountRequest,
 )
+from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.request_solana_faucet200_response import (
     RequestSolanaFaucet200Response as RequestSolanaFaucetResponse,
 )
@@ -57,6 +63,56 @@ class SolanaClient:
             solana_account_model=response,
             api_clients=self.api_clients,
         )
+
+    async def export_account(
+        self,
+        address: str | None = None,
+        name: str | None = None,
+        idempotency_key: str | None = None,
+    ) -> str:
+        """Export a Solana account.
+
+        Args:
+            address (str, optional): The address of the account.
+            name (str, optional): The name of the account.
+            idempotency_key (str, optional): The idempotency key.
+
+        Returns:
+            str: The decrypted private key which is a base58 encoding of the account's full 64-byte private key.
+
+        Raises:
+            ValueError: If neither address nor name is provided.
+
+        """
+        public_key, private_key = generate_export_encryption_key_pair()
+
+        if address:
+            response = await self.api_clients.solana_accounts.export_solana_account(
+                address=address,
+                export_evm_account_request=ExportEvmAccountRequest(
+                    export_encryption_key=public_key,
+                ),
+                x_idempotency_key=idempotency_key,
+            )
+            decrypted_private_key = decrypt_with_private_key(
+                private_key, response.encrypted_private_key
+            )
+            return format_solana_private_key(decrypted_private_key)
+
+        if name:
+            response = await self.api_clients.solana_accounts.export_solana_account_by_name(
+                name=name,
+                export_evm_account_request=ExportEvmAccountRequest(
+                    export_encryption_key=public_key,
+                ),
+                x_idempotency_key=idempotency_key,
+            )
+            decrypted_private_key = decrypt_with_private_key(
+                private_key, response.encrypted_private_key
+            )
+            return format_solana_private_key(decrypted_private_key)
+
+        raise ValueError("Either address or name must be provided")
 
     async def get_account(
         self, address: str | None = None, name: str | None = None

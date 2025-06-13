@@ -37,7 +37,7 @@ describe("createDeterministicUuidV4", () => {
     expect(mockHash.update).toHaveBeenCalledWith("test-input-salt");
     expect(mockHash.digest).toHaveBeenCalledWith("hex");
 
-    // Verify UUIDv4 format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+    // Verify UUIDv4 format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
     expect(result).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
 
     // Verify specific structure based on the mock digest

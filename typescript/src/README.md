@@ -114,6 +114,7 @@ const cdp = new CdpClient({
 ```typescript
 const account = await cdp.evm.createAccount();
 ```
+
 #### Import an EVM account as follows:
 
 ```typescript
@@ -127,6 +128,36 @@ const account = await cdp.evm.importAccount({
 
 ```typescript
 const account = await cdp.solana.createAccount();
+```
+
+### Exporting EVM or Solana accounts
+
+#### Export an EVM account as follows:
+
+```typescript
+// by name
+const privateKey = await cdp.evm.exportAccount({
+  name: "MyAccount",
+});
+
+// by address
+const privateKey = await cdp.evm.exportAccount({
+  address: "0x123",
+});
+```
+
+#### Export a Solana account as follows:
+
+```typescript
+// by name
+const privateKey = await cdp.solana.exportAccount({
+  name: "MyAccount",
+});
+
+// by address
+const privateKey = await cdp.solana.exportAccount({
+  address: "Abc",
+});
 ```
 
 #### Get or Create an EVM account as follows:

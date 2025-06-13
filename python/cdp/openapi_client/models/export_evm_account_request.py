@@ -18,41 +18,17 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class RequestEvmFaucetRequest(BaseModel):
+class ExportEvmAccountRequest(BaseModel):
     """
-    RequestEvmFaucetRequest
+    ExportEvmAccountRequest
     """ # noqa: E501
-    network: StrictStr = Field(description="The network to request funds from.")
-    address: Annotated[str, Field(strict=True)] = Field(description="The address to request funds to, which is a 0x-prefixed hexadecimal string.")
-    token: StrictStr = Field(description="The token to request funds for.")
-    __properties: ClassVar[List[str]] = ["network", "address", "token"]
-
-    @field_validator('network')
-    def network_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['base-sepolia', 'ethereum-sepolia', 'ethereum-hoodi']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'ethereum-sepolia', 'ethereum-hoodi')")
-        return value
-
-    @field_validator('address')
-    def address_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^0x[0-9a-fA-F]{40}$", value):
-            raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{40}$/")
-        return value
-
-    @field_validator('token')
-    def token_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['eth', 'usdc', 'eurc', 'cbbtc']):
-            raise ValueError("must be one of enum values ('eth', 'usdc', 'eurc', 'cbbtc')")
-        return value
+    export_encryption_key: StrictStr = Field(description="The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key.", alias="exportEncryptionKey")
+    __properties: ClassVar[List[str]] = ["exportEncryptionKey"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -72,7 +48,7 @@ class RequestEvmFaucetRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of RequestEvmFaucetRequest from a JSON string"""
+        """Create an instance of ExportEvmAccountRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -97,7 +73,7 @@ class RequestEvmFaucetRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of RequestEvmFaucetRequest from a dict"""
+        """Create an instance of ExportEvmAccountRequest from a dict"""
         if obj is None:
             return None
 
@@ -105,9 +81,7 @@ class RequestEvmFaucetRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "network": obj.get("network"),
-            "address": obj.get("address"),
-            "token": obj.get("token")
+            "exportEncryptionKey": obj.get("exportEncryptionKey")
         })
         return _obj
 

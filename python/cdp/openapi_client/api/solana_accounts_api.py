@@ -21,6 +21,8 @@ from pydantic import Field, StrictInt, StrictStr, field_validator
 from typing import Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.create_solana_account_request import CreateSolanaAccountRequest
+from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
+from cdp.openapi_client.models.export_solana_account200_response import ExportSolanaAccount200Response
 from cdp.openapi_client.models.list_solana_accounts200_response import ListSolanaAccounts200Response
 from cdp.openapi_client.models.sign_solana_message200_response import SignSolanaMessage200Response
 from cdp.openapi_client.models.sign_solana_message_request import SignSolanaMessageRequest
@@ -357,6 +359,686 @@ class SolanaAccountsApi:
         return self.api_client.param_serialize(
             method='POST',
             resource_path='/v2/solana/accounts',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def export_solana_account(
+        self,
+        address: Annotated[str, Field(strict=True, description="The base58 encoded address of the Solana account.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
+        export_evm_account_request: Optional[ExportEvmAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ExportSolanaAccount200Response:
+        """Export an Solana account
+
+        Export an existing Solana account's private key. It is important to store the private key in a secure place after it's exported.
+
+        :param address: The base58 encoded address of the Solana account. (required)
+        :type address: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param export_evm_account_request:
+        :type export_evm_account_request: ExportEvmAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._export_solana_account_serialize(
+            address=address,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            export_evm_account_request=export_evm_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ExportSolanaAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def export_solana_account_with_http_info(
+        self,
+        address: Annotated[str, Field(strict=True, description="The base58 encoded address of the Solana account.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
+        export_evm_account_request: Optional[ExportEvmAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ExportSolanaAccount200Response]:
+        """Export an Solana account
+
+        Export an existing Solana account's private key. It is important to store the private key in a secure place after it's exported.
+
+        :param address: The base58 encoded address of the Solana account. (required)
+        :type address: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param export_evm_account_request:
+        :type export_evm_account_request: ExportEvmAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._export_solana_account_serialize(
+            address=address,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            export_evm_account_request=export_evm_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ExportSolanaAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def export_solana_account_without_preload_content(
+        self,
+        address: Annotated[str, Field(strict=True, description="The base58 encoded address of the Solana account.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
+        export_evm_account_request: Optional[ExportEvmAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Export an Solana account
+
+        Export an existing Solana account's private key. It is important to store the private key in a secure place after it's exported.
+
+        :param address: The base58 encoded address of the Solana account. (required)
+        :type address: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param export_evm_account_request:
+        :type export_evm_account_request: ExportEvmAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._export_solana_account_serialize(
+            address=address,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            export_evm_account_request=export_evm_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ExportSolanaAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _export_solana_account_serialize(
+        self,
+        address,
+        x_wallet_auth,
+        x_idempotency_key,
+        export_evm_account_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if address is not None:
+            _path_params['address'] = address
+        # process the query parameters
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if export_evm_account_request is not None:
+            _body_params = export_evm_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/solana/accounts/{address}/export',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def export_solana_account_by_name(
+        self,
+        name: Annotated[StrictStr, Field(description="The name of the Solana account.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
+        export_evm_account_request: Optional[ExportEvmAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ExportSolanaAccount200Response:
+        """Export a Solana account by name
+
+        Export an existing Solana account's private key by its name. It is important to store the private key in a secure place after it's exported.
+
+        :param name: The name of the Solana account. (required)
+        :type name: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param export_evm_account_request:
+        :type export_evm_account_request: ExportEvmAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._export_solana_account_by_name_serialize(
+            name=name,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            export_evm_account_request=export_evm_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ExportSolanaAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def export_solana_account_by_name_with_http_info(
+        self,
+        name: Annotated[StrictStr, Field(description="The name of the Solana account.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
+        export_evm_account_request: Optional[ExportEvmAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[ExportSolanaAccount200Response]:
+        """Export a Solana account by name
+
+        Export an existing Solana account's private key by its name. It is important to store the private key in a secure place after it's exported.
+
+        :param name: The name of the Solana account. (required)
+        :type name: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param export_evm_account_request:
+        :type export_evm_account_request: ExportEvmAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._export_solana_account_by_name_serialize(
+            name=name,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            export_evm_account_request=export_evm_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ExportSolanaAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def export_solana_account_by_name_without_preload_content(
+        self,
+        name: Annotated[StrictStr, Field(description="The name of the Solana account.")],
+        x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
+        export_evm_account_request: Optional[ExportEvmAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Export a Solana account by name
+
+        Export an existing Solana account's private key by its name. It is important to store the private key in a secure place after it's exported.
+
+        :param name: The name of the Solana account. (required)
+        :type name: str
+        :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
+        :type x_wallet_auth: str
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
+        :param export_evm_account_request:
+        :type export_evm_account_request: ExportEvmAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._export_solana_account_by_name_serialize(
+            name=name,
+            x_wallet_auth=x_wallet_auth,
+            x_idempotency_key=x_idempotency_key,
+            export_evm_account_request=export_evm_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "ExportSolanaAccount200Response",
+            '400': "Error",
+            '401': "Error",
+            '404': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _export_solana_account_by_name_serialize(
+        self,
+        name,
+        x_wallet_auth,
+        x_idempotency_key,
+        export_evm_account_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if name is not None:
+            _path_params['name'] = name
+        # process the query parameters
+        # process the header parameters
+        if x_wallet_auth is not None:
+            _header_params['X-Wallet-Auth'] = x_wallet_auth
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
+        # process the form parameters
+        # process the body parameter
+        if export_evm_account_request is not None:
+            _body_params = export_evm_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/v2/solana/accounts/export/by-name/{name}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

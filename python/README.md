@@ -156,6 +156,36 @@ async def main():
 asyncio.run(main())
 ```
 
+### Exporting EVM or Solana accounts
+
+#### Export an EVM account as follows:
+
+```python
+# by name
+private_key = await cdp.evm.export_account(
+  name="MyAccount",
+)
+
+# by address
+private_key = await cdp.evm.export_account(
+  address="0x123",
+)
+```
+
+#### Export a Solana account as follows:
+
+```python
+# by name
+private_key = await cdp.solana.export_account(
+  name="MyAccount",
+)
+
+# by address
+private_key = await cdp.solana.export_account(
+  address="Abc",
+)
+```
+
 #### Get or create an EVM account as follows:
 
 ```python
@@ -178,6 +208,20 @@ from cdp import CdpClient
 async def main():
     async with CdpClient() as cdp:
         account = await cdp.solana.get_or_create_account()
+
+asyncio.run(main())
+```
+
+#### Get or create a Smart account as follows:
+
+```python
+import asyncio
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        owner = await cdp.evm.create_account()
+        account = await cdp.evm.get_or_create_smart_account(name="Account1", owner=owner)
 
 asyncio.run(main())
 ```

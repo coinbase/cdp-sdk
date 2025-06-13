@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/smartAccount.quoteAndExecute.ts
+// Usage: pnpm tsx evm/smartAccount.quoteFundAndExecute.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";

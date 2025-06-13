@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.create_evm_smart_account_request import CreateEvmSmartAccountRequest
+from cdp.openapi_client.models.export_solana_account200_response import ExportSolanaAccount200Response
 
-class TestCreateEvmSmartAccountRequest(unittest.TestCase):
-    """CreateEvmSmartAccountRequest unit test stubs"""
+class TestExportSolanaAccount200Response(unittest.TestCase):
+    """ExportSolanaAccount200Response unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,27 +26,26 @@ class TestCreateEvmSmartAccountRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CreateEvmSmartAccountRequest:
-        """Test CreateEvmSmartAccountRequest
+    def make_instance(self, include_optional) -> ExportSolanaAccount200Response:
+        """Test ExportSolanaAccount200Response
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CreateEvmSmartAccountRequest`
+        # uncomment below to create an instance of `ExportSolanaAccount200Response`
         """
-        model = CreateEvmSmartAccountRequest()
+        model = ExportSolanaAccount200Response()
         if include_optional:
-            return CreateEvmSmartAccountRequest(
-                owners = ["0xfc807D1bE4997e5C7B33E4d8D57e60c5b0f02B1a"],
-                name = 'my-smart-wallet'
+            return ExportSolanaAccount200Response(
+                encrypted_private_key = 'U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4='
             )
         else:
-            return CreateEvmSmartAccountRequest(
-                owners = ["0xfc807D1bE4997e5C7B33E4d8D57e60c5b0f02B1a"],
+            return ExportSolanaAccount200Response(
+                encrypted_private_key = 'U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=',
         )
         """
 
-    def testCreateEvmSmartAccountRequest(self):
-        """Test CreateEvmSmartAccountRequest"""
+    def testExportSolanaAccount200Response(self):
+        """Test ExportSolanaAccount200Response"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

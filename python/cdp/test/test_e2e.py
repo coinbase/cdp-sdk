@@ -5,6 +5,7 @@ import random
 import string
 from math import floor
 
+import base58
 import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
@@ -120,6 +121,50 @@ async def test_import_account(cdp_client):
     assert imported_account is not None
     assert imported_account.address == account.address
     assert imported_account.name == random_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_export_evm_account(cdp_client):
+    """Test exporting an EVM account."""
+    random_name = generate_random_name()
+    account = await cdp_client.evm.create_account(name=random_name)
+    assert account is not None
+
+    exported_private_key_by_address = await cdp_client.evm.export_account(address=account.address)
+    assert exported_private_key_by_address is not None
+    public_key_by_address = Account.from_key(private_key=exported_private_key_by_address).address
+    assert public_key_by_address == account.address
+
+    exported_private_key_by_name = await cdp_client.evm.export_account(name=random_name)
+    assert exported_private_key_by_name is not None
+    public_key_by_name = Account.from_key(private_key=exported_private_key_by_name).address
+    assert public_key_by_name == account.address
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_export_solana_account(cdp_client):
+    """Test exporting a Solana account."""
+    random_name = generate_random_name()
+    account = await cdp_client.solana.create_account(name=random_name)
+    assert account is not None
+
+    exported_private_key_by_address = await cdp_client.solana.export_account(
+        address=account.address
+    )
+    assert exported_private_key_by_address is not None
+    full_key_bytes_by_address = base58.b58decode(exported_private_key_by_address)
+    public_key_bytes_by_address = full_key_bytes_by_address[32:]
+    public_key_by_address = base58.b58encode(public_key_bytes_by_address).decode("utf-8")
+    assert public_key_by_address == account.address
+
+    exported_private_key_by_name = await cdp_client.solana.export_account(name=random_name)
+    assert exported_private_key_by_name is not None
+    full_key_bytes_by_name = base58.b58decode(exported_private_key_by_name)
+    public_key_bytes_by_name = full_key_bytes_by_name[32:]
+    public_key_by_name = base58.b58encode(public_key_bytes_by_name).decode("utf-8")
+    assert public_key_by_name == account.address
 
 
 @pytest.mark.e2e
@@ -722,6 +767,32 @@ async def test_evm_get_or_create_account(cdp_client):
     assert account is not None
 
     account2 = await cdp_client.evm.get_or_create_account(name=random_name)
+    assert account2 is not None
+    assert account.address == account2.address
+    assert account.name == account2.name
+    assert account.name == random_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@pytest.mark.focus
+async def test_evm_get_or_create_smart_account(cdp_client):
+    """Test getting or creating an EVM account."""
+    random_name = "".join(
+        [random.choice(string.ascii_letters + string.digits)]
+        + [random.choice(string.ascii_letters + string.digits + "-") for _ in range(34)]
+        + [random.choice(string.ascii_letters + string.digits)]
+    )
+
+    # Create the owner account first
+    owner = await cdp_client.evm.create_account()
+
+    # Now use the owner to create/get the smart account
+    account = await cdp_client.evm.get_or_create_smart_account(name=random_name, owner=owner)
+    assert account is not None
+
+    # Try to get the same account again - should return the existing one
+    account2 = await cdp_client.evm.get_or_create_smart_account(name=random_name, owner=owner)
     assert account2 is not None
     assert account.address == account2.address
     assert account.name == account2.name

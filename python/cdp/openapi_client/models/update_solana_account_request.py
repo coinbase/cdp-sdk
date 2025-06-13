@@ -29,7 +29,7 @@ class UpdateSolanaAccountRequest(BaseModel):
     UpdateSolanaAccountRequest
     """ # noqa: E501
     name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all Solana accounts in the developer's CDP Project.")
-    account_policy: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The ID of the account-level policy to apply to the account.", alias="accountPolicy")
+    account_policy: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The ID of the account-level policy to apply to the account, or an empty string to unset attached policy.", alias="accountPolicy")
     __properties: ClassVar[List[str]] = ["name", "accountPolicy"]
 
     @field_validator('name')
@@ -48,8 +48,8 @@ class UpdateSolanaAccountRequest(BaseModel):
         if value is None:
             return value
 
-        if not re.match(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value):
-            raise ValueError(r"must validate the regular expression /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/")
+        if not re.match(r"(^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)|(^$)", value):
+            raise ValueError(r"must validate the regular expression /(^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)|(^$)/")
         return value
 
     model_config = ConfigDict(
