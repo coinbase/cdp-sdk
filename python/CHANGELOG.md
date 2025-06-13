@@ -2,6 +2,17 @@
 
 <!-- towncrier release notes start -->
 
+## [1.12.0] - 2025-06-12
+
+### Features
+
+- Added evm and solana account export by address or name ([#195](https://github.com/coinbase/cdp-sdk/pull/195))
+
+### Bugfixes
+
+- Log response body for unexpected error scenarios ([#192](https://github.com/coinbase/cdp-sdk/pull/192))
+
+
 ## [1.11.1] - 2025-06-04
 
 ### Bugfixes

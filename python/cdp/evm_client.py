@@ -23,9 +23,7 @@ from cdp.constants import ImportEvmAccountPublicRSAKey
 from cdp.evm_call_types import ContractCall, EncodedCall
 from cdp.evm_server_account import EvmServerAccount, ListEvmAccountsResponse
 from cdp.evm_smart_account import EvmSmartAccount, ListEvmSmartAccountsResponse
-from cdp.evm_token_balances import (
-    ListTokenBalancesResult,
-)
+from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.export import decrypt_with_private_key, generate_export_encryption_key_pair
 from cdp.openapi_client.errors import ApiError
@@ -180,22 +178,51 @@ class EvmClient:
 
         raise ValueError("Either address or name must be provided")
 
-    async def create_smart_account(self, owner: BaseAccount) -> EvmSmartAccount:
+    async def create_smart_account(
+        self, owner: BaseAccount, name: str | None = None
+    ) -> EvmSmartAccount:
         """Create an EVM smart account.
 
         Args:
             owner (BaseAccount): The owner of the smart account.
+            name (str, optional): The name of the smart account.
 
         Returns:
             EvmSmartAccount: The EVM smart account.
 
         """
         evm_smart_account = await self.api_clients.evm_smart_accounts.create_evm_smart_account(
-            CreateEvmSmartAccountRequest(owners=[owner.address]),
+            CreateEvmSmartAccountRequest(owners=[owner.address], name=name),
         )
         return EvmSmartAccount(
             evm_smart_account.address, owner, evm_smart_account.name, self.api_clients
         )
+
+    async def get_or_create_smart_account(self, owner: BaseAccount, name: str) -> EvmSmartAccount:
+        """Get an EVM smart account, or create one if it doesn't exist.
+
+        Args:
+            owner (BaseAccount): The owner of the smart account.
+            name (str): The name of the smart account.
+
+        Returns:
+            EvmSmartAccount: The EVM smart account.
+
+        """
+        try:
+            account = await self.get_smart_account(name=name, owner=owner)
+            return account
+        except ApiError as e:
+            if e.http_code == 404:
+                try:
+                    account = await self.create_smart_account(name=name, owner=owner)
+                    return account
+                except ApiError as e:
+                    if e.http_code == 409:
+                        account = await self.get_smart_account(name=name, owner=owner)
+                        return account
+                    raise e
+            raise e
 
     async def get_account(
         self, address: str | None = None, name: str | None = None
@@ -244,19 +271,29 @@ class EvmClient:
             raise e
 
     async def get_smart_account(
-        self, address: str, owner: BaseAccount | None = None
+        self, address: str | None = None, name: str | None = None, owner: BaseAccount | None = None
     ) -> EvmSmartAccount:
         """Get an EVM smart account by address.
 
         Args:
-            address (str): The address of the smart account.
+            address (str, optional): The address of the smart account.
+            name (str, optional): The name of the smart account. Defaults to None.
             owner (BaseAccount, optional): The owner of the smart account. Defaults to None.
 
         Returns:
             EvmSmartAccount: The EVM smart account.
 
         """
-        evm_smart_account = await self.api_clients.evm_smart_accounts.get_evm_smart_account(address)
+        if address:
+            evm_smart_account = await self.api_clients.evm_smart_accounts.get_evm_smart_account(
+                address
+            )
+        elif name:
+            evm_smart_account = (
+                await self.api_clients.evm_smart_accounts.get_evm_smart_account_by_name(name)
+            )
+        else:
+            raise ValueError("Either address or name must be provided")
         return EvmSmartAccount(
             evm_smart_account.address, owner, evm_smart_account.name, self.api_clients
         )
