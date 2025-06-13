@@ -114,7 +114,6 @@ describe("toEvmSmartAccount", () => {
       quoteFund: expect.any(Function),
       quoteSwap: expect.any(Function),
       swap: expect.any(Function),
-      signAndWrapTypedData: expect.any(Function),
     });
   });
 
