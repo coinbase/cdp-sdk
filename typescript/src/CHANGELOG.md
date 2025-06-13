@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.15.0
+
+### Minor Changes
+
+- [#189](https://github.com/coinbase/cdp-sdk/pull/189) [`8f829cd`](https://github.com/coinbase/cdp-sdk/commit/8f829cd4f340968dcb5d8721d83c2b7fc487c176) Thanks [@sddioulde](https://github.com/sddioulde)! - Added evm and solana account export by address or name
+
 ## 1.14.0
 
 ### Minor Changes
