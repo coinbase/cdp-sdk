@@ -276,7 +276,7 @@ class EvmClient:
         """Get an EVM smart account by address.
 
         Args:
-            address (str): The address of the smart account.
+            address (str, optional): The address of the smart account.
             name (str, optional): The name of the smart account. Defaults to None.
             owner (BaseAccount, optional): The owner of the smart account. Defaults to None.
 

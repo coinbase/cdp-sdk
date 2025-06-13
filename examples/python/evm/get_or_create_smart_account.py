@@ -24,14 +24,4 @@ async def main():
         print("Second Smart Account Address: ", account2.address)
         print("Are accounts equal? ", account.address == account2.address)
 
-        # Create another owner account for a different smart account
-        owner2 = await cdp.evm.create_account()
-        print("\nCreated second owner account:", owner2.address)
-
-        # Create a smart account with the second owner
-        name2 = "MySecondSmartAccount"
-        account3 = await cdp.evm.get_or_create_smart_account(name=name2, owner=owner2)
-        print("Second Smart Account Address: ", account3.address)
-
-
 asyncio.run(main())
