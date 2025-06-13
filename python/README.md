@@ -212,6 +212,20 @@ async def main():
 asyncio.run(main())
 ```
 
+#### Get or create a Smart account as follows:
+
+```python
+import asyncio
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        owner = await cdp.evm.create_account()
+        account = await cdp.evm.get_or_create_smart_account(name="Account1", owner=owner)
+
+asyncio.run(main())
+```
+
 ### Creating EVM or Solana accounts with policies
 
 #### Create an EVM account with policy as follows:
