@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { createSwapQuote } from "./createSwapQuote.js";
 import { sendSwapTransaction } from "./sendSwapTransaction.js";
+import { sendSwapOperation } from "./sendSwapOperation.js";
 import { CreateSwapQuoteResult, SwapUnavailableResult } from "../../../client/evm/evm.types.js";
 import {
   CdpOpenApiClientType,
@@ -10,9 +11,13 @@ import {
 } from "../../../openapi-client/index.js";
 import { Address, Hex } from "../../../types/misc.js";
 
-// Mock sendSwapTransaction
+// Mock sendSwapTransaction and sendSwapOperation
 vi.mock("./sendSwapTransaction.js", () => ({
   sendSwapTransaction: vi.fn(),
+}));
+
+vi.mock("./sendSwapOperation.js", () => ({
+  sendSwapOperation: vi.fn(),
 }));
 
 describe("createSwapQuote", () => {
@@ -136,16 +141,19 @@ describe("createSwapQuote", () => {
       taker: "0x1234567890123456789012345678901234567890",
     });
 
-    expect(mockClient.createEvmSwapQuote).toHaveBeenCalledWith({
-      network,
-      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      fromAmount: "1000000000000000000",
-      taker: "0x1234567890123456789012345678901234567890",
-      signerAddress: undefined,
-      gasPrice: undefined,
-      slippageBps: undefined,
-    });
+    expect(mockClient.createEvmSwapQuote).toHaveBeenCalledWith(
+      {
+        network,
+        toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        fromAmount: "1000000000000000000",
+        taker: "0x1234567890123456789012345678901234567890",
+        signerAddress: undefined,
+        gasPrice: undefined,
+        slippageBps: undefined,
+      },
+      undefined,
+    );
 
     // Type assertion to handle the union type
     expect(result.liquidityAvailable).toBe(true);
@@ -241,16 +249,19 @@ describe("createSwapQuote", () => {
       slippageBps: 50,
     });
 
-    expect(mockClient.createEvmSwapQuote).toHaveBeenCalledWith({
-      network,
-      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      fromAmount: "1000000000000000000",
-      taker: "0x1234567890123456789012345678901234567890",
-      signerAddress: "0xSignerAddress",
-      gasPrice: "25000000000",
-      slippageBps: 50,
-    });
+    expect(mockClient.createEvmSwapQuote).toHaveBeenCalledWith(
+      {
+        network,
+        toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        fromAmount: "1000000000000000000",
+        taker: "0x1234567890123456789012345678901234567890",
+        signerAddress: "0xSignerAddress",
+        gasPrice: "25000000000",
+        slippageBps: 50,
+      },
+      undefined,
+    );
   });
 
   it("should handle null fields in the response", async () => {
@@ -514,12 +525,88 @@ describe("createSwapQuote", () => {
     // Call execute
     await swapResult.execute({});
 
-    // Verify sendSwapTransaction was called with the signerAddress, not taker
+    // Verify sendSwapTransaction was called with the taker address (not signerAddress) for EOA transactions
+    // signerAddress is only used for smart account swaps where taker is a smart contract
     expect(sendSwapTransaction).toHaveBeenCalledWith(mockClient, {
-      address: signerAddress,
+      address: takerAddress, // For EOA transactions, always use taker
       network: network,
       swapQuote: swapResult,
       idempotencyKey: undefined,
     });
+  });
+
+  it("should use sendSwapOperation for smart account execution", async () => {
+    const mockResponse: CreateSwapQuoteResponse = {
+      blockNumber: "12345678",
+      toAmount: "5000000000",
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fees: { gasFee: null, protocolFee: null },
+      issues: { allowance: null, balance: null, simulationIncomplete: false },
+      liquidityAvailable: true,
+      minToAmount: "4950000000",
+      fromAmount: "1000000000000000000",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      permit2: null,
+      transaction: {
+        to: "0xRouterAddress",
+        data: "0xTransactionData",
+        gas: "250000",
+        gasPrice: "20000000000",
+        value: "0",
+      },
+    };
+
+    mockClient.createEvmSwapQuote = vi.fn().mockResolvedValue(mockResponse);
+
+    // Create a mock smart account
+    const mockSmartAccount = {
+      address: "0x1234567890123456789012345678901234567890" as Address,
+      owners: [{ address: "0xowner123" as Address }],
+      type: "evm-smart" as const,
+    } as unknown as any; // Use type assertion to avoid full interface implementation
+
+    const result = await createSwapQuote(mockClient, {
+      network,
+      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      fromAmount: BigInt("1000000000000000000"),
+      taker: "0x1234567890123456789012345678901234567890",
+      smartAccount: mockSmartAccount,
+    });
+
+    const swapResult = result as CreateSwapQuoteResult;
+
+    // Mock the sendSwapOperation response
+    const mockUserOpHash = "0xmockuserophash" as Hex;
+    const mockSmartAccountAddress = "0x1234567890123456789012345678901234567890" as Address;
+    const mockStatus = "broadcast";
+    (sendSwapOperation as any).mockResolvedValue({
+      userOpHash: mockUserOpHash,
+      smartAccountAddress: mockSmartAccountAddress,
+      status: mockStatus,
+    });
+
+    // Call execute method
+    const executeResult = await swapResult.execute({
+      idempotencyKey: "test-key",
+    });
+
+    // Verify sendSwapOperation was called with correct parameters
+    expect(sendSwapOperation).toHaveBeenCalledWith(mockClient, {
+      smartAccount: mockSmartAccount,
+      network: network,
+      swapQuote: swapResult,
+      idempotencyKey: "test-key",
+    });
+
+    // Verify the response for smart account execution
+    expect(executeResult).toEqual({
+      userOpHash: mockUserOpHash,
+      smartAccountAddress: mockSmartAccountAddress,
+      status: mockStatus,
+    });
+
+    // Verify sendSwapTransaction was NOT called for smart account
+    expect(sendSwapTransaction).not.toHaveBeenCalled();
   });
 });

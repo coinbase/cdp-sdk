@@ -21,7 +21,8 @@ import { Address } from "../../../types/misc.js";
  *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
  *   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
  *   fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
- *   taker: "0x1234567890123456789012345678901234567890"
+ *   taker: "0x1234567890123456789012345678901234567890",
+ *   idempotencyKey: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" // Optional: for request deduplication
  * });
  * ```
  */
@@ -30,16 +31,19 @@ export async function getSwapPrice(
   options: GetSwapPriceOptions,
 ): Promise<GetSwapPriceResult | SwapUnavailableResult> {
   // Call the getEvmSwapPrice function directly with the client's configured API
-  const response = await client.getEvmSwapPrice({
-    network: options.network,
-    toToken: options.toToken,
-    fromToken: options.fromToken,
-    fromAmount: options.fromAmount.toString(),
-    taker: options.taker,
-    signerAddress: options.signerAddress,
-    gasPrice: options.gasPrice?.toString(),
-    slippageBps: options.slippageBps,
-  });
+  const response = await client.getEvmSwapPrice(
+    {
+      network: options.network,
+      toToken: options.toToken,
+      fromToken: options.fromToken,
+      fromAmount: options.fromAmount.toString(),
+      taker: options.taker,
+      signerAddress: options.signerAddress,
+      gasPrice: options.gasPrice?.toString(),
+      slippageBps: options.slippageBps,
+    },
+    options.idempotencyKey,
+  );
 
   // Check if liquidity is unavailable
   if (!response.liquidityAvailable) {

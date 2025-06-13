@@ -112,6 +112,8 @@ describe("toEvmSmartAccount", () => {
       fund: expect.any(Function),
       waitForFundOperationReceipt: expect.any(Function),
       quoteFund: expect.any(Function),
+      quoteSwap: expect.any(Function),
+      swap: expect.any(Function),
     });
   });
 

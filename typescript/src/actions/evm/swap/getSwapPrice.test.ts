@@ -85,16 +85,19 @@ describe("getSwapPrice", () => {
       taker: "0x1234567890123456789012345678901234567890",
     });
 
-    expect(mockClient.getEvmSwapPrice).toHaveBeenCalledWith({
-      network,
-      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      fromAmount: "1000000000000000000",
-      taker: "0x1234567890123456789012345678901234567890",
-      signerAddress: undefined,
-      gasPrice: undefined,
-      slippageBps: undefined,
-    });
+    expect(mockClient.getEvmSwapPrice).toHaveBeenCalledWith(
+      {
+        network,
+        toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        fromAmount: "1000000000000000000",
+        taker: "0x1234567890123456789012345678901234567890",
+        signerAddress: undefined,
+        gasPrice: undefined,
+        slippageBps: undefined,
+      },
+      undefined,
+    );
 
     // Type assertion to handle the union type
     expect(result.liquidityAvailable).toBe(true);
@@ -161,16 +164,19 @@ describe("getSwapPrice", () => {
       slippageBps: 50,
     });
 
-    expect(mockClient.getEvmSwapPrice).toHaveBeenCalledWith({
-      network,
-      toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      fromAmount: "1000000000000000000",
-      taker: "0x1234567890123456789012345678901234567890",
-      signerAddress: "0xSignerAddress",
-      gasPrice: "25000000000",
-      slippageBps: 50,
-    });
+    expect(mockClient.getEvmSwapPrice).toHaveBeenCalledWith(
+      {
+        network,
+        toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        fromAmount: "1000000000000000000",
+        taker: "0x1234567890123456789012345678901234567890",
+        signerAddress: "0xSignerAddress",
+        gasPrice: "25000000000",
+        slippageBps: 50,
+      },
+      undefined,
+    );
   });
 
   it("should handle null fees in the response", async () => {
