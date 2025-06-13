@@ -595,6 +595,7 @@ class EvmClient:
         from_amount: str | int,
         network: str,
         taker: str,
+        idempotency_key: str | None = None,
     ) -> "SwapQuote":
         """Get a swap price for swapping tokens.
 
@@ -604,6 +605,7 @@ class EvmClient:
             from_amount (str | int): The amount to swap from (in smallest unit or as string).
             network (str): The network to get the price for.
             taker (str): The address that will perform the swap.
+            idempotency_key (str, optional): Optional idempotency key for safe retryable requests.
 
         Returns:
             SwapQuote: The swap price with estimated output amount.
@@ -616,6 +618,7 @@ class EvmClient:
             from_amount,
             network,
             taker,
+            idempotency_key,
         )
 
     async def create_swap_quote(
@@ -627,6 +630,7 @@ class EvmClient:
         taker: str,
         slippage_bps: int | None = None,
         signer_address: str | None = None,
+        idempotency_key: str | None = None,
     ) -> Union["QuoteSwapResult", "SwapUnavailableResult"]:
         """Create a swap quote with transaction data.
 
@@ -640,6 +644,7 @@ class EvmClient:
             taker (str): The address that will execute the swap.
             slippage_bps (int, optional): The maximum slippage in basis points (100 = 1%).
             signer_address (str, optional): The address that will sign the transaction (for smart accounts).
+            idempotency_key (str, optional): Optional idempotency key for safe retryable requests.
 
         Returns:
             Union[QuoteSwapResult, SwapUnavailableResult]: The swap quote with transaction data or SwapUnavailableResult if liquidity is insufficient.
@@ -653,7 +658,8 @@ class EvmClient:
                 from_amount="100000000",  # 100 USDC
                 network="base",
                 taker=account.address,
-                slippage_bps=100  # 1%
+                slippage_bps=100,  # 1%
+                idempotency_key="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
             )
             ```
 
@@ -665,7 +671,8 @@ class EvmClient:
                 from_amount="100000000",
                 network="base",
                 taker=smart_account.address,
-                signer_address=owner.address  # Owner signs for smart account
+                signer_address=owner.address,  # Owner signs for smart account
+                idempotency_key="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
             )
             ```
 
@@ -679,4 +686,5 @@ class EvmClient:
             taker,
             slippage_bps,
             signer_address,
+            idempotency_key,
         )

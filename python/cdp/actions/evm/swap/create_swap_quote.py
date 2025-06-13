@@ -59,6 +59,7 @@ async def create_swap_quote(
     taker: str | None = None,
     slippage_bps: int | None = None,
     signer_address: str | None = None,
+    idempotency_key: str | None = None,
 ) -> QuoteSwapResult | SwapUnavailableResult:
     """Create a quote for swapping tokens on EVM networks.
 
@@ -75,6 +76,7 @@ async def create_swap_quote(
         taker: The address that will execute the swap (required)
         slippage_bps: Maximum slippage in basis points (100 = 1%, default: 100)
         signer_address: The address that will sign the transaction (for smart accounts)
+        idempotency_key: Optional idempotency key for safe retryable requests
 
     Returns:
         Union[QuoteSwapResult, SwapUnavailableResult]: Either a swap quote with
@@ -93,7 +95,8 @@ async def create_swap_quote(
             ...     from_amount="100000000",  # 100 USDC (6 decimals)
             ...     network="base",
             ...     taker="0x742d35Cc6634C0532925a3b844Bc9e7595f1234",
-            ...     slippage_bps=100  # 1% slippage
+            ...     slippage_bps=100,  # 1% slippage
+            ...     idempotency_key="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
             ... )
 
         Execute the quote:
@@ -132,7 +135,13 @@ async def create_swap_quote(
     )
 
     # Call API
-    response = await api_clients.evm_swaps.create_evm_swap_quote_without_preload_content(request)
+    headers = {}
+    if idempotency_key:
+        headers["X-Idempotency-Key"] = idempotency_key
+
+    response = await api_clients.evm_swaps.create_evm_swap_quote_without_preload_content(
+        request, _headers=headers
+    )
 
     # Parse response
     raw_data = await response.read()

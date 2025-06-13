@@ -68,19 +68,40 @@ async def get_swap_price(
     from_amount: str | int,
     network: str,
     taker: str,
+    idempotency_key: str | None = None,
 ) -> SwapQuote:
-    """Get a swap price for swapping tokens.
+    """Get a price estimate for swapping tokens on EVM networks.
+
+    Gets a price estimate without creating a firm quote. This is useful for
+    displaying estimated prices without committing to the swap.
 
     Args:
-        api_clients: The API clients instance
+        api_clients: The API clients instance for making requests
         from_token: The contract address of the token to swap from
         to_token: The contract address of the token to swap to
-        from_amount: The amount to swap from (in smallest unit or as string)
-        network: The network to get the price for
-        taker: The address that will perform the swap
+        from_amount: The amount to swap from (in smallest unit)
+        network: The network to get the price on ("base" or "ethereum")
+        taker: The address that will execute the swap
+        idempotency_key: Optional idempotency key for safe retryable requests
 
     Returns:
-        SwapQuote: The swap price with estimated output amount
+        SwapQuote: A price estimate for the swap
+
+    Raises:
+        ValueError: If parameters are invalid
+        Exception: If the API request fails
+
+    Examples:
+        Get a price estimate for swapping USDC to WETH:
+            >>> price = await get_swap_price(
+            ...     api_clients=api_clients,
+            ...     from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+            ...     to_token="0x4200000000000000000000000000000000000006",  # WETH
+            ...     from_amount="100000000",  # 100 USDC (6 decimals)
+            ...     network="base",
+            ...     taker="0x742d35Cc6634C0532925a3b844Bc9e7595f1234",
+            ...     idempotency_key="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            ... )
 
     """
     # Convert amount to string if it's an integer
@@ -94,12 +115,17 @@ async def get_swap_price(
     network_enum = EvmSwapsNetwork(network)
 
     # Get quote from API - use the raw response to avoid oneOf deserialization issues
+    headers = {}
+    if idempotency_key:
+        headers["X-Idempotency-Key"] = idempotency_key
+
     response = await api_clients.evm_swaps.get_evm_swap_price_without_preload_content(
         network=network_enum,
         to_token=to_address,
         from_token=from_address,
         from_amount=amount_str,
         taker=taker,
+        _headers=headers,
     )
 
     # Read and parse the response manually

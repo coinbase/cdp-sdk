@@ -1,8 +1,7 @@
 """Type definitions for swap functionality."""
 
-from typing import Any, Protocol
+from typing import Any, Union
 
-from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, Field, PrivateAttr, field_validator
 
 # Supported networks for swap
@@ -15,6 +14,71 @@ class SwapUnavailableResult(BaseModel):
     liquidity_available: bool = Field(
         default=False, description="Always False for unavailable swaps"
     )
+
+
+class BaseSendSwapTransactionOptions(BaseModel):
+    """Base options for sending a swap transaction."""
+
+    address: str = Field(description="The address of the account that will execute the swap")
+    idempotency_key: str | None = Field(
+        default=None, description="Optional idempotency key for safe retryable requests"
+    )
+
+    @field_validator("address")
+    @classmethod
+    def validate_address(cls, v: str) -> str:
+        """Validate address format."""
+        if not v.startswith("0x") or len(v) != 42:
+            raise ValueError("Address must be a valid Ethereum address (0x + 40 hex chars)")
+        return v.lower()  # Normalize to lowercase
+
+
+class QuoteBasedSendSwapTransactionOptions(BaseSendSwapTransactionOptions):
+    """Options when providing an already created swap quote."""
+
+    swap_quote: "QuoteSwapResult" = Field(description="A pre-created swap quote")
+
+
+class InlineSendSwapTransactionOptions(BaseSendSwapTransactionOptions):
+    """Options when creating a swap quote inline."""
+
+    network: str = Field(description="The network to execute the swap on")
+    from_token: str = Field(description="The token to swap from")
+    to_token: str = Field(description="The token to swap to")
+    from_amount: str | int = Field(description="The amount to swap")
+    taker: str = Field(description="The address that will perform the swap")
+    slippage_bps: int | None = Field(
+        default=100, description="Maximum slippage in basis points (100 = 1%)"
+    )
+
+    @field_validator("network")
+    @classmethod
+    def validate_network(cls, v: str) -> str:
+        """Validate network is supported."""
+        if v not in SUPPORTED_SWAP_NETWORKS:
+            raise ValueError(f"Network must be one of: {', '.join(SUPPORTED_SWAP_NETWORKS)}")
+        return v
+
+    @field_validator("from_amount")
+    @classmethod
+    def validate_amount(cls, v: str | int) -> str:
+        """Validate and convert amount to string."""
+        return str(v)
+
+    @field_validator("from_token", "to_token", "taker")
+    @classmethod
+    def validate_address(cls, v: str) -> str:
+        """Validate address format."""
+        if not v.startswith("0x") or len(v) != 42:
+            raise ValueError("Address must be a valid Ethereum address (0x + 40 hex chars)")
+        return v.lower()  # Normalize to lowercase
+
+
+# Discriminated union for send_swap_transaction options
+SendSwapTransactionOptions = Union[
+    QuoteBasedSendSwapTransactionOptions,
+    InlineSendSwapTransactionOptions,
+]
 
 
 class SwapParams(BaseModel):
@@ -57,10 +121,10 @@ class SwapParams(BaseModel):
 
     @field_validator("from_token", "to_token")
     @classmethod
-    def validate_token_address(cls, v: str) -> str:
-        """Validate token address format."""
+    def validate_address(cls, v: str) -> str:
+        """Validate address format."""
         if not v.startswith("0x") or len(v) != 42:
-            raise ValueError("Token address must be a valid Ethereum address (0x + 40 hex chars)")
+            raise ValueError("Address must be a valid Ethereum address (0x + 40 hex chars)")
         return v.lower()  # Normalize to lowercase
 
     @field_validator("taker")
@@ -104,8 +168,11 @@ class QuoteSwapResult(BaseModel):
     _signer_address: str | None = PrivateAttr(default=None)
     _api_clients: Any | None = PrivateAttr(default=None)
 
-    async def execute(self) -> str:
+    async def execute(self, idempotency_key: str | None = None) -> str:
         """Execute the swap quote.
+
+        Args:
+            idempotency_key: Optional idempotency key for safe retryable requests.
 
         Returns:
             str: The transaction hash of the executed swap.
@@ -128,8 +195,8 @@ class QuoteSwapResult(BaseModel):
         result = await send_swap_transaction(
             api_clients=self._api_clients,
             address=address,
-            network=self.network,
             swap_quote=self,
+            idempotency_key=idempotency_key,
         )
         return result.transaction_hash
 
@@ -157,6 +224,11 @@ class SwapOptions(BaseModel):
     # Pre-created swap quote
     swap_quote: QuoteSwapResult | None = Field(
         default=None, description="A pre-created swap quote from create_swap_quote"
+    )
+
+    # Idempotency key for swap operations
+    idempotency_key: str | None = Field(
+        default=None, description="Optional idempotency key for safe retryable requests"
     )
 
     def __init__(self, **data):
@@ -217,30 +289,3 @@ class SwapResult(BaseModel):
     to_amount: str = Field(description="The amount that was received")
     quote_id: str = Field(description="The quote ID used for the swap")
     network: str = Field(description="The network the swap was executed on")
-
-
-class SwapStrategy(Protocol):
-    """Protocol for swap execution strategies."""
-
-    async def execute_swap(
-        self,
-        api_clients: Any,
-        from_account: BaseAccount,
-        swap_data: QuoteSwapResult,
-        network: str,
-        permit2_signature: str | None = None,
-    ) -> SwapResult:
-        """Execute a swap using the strategy.
-
-        Args:
-            api_clients: The API clients instance
-            from_account: The account to swap from
-            swap_data: The swap data
-            network: The network to execute on
-            permit2_signature: Optional Permit2 signature
-
-        Returns:
-            SwapResult: The result of the swap
-
-        """
-        ...

@@ -290,89 +290,46 @@ class EvmServerAccount(BaseAccount, BaseModel):
             transfer_strategy=account_transfer_strategy,
         )
 
-    async def swap(self, options: SwapOptions) -> SwapResult:
-        """Swap tokens from one asset to another.
+    async def swap(self, swap_options: SwapOptions) -> SwapResult:
+        """Execute a token swap.
 
         Args:
-            options: The swap options. Must be a SwapOptions instance containing either:
-                - Direct swap parameters (network, from_token, to_token, from_amount, slippage_bps)
-                - A pre-created swap quote (swap_quote)
-
-                Note: The account address is always used as the taker.
+            swap_options: The swap options
 
         Returns:
-            SwapResult: The result of the swap transaction.
-
-        Examples:
-            **Direct swap with parameters**:
-            >>> from cdp.actions.evm.swap import SwapOptions
-            >>> result = await account.swap(
-            ...     SwapOptions(
-            ...         network="base",
-            ...         from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-            ...         to_token="0x4200000000000000000000000000000000000006",  # WETH
-            ...         from_amount="100000000",  # 100 USDC
-            ...         slippage_bps=100  # 1% slippage
-            ...     )
-            ... )
-
-            **Swap with pre-created quote**:
-            >>> # First create a quote
-            >>> quote = await cdp.evm.create_swap_quote(
-            ...     from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            ...     to_token="0x4200000000000000000000000000000000000006",
-            ...     from_amount="100000000",
-            ...     network="base",
-            ...     taker=account.address
-            ... )
-            >>> # Then execute with the quote
-            >>> result = await account.swap(
-            ...     SwapOptions(swap_quote=quote)
-            ... )
+            SwapResult: The result of the swap transaction
 
         """
-        # Validate that options is a SwapOptions instance
-        if not isinstance(options, SwapOptions):
-            raise TypeError("swap() expects a SwapOptions instance")
-
-        from cdp.actions.evm.swap import AccountSwapStrategy, swap
-        from cdp.actions.evm.swap.types import SwapUnavailableResult
-        from cdp.evm_client import EvmClient
-
-        # Handle pre-created quote
-        if options.swap_quote is not None:
-            return await swap(
-                api_clients=self.__api_clients,
-                from_account=self,
-                swap_options=options,
-                swap_strategy=AccountSwapStrategy(),
-            )
-
-        # Handle direct parameters - create quote first
-        # Create an EVM client instance
-        evm_client = EvmClient(self.__api_clients)
-
-        # Create the swap quote from parameters, always using account address as taker
-        swap_quote = await evm_client.create_swap_quote(
-            from_token=options.from_token,
-            to_token=options.to_token,
-            from_amount=options.from_amount,
-            network=options.network,
-            taker=self.address,  # Always use account address as taker
-            slippage_bps=options.slippage_bps,
-            signer_address=self.address,  # Pass account address as signer
+        from cdp.actions.evm.swap.send_swap_transaction import send_swap_transaction
+        from cdp.actions.evm.swap.types import (
+            QuoteBasedSendSwapTransactionOptions,
+            InlineSendSwapTransactionOptions,
         )
 
-        # Check if liquidity is unavailable
-        if isinstance(swap_quote, SwapUnavailableResult):
-            raise ValueError("Swap unavailable: Insufficient liquidity")
+        # Convert SwapOptions to the appropriate discriminated union type
+        if swap_options.swap_quote is not None:
+            # Use quote-based options
+            options = QuoteBasedSendSwapTransactionOptions(
+                address=self.address,
+                swap_quote=swap_options.swap_quote,
+                idempotency_key=swap_options.idempotency_key,
+            )
+        else:
+            # Use inline options
+            options = InlineSendSwapTransactionOptions(
+                address=self.address,
+                network=swap_options.network,
+                from_token=swap_options.from_token,
+                to_token=swap_options.to_token,
+                from_amount=swap_options.from_amount,
+                taker=self.address,  # For regular accounts, taker is same as address
+                slippage_bps=swap_options.slippage_bps,
+                idempotency_key=swap_options.idempotency_key,
+            )
 
-        # Execute the swap
-        return await swap(
+        return await send_swap_transaction(
             api_clients=self.__api_clients,
-            from_account=self,
-            swap_options=SwapOptions(swap_quote=swap_quote),
-            swap_strategy=AccountSwapStrategy(),
+            options=options,
         )
 
     async def quote_swap(
@@ -383,6 +340,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
         network: str,
         slippage_bps: int | None = None,
         signer_address: str | None = None,
+        idempotency_key: str | None = None,
     ) -> "QuoteSwapResult":
         """Get a quote for swapping tokens.
 
@@ -396,6 +354,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             network: The network to execute the swap on
             slippage_bps: Maximum slippage in basis points (100 = 1%). Defaults to 100.
             signer_address: The address that will sign the transaction (for smart accounts). Currently unused.
+            idempotency_key: Optional idempotency key for safe retryable requests.
 
         Returns:
             QuoteSwapResult: The swap quote with transaction data
@@ -406,7 +365,8 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ...     from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             ...     to_token="0x4200000000000000000000000000000000000006",  # WETH
             ...     from_amount="100000000",  # 100 USDC
-            ...     network="base"
+            ...     network="base",
+            ...     idempotency_key="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
             ... )
             >>> print(f"Expected output: {quote.to_amount}")
             >>>
@@ -414,13 +374,11 @@ class EvmServerAccount(BaseAccount, BaseModel):
             >>> result = await account.swap(SwapOptions(swap_quote=quote))
 
         """
-        from cdp.evm_client import EvmClient
+        from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
 
-        # Create an EVM client instance
-        evm_client = EvmClient(self.__api_clients)
-
-        # Call create_swap_quote with the account address as taker
-        return await evm_client.create_swap_quote(
+        # Call create_swap_quote directly with the account address as taker
+        return await create_swap_quote(
+            api_clients=self.__api_clients,
             from_token=from_token,
             to_token=to_token,
             from_amount=from_amount,
@@ -428,6 +386,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             taker=self.address,
             slippage_bps=slippage_bps,
             signer_address=signer_address,
+            idempotency_key=idempotency_key,
         )
 
     async def request_faucet(
