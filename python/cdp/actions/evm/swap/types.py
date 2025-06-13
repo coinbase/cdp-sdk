@@ -3,6 +3,7 @@
 from typing import Any, Union
 
 from pydantic import BaseModel, Field, PrivateAttr, field_validator
+from web3 import Web3
 
 # Supported networks for swap
 SUPPORTED_SWAP_NETWORKS = ["base", "ethereum"]
@@ -76,8 +77,8 @@ class InlineSendSwapTransactionOptions(BaseSendSwapTransactionOptions):
 
 # Discriminated union for send_swap_transaction options
 SendSwapTransactionOptions = Union[
-    QuoteBasedSendSwapTransactionOptions,
     InlineSendSwapTransactionOptions,
+    QuoteBasedSendSwapTransactionOptions,
 ]
 
 
@@ -184,7 +185,7 @@ class QuoteSwapResult(BaseModel):
         if self._taker is None or self._api_clients is None:
             raise ValueError(
                 "This swap quote cannot be executed directly. "
-                "Use account.swap(SwapOptions(swap_quote=quote)) instead."
+                "Use account.swap(AccountSwapOptions(swap_quote=quote)) instead."
             )
 
         from cdp.actions.evm.swap import send_swap_transaction
@@ -201,63 +202,87 @@ class QuoteSwapResult(BaseModel):
         return result.transaction_hash
 
 
-class SwapOptions(BaseModel):
-    """Options for initiating a swap transaction.
+class AccountSwapOptions(BaseModel):
+    """Options for executing a token swap via regular EOA account.
 
-    Must contain EITHER:
-    - Direct swap parameters (network, from_token, to_token, etc.)
-    - A pre-created swap quote (swap_quote)
-
-    Note: For account.swap(), the taker is always the account address.
-    For global methods, use create_swap_quote() which requires explicit taker.
+    This class represents swap options that can be either quote-based
+    (using a pre-created swap quote) or inline (using direct parameters).
     """
 
-    # Direct swap parameters
-    network: str | None = Field(default=None, description="The network to execute the swap on")
-    from_token: str | None = Field(default=None, description="The token address to swap from")
-    to_token: str | None = Field(default=None, description="The token address to swap to")
-    from_amount: str | int | None = Field(default=None, description="The amount to swap from")
-    slippage_bps: int | None = Field(
-        default=None, description="Maximum slippage in basis points (100 = 1%)"
+    # Quote-based pattern
+    swap_quote: "QuoteSwapResult | None" = Field(
+        None, description="Pre-created swap quote to execute"
     )
 
-    # Pre-created swap quote
-    swap_quote: QuoteSwapResult | None = Field(
-        default=None, description="A pre-created swap quote from create_swap_quote"
+    # Inline pattern fields  
+    network: str | None = Field(None, description="Network to execute swap on")
+    from_token: str | None = Field(None, description="Address of token to swap from")
+    to_token: str | None = Field(None, description="Address of token to swap to")
+    from_amount: str | int | None = Field(None, description="Amount to swap in smallest units")
+    slippage_bps: int | None = Field(100, description="Slippage tolerance in basis points")
+
+    # Common fields
+    idempotency_key: str | None = Field(None, description="Optional idempotency key")
+
+    @field_validator("from_token", "to_token")
+    @classmethod
+    def validate_addresses(cls, v):
+        """Validate Ethereum addresses."""
+        if v is not None and not Web3.is_address(v):
+            raise ValueError(f"Invalid Ethereum address: {v}")
+        return v
+
+    @field_validator("slippage_bps")
+    @classmethod
+    def validate_slippage(cls, v):
+        """Validate slippage is within reasonable bounds."""
+        if v is not None and (v < 0 or v > 10000):
+            raise ValueError("Slippage must be between 0 and 10000 basis points")
+        return v
+
+
+
+
+
+class SmartAccountSwapOptions(BaseModel):
+    """Options for executing a token swap via smart account.
+
+    This class represents swap options that can be either quote-based
+    (using a pre-created swap quote) or inline (using direct parameters).
+    Same developer experience as AccountSwapOptions.
+    """
+
+    # Quote-based pattern
+    swap_quote: "QuoteSwapResult | None" = Field(
+        None, description="Pre-created swap quote to execute"
     )
 
-    # Idempotency key for swap operations
-    idempotency_key: str | None = Field(
-        default=None, description="Optional idempotency key for safe retryable requests"
-    )
+    # Inline pattern fields  
+    network: str | None = Field(None, description="Network to execute swap on")
+    from_token: str | None = Field(None, description="Address of token to swap from")
+    to_token: str | None = Field(None, description="Address of token to swap to")
+    from_amount: str | int | None = Field(None, description="Amount to swap in smallest units")
+    slippage_bps: int | None = Field(100, description="Slippage tolerance in basis points")
 
-    def __init__(self, **data):
-        """Initialize SwapOptions with validation."""
-        super().__init__(**data)
+    # Smart account specific fields
+    paymaster_url: str | None = Field(None, description="Optional paymaster URL for gas sponsorship")
+    idempotency_key: str | None = Field(None, description="Optional idempotency key")
 
-        # Check if we have direct parameters
-        has_direct_params = all(
-            x is not None for x in [self.network, self.from_token, self.to_token, self.from_amount]
-        )
+    @field_validator("from_token", "to_token")
+    @classmethod
+    def validate_addresses(cls, v):
+        """Validate Ethereum addresses."""
+        if v is not None and not Web3.is_address(v):
+            raise ValueError(f"Invalid Ethereum address: {v}")
+        return v
 
-        # Check if we have swap quote
-        has_swap_quote = self.swap_quote is not None
-
-        if not has_direct_params and not has_swap_quote:
-            raise ValueError(
-                "SwapOptions must contain either direct swap parameters "
-                "(network, from_token, to_token, from_amount) or a swap_quote"
-            )
-
-        if has_direct_params and has_swap_quote:
-            raise ValueError(
-                "SwapOptions cannot contain both direct swap parameters and a swap_quote. "
-                "Please provide only one."
-            )
-
-        # Apply defaults for direct parameters if provided
-        if has_direct_params and self.slippage_bps is None:
-            self.slippage_bps = 100  # Default 1% slippage
+    @field_validator("slippage_bps")
+    @classmethod
+    def validate_slippage(cls, v):
+        """Validate slippage is within reasonable bounds."""
+        if v is not None and (v < 0 or v > 10000):
+            raise ValueError("Slippage must be between 0 and 10000 basis points")
+        return v
 
 
 class SwapQuote(BaseModel):

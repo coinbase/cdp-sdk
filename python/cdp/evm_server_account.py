@@ -32,7 +32,7 @@ from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
-from cdp.actions.evm.swap import SwapOptions
+from cdp.actions.evm.swap import AccountSwapOptions
 from cdp.actions.evm.swap.types import QuoteSwapResult, SwapResult
 from cdp.api_clients import ApiClients
 from cdp.evm_token_balances import ListTokenBalancesResult
@@ -290,7 +290,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             transfer_strategy=account_transfer_strategy,
         )
 
-    async def swap(self, swap_options: SwapOptions) -> SwapResult:
+    async def swap(self, swap_options: AccountSwapOptions) -> SwapResult:
         """Execute a token swap.
 
         Args:
@@ -306,7 +306,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             InlineSendSwapTransactionOptions,
         )
 
-        # Convert SwapOptions to the appropriate discriminated union type
+        # Convert AccountSwapOptions to the appropriate discriminated union type
         if swap_options.swap_quote is not None:
             # Use quote-based options
             options = QuoteBasedSendSwapTransactionOptions(
@@ -371,7 +371,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             >>> print(f"Expected output: {quote.to_amount}")
             >>>
             >>> # Execute the quote if satisfied
-            >>> result = await account.swap(SwapOptions(swap_quote=quote))
+            >>> result = await account.swap(AccountSwapOptions(swap_quote=quote))
 
         """
         from cdp.actions.evm.swap.create_swap_quote import create_swap_quote

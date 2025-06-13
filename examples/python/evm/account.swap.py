@@ -42,7 +42,7 @@ import asyncio
 from decimal import Decimal
 
 from cdp import CdpClient
-from cdp.actions.evm.swap import SwapOptions
+from cdp.actions.evm.swap import AccountSwapOptions
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.utils import parse_units
 from dotenv import load_dotenv
@@ -138,7 +138,7 @@ async def main():
                 # Approach 1: All-in-one pattern
                 # Create and execute the swap in one call - simpler but less control
                 result = await account.swap(
-                    SwapOptions(
+                    AccountSwapOptions(
                         network=NETWORK,
                         from_token=from_token["address"],
                         to_token=to_token["address"],
@@ -173,7 +173,7 @@ async def main():
                 
                 # Step 4: Send the swap transaction
                 # Option A: Using account.swap() with the pre-created swap quote
-                result = await account.swap(SwapOptions(swap_quote=swap_quote))
+                result = await account.swap(AccountSwapOptions(swap_quote=swap_quote))
                 
                 # Option B: Using the swap quote's execute() method directly
                 # result = await swap_quote.execute()

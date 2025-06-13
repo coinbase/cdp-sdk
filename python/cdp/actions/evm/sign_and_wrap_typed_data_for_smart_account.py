@@ -4,14 +4,13 @@ This module provides functionality for signing EIP-712 typed data with Coinbase 
 handling the specific requirements of the smart contract implementation.
 """
 
-from typing import TYPE_CHECKING, Any, Dict
+from typing import Any
 
-from web3 import Web3
-from eth_account.messages import encode_typed_data
 from eth_abi import encode
+from eth_account.messages import encode_typed_data
+from web3 import Web3
 
-if TYPE_CHECKING:
-    from cdp.api_clients import ApiClients
+from cdp.api_clients import ApiClients
 
 
 class SignAndWrapTypedDataForSmartAccountOptions:
@@ -21,7 +20,7 @@ class SignAndWrapTypedDataForSmartAccountOptions:
         self,
         smart_account: Any,
         chain_id: int,
-        typed_data: Dict[str, Any],
+        typed_data: dict[str, Any],
         owner_index: int = 0,
         idempotency_key: str | None = None,
     ):
@@ -56,7 +55,7 @@ class SignAndWrapTypedDataForSmartAccountResult:
 
 
 async def sign_and_wrap_typed_data_for_smart_account(
-    api_clients: "ApiClients",
+    api_clients: ApiClients,
     options: SignAndWrapTypedDataForSmartAccountOptions,
 ) -> SignAndWrapTypedDataForSmartAccountResult:
     """Sign and wrap an EIP-712 message for a smart account using the required Coinbase Smart Wallet signature format.
@@ -155,10 +154,10 @@ async def sign_and_wrap_typed_data_for_smart_account(
 
     # Sign the replay-safe typed data with the smart account owner
     owner = options.smart_account.owners[options.owner_index]
-    
+
     # Convert typed data to the format expected by the API
-    from cdp.openapi_client.models.eip712_message import EIP712Message
     from cdp.openapi_client.models.eip712_domain import EIP712Domain
+    from cdp.openapi_client.models.eip712_message import EIP712Message
 
     eip712_message = EIP712Message(
         domain=EIP712Domain(
@@ -189,10 +188,10 @@ async def sign_and_wrap_typed_data_for_smart_account(
 
 
 def create_replay_safe_typed_data(
-    typed_data: Dict[str, Any],
+    typed_data: dict[str, Any],
     chain_id: int,
     smart_account_address: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a replay-safe EIP-712 typed data structure by wrapping the original typed data with chain ID and smart account address.
 
     **Coinbase Smart Wallet Requirement**: Due to the Coinbase Smart Wallet contract's ERC-1271
@@ -280,8 +279,7 @@ def create_smart_account_signature_wrapper(
 
     # Encode the signature wrapper
     encoded_wrapper = encode(
-        [t["type"] for t in signature_wrapper_abi],
-        [owner_index, signature_data]
+        [t["type"] for t in signature_wrapper_abi], [owner_index, signature_data]
     )
 
     return "0x" + encoded_wrapper.hex()

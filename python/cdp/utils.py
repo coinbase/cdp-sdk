@@ -1,6 +1,6 @@
+import hashlib
 import inspect
 import re
-import hashlib
 import uuid
 
 from eth_account.typed_transactions import DynamicFeeTransaction

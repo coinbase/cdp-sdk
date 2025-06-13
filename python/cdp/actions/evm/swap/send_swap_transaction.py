@@ -4,19 +4,18 @@ from typing import TYPE_CHECKING
 
 from web3 import Web3
 
+from cdp.actions.evm.send_transaction import send_transaction
+from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
 from cdp.actions.evm.swap.types import (
-    QuoteSwapResult,
+    InlineSendSwapTransactionOptions,
+    QuoteBasedSendSwapTransactionOptions,
+    SendSwapTransactionOptions,
     SwapResult,
     SwapUnavailableResult,
-    SendSwapTransactionOptions,
-    QuoteBasedSendSwapTransactionOptions,
-    InlineSendSwapTransactionOptions,
 )
-from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
-from cdp.actions.evm.send_transaction import send_transaction
 from cdp.evm_transaction_types import TransactionRequestEIP1559
-from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.utils import create_deterministic_uuid_v4
 
 if TYPE_CHECKING:
@@ -112,7 +111,9 @@ async def send_swap_transaction(
         # Generate deterministic idempotency key for Permit2 signing if base key provided
         permit2_idempotency_key = None
         if options.idempotency_key:
-            permit2_idempotency_key = create_deterministic_uuid_v4(options.idempotency_key, "permit2")
+            permit2_idempotency_key = create_deterministic_uuid_v4(
+                options.idempotency_key, "permit2"
+            )
 
         print("XXX B")
 
@@ -141,9 +142,7 @@ async def send_swap_transaction(
         # Append signature data to calldata
         # Format: append signature length (as 32-byte hex) and signature
         # Remove 0x prefix if present
-        sig_hex = (
-            permit2_signature[2:] if permit2_signature.startswith("0x") else permit2_signature
-        )
+        sig_hex = permit2_signature[2:] if permit2_signature.startswith("0x") else permit2_signature
 
         # Calculate signature length in bytes
         sig_length = len(sig_hex) // 2  # Convert hex chars to bytes
