@@ -302,8 +302,8 @@ class EvmServerAccount(BaseAccount, BaseModel):
         """
         from cdp.actions.evm.swap.send_swap_transaction import send_swap_transaction
         from cdp.actions.evm.swap.types import (
-            QuoteBasedSendSwapTransactionOptions,
             InlineSendSwapTransactionOptions,
+            QuoteBasedSendSwapTransactionOptions,
         )
 
         # Convert AccountSwapOptions to the appropriate discriminated union type

@@ -60,15 +60,8 @@ async def main():
         owner_account = await cdp.evm.get_or_create_account(name="SmartAccountOwner")
         print(f"\nOwner account: {owner_account.address}")
 
-        # Create a smart account (you will also need to fund it)
-        # Option 1: Create a new smart account
-        # smart_account = await cdp.evm.create_smart_account(owner=owner_account)
-        
-        # Option 2: Get an existing funded smart account by address
-        smart_account = await cdp.evm.get_smart_account(
-            address="0x...",  # Replace with your smart account address
-            owner=owner_account
-        )
+        # Get or create a smart account (you will also need to fund it)
+        smart_account = await cdp.evm.get_or_create_smart_account(owner=owner_account, name="SmartAccount")
         print(f"Smart account: {smart_account.address}")
 
         try:

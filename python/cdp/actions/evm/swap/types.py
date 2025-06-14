@@ -214,7 +214,7 @@ class AccountSwapOptions(BaseModel):
         None, description="Pre-created swap quote to execute"
     )
 
-    # Inline pattern fields  
+    # Inline pattern fields
     network: str | None = Field(None, description="Network to execute swap on")
     from_token: str | None = Field(None, description="Address of token to swap from")
     to_token: str | None = Field(None, description="Address of token to swap to")
@@ -241,9 +241,6 @@ class AccountSwapOptions(BaseModel):
         return v
 
 
-
-
-
 class SmartAccountSwapOptions(BaseModel):
     """Options for executing a token swap via smart account.
 
@@ -257,7 +254,7 @@ class SmartAccountSwapOptions(BaseModel):
         None, description="Pre-created swap quote to execute"
     )
 
-    # Inline pattern fields  
+    # Inline pattern fields
     network: str | None = Field(None, description="Network to execute swap on")
     from_token: str | None = Field(None, description="Address of token to swap from")
     to_token: str | None = Field(None, description="Address of token to swap to")
@@ -265,7 +262,9 @@ class SmartAccountSwapOptions(BaseModel):
     slippage_bps: int | None = Field(100, description="Slippage tolerance in basis points")
 
     # Smart account specific fields
-    paymaster_url: str | None = Field(None, description="Optional paymaster URL for gas sponsorship")
+    paymaster_url: str | None = Field(
+        None, description="Optional paymaster URL for gas sponsorship"
+    )
     idempotency_key: str | None = Field(None, description="Optional idempotency key")
 
     @field_validator("from_token", "to_token")

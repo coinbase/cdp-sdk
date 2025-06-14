@@ -15,6 +15,8 @@ from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_user_operation import send_user_operation
+from cdp.actions.evm.swap.send_swap_operation import SendSwapOperationResult
+from cdp.actions.evm.swap.types import QuoteSwapResult, SmartAccountSwapOptions
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall
@@ -22,9 +24,6 @@ from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount as EvmSmartAccountModel
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
 from cdp.openapi_client.models.transfer import Transfer
-
-from cdp.actions.evm.swap.send_swap_operation import SendSwapOperationResult
-from cdp.actions.evm.swap.types import QuoteSwapResult, SmartAccountSwapOptions
 
 
 class EvmSmartAccount(BaseModel):
@@ -385,7 +384,7 @@ class EvmSmartAccount(BaseModel):
         Returns:
             SendSwapOperationResult: The user operation result containing:
                 - user_op_hash: The user operation hash
-                - smart_account_address: The smart account address  
+                - smart_account_address: The smart account address
                 - status: The operation status
 
         Raises:
@@ -441,16 +440,18 @@ class EvmSmartAccount(BaseModel):
         if options.swap_quote is not None:
             # Quote-based pattern
             send_options = SendSwapOperationOptions(
-                smart_account=self,
+                smart_account_address=self.address,
+                owner=self.owners[0],
                 network="",  # Will be derived from quote
                 paymaster_url=options.paymaster_url,
                 idempotency_key=options.idempotency_key,
                 swap_quote=options.swap_quote,
             )
         else:
-            # Inline pattern  
+            # Inline pattern
             send_options = SendSwapOperationOptions(
-                smart_account=self,
+                smart_account_address=self.address,
+                owner=self.owners[0],
                 network=options.network,
                 paymaster_url=options.paymaster_url,
                 idempotency_key=options.idempotency_key,

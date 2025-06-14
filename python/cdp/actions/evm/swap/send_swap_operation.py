@@ -1,5 +1,7 @@
 """Send swap operation function for EVM smart accounts."""
 
+from eth_account.signers.base import BaseAccount
+
 from cdp.actions.evm.send_user_operation import send_user_operation
 from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
     SignAndWrapTypedDataForSmartAccountOptions,
@@ -11,7 +13,6 @@ from cdp.actions.evm.swap.types import (
 )
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import EncodedCall
-from cdp.evm_smart_account import EvmSmartAccount
 from cdp.utils import create_deterministic_uuid_v4
 
 
@@ -20,7 +21,8 @@ class SendSwapOperationOptions:
 
     def __init__(
         self,
-        smart_account: EvmSmartAccount,
+        smart_account_address: str,
+        owner: BaseAccount,
         network: str,
         paymaster_url: str | None = None,
         idempotency_key: str | None = None,
@@ -29,14 +31,16 @@ class SendSwapOperationOptions:
         """Initialize the options.
 
         Args:
-            smart_account: The smart account to send the operation from
+            smart_account_address: The address of the smart account
+            owner: The owner account that can sign for the smart account
             network: The network to execute on
             paymaster_url: Optional paymaster URL for gas sponsorship
             idempotency_key: Optional idempotency key for safe retryable requests
             **swap_params: Either swap_quote OR inline parameters (from_token, to_token, etc.)
 
         """
-        self.smart_account = smart_account
+        self.smart_account_address = smart_account_address
+        self.owner = owner
         self.network = network
         self.paymaster_url = paymaster_url
         self.idempotency_key = idempotency_key
@@ -50,7 +54,7 @@ class SendSwapOperationOptions:
             self.from_token = swap_params["from_token"]
             self.to_token = swap_params["to_token"]
             self.from_amount = swap_params["from_amount"]
-            self.taker = swap_params.get("taker", smart_account.address)
+            self.taker = swap_params.get("taker", smart_account_address)
             self.slippage_bps = swap_params.get("slippage_bps", 100)
             self.is_quote_based = False
 
@@ -100,7 +104,8 @@ async def send_swap_operation(
         ```python
         # Using pre-created swap quote
         options = SendSwapOperationOptions(
-            smart_account=smart_account,
+            smart_account_address=smart_account.address,
+            owner=smart_account.owners[0],
             network="base",
             swap_quote=quote,
             idempotency_key="..."
@@ -108,7 +113,8 @@ async def send_swap_operation(
 
         # Using inline parameters
         options = SendSwapOperationOptions(
-            smart_account=smart_account,
+            smart_account_address=smart_account.address,
+            owner=smart_account.owners[0],
             network="base",
             from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             to_token="0x4200000000000000000000000000000000000006",
@@ -145,7 +151,7 @@ async def send_swap_operation(
             network=options.network,
             taker=options.taker,
             slippage_bps=options.slippage_bps,
-            signer_address=options.smart_account.owners[0].address,  # Owner signs for smart account
+            signer_address=options.owner.address,  # Owner signs for smart account
             idempotency_key=quote_idempotency_key,
         )
 
@@ -164,11 +170,21 @@ async def send_swap_operation(
                 options.idempotency_key, "permit2"
             )
 
+        # Create a minimal smart account interface for signing
+        class SmartAccountInterface:
+            def __init__(self, address: str, owners: list[BaseAccount]):
+                self.address = address
+                self.owners = owners
+
+        smart_account_interface = SmartAccountInterface(
+            options.smart_account_address, [options.owner]
+        )
+
         # Sign and wrap the permit2 typed data according to the Coinbase Smart Wallet contract requirements
         sign_result = await sign_and_wrap_typed_data_for_smart_account(
             api_clients,
             SignAndWrapTypedDataForSmartAccountOptions(
-                smart_account=options.smart_account,
+                smart_account=smart_account_interface,
                 chain_id=1 if options.network == "ethereum" else 8453,  # Base chain ID
                 typed_data=swap_data.permit2_data.eip712,
                 owner_index=0,
@@ -199,8 +215,8 @@ async def send_swap_operation(
     # Send the swap as a user operation
     user_operation = await send_user_operation(
         api_clients=api_clients,
-        address=options.smart_account.address,
-        owner=options.smart_account.owners[0],
+        address=options.smart_account_address,
+        owner=options.owner,
         calls=[contract_call],
         network=options.network,
         paymaster_url=options.paymaster_url,
@@ -208,6 +224,6 @@ async def send_swap_operation(
 
     return SendSwapOperationResult(
         user_op_hash=user_operation.user_op_hash,
-        smart_account_address=options.smart_account.address,
+        smart_account_address=options.smart_account_address,
         status=user_operation.status,
     )
