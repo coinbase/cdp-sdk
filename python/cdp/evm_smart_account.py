@@ -442,7 +442,7 @@ class EvmSmartAccount(BaseModel):
             send_options = SendSwapOperationOptions(
                 smart_account_address=self.address,
                 owner=self.owners[0],
-                network="",  # Will be derived from quote
+                network=options.swap_quote.network,  # Get network from quote
                 paymaster_url=options.paymaster_url,
                 idempotency_key=options.idempotency_key,
                 swap_quote=options.swap_quote,
