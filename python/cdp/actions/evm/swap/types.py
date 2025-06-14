@@ -31,7 +31,7 @@ class BaseSendSwapTransactionOptions(BaseModel):
         """Validate address format."""
         if not v.startswith("0x") or len(v) != 42:
             raise ValueError("Address must be a valid Ethereum address (0x + 40 hex chars)")
-        return v.lower()  # Normalize to lowercase
+        return v
 
 
 class QuoteBasedSendSwapTransactionOptions(BaseSendSwapTransactionOptions):
@@ -72,7 +72,7 @@ class InlineSendSwapTransactionOptions(BaseSendSwapTransactionOptions):
         """Validate address format."""
         if not v.startswith("0x") or len(v) != 42:
             raise ValueError("Address must be a valid Ethereum address (0x + 40 hex chars)")
-        return v.lower()  # Normalize to lowercase
+        return v
 
 
 # Discriminated union for send_swap_transaction options
@@ -126,7 +126,7 @@ class SwapParams(BaseModel):
         """Validate address format."""
         if not v.startswith("0x") or len(v) != 42:
             raise ValueError("Address must be a valid Ethereum address (0x + 40 hex chars)")
-        return v.lower()  # Normalize to lowercase
+        return v
 
     @field_validator("taker")
     @classmethod
@@ -136,7 +136,7 @@ class SwapParams(BaseModel):
             return None
         if not v.startswith("0x") or len(v) != 42:
             raise ValueError("Taker address must be a valid Ethereum address (0x + 40 hex chars)")
-        return v.lower()  # Normalize to lowercase
+        return v
 
 
 class QuoteSwapResult(BaseModel):
@@ -168,15 +168,16 @@ class QuoteSwapResult(BaseModel):
     _taker: str | None = PrivateAttr(default=None)
     _signer_address: str | None = PrivateAttr(default=None)
     _api_clients: Any | None = PrivateAttr(default=None)
+    _smart_account: Any | None = PrivateAttr(default=None)
 
-    async def execute(self, idempotency_key: str | None = None) -> str:
+    async def execute(self, idempotency_key: str | None = None) -> "ExecuteSwapQuoteResult":
         """Execute the swap quote.
 
         Args:
             idempotency_key: Optional idempotency key for safe retryable requests.
 
         Returns:
-            str: The transaction hash of the executed swap.
+            ExecuteSwapQuoteResult: The result of the executed swap.
 
         Raises:
             ValueError: If the quote was not created with proper context.
@@ -190,16 +191,52 @@ class QuoteSwapResult(BaseModel):
 
         from cdp.actions.evm.swap import send_swap_transaction
 
-        # Use signer_address if available (for smart accounts), otherwise use taker
-        address = self._signer_address or self._taker
+        # Check if this is a smart account swap by looking for _smart_account
+        if self._smart_account is not None:
+            # Smart account swap
+            from cdp.actions.evm.swap.send_swap_operation import (
+                SendSwapOperationOptions,
+                send_swap_operation,
+            )
 
-        result = await send_swap_transaction(
-            api_clients=self._api_clients,
-            address=address,
-            swap_quote=self,
-            idempotency_key=idempotency_key,
-        )
-        return result.transaction_hash
+            options = SendSwapOperationOptions(
+                smart_account=self._smart_account,
+                network=self.network,
+                swap_quote=self,
+                idempotency_key=idempotency_key,
+            )
+
+            result = await send_swap_operation(
+                api_clients=self._api_clients,
+                options=options,
+            )
+
+            # Return ExecuteSwapQuoteResult for smart account
+            return ExecuteSwapQuoteResult(
+                user_op_hash=result.user_op_hash,
+                smart_account_address=result.smart_account_address,
+                status=result.status,
+            )
+        else:
+            # Regular account swap
+            address = self._taker
+
+            # Create the options object for send_swap_transaction
+            options = QuoteBasedSendSwapTransactionOptions(
+                address=address,
+                swap_quote=self,
+                idempotency_key=idempotency_key,
+            )
+
+            result = await send_swap_transaction(
+                api_clients=self._api_clients,
+                options=options,
+            )
+            
+            # Return ExecuteSwapQuoteResult for regular account
+            return ExecuteSwapQuoteResult(
+                transaction_hash=result.transaction_hash
+            )
 
 
 class AccountSwapOptions(BaseModel):
@@ -313,3 +350,35 @@ class SwapResult(BaseModel):
     to_amount: str = Field(description="The amount that was received")
     quote_id: str = Field(description="The quote ID used for the swap")
     network: str = Field(description="The network the swap was executed on")
+
+
+class AccountSwapResult(BaseModel):
+    """Result of a swap transaction for regular accounts (EOA).
+    
+    Matches TypeScript's SendSwapTransactionResult which contains { transactionHash: Hex }.
+    """
+
+    transaction_hash: str = Field(description="The transaction hash of the submitted swap")
+
+
+class SmartAccountSwapResult(BaseModel):
+    """Result of a swap transaction for smart accounts."""
+
+    user_op_hash: str = Field(description="The user operation hash")
+    smart_account_address: str = Field(description="The smart account address")
+    status: str = Field(description="The user operation status")
+
+
+class ExecuteSwapQuoteResult(BaseModel):
+    """Result of executing a swap quote via QuoteSwapResult.execute().
+
+    Can contain either transaction hash (for EOA) or user operation info (for smart accounts).
+    """
+
+    # EOA swap result
+    transaction_hash: str | None = Field(None, description="The transaction hash (for EOA swaps)")
+
+    # Smart account swap result
+    user_op_hash: str | None = Field(None, description="The user operation hash (for smart account swaps)")
+    smart_account_address: str | None = Field(None, description="The smart account address (for smart account swaps)")
+    status: str | None = Field(None, description="The user operation status (for smart account swaps)")

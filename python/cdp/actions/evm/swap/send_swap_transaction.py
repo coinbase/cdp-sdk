@@ -7,10 +7,10 @@ from web3 import Web3
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
 from cdp.actions.evm.swap.types import (
+    AccountSwapResult,
     InlineSendSwapTransactionOptions,
     QuoteBasedSendSwapTransactionOptions,
     SendSwapTransactionOptions,
-    SwapResult,
     SwapUnavailableResult,
 )
 from cdp.evm_transaction_types import TransactionRequestEIP1559
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 async def send_swap_transaction(
     api_clients: "ApiClients",
     options: SendSwapTransactionOptions,
-) -> SwapResult:
+) -> AccountSwapResult:
     """Send a swap transaction using either a pre-created quote or inline parameters.
 
     This function executes a swap using a discriminated union approach that ensures
@@ -36,7 +36,7 @@ async def send_swap_transaction(
         options: Either QuoteBasedSendSwapTransactionOptions or InlineSendSwapTransactionOptions
 
     Returns:
-        SwapResult: The result of the swap transaction
+        AccountSwapResult: The result of the swap transaction
 
     Raises:
         ValueError: If parameters are invalid or liquidity is unavailable
@@ -115,8 +115,6 @@ async def send_swap_transaction(
                 options.idempotency_key, "permit2"
             )
 
-        print("XXX B")
-
         # Sign the Permit2 typed data
         typed_data = swap_data.permit2_data.eip712
         response = await api_clients.evm_accounts.sign_evm_typed_data(
@@ -184,13 +182,5 @@ async def send_swap_transaction(
         idempotency_key=options.idempotency_key,
     )
 
-    # Return the swap result
-    return SwapResult(
-        transaction_hash=tx_hash,
-        from_token=swap_data.from_token,
-        to_token=swap_data.to_token,
-        from_amount=swap_data.from_amount,
-        to_amount=swap_data.to_amount,
-        quote_id=swap_data.quote_id,
-        network=swap_data.network,
-    )
+    # Return the transaction hash
+    return AccountSwapResult(transaction_hash=tx_hash)

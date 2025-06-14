@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Usage: uv run python evm/account_quote_swap.py
+# Usage: uv run python evm/account.quote_swap.py
 
 """
 Example: Account Quote Swap
@@ -38,6 +38,8 @@ import asyncio
 from decimal import Decimal
 
 from cdp import CdpClient
+from cdp.actions.evm.swap import AccountSwapOptions
+from cdp.actions.evm.swap.types import SwapUnavailableResult
 from cdp.utils import parse_units
 from dotenv import load_dotenv
 from web3 import Web3
@@ -121,6 +123,12 @@ async def main():
                 slippage_bps=100,  # 1% slippage tolerance
             )
             
+            # Check if liquidity is available
+            if isinstance(swap_quote, SwapUnavailableResult):
+                print("\n❌ Swap failed: Insufficient liquidity for this swap pair or amount.")
+                print("Try reducing the swap amount or using a different token pair.")
+                return
+            
             # Log swap details
             log_swap_info(swap_quote, from_token, to_token)
             
@@ -137,12 +145,13 @@ async def main():
             print("```python")
             print("# Execute the swap using the quote")
             print("result = await account.swap(")
-            print("    SwapOptions(swap_quote=swap_quote)")
+            print("    AccountSwapOptions(swap_quote=swap_quote)")
             print(")")
             print("# Transaction hash: result.transaction_hash")
             print("")
             print("# Or execute using the quote's execute() method")
-            print("result = await swap_quote.execute()")
+            print("execute_result = await swap_quote.execute()")
+            print("# Transaction hash: execute_result.transaction_hash")
             print("```")
             
         except Exception as error:
@@ -157,9 +166,6 @@ def log_swap_info(swap_quote, from_token: dict, to_token: dict):
         from_token: The token being sent
         to_token: The token being received
     """
-    if not hasattr(swap_quote, 'liquidity_available') or not swap_quote.liquidity_available:
-        return
-
     print("\nSwap Quote Details:")
     print("-------------------")
     
@@ -219,11 +225,8 @@ def validate_swap(swap_quote) -> bool:
     print("\nValidating Swap Quote:")
     print("---------------------")
     
-    if not hasattr(swap_quote, 'liquidity_available') or not swap_quote.liquidity_available:
-        print("❌ Insufficient liquidity available for this swap.")
-        return False
-    else:
-        print("✅ Liquidity available")
+    # Since we already checked for SwapUnavailableResult above, we know liquidity is available
+    print("✅ Liquidity available")
     
     # Check for balance issues (this would need to be implemented based on the actual quote structure)
     # if hasattr(swap_quote, 'issues') and hasattr(swap_quote.issues, 'balance') and swap_quote.issues.balance:
@@ -245,4 +248,4 @@ def validate_swap(swap_quote) -> bool:
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

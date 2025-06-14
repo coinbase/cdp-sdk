@@ -15,8 +15,7 @@ from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_user_operation import send_user_operation
-from cdp.actions.evm.swap.send_swap_operation import SendSwapOperationResult
-from cdp.actions.evm.swap.types import QuoteSwapResult, SmartAccountSwapOptions
+from cdp.actions.evm.swap.types import QuoteSwapResult, SmartAccountSwapOptions, SmartAccountSwapResult
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall
@@ -375,14 +374,14 @@ class EvmSmartAccount(BaseModel):
     async def swap(
         self,
         options: SmartAccountSwapOptions,
-    ) -> SendSwapOperationResult:
+    ) -> SmartAccountSwapResult:
         """Execute a token swap via user operation.
 
         Args:
             options: SmartAccountSwapOptions with either swap_quote OR inline parameters
 
         Returns:
-            SendSwapOperationResult: The user operation result containing:
+            SmartAccountSwapResult: The user operation result containing:
                 - user_op_hash: The user operation hash
                 - smart_account_address: The smart account address
                 - status: The operation status
@@ -440,8 +439,7 @@ class EvmSmartAccount(BaseModel):
         if options.swap_quote is not None:
             # Quote-based pattern
             send_options = SendSwapOperationOptions(
-                smart_account_address=self.address,
-                owner=self.owners[0],
+                smart_account=self,
                 network=options.swap_quote.network,  # Get network from quote
                 paymaster_url=options.paymaster_url,
                 idempotency_key=options.idempotency_key,
@@ -450,8 +448,7 @@ class EvmSmartAccount(BaseModel):
         else:
             # Inline pattern
             send_options = SendSwapOperationOptions(
-                smart_account_address=self.address,
-                owner=self.owners[0],
+                smart_account=self,
                 network=options.network,
                 paymaster_url=options.paymaster_url,
                 idempotency_key=options.idempotency_key,
@@ -525,6 +522,7 @@ class EvmSmartAccount(BaseModel):
             taker=self.address,  # Smart account is the taker (owns the tokens)
             slippage_bps=slippage_bps,
             signer_address=self.owners[0].address,  # Owner signs for the smart account
+            smart_account=self,
             idempotency_key=idempotency_key,
         )
 

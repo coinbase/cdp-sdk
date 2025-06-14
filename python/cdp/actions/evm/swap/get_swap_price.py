@@ -107,9 +107,9 @@ async def get_swap_price(
     # Convert amount to string if it's an integer
     amount_str = str(from_amount)
 
-    # Normalize addresses to lowercase
-    from_address = from_token.lower()
-    to_address = to_token.lower()
+    # Keep addresses in their original format (checksummed)
+    from_address = from_token
+    to_address = to_token
 
     # Convert network to EvmSwapsNetwork enum
     network_enum = EvmSwapsNetwork(network)

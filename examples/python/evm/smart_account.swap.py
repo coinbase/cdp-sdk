@@ -50,7 +50,7 @@ import asyncio
 from decimal import Decimal
 
 from cdp import CdpClient, EncodedCall
-from cdp.actions.evm.swap.types import SmartAccountSwapOptions
+from cdp.actions.evm.swap.types import SmartAccountSwapOptions, SwapUnavailableResult
 from cdp.utils import parse_units
 from dotenv import load_dotenv
 from web3 import Web3
@@ -174,7 +174,7 @@ async def main():
                 )
                 
                 # Step 2: Check if liquidity is available
-                if not hasattr(swap_quote, 'liquidity_available') or not swap_quote.liquidity_available:
+                if isinstance(swap_quote, SwapUnavailableResult):
                     print("\n❌ Swap failed: Insufficient liquidity for this swap pair or amount.")
                     return
                 
@@ -197,7 +197,10 @@ async def main():
                 )
                 
                 # Option B: Using the swap quote's execute() method directly
-                # result = await swap_quote.execute()
+                # execute_result = await swap_quote.execute()
+                # print(f"User operation hash: {execute_result.user_op_hash}")
+                # print(f"Smart account address: {execute_result.smart_account_address}")
+                # print(f"Status: {execute_result.status}")
                 """
 
                 # Wait for user operation completion

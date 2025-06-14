@@ -33,7 +33,7 @@ from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.actions.evm.swap import AccountSwapOptions
-from cdp.actions.evm.swap.types import QuoteSwapResult, SwapResult
+from cdp.actions.evm.swap.types import AccountSwapResult, QuoteSwapResult
 from cdp.api_clients import ApiClients
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
@@ -290,14 +290,14 @@ class EvmServerAccount(BaseAccount, BaseModel):
             transfer_strategy=account_transfer_strategy,
         )
 
-    async def swap(self, swap_options: AccountSwapOptions) -> SwapResult:
+    async def swap(self, swap_options: AccountSwapOptions) -> AccountSwapResult:
         """Execute a token swap.
 
         Args:
             swap_options: The swap options
 
         Returns:
-            SwapResult: The result of the swap transaction
+            AccountSwapResult: The result containing the transaction hash
 
         """
         from cdp.actions.evm.swap.send_swap_transaction import send_swap_transaction

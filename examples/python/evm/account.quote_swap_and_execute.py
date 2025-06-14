@@ -32,7 +32,8 @@ import asyncio
 from decimal import Decimal
 
 from cdp import CdpClient
-from cdp.actions.evm.swap import SwapOptions
+from cdp.actions.evm.swap import AccountSwapOptions
+from cdp.actions.evm.swap.types import SwapUnavailableResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.utils import parse_units
 from dotenv import load_dotenv
@@ -131,7 +132,7 @@ async def main():
             )
             
             # Check if liquidity is available
-            if not hasattr(swap_quote, 'liquidity_available') or not swap_quote.liquidity_available:
+            if isinstance(swap_quote, SwapUnavailableResult):
                 print("\n❌ Swap failed: Insufficient liquidity for this swap pair or amount.")
                 print("Try reducing the swap amount or using a different token pair.")
                 return
@@ -150,7 +151,7 @@ async def main():
             
             # Option A: Execute using account.swap() with the pre-created quote (RECOMMENDED)
             print("Executing swap using account.swap() with pre-created quote...")
-            result = await account.swap(SwapOptions(swap_quote=swap_quote))
+            result = await account.swap(AccountSwapOptions(swap_quote=swap_quote))
             
             # Option B: Execute using the quote's execute() method directly
             # result = await swap_quote.execute()
@@ -236,7 +237,7 @@ def validate_swap_quote(swap_quote) -> bool:
     is_valid = True
     
     # Check liquidity
-    if not hasattr(swap_quote, 'liquidity_available') or not swap_quote.liquidity_available:
+    if isinstance(swap_quote, SwapUnavailableResult):
         print("❌ Insufficient liquidity available")
         is_valid = False
     else:
