@@ -211,8 +211,15 @@ def create_replay_safe_typed_data(
 
     """
     # First hash the original typed data using eth_account
-    encoded_data = encode_typed_data(typed_data)
-    original_hash = Web3.keccak(encoded_data).hex()
+    # Fix: encode_typed_data expects separate parameters, not a dict
+    signable_message = encode_typed_data(
+        full_message=typed_data
+    )
+    original_hash = Web3.keccak(signable_message.body).hex()
+    
+    # Ensure the hash has 0x prefix for bytes32 type
+    if not original_hash.startswith("0x"):
+        original_hash = "0x" + original_hash
 
     # Create and return the replay-safe typed data structure
     return {
