@@ -7,7 +7,6 @@ handling the specific requirements of the smart contract implementation.
 from typing import Any
 
 from eth_abi import encode
-from eth_account.messages import encode_typed_data
 from web3 import Web3
 
 from cdp.api_clients import ApiClients
@@ -210,14 +209,21 @@ def create_replay_safe_typed_data(
         Dict[str, Any]: The EIP-712 typed data structure for the replay-safe hash
 
     """
-    # First hash the original typed data using eth_account
-    # Fix: encode_typed_data expects separate parameters, not a dict
-    signable_message = encode_typed_data(
-        full_message=typed_data
+    # Use eth_account's internal utilities to correctly hash EIP-712 data
+    from eth_account._utils.encode_typed_data import hash_domain
+    from eth_account._utils.encode_typed_data.encoding_and_hashing import hash_struct
+    from eth_utils import keccak
+
+    # Hash the EIP-712 data
+    domain_hash = hash_domain(typed_data["domain"])
+    message_hash = hash_struct(
+        typed_data["primaryType"], typed_data["types"], typed_data["message"]
     )
-    original_hash = Web3.keccak(signable_message.body).hex()
-    
-    # Ensure the hash has 0x prefix for bytes32 type
+
+    # Construct the final hash: keccak256("\x19\x01" || domainSeparator || messageHash)
+    original_hash = keccak(b"\x19\x01" + domain_hash + message_hash).hex()
+
+    # Ensure the hash has 0x prefix
     if not original_hash.startswith("0x"):
         original_hash = "0x" + original_hash
 
