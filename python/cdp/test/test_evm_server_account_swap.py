@@ -251,6 +251,7 @@ class TestEvmServerAccountSwap:
             data="0xabc123def456",
             value="0",
             network="base",
+            gas_limit=200000,
         )
 
         # Step 1: Get quote
