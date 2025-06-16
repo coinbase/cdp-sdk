@@ -31,10 +31,10 @@ import type {
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
 import type {
-  SwapOptions,
-  SwapResult,
-  QuoteSwapOptions,
-  QuoteSwapResult,
+  AccountSwapOptions,
+  AccountSwapResult,
+  AccountQuoteSwapOptions,
+  AccountQuoteSwapResult,
 } from "../../actions/evm/swap/types.js";
 import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
 import type { Address, EIP712Message, Hash, Hex } from "../../types/misc.js";
@@ -134,13 +134,13 @@ export function toEvmServerAccount(
     ): Promise<WaitForFundOperationResult> {
       return waitForFundOperationReceipt(apiClient, options);
     },
-    async quoteSwap(options: QuoteSwapOptions): Promise<QuoteSwapResult> {
+    async quoteSwap(options: AccountQuoteSwapOptions): Promise<AccountQuoteSwapResult> {
       return createSwapQuote(apiClient, {
         ...options,
         taker: this.address,
       });
     },
-    async swap(options: SwapOptions): Promise<SwapResult> {
+    async swap(options: AccountSwapOptions): Promise<AccountSwapResult> {
       return sendSwapTransaction(apiClient, {
         ...options,
         address: this.address,

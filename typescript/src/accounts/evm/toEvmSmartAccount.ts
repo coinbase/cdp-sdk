@@ -23,6 +23,8 @@ import {
   type SendUserOperationReturnType,
   sendUserOperation,
 } from "../../actions/evm/sendUserOperation.js";
+import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
+import { sendSwapOperation } from "../../actions/evm/swap/sendSwapOperation.js";
 import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import {
@@ -33,6 +35,12 @@ import {
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 
 import type { EvmAccount, EvmSmartAccount } from "./types.js";
+import type {
+  SmartAccountQuoteSwapOptions,
+  SmartAccountQuoteSwapResult,
+  SmartAccountSwapOptions,
+  SmartAccountSwapResult,
+} from "../../actions/evm/swap/types.js";
 import type {
   CdpOpenApiClientType,
   EvmSmartAccount as EvmSmartAccountModel,
@@ -128,6 +136,23 @@ export function toEvmSmartAccount(
     ): Promise<WaitForFundOperationResult> {
       return waitForFundOperationReceipt(apiClient, options);
     },
+    async quoteSwap(options: SmartAccountQuoteSwapOptions): Promise<SmartAccountQuoteSwapResult> {
+      return createSwapQuote(apiClient, {
+        ...options,
+        taker: this.address, // Always use smart account's address as taker
+        signerAddress: this.owners[0].address, // Always use owner's address as signer
+        smartAccount: account, // Pass smart account for execute method support
+      });
+    },
+    async swap(options: SmartAccountSwapOptions): Promise<SmartAccountSwapResult> {
+      return sendSwapOperation(apiClient, {
+        ...options,
+        smartAccount: account,
+        taker: this.address, // Always use smart account's address as taker
+        signerAddress: this.owners[0].address, // Always use owner's address as signer
+      });
+    },
+
     name: options.smartAccount.name,
     type: "evm-smart",
   };

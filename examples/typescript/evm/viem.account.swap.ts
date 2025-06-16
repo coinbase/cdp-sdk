@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/viem.swap.ts
+// Usage: pnpm tsx evm/viem.account.swap.ts
 //
 // Required Environment Variable:
 // - VIEM_WALLET_PRIVATE_KEY: The private key of the wallet to use for transactions
@@ -134,14 +134,11 @@ async function main() {
       return;
     }
     
-    // Type assertion after checking
-    const swap = swapResponse as any;
-    
     // Log swap details
-    logSwapInfo(swap, fromToken, toToken);
+    logSwapInfo(swapResponse, fromToken, toToken);
     
     // Validate the swap for any issues
-    if (!validateSwap(swap)) {
+    if (!validateSwap(swapResponse)) {
       return;
     }
     
@@ -149,20 +146,20 @@ async function main() {
     console.log("\nSubmitting the swap transaction using viem wallet...");
     
     // Prepare transaction data
-    let txData = swap.transaction.data as Hex;
+    let txData = swapResponse.transaction!.data as Hex;
     
     // Handle Permit2 signature if needed
-    if (swap.permit2?.eip712) {
+    if (swapResponse.permit2?.eip712) {
       console.log("Signing Permit2 message...");
       
       // Sign the Permit2 typed data message
       // Note: CDP SDK's account.swap() handles this automatically,
       // but with viem we need to sign it manually
       const signature = await account.signTypedData({
-        domain: swap.permit2.eip712.domain,
-        types: swap.permit2.eip712.types,
-        primaryType: swap.permit2.eip712.primaryType,
-        message: swap.permit2.eip712.message,
+        domain: swapResponse.permit2.eip712.domain,
+        types: swapResponse.permit2.eip712.types,
+        primaryType: swapResponse.permit2.eip712.primaryType,
+        message: swapResponse.permit2.eip712.message,
       });
       
       console.log("Permit2 signature obtained");
@@ -180,11 +177,11 @@ async function main() {
     // Send the transaction using viem
     const hash = await walletClient.sendTransaction({
       account,
-      to: swap.transaction.to as Address,
+      to: swapResponse.transaction!.to as Address,
       data: txData,
-      value: swap.transaction.value,
-      gas: swap.transaction.gas,
-      gasPrice: swap.transaction.gasPrice,
+      value: swapResponse.transaction!.value,
+      gas: swapResponse.transaction!.gas,
+      gasPrice: swapResponse.transaction!.gasPrice,
     });
 
     console.log(`Transaction hash: ${hash}`);

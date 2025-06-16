@@ -106,14 +106,18 @@ export interface CreateSwapQuoteOptions {
   fromToken: Address;
   /** The amount to send in atomic units of the token. */
   fromAmount: bigint;
-  /** The address that will perform the swap. */
-  taker?: Address;
-  /** The signer address (only needed if taker is a smart contract). */
+  /** The address receiving the output of the swap. */
+  taker: Address;
+  /** The address signing the swap (only needed if taker is a smart contract, i.e. for smart account swaps). */
   signerAddress?: Address;
-  /** The gas price in Wei. */
+  /** The smart account object (required for smart account execution context only). */
+  smartAccount?: SmartAccount;
+  /** The price per unit of gas in wei. */
   gasPrice?: bigint;
   /** The slippage tolerance in basis points (0-10000). */
   slippageBps?: number;
+  /** The idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -136,6 +140,8 @@ export interface GetSwapPriceOptions {
   gasPrice?: bigint;
   /** The slippage tolerance in basis points (0-10000). */
   slippageBps?: number;
+  /** The idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -186,8 +192,14 @@ export interface ExecuteSwapQuoteOptions {
  * Result of executing a swap quote.
  */
 export interface ExecuteSwapQuoteResult {
-  /** The transaction hash of the executed swap. */
-  transactionHash: Hex;
+  /** The transaction hash of the executed swap (for EOA swaps). */
+  transactionHash?: Hex;
+  /** The user operation hash of the executed swap (for smart account swaps). */
+  userOpHash?: Hex;
+  /** The address of the smart account (for smart account swaps). */
+  smartAccountAddress?: Address;
+  /** The status of the user operation (for smart accounts swaps). */
+  status?: typeof EvmUserOperationStatus.broadcast;
 }
 
 /**
@@ -599,3 +611,18 @@ export type GetSwapQuoteOptions = GetSwapPriceOptions;
 export type GetSwapQuoteResult = GetSwapPriceResult;
 export type SwapQuoteUnavailableResult = SwapUnavailableResult;
 export type SwapPriceUnavailableResult = SwapUnavailableResult;
+
+/**
+ * Options for signing and wrapping EIP-712 typed data with a smart account.
+ * This method handles the full smart account signature flow including replay-safe hashing.
+ */
+export interface SmartAccountSignAndWrapTypedDataOptions {
+  /** The chain ID for the signature (used for replay protection). */
+  chainId: bigint;
+  /** The EIP-712 typed data message to sign. */
+  typedData: EIP712Message;
+  /** The index of the owner to sign with (defaults to 0). */
+  ownerIndex?: bigint;
+  /** Optional idempotency key for the signing request. */
+  idempotencyKey?: string;
+}
