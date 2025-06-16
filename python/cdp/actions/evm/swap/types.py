@@ -68,7 +68,7 @@ class InlineSendSwapTransactionOptions(BaseSendSwapTransactionOptions):
 
     @field_validator("from_token", "to_token", "taker")
     @classmethod
-    def validate_address(cls, v: str) -> str:
+    def validate_token_addresses(cls, v: str) -> str:
         """Validate address format."""
         if not v.startswith("0x") or len(v) != 42:
             raise ValueError("Address must be a valid Ethereum address (0x + 40 hex chars)")
