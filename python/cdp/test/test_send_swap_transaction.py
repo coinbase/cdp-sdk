@@ -24,6 +24,25 @@ class TestSendSwapTransaction:
         api_clients = MagicMock()
         api_clients.evm_swaps = MagicMock()
         api_clients.evm_accounts = MagicMock()
+        
+        # Mock the create_evm_swap_quote_without_preload_content response
+        import json
+        mock_swap_response = MagicMock()
+        mock_swap_response_data = {
+            "liquidityAvailable": False,  # Default to no liquidity for safety
+        }
+        mock_swap_response.read = AsyncMock(
+            return_value=json.dumps(mock_swap_response_data).encode("utf-8")
+        )
+        api_clients.evm_swaps.create_evm_swap_quote_without_preload_content = AsyncMock(
+            return_value=mock_swap_response
+        )
+        
+        # Mock send_evm_transaction
+        mock_send_response = MagicMock()
+        mock_send_response.transaction_hash = "0xmocked_transaction_hash"
+        api_clients.evm_accounts.send_evm_transaction = AsyncMock(return_value=mock_send_response)
+        
         return api_clients
 
     @pytest.fixture
@@ -60,6 +79,7 @@ class TestSendSwapTransaction:
             data="0xabc123def456",
             value="0",
             network="base",
+            gas_limit=200000,  # Add gas_limit
             requires_signature=True,
             permit2_data=Permit2Data(
                 eip712={
@@ -138,6 +158,7 @@ class TestSendSwapTransaction:
             data="0xabc123def456",
             value="0",
             network="base",
+            gas_limit=200000,  # Add gas_limit
         )
 
         with patch(
@@ -275,6 +296,7 @@ class TestSendSwapTransaction:
             data="0xabc123def456",
             value="0",
             network="base",
+            gas_limit=200000,  # Add gas_limit
         )
 
         with patch(
