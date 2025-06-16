@@ -1,6 +1,6 @@
 """Type definitions for swap functionality."""
 
-from typing import Any, Union
+from typing import Any
 
 from pydantic import BaseModel, Field, PrivateAttr, field_validator
 from web3 import Web3

@@ -241,7 +241,7 @@ class TestSendSwapTransaction:
         with patch("cdp.actions.evm.swap.send_swap_transaction.send_transaction") as mock_send_tx:
             mock_send_tx.return_value = "0xtxhash123"
 
-            result = await send_swap_transaction(
+            _ = await send_swap_transaction(
                 api_clients=mock_api_clients,
                 options=options,
             )
@@ -287,7 +287,7 @@ class TestSendSwapTransaction:
             ) as mock_send_tx:
                 mock_send_tx.return_value = "0xtxhash456"
 
-                result = await send_swap_transaction(
+                _ = await send_swap_transaction(
                     api_clients=mock_api_clients,
                     options=options,
                 )
@@ -326,7 +326,7 @@ class TestSendSwapTransaction:
         with patch("cdp.actions.evm.swap.send_swap_transaction.send_transaction") as mock_send_tx:
             mock_send_tx.return_value = "0xtxhash123"
 
-            result = await send_swap_transaction(
+            _ = await send_swap_transaction(
                 api_clients=mock_api_clients,
                 options=options,
             )
