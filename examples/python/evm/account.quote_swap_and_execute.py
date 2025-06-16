@@ -33,7 +33,7 @@ from decimal import Decimal
 
 from cdp import CdpClient
 from cdp.actions.evm.swap import AccountSwapOptions
-from cdp.actions.evm.swap.types import SwapUnavailableResult
+
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.utils import parse_units
 from dotenv import load_dotenv
@@ -132,7 +132,7 @@ async def main():
             )
             
             # Check if liquidity is available
-            if isinstance(swap_quote, SwapUnavailableResult):
+            if not swap_quote.liquidity_available:
                 print("\n❌ Swap failed: Insufficient liquidity for this swap pair or amount.")
                 print("Try reducing the swap amount or using a different token pair.")
                 return
@@ -237,7 +237,7 @@ def validate_swap_quote(swap_quote) -> bool:
     is_valid = True
     
     # Check liquidity
-    if isinstance(swap_quote, SwapUnavailableResult):
+    if not swap_quote.liquidity_available:
         print("❌ Insufficient liquidity available")
         is_valid = False
     else:

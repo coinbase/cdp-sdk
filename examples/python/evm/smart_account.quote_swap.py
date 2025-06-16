@@ -46,7 +46,7 @@ from decimal import Decimal
 
 from cdp import CdpClient
 from cdp.actions.evm.swap import SmartAccountSwapOptions
-from cdp.actions.evm.swap.types import SwapUnavailableResult
+
 from cdp.utils import parse_units
 from dotenv import load_dotenv
 from web3 import Web3
@@ -138,7 +138,7 @@ async def main():
             )
             
             # Check if liquidity is available
-            if isinstance(swap_quote, SwapUnavailableResult):
+            if not swap_quote.liquidity_available:
                 print("\n❌ Swap failed: Insufficient liquidity for this swap pair or amount.")
                 print("Try reducing the swap amount or using a different token pair.")
                 return
