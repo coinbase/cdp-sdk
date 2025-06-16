@@ -86,7 +86,9 @@ class TestSendSwapTransaction:
 
     @pytest.mark.asyncio
     @patch("cdp.actions.evm.swap.send_swap_transaction.send_transaction")
-    async def test_send_swap_transaction_quote_based(self, mock_send_tx, mock_api_clients, mock_swap_quote):
+    async def test_send_swap_transaction_quote_based(
+        self, mock_send_tx, mock_api_clients, mock_swap_quote
+    ):
         """Test send_swap_transaction with pre-created quote."""
         options = QuoteBasedSendSwapTransactionOptions(
             address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
@@ -121,7 +123,9 @@ class TestSendSwapTransaction:
     @pytest.mark.asyncio
     @patch("cdp.actions.evm.swap.send_swap_transaction.send_transaction")
     @patch("cdp.actions.evm.swap.send_swap_transaction.create_swap_quote")
-    async def test_send_swap_transaction_inline(self, mock_create_quote, mock_send_tx, mock_api_clients):
+    async def test_send_swap_transaction_inline(
+        self, mock_create_quote, mock_send_tx, mock_api_clients
+    ):
         """Test send_swap_transaction with inline parameters."""
         options = InlineSendSwapTransactionOptions(
             address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
@@ -169,7 +173,9 @@ class TestSendSwapTransaction:
 
     @pytest.mark.asyncio
     @patch("cdp.actions.evm.swap.send_swap_transaction.create_swap_quote")
-    async def test_send_swap_transaction_inline_no_liquidity(self, mock_create_quote, mock_api_clients):
+    async def test_send_swap_transaction_inline_no_liquidity(
+        self, mock_create_quote, mock_api_clients
+    ):
         """Test send_swap_transaction when no liquidity is available."""
         options = InlineSendSwapTransactionOptions(
             address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
@@ -253,7 +259,9 @@ class TestSendSwapTransaction:
     @pytest.mark.asyncio
     @patch("cdp.actions.evm.swap.send_swap_transaction.send_transaction")
     @patch("cdp.actions.evm.swap.send_swap_transaction.create_swap_quote")
-    async def test_send_swap_transaction_inline_with_idempotency_key(self, mock_create_quote, mock_send_tx, mock_api_clients):
+    async def test_send_swap_transaction_inline_with_idempotency_key(
+        self, mock_create_quote, mock_send_tx, mock_api_clients
+    ):
         """Test inline swap with deterministic idempotency keys."""
         options = InlineSendSwapTransactionOptions(
             address="0x742d35Cc6634C0532925a3b844Bc9e7595f12345",
