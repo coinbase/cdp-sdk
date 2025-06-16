@@ -137,7 +137,7 @@ class TestSignAndWrapTypedDataForSmartAccount:
             owner_index=1,  # Use second owner
         )
 
-        result = await sign_and_wrap_typed_data_for_smart_account(mock_api_clients, options)
+        _ = await sign_and_wrap_typed_data_for_smart_account(mock_api_clients, options)
 
         # Verify the second owner was used
         call_args = mock_api_clients.evm_accounts.sign_evm_typed_data.call_args
@@ -192,7 +192,7 @@ class TestSignAndWrapTypedDataForSmartAccount:
             # No idempotency_key
         )
 
-        result = await sign_and_wrap_typed_data_for_smart_account(mock_api_clients, options)
+        _ = await sign_and_wrap_typed_data_for_smart_account(mock_api_clients, options)
 
         # Verify idempotency key was None
         call_args = mock_api_clients.evm_accounts.sign_evm_typed_data.call_args

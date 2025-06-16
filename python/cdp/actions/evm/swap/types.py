@@ -76,10 +76,7 @@ class InlineSendSwapTransactionOptions(BaseSendSwapTransactionOptions):
 
 
 # Discriminated union for send_swap_transaction options
-SendSwapTransactionOptions = Union[
-    InlineSendSwapTransactionOptions,
-    QuoteBasedSendSwapTransactionOptions,
-]
+SendSwapTransactionOptions = InlineSendSwapTransactionOptions | QuoteBasedSendSwapTransactionOptions
 
 
 class SwapParams(BaseModel):

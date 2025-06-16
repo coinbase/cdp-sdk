@@ -23,7 +23,7 @@ class TestCreateSwapQuote:
 
     @pytest.fixture
     def valid_response_data(self):
-        """Valid swap quote response data."""
+        """Provide valid swap quote response data."""
         return {
             "liquidityAvailable": True,
             "toAmount": "500000000000000",  # 0.0005 WETH
@@ -169,7 +169,7 @@ class TestCreateSwapQuote:
             return_value=mock_response
         )
 
-        result = await create_swap_quote(
+        _ = await create_swap_quote(
             api_clients=mock_api_clients,
             from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             to_token="0x4200000000000000000000000000000000000006",
@@ -195,7 +195,7 @@ class TestCreateSwapQuote:
             return_value=mock_response
         )
 
-        result = await create_swap_quote(
+        _ = await create_swap_quote(
             api_clients=mock_api_clients,
             from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             to_token="0x4200000000000000000000000000000000000006",
@@ -308,7 +308,7 @@ class TestCreateSwapQuote:
             return_value=mock_response
         )
 
-        result = await create_swap_quote(
+        _ = await create_swap_quote(
             api_clients=mock_api_clients,
             from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             to_token="0x4200000000000000000000000000000000000006",

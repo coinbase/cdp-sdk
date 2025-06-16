@@ -222,7 +222,7 @@ class TestEvmServerAccountSwap:
         with patch("cdp.actions.evm.swap.create_swap_quote.create_swap_quote") as mock_create_quote:
             mock_create_quote.return_value = mock_quote
 
-            result = await server_account.quote_swap(
+            _ = await server_account.quote_swap(
                 from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
                 to_token="0x4200000000000000000000000000000000000006",
                 from_amount="1000000",

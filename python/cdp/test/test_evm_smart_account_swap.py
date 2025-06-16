@@ -124,7 +124,7 @@ class TestEvmSmartAccountSwap:
                 status="pending",
             )
 
-            result = await smart_account.swap(swap_options)
+            _ = await smart_account.swap(swap_options)
 
             # Verify paymaster URL from quote was used
             call_args = mock_send_swap.call_args

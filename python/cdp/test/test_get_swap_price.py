@@ -92,7 +92,7 @@ class TestGetSwapPrice:
 
     @pytest.fixture
     def valid_response_data(self):
-        """Valid swap price response data."""
+        """Provide valid swap price response data."""
         return {
             "liquidityAvailable": True,
             "toAmount": "500000000000000",  # 0.0005 WETH
@@ -157,7 +157,7 @@ class TestGetSwapPrice:
             return_value=mock_response
         )
 
-        result = await get_swap_price(
+        _ = await get_swap_price(
             api_clients=mock_api_clients,
             from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             to_token="0x4200000000000000000000000000000000000006",
@@ -284,7 +284,7 @@ class TestGetSwapPrice:
             return_value=mock_response
         )
 
-        result = await get_swap_price(
+        _ = await get_swap_price(
             api_clients=mock_api_clients,
             from_token="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",  # USDC on Ethereum
             to_token="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",  # WETH on Ethereum
