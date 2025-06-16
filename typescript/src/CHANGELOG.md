@@ -1,5 +1,17 @@
 # CDP SDK Changelog
 
+## 1.16.0
+
+### Minor Changes
+
+- [#165](https://github.com/coinbase/cdp-sdk/pull/165) [`b39c739`](https://github.com/coinbase/cdp-sdk/commit/b39c739979e92f97f7dd232e2932442bd0251436) Thanks [@derek-cb](https://github.com/derek-cb)! - Added swap support for EVM Smart Accounts.
+
+- [#165](https://github.com/coinbase/cdp-sdk/pull/165) [`b39c739`](https://github.com/coinbase/cdp-sdk/commit/b39c739979e92f97f7dd232e2932442bd0251436) Thanks [@derek-cb](https://github.com/derek-cb)! - Added idempotency support for getSwapPrice and createSwapQuote
+
+### Patch Changes
+
+- [#165](https://github.com/coinbase/cdp-sdk/pull/165) [`b39c739`](https://github.com/coinbase/cdp-sdk/commit/b39c739979e92f97f7dd232e2932442bd0251436) Thanks [@derek-cb](https://github.com/derek-cb)! - Fix usage of optional idempotency keys for one-line swap approach.
+
 ## 1.15.0
 
 ### Minor Changes
