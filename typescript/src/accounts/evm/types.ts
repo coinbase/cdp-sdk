@@ -53,7 +53,6 @@ export type EvmSmartAccount = Prettify<
   } & SmartAccountActions
 >;
 
-
 /**
  * A network-scoped server-managed ethereum account
  */

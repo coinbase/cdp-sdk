@@ -34,16 +34,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
       transactionHash: "0xtxhash",
     }),
     quoteFund: async (): Promise<Quote> => {
-      const quote = new Quote(
-        mockApiClient,
-        "quote-123",
-        "base",
-        "100",
-        "USD",
-        "100",
-        "eth",
-        []
-      );
+      const quote = new Quote(mockApiClient, "quote-123", "base", "100", "USD", "100", "eth", []);
       return quote;
     },
     fund: async (): Promise<FundOperationResult> => ({
@@ -159,16 +150,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
         transactionHash: "0xtxhash",
       }),
       quoteFund: async (): Promise<Quote> => {
-        const quote = new Quote(
-          mockApiClient,
-          "quote-123",
-          "base",
-          "100",
-          "USD",
-          "100",
-          "eth",
-          []
-        );
+        const quote = new Quote(mockApiClient, "quote-123", "base", "100", "USD", "100", "eth", []);
         return quote;
       },
       fund: async (): Promise<FundOperationResult> => ({
@@ -236,4 +218,3 @@ describe("toNetworkScopedEvmServerAccount", () => {
     });
   });
 });
-

@@ -1,9 +1,6 @@
-import { type TransactionSerializable, getTypesForEIP712Domain, serializeTransaction } from "viem";
-
-import type { EvmServerAccount } from "./types.js";
+import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js";
 import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
-import type { Address, EIP712Message, Hash, Hex } from "../../types/misc.js";
-import type { NetworkScopedEvmServerAccount } from "./types.js";
+import type { Address } from "../../types/misc.js";
 
 /**
  * Options for converting a pre-existing EvmAccount to a NetworkScopedEvmServerAccount.
@@ -43,4 +40,3 @@ export function toNetworkScopedEvmServerAccount(
 
   return account;
 }
-
