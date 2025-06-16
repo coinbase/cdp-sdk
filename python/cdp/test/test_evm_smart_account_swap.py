@@ -22,7 +22,7 @@ class TestEvmSmartAccountSwap:
         """Create mock API clients."""
         api_clients = MagicMock()
         api_clients.evm_swaps = MagicMock()
-        
+
         # Mock the create_evm_swap_quote_without_preload_content response
         mock_swap_response = MagicMock()
         mock_swap_response_data = {
@@ -36,36 +36,42 @@ class TestEvmSmartAccountSwap:
             "fees": {
                 "gasFee": {
                     "amount": "1000000000000000",
-                    "token": "0x0000000000000000000000000000000000000000"
+                    "token": "0x0000000000000000000000000000000000000000",
                 }
             },
-            "issues": {
-                "simulationIncomplete": False
-            },
+            "issues": {"simulationIncomplete": False},
             "transaction": {
                 "to": "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
                 "data": "0xabc123def456",
                 "value": "0",
                 "gas": "200000",
-                "gasPrice": "20000000000"
-            }
+                "gasPrice": "20000000000",
+            },
         }
-        mock_swap_response.read = AsyncMock(return_value=json.dumps(mock_swap_response_data).encode('utf-8'))
-        api_clients.evm_swaps.create_evm_swap_quote_without_preload_content = AsyncMock(return_value=mock_swap_response)
-        
+        mock_swap_response.read = AsyncMock(
+            return_value=json.dumps(mock_swap_response_data).encode("utf-8")
+        )
+        api_clients.evm_swaps.create_evm_swap_quote_without_preload_content = AsyncMock(
+            return_value=mock_swap_response
+        )
+
         api_clients.evm_smart_accounts = MagicMock()
-        
+
         # Mock the prepare_user_operation response
         mock_prepare_user_op = MagicMock()
         mock_prepare_user_op.user_op_hash = "0xmocked_user_op_hash"
-        api_clients.evm_smart_accounts.prepare_user_operation = AsyncMock(return_value=mock_prepare_user_op)
-        
+        api_clients.evm_smart_accounts.prepare_user_operation = AsyncMock(
+            return_value=mock_prepare_user_op
+        )
+
         # Mock the send_user_operation response
         mock_send_user_op = MagicMock()
         mock_send_user_op.user_op_hash = "0xmocked_user_op_hash"
         mock_send_user_op.status = "pending"
-        api_clients.evm_smart_accounts.send_user_operation = AsyncMock(return_value=mock_send_user_op)
-        
+        api_clients.evm_smart_accounts.send_user_operation = AsyncMock(
+            return_value=mock_send_user_op
+        )
+
         return api_clients
 
     @pytest.fixture
@@ -73,15 +79,17 @@ class TestEvmSmartAccountSwap:
         """Create mock owner account."""
         owner = MagicMock()
         owner.address = "0x742d35Cc6634C0532925a3b844Bc9e7595f12345"
-        
+
         # Mock the sign_typed_data method for Permit2 signatures
         owner.sign_typed_data = AsyncMock(return_value="0x" + "0" * 130)  # Mock signature
-        
+
         # Mock the unsafe_sign_hash method for user operation signatures
         mock_signed_payload = MagicMock()
-        mock_signed_payload.signature.hex.return_value = "0" * 130  # Mock signature without 0x prefix
+        mock_signed_payload.signature.hex.return_value = (
+            "0" * 130
+        )  # Mock signature without 0x prefix
         owner.unsafe_sign_hash = AsyncMock(return_value=mock_signed_payload)
-        
+
         return owner
 
     @pytest.fixture
@@ -235,9 +243,7 @@ class TestEvmSmartAccountSwap:
         assert result.to_amount == "500000000000000"
 
     @pytest.mark.asyncio
-    async def test_quote_swap_no_liquidity(
-        self, smart_account, mock_api_clients
-    ):
+    async def test_quote_swap_no_liquidity(self, smart_account, mock_api_clients):
         """Test quote_swap when no liquidity is available."""
         # Override the mock response to indicate no liquidity
         mock_swap_response = MagicMock()
@@ -262,9 +268,7 @@ class TestEvmSmartAccountSwap:
         assert result.liquidity_available is False
 
     @pytest.mark.asyncio
-    async def test_quote_swap_default_slippage(
-        self, smart_account, mock_api_clients
-    ):
+    async def test_quote_swap_default_slippage(self, smart_account, mock_api_clients):
         """Test quote_swap with default slippage."""
         result = await smart_account.quote_swap(
             from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -280,9 +284,7 @@ class TestEvmSmartAccountSwap:
 
     @pytest.mark.asyncio
     @patch("cdp.actions.evm.swap.send_swap_operation")
-    async def test_swap_quote_then_execute(
-        self, mock_send_swap, smart_account, mock_api_clients
-    ):
+    async def test_swap_quote_then_execute(self, mock_send_swap, smart_account, mock_api_clients):
         """Test getting a quote and then executing it."""
         # Step 1: Get a quote using real API mock
         quote = await smart_account.quote_swap(

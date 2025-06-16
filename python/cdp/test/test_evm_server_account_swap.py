@@ -36,12 +36,10 @@ class TestEvmServerAccountSwap:
             "fees": {
                 "gasFee": {
                     "amount": "1000000000000000",
-                    "token": "0x0000000000000000000000000000000000000000"
+                    "token": "0x0000000000000000000000000000000000000000",
                 }
             },
-            "issues": {
-                "simulationIncomplete": False
-            },
+            "issues": {"simulationIncomplete": False},
             "transaction": {
                 "to": "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
                 "data": "0xabc123def456",
@@ -205,9 +203,7 @@ class TestEvmServerAccountSwap:
         assert result.to_amount == "500000000000000"
 
     @pytest.mark.asyncio
-    async def test_quote_swap_no_liquidity(
-        self, server_account, mock_api_clients
-    ):
+    async def test_quote_swap_no_liquidity(self, server_account, mock_api_clients):
         """Test quote_swap when no liquidity is available."""
         # Override the mock response to indicate no liquidity
         mock_swap_response = MagicMock()
@@ -232,9 +228,7 @@ class TestEvmServerAccountSwap:
         assert result.liquidity_available is False
 
     @pytest.mark.asyncio
-    async def test_quote_swap_default_slippage(
-        self, server_account, mock_api_clients
-    ):
+    async def test_quote_swap_default_slippage(self, server_account, mock_api_clients):
         """Test quote_swap with default slippage."""
         result = await server_account.quote_swap(
             from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
