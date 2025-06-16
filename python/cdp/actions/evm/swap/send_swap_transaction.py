@@ -28,8 +28,8 @@ async def send_swap_transaction(
 ) -> AccountSwapResult:
     """Send a swap transaction using either a pre-created quote or inline parameters.
 
-    This function executes a swap using a discriminated union approach that ensures
-    type safety - you either provide a quote OR inline parameters, but not both.
+    This function executes a swap using a either a pre-created quote created by create_swap_quote
+    or inline parameters.
 
     Args:
         api_clients: The API clients instance

@@ -49,7 +49,7 @@ from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccoun
 from cdp.update_account_types import UpdateAccountOptions
 
 if TYPE_CHECKING:
-    from cdp.actions.evm.swap.types import QuoteSwapResult, SwapQuote, SwapUnavailableResult
+    from cdp.actions.evm.swap.types import QuoteSwapResult, SwapPriceResult, SwapUnavailableResult
 
 
 class EvmClient:
@@ -681,7 +681,7 @@ class EvmClient:
         network: str,
         taker: str,
         idempotency_key: str | None = None,
-    ) -> "SwapQuote":
+    ) -> "SwapPriceResult":
         """Get a swap price for swapping tokens.
 
         Args:
@@ -693,7 +693,7 @@ class EvmClient:
             idempotency_key (str, optional): Optional idempotency key for safe retryable requests.
 
         Returns:
-            SwapQuote: The swap price with estimated output amount.
+            SwapPriceResult: The swap price with estimated output amount.
 
         """
         return await swap_get_swap_price(

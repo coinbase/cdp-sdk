@@ -70,7 +70,7 @@ async def create_swap_quote(
     if liquidity is insufficient.
 
     Args:
-        api_clients: The API clients instance for making requests
+        api_clients: The API clients instance
         from_token: The contract address of the token to swap from
         to_token: The contract address of the token to swap to
         from_amount: The amount to swap from (in smallest unit)
@@ -115,11 +115,6 @@ async def create_swap_quote(
     # Convert amount to string if needed
     from_amount_str = str(from_amount)
 
-    # Keep addresses in their original format (checksummed)
-    from_address = from_token
-    to_address = to_token
-    taker_address = taker
-
     # Convert network to enum
     network_enum = EvmSwapsNetwork(network)
 
@@ -130,10 +125,10 @@ async def create_swap_quote(
     # Create swap request
     request = CreateEvmSwapQuoteRequest(
         network=network_enum,
-        from_token=from_address,
-        to_token=to_address,
+        from_token=from_token,
+        to_token=to_token,
         from_amount=from_amount_str,
-        taker=taker_address,
+        taker=taker,
         signer_address=signer_address,
         slippage_bps=slippage_bps,
     )

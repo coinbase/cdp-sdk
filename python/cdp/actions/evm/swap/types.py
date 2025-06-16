@@ -321,16 +321,16 @@ class SmartAccountSwapOptions(BaseModel):
         return v
 
 
-class SwapQuote(BaseModel):
-    """A swap quote from the backend."""
+class SwapPriceResult(BaseModel):
+    """A swap price estimate from get_swap_price."""
 
-    quote_id: str = Field(description="Unique identifier for the quote")
+    quote_id: str = Field(description="Unique identifier for the price estimate")
     from_token: str = Field(description="The token being swapped from")
     to_token: str = Field(description="The token being swapped to")
     from_amount: str = Field(description="The amount being swapped")
     to_amount: str = Field(description="The expected amount to receive")
     price_ratio: str = Field(description="The price ratio between tokens")
-    expires_at: str = Field(description="When the quote expires")
+    expires_at: str = Field(description="When the price estimate expires")
 
 
 class Permit2Data(BaseModel):

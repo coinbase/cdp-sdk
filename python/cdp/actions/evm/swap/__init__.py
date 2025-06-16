@@ -16,7 +16,7 @@ from cdp.actions.evm.swap.types import (
     SmartAccountSwapOptions,
     SmartAccountSwapResult,
     SwapParams,
-    SwapQuote,
+    SwapPriceResult,
     SwapResult,
     SwapUnavailableResult,
 )
@@ -37,7 +37,7 @@ __all__ = [
     "SmartAccountSwapOptions",
     "SmartAccountSwapResult",
     "SwapParams",
-    "SwapQuote",
+    "SwapPriceResult",
     "SwapResult",
     "SwapUnavailableResult",
 ]

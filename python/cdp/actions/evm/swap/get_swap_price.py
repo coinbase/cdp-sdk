@@ -5,7 +5,7 @@ import hashlib
 import json
 from typing import Any
 
-from cdp.actions.evm.swap.types import SwapQuote
+from cdp.actions.evm.swap.types import SwapPriceResult
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.evm_swaps_network import EvmSwapsNetwork
 
@@ -69,14 +69,14 @@ async def get_swap_price(
     network: str,
     taker: str,
     idempotency_key: str | None = None,
-) -> SwapQuote:
+) -> SwapPriceResult:
     """Get a price estimate for swapping tokens on EVM networks.
 
     Gets a price estimate without creating a firm quote. This is useful for
     displaying estimated prices without committing to the swap.
 
     Args:
-        api_clients: The API clients instance for making requests
+        api_clients: The API clients instance
         from_token: The contract address of the token to swap from
         to_token: The contract address of the token to swap to
         from_amount: The amount to swap from (in smallest unit)
@@ -85,7 +85,7 @@ async def get_swap_price(
         idempotency_key: Optional idempotency key for safe retryable requests
 
     Returns:
-        SwapQuote: A price estimate for the swap
+        SwapPriceResult: The swap price with estimated output amount
 
     Raises:
         ValueError: If parameters are invalid
@@ -107,10 +107,6 @@ async def get_swap_price(
     # Convert amount to string if it's an integer
     amount_str = str(from_amount)
 
-    # Keep addresses in their original format (checksummed)
-    from_address = from_token
-    to_address = to_token
-
     # Convert network to EvmSwapsNetwork enum
     network_enum = EvmSwapsNetwork(network)
 
@@ -121,8 +117,8 @@ async def get_swap_price(
 
     response = await api_clients.evm_swaps.get_evm_swap_price_without_preload_content(
         network=network_enum,
-        to_token=to_address,
-        from_token=from_address,
+        to_token=to_token,
+        from_token=from_token,
         from_amount=amount_str,
         taker=taker,
         _headers=headers,
@@ -154,8 +150,8 @@ async def get_swap_price(
         minutes=5
     )  # Default 5 min expiry
 
-    # Convert response to SwapQuote
-    return SwapQuote(
+    # Convert response to SwapPriceResult
+    return SwapPriceResult(
         quote_id=quote_id,
         from_token=from_token,
         to_token=to_token,
