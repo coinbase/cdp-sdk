@@ -830,7 +830,8 @@ swap_quote = await smart_account.quote_swap(
     to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
     from_amount="1000000000000000000",  # 1 WETH (18 decimals)
     network="base",
-    slippage_bps=100  # 1% slippage tolerance
+    slippage_bps=100,  # 1% slippage tolerance
+    # Optional: paymaster_url="https://paymaster.example.com"  # For gas sponsorship
 )
 
 # Step 2: Check if liquidity is available, and/or perform other analysis on the swap quote

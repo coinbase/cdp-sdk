@@ -166,6 +166,7 @@ async def main():
                     to_token=to_token["address"],
                     from_amount=from_amount,
                     slippage_bps=100,  # 1% slippage tolerance
+                    # Optional: paymaster_url="https://paymaster.example.com"  # For gas sponsorship
                 )
                 
                 # Step 2: Check if liquidity is available
@@ -187,7 +188,6 @@ async def main():
                 result = await smart_account.swap(
                     SmartAccountSwapOptions(
                         swap_quote=swap_quote,
-                        # Optional: paymaster_url="https://paymaster.example.com"
                     )
                 )
                 

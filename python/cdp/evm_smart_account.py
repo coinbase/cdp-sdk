@@ -438,10 +438,15 @@ class EvmSmartAccount(BaseModel):
         # Convert SmartAccountSwapOptions to SendSwapOperationOptions
         if options.swap_quote is not None:
             # Quote-based pattern
+            # Use paymaster_url from options if provided, otherwise check if quote has one
+            paymaster_url = options.paymaster_url
+            if paymaster_url is None and hasattr(options.swap_quote, '_paymaster_url'):
+                paymaster_url = options.swap_quote._paymaster_url
+                
             send_options = SendSwapOperationOptions(
                 smart_account=self,
                 network=options.swap_quote.network,  # Get network from quote
-                paymaster_url=options.paymaster_url,
+                paymaster_url=paymaster_url,
                 idempotency_key=options.idempotency_key,
                 swap_quote=options.swap_quote,
             )
@@ -471,6 +476,7 @@ class EvmSmartAccount(BaseModel):
         from_amount: str | int,
         network: str,
         slippage_bps: int | None = None,
+        paymaster_url: str | None = None,
         idempotency_key: str | None = None,
     ) -> QuoteSwapResult:
         """Get a quote for swapping tokens with a smart account.
@@ -484,6 +490,7 @@ class EvmSmartAccount(BaseModel):
             from_amount: The amount to swap from (in smallest unit)
             network: The network to execute the swap on
             slippage_bps: Maximum slippage in basis points (100 = 1%). Defaults to 100.
+            paymaster_url: Optional paymaster URL for gas sponsorship.
             idempotency_key: Optional idempotency key for safe retryable requests.
 
         Returns:
@@ -501,6 +508,7 @@ class EvmSmartAccount(BaseModel):
                 to_token="0x4200000000000000000000000000000000000006",  # WETH
                 from_amount="100000000",  # 100 USDC
                 network="base",
+                paymaster_url="https://paymaster.example.com",  # Optional
                 idempotency_key="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
             )
             print(f"Expected output: {quote.to_amount}")
@@ -523,6 +531,7 @@ class EvmSmartAccount(BaseModel):
             slippage_bps=slippage_bps,
             signer_address=self.owners[0].address,  # Owner signs for the smart account
             smart_account=self,
+            paymaster_url=paymaster_url,
             idempotency_key=idempotency_key,
         )
 

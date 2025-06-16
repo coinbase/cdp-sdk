@@ -60,6 +60,7 @@ async def create_swap_quote(
     slippage_bps: int | None = None,
     signer_address: str | None = None,
     smart_account: Any | None = None,
+    paymaster_url: str | None = None,
     idempotency_key: str | None = None,
 ) -> QuoteSwapResult | SwapUnavailableResult:
     """Create a quote for swapping tokens on EVM networks.
@@ -78,6 +79,7 @@ async def create_swap_quote(
         slippage_bps: Maximum slippage in basis points (100 = 1%, default: 100)
         signer_address: The address that will sign the transaction (for smart accounts)
         smart_account: The smart account object (for smart account execute() support)
+        paymaster_url: Optional paymaster URL for gas sponsorship (for smart accounts)
         idempotency_key: Optional idempotency key for safe retryable requests
 
     Returns:
@@ -211,5 +213,6 @@ async def create_swap_quote(
     result._signer_address = signer_address
     result._api_clients = api_clients
     result._smart_account = smart_account
+    result._paymaster_url = paymaster_url
 
     return result

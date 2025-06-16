@@ -138,6 +138,7 @@ async def main():
                 from_amount=from_amount,
                 network=NETWORK,
                 slippage_bps=100,  # 1% slippage tolerance
+                # Optional: paymaster_url="https://paymaster.example.com"  # For gas sponsorship
             )
             
             # Check if liquidity is available

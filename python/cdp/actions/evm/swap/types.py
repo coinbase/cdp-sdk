@@ -169,6 +169,7 @@ class QuoteSwapResult(BaseModel):
     _signer_address: str | None = PrivateAttr(default=None)
     _api_clients: Any | None = PrivateAttr(default=None)
     _smart_account: Any | None = PrivateAttr(default=None)
+    _paymaster_url: str | None = PrivateAttr(default=None)
 
     async def execute(self, idempotency_key: str | None = None) -> "ExecuteSwapQuoteResult":
         """Execute the swap quote.
@@ -202,6 +203,7 @@ class QuoteSwapResult(BaseModel):
             options = SendSwapOperationOptions(
                 smart_account=self._smart_account,
                 network=self.network,
+                paymaster_url=self._paymaster_url,
                 swap_quote=self,
                 idempotency_key=idempotency_key,
             )
@@ -232,7 +234,7 @@ class QuoteSwapResult(BaseModel):
                 api_clients=self._api_clients,
                 options=options,
             )
-            
+
             # Return ExecuteSwapQuoteResult for regular account
             return ExecuteSwapQuoteResult(
                 transaction_hash=result.transaction_hash
