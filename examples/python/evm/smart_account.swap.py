@@ -156,11 +156,6 @@ async def main():
                     )
                 )
 
-                print(f"\n✅ Smart account swap submitted successfully!")
-                print(f"User operation hash: {result.user_op_hash}")
-                print(f"Smart account address: {result.smart_account_address}")
-                print(f"Status: {result.status}")
-
                 """ Alternative - Approach 2: Create swap quote first, inspect it, then send it separately
                 # This gives you more control to analyze the swap details before execution
                 
@@ -197,11 +192,14 @@ async def main():
                 )
                 
                 # Option B: Using the swap quote's execute() method directly
-                # execute_result = await swap_quote.execute()
-                # print(f"User operation hash: {execute_result.user_op_hash}")
-                # print(f"Smart account address: {execute_result.smart_account_address}")
-                # print(f"Status: {execute_result.status}")
+                # result = await swap_quote.execute()
+
                 """
+
+                print(f"\n✅ Smart account swap submitted successfully!")
+                print(f"User operation hash: {result.user_op_hash}")
+                print(f"Smart account address: {result.smart_account_address}")
+                print(f"Status: {result.status}")
 
                 # Wait for user operation completion
                 receipt = await smart_account.wait_for_user_operation(
