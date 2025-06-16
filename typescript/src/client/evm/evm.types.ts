@@ -25,8 +25,10 @@ import type {
   UpdateEvmAccountBody,
 } from "../../openapi-client/index.js";
 import type { Calls } from "../../types/calls.js";
-import type { Address, EIP712Message, Hex } from "../../types/misc.js";
+import type { Address, Hex } from "../../types/misc.js";
+import type { TypedDataDefinition } from "../../types/typedData.js";
 import type { WaitOptions } from "../../utils/wait.js";
+import type { TypedData, TypedDataDefinition as ViemTypedDataDefinition } from "viem";
 
 /**
  * The EvmClient type, where all OpenApiEvmMethods methods are wrapped.
@@ -242,7 +244,7 @@ export interface CreateSwapQuoteResult {
   /** Permit2 data if required for the swap. */
   permit2?: {
     /** EIP-712 typed data for signing. */
-    eip712: EIP712Message;
+    eip712: TypedDataDefinition;
   };
   /**
    * Execute the swap using the quote.
@@ -382,13 +384,28 @@ export interface GetOrCreateServerAccountOptions {
 }
 
 /**
+ * This type exists because we maintain our own definition of EIP-712 typed data
+ * which enforces the existence of all types. Unfortunately, this means that
+ * we need to redefine the type here to allow for smart account creation with
+ * viem account owners, where viem specifies the types as optional.
+ */
+type SmartAccountOwner = Account & {
+  signTypedData: <
+    const typedData extends TypedData | Record<string, unknown>,
+    primaryType extends keyof typedData | "EIP712Domain" = keyof typedData,
+  >(
+    parameters: ViemTypedDataDefinition<typedData, primaryType>,
+  ) => Promise<Hex>;
+};
+
+/**
  * Options for getting an EVM account, or creating one if it doesn't exist.
  */
 export interface GetOrCreateSmartAccountOptions {
   /** The name of the account. */
   name: string;
   /** The owner of the account. */
-  owner: Account;
+  owner: SmartAccountOwner;
 }
 
 /**
@@ -465,7 +482,7 @@ export interface ListSmartAccountsOptions {
  */
 export interface CreateSmartAccountOptions {
   /** The owner of the account. */
-  owner: Account;
+  owner: SmartAccountOwner;
   /** The idempotency key. */
   idempotencyKey?: string;
   /** The name of the account. */
@@ -503,13 +520,13 @@ export interface SignTypedDataOptions {
   /** The address of the account. */
   address: Address;
   /** The domain of the message. */
-  domain: EIP712Message["domain"];
+  domain: TypedDataDefinition["domain"];
   /** The types of the message. */
-  types: EIP712Message["types"];
+  types: TypedDataDefinition["types"];
   /** The primary type of the message. This is the name of the struct in the `types` object that is the root of the message. */
-  primaryType: EIP712Message["primaryType"];
+  primaryType: TypedDataDefinition["primaryType"];
   /** The message to sign. The structure of this message must match the `primaryType` struct in the `types` object. */
-  message: EIP712Message["message"];
+  message: TypedDataDefinition["message"];
   /** The idempotency key. */
   idempotencyKey?: string;
 }
@@ -620,7 +637,7 @@ export interface SmartAccountSignAndWrapTypedDataOptions {
   /** The chain ID for the signature (used for replay protection). */
   chainId: bigint;
   /** The EIP-712 typed data message to sign. */
-  typedData: EIP712Message;
+  typedData: TypedDataDefinition;
   /** The index of the owner to sign with (defaults to 0). */
   ownerIndex?: bigint;
   /** Optional idempotency key for the signing request. */

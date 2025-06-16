@@ -1,8 +1,13 @@
 import { encodeAbiParameters, encodePacked, hashTypedData, sliceHex } from "viem";
 
+import { TypedDataDefinition } from "../../types/typedData.js";
+
 import type { EvmSmartAccount } from "../../accounts/evm/types.js";
-import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
-import type { EIP712Message, Hex } from "../../types/misc.js";
+import type {
+  CdpOpenApiClientType,
+  EIP712Message as OpenApiEIP712Message,
+} from "../../openapi-client/index.js";
+import type { Hex } from "../../types/misc.js";
 
 /**
  * Options for signing and wrapping EIP-712 typed data with a smart account.
@@ -13,7 +18,7 @@ export interface SignAndWrapTypedDataForSmartAccountOptions {
   /** The chain ID for the signature (used for replay protection). */
   chainId: bigint;
   /** The EIP-712 typed data message to sign. */
-  typedData: EIP712Message;
+  typedData: TypedDataDefinition;
   /** The index of the owner to sign with (defaults to 0). */
   ownerIndex?: bigint;
   /** Optional idempotency key for the signing request. */
@@ -113,7 +118,7 @@ export async function signAndWrapTypedDataForSmartAccount(
   const owner = smartAccount.owners[Number(ownerIndex)];
   const signature = await client.signEvmTypedData(
     owner.address,
-    replaySafeTypedData,
+    replaySafeTypedData as OpenApiEIP712Message,
     options.idempotencyKey,
   );
 
@@ -150,10 +155,10 @@ export function createReplaySafeTypedData({
   chainId,
   smartAccountAddress,
 }: {
-  typedData: EIP712Message;
+  typedData: TypedDataDefinition;
   chainId: bigint;
   smartAccountAddress: Hex;
-}): EIP712Message {
+}): TypedDataDefinition {
   // First hash the original typed data
   const originalHash = hashTypedData(typedData);
 

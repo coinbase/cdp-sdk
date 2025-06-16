@@ -13,6 +13,7 @@ import type {
 import type {
   CdpOpenApiClientType,
   SendEvmTransactionBodyNetwork,
+  EIP712Domain,
 } from "../../../openapi-client/index.js";
 import type { Hex } from "../../../types/misc.js";
 import type { TransactionRequestEIP1559 } from "viem";
@@ -148,7 +149,7 @@ export async function sendSwapTransaction(
     const signature = await client.signEvmTypedData(
       address,
       {
-        domain: swap.permit2.eip712.domain,
+        domain: swap.permit2.eip712.domain as EIP712Domain,
         types: swap.permit2.eip712.types,
         primaryType: swap.permit2.eip712.primaryType,
         message: swap.permit2.eip712.message,

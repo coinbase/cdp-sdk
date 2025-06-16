@@ -1,4 +1,9 @@
-import { type TransactionSerializable, getTypesForEIP712Domain, serializeTransaction } from "viem";
+import {
+  type TransactionSerializable,
+  type TypedDataDomain,
+  getTypesForEIP712Domain,
+  serializeTransaction,
+} from "viem";
 
 import { FundOptions, fund } from "../../actions/evm/fund/fund.js";
 import { Quote } from "../../actions/evm/fund/Quote.js";
@@ -36,8 +41,12 @@ import type {
   AccountQuoteSwapOptions,
   AccountQuoteSwapResult,
 } from "../../actions/evm/swap/types.js";
-import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
-import type { Address, EIP712Message, Hash, Hex } from "../../types/misc.js";
+import type {
+  CdpOpenApiClientType,
+  EIP712Message,
+  EvmAccount,
+} from "../../openapi-client/index.js";
+import type { Address, Hash, Hex } from "../../types/misc.js";
 
 /**
  * Options for converting a pre-existing EvmAccount to a EvmServerAccount.
@@ -83,13 +92,23 @@ export function toEvmServerAccount(
       return result.signedTransaction as Hex;
     },
 
-    async signTypedData(message: EIP712Message) {
-      if (!message.types.EIP712Domain) {
-        message.types.EIP712Domain = getTypesForEIP712Domain({
-          domain: message.domain,
-        });
-      }
-      const result = await apiClient.signEvmTypedData(options.account.address, message);
+    async signTypedData(message) {
+      const messageWithDomain = !message.types?.EIP712Domain
+        ? {
+            ...message,
+            types: {
+              ...message.types,
+              EIP712Domain: getTypesForEIP712Domain({
+                domain: message.domain as TypedDataDomain,
+              }),
+            },
+          }
+        : message;
+
+      const result = await apiClient.signEvmTypedData(
+        options.account.address,
+        messageWithDomain as EIP712Message,
+      );
       return result.signature as Hex;
     },
     async transfer(transferArgs): Promise<TransactionResult> {

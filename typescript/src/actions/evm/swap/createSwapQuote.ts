@@ -14,6 +14,7 @@ import {
   type EvmUserOperationNetwork,
 } from "../../../openapi-client/index.js";
 import { Address, Hex } from "../../../types/misc.js";
+import { TypedDataDefinition } from "../../../types/typedData.js";
 
 import type { EvmSmartAccount } from "../../../accounts/evm/types.js";
 
@@ -131,7 +132,7 @@ export async function createSwapQuote(
                 | undefined,
               salt: swapResponse.permit2.eip712.domain.salt as Hex | undefined,
             },
-            types: swapResponse.permit2.eip712.types,
+            types: swapResponse.permit2.eip712.types as TypedDataDefinition["types"],
             primaryType: swapResponse.permit2.eip712.primaryType,
             message: swapResponse.permit2.eip712.message,
           },

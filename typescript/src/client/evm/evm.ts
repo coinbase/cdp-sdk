@@ -62,7 +62,7 @@ import {
 } from "../../actions/evm/waitForUserOperation.js";
 import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
-import { CdpOpenApiClient } from "../../openapi-client/index.js";
+import { CdpOpenApiClient, EIP712Domain } from "../../openapi-client/index.js";
 import { Hex } from "../../types/misc.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
@@ -981,7 +981,7 @@ export class EvmClient implements EvmClientInterface {
     const signature = await CdpOpenApiClient.signEvmTypedData(
       options.address,
       {
-        domain: options.domain,
+        domain: options.domain as EIP712Domain,
         types: options.types,
         primaryType: options.primaryType,
         message: options.message,
