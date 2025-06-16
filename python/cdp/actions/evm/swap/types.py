@@ -236,9 +236,7 @@ class QuoteSwapResult(BaseModel):
             )
 
             # Return ExecuteSwapQuoteResult for regular account
-            return ExecuteSwapQuoteResult(
-                transaction_hash=result.transaction_hash
-            )
+            return ExecuteSwapQuoteResult(transaction_hash=result.transaction_hash)
 
 
 class AccountSwapOptions(BaseModel):
@@ -356,7 +354,7 @@ class SwapResult(BaseModel):
 
 class AccountSwapResult(BaseModel):
     """Result of a swap transaction for regular accounts (EOA).
-    
+
     Matches TypeScript's SendSwapTransactionResult which contains { transactionHash: Hex }.
     """
 
@@ -381,6 +379,12 @@ class ExecuteSwapQuoteResult(BaseModel):
     transaction_hash: str | None = Field(None, description="The transaction hash (for EOA swaps)")
 
     # Smart account swap result
-    user_op_hash: str | None = Field(None, description="The user operation hash (for smart account swaps)")
-    smart_account_address: str | None = Field(None, description="The smart account address (for smart account swaps)")
-    status: str | None = Field(None, description="The user operation status (for smart account swaps)")
+    user_op_hash: str | None = Field(
+        None, description="The user operation hash (for smart account swaps)"
+    )
+    smart_account_address: str | None = Field(
+        None, description="The smart account address (for smart account swaps)"
+    )
+    status: str | None = Field(
+        None, description="The user operation status (for smart account swaps)"
+    )

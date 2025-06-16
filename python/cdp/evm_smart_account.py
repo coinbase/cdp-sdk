@@ -15,7 +15,11 @@ from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_user_operation import send_user_operation
-from cdp.actions.evm.swap.types import QuoteSwapResult, SmartAccountSwapOptions, SmartAccountSwapResult
+from cdp.actions.evm.swap.types import (
+    QuoteSwapResult,
+    SmartAccountSwapOptions,
+    SmartAccountSwapResult,
+)
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall
@@ -440,9 +444,9 @@ class EvmSmartAccount(BaseModel):
             # Quote-based pattern
             # Use paymaster_url from options if provided, otherwise check if quote has one
             paymaster_url = options.paymaster_url
-            if paymaster_url is None and hasattr(options.swap_quote, '_paymaster_url'):
+            if paymaster_url is None and hasattr(options.swap_quote, "_paymaster_url"):
                 paymaster_url = options.swap_quote._paymaster_url
-                
+
             send_options = SendSwapOperationOptions(
                 smart_account=self,
                 network=options.swap_quote.network,  # Get network from quote
