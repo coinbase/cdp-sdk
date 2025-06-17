@@ -191,7 +191,7 @@ export async function generateWalletJwt(options: WalletJwtOptions): Promise<stri
   };
 
   if (Object.keys(options.requestData).length > 0) {
-    claims.reqHash = hash(JSON.stringify(options.requestData));
+    claims.reqHash = hash(Buffer.from(JSON.stringify(options.requestData)));
   }
 
   try {
