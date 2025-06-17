@@ -33,9 +33,11 @@ describe("toNetworkScopedEvmServerAccount", () => {
     requestFaucet: vi.fn().mockResolvedValue({
       transactionHash: "0xtxhash",
     }),
-    quoteFund: vi.fn().mockResolvedValue(
-      new Quote(mockApiClient, "quote-123", "base", "100", "USD", "100", "eth", [])
-    ),
+    quoteFund: vi
+      .fn()
+      .mockResolvedValue(
+        new Quote(mockApiClient, "quote-123", "base", "100", "USD", "100", "eth", []),
+      ),
     fund: vi.fn().mockResolvedValue({
       id: "op-123",
       network: "base",
