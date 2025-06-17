@@ -36,8 +36,8 @@ async def main():
         print(f"Network: Base\n")
         
         try:
-            # Get the quote
-            quote = await cdp.evm.get_swap_price(
+            # Get the price quote
+            priceQuote = await cdp.evm.get_swap_price(
                 from_token=USDC,
                 to_token=WETH,
                 from_amount="100000000",  # 100 USDC (6 decimals)
@@ -45,19 +45,19 @@ async def main():
                 taker=account.address  # Address where the from_token balance is located
             )
             
-            # Display the quote details
+            # Display the price quote details
             print("📊 Price Quote:")
-            print(f"   Quote ID: {quote.quote_id}")
-            print(f"   From: {Decimal(quote.from_amount) / Decimal(10**6):.2f} USDC")
-            print(f"   To: {Decimal(quote.to_amount) / Decimal(10**18):.6f} WETH")
+            print(f"   Quote ID: {priceQuote.quote_id}")
+            print(f"   From: {Decimal(priceQuote.from_amount) / Decimal(10**6):.2f} USDC")
+            print(f"   To: {Decimal(priceQuote.to_amount) / Decimal(10**18):.6f} WETH")
             
             # Calculate and display the price
-            from_amount_decimal = Decimal(quote.from_amount) / Decimal(10**6)
-            to_amount_decimal = Decimal(quote.to_amount) / Decimal(10**18)
+            from_amount_decimal = Decimal(priceQuote.from_amount) / Decimal(10**6)
+            to_amount_decimal = Decimal(priceQuote.to_amount) / Decimal(10**18)
             price_per_usdc = to_amount_decimal / from_amount_decimal
             
             print(f"   Price: 1 USDC = {price_per_usdc:.8f} WETH")
-            print(f"   Expires at: {quote.expires_at}")
+            print(f"   Expires at: {priceQuote.expires_at}")
             
         except Exception as e:
             print(f"❌ Error getting quote: {e}")

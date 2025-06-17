@@ -15,6 +15,11 @@ from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_user_operation import send_user_operation
+from cdp.actions.evm.swap.types import (
+    QuoteSwapResult,
+    SmartAccountSwapOptions,
+    SmartAccountSwapResult,
+)
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall
@@ -368,6 +373,170 @@ class EvmSmartAccount(BaseModel):
             transfer_id=transfer_id,
             timeout_seconds=timeout_seconds,
             interval_seconds=interval_seconds,
+        )
+
+    async def swap(
+        self,
+        options: SmartAccountSwapOptions,
+    ) -> SmartAccountSwapResult:
+        """Execute a token swap via user operation.
+
+        Args:
+            options: SmartAccountSwapOptions with either swap_quote OR inline parameters
+
+        Returns:
+            SmartAccountSwapResult: The user operation result containing:
+                - user_op_hash: The user operation hash
+                - smart_account_address: The smart account address
+                - status: The operation status
+
+        Raises:
+            ValueError: If liquidity is not available for the swap
+            Exception: If the swap operation fails
+
+        Examples:
+            **Using pre-created swap quote (recommended for inspecting details first)**:
+            ```python
+            from cdp.actions.evm.swap.types import SmartAccountSwapOptions
+
+            # First create a quote
+            quote = await smart_account.quote_swap(
+                from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+                to_token="0x4200000000000000000000000000000000000006",  # WETH
+                from_amount="100000000",  # 100 USDC
+                network="base",
+                idempotency_key="..."
+            )
+
+            # Then execute the swap
+            result = await smart_account.swap(
+                SmartAccountSwapOptions(
+                    swap_quote=quote,
+                    idempotency_key="..."
+                )
+            )
+            ```
+
+            **Using inline parameters (all-in-one pattern)**:
+            ```python
+            from cdp.actions.evm.swap.types import SmartAccountSwapOptions
+
+            result = await smart_account.swap(
+                SmartAccountSwapOptions(
+                    network="base",
+                    from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+                    to_token="0x4200000000000000000000000000000000000006",  # WETH
+                    from_amount="100000000",  # 100 USDC
+                    slippage_bps=100,  # 1% slippage
+                    idempotency_key="..."
+                )
+            )
+            ```
+
+        """
+        from cdp.actions.evm.swap.send_swap_operation import (
+            SendSwapOperationOptions,
+            send_swap_operation,
+        )
+
+        # Convert SmartAccountSwapOptions to SendSwapOperationOptions
+        if options.swap_quote is not None:
+            # Quote-based pattern
+            # Use paymaster_url from options if provided, otherwise check if quote has one
+            paymaster_url = options.paymaster_url
+            if paymaster_url is None and hasattr(options.swap_quote, "_paymaster_url"):
+                paymaster_url = options.swap_quote._paymaster_url
+
+            send_options = SendSwapOperationOptions(
+                smart_account=self,
+                network=options.swap_quote.network,  # Get network from quote
+                paymaster_url=paymaster_url,
+                idempotency_key=options.idempotency_key,
+                swap_quote=options.swap_quote,
+            )
+        else:
+            # Inline pattern
+            send_options = SendSwapOperationOptions(
+                smart_account=self,
+                network=options.network,
+                paymaster_url=options.paymaster_url,
+                idempotency_key=options.idempotency_key,
+                from_token=options.from_token,
+                to_token=options.to_token,
+                from_amount=options.from_amount,
+                taker=self.address,  # Smart account is always the taker
+                slippage_bps=options.slippage_bps,
+            )
+
+        return await send_swap_operation(
+            api_clients=self.__api_clients,
+            options=send_options,
+        )
+
+    async def quote_swap(
+        self,
+        from_token: str,
+        to_token: str,
+        from_amount: str | int,
+        network: str,
+        slippage_bps: int | None = None,
+        paymaster_url: str | None = None,
+        idempotency_key: str | None = None,
+    ) -> QuoteSwapResult:
+        """Get a quote for swapping tokens with a smart account.
+
+        This is a convenience method that calls the underlying create_swap_quote
+        with the smart account's address as the taker and the owner's address as the signer.
+
+        Args:
+            from_token: The contract address of the token to swap from
+            to_token: The contract address of the token to swap to
+            from_amount: The amount to swap from (in smallest unit)
+            network: The network to execute the swap on
+            slippage_bps: Maximum slippage in basis points (100 = 1%). Defaults to 100.
+            paymaster_url: Optional paymaster URL for gas sponsorship.
+            idempotency_key: Optional idempotency key for safe retryable requests.
+
+        Returns:
+            QuoteSwapResult: The swap quote with transaction data
+
+        Raises:
+            ValueError: If parameters are invalid or liquidity is unavailable
+            Exception: If the API request fails
+
+        Examples:
+            ```python
+            # Get a quote for swapping USDC to WETH (smart account as taker, owner as signer)
+            quote = await smart_account.quote_swap(
+                from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+                to_token="0x4200000000000000000000000000000000000006",  # WETH
+                from_amount="100000000",  # 100 USDC
+                network="base",
+                paymaster_url="https://paymaster.example.com",  # Optional
+                idempotency_key="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            )
+            print(f"Expected output: {quote.to_amount}")
+
+            # Execute the quote if satisfied
+            result = await smart_account.swap(network="base", swap_quote=quote)
+            ```
+
+        """
+        from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
+
+        # Call create_swap_quote with smart account address as taker and owner address as signer
+        return await create_swap_quote(
+            api_clients=self.__api_clients,
+            from_token=from_token,
+            to_token=to_token,
+            from_amount=from_amount,
+            network=network,
+            taker=self.address,  # Smart account is the taker (owns the tokens)
+            slippage_bps=slippage_bps,
+            signer_address=self.owners[0].address,  # Owner signs for the smart account
+            smart_account=self,
+            paymaster_url=paymaster_url,
+            idempotency_key=idempotency_key,
         )
 
     def __str__(self) -> str:
