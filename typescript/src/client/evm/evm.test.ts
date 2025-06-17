@@ -936,6 +936,47 @@ describe("EvmClient", () => {
 
       expect(result).toEqual({ signature });
     });
+
+    it("should infer EIP712Domain from domain", async () => {
+      const address = "0x789";
+      const domain = {
+        name: "EIP712Domain",
+        chainId: 1,
+        verifyingContract: "0x0000000000000000000000000000000000000000" as Hex,
+      };
+      const types = {};
+      const primaryType = "EIP712Domain";
+      const message = {
+        name: "EIP712Domain",
+        chainId: 1,
+        verifyingContract: "0x0000000000000000000000000000000000000000" as Hex,
+      };
+      const signature = "0xsignature";
+
+      const signTypedDataMock = CdpOpenApiClient.signEvmTypedData as MockedFunction<
+        typeof CdpOpenApiClient.signEvmTypedData
+      >;
+      signTypedDataMock.mockResolvedValue({ signature });
+
+      await client.signTypedData({ address, domain, types, primaryType, message });
+
+      expect(CdpOpenApiClient.signEvmTypedData).toHaveBeenCalledWith(
+        address,
+        {
+          domain,
+          types: {
+            EIP712Domain: [
+              { name: "name", type: "string" },
+              { name: "chainId", type: "uint256" },
+              { name: "verifyingContract", type: "address" },
+            ],
+          },
+          primaryType,
+          message,
+        },
+        undefined,
+      );
+    });
   });
 
   describe("signTransaction", () => {

@@ -1,4 +1,11 @@
-import { type TransactionSerializable, getTypesForEIP712Domain, serializeTransaction } from "viem";
+import {
+  type TransactionSerializable,
+  type TypedDataDefinition,
+  type TypedData,
+  type HashTypedDataParameters,
+  getTypesForEIP712Domain,
+  serializeTransaction,
+} from "viem";
 
 import { FundOptions, fund } from "../../actions/evm/fund/fund.js";
 import { Quote } from "../../actions/evm/fund/Quote.js";
@@ -37,7 +44,7 @@ import type {
   AccountQuoteSwapResult,
 } from "../../actions/evm/swap/types.js";
 import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
-import type { Address, EIP712Message, Hash, Hex } from "../../types/misc.js";
+import type { Address, EIP712Domain, Hash, Hex } from "../../types/misc.js";
 
 /**
  * Options for converting a pre-existing EvmAccount to a EvmServerAccount.
@@ -83,13 +90,24 @@ export function toEvmServerAccount(
       return result.signedTransaction as Hex;
     },
 
-    async signTypedData(message: EIP712Message) {
-      if (!message.types.EIP712Domain) {
-        message.types.EIP712Domain = getTypesForEIP712Domain({
-          domain: message.domain,
-        });
-      }
-      const result = await apiClient.signEvmTypedData(options.account.address, message);
+    async signTypedData<
+      const typedData extends TypedData | Record<string, unknown>,
+      primaryType extends keyof typedData | "EIP712Domain" = keyof typedData,
+    >(parameters: TypedDataDefinition<typedData, primaryType>) {
+      const { domain = {}, message, primaryType } = parameters as HashTypedDataParameters;
+      const types = {
+        EIP712Domain: getTypesForEIP712Domain({ domain }),
+        ...parameters.types,
+      };
+
+      const openApiMessage = {
+        domain: domain as EIP712Domain,
+        types,
+        primaryType,
+        message,
+      };
+
+      const result = await apiClient.signEvmTypedData(options.account.address, openApiMessage);
       return result.signature as Hex;
     },
     async transfer(transferArgs): Promise<TransactionResult> {
