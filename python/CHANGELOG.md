@@ -2,6 +2,21 @@
 
 <!-- towncrier release notes start -->
 
+## [1.14.0] - 2025-06-17
+
+### Features
+
+- **Added swap support for EVM Smart Accounts** ([#200](https://github.com/coinbase/cdp-sdk/pull/200)):
+  
+    - Added the following EVM Smart Account methods: `evm_smart_account.quote_swap()`, `evm_smart_account.swap()`
+    - Added `swap_quote.execute()` method for executing swap quotes generated for EVM Smart Accounts
+
+- Added idempotency support for get_swap_price and create_swap_quote ([#200](https://github.com/coinbase/cdp-sdk/pull/200))
+
+### Bugfixes
+
+  - Fixed usage of optional idempotency keys for one-line swap approach ([#200](https://github.com/coinbase/cdp-sdk/pull/200))
+
 ## [1.13.0] - 2025-06-13
 
 ### Features
