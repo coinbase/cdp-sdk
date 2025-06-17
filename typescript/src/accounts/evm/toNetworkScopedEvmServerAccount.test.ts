@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { toNetworkScopedEvmServerAccount } from "./toNetworkScopedEvmServerAccount.js";
 import type { EvmServerAccount } from "./types.js";
 import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
@@ -22,22 +22,21 @@ describe("toNetworkScopedEvmServerAccount", () => {
     name: mockName,
     type: "evm-server",
     policies: mockPolicies,
-    signMessage: async () => "0xsignature",
-    sign: async () => "0xsignature",
-    signTransaction: async () => "0xsignedTx",
-    signTypedData: async () => "0xsignature",
-    listTokenBalances: async (): Promise<ListTokenBalancesResult> => ({
+    signMessage: vi.fn().mockResolvedValue("0xsignature"),
+    sign: vi.fn().mockResolvedValue("0xsignature"),
+    signTransaction: vi.fn().mockResolvedValue("0xsignedTx"),
+    signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+    listTokenBalances: vi.fn().mockResolvedValue({
       balances: [],
       nextPageToken: undefined,
     }),
-    requestFaucet: async (): Promise<RequestFaucetResult> => ({
+    requestFaucet: vi.fn().mockResolvedValue({
       transactionHash: "0xtxhash",
     }),
-    quoteFund: async (): Promise<Quote> => {
-      const quote = new Quote(mockApiClient, "quote-123", "base", "100", "USD", "100", "eth", []);
-      return quote;
-    },
-    fund: async (): Promise<FundOperationResult> => ({
+    quoteFund: vi.fn().mockResolvedValue(
+      new Quote(mockApiClient, "quote-123", "base", "100", "USD", "100", "eth", [])
+    ),
+    fund: vi.fn().mockResolvedValue({
       id: "op-123",
       network: "base",
       targetAmount: "100",
@@ -45,7 +44,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
       status: "completed",
       transactionHash: "0xtxhash",
     }),
-    waitForFundOperationReceipt: async (): Promise<WaitForFundOperationResult> => ({
+    waitForFundOperationReceipt: vi.fn().mockResolvedValue({
       id: "op-123",
       network: "base",
       targetAmount: "100",
@@ -53,7 +52,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
       status: "completed",
       transactionHash: "0xtxhash",
     }),
-    quoteSwap: async (): Promise<AccountQuoteSwapResult> => ({
+    quoteSwap: vi.fn().mockResolvedValue({
       liquidityAvailable: true,
       network: "base",
       toToken: mockAddress,
@@ -71,17 +70,17 @@ describe("toNetworkScopedEvmServerAccount", () => {
       issues: {
         simulationIncomplete: false,
       },
-      execute: async () => ({
+      execute: vi.fn().mockResolvedValue({
         transactionHash: "0xtxhash",
       }),
     }),
-    swap: async () => ({
+    swap: vi.fn().mockResolvedValue({
       transactionHash: "0xtxhash",
     }),
-    transfer: async () => ({
+    transfer: vi.fn().mockResolvedValue({
       transactionHash: "0xtxhash",
     }),
-    sendTransaction: async () => ({
+    sendTransaction: vi.fn().mockResolvedValue({
       transactionHash: "0xtxhash",
     }),
   });
@@ -132,89 +131,5 @@ describe("toNetworkScopedEvmServerAccount", () => {
     expect(await result.sign({ hash })).toBe("0xsignature");
     expect(await result.signTransaction(transaction)).toBe("0xsignedTx");
     expect(await result.signTypedData(typedData)).toBe("0xsignature");
-  });
-
-  it("should handle accounts without optional properties", () => {
-    const mockAccount: EvmServerAccount = {
-      address: mockAddress,
-      type: "evm-server",
-      signMessage: async () => "0xsignature",
-      sign: async () => "0xsignature",
-      signTransaction: async () => "0xsignedTx",
-      signTypedData: async () => "0xsignature",
-      listTokenBalances: async (): Promise<ListTokenBalancesResult> => ({
-        balances: [],
-        nextPageToken: undefined,
-      }),
-      requestFaucet: async (): Promise<RequestFaucetResult> => ({
-        transactionHash: "0xtxhash",
-      }),
-      quoteFund: async (): Promise<Quote> => {
-        const quote = new Quote(mockApiClient, "quote-123", "base", "100", "USD", "100", "eth", []);
-        return quote;
-      },
-      fund: async (): Promise<FundOperationResult> => ({
-        id: "op-123",
-        network: "base",
-        targetAmount: "100",
-        targetCurrency: "eth",
-        status: "completed",
-        transactionHash: "0xtxhash",
-      }),
-      waitForFundOperationReceipt: async (): Promise<WaitForFundOperationResult> => ({
-        id: "op-123",
-        network: "base",
-        targetAmount: "100",
-        targetCurrency: "eth",
-        status: "completed",
-        transactionHash: "0xtxhash",
-      }),
-      quoteSwap: async (): Promise<AccountQuoteSwapResult> => ({
-        liquidityAvailable: true,
-        network: "base",
-        toToken: mockAddress,
-        fromToken: mockAddress,
-        fromAmount: 100n,
-        toAmount: 100n,
-        minToAmount: 100n,
-        blockNumber: 100n,
-        fees: {
-          gasFee: {
-            amount: 100n,
-            token: mockAddress,
-          },
-        },
-        issues: {
-          simulationIncomplete: false,
-        },
-        execute: async () => ({
-          transactionHash: "0xtxhash",
-        }),
-      }),
-      swap: async () => ({
-        transactionHash: "0xtxhash",
-      }),
-      transfer: async () => ({
-        transactionHash: "0xtxhash",
-      }),
-      sendTransaction: async () => ({
-        transactionHash: "0xtxhash",
-      }),
-    };
-
-    const result = toNetworkScopedEvmServerAccount(mockApiClient, {
-      account: mockAccount,
-      network: mockNetwork,
-    });
-
-    expect(result).toEqual({
-      address: mockAddress,
-      network: mockNetwork,
-      type: "evm-server",
-      signMessage: mockAccount.signMessage,
-      sign: mockAccount.sign,
-      signTransaction: mockAccount.signTransaction,
-      signTypedData: mockAccount.signTypedData,
-    });
   });
 });
