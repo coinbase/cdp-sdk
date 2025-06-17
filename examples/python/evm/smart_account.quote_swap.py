@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-# Usage: uv run python evm/account.quote_swap.py
+# Usage: uv run python evm/smart_account.quote_swap.py
 
 """
-Example: Account Quote Swap
+Example: Smart Account Quote Swap
 
-This example demonstrates how to create a swap quote using the account.quote_swap() method.
-This is a convenience method that automatically includes the account's address as the taker.
+This example demonstrates how to create a swap quote using the smart_account.quote_swap() method.
+This is a convenience method that automatically includes the smart account's address as the taker.
 
 Key differences from cdp.evm.create_swap_quote():
-- account.quote_swap(): Automatically uses the account address as taker
-- account.quote_swap(): More convenient API for account-based swaps
+- smart_account.quote_swap(): Automatically uses the smart account address as taker
+- smart_account.quote_swap(): More convenient API for smart account-based swaps
 - cdp.evm.create_swap_quote(): Requires explicitly specifying the taker address
 - cdp.evm.create_swap_quote(): More flexible for advanced use cases
 
@@ -17,28 +17,35 @@ IMPORTANT: Like create_swap_quote, this signals a soft commitment to swap and ma
 funds on-chain. As such, it is rate-limited more strictly than get_swap_price
 to prevent abuse. Use get_swap_price for more frequent price checks.
 
-Use account.quote_swap() when you need:
-- Complete transaction data ready for execution
+Use smart_account.quote_swap() when you need:
+- Complete user operation data ready for execution
 - Precise swap parameters with high accuracy
-- To inspect transaction details before execution
-- Simplified API for account-based swaps
+- To inspect swap details before execution
+- Simplified API for smart account-based swaps
 
 The quote includes:
-- Transaction data (to, data, value, gas)
+- User operation data (calls, signatures)
 - Permit2 signature requirements for ERC20 swaps
 - Exact amounts with slippage protection
 - Gas estimates and potential issues
 
-Note: For the simplest swap experience, use account.swap() which handles
-quote creation and execution in one call. Use account.quote_swap() when you
+Note: For the simplest swap experience, use smart_account.swap() which handles
+quote creation and execution in one call. Use smart_account.quote_swap() when you
 need more control over the process.
+
+Smart account swaps work differently from regular account swaps:
+- Smart account address is used as the taker (it owns the tokens)
+- Owner signs permit2 messages (not the smart account itself)
+- Uses send_swap_operation → send_user_operation instead of send_swap_transaction
+- Returns user operation hash instead of transaction hash
+- Supports paymaster for gas sponsorship
 """
 
 import asyncio
 from decimal import Decimal
 
 from cdp import CdpClient
-from cdp.actions.evm.swap import AccountSwapOptions
+from cdp.actions.evm.swap import SmartAccountSwapOptions
 
 from cdp.utils import parse_units
 from dotenv import load_dotenv
@@ -68,6 +75,9 @@ TOKENS = {
 # Permit2 contract address is the same across all networks
 PERMIT2_ADDRESS = "0x000000000022D473030F116dDEE9F6B43aC78BA3"
 
+# Web3 instance for transaction monitoring (Base mainnet RPC)
+w3_rpc = Web3(Web3.HTTPProvider('https://mainnet.base.org'))
+
 # ERC20 ABI for allowance and approve functions
 ERC20_ABI = [
     {
@@ -94,13 +104,17 @@ ERC20_ABI = [
 
 
 async def main():
-    """Create a swap quote using account convenience method."""
-    print(f"Note: This example is using {NETWORK} network.")
+    """Create a swap quote using smart account convenience method."""
+    print(f"Note: This example is using {NETWORK} network with smart accounts.")
     
     async with CdpClient() as cdp:
-        # Get or create an account to use for the swap
-        account = await cdp.evm.get_or_create_account(name="SwapAccount")
-        print(f"\nUsing account: {account.address}")
+        # Create an owner account for the smart account
+        owner_account = await cdp.evm.get_or_create_account(name="SmartAccountOwner")
+        print(f"Owner account: {owner_account.address}")
+
+        # Get or create a smart account to use for the swap
+        smart_account = await cdp.evm.get_or_create_smart_account(owner=owner_account, name="SmartAccount")
+        print(f"\nUsing smart account: {smart_account.address}")
         
         try:
             # Define the tokens we're working with
@@ -113,14 +127,15 @@ async def main():
             from_amount_decimal = Decimal(from_amount) / Decimal(10 ** from_token["decimals"])
             print(f"\nCreating a swap quote for {from_amount_decimal:.6f} {from_token['symbol']} to {to_token['symbol']}")
             
-            # Create the swap quote using the account's quote_swap method
-            print("\nFetching swap quote using account.quote_swap()...")
-            swap_quote = await account.quote_swap(
+            # Create the swap quote using the smart account's quote_swap method
+            print("\nFetching swap quote using smart_account.quote_swap()...")
+            swap_quote = await smart_account.quote_swap(
                 from_token=from_token["address"],
                 to_token=to_token["address"],
                 from_amount=from_amount,
                 network=NETWORK,
                 slippage_bps=100,  # 1% slippage tolerance
+                # Optional: paymaster_url="https://paymaster.example.com"  # For gas sponsorship
             )
             
             # Check if liquidity is available
@@ -136,22 +151,22 @@ async def main():
             validate_swap(swap_quote)
             
             print("\nSwap quote created successfully. To execute this swap, you would need to:")
-            print("1. Ensure you have sufficient token allowance for Permit2 contract")
-            print("2. Submit the swap transaction using account.swap({ swap_quote })")
-            print("3. Wait for transaction confirmation")
+            print("1. Ensure your smart account has sufficient token allowance for Permit2 contract")
+            print("2. Submit the swap via user operation using smart_account.swap({ swap_quote })")
+            print("3. Wait for user operation confirmation")
             
-            # Show how to execute the swap using the account.swap() method
+            # Show how to execute the swap using the smart_account.swap() method
             print("\nTo execute this swap, you can use:")
             print("```python")
             print("# Execute the swap using the quote")
-            print("result = await account.swap(")
-            print("    AccountSwapOptions(swap_quote=swap_quote)")
+            print("result = await smart_account.swap(")
+            print("    SmartAccountSwapOptions(swap_quote=swap_quote)")
             print(")")
-            print("# Transaction hash: result.transaction_hash")
+            print("# User operation hash: result.user_op_hash")
             print("")
             print("# Or execute using the quote's execute() method")
             print("execute_result = await swap_quote.execute()")
-            print("# Transaction hash: execute_result.transaction_hash")
+            print("# User operation hash: execute_result.user_op_hash")
             print("```")
             
         except Exception as error:
@@ -234,13 +249,13 @@ def validate_swap(swap_quote) -> bool:
     #     print(f"Current Balance: {swap_quote.issues.balance.current_balance}")
     #     print(f"Required Balance: {swap_quote.issues.balance.required_balance}")
     #     print(f"Token: {swap_quote.issues.balance.token}")
-    #     print("\nInsufficient balance. Please add funds to your account.")
+    #     print("\nInsufficient balance. Please add funds to your smart account.")
     #     return False
     # else:
     print("✅ Sufficient balance")
 
     # if hasattr(swap_quote, 'issues') and hasattr(swap_quote.issues, 'simulation_incomplete') and swap_quote.issues.simulation_incomplete:
-    #     print("⚠️ WARNING: Simulation incomplete. Transaction may fail.")
+    #     print("⚠️ WARNING: Simulation incomplete. User operation may fail.")
     # else:
     print("✅ Simulation complete")
     
@@ -248,4 +263,4 @@ def validate_swap(swap_quote) -> bool:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(main()) 

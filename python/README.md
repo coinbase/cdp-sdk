@@ -7,7 +7,19 @@
 - [Installation](#installation)
 - [API Keys](#api-keys)
 - [Usage](#usage)
-- [Authentication tools](#authentication-tools)
+  - [Initialization](#initialization)
+  - [Creating Accounts](#creating-evm-or-solana-accounts)
+  - [Exporting Accounts](#exporting-evm-or-solana-accounts)
+  - [Creating Accounts with Policies](#creating-evm-or-solana-accounts-with-policies)
+  - [Updating Accounts](#updating-evm-or-solana-accounts)
+  - [Testnet Faucet](#testnet-faucet)
+  - [Sending Transactions](#sending-transactions)
+  - [Transferring Tokens](#transferring-tokens)
+  - [EVM Swaps](#evm-swaps)
+  - [EVM Smart Accounts](#evm-smart-accounts)
+- [Account Actions](#account-actions)
+- [Policy Management](#policy-management)
+- [Authentication Tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
 - [License](#license)
 - [Support](#support)
@@ -696,34 +708,67 @@ tx_hash = await sender.transfer(
 
 ### EVM Swaps
 
-The SDK provides comprehensive support for EVM-based token swaps with multiple approaches to suit different use cases.
+You can use the CDP SDK to swap tokens on EVM networks using both regular accounts (EOAs) and smart accounts.
 
-#### Direct swap with parameters
-The simplest way to perform a swap with a single method call:
+The SDK provides three approaches for performing token swaps:
 
+#### 1. All-in-one pattern (Recommended)
+
+The simplest approach for performing swaps. Creates and executes the swap in a single line of code:
+
+**Regular Account (EOA):**
 ```python
 from cdp import CdpClient
-from cdp.actions.evm.swap import SwapOptions
+from cdp.actions.evm.swap import AccountSwapOptions
 
 async with CdpClient() as cdp:
-    account = await cdp.evm.get_or_create_account(name="swap-example")
+    # Retrieve an existing EVM account with funds already in it
+    account = await cdp.evm.get_or_create_account(name="MyExistingFundedAccount")
     
-    # Swap 100 USDC to WETH
+    # Execute a swap directly on an EVM account in one line
     result = await account.swap(
-        SwapOptions(
+        AccountSwapOptions(
             network="base",
-            from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-            to_token="0x4200000000000000000000000000000000000006",  # WETH
-            from_amount="100000000",  # 100 USDC (6 decimals)
-            slippage_bps=100  # 1% slippage
+            from_token="0x4200000000000000000000000000000000000006",  # WETH on Base
+            to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
+            from_amount="1000000000000000000",  # 1 WETH (18 decimals)
+            slippage_bps=100  # 1% slippage tolerance
         )
     )
     print(f"Transaction hash: {result.transaction_hash}")
-    print(f"Received: {result.to_amount} WETH")
 ```
 
-#### Get pricing information
-Get swap prices without executing to show users expected outcomes:
+**Smart Account:**
+```python
+from cdp import CdpClient
+from cdp.actions.evm.swap import SmartAccountSwapOptions
+
+async with CdpClient() as cdp:
+    # Create or retrieve a smart account with funds already in it
+    owner = await cdp.evm.get_or_create_account(name="MyOwnerAccount")
+    smart_account = await cdp.evm.get_or_create_smart_account(name="MyExistingFundedSmartAccount", owner=owner)
+    
+    # Execute a swap directly on a smart account in one line
+    result = await smart_account.swap(
+        SmartAccountSwapOptions(
+            network="base",
+            from_token="0x4200000000000000000000000000000000000006",  # WETH on Base
+            to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC on Base
+            from_amount="1000000000000000000",  # 1 WETH (18 decimals)
+            slippage_bps=100  # 1% slippage tolerance
+            # Optional: paymaster_url="https://paymaster.example.com"  # For gas sponsorship
+        )
+    )
+    print(f"User operation hash: {result.user_op_hash}")
+    
+    # Wait for the user operation to complete
+    receipt = await smart_account.wait_for_user_operation(user_op_hash=result.user_op_hash)
+    print(f"Status: {receipt.status}")
+```
+
+#### 2. Get pricing information
+
+Use `get_swap_price` for quick price estimates and display purposes. This is ideal for showing exchange rates without committing to a swap:
 
 ```python
 # Get price for swapping 1 WETH to USDC
@@ -732,80 +777,104 @@ price = await cdp.evm.get_swap_price(
     to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
     from_amount="1000000000000000000",  # 1 WETH (18 decimals)
     network="base",
-    taker=account.address  # Required taker parameter
+    taker="0x1234567890123456789012345678901234567890"
 )
-print(f"Expected output: {price.to_amount} USDC")
-print(f"Price ratio: {price.price_ratio}")
-print(f"Expires at: {price.expires_at}")
+
+if price.liquidity_available:
+    print(f"You'll receive: {price.to_amount} USDC")
+    print(f"Minimum after slippage: {price.min_to_amount} USDC")
 ```
 
-#### Create and execute separately
-For more control, create a swap quote first to inspect details before execution:
+**Note:** `get_swap_price` does not reserve funds or signal commitment to swap, making it suitable for more frequent price updates with less strict rate limiting - although the data may be slightly less precise.
 
+#### 3. Create and execute separately
+
+Use `account.quote_swap()` / `smart_account.quote_swap()` when you need full control over the swap process. This returns complete transaction data for execution:
+
+**Important:** `quote_swap()` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `get_swap_price` to prevent abuse.
+
+**Regular Account (EOA):**
 ```python
-# Step 1: Create quote
-quote = await cdp.evm.create_swap_quote(
-    from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-    to_token="0x4200000000000000000000000000000000000006",  # WETH
-    from_amount="100000000",  # 100 USDC
+
+
+# Retrieve an existing EVM account with funds already in it
+account = await cdp.evm.get_or_create_account(name="MyExistingFundedAccount")
+
+# Step 1: Create a swap quote with full transaction details
+swap_quote = await account.quote_swap(
+    from_token="0x4200000000000000000000000000000000000006",  # WETH
+    to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+    from_amount="1000000000000000000",  # 1 WETH (18 decimals)
     network="base",
-    taker=account.address,
-    slippage_bps=500  # 5% slippage
+    slippage_bps=100  # 1% slippage tolerance
 )
 
-# Check if liquidity is available
-if hasattr(quote, 'liquidity_available') and not quote.liquidity_available:
-    print("Swap unavailable: Insufficient liquidity")
+# Step 2: Check if liquidity is available, and/or perform other analysis on the swap quote
+if not swap_quote.liquidity_available:
+    print("Insufficient liquidity for swap")
 else:
-    # Step 2: Review quote details
-    print(f"Quote ID: {quote.quote_id}")
-    print(f"Expected output: {quote.to_amount} WETH")
-    print(f"Min output: {quote.min_to_amount} WETH")
-
-    # Step 3: Execute if satisfied
-    result = await account.swap(
-        SwapOptions(swap_quote=quote)
-    )
+    # Step 3: Execute using the quote
+    result = await swap_quote.execute()
     print(f"Transaction hash: {result.transaction_hash}")
 ```
 
-**Note**: `create_swap_quote` returns either a `QuoteSwapResult` when liquidity is available, or a `SwapUnavailableResult` when liquidity is insufficient. Always check `quote.liquidity_available` before attempting to execute.
-
-#### Account convenience method
-Use `account.quote_swap()` to automatically set the account as taker:
-
+**Smart Account:**
 ```python
-# Create quote with account as taker
-quote = await account.quote_swap(
-    from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-    to_token="0x4200000000000000000000000000000000000006",  # WETH
-    from_amount="100000000",
+# Create or retrieve a smart account with funds already in it
+owner = await cdp.evm.get_or_create_account(name="MyOwnerAccount")
+smart_account = await cdp.evm.get_or_create_smart_account(name="MyExistingFundedSmartAccount", owner=owner)
+
+# Step 1: Create a swap quote with full transaction details for smart account
+swap_quote = await smart_account.quote_swap(
+    from_token="0x4200000000000000000000000000000000000006",  # WETH
+    to_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
+    from_amount="1000000000000000000",  # 1 WETH (18 decimals)
     network="base",
-    slippage_bps=100
+    slippage_bps=100,  # 1% slippage tolerance
+    # Optional: paymaster_url="https://paymaster.example.com"  # For gas sponsorship
 )
 
-# Execute directly on the quote
-tx_hash = await quote.execute()
-print(f"Transaction hash: {tx_hash}")
+# Step 2: Check if liquidity is available, and/or perform other analysis on the swap quote
+if not swap_quote.liquidity_available:
+    print("Insufficient liquidity for swap")
+else:
+    # Step 3: Execute using the quote
+    result = await swap_quote.execute()
+    print(f"User operation hash: {result.user_op_hash}")
+    
+    # Wait for the user operation to complete
+    receipt = await smart_account.wait_for_user_operation(user_op_hash=result.user_op_hash)
+    print(f"Status: {receipt.status}")
 ```
 
-#### Enable direct execution on quotes
-Pass `signer_address` when creating quotes to enable `quote.execute()`:
+#### When to use each approach:
 
-```python
-# Create quote with execution capability
-quote = await cdp.evm.create_swap_quote(
-    from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-    to_token="0x4200000000000000000000000000000000000006",  # WETH
-    from_amount="100000000",
-    network="base",
-    taker=account.address,
-    signer_address=account.address  # Enables quote.execute()
-)
+- **All-in-one (`account.swap()` / `smart_account.swap()`)**: Best for most use cases. Simple, handles everything automatically.
+- **Price only (`get_swap_price`)**: For displaying exchange rates, building price calculators, or checking liquidity without executing. Suitable when frequent price updates are needed - although the data may be slightly less precise.
+- **Create then execute (`account.quote_swap()` / `smart_account.quote_swap()`)**: When you need to inspect swap details, implement custom logic, or handle complex scenarios before execution. Note: May reserve funds on-chain and is more strictly rate-limited.
 
-# Execute directly
-tx_hash = await quote.execute()
-```
+#### Key differences between Regular Accounts (EOAs) and Smart Accounts:
+
+- **Regular accounts (EOAs)** return `transaction_hash` and execute immediately on-chain
+- **Smart accounts** return `user_op_hash` and execute via user operations with optional gas sponsorship through paymasters
+- **Smart accounts** require an owner account for signing operations
+- **Smart accounts** support batch operations and advanced account abstraction features
+
+All approaches handle Permit2 signatures automatically for ERC20 token swaps. Make sure tokens have proper allowances set for the Permit2 contract before swapping.
+
+#### Example implementations
+
+To help you get started with token swaps in your application, we provide the following fully-working examples demonstrating different scenarios:
+
+**Regular account (EOA) swap examples:**
+- [Execute a swap transaction using account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.swap.py) - All-in-one regular account swap execution
+- [Quote swap using account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.quote_swap.py) - Account convenience method for creating quotes
+- [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.quote_swap_and_execute.py) - Detailed two-step approach with analysis
+
+**Smart account swap examples:**
+- [Execute a swap transaction using smart account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart_account.swap.py) - All-in-one smart account swap execution with user operations and optional paymaster support
+- [Quote swap using smart account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart_account.quote_swap.py) - Smart account convenience method for creating quotes
+- [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart_account.quote_swap_and_execute.py) - Detailed two-step approach with analysis
 
 ### EVM Smart Accounts
 
@@ -909,6 +978,8 @@ EvmSmartAccount supports the following actions:
 - `wait_for_user_operation`
 - `get_user_operation`
 - `transfer`
+- `swap`
+- `quote_swap`
 
 SolanaAccount supports the following actions:
 
