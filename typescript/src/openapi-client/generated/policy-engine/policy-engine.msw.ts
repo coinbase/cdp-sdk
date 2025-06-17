@@ -9,9 +9,15 @@ import { faker } from "@faker-js/faker";
 
 import { HttpResponse, delay, http } from "msw";
 
+import { AbiStateMutability, KnownAbiType } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 import type {
+  AbiFunction,
+  AbiInput,
   EthValueCriterion,
   EvmAddressCriterion,
+  EvmDataCriterion,
+  EvmDataParameterCondition,
+  EvmDataParameterConditionList,
   EvmMessageCriterion,
   EvmNetworkCriterion,
   ListPolicies200,
@@ -39,6 +45,111 @@ export const getListPoliciesResponseEvmAddressCriterionMock = (
       () => faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
     ),
     operator: faker.helpers.arrayElement(["in", "not in"] as const),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseAbiFunctionMock = (
+  overrideResponse: Partial<AbiFunction> = {},
+): AbiFunction => ({
+  ...{
+    type: faker.helpers.arrayElement(["function"] as const),
+    name: faker.string.alpha(20),
+    inputs: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        type: faker.string.alpha(20),
+        internalType: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        components: faker.helpers.arrayElement([[], undefined]),
+      }),
+    ),
+    outputs: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        type: faker.string.alpha(20),
+        internalType: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        components: faker.helpers.arrayElement([[], undefined]),
+      }),
+    ),
+    constant: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
+    payable: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
+    stateMutability: faker.helpers.arrayElement(Object.values(AbiStateMutability)),
+    gas: faker.helpers.arrayElement([
+      faker.number.int({ min: undefined, max: undefined }),
+      undefined,
+    ]),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseAbiInputMock = (
+  overrideResponse: Partial<AbiInput> = {},
+): AbiInput => ({
+  ...{
+    type: faker.helpers.arrayElement([
+      "constructor",
+      "error",
+      "event",
+      "fallback",
+      "receive",
+    ] as const),
+    additionalProperties: faker.helpers.arrayElement([{}, undefined]),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseEvmDataParameterConditionMock = (
+  overrideResponse: Partial<EvmDataParameterCondition> = {},
+): EvmDataParameterCondition => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+    value: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseEvmDataParameterConditionListMock = (
+  overrideResponse: Partial<EvmDataParameterConditionList> = {},
+): EvmDataParameterConditionList => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+    values: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.string.alpha(20),
+    ),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseEvmDataCriterionMock = (
+  overrideResponse: Partial<EvmDataCriterion> = {},
+): EvmDataCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["evmData"] as const),
+    abi: faker.helpers.arrayElement([
+      faker.helpers.arrayElement(Object.values(KnownAbiType)),
+      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+        faker.helpers.arrayElement([
+          { ...getListPoliciesResponseAbiFunctionMock() },
+          { ...getListPoliciesResponseAbiInputMock() },
+        ]),
+      ),
+    ]),
+    conditions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        function: faker.string.alpha(20),
+        params: faker.helpers.arrayElement([
+          Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+            faker.helpers.arrayElement([
+              { ...getListPoliciesResponseEvmDataParameterConditionMock() },
+              { ...getListPoliciesResponseEvmDataParameterConditionListMock() },
+            ]),
+          ),
+          undefined,
+        ]),
+      }),
+    ),
   },
   ...overrideResponse,
 });
@@ -99,6 +210,7 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
                   faker.helpers.arrayElement([
                     { ...getListPoliciesResponseEthValueCriterionMock() },
                     { ...getListPoliciesResponseEvmAddressCriterionMock() },
+                    { ...getListPoliciesResponseEvmDataCriterionMock() },
                   ]),
                 ),
               },
@@ -113,6 +225,7 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
                     { ...getListPoliciesResponseEthValueCriterionMock() },
                     { ...getListPoliciesResponseEvmAddressCriterionMock() },
                     { ...getListPoliciesResponseEvmNetworkCriterionMock() },
+                    { ...getListPoliciesResponseEvmDataCriterionMock() },
                   ]),
                 ),
               },
@@ -178,6 +291,111 @@ export const getCreatePolicyResponseEvmAddressCriterionMock = (
   ...overrideResponse,
 });
 
+export const getCreatePolicyResponseAbiFunctionMock = (
+  overrideResponse: Partial<AbiFunction> = {},
+): AbiFunction => ({
+  ...{
+    type: faker.helpers.arrayElement(["function"] as const),
+    name: faker.string.alpha(20),
+    inputs: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        type: faker.string.alpha(20),
+        internalType: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        components: faker.helpers.arrayElement([[], undefined]),
+      }),
+    ),
+    outputs: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        type: faker.string.alpha(20),
+        internalType: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        components: faker.helpers.arrayElement([[], undefined]),
+      }),
+    ),
+    constant: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
+    payable: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
+    stateMutability: faker.helpers.arrayElement(Object.values(AbiStateMutability)),
+    gas: faker.helpers.arrayElement([
+      faker.number.int({ min: undefined, max: undefined }),
+      undefined,
+    ]),
+  },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseAbiInputMock = (
+  overrideResponse: Partial<AbiInput> = {},
+): AbiInput => ({
+  ...{
+    type: faker.helpers.arrayElement([
+      "constructor",
+      "error",
+      "event",
+      "fallback",
+      "receive",
+    ] as const),
+    additionalProperties: faker.helpers.arrayElement([{}, undefined]),
+  },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseEvmDataParameterConditionMock = (
+  overrideResponse: Partial<EvmDataParameterCondition> = {},
+): EvmDataParameterCondition => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+    value: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseEvmDataParameterConditionListMock = (
+  overrideResponse: Partial<EvmDataParameterConditionList> = {},
+): EvmDataParameterConditionList => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+    values: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.string.alpha(20),
+    ),
+  },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseEvmDataCriterionMock = (
+  overrideResponse: Partial<EvmDataCriterion> = {},
+): EvmDataCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["evmData"] as const),
+    abi: faker.helpers.arrayElement([
+      faker.helpers.arrayElement(Object.values(KnownAbiType)),
+      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+        faker.helpers.arrayElement([
+          { ...getCreatePolicyResponseAbiFunctionMock() },
+          { ...getCreatePolicyResponseAbiInputMock() },
+        ]),
+      ),
+    ]),
+    conditions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        function: faker.string.alpha(20),
+        params: faker.helpers.arrayElement([
+          Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+            faker.helpers.arrayElement([
+              { ...getCreatePolicyResponseEvmDataParameterConditionMock() },
+              { ...getCreatePolicyResponseEvmDataParameterConditionListMock() },
+            ]),
+          ),
+          undefined,
+        ]),
+      }),
+    ),
+  },
+  ...overrideResponse,
+});
+
 export const getCreatePolicyResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
@@ -230,6 +448,7 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
           faker.helpers.arrayElement([
             { ...getCreatePolicyResponseEthValueCriterionMock() },
             { ...getCreatePolicyResponseEvmAddressCriterionMock() },
+            { ...getCreatePolicyResponseEvmDataCriterionMock() },
           ]),
         ),
       },
@@ -244,6 +463,7 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getCreatePolicyResponseEthValueCriterionMock() },
             { ...getCreatePolicyResponseEvmAddressCriterionMock() },
             { ...getCreatePolicyResponseEvmNetworkCriterionMock() },
+            { ...getCreatePolicyResponseEvmDataCriterionMock() },
           ]),
         ),
       },
@@ -302,6 +522,111 @@ export const getGetPolicyByIdResponseEvmAddressCriterionMock = (
   ...overrideResponse,
 });
 
+export const getGetPolicyByIdResponseAbiFunctionMock = (
+  overrideResponse: Partial<AbiFunction> = {},
+): AbiFunction => ({
+  ...{
+    type: faker.helpers.arrayElement(["function"] as const),
+    name: faker.string.alpha(20),
+    inputs: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        type: faker.string.alpha(20),
+        internalType: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        components: faker.helpers.arrayElement([[], undefined]),
+      }),
+    ),
+    outputs: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        type: faker.string.alpha(20),
+        internalType: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        components: faker.helpers.arrayElement([[], undefined]),
+      }),
+    ),
+    constant: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
+    payable: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
+    stateMutability: faker.helpers.arrayElement(Object.values(AbiStateMutability)),
+    gas: faker.helpers.arrayElement([
+      faker.number.int({ min: undefined, max: undefined }),
+      undefined,
+    ]),
+  },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseAbiInputMock = (
+  overrideResponse: Partial<AbiInput> = {},
+): AbiInput => ({
+  ...{
+    type: faker.helpers.arrayElement([
+      "constructor",
+      "error",
+      "event",
+      "fallback",
+      "receive",
+    ] as const),
+    additionalProperties: faker.helpers.arrayElement([{}, undefined]),
+  },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseEvmDataParameterConditionMock = (
+  overrideResponse: Partial<EvmDataParameterCondition> = {},
+): EvmDataParameterCondition => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+    value: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseEvmDataParameterConditionListMock = (
+  overrideResponse: Partial<EvmDataParameterConditionList> = {},
+): EvmDataParameterConditionList => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+    values: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.string.alpha(20),
+    ),
+  },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseEvmDataCriterionMock = (
+  overrideResponse: Partial<EvmDataCriterion> = {},
+): EvmDataCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["evmData"] as const),
+    abi: faker.helpers.arrayElement([
+      faker.helpers.arrayElement(Object.values(KnownAbiType)),
+      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+        faker.helpers.arrayElement([
+          { ...getGetPolicyByIdResponseAbiFunctionMock() },
+          { ...getGetPolicyByIdResponseAbiInputMock() },
+        ]),
+      ),
+    ]),
+    conditions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        function: faker.string.alpha(20),
+        params: faker.helpers.arrayElement([
+          Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+            faker.helpers.arrayElement([
+              { ...getGetPolicyByIdResponseEvmDataParameterConditionMock() },
+              { ...getGetPolicyByIdResponseEvmDataParameterConditionListMock() },
+            ]),
+          ),
+          undefined,
+        ]),
+      }),
+    ),
+  },
+  ...overrideResponse,
+});
+
 export const getGetPolicyByIdResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
@@ -354,6 +679,7 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
           faker.helpers.arrayElement([
             { ...getGetPolicyByIdResponseEthValueCriterionMock() },
             { ...getGetPolicyByIdResponseEvmAddressCriterionMock() },
+            { ...getGetPolicyByIdResponseEvmDataCriterionMock() },
           ]),
         ),
       },
@@ -368,6 +694,7 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
             { ...getGetPolicyByIdResponseEthValueCriterionMock() },
             { ...getGetPolicyByIdResponseEvmAddressCriterionMock() },
             { ...getGetPolicyByIdResponseEvmNetworkCriterionMock() },
+            { ...getGetPolicyByIdResponseEvmDataCriterionMock() },
           ]),
         ),
       },
@@ -426,6 +753,111 @@ export const getUpdatePolicyResponseEvmAddressCriterionMock = (
   ...overrideResponse,
 });
 
+export const getUpdatePolicyResponseAbiFunctionMock = (
+  overrideResponse: Partial<AbiFunction> = {},
+): AbiFunction => ({
+  ...{
+    type: faker.helpers.arrayElement(["function"] as const),
+    name: faker.string.alpha(20),
+    inputs: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        type: faker.string.alpha(20),
+        internalType: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        components: faker.helpers.arrayElement([[], undefined]),
+      }),
+    ),
+    outputs: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        type: faker.string.alpha(20),
+        internalType: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        components: faker.helpers.arrayElement([[], undefined]),
+      }),
+    ),
+    constant: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
+    payable: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
+    stateMutability: faker.helpers.arrayElement(Object.values(AbiStateMutability)),
+    gas: faker.helpers.arrayElement([
+      faker.number.int({ min: undefined, max: undefined }),
+      undefined,
+    ]),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseAbiInputMock = (
+  overrideResponse: Partial<AbiInput> = {},
+): AbiInput => ({
+  ...{
+    type: faker.helpers.arrayElement([
+      "constructor",
+      "error",
+      "event",
+      "fallback",
+      "receive",
+    ] as const),
+    additionalProperties: faker.helpers.arrayElement([{}, undefined]),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseEvmDataParameterConditionMock = (
+  overrideResponse: Partial<EvmDataParameterCondition> = {},
+): EvmDataParameterCondition => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+    value: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseEvmDataParameterConditionListMock = (
+  overrideResponse: Partial<EvmDataParameterConditionList> = {},
+): EvmDataParameterConditionList => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+    values: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.string.alpha(20),
+    ),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseEvmDataCriterionMock = (
+  overrideResponse: Partial<EvmDataCriterion> = {},
+): EvmDataCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["evmData"] as const),
+    abi: faker.helpers.arrayElement([
+      faker.helpers.arrayElement(Object.values(KnownAbiType)),
+      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+        faker.helpers.arrayElement([
+          { ...getUpdatePolicyResponseAbiFunctionMock() },
+          { ...getUpdatePolicyResponseAbiInputMock() },
+        ]),
+      ),
+    ]),
+    conditions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        function: faker.string.alpha(20),
+        params: faker.helpers.arrayElement([
+          Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+            faker.helpers.arrayElement([
+              { ...getUpdatePolicyResponseEvmDataParameterConditionMock() },
+              { ...getUpdatePolicyResponseEvmDataParameterConditionListMock() },
+            ]),
+          ),
+          undefined,
+        ]),
+      }),
+    ),
+  },
+  ...overrideResponse,
+});
+
 export const getUpdatePolicyResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
@@ -478,6 +910,7 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
           faker.helpers.arrayElement([
             { ...getUpdatePolicyResponseEthValueCriterionMock() },
             { ...getUpdatePolicyResponseEvmAddressCriterionMock() },
+            { ...getUpdatePolicyResponseEvmDataCriterionMock() },
           ]),
         ),
       },
@@ -492,6 +925,7 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getUpdatePolicyResponseEthValueCriterionMock() },
             { ...getUpdatePolicyResponseEvmAddressCriterionMock() },
             { ...getUpdatePolicyResponseEvmNetworkCriterionMock() },
+            { ...getUpdatePolicyResponseEvmDataCriterionMock() },
           ]),
         ),
       },

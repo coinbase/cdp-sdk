@@ -114,6 +114,7 @@ class SolanaAccountsApi:
             '201': "SolanaAccount",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '409': "Error",
             '422': "Error",
             '500': "Error",
@@ -196,6 +197,7 @@ class SolanaAccountsApi:
             '201': "SolanaAccount",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '409': "Error",
             '422': "Error",
             '500': "Error",
@@ -278,6 +280,7 @@ class SolanaAccountsApi:
             '201': "SolanaAccount",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '409': "Error",
             '422': "Error",
             '500': "Error",
@@ -353,7 +356,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -443,6 +445,7 @@ class SolanaAccountsApi:
             '200': "ExportSolanaAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -529,6 +532,7 @@ class SolanaAccountsApi:
             '200': "ExportSolanaAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -615,6 +619,7 @@ class SolanaAccountsApi:
             '200': "ExportSolanaAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -693,7 +698,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -783,6 +787,7 @@ class SolanaAccountsApi:
             '200': "ExportSolanaAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -869,6 +874,7 @@ class SolanaAccountsApi:
             '200': "ExportSolanaAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -955,6 +961,7 @@ class SolanaAccountsApi:
             '200': "ExportSolanaAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -1033,7 +1040,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1309,7 +1315,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1585,7 +1590,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1874,7 +1878,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1964,6 +1967,7 @@ class SolanaAccountsApi:
             '200': "SignSolanaMessage200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -2051,6 +2055,7 @@ class SolanaAccountsApi:
             '200': "SignSolanaMessage200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -2138,6 +2143,7 @@ class SolanaAccountsApi:
             '200': "SignSolanaMessage200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -2217,7 +2223,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -2307,6 +2312,7 @@ class SolanaAccountsApi:
             '200': "SignSolanaTransaction200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
@@ -2395,6 +2401,7 @@ class SolanaAccountsApi:
             '200': "SignSolanaTransaction200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
@@ -2483,6 +2490,7 @@ class SolanaAccountsApi:
             '200': "SignSolanaTransaction200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
@@ -2563,7 +2571,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -2888,7 +2895,6 @@ class SolanaAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(

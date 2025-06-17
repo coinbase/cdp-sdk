@@ -39,7 +39,9 @@ class TestSignEvmTransactionCriteriaInner(unittest.TestCase):
                 type = 'ethValue',
                 eth_value = '1000000000000000000',
                 operator = 'in',
-                addresses = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e, 0x1234567890123456789012345678901234567890]
+                addresses = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e, 0x1234567890123456789012345678901234567890],
+                abi = erc20,
+                conditions = [{function=approve}, {function=transfer, params=[{name=value, operator=<=, value=10000}, {name=to, operator=in, values=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e]}]}]
             )
         else:
             return SignEvmTransactionCriteriaInner(
@@ -47,6 +49,8 @@ class TestSignEvmTransactionCriteriaInner(unittest.TestCase):
                 eth_value = '1000000000000000000',
                 operator = 'in',
                 addresses = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e, 0x1234567890123456789012345678901234567890],
+                abi = erc20,
+                conditions = [{function=approve}, {function=transfer, params=[{name=value, operator=<=, value=10000}, {name=to, operator=in, values=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e]}]}],
         )
         """
 

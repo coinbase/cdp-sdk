@@ -53,8 +53,8 @@ class EvmUserOperation(BaseModel):
     @field_validator('status')
     def status_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['pending', 'signed', 'broadcast', 'complete', 'failed']):
-            raise ValueError("must be one of enum values ('pending', 'signed', 'broadcast', 'complete', 'failed')")
+        if value not in set(['pending', 'signed', 'broadcast', 'complete', 'dropped', 'failed']):
+            raise ValueError("must be one of enum values ('pending', 'signed', 'broadcast', 'complete', 'dropped', 'failed')")
         return value
 
     @field_validator('transaction_hash')
