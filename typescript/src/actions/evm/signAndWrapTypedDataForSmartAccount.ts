@@ -1,7 +1,10 @@
 import { encodeAbiParameters, encodePacked, hashTypedData, sliceHex } from "viem";
 
 import type { EvmSmartAccount } from "../../accounts/evm/types.js";
-import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
+import type {
+  CdpOpenApiClientType,
+  EIP712Message as OpenApiEIP712Message,
+} from "../../openapi-client/index.js";
 import type { EIP712Message, Hex } from "../../types/misc.js";
 
 /**
@@ -153,7 +156,7 @@ export function createReplaySafeTypedData({
   typedData: EIP712Message;
   chainId: bigint;
   smartAccountAddress: Hex;
-}): EIP712Message {
+}): OpenApiEIP712Message {
   // First hash the original typed data
   const originalHash = hashTypedData(typedData);
 

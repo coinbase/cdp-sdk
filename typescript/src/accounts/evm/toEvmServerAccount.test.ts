@@ -189,8 +189,8 @@ describe("toEvmServerAccount", () => {
       const message = {
         domain: {
           name: "EIP712Domain",
-          chainId: 1,
-          verifyingContract: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          chainId: 1n,
+          verifyingContract: "0x0000000000000000000000000000000000000000" as Address,
         },
         types: {
           EIP712Domain: [
@@ -200,12 +200,7 @@ describe("toEvmServerAccount", () => {
           ],
         },
         primaryType: "EIP712Domain",
-        message: {
-          name: "EIP712Domain",
-          chainId: 1,
-          verifyingContract: "0x0000000000000000000000000000000000000000",
-        },
-      };
+      } as const;
 
       await serverAccount.signTypedData(message);
 
@@ -217,16 +212,11 @@ describe("toEvmServerAccount", () => {
         domain: {
           name: "EIP712Domain",
           chainId: 1,
-          verifyingContract: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          verifyingContract: "0x0000000000000000000000000000000000000000" as Address,
         },
         types: {},
         primaryType: "EIP712Domain",
-        message: {
-          name: "EIP712Domain",
-          chainId: 1,
-          verifyingContract: "0x0000000000000000000000000000000000000000",
-        },
-      };
+      } as const;
 
       await serverAccount.signTypedData(message);
 
