@@ -42,6 +42,8 @@ export type EvmServerAccount = Prettify<
       name?: string;
       /** Indicates this is a server-managed account. */
       type: "evm-server";
+      /** Subject to breaking changes. A function that returns a network-scoped server-managed account. */
+      __experimental_useNetwork: (network: string) => Promise<NetworkScopedEvmServerAccount>;
     }
 >;
 
@@ -54,6 +56,8 @@ type EvmSmartAccountProperties = {
   owners: EvmAccount[];
   /** Identifier for the smart account type. */
   type: "evm-smart";
+  /** Subject to breaking changes. A function that returns a network-scoped smart account. */
+  __experimental_useNetwork: (network: string) => Promise<NetworkScopedEvmSmartAccount>;
 };
 
 /**
@@ -62,7 +66,7 @@ type EvmSmartAccountProperties = {
 export type EvmSmartAccount = Prettify<EvmSmartAccountProperties & SmartAccountActions>;
 
 export type NetworkScopedEvmSmartAccount = Prettify<
-  EvmSmartAccountProperties & {
+  Omit<EvmSmartAccountProperties, "__experimental_useNetwork"> & {
     /** The network to scope the smart account object to. */
     network: string;
   }
@@ -72,7 +76,7 @@ export type NetworkScopedEvmSmartAccount = Prettify<
  * A network-scoped server-managed ethereum account
  */
 export type NetworkScopedEvmServerAccount = Prettify<
-  Omit<EvmServerAccount, keyof AccountActions> & {
+  Omit<EvmServerAccount, keyof AccountActions | "__experimental_useNetwork"> & {
     /** The network this account is scoped to */
     network: string;
   }
