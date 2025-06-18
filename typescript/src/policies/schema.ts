@@ -272,10 +272,7 @@ export const SendEvmTransactionCriteriaSchema = z
   .max(10)
   .min(1);
 
-/**
- * Type representing a set of criteria for the sendEvmTransaction operation.
- * Can contain up to 10 individual criterion objects of ETH value or EVM address types.
- */
+// Type representing a set of criteria for the sendEvmTransaction operation. Can contain up to 10 individual criterion objects of ETH value or EVM address types.
 export type SendEvmTransactionCriteria = z.infer<typeof SendEvmTransactionCriteriaSchema>;
 
 /**
