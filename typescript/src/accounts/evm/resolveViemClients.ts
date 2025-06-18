@@ -42,7 +42,7 @@ function getChain(id: number): Chain {
  */
 function isNetworkIdentifier(input: string): boolean {
   const normalizedInput = input.toLowerCase();
-  return Object.prototype.hasOwnProperty.call(NETWORK_TO_CHAIN_MAP, normalizedInput);
+  return NETWORK_TO_CHAIN_MAP[normalizedInput] !== undefined;
 }
 
 /**
