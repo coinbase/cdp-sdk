@@ -632,7 +632,7 @@ describe("CDP Client E2E Tests", () => {
       0, // Number of read-only signed accounts
       0, // Number of read-only unsigned accounts
       1, // Number of account keys
-      ...accountPublicKey, // Dummy account key (32 bytes)
+      ...accountPublicKey.toBuffer(),
       ...new Uint8Array(32).fill(1), // Recent blockhash (32 bytes)
       1, // Number of instructions
       0, // Program ID index
