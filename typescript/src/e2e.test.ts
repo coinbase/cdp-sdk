@@ -623,6 +623,8 @@ describe("CDP Client E2E Tests", () => {
     });
     expect(signedMessage).toBeDefined();
 
+    const accountPublicKey = new PublicKey(account.address);
+
     // Create a minimal valid transaction structure for the API
     const unsignedTxBytes = new Uint8Array([
       0, // Number of signatures (0 for unsigned)
@@ -630,7 +632,7 @@ describe("CDP Client E2E Tests", () => {
       0, // Number of read-only signed accounts
       0, // Number of read-only unsigned accounts
       1, // Number of account keys
-      ...new Uint8Array(32).fill(0), // Dummy account key (32 bytes)
+      ...accountPublicKey.toBuffer(),
       ...new Uint8Array(32).fill(1), // Recent blockhash (32 bytes)
       1, // Number of instructions
       0, // Program ID index
