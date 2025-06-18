@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.15.0] - 2025-06-18
+
+### Features
+
+- Added the CDP facilitator configuration export for the x402 payment protocol
+
+
 ## [1.14.0] - 2025-06-17
 
 ### Features
