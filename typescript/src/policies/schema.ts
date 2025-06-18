@@ -122,7 +122,7 @@ export const EvmMessageCriterionSchema = z.object({
 export type EvmMessageCriterion = z.infer<typeof EvmMessageCriterionSchema>;
 
 /**
- *A list of comparables to apply against encoded arguments in the transaction's `data` field.
+ * A list of comparables to apply against encoded arguments in the transaction's `data` field.
  */
 export const EvmDataParameterConditionListSchema = z.object({
   /**
