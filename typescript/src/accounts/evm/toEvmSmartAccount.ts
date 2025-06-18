@@ -1,3 +1,4 @@
+import { toNetworkScopedEvmSmartAccount } from "./toNetworkScopedEvmSmartAccount.js";
 import { fund, FundOptions } from "../../actions/evm/fund/fund.js";
 import { Quote } from "../../actions/evm/fund/Quote.js";
 import { quoteFund, QuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
@@ -155,6 +156,13 @@ export function toEvmSmartAccount(
 
     name: options.smartAccount.name,
     type: "evm-smart",
+    __experimental_useNetwork: async (networkOrRpcUrl: string) => {
+      return toNetworkScopedEvmSmartAccount(apiClient, {
+        smartAccount: account,
+        owner: options.owner,
+        network: networkOrRpcUrl,
+      });
+    },
   };
 
   return account;

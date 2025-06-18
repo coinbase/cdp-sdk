@@ -405,7 +405,7 @@ export interface ListServerAccountsOptions {
  * A smart account that only contains the owner address.
  */
 export interface ReadonlySmartAccount
-  extends Omit<SmartAccount, "owners" | keyof SmartAccountActions> {
+  extends Omit<SmartAccount, "owners" | keyof SmartAccountActions | "__experimental_useNetwork"> {
   /** The owners of the smart account. */
   owners: Address[];
 }
