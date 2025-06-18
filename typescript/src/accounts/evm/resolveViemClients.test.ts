@@ -286,6 +286,7 @@ describe("resolveViemClients", () => {
       expect(vi.mocked(createWalletClient)).toHaveBeenCalledWith({
         chain: base,
         transport: mockHttp,
+        account: mockAccount,
       });
       expect(vi.mocked(http)).toHaveBeenCalledWith();
     });
@@ -320,6 +321,7 @@ describe("resolveViemClients", () => {
       expect(vi.mocked(createWalletClient)).toHaveBeenCalledWith({
         chain: base,
         transport: mockHttp,
+        account: mockAccount,
       });
       expect(vi.mocked(http)).toHaveBeenCalledWith(nodeUrl);
     });
