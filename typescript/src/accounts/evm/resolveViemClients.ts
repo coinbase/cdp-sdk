@@ -15,10 +15,14 @@ import * as chains from "viem/chains";
 const NETWORK_TO_CHAIN_MAP: Record<string, Chain> = {
   base: chains.base,
   "base-sepolia": chains.baseSepolia,
-  mainnet: chains.mainnet,
-  ethereum: chains.mainnet,
-  sepolia: chains.sepolia,
-  eth: chains.mainnet,
+  "ethereum": mainnet,
+  "ethereum-sepolia": sepolia,
+  "polygon": polygon,
+  "polygon-mumbai": polygonMumbai,
+  "arbitrum": arbitrum,
+  "arbitrum-sepolia": arbitrumSepolia,
+  "optimism": optimism,
+  "optimism-sepolia": optimismSepolia,
 };
 
 /**
