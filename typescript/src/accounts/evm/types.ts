@@ -67,3 +67,13 @@ export type NetworkScopedEvmSmartAccount = Prettify<
     network: string;
   }
 >;
+
+/**
+ * A network-scoped server-managed ethereum account
+ */
+export type NetworkScopedEvmServerAccount = Prettify<
+  Omit<EvmServerAccount, keyof AccountActions> & {
+    /** The network this account is scoped to */
+    network: string;
+  }
+>;
