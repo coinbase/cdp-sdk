@@ -47,10 +47,10 @@ async function main(sourceAddress?: string) {
       await requestFaucetAndWaitForBalance(cdp, fromAddress, connection);
     }
 
-    const initialFromBalance = await connection.getBalance(new PublicKey(fromAddress));
-    if (initialFromBalance < lamportsToSend) {
+    const balance = await connection.getBalance(new PublicKey(fromAddress));
+    if (balance < lamportsToSend) {
       throw new Error(
-        `Insufficient balance: ${initialFromBalance} lamports, need at least ${lamportsToSend} lamports`
+        `Insufficient balance: ${balance} lamports, need at least ${lamportsToSend} lamports`
       );
     }
 
@@ -66,9 +66,6 @@ async function main(sourceAddress?: string) {
     const { blockhash } = await connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = new PublicKey(feePayer.address);
-
-    // Get initial balances before transaction
-    const initialFeePayerBalance = await connection.getBalance(new PublicKey(feePayer.address));
 
     const serializedTx = Buffer.from(
       transaction.serialize({ requireAllSignatures: false })
@@ -87,8 +84,6 @@ async function main(sourceAddress?: string) {
       address: feePayer.address,
       transaction: signedBase64Tx,
     });
-
-    const tx = Transaction.from(Buffer.from(finalSignedTxResponse.signature, "base64"));
 
     // Send the signed transaction to the network
     const signature = await connection.sendRawTransaction(Buffer.from(finalSignedTxResponse.signature, 'base64'));
@@ -115,30 +110,12 @@ async function main(sourceAddress?: string) {
       `Transaction explorer link: https://explorer.solana.com/tx/${signature}?cluster=devnet`
     );
 
-    // Verify balances after transaction
-    const finalFeePayerBalance = await connection.getBalance(new PublicKey(feePayer.address));
-    const finalFromBalance = await connection.getBalance(new PublicKey(fromAddress));
-    
-    console.log("\nTransaction Balance Changes:");
-    console.log("Fee Payer (Gas Payment):");
-    console.log(`- Initial Balance: ${initialFeePayerBalance / 1e9} SOL`);
-    console.log(`- Final Balance: ${finalFeePayerBalance / 1e9} SOL`);
-    console.log(`- Gas Paid: ${(initialFeePayerBalance - finalFeePayerBalance) / 1e9} SOL`);
-    
-    console.log("\nFunding Account (Transfer):");
-    console.log(`- Initial Balance: ${initialFromBalance / 1e9} SOL`);
-    console.log(`- Final Balance: ${finalFromBalance / 1e9} SOL`);
-    console.log(`- Amount Sent: ${lamportsToSend / 1e9} SOL`);
-    console.log(`- Total Deducted: ${(initialFromBalance - finalFromBalance) / 1e9} SOL`);
-
     return {
       fromAddress,
       destinationAddress,
       amount: lamportsToSend / 1e9,
       signature,
       success: !confirmation.value.err,
-      feePayerGasPaid: (initialFeePayerBalance - finalFeePayerBalance) / 1e9,
-      totalAmountSent: (initialFromBalance - finalFromBalance) / 1e9
     };
   } catch (error) {
     console.error("Error processing SOL transaction:", error);
