@@ -7,6 +7,7 @@ import {
   serializeTransaction,
 } from "viem";
 
+import { toNetworkScopedEvmServerAccount } from "./toNetworkScopedEvmServerAccount.js";
 import { FundOptions, fund } from "../../actions/evm/fund/fund.js";
 import { Quote } from "../../actions/evm/fund/Quote.js";
 import { QuoteFundOptions, quoteFund } from "../../actions/evm/fund/quoteFund.js";
@@ -168,6 +169,12 @@ export function toEvmServerAccount(
     name: options.account.name,
     type: "evm-server",
     policies: options.account.policies,
+    __experimental_useNetwork: async (networkOrRpcUrl: string) => {
+      return toNetworkScopedEvmServerAccount(apiClient, {
+        account,
+        network: networkOrRpcUrl,
+      });
+    },
   };
 
   return account;

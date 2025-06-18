@@ -147,6 +147,7 @@ describe("toEvmServerAccount", () => {
       transfer: expect.any(Function),
       type: "evm-server",
       waitForFundOperationReceipt: expect.any(Function),
+      __experimental_useNetwork: expect.any(Function),
     });
   });
 
@@ -230,6 +231,13 @@ describe("toEvmServerAccount", () => {
           ],
         },
       });
+    });
+  });
+
+  describe("__experimental_useNetwork", () => {
+    it("should return a NetworkScopedEvmServerAccount", async () => {
+      const result = await serverAccount.__experimental_useNetwork("base-sepolia");
+      expect(result.network).toBe("base-sepolia");
     });
   });
 
