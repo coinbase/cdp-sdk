@@ -34,17 +34,19 @@ const CHAIN_ID_TO_CHAIN_MAP: Record<number, Chain> = {
 /**
  * Determines if the input string is a network identifier or a Node URL
  *
- * @param input
+ * @param input - The string to check
+ * @returns True if the input is a network identifier, false otherwise
  */
 function isNetworkIdentifier(input: string): boolean {
   const normalizedInput = input.toLowerCase();
-  return NETWORK_TO_CHAIN_MAP.hasOwnProperty(normalizedInput);
+  return Object.prototype.hasOwnProperty.call(NETWORK_TO_CHAIN_MAP, normalizedInput);
 }
 
 /**
  * Resolves a network identifier to a viem chain
  *
- * @param network
+ * @param network - The network identifier to resolve
+ * @returns The resolved viem chain
  */
 function resolveNetworkToChain(network: string): Chain {
   const chain = NETWORK_TO_CHAIN_MAP[network.toLowerCase()];
@@ -57,7 +59,8 @@ function resolveNetworkToChain(network: string): Chain {
 /**
  * Resolves a Node URL to a viem chain by making a getChainId call
  *
- * @param nodeUrl
+ * @param nodeUrl - The Node URL to resolve
+ * @returns Promise resolving to the viem chain
  */
 async function resolveNodeUrlToChain(nodeUrl: string): Promise<Chain> {
   // First validate that it's a proper URL
@@ -89,7 +92,8 @@ async function resolveNodeUrlToChain(nodeUrl: string): Promise<Chain> {
 /**
  * Determines if the input string is a valid URL
  *
- * @param input
+ * @param input - The string to validate as a URL
+ * @returns True if the input is a valid URL, false otherwise
  */
 function isValidUrl(input: string): boolean {
   try {

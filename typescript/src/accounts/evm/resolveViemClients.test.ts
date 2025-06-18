@@ -25,14 +25,14 @@ describe("resolveViemClients", () => {
   const mockPublicClient = {
     getChainId: vi.fn(),
   };
-  
+
   const mockWalletClient = {};
   const mockHttp = vi.fn();
   const mockAccount = "0x1234567890123456789012345678901234567890" as const;
-  
+
   beforeEach(async () => {
     vi.clearAllMocks();
-    
+
     // Reset the mock implementations
     const { createPublicClient, createWalletClient, http } = await import("viem");
     vi.mocked(createPublicClient).mockReturnValue(mockPublicClient as any);
@@ -110,7 +110,7 @@ describe("resolveViemClients", () => {
         resolveViemClients({
           networkOrNodeUrl: "unsupported-network",
           account: mockAccount,
-        })
+        }),
       ).rejects.toThrow("Invalid URL format: unsupported-network");
     });
 
@@ -125,7 +125,7 @@ describe("resolveViemClients", () => {
         expect.objectContaining({
           chain: base,
           account: mockAccount,
-        })
+        }),
       );
     });
   });
@@ -208,7 +208,7 @@ describe("resolveViemClients", () => {
         resolveViemClients({
           networkOrNodeUrl: "not-a-url",
           account: mockAccount,
-        })
+        }),
       ).rejects.toThrow("Invalid URL format: not-a-url");
     });
 
@@ -217,7 +217,7 @@ describe("resolveViemClients", () => {
         resolveViemClients({
           networkOrNodeUrl: "mainnet.base.org",
           account: mockAccount,
-        })
+        }),
       ).rejects.toThrow("Invalid URL format: mainnet.base.org");
     });
 
@@ -228,7 +228,7 @@ describe("resolveViemClients", () => {
         resolveViemClients({
           networkOrNodeUrl: "https://unsupported-chain.org",
           account: mockAccount,
-        })
+        }),
       ).rejects.toThrow("Unsupported chain ID: 999999");
     });
 
@@ -239,7 +239,7 @@ describe("resolveViemClients", () => {
         resolveViemClients({
           networkOrNodeUrl: "https://invalid-url.org",
           account: mockAccount,
-        })
+        }),
       ).rejects.toThrow("Failed to resolve chain ID from Node URL: Network error");
     });
 
@@ -256,7 +256,7 @@ describe("resolveViemClients", () => {
         expect.objectContaining({
           chain: base,
           account: mockAccount,
-        })
+        }),
       );
     });
   });
@@ -324,4 +324,4 @@ describe("resolveViemClients", () => {
       expect(vi.mocked(http)).toHaveBeenCalledWith(nodeUrl);
     });
   });
-}); 
+});
