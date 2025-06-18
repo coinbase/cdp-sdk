@@ -45,18 +45,25 @@ export type EvmServerAccount = Prettify<
     }
 >;
 
+type EvmSmartAccountProperties = {
+  /** The smart account's address. */
+  address: Address;
+  /** The name of the smart account. */
+  name?: string;
+  /** Array of accounts that own and can sign for the smart account (currently only supports one owner but will be extended to support multiple owners in the future). */
+  owners: EvmAccount[];
+  /** Identifier for the smart account type. */
+  type: "evm-smart";
+};
+
 /**
  * Ethereum smart account which supports account abstraction features like user operations, batch transactions, and paymaster.
  */
-export type EvmSmartAccount = Prettify<
-  {
-    /** The smart account's address. */
-    address: Address;
-    /** The name of the smart account. */
-    name?: string;
-    /** Array of accounts that own and can sign for the smart account (currently only supports one owner but will be extended to support multiple owners in the future). */
-    owners: EvmAccount[];
-    /** Identifier for the smart account type. */
-    type: "evm-smart";
-  } & SmartAccountActions
+export type EvmSmartAccount = Prettify<EvmSmartAccountProperties & SmartAccountActions>;
+
+export type NetworkScopedEvmSmartAccount = Prettify<
+  EvmSmartAccountProperties & {
+    /** The network to scope the smart account object to. */
+    network: string;
+  }
 >;
