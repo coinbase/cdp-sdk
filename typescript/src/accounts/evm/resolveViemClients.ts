@@ -1,35 +1,38 @@
 import {
-  Address,
   createPublicClient,
   createWalletClient,
   http,
+  type Address,
   type Chain,
   type PublicClient,
   type WalletClient,
 } from "viem";
-import { base, baseSepolia, mainnet, sepolia } from "viem/chains";
+import * as chains from "viem/chains";
 
 /**
  * Network identifier to viem chain mapping
  */
 const NETWORK_TO_CHAIN_MAP: Record<string, Chain> = {
-  base: base,
-  "base-sepolia": baseSepolia,
-  mainnet: mainnet,
-  ethereum: mainnet,
-  sepolia: sepolia,
-  eth: mainnet,
+  base: chains.base,
+  "base-sepolia": chains.baseSepolia,
+  mainnet: chains.mainnet,
+  ethereum: chains.mainnet,
+  sepolia: chains.sepolia,
+  eth: chains.mainnet,
 };
 
 /**
- * Chain ID to viem chain mapping
+ * Get a chain from the viem chains object
+ *
+ * @param id - The chain ID
+ * @returns The chain
  */
-const CHAIN_ID_TO_CHAIN_MAP: Record<number, Chain> = {
-  [base.id]: base,
-  [baseSepolia.id]: baseSepolia,
-  [mainnet.id]: mainnet,
-  [sepolia.id]: sepolia,
-};
+function getChain(id: number): Chain {
+  const chainList = Object.values(chains) as Chain[];
+  const found = chainList.find(chain => chain.id === id);
+  if (!found) throw new Error(`Unsupported chain ID: ${id}`);
+  return found;
+}
 
 /**
  * Determines if the input string is a network identifier or a Node URL
@@ -75,12 +78,7 @@ async function resolveNodeUrlToChain(nodeUrl: string): Promise<Chain> {
 
   try {
     const chainId = await tempPublicClient.getChainId();
-    const chain = CHAIN_ID_TO_CHAIN_MAP[Number(chainId)];
-
-    if (!chain) {
-      throw new Error(`Unsupported chain ID: ${chainId}`);
-    }
-
+    const chain = getChain(Number(chainId));
     return chain;
   } catch (error) {
     throw new Error(
