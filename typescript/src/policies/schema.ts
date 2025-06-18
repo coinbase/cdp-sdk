@@ -126,42 +126,42 @@ export type EvmMessageCriterion = z.infer<typeof EvmMessageCriterionSchema>;
  */
 export const EvmDataParameterConditionListSchema = z.object({
   /**
-   *The name of the parameter to check against a transaction's calldata.
-   *If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter.
+   * The name of the parameter to check against a transaction's calldata.
+   * If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter.
    */
   name: z.union([z.string().min(1), z.string().regex(/^\d+$/)]),
   /**
    * The operator to use for the comparison. The value resolved at the `name` will be on the
-   *left-hand side of the operator, and the `values` field will be on the right-hand side.
+   * left-hand side of the operator, and the `values` field will be on the right-hand side.
    */
   operator: z.enum(["in", "not in"]),
   /**
-   *Values to compare against the resolved `name` value.
-   *All values are encoded as strings. Refer to the table in the documentation for how values
-   *should be encoded, and which operators are supported for each type.
+   * Values to compare against the resolved `name` value.
+   * All values are encoded as strings. Refer to the table in the documentation for how values
+   * should be encoded, and which operators are supported for each type.
    */
   values: z.array(z.string()),
 });
 export type EvmDataParameterConditionList = z.infer<typeof EvmDataParameterConditionListSchema>;
 
 /**
- *A single condition to apply against encoded arguments in the transaction's `data` field.
+ * A single condition to apply against encoded arguments in the transaction's `data` field.
  */
 export const EvmDataParameterConditionSchema = z.object({
   /**
-   *The name of the parameter to check against a transaction's calldata.
-   *If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter.
+   * The name of the parameter to check against a transaction's calldata.
+   * If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter.
    */
   name: z.union([z.string().min(1), z.string().regex(/^\d+$/)]),
   /**
    * The operator to use for the comparison. The value resolved at the `name` will be on the
-   *left-hand side of the operator, and the `value` field will be on the right-hand side.
+   * left-hand side of the operator, and the `value` field will be on the right-hand side.
    */
   operator: EthValueOperatorEnum,
   /**
-   *A single value to compare the value resolved at `name` to.
-   *All values are encoded as strings. Refer to the table in the documentation for how values
-   *should be encoded, and which operators are supported for each type.
+   * A single value to compare the value resolved at `name` to.
+   * All values are encoded as strings. Refer to the table in the documentation for how values
+   * should be encoded, and which operators are supported for each type.
    */
   value: z.string(),
 });
@@ -169,8 +169,8 @@ export type EvmDataParameterCondition = z.infer<typeof EvmDataParameterCondition
 
 /**
  * A single condition to apply against the function and encoded arguments in the transaction's `data` field.
- *Each `parameter` configuration must be successfully evaluated against the corresponding function argument
- *in order for a policy to be accepted.
+ * Each `parameter` configuration must be successfully evaluated against the corresponding function argument
+ * in order for a policy to be accepted.
  */
 export const EvmDataConditionSchema = z.object({
   /**
@@ -198,7 +198,7 @@ export const EvmDataCriterionSchema = z.object({
    */
   abi: z.union([z.enum(["erc20", "erc721", "erc1155"]), Abi]),
   /**
-   *A list of conditions to apply against the function and encoded arguments in the transaction's `data` field.
+   * A list of conditions to apply against the function and encoded arguments in the transaction's `data` field.
    * Each condition must be met in order for this policy to be accepted or rejected.
    */
   conditions: z.array(EvmDataConditionSchema).min(1),
