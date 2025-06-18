@@ -632,7 +632,7 @@ describe("PoliciesClient", () => {
       ];
 
       for (const policy of assortedInvalidPolicies) {
-        console.log(policy)
+        console.log(policy);
         await expect(
           client.updatePolicy({
             id: "policy-123",
