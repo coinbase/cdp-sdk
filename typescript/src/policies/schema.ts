@@ -201,7 +201,7 @@ export const EvmDataCriterionSchema = z.object({
    *A list of conditions to apply against the function and encoded arguments in the transaction's `data` field.
    * Each condition must be met in order for this policy to be accepted or rejected.
    */
-  conditions: z.array(EvmDataConditionSchema),
+  conditions: z.array(EvmDataConditionSchema).min(1),
 });
 export type EvmDataCriterion = z.infer<typeof EvmDataCriterionSchema>;
 

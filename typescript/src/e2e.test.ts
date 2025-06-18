@@ -1092,7 +1092,7 @@ describe("CDP Client E2E Tests", () => {
                 },
                 {
                   type: "evmData",
-                  abi: 'erc20',
+                  abi: "erc20",
                   conditions: [
                     { function: "balanceOf" },
                     {
@@ -1145,7 +1145,7 @@ describe("CDP Client E2E Tests", () => {
                 },
                 {
                   type: "evmData",
-                  abi: 'erc20',
+                  abi: "erc20",
                   conditions: [
                     { function: "balanceOf" },
                     {

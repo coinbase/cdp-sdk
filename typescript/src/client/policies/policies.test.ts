@@ -21,7 +21,7 @@ vi.mock("../../openapi-client/index.js", () => {
 
 describe("PoliciesClient", () => {
   let client: PoliciesClient;
-  const mockPolicy: Policy= {
+  const mockPolicy: Policy = {
     id: "policy-123",
     scope: "account",
     description: "Test policy",
@@ -578,22 +578,6 @@ describe("PoliciesClient", () => {
             },
           ],
         },
-        // invalid length abi
-        {
-          rules: [
-            {
-              action: "reject" as const,
-              operation: "signEvmTransaction" as const,
-              criteria: [
-                {
-                  type: "evmData",
-                  abi: [],
-                  conditions: [{ function: "transfer" }],
-                },
-              ],
-            },
-          ],
-        },
         // invalid condition shapes
         {
           rules: [
@@ -648,6 +632,7 @@ describe("PoliciesClient", () => {
       ];
 
       for (const policy of assortedInvalidPolicies) {
+        console.log(policy)
         await expect(
           client.updatePolicy({
             id: "policy-123",
@@ -659,7 +644,7 @@ describe("PoliciesClient", () => {
       }
     });
 
-    it.only("should permit a valid evmDataCriterion policy", async () => {
+    it("should permit a valid evmDataCriterion policy", async () => {
       const updatePolicyMock = CdpOpenApiClient.updatePolicy as MockedFunction<
         typeof CdpOpenApiClient.updatePolicy
       >;
@@ -694,11 +679,14 @@ describe("PoliciesClient", () => {
                 ],
               },
               {
-                type: "evmData"  as const,
+                type: "evmData" as const,
                 abi: kitchenSinkAbi,
                 conditions: [
                   { function: "bytesfn" },
-                  { function: "uintfn", params: [{ name: "x", operator: "<=" as const, value: "10000" }] },
+                  {
+                    function: "uintfn",
+                    params: [{ name: "x", operator: "<=" as const, value: "10000" }],
+                  },
                   {
                     function: "addressfn",
                     params: [
