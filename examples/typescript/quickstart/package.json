@@ -1,0 +1,22 @@
+{
+  "name": "cdp-quickstart",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "cdp-quickstart": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "main": "dist/index.js",
+  "dependencies": {
+    "@coinbase/cdp-sdk": "^1.8.0",
+    "viem": "^2.31.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "tsx": "^4.19.4",
+    "typescript": "^5.4.0"
+  }
+}
