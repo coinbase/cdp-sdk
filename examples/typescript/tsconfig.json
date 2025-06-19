@@ -10,5 +10,5 @@
       "@coinbase/cdp-sdk": ["../../typescript/src"]
     }
   },
-  "exclude": ["node_modules", "schema.d.ts"]
+  "exclude": ["node_modules"]
 }

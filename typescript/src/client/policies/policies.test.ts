@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, MockedFunction } from "vitest";
 import { ZodError } from "zod";
 
-import { CdpOpenApiClient, Policy } from "../../openapi-client/index.js";
+import { Abi, CdpOpenApiClient, Policy } from "../../openapi-client/index.js";
 
 import { PoliciesClient } from "./policies.js";
 import { APIError } from "../../openapi-client/errors.js";
@@ -594,6 +594,7 @@ describe("PoliciesClient", () => {
             },
           ],
         },
+        // empty function name
         {
           rules: [
             {
@@ -609,6 +610,7 @@ describe("PoliciesClient", () => {
             },
           ],
         },
+        // can't use equality operators in list condition
         {
           rules: [
             {
@@ -632,7 +634,6 @@ describe("PoliciesClient", () => {
       ];
 
       for (const policy of assortedInvalidPolicies) {
-        console.log(policy);
         await expect(
           client.updatePolicy({
             id: "policy-123",
@@ -659,7 +660,7 @@ describe("PoliciesClient", () => {
             criteria: [
               {
                 type: "evmData" as const,
-                abi: "erc20",
+                abi: "erc20" as const,
                 conditions: [
                   { function: "balanceOf" },
                   {
@@ -680,7 +681,7 @@ describe("PoliciesClient", () => {
               },
               {
                 type: "evmData" as const,
-                abi: kitchenSinkAbi,
+                abi: kitchenSinkAbi as Abi,
                 conditions: [
                   { function: "bytesfn" },
                   {
@@ -705,6 +706,7 @@ describe("PoliciesClient", () => {
       };
       await client.updatePolicy({
         id: "policy-123",
+        // @ts-expect-error arbitrary drift between abitype Abi and api Abi
         policy: validPolicy,
       });
       expect(updatePolicyMock).toHaveBeenCalled();
