@@ -9,7 +9,6 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
-import bs58 from "bs58";
 
 async function main(sourceAddress?: string) {
   const cdp = new CdpClient();
@@ -79,13 +78,13 @@ async function main(sourceAddress?: string) {
 
     const signedBase64Tx = signedTxResponse.signature; // base64
 
-    // Sign with feePayer address.
+    // Sign with the feePayer account.
     const finalSignedTxResponse = await cdp.solana.signTransaction({
       address: feePayer.address,
       transaction: signedBase64Tx,
     });
 
-    // Send the signed transaction to the network
+    // Send the signed transaction to the network.
     const signature = await connection.sendRawTransaction(Buffer.from(finalSignedTxResponse.signature, 'base64'));
 
     const latestBlockhash = await connection.getLatestBlockhash();
@@ -148,15 +147,14 @@ async function requestFaucetAndWaitForBalance(
     cdp: CdpClient,
     address: string,
     connection: Connection,
-    token: string = "sol"
 ): Promise<void> {
   // Request funds from faucet
   const faucetResp = await cdp.solana.requestFaucet({
     address: address,
-    token: token,
+    token: "sol",
   });
   console.log(
-      `Successfully requested ${token.toUpperCase()} from faucet:`,
+      `Successfully requested SOL from faucet:`,
       faucetResp.signature
   );
 
