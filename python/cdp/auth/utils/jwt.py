@@ -1,4 +1,6 @@
 import base64
+import hashlib
+import json
 import random
 import time
 import uuid
@@ -227,7 +229,10 @@ def generate_wallet_jwt(options: WalletJwtOptions) -> str:
     claims = {"uris": [uri], "iat": now, "nbf": now, "jti": str(uuid.uuid4())}
 
     if options.request_data:
-        claims["req"] = options.request_data
+        json_bytes = json.dumps(options.request_data, separators=(",", ":"), sort_keys=True).encode(
+            "utf-8"
+        )
+        claims["reqHash"] = hashlib.sha256(json_bytes).hexdigest()
 
     try:
         der_bytes = serialization.load_der_private_key(
