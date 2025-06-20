@@ -1,11 +1,16 @@
+import { RequestFaucetOptions, RequestFaucetResult } from "../../actions/evm/requestFaucet.js";
+import { TransactionResult, SendTransactionOptions } from "../../actions/evm/sendTransaction.js";
+
 import type { AccountActions, SmartAccountActions } from "../../actions/evm/types.js";
 import type { Address, Hash, Hex } from "../../types/misc.js";
 import type { Prettify } from "../../types/utils.js";
 import type {
   SignableMessage,
+  TransactionReceipt,
   TransactionSerializable,
   TypedData,
   TypedDataDefinition,
+  WaitForTransactionReceiptParameters,
 } from "viem";
 
 /**
@@ -72,12 +77,25 @@ export type NetworkScopedEvmSmartAccount = Prettify<
   }
 >;
 
+type NetworkScopedAccountActions = Prettify<{
+  requestFaucet: (
+    options: Omit<RequestFaucetOptions, "address" | "network">,
+  ) => Promise<RequestFaucetResult>;
+  sendTransaction: (
+    options: Omit<SendTransactionOptions, "address" | "network">,
+  ) => Promise<TransactionResult>;
+  waitForTransactionReceipt: (
+    options: WaitForTransactionReceiptParameters,
+  ) => Promise<TransactionReceipt>;
+}>;
+
 /**
  * A network-scoped server-managed ethereum account
  */
 export type NetworkScopedEvmServerAccount = Prettify<
-  Omit<EvmServerAccount, keyof AccountActions | "__experimental_useNetwork"> & {
-    /** The network this account is scoped to */
-    network: string;
-  }
+  Omit<EvmServerAccount, keyof AccountActions | "__experimental_useNetwork"> &
+    NetworkScopedAccountActions & {
+      /** The network this account is scoped to */
+      network: string;
+    }
 >;

@@ -1358,6 +1358,32 @@ describe("CDP Client E2E Tests", () => {
       }
     });
   });
+
+  describe("network-scoped evm server accounts", () => {
+    it.only("should use provided node when waiting for transaction receipt", async () => {
+      if (!process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL) {
+        logger.log("BASE_SEPOLIA_RPC_URL is not set, skipping test");
+        return;
+      }
+
+      const scopedAccount = await testAccount.__experimental_useNetwork(
+        process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL,
+      );
+
+      const { transactionHash } = await scopedAccount.sendTransaction({
+        transaction: {
+          to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+          value: parseEther("0"),
+        },
+      });
+
+      const receipt = await scopedAccount.waitForTransactionReceipt({
+        hash: transactionHash,
+      });
+
+      expect(receipt).toBeDefined();
+    });
+  });
 });
 
 function timeout(ms: number) {
