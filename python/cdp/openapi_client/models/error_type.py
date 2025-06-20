@@ -37,6 +37,7 @@ class ErrorType(str, Enum):
     INVALID_SIGNATURE = 'invalid_signature'
     MALFORMED_TRANSACTION = 'malformed_transaction'
     NOT_FOUND = 'not_found'
+    PAYMENT_METHOD_REQUIRED = 'payment_method_required'
     RATE_LIMIT_EXCEEDED = 'rate_limit_exceeded'
     REQUEST_CANCELED = 'request_canceled'
     SERVICE_UNAVAILABLE = 'service_unavailable'
@@ -44,6 +45,7 @@ class ErrorType(str, Enum):
     UNAUTHORIZED = 'unauthorized'
     POLICY_VIOLATION = 'policy_violation'
     POLICY_IN_USE = 'policy_in_use'
+    ACCOUNT_LIMIT_EXCEEDED = 'account_limit_exceeded'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

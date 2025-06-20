@@ -27,6 +27,14 @@ export const getListEvmSmartAccountsResponseMock = (): ListEvmSmartAccounts200 =
           faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
           undefined,
         ]),
+        createdAt: faker.helpers.arrayElement([
+          `${faker.date.past().toISOString().split(".")[0]}Z`,
+          undefined,
+        ]),
+        updatedAt: faker.helpers.arrayElement([
+          `${faker.date.past().toISOString().split(".")[0]}Z`,
+          undefined,
+        ]),
       }),
     ),
   },
@@ -44,6 +52,14 @@ export const getCreateEvmSmartAccountResponseMock = (
     faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
     undefined,
   ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -58,6 +74,14 @@ export const getGetEvmSmartAccountByNameResponseMock = (
     faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
     undefined,
   ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -70,6 +94,14 @@ export const getGetEvmSmartAccountResponseMock = (
   ),
   name: faker.helpers.arrayElement([
     faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
     undefined,
   ]),
   ...overrideResponse,
@@ -90,6 +122,7 @@ export const getPrepareUserOperationResponseMock = (
     "signed",
     "broadcast",
     "complete",
+    "dropped",
     "failed",
   ] as const),
   transactionHash: faker.helpers.arrayElement([
@@ -114,6 +147,7 @@ export const getGetUserOperationResponseMock = (
     "signed",
     "broadcast",
     "complete",
+    "dropped",
     "failed",
   ] as const),
   transactionHash: faker.helpers.arrayElement([
@@ -138,6 +172,7 @@ export const getSendUserOperationResponseMock = (
     "signed",
     "broadcast",
     "complete",
+    "dropped",
     "failed",
   ] as const),
   transactionHash: faker.helpers.arrayElement([

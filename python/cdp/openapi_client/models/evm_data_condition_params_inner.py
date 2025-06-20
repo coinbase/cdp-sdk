@@ -18,27 +18,24 @@ import json
 import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
-from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
-from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
-from cdp.openapi_client.models.evm_data_criterion import EvmDataCriterion
+from cdp.openapi_client.models.evm_data_parameter_condition import EvmDataParameterCondition
+from cdp.openapi_client.models.evm_data_parameter_condition_list import EvmDataParameterConditionList
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-SIGNEVMTRANSACTIONCRITERIAINNER_ONE_OF_SCHEMAS = ["EthValueCriterion", "EvmAddressCriterion", "EvmDataCriterion"]
+EVMDATACONDITIONPARAMSINNER_ONE_OF_SCHEMAS = ["EvmDataParameterCondition", "EvmDataParameterConditionList"]
 
-class SignEvmTransactionCriteriaInner(BaseModel):
+class EvmDataConditionParamsInner(BaseModel):
     """
-    SignEvmTransactionCriteriaInner
+    A list of parameter conditions to apply against encoded arguments in the transaction's `data` field.
     """
-    # data type: EthValueCriterion
-    oneof_schema_1_validator: Optional[EthValueCriterion] = None
-    # data type: EvmAddressCriterion
-    oneof_schema_2_validator: Optional[EvmAddressCriterion] = None
-    # data type: EvmDataCriterion
-    oneof_schema_3_validator: Optional[EvmDataCriterion] = None
-    actual_instance: Optional[Union[EthValueCriterion, EvmAddressCriterion, EvmDataCriterion]] = None
-    one_of_schemas: Set[str] = { "EthValueCriterion", "EvmAddressCriterion", "EvmDataCriterion" }
+    # data type: EvmDataParameterCondition
+    oneof_schema_1_validator: Optional[EvmDataParameterCondition] = None
+    # data type: EvmDataParameterConditionList
+    oneof_schema_2_validator: Optional[EvmDataParameterConditionList] = None
+    actual_instance: Optional[Union[EvmDataParameterCondition, EvmDataParameterConditionList]] = None
+    one_of_schemas: Set[str] = { "EvmDataParameterCondition", "EvmDataParameterConditionList" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -58,30 +55,25 @@ class SignEvmTransactionCriteriaInner(BaseModel):
 
     @field_validator('actual_instance')
     def actual_instance_must_validate_oneof(cls, v):
-        instance = SignEvmTransactionCriteriaInner.model_construct()
+        instance = EvmDataConditionParamsInner.model_construct()
         error_messages = []
         match = 0
-        # validate data type: EthValueCriterion
-        if not isinstance(v, EthValueCriterion):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `EthValueCriterion`")
+        # validate data type: EvmDataParameterCondition
+        if not isinstance(v, EvmDataParameterCondition):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `EvmDataParameterCondition`")
         else:
             match += 1
-        # validate data type: EvmAddressCriterion
-        if not isinstance(v, EvmAddressCriterion):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `EvmAddressCriterion`")
-        else:
-            match += 1
-        # validate data type: EvmDataCriterion
-        if not isinstance(v, EvmDataCriterion):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `EvmDataCriterion`")
+        # validate data type: EvmDataParameterConditionList
+        if not isinstance(v, EvmDataParameterConditionList):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `EvmDataParameterConditionList`")
         else:
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in SignEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmDataCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in EvmDataConditionParamsInner with oneOf schemas: EvmDataParameterCondition, EvmDataParameterConditionList. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in SignEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmDataCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in EvmDataConditionParamsInner with oneOf schemas: EvmDataParameterCondition, EvmDataParameterConditionList. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -96,31 +88,25 @@ class SignEvmTransactionCriteriaInner(BaseModel):
         error_messages = []
         match = 0
 
-        # deserialize data into EthValueCriterion
+        # deserialize data into EvmDataParameterCondition
         try:
-            instance.actual_instance = EthValueCriterion.from_json(json_str)
+            instance.actual_instance = EvmDataParameterCondition.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
-        # deserialize data into EvmAddressCriterion
+        # deserialize data into EvmDataParameterConditionList
         try:
-            instance.actual_instance = EvmAddressCriterion.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into EvmDataCriterion
-        try:
-            instance.actual_instance = EvmDataCriterion.from_json(json_str)
+            instance.actual_instance = EvmDataParameterConditionList.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into SignEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmDataCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into EvmDataConditionParamsInner with oneOf schemas: EvmDataParameterCondition, EvmDataParameterConditionList. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into SignEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmDataCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into EvmDataConditionParamsInner with oneOf schemas: EvmDataParameterCondition, EvmDataParameterConditionList. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -134,7 +120,7 @@ class SignEvmTransactionCriteriaInner(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], EthValueCriterion, EvmAddressCriterion, EvmDataCriterion]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], EvmDataParameterCondition, EvmDataParameterConditionList]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

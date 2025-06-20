@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.evm_account import EvmAccount
+from cdp.openapi_client.models.evm_data_condition import EvmDataCondition
 
-class TestEvmAccount(unittest.TestCase):
-    """EvmAccount unit test stubs"""
+class TestEvmDataCondition(unittest.TestCase):
+    """EvmDataCondition unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,27 @@ class TestEvmAccount(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> EvmAccount:
-        """Test EvmAccount
+    def make_instance(self, include_optional) -> EvmDataCondition:
+        """Test EvmDataCondition
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `EvmAccount`
+        # uncomment below to create an instance of `EvmDataCondition`
         """
-        model = EvmAccount()
+        model = EvmDataCondition()
         if include_optional:
-            return EvmAccount(
-                address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                name = 'my-account',
-                policies = ["123e4567-e89b-12d3-a456-426614174000"],
-                created_at = '2025-03-25T12:00Z',
-                updated_at = '2025-03-26T12:00Z'
+            return EvmDataCondition(
+                function = 'transfer',
+                params = [{"name":"value","operator":"<=","value":"10000"},{"name":"to","operator":"in","values":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"]}]
             )
         else:
-            return EvmAccount(
-                address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+            return EvmDataCondition(
+                function = 'transfer',
         )
         """
 
-    def testEvmAccount(self):
-        """Test EvmAccount"""
+    def testEvmDataCondition(self):
+        """Test EvmDataCondition"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

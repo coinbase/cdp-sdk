@@ -18,27 +18,24 @@ import json
 import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
-from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
-from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
-from cdp.openapi_client.models.evm_data_criterion import EvmDataCriterion
+from cdp.openapi_client.models.abi_function import AbiFunction
+from cdp.openapi_client.models.abi_input import AbiInput
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-SIGNEVMTRANSACTIONCRITERIAINNER_ONE_OF_SCHEMAS = ["EthValueCriterion", "EvmAddressCriterion", "EvmDataCriterion"]
+ABIINNER_ONE_OF_SCHEMAS = ["AbiFunction", "AbiInput"]
 
-class SignEvmTransactionCriteriaInner(BaseModel):
+class AbiInner(BaseModel):
     """
-    SignEvmTransactionCriteriaInner
+    AbiInner
     """
-    # data type: EthValueCriterion
-    oneof_schema_1_validator: Optional[EthValueCriterion] = None
-    # data type: EvmAddressCriterion
-    oneof_schema_2_validator: Optional[EvmAddressCriterion] = None
-    # data type: EvmDataCriterion
-    oneof_schema_3_validator: Optional[EvmDataCriterion] = None
-    actual_instance: Optional[Union[EthValueCriterion, EvmAddressCriterion, EvmDataCriterion]] = None
-    one_of_schemas: Set[str] = { "EthValueCriterion", "EvmAddressCriterion", "EvmDataCriterion" }
+    # data type: AbiFunction
+    oneof_schema_1_validator: Optional[AbiFunction] = None
+    # data type: AbiInput
+    oneof_schema_2_validator: Optional[AbiInput] = None
+    actual_instance: Optional[Union[AbiFunction, AbiInput]] = None
+    one_of_schemas: Set[str] = { "AbiFunction", "AbiInput" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -58,30 +55,25 @@ class SignEvmTransactionCriteriaInner(BaseModel):
 
     @field_validator('actual_instance')
     def actual_instance_must_validate_oneof(cls, v):
-        instance = SignEvmTransactionCriteriaInner.model_construct()
+        instance = AbiInner.model_construct()
         error_messages = []
         match = 0
-        # validate data type: EthValueCriterion
-        if not isinstance(v, EthValueCriterion):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `EthValueCriterion`")
+        # validate data type: AbiFunction
+        if not isinstance(v, AbiFunction):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `AbiFunction`")
         else:
             match += 1
-        # validate data type: EvmAddressCriterion
-        if not isinstance(v, EvmAddressCriterion):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `EvmAddressCriterion`")
-        else:
-            match += 1
-        # validate data type: EvmDataCriterion
-        if not isinstance(v, EvmDataCriterion):
-            error_messages.append(f"Error! Input type `{type(v)}` is not `EvmDataCriterion`")
+        # validate data type: AbiInput
+        if not isinstance(v, AbiInput):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `AbiInput`")
         else:
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in SignEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmDataCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in AbiInner with oneOf schemas: AbiFunction, AbiInput. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in SignEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmDataCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in AbiInner with oneOf schemas: AbiFunction, AbiInput. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -96,31 +88,25 @@ class SignEvmTransactionCriteriaInner(BaseModel):
         error_messages = []
         match = 0
 
-        # deserialize data into EthValueCriterion
+        # deserialize data into AbiFunction
         try:
-            instance.actual_instance = EthValueCriterion.from_json(json_str)
+            instance.actual_instance = AbiFunction.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
-        # deserialize data into EvmAddressCriterion
+        # deserialize data into AbiInput
         try:
-            instance.actual_instance = EvmAddressCriterion.from_json(json_str)
-            match += 1
-        except (ValidationError, ValueError) as e:
-            error_messages.append(str(e))
-        # deserialize data into EvmDataCriterion
-        try:
-            instance.actual_instance = EvmDataCriterion.from_json(json_str)
+            instance.actual_instance = AbiInput.from_json(json_str)
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into SignEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmDataCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into AbiInner with oneOf schemas: AbiFunction, AbiInput. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into SignEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmDataCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into AbiInner with oneOf schemas: AbiFunction, AbiInput. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -134,7 +120,7 @@ class SignEvmTransactionCriteriaInner(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], EthValueCriterion, EvmAddressCriterion, EvmDataCriterion]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], AbiFunction, AbiInput]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

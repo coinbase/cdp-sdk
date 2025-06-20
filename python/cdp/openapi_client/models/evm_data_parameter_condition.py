@@ -19,38 +19,24 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ImportEvmAccountRequest(BaseModel):
+class EvmDataParameterCondition(BaseModel):
     """
-    ImportEvmAccountRequest
+    EvmDataParameterCondition
     """ # noqa: E501
-    encrypted_private_key: StrictStr = Field(description="The base64-encoded, encrypted private key of the EVM account. The private key must be encrypted using the CDP SDK's encryption scheme.", alias="encryptedPrivateKey")
-    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all EVM accounts in the developer's CDP Project.")
-    account_policy: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The ID of the account-level policy to apply to the account.", alias="accountPolicy")
-    __properties: ClassVar[List[str]] = ["encryptedPrivateKey", "name", "accountPolicy"]
+    name: StrictStr = Field(description="The name of the parameter to check against a transaction's calldata. If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter.")
+    operator: StrictStr = Field(description="The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.")
+    value: StrictStr = Field(description="A single value to compare the value resolved at `name` to. All values are encoded as strings. Refer to the table in the documentation for how values should be encoded, and which operators are supported for each type.")
+    __properties: ClassVar[List[str]] = ["name", "operator", "value"]
 
-    @field_validator('name')
-    def name_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
-        return value
-
-    @field_validator('account_policy')
-    def account_policy_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value):
-            raise ValueError(r"must validate the regular expression /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/")
+    @field_validator('operator')
+    def operator_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['>', '>=', '<', '<=', '==']):
+            raise ValueError("must be one of enum values ('>', '>=', '<', '<=', '==')")
         return value
 
     model_config = ConfigDict(
@@ -71,7 +57,7 @@ class ImportEvmAccountRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ImportEvmAccountRequest from a JSON string"""
+        """Create an instance of EvmDataParameterCondition from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -96,7 +82,7 @@ class ImportEvmAccountRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ImportEvmAccountRequest from a dict"""
+        """Create an instance of EvmDataParameterCondition from a dict"""
         if obj is None:
             return None
 
@@ -104,9 +90,9 @@ class ImportEvmAccountRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "encryptedPrivateKey": obj.get("encryptedPrivateKey"),
             "name": obj.get("name"),
-            "accountPolicy": obj.get("accountPolicy")
+            "operator": obj.get("operator"),
+            "value": obj.get("value")
         })
         return _obj
 

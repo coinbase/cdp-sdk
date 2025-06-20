@@ -18,40 +18,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ImportEvmAccountRequest(BaseModel):
+class AbiParameter(BaseModel):
     """
-    ImportEvmAccountRequest
+    Parameter definition for ABI functions, errors, and constructors.
     """ # noqa: E501
-    encrypted_private_key: StrictStr = Field(description="The base64-encoded, encrypted private key of the EVM account. The private key must be encrypted using the CDP SDK's encryption scheme.", alias="encryptedPrivateKey")
-    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all EVM accounts in the developer's CDP Project.")
-    account_policy: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The ID of the account-level policy to apply to the account.", alias="accountPolicy")
-    __properties: ClassVar[List[str]] = ["encryptedPrivateKey", "name", "accountPolicy"]
-
-    @field_validator('name')
-    def name_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
-        return value
-
-    @field_validator('account_policy')
-    def account_policy_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value):
-            raise ValueError(r"must validate the regular expression /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/")
-        return value
+    name: Optional[StrictStr] = Field(default=None, description="The name of the parameter.")
+    type: StrictStr = Field(description="The canonical type of the parameter.")
+    internal_type: Optional[StrictStr] = Field(default=None, description="The internal Solidity type used by the compiler.", alias="internalType")
+    components: Optional[List[AbiParameter]] = Field(default=None, description="Used for tuple types.")
+    __properties: ClassVar[List[str]] = ["name", "type", "internalType", "components"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -71,7 +51,7 @@ class ImportEvmAccountRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ImportEvmAccountRequest from a JSON string"""
+        """Create an instance of AbiParameter from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -92,11 +72,18 @@ class ImportEvmAccountRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in components (list)
+        _items = []
+        if self.components:
+            for _item_components in self.components:
+                if _item_components:
+                    _items.append(_item_components.to_dict())
+            _dict['components'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ImportEvmAccountRequest from a dict"""
+        """Create an instance of AbiParameter from a dict"""
         if obj is None:
             return None
 
@@ -104,10 +91,13 @@ class ImportEvmAccountRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "encryptedPrivateKey": obj.get("encryptedPrivateKey"),
             "name": obj.get("name"),
-            "accountPolicy": obj.get("accountPolicy")
+            "type": obj.get("type"),
+            "internalType": obj.get("internalType"),
+            "components": [AbiParameter.from_dict(_item) for _item in obj["components"]] if obj.get("components") is not None else None
         })
         return _obj
 
+# TODO: Rewrite to not use raise_errors
+AbiParameter.model_rebuild(raise_errors=False)
 

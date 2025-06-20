@@ -20,12 +20,13 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, f
 from typing import Any, List, Optional
 from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
 from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
+from cdp.openapi_client.models.evm_data_criterion import EvmDataCriterion
 from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-SENDEVMTRANSACTIONCRITERIAINNER_ONE_OF_SCHEMAS = ["EthValueCriterion", "EvmAddressCriterion", "EvmNetworkCriterion"]
+SENDEVMTRANSACTIONCRITERIAINNER_ONE_OF_SCHEMAS = ["EthValueCriterion", "EvmAddressCriterion", "EvmDataCriterion", "EvmNetworkCriterion"]
 
 class SendEvmTransactionCriteriaInner(BaseModel):
     """
@@ -37,8 +38,10 @@ class SendEvmTransactionCriteriaInner(BaseModel):
     oneof_schema_2_validator: Optional[EvmAddressCriterion] = None
     # data type: EvmNetworkCriterion
     oneof_schema_3_validator: Optional[EvmNetworkCriterion] = None
-    actual_instance: Optional[Union[EthValueCriterion, EvmAddressCriterion, EvmNetworkCriterion]] = None
-    one_of_schemas: Set[str] = { "EthValueCriterion", "EvmAddressCriterion", "EvmNetworkCriterion" }
+    # data type: EvmDataCriterion
+    oneof_schema_4_validator: Optional[EvmDataCriterion] = None
+    actual_instance: Optional[Union[EthValueCriterion, EvmAddressCriterion, EvmDataCriterion, EvmNetworkCriterion]] = None
+    one_of_schemas: Set[str] = { "EthValueCriterion", "EvmAddressCriterion", "EvmDataCriterion", "EvmNetworkCriterion" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -76,12 +79,17 @@ class SendEvmTransactionCriteriaInner(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `EvmNetworkCriterion`")
         else:
             match += 1
+        # validate data type: EvmDataCriterion
+        if not isinstance(v, EvmDataCriterion):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `EvmDataCriterion`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in SendEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmNetworkCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in SendEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmDataCriterion, EvmNetworkCriterion. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in SendEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmNetworkCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in SendEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmDataCriterion, EvmNetworkCriterion. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -114,13 +122,19 @@ class SendEvmTransactionCriteriaInner(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into EvmDataCriterion
+        try:
+            instance.actual_instance = EvmDataCriterion.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into SendEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmNetworkCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into SendEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmDataCriterion, EvmNetworkCriterion. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into SendEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmNetworkCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into SendEvmTransactionCriteriaInner with oneOf schemas: EthValueCriterion, EvmAddressCriterion, EvmDataCriterion, EvmNetworkCriterion. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -134,7 +148,7 @@ class SendEvmTransactionCriteriaInner(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], EthValueCriterion, EvmAddressCriterion, EvmNetworkCriterion]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], EthValueCriterion, EvmAddressCriterion, EvmDataCriterion, EvmNetworkCriterion]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

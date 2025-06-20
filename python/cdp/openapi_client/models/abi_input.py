@@ -20,37 +20,22 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ImportEvmAccountRequest(BaseModel):
+class AbiInput(BaseModel):
     """
-    ImportEvmAccountRequest
+    Generic ABI item type encapsulating all other types besides `function`.
     """ # noqa: E501
-    encrypted_private_key: StrictStr = Field(description="The base64-encoded, encrypted private key of the EVM account. The private key must be encrypted using the CDP SDK's encryption scheme.", alias="encryptedPrivateKey")
-    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all EVM accounts in the developer's CDP Project.")
-    account_policy: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The ID of the account-level policy to apply to the account.", alias="accountPolicy")
-    __properties: ClassVar[List[str]] = ["encryptedPrivateKey", "name", "accountPolicy"]
+    type: StrictStr = Field(description="The type of the ABI item.")
+    additional_properties: Optional[Any] = Field(default=None, description="For additional information on the ABI JSON specification, see [the Solidity documentation](https://docs.soliditylang.org/en/latest/abi-spec.html#json).", alias="additionalProperties")
+    __properties: ClassVar[List[str]] = ["type", "additionalProperties"]
 
-    @field_validator('name')
-    def name_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
-        return value
-
-    @field_validator('account_policy')
-    def account_policy_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value):
-            raise ValueError(r"must validate the regular expression /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/")
+    @field_validator('type')
+    def type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['constructor', 'error', 'event', 'fallback', 'receive']):
+            raise ValueError("must be one of enum values ('constructor', 'error', 'event', 'fallback', 'receive')")
         return value
 
     model_config = ConfigDict(
@@ -71,7 +56,7 @@ class ImportEvmAccountRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ImportEvmAccountRequest from a JSON string"""
+        """Create an instance of AbiInput from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -92,11 +77,16 @@ class ImportEvmAccountRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if additional_properties (nullable) is None
+        # and model_fields_set contains the field
+        if self.additional_properties is None and "additional_properties" in self.model_fields_set:
+            _dict['additionalProperties'] = None
+
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ImportEvmAccountRequest from a dict"""
+        """Create an instance of AbiInput from a dict"""
         if obj is None:
             return None
 
@@ -104,9 +94,8 @@ class ImportEvmAccountRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "encryptedPrivateKey": obj.get("encryptedPrivateKey"),
-            "name": obj.get("name"),
-            "accountPolicy": obj.get("accountPolicy")
+            "type": obj.get("type"),
+            "additionalProperties": obj.get("additionalProperties")
         })
         return _obj
 

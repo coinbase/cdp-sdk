@@ -19,21 +19,22 @@ from enum import Enum
 from typing_extensions import Self
 
 
-class ListEvmTokenBalancesNetwork(str, Enum):
+class AbiStateMutability(str, Enum):
     """
-    The name of the supported EVM networks in human-readable format.
+    State mutability of a function in Solidity.
     """
 
     """
     allowed enum values
     """
-    BASE = 'base'
-    BASE_MINUS_SEPOLIA = 'base-sepolia'
-    ETHEREUM = 'ethereum'
+    PURE = 'pure'
+    VIEW = 'view'
+    NONPAYABLE = 'nonpayable'
+    PAYABLE = 'payable'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of ListEvmTokenBalancesNetwork from a JSON string"""
+        """Create an instance of AbiStateMutability from a JSON string"""
         return cls(json.loads(json_str))
 
 

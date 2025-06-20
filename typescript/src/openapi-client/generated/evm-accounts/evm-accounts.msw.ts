@@ -38,6 +38,14 @@ export const getListEvmAccountsResponseMock = (): ListEvmAccounts200 => ({
           ),
           undefined,
         ]),
+        createdAt: faker.helpers.arrayElement([
+          `${faker.date.past().toISOString().split(".")[0]}Z`,
+          undefined,
+        ]),
+        updatedAt: faker.helpers.arrayElement([
+          `${faker.date.past().toISOString().split(".")[0]}Z`,
+          undefined,
+        ]),
       }),
     ),
   },
@@ -60,6 +68,14 @@ export const getCreateEvmAccountResponseMock = (
     ),
     undefined,
   ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -77,6 +93,14 @@ export const getGetEvmAccountResponseMock = (
         "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
       ),
     ),
+    undefined,
+  ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
     undefined,
   ]),
   ...overrideResponse,
@@ -98,6 +122,14 @@ export const getUpdateEvmAccountResponseMock = (
     ),
     undefined,
   ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -115,6 +147,14 @@ export const getGetEvmAccountByNameResponseMock = (
         "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
       ),
     ),
+    undefined,
+  ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
     undefined,
   ]),
   ...overrideResponse,
@@ -154,6 +194,14 @@ export const getImportEvmAccountResponseMock = (
         "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
       ),
     ),
+    undefined,
+  ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
     undefined,
   ]),
   ...overrideResponse,
