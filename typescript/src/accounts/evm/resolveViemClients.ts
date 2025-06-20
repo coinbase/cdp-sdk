@@ -1,13 +1,17 @@
 import {
+  Account,
   createPublicClient,
   createWalletClient,
   http,
-  type Address,
+  Transport,
   type Chain,
   type PublicClient,
   type WalletClient,
 } from "viem";
+import { toAccount } from "viem/accounts";
 import * as chains from "viem/chains";
+
+import type { EvmAccount } from "./types.js";
 
 /**
  * Network identifier to viem chain mapping
@@ -15,14 +19,14 @@ import * as chains from "viem/chains";
 const NETWORK_TO_CHAIN_MAP: Record<string, Chain> = {
   base: chains.base,
   "base-sepolia": chains.baseSepolia,
-  "ethereum": mainnet,
-  "ethereum-sepolia": sepolia,
-  "polygon": polygon,
-  "polygon-mumbai": polygonMumbai,
-  "arbitrum": arbitrum,
-  "arbitrum-sepolia": arbitrumSepolia,
-  "optimism": optimism,
-  "optimism-sepolia": optimismSepolia,
+  ethereum: chains.mainnet,
+  "ethereum-sepolia": chains.sepolia,
+  polygon: chains.polygon,
+  "polygon-mumbai": chains.polygonMumbai,
+  arbitrum: chains.arbitrum,
+  "arbitrum-sepolia": chains.arbitrumSepolia,
+  optimism: chains.optimism,
+  "optimism-sepolia": chains.optimismSepolia,
 };
 
 /**
@@ -113,7 +117,7 @@ export type ResolveViemClientsOptions = {
   /** The network identifier (e.g., "base", "base-sepolia") or Node URL */
   networkOrNodeUrl: string;
   /** Optional account to use for the wallet client */
-  account: Address;
+  account: EvmAccount;
 };
 
 /**
@@ -123,9 +127,9 @@ export type ResolvedViemClients = {
   /** The resolved viem chain */
   chain: Chain;
   /** The public client for reading blockchain data */
-  publicClient: PublicClient;
+  publicClient: PublicClient<Transport, Chain>;
   /** The wallet client for sending transactions */
-  walletClient: WalletClient;
+  walletClient: WalletClient<Transport, Chain, Account>;
 };
 
 /**
@@ -154,7 +158,7 @@ export type ResolvedViemClients = {
 export async function resolveViemClients(
   options: ResolveViemClientsOptions,
 ): Promise<ResolvedViemClients> {
-  const { networkOrNodeUrl, account } = options;
+  const { networkOrNodeUrl } = options;
 
   let chain: Chain;
 
@@ -166,9 +170,9 @@ export async function resolveViemClients(
       transport: http(),
     });
     const walletClient = createWalletClient({
+      account: toAccount(options.account),
       chain,
       transport: http(),
-      account,
     });
     return {
       chain,
@@ -185,9 +189,9 @@ export async function resolveViemClients(
       transport: http(networkOrNodeUrl),
     });
     const walletClient = createWalletClient({
+      account: toAccount(options.account),
       chain,
       transport: http(networkOrNodeUrl),
-      account,
     });
     return {
       chain,
