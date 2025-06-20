@@ -47,8 +47,8 @@ export type EvmServerAccount = Prettify<
       name?: string;
       /** Indicates this is a server-managed account. */
       type: "evm-server";
-      /** Subject to breaking changes. A function that returns a network-scoped server-managed account. */
-      __experimental_useNetwork: (network: string) => Promise<NetworkScopedEvmServerAccount>;
+      /** A function that returns a network-scoped server-managed account. */
+      useNetwork: (network: string) => Promise<NetworkScopedEvmServerAccount>;
     }
 >;
 
@@ -93,7 +93,7 @@ type NetworkScopedAccountActions = Prettify<{
  * A network-scoped server-managed ethereum account
  */
 export type NetworkScopedEvmServerAccount = Prettify<
-  Omit<EvmServerAccount, keyof AccountActions | "__experimental_useNetwork"> &
+  Omit<EvmServerAccount, keyof AccountActions | "useNetwork"> &
     NetworkScopedAccountActions & {
       /** The network this account is scoped to */
       network: string;

@@ -105,7 +105,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
     sendTransaction: vi.fn().mockResolvedValue({
       transactionHash: "0xtxhash",
     }),
-    __experimental_useNetwork: vi.fn().mockResolvedValue({}),
+    useNetwork: vi.fn().mockResolvedValue({}),
   });
 
   beforeEach(async () => {

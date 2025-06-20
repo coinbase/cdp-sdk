@@ -1360,15 +1360,13 @@ describe("CDP Client E2E Tests", () => {
   });
 
   describe("network-scoped evm server accounts", () => {
-    it.only("should use provided node when waiting for transaction receipt", async () => {
+    it("should use provided node when waiting for transaction receipt", async () => {
       if (!process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL) {
         logger.log("BASE_SEPOLIA_RPC_URL is not set, skipping test");
         return;
       }
 
-      const scopedAccount = await testAccount.__experimental_useNetwork(
-        process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL,
-      );
+      const scopedAccount = await testAccount.useNetwork(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL);
 
       const { transactionHash } = await scopedAccount.sendTransaction({
         transaction: {
