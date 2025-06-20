@@ -13,8 +13,6 @@ info:
 servers:
   - url: https://api.cdp.coinbase.com/platform
     description: The production server of the CDP APIs.
-security:
-  - apiKeyAuth: []
 tags:
   - name: EVM Accounts
     x-audience: public
@@ -71,7 +69,6 @@ tags:
        - **Creating a swap quote**: Return a swap transaction payload that you can use to sign and submit in order to execute the swap.
 
       For the easiest experience creating, signing, and submitting a swap, we recommend using the [CDP SDK](https://github.com/coinbase/cdp-sdk/).
-
       - [Python SDK examples](https://github.com/coinbase/cdp-sdk/tree/main/python#evm-swaps)
       - [TypeScript SDK examples](https://github.com/coinbase/cdp-sdk/tree/main/typescript#evm-swaps)
 
@@ -225,7 +222,8 @@ tags:
       A criterion based on the value of the transaction. The transaction's `value` field is compared to the criterion's `ethValue` field using the `operator` field.
       #### evmAddress
       A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
-
+      #### evmData
+      A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
       ### SendEvmTransaction Criteria
       #### ethValue
       A criterion based on the value of the transaction. The transaction's `value` field is compared to the criterion's `ethValue` field using the `operator` field.
@@ -233,6 +231,8 @@ tags:
       A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
       #### evmNetwork
       A criterion based on the intended network of the transaction. The `network` field in the `sendEvmTransaction` request body is compared to the criterion's `networks` field using the `operator` field.
+      #### evmData
+      A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
       ### SignEvmHash Criteria
       The `signEvmHash` operation does not accept any criteria. To prevent this operation from being executed by any account, specify a rule with `signEvmHash` as the operation, and `reject` as its action.
       ### SignEvmMessage Criteria
@@ -241,6 +241,79 @@ tags:
       ### SignSolTransaction Criteria
       #### solAddress
       A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      ## Restricting Contract Interactions on Ethereum
+      Smart contract function restrictions serve as a critical security and governance mechanism in decentralized applications, allowing developers and organizations to implement fine-grained access controls over their protocol interactions.
+      One of the primary use cases for function restrictions is protecting high-risk operations from unauthorized access such as:
+      - Fund transfers - Contract upgrades - Parameter modifications - Emergency pauses
+      Policy Engine supports such restrictions that evaluate against transaction data with the `evmData` criterion for the `signEvmTransaction`, and `sendEvmTransaction` operations.
+      ## Examples
+      ### Limiting USDC Spend
+      This policy restricts USDC transactions on the Base network to transfers of 10,000 tokens or less. It applies to both signing and sending transactions to the USDC contract address, using the ERC20 ABI to validate that only `transfer` function calls with a `value` parameter under the specified limit are permitted.
+      ```json {
+        "description": "Limit USDC Spend",
+        "scope": "account",
+        "rules": [
+          {
+            "action": "accept",
+            "operation": "sendEvmTransaction",
+            "criteria": [
+              {
+                "type": "evmNetwork",
+                "networks": ["base"],
+                "operator": "in"
+              },
+              {
+                "type": "evmAddress",
+                "addresses": ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"],
+                "operator": "in"
+              },
+              {
+                "type": "evmData",
+                "abi": "erc20",
+                "conditions": [
+                  {
+                    "function": "transfer",
+                    "params": [
+                      {
+                        "name": "value",
+                        "operator": "<=",
+                        "value": "10000"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "action": "accept",
+            "operation": "signEvmTransaction",
+            "criteria": [
+              {
+                "type": "evmAddress",
+                "addresses": ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"],
+                "operator": "in"
+              },
+              {
+                "type": "evmData",
+                "abi": "erc20",
+                "conditions": [
+                  {
+                    "function": "transfer",
+                    "params": [
+                      {
+                        "name": "value",
+                        "operator": "<=",
+                        "value": "10000"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      } ```.
   - name: Solana Accounts
     x-audience: public
     description: |-
@@ -389,6 +462,8 @@ paths:
                   value:
                     errorType: unauthorized
                     errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '409':
           description: Resource already exists.
           content:
@@ -688,6 +763,8 @@ paths:
                   value:
                     errorType: unauthorized
                     errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '403':
           description: Access to resource forbidden.
           content:
@@ -791,6 +868,8 @@ paths:
                   value:
                     errorType: unauthorized
                     errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '403':
           description: Access to resource forbidden.
           content:
@@ -879,6 +958,8 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Request body must be specified.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '404':
           description: Not found.
           content:
@@ -959,6 +1040,8 @@ paths:
                   value:
                     errorType: unauthorized
                     errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '404':
           description: Not found.
           content:
@@ -1040,6 +1123,8 @@ paths:
                   value:
                     errorType: unauthorized
                     errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '404':
           description: Not found.
           content:
@@ -1166,6 +1251,8 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Invalid owner address or account name provided.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '500':
           $ref: '#/components/responses/InternalServerError'
         '502':
@@ -1252,6 +1339,12 @@ paths:
                     Account names must be unique across all EVM accounts in the developer's CDP Project.
                   example: my-wallet
                   pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                accountPolicy:
+                  type: string
+                  x-audience: public
+                  description: The ID of the account-level policy to apply to the account.
+                  pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  example: 123e4567-e89b-12d3-a456-426614174000
               required:
                 - encryptedPrivateKey
       responses:
@@ -1283,6 +1376,8 @@ paths:
                   value:
                     errorType: unauthorized
                     errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '409':
           description: Resource already exists.
           content:
@@ -1369,6 +1464,8 @@ paths:
                   value:
                     errorType: unauthorized
                     errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '404':
           description: Not found.
           content:
@@ -1454,6 +1551,8 @@ paths:
                   value:
                     errorType: unauthorized
                     errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '404':
           description: Not found.
           content:
@@ -1717,6 +1816,8 @@ paths:
                   value:
                     errorType: invalid_signature
                     errorMessage: Invalid signature.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '404':
           description: Not found.
           content:
@@ -2144,8 +2245,8 @@ paths:
 
         Faucets are available for ETH, USDC, EURC, and cbBTC on Base Sepolia and Ethereum Sepolia, and for ETH only on Ethereum Hoodi.
 
-        To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested. 
-        These limits are applied at both the CDP User level and the blockchain address level. 
+        To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested.
+        These limits are applied at both the CDP User level and the blockchain address level.
         A single blockchain address cannot exceed the specified limits, even if multiple users submit requests to the same address.
 
         | Token | Amount per Faucet Request |Rolling 24-hour window Rate Limits|
@@ -2650,6 +2751,8 @@ paths:
                   value:
                     errorType: unauthorized
                     errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '409':
           description: Resource already exists.
           content:
@@ -2914,6 +3017,8 @@ paths:
                   value:
                     errorType: unauthorized
                     errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '404':
           description: Not found.
           content:
@@ -2999,6 +3104,8 @@ paths:
                   value:
                     errorType: unauthorized
                     errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '404':
           description: Not found.
           content:
@@ -3095,6 +3202,8 @@ paths:
                   value:
                     errorType: unauthorized
                     errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '403':
           description: Access to resource forbidden.
           content:
@@ -3197,6 +3306,8 @@ paths:
                   value:
                     errorType: unauthorized
                     errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '404':
           description: Solana account not found.
           content:
@@ -3227,8 +3338,8 @@ paths:
 
         Faucets are available for SOL.
 
-        To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested. 
-        These limits are applied at both the CDP User level and the blockchain address level. 
+        To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested.
+        These limits are applied at both the CDP User level and the blockchain address level.
         A single blockchain address cannot exceed the specified limits, even if multiple users submit requests to the same address.
 
         | Token | Amount per Faucet Request |Rolling 24-hour window Rate Limits|
@@ -3638,11 +3749,6 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: A JWT signed using your CDP API Key Secret, encoded in base64. Refer to the [Generate Bearer Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-bearer-token) section of our Authentication docs for information on how to generate your Bearer Token.
-    endUserAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: A JWT signed using the developer's own JWT private key (in the case of JWT authentication), or an end user JWT signed by CDP, encoded in base64. This is used for End User Account APIs.
   schemas:
     EvmAccount:
       type: object
@@ -3669,6 +3775,16 @@ components:
             pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           example:
             - 123e4567-e89b-12d3-a456-426614174000
+        createdAt:
+          type: string
+          description: The UTC ISO 8601 timestamp at which the account was created.
+          example: '2025-03-25T12:00:00Z'
+          format: date-time
+        updatedAt:
+          type: string
+          description: The UTC ISO 8601 timestamp at which the account was last updated.
+          example: '2025-03-26T12:00:00Z'
+          format: date-time
       required:
         - address
     ListResponse:
@@ -3693,6 +3809,7 @@ components:
         - invalid_signature
         - malformed_transaction
         - not_found
+        - payment_method_required
         - rate_limit_exceeded
         - request_canceled
         - service_unavailable
@@ -3824,6 +3941,16 @@ components:
           - Mistyped addresses
           - Accessing resources from the wrong CDP project
           - Resource was deleted or hasn't been created yet
+        payment_method_required: |-
+          This error occurs when a payment method is required to complete the requested operation but none is configured or available.
+
+          **Steps to resolve:**
+          1. Add a valid payment method to your account using the [CDP Portal](https://portal.cdp.coinbase.com)
+          2. Ensure your payment method is valid and not expired
+
+          **Common causes:**
+          - No payment method configured on the account
+          - Payment method is expired
         rate_limit_exceeded: |-
           This error occurs when you've exceeded the API rate limits.
 
@@ -4115,6 +4242,16 @@ components:
             Account names are guaranteed to be unique across all Smart Accounts in the developer's CDP Project.
           example: my-smart-account
           pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+        createdAt:
+          type: string
+          description: The UTC ISO 8601 timestamp at which the account was created.
+          example: '2025-03-25T12:00:00Z'
+          format: date-time
+        updatedAt:
+          type: string
+          description: The UTC ISO 8601 timestamp at which the account was last updated.
+          example: '2025-03-26T12:00:00Z'
+          format: date-time
       required:
         - address
         - owners
@@ -4174,6 +4311,7 @@ components:
             - signed
             - broadcast
             - complete
+            - dropped
             - failed
           example: pending
         transactionHash:
@@ -4654,6 +4792,314 @@ components:
         - type
         - addresses
         - operator
+    KnownAbiType:
+      type: string
+      description: |-
+        A reference to an established EIP standard. When referencing a `KnownAbiType` within a policy rule configuring an `EvmDataCriterion`, criteria will only decode function data officially documented in the standard. For more information on supported token standards, see the links below.
+          - [erc20 - Token Standard](https://eips.ethereum.org/EIPS/eip-20).
+          - [erc721 - Non-Fungible Token Standard](https://eips.ethereum.org/EIPS/eip-721).
+          - [erc1155 - Multi Token Standard](https://eips.ethereum.org/EIPS/eip-1155).
+      enum:
+        - erc20
+        - erc721
+        - erc1155
+    AbiParameter:
+      x-audience: public
+      type: object
+      description: Parameter definition for ABI functions, errors, and constructors.
+      required:
+        - type
+      properties:
+        name:
+          type: string
+          description: The name of the parameter.
+          example: tokenId
+        type:
+          type: string
+          description: The canonical type of the parameter.
+          example: uint256
+        internalType:
+          type: string
+          description: The internal Solidity type used by the compiler.
+          example: uint256
+        components:
+          type: array
+          description: Used for tuple types.
+          items:
+            $ref: '#/components/schemas/AbiParameter'
+          example:
+            - name: x
+              type: uint256
+      example:
+        name: tokenId
+        type: uint256
+        internalType: uint256
+    AbiStateMutability:
+      x-audience: public
+      type: string
+      description: State mutability of a function in Solidity.
+      enum:
+        - pure
+        - view
+        - nonpayable
+        - payable
+      example: view
+    AbiFunction:
+      x-audience: public
+      type: object
+      description: ABI function type for contract functions.
+      required:
+        - type
+        - name
+        - inputs
+        - outputs
+        - stateMutability
+      properties:
+        type:
+          description: The type of the ABI item, must be `function`.
+          type: string
+          enum:
+            - function
+          example: function
+        name:
+          type: string
+          description: The name of the ABI function.
+          example: approve
+        inputs:
+          type: array
+          description: The list of ABI parameters used for this function.
+          items:
+            $ref: '#/components/schemas/AbiParameter'
+          example:
+            - name: spender
+              type: address
+              internalType: address
+        outputs:
+          type: array
+          description: The values returned by this function.
+          items:
+            $ref: '#/components/schemas/AbiParameter'
+          example:
+            name: ''
+            type: bool
+            internalType: bool
+        constant:
+          type: boolean
+          description: Deprecated. Use pure or view from stateMutability instead.
+          example: false
+        payable:
+          type: boolean
+          description: Deprecated. Use payable or nonpayable from `stateMutability` instead.
+          example: false
+        stateMutability:
+          $ref: '#/components/schemas/AbiStateMutability'
+        gas:
+          type: integer
+          description: Deprecated. Vyper used to provide gas estimates.
+          example: 0
+      example:
+        type: function
+        name: balanceOf
+        inputs:
+          - name: owner
+            type: address
+            internalType: address
+        outputs:
+          - name: null
+            type: uint256
+            internalType: uint256
+        stateMutability: view
+    AbiInput:
+      x-audience: public
+      type: object
+      description: Generic ABI item type encapsulating all other types besides `function`.
+      required:
+        - type
+      properties:
+        type:
+          description: The type of the ABI item.
+          type: string
+          enum:
+            - constructor
+            - error
+            - event
+            - fallback
+            - receive
+          example: constructor
+        additionalProperties:
+          description: For additional information on the ABI JSON specification, see [the Solidity documentation](https://docs.soliditylang.org/en/latest/abi-spec.html#json).
+          example:
+            type: error
+            name: ERC20InvalidSpender
+            inputs:
+              - name: spender
+                type: address
+                internalType: address
+    Abi:
+      x-audience: public
+      type: array
+      description: Contract ABI Specification following Solidity's external JSON interface format.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/AbiFunction'
+          - $ref: '#/components/schemas/AbiInput'
+      example:
+        - type: function
+          name: approve
+          inputs:
+            - name: spender
+              type: address
+              internalType: address
+            - name: amount
+              type: uint256
+              internalType: uint256
+          outputs:
+            - name: null
+              type: bool
+              internalType: bool
+          stateMutability: nonpayable
+        - type: event
+          name: Transfer
+          inputs:
+            - name: from
+              type: address
+              indexed: true
+              internalType: address
+          anonymous: false
+        - type: error
+          name: ERC20InvalidSpender
+          inputs:
+            - name: spender
+              type: address
+              internalType: address
+    EvmDataParameterCondition:
+      x-audience: public
+      type: object
+      properties:
+        name:
+          type: string
+          example: to
+          description: The name of the parameter to check against a transaction's calldata. If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter.
+        operator:
+          type: string
+          enum:
+            - '>'
+            - '>='
+            - <
+            - <=
+            - '=='
+          description: The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+          example: '=='
+        value:
+          type: string
+          example: '100000'
+          description: A single value to compare the value resolved at `name` to. All values are encoded as strings. Refer to the table in the documentation for how values should be encoded, and which operators are supported for each type.
+      required:
+        - name
+        - operator
+        - value
+    EvmDataParameterConditionList:
+      x-audience: public
+      type: object
+      properties:
+        name:
+          type: string
+          example: to
+          description: The name of the parameter to check against a transaction's calldata. If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter.
+        operator:
+          type: string
+          enum:
+            - in
+            - not in
+          description: The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `values` field will be on the right-hand side.
+          example: in
+        values:
+          type: array
+          items:
+            type: string
+            example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            description: A single potential value to compare against the resolved `name` value. All values are encoded as strings. Refer to the table in the documentation for how values should be encoded, and which operators are supported for each type.
+          description: Values to compare against the resolved `name` value. All values are encoded as strings. Refer to the table in the documentation for how values should be encoded, and which operators are supported for each type.
+          example:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      required:
+        - name
+        - operator
+        - values
+    EvmDataCondition:
+      type: object
+      x-audience: public
+      description: A single condition to apply against the function and encoded arguments in the transaction's `data` field. Each `parameter` configuration must be successfully evaluated against the corresponding function argument in order for a policy to be accepted.
+      properties:
+        function:
+          type: string
+          example: transfer
+          description: The name of a smart contract function being called.
+        params:
+          type: array
+          description: An optional list of parameter conditions to apply against encoded arguments in the transaction's `data` field.
+          items:
+            description: A list of parameter conditions to apply against encoded arguments in the transaction's `data` field.
+            oneOf:
+              - $ref: '#/components/schemas/EvmDataParameterCondition'
+              - $ref: '#/components/schemas/EvmDataParameterConditionList'
+          example:
+            - name: value
+              operator: <=
+              value: '10000'
+            - name: to
+              operator: in
+              values:
+                - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      example:
+        function: transfer
+        params:
+          - name: value
+            operator: <=
+            value: '10000'
+          - name: to
+            operator: in
+            values:
+              - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      required:
+        - function
+    EvmDataCriterion:
+      type: object
+      x-audience: public
+      description: A schema for specifying a criterion for the `data` field of an EVM transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `evmData`.
+          example: evmData
+          enum:
+            - evmData
+        abi:
+          description: The ABI of the smart contract being called. This can be a partial structure with only specific functions.
+          oneOf:
+            - $ref: '#/components/schemas/KnownAbiType'
+            - $ref: '#/components/schemas/Abi'
+          example: erc20
+        conditions:
+          type: array
+          description: A list of conditions to apply against the function and encoded arguments in the transaction's `data` field. Each condition must be met in order for this policy to be accepted or rejected.
+          items:
+            $ref: '#/components/schemas/EvmDataCondition'
+          example:
+            - function: approve
+            - function: transfer
+              params:
+                - name: value
+                  operator: <=
+                  value: '10000'
+                - name: to
+                  operator: in
+                  values:
+                    - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      required:
+        - type
+        - abi
+        - conditions
     SignEvmTransactionCriteria:
       type: array
       description: A schema for specifying criteria for the SignEvmTransaction operation.
@@ -4661,6 +5107,7 @@ components:
         oneOf:
           - $ref: '#/components/schemas/EthValueCriterion'
           - $ref: '#/components/schemas/EvmAddressCriterion'
+          - $ref: '#/components/schemas/EvmDataCriterion'
       example:
         - type: ethValue
           ethValue: '1000000'
@@ -4734,6 +5181,7 @@ components:
           - $ref: '#/components/schemas/EthValueCriterion'
           - $ref: '#/components/schemas/EvmAddressCriterion'
           - $ref: '#/components/schemas/EvmNetworkCriterion'
+          - $ref: '#/components/schemas/EvmDataCriterion'
       example:
         - type: ethValue
           ethValue: '1000000'
@@ -5001,6 +5449,16 @@ components:
             pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           example:
             - 123e4567-e89b-12d3-a456-426614174000
+        createdAt:
+          type: string
+          description: The ISO 8601 UTC timestamp at which the account was created.
+          example: '2025-03-25T12:00:00Z'
+          format: date-time
+        updatedAt:
+          type: string
+          description: The ISO 8601 UTC timestamp at which the account was last updated.
+          example: '2025-03-26T12:00:00Z'
+          format: date-time
       required:
         - address
     PaymentRailAction:
@@ -5395,6 +5853,17 @@ components:
               value:
                 errorType: service_unavailable
                 errorMessage: Service unavailable. Please try again later.
+    PaymentMethodRequiredError:
+      description: A payment method is required to complete this operation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            payment_method_required:
+              value:
+                errorType: payment_method_required
+                errorMessage: A valid payment method is required to complete this operation. Please add a payment method to your account at https://portal.cdp.coinbase.com.
     IdempotencyError:
       description: Idempotency key conflict.
       content:

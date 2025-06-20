@@ -101,6 +101,7 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "EvmSmartAccount",
             '400': "Error",
+            '402': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -172,6 +173,7 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "EvmSmartAccount",
             '400': "Error",
+            '402': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -243,6 +245,7 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "EvmSmartAccount",
             '400': "Error",
+            '402': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -310,7 +313,6 @@ class EVMSmartAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -586,7 +588,6 @@ class EVMSmartAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -862,7 +863,6 @@ class EVMSmartAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1153,7 +1153,6 @@ class EVMSmartAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1445,7 +1444,6 @@ class EVMSmartAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1749,7 +1747,6 @@ class EVMSmartAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1834,6 +1831,7 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "EvmUserOperation",
             '400': "Error",
+            '402': "Error",
             '404': "Error",
             '429': "Error",
             '500': "Error",
@@ -1915,6 +1913,7 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "EvmUserOperation",
             '400': "Error",
+            '402': "Error",
             '404': "Error",
             '429': "Error",
             '500': "Error",
@@ -1996,6 +1995,7 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "EvmUserOperation",
             '400': "Error",
+            '402': "Error",
             '404': "Error",
             '429': "Error",
             '500': "Error",
@@ -2071,7 +2071,6 @@ class EVMSmartAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(

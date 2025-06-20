@@ -7,7 +7,11 @@ import {
   DeletePolicyOptions,
   UpdatePolicyOptions,
 } from "./policies.types.js";
-import { CdpOpenApiClient } from "../../openapi-client/index.js";
+import {
+  CdpOpenApiClient,
+  CreatePolicyBody,
+  UpdatePolicyBody,
+} from "../../openapi-client/index.js";
 import { CreatePolicyBodySchema, UpdatePolicyBodySchema } from "../../policies/schema.js";
 import { Policy } from "../../policies/types.js";
 
@@ -126,7 +130,11 @@ export class PoliciesClient implements PoliciesClientInterface {
    */
   async createPolicy(options: CreatePolicyOptions): Promise<Policy> {
     CreatePolicyBodySchema.parse(options.policy);
-    return CdpOpenApiClient.createPolicy(options.policy, options.idempotencyKey) as Promise<Policy>;
+    return CdpOpenApiClient.createPolicy(
+      // There are arbitrary differences between the abitype Abi and the openapi Abi
+      options.policy as CreatePolicyBody,
+      options.idempotencyKey,
+    ) as Promise<Policy>;
   }
 
   /**
@@ -239,7 +247,8 @@ export class PoliciesClient implements PoliciesClientInterface {
     UpdatePolicyBodySchema.parse(options.policy);
     return CdpOpenApiClient.updatePolicy(
       options.id,
-      options.policy,
+      // There are arbitrary differences between the abitype Abi and the openapi Abi
+      options.policy as UpdatePolicyBody,
       options.idempotencyKey,
     ) as Promise<Policy>;
   }

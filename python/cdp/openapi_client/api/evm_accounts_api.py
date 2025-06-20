@@ -121,6 +121,7 @@ class EVMAccountsApi:
             '201': "EvmAccount",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '409': "Error",
             '422': "Error",
             '500': "Error",
@@ -203,6 +204,7 @@ class EVMAccountsApi:
             '201': "EvmAccount",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '409': "Error",
             '422': "Error",
             '500': "Error",
@@ -285,6 +287,7 @@ class EVMAccountsApi:
             '201': "EvmAccount",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '409': "Error",
             '422': "Error",
             '500': "Error",
@@ -360,7 +363,6 @@ class EVMAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -450,6 +452,7 @@ class EVMAccountsApi:
             '200': "ExportEvmAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -536,6 +539,7 @@ class EVMAccountsApi:
             '200': "ExportEvmAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -622,6 +626,7 @@ class EVMAccountsApi:
             '200': "ExportEvmAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -700,7 +705,6 @@ class EVMAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -790,6 +794,7 @@ class EVMAccountsApi:
             '200': "ExportEvmAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -876,6 +881,7 @@ class EVMAccountsApi:
             '200': "ExportEvmAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -962,6 +968,7 @@ class EVMAccountsApi:
             '200': "ExportEvmAccount200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -1040,7 +1047,6 @@ class EVMAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1316,7 +1322,6 @@ class EVMAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1592,7 +1597,6 @@ class EVMAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1678,6 +1682,7 @@ class EVMAccountsApi:
             '201': "EvmAccount",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '409': "Error",
             '422': "Error",
             '500': "Error",
@@ -1760,6 +1765,7 @@ class EVMAccountsApi:
             '201': "EvmAccount",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '409': "Error",
             '422': "Error",
             '500': "Error",
@@ -1842,6 +1848,7 @@ class EVMAccountsApi:
             '201': "EvmAccount",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '409': "Error",
             '422': "Error",
             '500': "Error",
@@ -1917,7 +1924,6 @@ class EVMAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -2206,7 +2212,6 @@ class EVMAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -2296,6 +2301,7 @@ class EVMAccountsApi:
             '200': "SendEvmTransaction200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
@@ -2384,6 +2390,7 @@ class EVMAccountsApi:
             '200': "SendEvmTransaction200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
@@ -2472,6 +2479,7 @@ class EVMAccountsApi:
             '200': "SendEvmTransaction200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
@@ -2552,7 +2560,6 @@ class EVMAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -2641,6 +2648,7 @@ class EVMAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SignEvmHash200Response",
             '400': "Error",
+            '402': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -2727,6 +2735,7 @@ class EVMAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SignEvmHash200Response",
             '400': "Error",
+            '402': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -2813,6 +2822,7 @@ class EVMAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SignEvmHash200Response",
             '400': "Error",
+            '402': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -2892,7 +2902,6 @@ class EVMAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -2981,6 +2990,7 @@ class EVMAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SignEvmMessage200Response",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -3067,6 +3077,7 @@ class EVMAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SignEvmMessage200Response",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -3153,6 +3164,7 @@ class EVMAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "SignEvmMessage200Response",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '409': "Error",
             '422': "Error",
@@ -3232,7 +3244,6 @@ class EVMAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -3322,6 +3333,7 @@ class EVMAccountsApi:
             '200': "SignEvmTransaction200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
@@ -3410,6 +3422,7 @@ class EVMAccountsApi:
             '200': "SignEvmTransaction200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
@@ -3498,6 +3511,7 @@ class EVMAccountsApi:
             '200': "SignEvmTransaction200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '403': "Error",
             '404': "Error",
             '409': "Error",
@@ -3578,7 +3592,6 @@ class EVMAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -3668,6 +3681,7 @@ class EVMAccountsApi:
             '200': "SignEvmTypedData200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -3754,6 +3768,7 @@ class EVMAccountsApi:
             '200': "SignEvmTypedData200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -3840,6 +3855,7 @@ class EVMAccountsApi:
             '200': "SignEvmTypedData200Response",
             '400': "Error",
             '401': "Error",
+            '402': "Error",
             '404': "Error",
             '422': "Error",
             '500': "Error",
@@ -3918,7 +3934,6 @@ class EVMAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -4243,7 +4258,6 @@ class EVMAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(

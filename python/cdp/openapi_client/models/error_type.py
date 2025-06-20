@@ -37,6 +37,7 @@ class ErrorType(str, Enum):
     INVALID_SIGNATURE = 'invalid_signature'
     MALFORMED_TRANSACTION = 'malformed_transaction'
     NOT_FOUND = 'not_found'
+    PAYMENT_METHOD_REQUIRED = 'payment_method_required'
     RATE_LIMIT_EXCEEDED = 'rate_limit_exceeded'
     REQUEST_CANCELED = 'request_canceled'
     SERVICE_UNAVAILABLE = 'service_unavailable'
