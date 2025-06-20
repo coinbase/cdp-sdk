@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.17.0
+
+### Minor Changes
+
+- [#220](https://github.com/coinbase/cdp-sdk/pull/220) [`c91b8da`](https://github.com/coinbase/cdp-sdk/commit/c91b8da383f747de683019a011cbe3453684d6aa) Thanks [@sammccord](https://github.com/sammccord)! - Added support for `EvmDataCriterion` in policies, which can restrict smart contract interactions
+
 ## 1.16.0
 
 ### Minor Changes
