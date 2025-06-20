@@ -1,6 +1,6 @@
 import { constants, publicEncrypt } from "crypto";
 
-import { Address } from "viem";
+import { type Address, getTypesForEIP712Domain } from "viem";
 
 import { ImportEvmAccountPublicRSAKey } from "./constants.js";
 import {
@@ -62,7 +62,10 @@ import {
 } from "../../actions/evm/waitForUserOperation.js";
 import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
-import { CdpOpenApiClient } from "../../openapi-client/index.js";
+import {
+  CdpOpenApiClient,
+  EIP712Message as OpenAPIEIP712Message,
+} from "../../openapi-client/index.js";
 import { Hex } from "../../types/misc.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
@@ -978,14 +981,22 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async signTypedData(options: SignTypedDataOptions): Promise<SignatureResult> {
+    const { domain, message, primaryType } = options;
+    const types = {
+      EIP712Domain: getTypesForEIP712Domain({ domain }),
+      ...options.types,
+    };
+
+    const openApiMessage: OpenAPIEIP712Message = {
+      domain,
+      types,
+      primaryType,
+      message,
+    };
+
     const signature = await CdpOpenApiClient.signEvmTypedData(
       options.address,
-      {
-        domain: options.domain,
-        types: options.types,
-        primaryType: options.primaryType,
-        message: options.message,
-      },
+      openApiMessage,
       options.idempotencyKey,
     );
 

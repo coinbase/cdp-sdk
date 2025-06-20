@@ -16,7 +16,7 @@ import asyncio
 from decimal import Decimal
 
 from cdp import CdpClient
-from cdp.actions.evm.swap.types import SwapUnavailableResult
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -47,7 +47,7 @@ async def main():
         )
         
         # Check if liquidity is available
-        if isinstance(quote, SwapUnavailableResult):
+        if not quote.liquidity_available:
             print("\n❌ Swap unavailable: Insufficient liquidity")
             print("   Try a smaller amount or a different token pair")
             return

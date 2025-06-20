@@ -515,8 +515,11 @@ async def test_solana_sign_fns(cdp_client):
         ]
     )
 
-    # Add a dummy account key (32 bytes)
-    unsigned_tx_bytes += bytes([0] * 32)
+    # Use account key.
+    pubkey_bytes = base58.b58decode(account.address)
+    assert len(pubkey_bytes) == 32
+
+    unsigned_tx_bytes += pubkey_bytes
     # Add recent blockhash (32 bytes)
     unsigned_tx_bytes += bytes([1] * 32)
     # Add number of instructions (1)

@@ -1,5 +1,25 @@
 # CDP SDK Changelog
 
+## 1.17.0
+
+### Minor Changes
+
+- [#220](https://github.com/coinbase/cdp-sdk/pull/220) [`c91b8da`](https://github.com/coinbase/cdp-sdk/commit/c91b8da383f747de683019a011cbe3453684d6aa) Thanks [@sammccord](https://github.com/sammccord)! - Added support for `EvmDataCriterion` in policies, which can restrict smart contract interactions
+
+## 1.16.0
+
+### Minor Changes
+
+- [#165](https://github.com/coinbase/cdp-sdk/pull/165) [`b39c739`](https://github.com/coinbase/cdp-sdk/commit/b39c739979e92f97f7dd232e2932442bd0251436) Thanks [@derek-cb](https://github.com/derek-cb)! - Added swap support for EVM Smart Accounts.
+
+- [#165](https://github.com/coinbase/cdp-sdk/pull/165) [`b39c739`](https://github.com/coinbase/cdp-sdk/commit/b39c739979e92f97f7dd232e2932442bd0251436) Thanks [@derek-cb](https://github.com/derek-cb)! - Added idempotency support for getSwapPrice and createSwapQuote
+
+### Patch Changes
+
+- [#165](https://github.com/coinbase/cdp-sdk/pull/165) [`b39c739`](https://github.com/coinbase/cdp-sdk/commit/b39c739979e92f97f7dd232e2932442bd0251436) Thanks [@derek-cb](https://github.com/derek-cb)! - Fix usage of optional idempotency keys for one-line swap approach.
+
+- [#211](https://github.com/coinbase/cdp-sdk/pull/211) [`3a497cf`](https://github.com/coinbase/cdp-sdk/commit/3a497cfee26cd5f143940cb067fa5d438e79c590) Thanks [@0xRAG](https://github.com/0xRAG)! - Updated types for signTypedData to fix TypeError when wrapping CDP Account in viem's toAccount helper
+
 ## 1.15.0
 
 ### Minor Changes

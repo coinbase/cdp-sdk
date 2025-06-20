@@ -147,6 +147,7 @@ describe("toEvmServerAccount", () => {
       transfer: expect.any(Function),
       type: "evm-server",
       waitForFundOperationReceipt: expect.any(Function),
+      __experimental_useNetwork: expect.any(Function),
     });
   });
 
@@ -189,8 +190,8 @@ describe("toEvmServerAccount", () => {
       const message = {
         domain: {
           name: "EIP712Domain",
-          chainId: 1,
-          verifyingContract: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          chainId: 1n,
+          verifyingContract: "0x0000000000000000000000000000000000000000" as Address,
         },
         types: {
           EIP712Domain: [
@@ -200,12 +201,7 @@ describe("toEvmServerAccount", () => {
           ],
         },
         primaryType: "EIP712Domain",
-        message: {
-          name: "EIP712Domain",
-          chainId: 1,
-          verifyingContract: "0x0000000000000000000000000000000000000000",
-        },
-      };
+      } as const;
 
       await serverAccount.signTypedData(message);
 
@@ -217,16 +213,11 @@ describe("toEvmServerAccount", () => {
         domain: {
           name: "EIP712Domain",
           chainId: 1,
-          verifyingContract: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          verifyingContract: "0x0000000000000000000000000000000000000000" as Address,
         },
         types: {},
         primaryType: "EIP712Domain",
-        message: {
-          name: "EIP712Domain",
-          chainId: 1,
-          verifyingContract: "0x0000000000000000000000000000000000000000",
-        },
-      };
+      } as const;
 
       await serverAccount.signTypedData(message);
 
@@ -240,6 +231,13 @@ describe("toEvmServerAccount", () => {
           ],
         },
       });
+    });
+  });
+
+  describe("__experimental_useNetwork", () => {
+    it("should return a NetworkScopedEvmServerAccount", async () => {
+      const result = await serverAccount.__experimental_useNetwork("base-sepolia");
+      expect(result.network).toBe("base-sepolia");
     });
   });
 

@@ -36,6 +36,8 @@ import type { WaitForUserOperationReturnType } from "./actions/evm/waitForUserOp
 import { TimeoutError } from "./errors.js";
 import { SignEvmTransactionRule } from "./policies/schema.js";
 import bs58 from "bs58";
+import { Abi } from "abitype";
+import kitchenSinkAbi from "../fixtures/kitchenSinkAbi.js";
 
 dotenv.config();
 
@@ -623,6 +625,8 @@ describe("CDP Client E2E Tests", () => {
     });
     expect(signedMessage).toBeDefined();
 
+    const accountPublicKey = new PublicKey(account.address);
+
     // Create a minimal valid transaction structure for the API
     const unsignedTxBytes = new Uint8Array([
       0, // Number of signatures (0 for unsigned)
@@ -630,7 +634,7 @@ describe("CDP Client E2E Tests", () => {
       0, // Number of read-only signed accounts
       0, // Number of read-only unsigned accounts
       1, // Number of account keys
-      ...new Uint8Array(32).fill(0), // Dummy account key (32 bytes)
+      ...accountPublicKey.toBuffer(),
       ...new Uint8Array(32).fill(1), // Recent blockhash (32 bytes)
       1, // Number of instructions
       0, // Program ID index
@@ -1086,6 +1090,48 @@ describe("CDP Client E2E Tests", () => {
                   ethValue: "1000000000000000000", // 1 ETH
                   operator: ">",
                 },
+                {
+                  type: "evmData",
+                  abi: "erc20",
+                  conditions: [
+                    { function: "balanceOf" },
+                    {
+                      function: "approve",
+                      params: [
+                        {
+                          name: "spender",
+                          operator: "in",
+                          values: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                        },
+                      ],
+                    },
+                    {
+                      function: "transfer",
+                      params: [{ name: "value", operator: "<=", value: "1000" }],
+                    },
+                  ],
+                },
+                {
+                  type: "evmData",
+                  abi: kitchenSinkAbi as Abi,
+                  conditions: [
+                    { function: "boolfn" },
+                    {
+                      function: "addressfn",
+                      params: [
+                        {
+                          name: "addr",
+                          operator: "in",
+                          values: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                        },
+                      ],
+                    },
+                    {
+                      function: "boolfn",
+                      params: [{ name: "boolean", operator: "==", value: "true" }],
+                    },
+                  ],
+                },
               ],
             },
             {
@@ -1096,6 +1142,48 @@ describe("CDP Client E2E Tests", () => {
                   type: "evmNetwork",
                   networks: ["base"],
                   operator: "in",
+                },
+                {
+                  type: "evmData",
+                  abi: "erc20",
+                  conditions: [
+                    { function: "balanceOf" },
+                    {
+                      function: "approve",
+                      params: [
+                        {
+                          name: "spender",
+                          operator: "in",
+                          values: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                        },
+                      ],
+                    },
+                    {
+                      function: "transfer",
+                      params: [{ name: "value", operator: "<=", value: "1000" }],
+                    },
+                  ],
+                },
+                {
+                  type: "evmData",
+                  abi: kitchenSinkAbi as Abi,
+                  conditions: [
+                    { function: "boolfn" },
+                    {
+                      function: "addressfn",
+                      params: [
+                        {
+                          name: "addr",
+                          operator: "in",
+                          values: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                        },
+                      ],
+                    },
+                    {
+                      function: "boolfn",
+                      params: [{ name: "boolean", operator: "==", value: "true" }],
+                    },
+                  ],
                 },
               ],
             },
