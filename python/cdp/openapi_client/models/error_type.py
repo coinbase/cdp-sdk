@@ -45,6 +45,7 @@ class ErrorType(str, Enum):
     UNAUTHORIZED = 'unauthorized'
     POLICY_VIOLATION = 'policy_violation'
     POLICY_IN_USE = 'policy_in_use'
+    ACCOUNT_LIMIT_EXCEEDED = 'account_limit_exceeded'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
