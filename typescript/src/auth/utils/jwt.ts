@@ -4,8 +4,8 @@ import { createPrivateKey } from "crypto";
 import { SignJWT, importPKCS8, importJWK, JWTPayload } from "jose";
 
 import { hash } from "../../utils/hash.js";
-import { InvalidWalletSecretFormatError, UndefinedWalletSecretError } from "../errors.js";
 import { sortKeys } from "../../utils/sortKeys.js";
+import { InvalidWalletSecretFormatError, UndefinedWalletSecretError } from "../errors.js";
 
 /**
  * JwtOptions contains configuration for JWT generation.
