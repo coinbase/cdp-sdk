@@ -56,6 +56,7 @@ export const ErrorType = {
   unauthorized: "unauthorized",
   policy_violation: "policy_violation",
   policy_in_use: "policy_in_use",
+  account_limit_exceeded: "account_limit_exceeded",
 } as const;
 
 /**
@@ -487,6 +488,7 @@ export type ListEvmTokenBalancesNetwork =
 export const ListEvmTokenBalancesNetwork = {
   base: "base",
   "base-sepolia": "base-sepolia",
+  ethereum: "ethereum",
 } as const;
 
 /**

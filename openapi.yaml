@@ -3817,6 +3817,7 @@ components:
         - unauthorized
         - policy_violation
         - policy_in_use
+        - account_limit_exceeded
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -4656,6 +4657,7 @@ components:
       enum:
         - base
         - base-sepolia
+        - ethereum
       description: The name of the supported EVM networks in human-readable format.
       example: base
     TokenAmount:
