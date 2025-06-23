@@ -20,6 +20,10 @@ Account names are guaranteed to be unique across all EVM accounts in the develop
   name?: string;
   /** The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists. */
   policies?: string[];
+  /** The UTC ISO 8601 timestamp at which the account was created. */
+  createdAt?: string;
+  /** The UTC ISO 8601 timestamp at which the account was last updated. */
+  updatedAt?: string;
 }
 
 export interface ListResponse {
@@ -44,6 +48,7 @@ export const ErrorType = {
   invalid_signature: "invalid_signature",
   malformed_transaction: "malformed_transaction",
   not_found: "not_found",
+  payment_method_required: "payment_method_required",
   rate_limit_exceeded: "rate_limit_exceeded",
   request_canceled: "request_canceled",
   service_unavailable: "service_unavailable",
@@ -129,6 +134,10 @@ Account names are guaranteed to be unique across all Smart Accounts in the devel
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /** The UTC ISO 8601 timestamp at which the account was created. */
+  createdAt?: string;
+  /** The UTC ISO 8601 timestamp at which the account was last updated. */
+  updatedAt?: string;
 }
 
 export interface EvmCall {
@@ -170,6 +179,7 @@ export const EvmUserOperationStatus = {
   signed: "signed",
   broadcast: "broadcast",
   complete: "complete",
+  dropped: "dropped",
   failed: "failed",
 } as const;
 
@@ -601,7 +611,201 @@ export interface EvmAddressCriterion {
   operator: EvmAddressCriterionOperator;
 }
 
-export type SignEvmTransactionCriteriaItem = EthValueCriterion | EvmAddressCriterion;
+/**
+ * A reference to an established EIP standard. When referencing a `KnownAbiType` within a policy rule configuring an `EvmDataCriterion`, criteria will only decode function data officially documented in the standard. For more information on supported token standards, see the links below.
+  - [erc20 - Token Standard](https://eips.ethereum.org/EIPS/eip-20).
+  - [erc721 - Non-Fungible Token Standard](https://eips.ethereum.org/EIPS/eip-721).
+  - [erc1155 - Multi Token Standard](https://eips.ethereum.org/EIPS/eip-1155).
+ */
+export type KnownAbiType = (typeof KnownAbiType)[keyof typeof KnownAbiType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const KnownAbiType = {
+  erc20: "erc20",
+  erc721: "erc721",
+  erc1155: "erc1155",
+} as const;
+
+/**
+ * Parameter definition for ABI functions, errors, and constructors.
+ */
+export interface AbiParameter {
+  /** The name of the parameter. */
+  name?: string;
+  /** The canonical type of the parameter. */
+  type: string;
+  /** The internal Solidity type used by the compiler. */
+  internalType?: string;
+  /** Used for tuple types. */
+  components?: AbiParameter[];
+}
+
+/**
+ * State mutability of a function in Solidity.
+ */
+export type AbiStateMutability = (typeof AbiStateMutability)[keyof typeof AbiStateMutability];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AbiStateMutability = {
+  pure: "pure",
+  view: "view",
+  nonpayable: "nonpayable",
+  payable: "payable",
+} as const;
+
+/**
+ * The type of the ABI item, must be `function`.
+ */
+export type AbiFunctionType = (typeof AbiFunctionType)[keyof typeof AbiFunctionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AbiFunctionType = {
+  function: "function",
+} as const;
+
+/**
+ * ABI function type for contract functions.
+ */
+export interface AbiFunction {
+  /** The type of the ABI item, must be `function`. */
+  type: AbiFunctionType;
+  /** The name of the ABI function. */
+  name: string;
+  /** The list of ABI parameters used for this function. */
+  inputs: AbiParameter[];
+  /** The values returned by this function. */
+  outputs: AbiParameter[];
+  /** Deprecated. Use pure or view from stateMutability instead. */
+  constant?: boolean;
+  /** Deprecated. Use payable or nonpayable from `stateMutability` instead. */
+  payable?: boolean;
+  stateMutability: AbiStateMutability;
+  /** Deprecated. Vyper used to provide gas estimates. */
+  gas?: number;
+}
+
+/**
+ * The type of the ABI item.
+ */
+export type AbiInputType = (typeof AbiInputType)[keyof typeof AbiInputType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AbiInputType = {
+  constructor: "constructor",
+  error: "error",
+  event: "event",
+  fallback: "fallback",
+  receive: "receive",
+} as const;
+
+/**
+ * Generic ABI item type encapsulating all other types besides `function`.
+ */
+export interface AbiInput {
+  /** The type of the ABI item. */
+  type: AbiInputType;
+  /** For additional information on the ABI JSON specification, see [the Solidity documentation](https://docs.soliditylang.org/en/latest/abi-spec.html#json). */
+  additionalProperties?: unknown;
+}
+
+export type AbiItem = AbiFunction | AbiInput;
+
+/**
+ * Contract ABI Specification following Solidity's external JSON interface format.
+ */
+export type Abi = AbiItem[];
+
+/**
+ * The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+ */
+export type EvmDataParameterConditionOperator =
+  (typeof EvmDataParameterConditionOperator)[keyof typeof EvmDataParameterConditionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmDataParameterConditionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+export interface EvmDataParameterCondition {
+  /** The name of the parameter to check against a transaction's calldata. If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter. */
+  name: string;
+  /** The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side. */
+  operator: EvmDataParameterConditionOperator;
+  /** A single value to compare the value resolved at `name` to. All values are encoded as strings. Refer to the table in the documentation for how values should be encoded, and which operators are supported for each type. */
+  value: string;
+}
+
+/**
+ * The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `values` field will be on the right-hand side.
+ */
+export type EvmDataParameterConditionListOperator =
+  (typeof EvmDataParameterConditionListOperator)[keyof typeof EvmDataParameterConditionListOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmDataParameterConditionListOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+export interface EvmDataParameterConditionList {
+  /** The name of the parameter to check against a transaction's calldata. If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter. */
+  name: string;
+  /** The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `values` field will be on the right-hand side. */
+  operator: EvmDataParameterConditionListOperator;
+  /** Values to compare against the resolved `name` value. All values are encoded as strings. Refer to the table in the documentation for how values should be encoded, and which operators are supported for each type. */
+  values: string[];
+}
+
+/**
+ * A list of parameter conditions to apply against encoded arguments in the transaction's `data` field.
+ */
+export type EvmDataConditionParamsItem = EvmDataParameterCondition | EvmDataParameterConditionList;
+
+/**
+ * A single condition to apply against the function and encoded arguments in the transaction's `data` field. Each `parameter` configuration must be successfully evaluated against the corresponding function argument in order for a policy to be accepted.
+ */
+export interface EvmDataCondition {
+  /** The name of a smart contract function being called. */
+  function: string;
+  /** An optional list of parameter conditions to apply against encoded arguments in the transaction's `data` field. */
+  params?: EvmDataConditionParamsItem[];
+}
+
+/**
+ * The type of criterion to use. This should be `evmData`.
+ */
+export type EvmDataCriterionType = (typeof EvmDataCriterionType)[keyof typeof EvmDataCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmDataCriterionType = {
+  evmData: "evmData",
+} as const;
+
+/**
+ * The ABI of the smart contract being called. This can be a partial structure with only specific functions.
+ */
+export type EvmDataCriterionAbi = KnownAbiType | Abi;
+
+/**
+ * A schema for specifying a criterion for the `data` field of an EVM transaction.
+ */
+export interface EvmDataCriterion {
+  /** The type of criterion to use. This should be `evmData`. */
+  type: EvmDataCriterionType;
+  /** The ABI of the smart contract being called. This can be a partial structure with only specific functions. */
+  abi: EvmDataCriterionAbi;
+  /** A list of conditions to apply against the function and encoded arguments in the transaction's `data` field. Each condition must be met in order for this policy to be accepted or rejected. */
+  conditions: EvmDataCondition[];
+}
+
+export type SignEvmTransactionCriteriaItem =
+  | EthValueCriterion
+  | EvmAddressCriterion
+  | EvmDataCriterion;
 
 /**
  * A schema for specifying criteria for the SignEvmTransaction operation.
@@ -689,7 +893,8 @@ export interface EvmNetworkCriterion {
 export type SendEvmTransactionCriteriaItem =
   | EthValueCriterion
   | EvmAddressCriterion
-  | EvmNetworkCriterion;
+  | EvmNetworkCriterion
+  | EvmDataCriterion;
 
 /**
  * A schema for specifying criteria for the SignEvmTransaction operation.
@@ -943,6 +1148,10 @@ Account names are guaranteed to be unique across all Solana accounts in the deve
   name?: string;
   /** The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists. */
   policies?: string[];
+  /** The ISO 8601 UTC timestamp at which the account was created. */
+  createdAt?: string;
+  /** The ISO 8601 UTC timestamp at which the account was last updated. */
+  updatedAt?: string;
 }
 
 /**
@@ -1191,6 +1400,11 @@ export type BadGatewayErrorResponse = Error;
 export type ServiceUnavailableErrorResponse = Error;
 
 /**
+ * A payment method is required to complete this operation.
+ */
+export type PaymentMethodRequiredErrorResponse = Error;
+
+/**
  * Idempotency key conflict.
  */
 export type IdempotencyErrorResponse = Error;
@@ -1363,6 +1577,11 @@ Account names must be unique across all EVM accounts in the developer's CDP Proj
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /**
+   * The ID of the account-level policy to apply to the account.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  accountPolicy?: string;
 };
 
 export type ExportEvmAccountBody = {

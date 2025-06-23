@@ -35,6 +35,14 @@ export const getListSolanaAccountsResponseMock = (): ListSolanaAccounts200 => ({
           ),
           undefined,
         ]),
+        createdAt: faker.helpers.arrayElement([
+          `${faker.date.past().toISOString().split(".")[0]}Z`,
+          undefined,
+        ]),
+        updatedAt: faker.helpers.arrayElement([
+          `${faker.date.past().toISOString().split(".")[0]}Z`,
+          undefined,
+        ]),
       }),
     ),
   },
@@ -57,6 +65,14 @@ export const getCreateSolanaAccountResponseMock = (
     ),
     undefined,
   ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -74,6 +90,14 @@ export const getGetSolanaAccountResponseMock = (
         "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
       ),
     ),
+    undefined,
+  ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
     undefined,
   ]),
   ...overrideResponse,
@@ -95,6 +119,14 @@ export const getUpdateSolanaAccountResponseMock = (
     ),
     undefined,
   ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -112,6 +144,14 @@ export const getGetSolanaAccountByNameResponseMock = (
         "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
       ),
     ),
+    undefined,
+  ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
     undefined,
   ]),
   ...overrideResponse,

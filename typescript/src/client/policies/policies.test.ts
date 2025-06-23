@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, MockedFunction } from "vitest";
 import { ZodError } from "zod";
 
-import { CdpOpenApiClient } from "../../openapi-client/index.js";
+import { Abi, CdpOpenApiClient, Policy } from "../../openapi-client/index.js";
 
 import { PoliciesClient } from "./policies.js";
 import { APIError } from "../../openapi-client/errors.js";
-import { Policy } from "../../policies/types.js";
+import kitchenSinkAbi from "../../../fixtures/kitchenSinkAbi.js";
 
 vi.mock("../../openapi-client/index.js", () => {
   return {
@@ -522,6 +522,194 @@ describe("PoliciesClient", () => {
       ).rejects.toThrow(ZodError);
 
       expect(updatePolicyMock).not.toHaveBeenCalled();
+    });
+
+    it("should throw a ZodError for invalid evmData criterion", async () => {
+      const updatePolicyMock = CdpOpenApiClient.updatePolicy as MockedFunction<
+        typeof CdpOpenApiClient.updatePolicy
+      >;
+
+      const assortedInvalidPolicies = [
+        // no conditions
+        {
+          rules: [
+            {
+              action: "reject" as const,
+              operation: "signEvmTransaction" as const,
+              criteria: [
+                {
+                  type: "evmData",
+                  abi: "erc20",
+                  conditions: [],
+                },
+              ],
+            },
+          ],
+        },
+        // invalid known abi
+        {
+          rules: [
+            {
+              action: "reject" as const,
+              operation: "signEvmTransaction" as const,
+              criteria: [
+                {
+                  type: "evmData",
+                  abi: "unknownabi",
+                  conditions: [{ function: "transfer" }],
+                },
+              ],
+            },
+          ],
+        },
+        // invalid explicit abi
+        {
+          rules: [
+            {
+              action: "reject" as const,
+              operation: "signEvmTransaction" as const,
+              criteria: [
+                {
+                  type: "evmData",
+                  abi: { foo: "bar" },
+                  conditions: [{ function: "transfer" }],
+                },
+              ],
+            },
+          ],
+        },
+        // invalid condition shapes
+        {
+          rules: [
+            {
+              action: "reject" as const,
+              operation: "signEvmTransaction" as const,
+              criteria: [
+                {
+                  type: "evmData",
+                  abi: "erc721",
+                  conditions: [{ function: "transfer", params: [] }],
+                },
+              ],
+            },
+          ],
+        },
+        // empty function name
+        {
+          rules: [
+            {
+              action: "reject" as const,
+              operation: "signEvmTransaction" as const,
+              criteria: [
+                {
+                  type: "evmData",
+                  abi: "erc721",
+                  conditions: [{ function: "" }],
+                },
+              ],
+            },
+          ],
+        },
+        // can't use equality operators in list condition
+        {
+          rules: [
+            {
+              action: "reject" as const,
+              operation: "signEvmTransaction" as const,
+              criteria: [
+                {
+                  type: "evmData",
+                  abi: "erc721",
+                  conditions: [
+                    {
+                      function: "transfer",
+                      params: [{ name: "to", operator: ">=", values: ["cool"] }],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ];
+
+      for (const policy of assortedInvalidPolicies) {
+        await expect(
+          client.updatePolicy({
+            id: "policy-123",
+            // @ts-expect-error Intentionally using incorrect criteria structure for test
+            policy,
+          }),
+        ).rejects.toThrow(ZodError);
+        expect(updatePolicyMock).not.toHaveBeenCalled();
+      }
+    });
+
+    it("should permit a valid evmDataCriterion policy", async () => {
+      const updatePolicyMock = CdpOpenApiClient.updatePolicy as MockedFunction<
+        typeof CdpOpenApiClient.updatePolicy
+      >;
+
+      const validPolicy = {
+        scope: "account",
+        description: "Valid evmDataCriterion test policy",
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "signEvmTransaction" as const,
+            criteria: [
+              {
+                type: "evmData" as const,
+                abi: "erc20" as const,
+                conditions: [
+                  { function: "balanceOf" },
+                  {
+                    function: "transfer",
+                    params: [{ name: "value", operator: "<=" as const, value: "10000" }],
+                  },
+                  {
+                    function: "approve",
+                    params: [
+                      {
+                        name: "0",
+                        operator: "in" as const,
+                        values: ["0x000000000000000000000000000000000000dead"],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                type: "evmData" as const,
+                abi: kitchenSinkAbi as Abi,
+                conditions: [
+                  { function: "bytesfn" },
+                  {
+                    function: "uintfn",
+                    params: [{ name: "x", operator: "<=" as const, value: "10000" }],
+                  },
+                  {
+                    function: "addressfn",
+                    params: [
+                      {
+                        name: "0",
+                        operator: "in" as const,
+                        values: ["0x000000000000000000000000000000000000dead"],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+      await client.updatePolicy({
+        id: "policy-123",
+        // @ts-expect-error arbitrary drift between abitype Abi and api Abi
+        policy: validPolicy,
+      });
+      expect(updatePolicyMock).toHaveBeenCalled();
     });
   });
 });
