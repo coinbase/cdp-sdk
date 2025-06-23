@@ -13,6 +13,8 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec, ed25519
 from pydantic import BaseModel, Field, field_validator
 
+from cdp.utils import sort_keys
+
 
 class JwtOptions(BaseModel):
     r"""Configuration options for JWT generation.
@@ -229,9 +231,8 @@ def generate_wallet_jwt(options: WalletJwtOptions) -> str:
     claims = {"uris": [uri], "iat": now, "nbf": now, "jti": str(uuid.uuid4())}
 
     if options.request_data:
-        json_bytes = json.dumps(options.request_data, separators=(",", ":"), sort_keys=True).encode(
-            "utf-8"
-        )
+        sorted_data = sort_keys(options.request_data)
+        json_bytes = json.dumps(sorted_data, separators=(",", ":"), sort_keys=True).encode("utf-8")
         claims["reqHash"] = hashlib.sha256(json_bytes).hexdigest()
 
     try:

@@ -150,3 +150,29 @@ def create_deterministic_uuid_v4(base_key: str, suffix: str = "") -> str:
 
     # Create UUID from bytes
     return str(uuid.UUID(bytes=bytes(uuid_bytes)))
+
+
+def sort_keys(obj: dict) -> dict:
+    """Recursively sorts object keys to ensure consistent JSON stringification.
+
+    Args:
+        obj: The object to sort
+
+    Returns:
+        A new object with sorted keys
+
+    Examples:
+        >>> sort_keys({"b": 1, "a": 2})
+        {'a': 2, 'b': 1}
+
+        >>> sort_keys({"b": {"d": 1, "c": 2}, "a": 3})
+        {'a': 3, 'b': {'c': 2, 'd': 1}}
+
+    """
+    if not obj or not isinstance(obj, dict | list):
+        return obj
+
+    if isinstance(obj, list):
+        return [sort_keys(item) for item in obj]
+
+    return {key: sort_keys(obj[key]) for key in sorted(obj.keys())}
