@@ -5,6 +5,7 @@ import { SignJWT, importPKCS8, importJWK, JWTPayload } from "jose";
 
 import { hash } from "../../utils/hash.js";
 import { InvalidWalletSecretFormatError, UndefinedWalletSecretError } from "../errors.js";
+import { sortKeys } from "../../utils/sortKeys.js";
 
 /**
  * JwtOptions contains configuration for JWT generation.
@@ -191,7 +192,8 @@ export async function generateWalletJwt(options: WalletJwtOptions): Promise<stri
   };
 
   if (Object.keys(options.requestData).length > 0) {
-    claims.reqHash = hash(Buffer.from(JSON.stringify(options.requestData)));
+    const sortedData = sortKeys(options.requestData);
+    claims.reqHash = hash(Buffer.from(JSON.stringify(sortedData)));
   }
 
   try {
