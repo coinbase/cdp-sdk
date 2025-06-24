@@ -11,6 +11,8 @@ import {
   UnknownError,
 } from "./errors.js";
 
+import type { Prettify } from "../types/utils.js";
+
 /**
  * The options for the CDP API.
  */
@@ -54,14 +56,24 @@ export type CdpOptions = {
 
 let axiosInstance: AxiosInstance;
 
+export let config: Prettify<Omit<CdpOptions, "basePath"> & { basePath: string }> | undefined =
+  undefined;
+
 /**
  * Configures the CDP client with the given options.
  *
  * @param {CdpOptions} options - The CDP options.
  */
 export const configure = (options: CdpOptions) => {
+  const baseURL = options.basePath || "https://api.cdp.coinbase.com/platform";
+
+  config = {
+    ...options,
+    basePath: baseURL,
+  };
+
   axiosInstance = Axios.create({
-    baseURL: options.basePath || "https://api.cdp.coinbase.com/platform",
+    baseURL,
   });
 
   axiosInstance = withAuth(axiosInstance, {

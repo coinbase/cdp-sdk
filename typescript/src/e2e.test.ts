@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, beforeEach } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import dotenv from "dotenv";
 import {
@@ -1381,6 +1381,65 @@ describe("CDP Client E2E Tests", () => {
 
       expect(receipt).toBeDefined();
     });
+  });
+
+  it("should use Base Node RPC URL when using managed mode with network identifiers", async () => {
+    // Spy on global fetch to capture HTTP calls
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+    try {
+      // Create or get an account
+      const account = await cdp.evm.getOrCreateAccount({ name: testAccountName });
+
+      // Use the account with base-sepolia network (this triggers resolveViemClients)
+      const baseAccount = await account.useNetwork("base-sepolia");
+
+      // Send a transaction to trigger viem client usage
+      const txResult = await baseAccount.sendTransaction({
+        transaction: {
+          to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+          value: parseEther("0.000001"),
+        },
+      });
+
+      // Wait for transaction receipt - this should use the Base Node RPC
+      await baseAccount.waitForTransactionReceipt({
+        hash: txResult.transactionHash,
+      });
+
+      // Find the RPC calls made during the transaction
+      const rpcCalls = fetchSpy.mock.calls.filter(call => {
+        const url = call[0] as string;
+        const body = call[1]?.body;
+        return (
+          url.includes("/rpc/v1/base-sepolia/") &&
+          body &&
+          body.toString().includes("eth_getTransactionReceipt")
+        );
+      });
+
+      // Assert that at least one RPC call was made to the Base Node URL
+      expect(rpcCalls.length).toBeGreaterThan(0);
+
+      // Verify the URL pattern matches the expected Base Node RPC format
+      const rpcUrl = rpcCalls[0][0] as string;
+      expect(rpcUrl).toMatch(/\/rpc\/v1\/base-sepolia\/[a-zA-Z0-9-]+$/);
+
+      // Log for debugging
+      logger.log(`Base Node RPC URL used: ${rpcUrl}`);
+
+      // Also verify that the initial getBaseNodeRpcUrl call was made
+      const tokenCalls = fetchSpy.mock.calls.filter(call => {
+        const url = call[0] as string;
+        return url.includes("/apikeys/v1/tokens/active");
+      });
+
+      expect(tokenCalls.length).toBeGreaterThan(0);
+      logger.log(`Token endpoint called ${tokenCalls.length} times`);
+    } finally {
+      // Clean up the spy
+      fetchSpy.mockRestore();
+    }
   });
 });
 
