@@ -7,6 +7,7 @@ import { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
 import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js";
 import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
 import type { Address, TransactionRequestEIP1559 } from "../../types/misc.js";
+import { networkScopedTransfer } from "../../actions/evm/transfer/networkScopedTransfer.js";
 
 /**
  * Options for converting a pre-existing EvmAccount to a NetworkScopedEvmServerAccount.
@@ -59,6 +60,13 @@ export async function toNetworkScopedEvmServerAccount(
         ...faucetOptions,
         network: chain.id === baseSepolia.id ? "base-sepolia" : "ethereum-sepolia",
       });
+    },
+    transfer: async (transferArgs) => {
+      if (shouldUseApi) {
+        return options.account.transfer(transferArgs);
+      } else {
+        return networkScopedTransfer(walletClient, options.network, account, transferArgs);
+      }
     },
     sendTransaction: async txOpts => {
       if (shouldUseApi) {
