@@ -8,6 +8,7 @@ import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js
 import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
 import type { Address, TransactionRequestEIP1559 } from "../../types/misc.js";
 import { networkScopedTransfer } from "../../actions/evm/transfer/networkScopedTransfer.js";
+import type { Network } from "../../actions/evm/transfer/types.js";
 
 /**
  * Options for converting a pre-existing EvmAccount to a NetworkScopedEvmServerAccount.
@@ -63,9 +64,15 @@ export async function toNetworkScopedEvmServerAccount(
     },
     transfer: async (transferArgs) => {
       if (shouldUseApi) {
-        return options.account.transfer(transferArgs);
+        return options.account.transfer({
+          ...transferArgs,
+          network: (chain.id === base.id ? "base" : "base-sepolia") as Network,
+        });
       } else {
-        return networkScopedTransfer(walletClient, options.network, account, transferArgs);
+        return networkScopedTransfer(walletClient, options.network, account, {
+          ...transferArgs,
+          network: options.network as Network,
+        });
       }
     },
     sendTransaction: async txOpts => {

@@ -1,14 +1,8 @@
 // Usage: pnpm tsx evm/transfer.ts
-// Make sure to set NODE_RPC_URL in your .env file
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
 import { parseEther } from "viem";
-
-if (!process.env.NODE_RPC_URL) {
-  console.log("NODE_RPC_URL is not set");
-  process.exit(1);
-}
 
 const cdp = new CdpClient();
 
@@ -16,7 +10,7 @@ const account = await cdp.evm.getOrCreateAccount({
   name: "Playground-Account",
 });
 
-const baseAccount = await account.useNetwork(process.env.NODE_RPC_URL);
+const baseAccount = await account.useNetwork("base-sepolia");
 
 const { transactionHash: faucetTransactionHash } =
   await baseAccount.requestFaucet({
@@ -33,7 +27,6 @@ const hash = await baseAccount.transfer({
   to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
   amount: parseEther("0.000001"),
   token: "eth",
-  network: "base-sepolia",
 });
 
 console.log("Transaction hash:", hash);

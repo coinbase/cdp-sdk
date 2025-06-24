@@ -1,5 +1,6 @@
 import { RequestFaucetOptions, RequestFaucetResult } from "../../actions/evm/requestFaucet.js";
 import { TransactionResult, SendTransactionOptions } from "../../actions/evm/sendTransaction.js";
+import { TransferOptions } from "../../actions/evm/transfer/types.js";
 
 import type { AccountActions, SmartAccountActions } from "../../actions/evm/types.js";
 import type { Address, Hash, Hex } from "../../types/misc.js";
@@ -87,6 +88,9 @@ type NetworkScopedAccountActions = Prettify<{
   waitForTransactionReceipt: (
     options: WaitForTransactionReceiptParameters,
   ) => Promise<TransactionReceipt>;
+  transfer: (
+    options: Omit<TransferOptions, "address" | "network">,
+  ) => Promise<TransactionResult>;
 }>;
 
 /**
