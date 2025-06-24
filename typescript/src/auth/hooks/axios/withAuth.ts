@@ -1,7 +1,7 @@
 import { AxiosInstance, AxiosHeaders } from "axios";
 
-import { getAuthHeaders } from "../../utils/http.js";
 import { convertBigIntsToStrings } from "../../../utils/bigint.js";
+import { getAuthHeaders } from "../../utils/http.js";
 
 export interface AuthInterceptorOptions {
   /**
