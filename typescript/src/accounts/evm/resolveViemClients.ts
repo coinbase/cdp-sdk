@@ -59,7 +59,7 @@ function isNetworkIdentifier(input: string): boolean {
  * @param network - The network identifier to resolve
  * @returns The resolved viem chain
  */
-function resolveNetworkToChain(network: string): Chain {
+export function resolveNetworkToChain(network: string): Chain {
   const chain = NETWORK_TO_CHAIN_MAP[network.toLowerCase()];
   if (!chain) {
     throw new Error(`Unsupported network identifier: ${network}`);

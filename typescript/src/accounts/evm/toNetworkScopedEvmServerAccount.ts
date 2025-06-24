@@ -69,7 +69,7 @@ export async function toNetworkScopedEvmServerAccount(
           network: (chain.id === base.id ? "base" : "base-sepolia") as Network,
         });
       } else {
-        return networkScopedTransfer(walletClient, options.network, account, {
+        return networkScopedTransfer(walletClient, account, {
           ...transferArgs,
           network: options.network as Network,
         });

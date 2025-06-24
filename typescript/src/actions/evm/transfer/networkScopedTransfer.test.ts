@@ -39,12 +39,7 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      const result = await networkScopedTransfer(
-        mockWalletClient,
-        "base",
-        mockAccount,
-        transferArgs,
-      );
+      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
@@ -78,12 +73,7 @@ describe("networkScopedTransfer", () => {
         network: "base-sepolia",
       };
 
-      const result = await networkScopedTransfer(
-        mockWalletClient,
-        "base-sepolia",
-        mockAccount,
-        transferArgs,
-      );
+      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
         account: mockAccount.address,
@@ -110,12 +100,7 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      const result = await networkScopedTransfer(
-        mockWalletClient,
-        "base",
-        mockAccount,
-        transferArgs,
-      );
+      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
 
@@ -159,12 +144,7 @@ describe("networkScopedTransfer", () => {
         network: "base-sepolia",
       };
 
-      const result = await networkScopedTransfer(
-        mockWalletClient,
-        "base-sepolia",
-        mockAccount,
-        transferArgs,
-      );
+      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
 
@@ -209,12 +189,7 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      const result = await networkScopedTransfer(
-        mockWalletClient,
-        "base",
-        mockAccount,
-        transferArgs,
-      );
+      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
 
@@ -266,12 +241,7 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      const result = await networkScopedTransfer(
-        mockWalletClient,
-        "base",
-        mockAccount,
-        transferArgs,
-      );
+      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
 
@@ -318,7 +288,7 @@ describe("networkScopedTransfer", () => {
       };
 
       await expect(
-        networkScopedTransfer(mockWalletClient, "base", mockAccount, transferArgs),
+        networkScopedTransfer(mockWalletClient, mockAccount, transferArgs),
       ).rejects.toThrow("Transaction failed");
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
@@ -336,7 +306,7 @@ describe("networkScopedTransfer", () => {
       };
 
       await expect(
-        networkScopedTransfer(mockWalletClient, "base", mockAccount, transferArgs),
+        networkScopedTransfer(mockWalletClient, mockAccount, transferArgs),
       ).rejects.toThrow("Approve failed");
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
@@ -359,7 +329,7 @@ describe("networkScopedTransfer", () => {
       };
 
       await expect(
-        networkScopedTransfer(mockWalletClient, "base", mockAccount, transferArgs),
+        networkScopedTransfer(mockWalletClient, mockAccount, transferArgs),
       ).rejects.toThrow("Transfer failed");
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
@@ -378,12 +348,7 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      const result = await networkScopedTransfer(
-        mockWalletClient,
-        "base",
-        mockAccount,
-        transferArgs,
-      );
+      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
         account: mockAccount.address,
@@ -409,12 +374,7 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      const result = await networkScopedTransfer(
-        mockWalletClient,
-        "base",
-        mockAccount,
-        transferArgs,
-      );
+      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
         account: mockAccount.address,

@@ -1,6 +1,7 @@
 import { encodeFunctionData, erc20Abi } from "viem";
 
 import { getErc20Address } from "./utils.js";
+import { resolveNetworkToChain } from "../../../accounts/evm/resolveViemClients.js";
 
 import type { Network, TransferOptions } from "./types.js";
 import type { EvmAccount } from "../../../accounts/evm/types.js";
@@ -14,29 +15,27 @@ import type { WalletClient } from "viem";
  * a wallet client for transaction execution instead of the API client.
  *
  * @param walletClient - The wallet client to use for transaction execution.
- * @param network - The network to transfer the token on.
  * @param from - The account to send the transaction from.
  * @param transferArgs - The transfer options.
  * @returns The result of the transfer.
  */
 export async function networkScopedTransfer<T extends EvmAccount>(
   walletClient: WalletClient,
-  network: string,
   from: T,
   transferArgs: TransferOptions,
 ): Promise<TransactionResult> {
-  const { token, to, value } = {
-    token: transferArgs.token,
-    to: typeof transferArgs.to === "string" ? transferArgs.to : transferArgs.to.address,
-    value: transferArgs.amount,
-  };
+  const token = transferArgs.token;
+  const to = typeof transferArgs.to === "string" ? transferArgs.to : transferArgs.to.address;
+  const value = transferArgs.amount;
+  const network = transferArgs.network;
+  const chain = resolveNetworkToChain(network);
 
   if (token === "eth") {
     const hash = await walletClient.sendTransaction({
       account: from.address,
       to,
       value,
-      chain: null,
+      chain,
     });
     return { transactionHash: hash as Hex };
   }
@@ -52,7 +51,7 @@ export async function networkScopedTransfer<T extends EvmAccount>(
       functionName: "approve",
       args: [to, value],
     }),
-    chain: null,
+    chain,
   });
 
   // Then execute the transfer
@@ -64,7 +63,7 @@ export async function networkScopedTransfer<T extends EvmAccount>(
       functionName: "transfer",
       args: [to, value],
     }),
-    chain: null,
+    chain,
   });
 
   return { transactionHash: hash as Hex };
