@@ -44,7 +44,11 @@ import type {
   AccountQuoteSwapOptions,
   AccountQuoteSwapResult,
 } from "../../actions/evm/swap/types.js";
-import type { CdpOpenApiClientType, EvmAccount } from "../../openapi-client/index.js";
+import type {
+  CdpOpenApiClientType,
+  EvmAccount,
+  SendEvmTransactionBodyNetwork,
+} from "../../openapi-client/index.js";
 import type { Address, EIP712Domain, Hash, Hex } from "../../types/misc.js";
 
 /**
@@ -154,17 +158,41 @@ export function toEvmServerAccount(
       return waitForFundOperationReceipt(apiClient, options);
     },
     async quoteSwap(options: AccountQuoteSwapOptions): Promise<AccountQuoteSwapResult> {
-      return createSwapQuote(apiClient, {
-        ...options,
-        taker: this.address,
-      });
+      return createSwapQuote(
+        apiClient,
+        {
+          ...options,
+          taker: this.address,
+        },
+        {
+          executeSwapTx: ({ transaction, network, idempotencyKey }) => {
+            return sendTransaction(apiClient, {
+              address: this.address,
+              network: network as SendEvmTransactionBodyNetwork,
+              transaction,
+              idempotencyKey,
+            });
+          },
+        },
+      );
     },
     async swap(options: AccountSwapOptions): Promise<AccountSwapResult> {
-      return sendSwapTransaction(apiClient, {
-        ...options,
-        address: this.address,
-        taker: this.address, // Always use account's address as taker
-      });
+      return sendSwapTransaction(
+        apiClient,
+        {
+          ...options,
+          address: this.address,
+          taker: this.address, // Always use account's address as taker
+        },
+        ({ transaction, network, idempotencyKey }) => {
+          return sendTransaction(apiClient, {
+            address: this.address,
+            network: network as SendEvmTransactionBodyNetwork,
+            transaction,
+            idempotencyKey,
+          });
+        },
+      );
     },
     name: options.account.name,
     type: "evm-server",

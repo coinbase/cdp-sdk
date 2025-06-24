@@ -1,5 +1,6 @@
 import { sendSwapOperation } from "./sendSwapOperation.js";
 import { sendSwapTransaction } from "./sendSwapTransaction.js";
+import { SendSwapOperationResult, SendSwapTransactionResult } from "./types.js";
 import {
   CreateSwapQuoteOptions,
   CreateSwapQuoteResult,
@@ -13,15 +14,18 @@ import {
   type SendEvmTransactionBodyNetwork,
   type EvmUserOperationNetwork,
 } from "../../../openapi-client/index.js";
-import { Address, Hex } from "../../../types/misc.js";
+import { Call } from "../../../types/calls.js";
 
 import type { EvmSmartAccount } from "../../../accounts/evm/types.js";
+import type { Address, Hex } from "../../../types/misc.js";
+import type { TransactionRequestEIP1559 } from "viem";
 
 /**
  * Creates a quote for a swap between two tokens on an EVM network.
  *
  * @param {CdpOpenApiClientType} client - The client to use to create the swap quote.
  * @param {CreateSwapQuoteOptions} options - The options for creating a swap quote.
+ * @param {Function} executeSwapFn - A function that executes the swap.
  *
  * @returns {Promise<CreateSwapQuoteResult | SwapUnavailableResult>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
  *
@@ -39,6 +43,22 @@ import type { EvmSmartAccount } from "../../../accounts/evm/types.js";
 export async function createSwapQuote(
   client: CdpOpenApiClientType,
   options: CreateSwapQuoteOptions,
+  {
+    executeSwapTx,
+    executeSwapUserOp,
+  }: {
+    executeSwapTx?: (args: {
+      transaction: TransactionRequestEIP1559;
+      network: SendEvmTransactionBodyNetwork;
+      idempotencyKey: string | undefined;
+    }) => Promise<SendSwapTransactionResult>;
+    executeSwapUserOp?: (args: {
+      calls: Call[];
+      network: EvmUserOperationNetwork;
+      paymasterUrl: string | undefined;
+      idempotencyKey: string | undefined;
+    }) => Promise<SendSwapOperationResult>;
+  },
 ): Promise<CreateSwapQuoteResult | SwapUnavailableResult> {
   // Validate required parameters
   if (!options.taker) {
@@ -143,12 +163,16 @@ export async function createSwapQuote(
     ): Promise<ExecuteSwapQuoteResult> => {
       if (options.smartAccount) {
         // Smart account execution - use sendSwapOperation
-        const userOpResult = await sendSwapOperation(client, {
-          smartAccount: options.smartAccount as EvmSmartAccount,
-          network: result.network as EvmUserOperationNetwork,
-          swapQuote: result,
-          idempotencyKey: executeOptions.idempotencyKey,
-        });
+        const userOpResult = await sendSwapOperation(
+          client,
+          {
+            smartAccount: options.smartAccount as EvmSmartAccount,
+            network: result.network as EvmUserOperationNetwork,
+            swapQuote: result,
+            idempotencyKey: executeOptions.idempotencyKey,
+          },
+          executeSwapUserOp!,
+        );
 
         return {
           userOpHash: userOpResult.userOpHash,
@@ -157,12 +181,16 @@ export async function createSwapQuote(
         };
       } else {
         // EOA execution - use sendSwapTransaction
-        const { transactionHash } = await sendSwapTransaction(client, {
-          address: taker,
-          network: result.network as SendEvmTransactionBodyNetwork,
-          swapQuote: result,
-          idempotencyKey: executeOptions.idempotencyKey,
-        });
+        const { transactionHash } = await sendSwapTransaction(
+          client,
+          {
+            address: taker,
+            network: result.network as SendEvmTransactionBodyNetwork,
+            swapQuote: result,
+            idempotencyKey: executeOptions.idempotencyKey,
+          },
+          executeSwapTx!,
+        );
 
         return { transactionHash };
       }

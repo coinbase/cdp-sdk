@@ -2,7 +2,6 @@ import { concat, numberToHex, size } from "viem";
 
 import { createSwapQuote } from "./createSwapQuote.js";
 import { createDeterministicUuidV4 } from "../../../utils/uuidV4.js";
-import { sendTransaction } from "../sendTransaction.js";
 
 import type { SendSwapTransactionOptions, SendSwapTransactionResult } from "./types.js";
 import type {
@@ -27,6 +26,7 @@ import type { TransactionRequestEIP1559 } from "viem";
  *
  * @param {CdpOpenApiClientType} client - The client to use for sending the swap.
  * @param {SendSwapTransactionOptions} options - The options for the swap submission.
+ * @param {Function} executeSwapTx - A function that executes the swap.
  *
  * @returns {Promise<SendSwapTransactionResult>} A promise that resolves to the transaction hash.
  *
@@ -80,6 +80,11 @@ import type { TransactionRequestEIP1559 } from "viem";
 export async function sendSwapTransaction(
   client: CdpOpenApiClientType,
   options: SendSwapTransactionOptions,
+  executeSwapTx: (args: {
+    transaction: TransactionRequestEIP1559;
+    network: SendEvmTransactionBodyNetwork;
+    idempotencyKey: string | undefined;
+  }) => Promise<SendSwapTransactionResult>,
 ): Promise<SendSwapTransactionResult> {
   const { address, idempotencyKey } = options;
 
@@ -98,17 +103,23 @@ export async function sendSwapTransaction(
       ? createDeterministicUuidV4(idempotencyKey, "createSwapQuote")
       : undefined;
 
-    swapResult = await createSwapQuote(client, {
-      network: options.network as CreateSwapQuoteOptions["network"],
-      toToken: options.toToken,
-      fromToken: options.fromToken,
-      fromAmount: options.fromAmount,
-      taker: options.taker,
-      signerAddress: options.signerAddress,
-      gasPrice: options.gasPrice,
-      slippageBps: options.slippageBps,
-      idempotencyKey: swapQuoteIdempotencyKey,
-    });
+    swapResult = await createSwapQuote(
+      client,
+      {
+        network: options.network as CreateSwapQuoteOptions["network"],
+        toToken: options.toToken,
+        fromToken: options.fromToken,
+        fromAmount: options.fromAmount,
+        taker: options.taker,
+        signerAddress: options.signerAddress,
+        gasPrice: options.gasPrice,
+        slippageBps: options.slippageBps,
+        idempotencyKey: swapQuoteIdempotencyKey,
+      },
+      {
+        executeSwapTx,
+      },
+    );
   }
 
   // Check if liquidity is available
@@ -175,11 +186,19 @@ export async function sendSwapTransaction(
     ...(swap.transaction.gas ? { gas: BigInt(swap.transaction.gas) } : {}),
   };
 
-  // Use sendTransaction instead of directly calling client.sendEvmTransaction
-  const result = await sendTransaction(client, {
-    address,
-    network: swap.network as SendEvmTransactionBodyNetwork,
+  /*
+   * Use sendTransaction instead of directly calling client.sendEvmTransaction
+   * const result = await sendTransaction(client, {
+   *   address,
+   *   network: swap.network as SendEvmTransactionBodyNetwork,
+   *   transaction,
+   *   idempotencyKey,
+   * });
+   */
+
+  const result = await executeSwapTx({
     transaction,
+    network: swap.network as SendEvmTransactionBodyNetwork,
     idempotencyKey,
   });
 

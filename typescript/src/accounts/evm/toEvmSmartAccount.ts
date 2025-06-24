@@ -45,6 +45,7 @@ import type {
 import type {
   CdpOpenApiClientType,
   EvmSmartAccount as EvmSmartAccountModel,
+  EvmUserOperationNetwork,
 } from "../../openapi-client/index.js";
 import type { Address } from "../../types/misc.js";
 
@@ -138,20 +139,46 @@ export function toEvmSmartAccount(
       return waitForFundOperationReceipt(apiClient, options);
     },
     async quoteSwap(options: SmartAccountQuoteSwapOptions): Promise<SmartAccountQuoteSwapResult> {
-      return createSwapQuote(apiClient, {
-        ...options,
-        taker: this.address, // Always use smart account's address as taker
-        signerAddress: this.owners[0].address, // Always use owner's address as signer
-        smartAccount: account, // Pass smart account for execute method support
-      });
+      return createSwapQuote(
+        apiClient,
+        {
+          ...options,
+          taker: this.address, // Always use smart account's address as taker
+          signerAddress: this.owners[0].address, // Always use owner's address as signer
+          smartAccount: account, // Pass smart account for execute method support
+        },
+        {
+          executeSwapUserOp: ({ network, paymasterUrl, idempotencyKey, calls }) => {
+            return sendUserOperation(apiClient, {
+              smartAccount: account,
+              network: network as EvmUserOperationNetwork,
+              paymasterUrl,
+              idempotencyKey,
+              calls,
+            });
+          },
+        },
+      );
     },
     async swap(options: SmartAccountSwapOptions): Promise<SmartAccountSwapResult> {
-      return sendSwapOperation(apiClient, {
-        ...options,
-        smartAccount: account,
-        taker: this.address, // Always use smart account's address as taker
-        signerAddress: this.owners[0].address, // Always use owner's address as signer
-      });
+      return sendSwapOperation(
+        apiClient,
+        {
+          ...options,
+          smartAccount: account,
+          taker: this.address, // Always use smart account's address as taker
+          signerAddress: this.owners[0].address, // Always use owner's address as signer
+        },
+        ({ network, paymasterUrl, idempotencyKey, calls }) => {
+          return sendUserOperation(apiClient, {
+            smartAccount: account,
+            network: network as EvmUserOperationNetwork,
+            paymasterUrl,
+            idempotencyKey,
+            calls,
+          });
+        },
+      );
     },
 
     name: options.smartAccount.name,

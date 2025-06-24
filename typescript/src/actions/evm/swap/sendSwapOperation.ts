@@ -1,12 +1,11 @@
 import { concat, numberToHex, size } from "viem";
 
 import { createSwapQuote } from "./createSwapQuote.js";
+import { Call } from "../../../types/calls.js";
 import { createDeterministicUuidV4 } from "../../../utils/uuidV4.js";
-import { sendUserOperation } from "../sendUserOperation.js";
 import { signAndWrapTypedDataForSmartAccount } from "../signAndWrapTypedDataForSmartAccount.js";
 
 import type { SendSwapOperationOptions, SendSwapOperationResult } from "./types.js";
-import type { EvmSmartAccount } from "../../../accounts/evm/types.js";
 import type {
   CreateSwapQuoteResult,
   CreateSwapQuoteOptions,
@@ -29,6 +28,7 @@ import type { Hex } from "../../../types/misc.js";
  * @param {CdpOpenApiClientType} client - The client to use for sending the swap operation.
  * @param {SendSwapOperationOptions} options - The options for the swap submission.
  *
+ * @param {Function} executeSwapUserOp - A function that executes the swap operation.
  * @returns {Promise<SendSwapOperationResult>} A promise that resolves to the user operation result.
  *
  * @throws {Error} If liquidity is not available for the swap.
@@ -81,6 +81,12 @@ import type { Hex } from "../../../types/misc.js";
 export async function sendSwapOperation(
   client: CdpOpenApiClientType,
   options: SendSwapOperationOptions,
+  executeSwapUserOp: (args: {
+    calls: Call[];
+    network: EvmUserOperationNetwork;
+    paymasterUrl: string | undefined;
+    idempotencyKey: string | undefined;
+  }) => Promise<SendSwapOperationResult>,
 ): Promise<SendSwapOperationResult> {
   const { smartAccount, paymasterUrl, idempotencyKey } = options;
 
@@ -99,17 +105,23 @@ export async function sendSwapOperation(
       ? createDeterministicUuidV4(idempotencyKey, "createSwapQuote")
       : undefined;
 
-    swapResult = await createSwapQuote(client, {
-      network: options.network as CreateSwapQuoteOptions["network"],
-      toToken: options.toToken,
-      fromToken: options.fromToken,
-      fromAmount: options.fromAmount,
-      taker: options.taker,
-      signerAddress: options.signerAddress,
-      gasPrice: options.gasPrice,
-      slippageBps: options.slippageBps,
-      idempotencyKey: swapQuoteIdempotencyKey,
-    });
+    swapResult = await createSwapQuote(
+      client,
+      {
+        network: options.network as CreateSwapQuoteOptions["network"],
+        toToken: options.toToken,
+        fromToken: options.fromToken,
+        fromAmount: options.fromAmount,
+        taker: options.taker,
+        signerAddress: options.signerAddress,
+        gasPrice: options.gasPrice,
+        slippageBps: options.slippageBps,
+        idempotencyKey: swapQuoteIdempotencyKey,
+      },
+      {
+        executeSwapUserOp,
+      },
+    );
   }
 
   // Check if liquidity is available
@@ -162,9 +174,7 @@ export async function sendSwapOperation(
     txData = concat([txData, permit2SignatureLengthInHex, wrappedSignature]);
   }
 
-  // Send the swap as a user operation
-  const result = await sendUserOperation(client, {
-    smartAccount: smartAccount as EvmSmartAccount,
+  const result = await executeSwapUserOp({
     network: swap.network as EvmUserOperationNetwork,
     paymasterUrl,
     idempotencyKey,

@@ -64,11 +64,14 @@ import { Analytics } from "../../analytics.js";
 import { APIError } from "../../openapi-client/errors.js";
 import {
   CdpOpenApiClient,
+  EvmUserOperationNetwork,
   EIP712Message as OpenAPIEIP712Message,
+  SendEvmTransactionBodyNetwork,
 } from "../../openapi-client/index.js";
 import { Hex } from "../../types/misc.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
+import type { EvmSmartAccount } from "../../accounts/evm/types.js";
 import type {
   SendTransactionOptions,
   TransactionResult,
@@ -557,7 +560,25 @@ export class EvmClient implements EvmClientInterface {
   async createSwapQuote(
     options: CreateSwapQuoteOptions,
   ): Promise<CreateSwapQuoteResult | SwapUnavailableResult> {
-    return createSwapQuote(CdpOpenApiClient, options);
+    return createSwapQuote(CdpOpenApiClient, options, {
+      executeSwapTx: ({ transaction, network, idempotencyKey }) => {
+        return sendTransaction(CdpOpenApiClient, {
+          address: options.taker,
+          network: network as SendEvmTransactionBodyNetwork,
+          transaction,
+          idempotencyKey,
+        });
+      },
+      executeSwapUserOp: ({ network, paymasterUrl, idempotencyKey, calls }) => {
+        return sendUserOperation(CdpOpenApiClient, {
+          smartAccount: options.smartAccount as EvmSmartAccount,
+          network: network as EvmUserOperationNetwork,
+          paymasterUrl,
+          idempotencyKey,
+          calls,
+        });
+      },
+    });
   }
 
   /**
