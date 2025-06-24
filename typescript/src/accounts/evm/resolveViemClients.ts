@@ -141,7 +141,7 @@ export type ResolvedViemClients = {
  * @param network - The network identifier
  * @returns The base node RPC URL or undefined if the network is not supported
  */
-async function getBaseNodeRpcUrl(network: string): Promise<string | undefined> {
+async function getBaseNodeRpcUrl(network: "base" | "base-sepolia"): Promise<string | undefined> {
   if (!config) {
     return;
   }
@@ -203,17 +203,20 @@ export async function resolveViemClients(
 
   // If it's a valid network identifier, use the mapping
   if (isNetworkIdentifier(networkOrNodeUrl)) {
-    const url = await getBaseNodeRpcUrl(networkOrNodeUrl);
+    const rpcUrl =
+      networkOrNodeUrl === "base" || networkOrNodeUrl === "base-sepolia"
+        ? await getBaseNodeRpcUrl(networkOrNodeUrl)
+        : undefined;
 
     chain = resolveNetworkToChain(networkOrNodeUrl);
     const publicClient = createPublicClient({
       chain,
-      transport: http(url),
+      transport: http(rpcUrl),
     });
     const walletClient = createWalletClient({
       account: toAccount(options.account),
       chain,
-      transport: http(url),
+      transport: http(rpcUrl),
     });
     return {
       chain,
