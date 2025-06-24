@@ -3,12 +3,12 @@ import { base, baseSepolia, sepolia } from "viem/chains";
 
 import { resolveViemClients } from "./resolveViemClients.js";
 import { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
+import { networkScopedTransfer } from "../../actions/evm/transfer/networkScopedTransfer.js";
 
 import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js";
+import type { Network } from "../../actions/evm/transfer/types.js";
 import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
 import type { Address, TransactionRequestEIP1559 } from "../../types/misc.js";
-import { networkScopedTransfer } from "../../actions/evm/transfer/networkScopedTransfer.js";
-import type { Network } from "../../actions/evm/transfer/types.js";
 
 /**
  * Options for converting a pre-existing EvmAccount to a NetworkScopedEvmServerAccount.
@@ -62,7 +62,7 @@ export async function toNetworkScopedEvmServerAccount(
         network: chain.id === baseSepolia.id ? "base-sepolia" : "ethereum-sepolia",
       });
     },
-    transfer: async (transferArgs) => {
+    transfer: async transferArgs => {
       if (shouldUseApi) {
         return options.account.transfer({
           ...transferArgs,

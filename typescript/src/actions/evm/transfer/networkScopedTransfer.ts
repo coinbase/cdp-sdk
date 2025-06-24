@@ -1,10 +1,12 @@
-import type { WalletClient } from "viem";
-import type { Network, TransferExecutionStrategy, TransferOptions } from "./types.js";
-import type { EvmAccount } from "../../../accounts/evm/types.js";
-import { getErc20Address } from "./utils.js";
-import type { TransactionResult } from "../sendTransaction.js";
-import type { Hex } from "../../../types/misc.js";
 import { encodeFunctionData, erc20Abi } from "viem";
+
+import { getErc20Address } from "./utils.js";
+
+import type { Network, TransferOptions } from "./types.js";
+import type { EvmAccount } from "../../../accounts/evm/types.js";
+import type { Hex } from "../../../types/misc.js";
+import type { TransactionResult } from "../sendTransaction.js";
+import type { WalletClient } from "viem";
 
 /**
  * Transfer an amount of a token from a network-scoped account to another account.
@@ -23,44 +25,47 @@ export async function networkScopedTransfer<T extends EvmAccount>(
   from: T,
   transferArgs: TransferOptions,
 ): Promise<TransactionResult> {
+  const { token, to, value } = {
+    token: transferArgs.token,
+    to: typeof transferArgs.to === "string" ? transferArgs.to : transferArgs.to.address,
+    value: transferArgs.amount,
+  };
 
-    const { token, to, value } = {token: transferArgs.token, to: typeof transferArgs.to === "string" ? transferArgs.to : transferArgs.to.address, value: transferArgs.amount};
-    
-    if (token === "eth") {
-      const hash = await walletClient.sendTransaction({
-        account: from.address,
-        to,
-        value,
-        chain: null,
-      });
-      return { transactionHash: hash as Hex };
-    }
-
-    const erc20Address = getErc20Address(token, network as Network);
-
-    // First approve the transfer
-    await walletClient.sendTransaction({
-      account: from.address,
-      to: erc20Address,
-      data: encodeFunctionData({
-        abi: erc20Abi,
-        functionName: "approve",
-        args: [to, value],
-      }),
-      chain: null,
-    });
-
-    // Then execute the transfer
+  if (token === "eth") {
     const hash = await walletClient.sendTransaction({
       account: from.address,
-      to: erc20Address,
-      data: encodeFunctionData({
-        abi: erc20Abi,
-        functionName: "transfer",
-        args: [to, value],
-      }),
+      to,
+      value,
       chain: null,
     });
-
     return { transactionHash: hash as Hex };
+  }
+
+  const erc20Address = getErc20Address(token, network as Network);
+
+  // First approve the transfer
+  await walletClient.sendTransaction({
+    account: from.address,
+    to: erc20Address,
+    data: encodeFunctionData({
+      abi: erc20Abi,
+      functionName: "approve",
+      args: [to, value],
+    }),
+    chain: null,
+  });
+
+  // Then execute the transfer
+  const hash = await walletClient.sendTransaction({
+    account: from.address,
+    to: erc20Address,
+    data: encodeFunctionData({
+      abi: erc20Abi,
+      functionName: "transfer",
+      args: [to, value],
+    }),
+    chain: null,
+  });
+
+  return { transactionHash: hash as Hex };
 }
