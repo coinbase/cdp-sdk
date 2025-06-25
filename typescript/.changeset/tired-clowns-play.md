@@ -2,4 +2,4 @@
 "@coinbase/cdp-sdk": minor
 ---
 
-Add transfer function in networkScopedEvmServerAccount
+Added transfer function to managed EvmServerAccount

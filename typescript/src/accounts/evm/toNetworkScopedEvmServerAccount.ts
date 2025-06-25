@@ -3,13 +3,13 @@ import { base, baseSepolia, sepolia } from "viem/chains";
 
 import { resolveViemClients } from "./resolveViemClients.js";
 import { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
-import { transferWithViem } from "../../actions/evm/transfer/networkScopedTransfer.js";
+import { TransactionResult } from "../../actions/evm/sendTransaction.js";
+import { transferWithViem } from "../../actions/evm/transfer/transferWithViem.js";
 
 import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js";
 import type { Network } from "../../actions/evm/transfer/types.js";
 import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
 import type { Address, TransactionRequestEIP1559 } from "../../types/misc.js";
-import { TransactionResult } from "../../actions/evm/sendTransaction.js";
 
 /**
  * Options for converting a pre-existing EvmAccount to a NetworkScopedEvmServerAccount.

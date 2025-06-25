@@ -1,8 +1,7 @@
 // Usage: pnpm tsx evm/transfer.ts
 
-import { CdpClient } from "@coinbase/cdp-sdk";
+import { CdpClient, parseEther } from "@coinbase/cdp-sdk";
 import "dotenv/config";
-import { parseEther } from "viem";
 
 const cdp = new CdpClient();
 
@@ -12,16 +11,14 @@ const account = await cdp.evm.getOrCreateAccount({
 
 const baseAccount = await account.useNetwork("base-sepolia");
 
-const { transactionHash: faucetTransactionHash } =
+const faucetTx =
   await baseAccount.requestFaucet({
     token: "eth",
-  });
-
-await baseAccount.waitForTransactionReceipt({
-  hash: faucetTransactionHash,
 });
 
-console.log("Faucet transaction receipt:", faucetTransactionHash);
+await baseAccount.waitForTransactionReceipt(faucetTx);
+
+console.log("Faucet transaction receipt:", faucetTx);
 
 const hash = await baseAccount.transfer({
   to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",

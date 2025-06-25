@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { transferWithViem } from "./networkScopedTransfer.js";
+import { transferWithViem } from "./transferWithViem.js";
 import type { TransferOptions } from "./types.js";
 import type { EvmAccount } from "../../../accounts/evm/types.js";
 import type { WalletClient } from "viem";
