@@ -1449,6 +1449,11 @@ describe("CDP Client E2E Tests", () => {
   });
 
   it("should use Base Node RPC URL when using managed mode with network identifiers", async () => {
+    if (process.env.E2E_BASE_PATH?.includes("localhost")) {
+      logger.log("Skipping test in local environment");
+      return;
+    }
+
     // Spy on global fetch to capture HTTP calls
     const fetchSpy = vi.spyOn(globalThis, "fetch");
 
