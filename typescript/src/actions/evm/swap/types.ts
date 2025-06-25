@@ -8,8 +8,12 @@ import type {
   SendEvmTransactionBodyNetwork,
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
+  EvmSwapsNetwork,
 } from "../../../openapi-client/index.js";
 import type { Address, Hex } from "../../../types/misc.js";
+
+// Type representing networks that support both user operations and swaps.
+export type SmartAccountSwapNetwork = Extract<EvmSwapsNetwork, EvmUserOperationNetwork>;
 
 /**
  * Base options for sending a swap transaction.
@@ -144,7 +148,10 @@ export type AccountSwapResult = SendSwapTransactionResult;
 /**
  * Options for creating a swap quote (smart account-level).
  */
-export type SmartAccountQuoteSwapOptions = Omit<CreateSwapQuoteOptions, "taker">;
+export type SmartAccountQuoteSwapOptions = Omit<CreateSwapQuoteOptions, "taker" | "network"> & {
+  /** The network to create a swap quote on. Smart accounts only support networks that support both user operations and swaps. */
+  network: SmartAccountSwapNetwork;
+};
 
 /**
  * Result of creating a swap quote (smart account-level).
@@ -176,9 +183,10 @@ interface SmartAccountQuoteBasedSwapOptions {
  */
 interface SmartAccountInlineSwapOptions {
   /**
-   * The network to execute the swap on (e.g., "ethereum", "base").
+   * The network to execute the swap on (e.g., "base").
+   * Smart accounts only support networks that support both user operations and swaps.
    */
-  network: SendEvmTransactionBodyNetwork;
+  network: SmartAccountSwapNetwork;
   /** The token to receive (destination token). */
   toToken: Address;
   /** The token to send (source token). */
