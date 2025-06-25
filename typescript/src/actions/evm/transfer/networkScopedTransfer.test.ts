@@ -6,6 +6,7 @@ import type { WalletClient } from "viem";
 import { Address, Hex } from "../../../types/misc.js";
 import { parseEther, parseUnits } from "viem";
 import { encodeFunctionData, erc20Abi } from "viem";
+import { base, baseSepolia } from "viem/chains";
 
 describe("networkScopedTransfer", () => {
   let mockWalletClient: WalletClient;
@@ -46,7 +47,7 @@ describe("networkScopedTransfer", () => {
         account: mockAccount.address,
         to: transferArgs.to,
         value: transferArgs.amount,
-        chain: null,
+        chain: base,
       });
 
       expect(result).toEqual({
@@ -79,7 +80,7 @@ describe("networkScopedTransfer", () => {
         account: mockAccount.address,
         to: recipientAccount.address,
         value: transferArgs.amount,
-        chain: null,
+        chain: baseSepolia,
       });
 
       expect(result).toEqual({
@@ -113,7 +114,7 @@ describe("networkScopedTransfer", () => {
           functionName: "approve",
           args: [transferArgs.to as Address, transferArgs.amount],
         }),
-        chain: null,
+        chain: base,
       });
 
       // Check transfer transaction
@@ -125,7 +126,7 @@ describe("networkScopedTransfer", () => {
           functionName: "transfer",
           args: [transferArgs.to as Address, transferArgs.amount],
         }),
-        chain: null,
+        chain: base,
       });
 
       expect(result).toEqual({
@@ -157,7 +158,7 @@ describe("networkScopedTransfer", () => {
           functionName: "approve",
           args: [transferArgs.to as Address, transferArgs.amount],
         }),
-        chain: null,
+        chain: baseSepolia,
       });
 
       // Check transfer transaction
@@ -169,7 +170,7 @@ describe("networkScopedTransfer", () => {
           functionName: "transfer",
           args: [transferArgs.to as Address, transferArgs.amount],
         }),
-        chain: null,
+        chain: baseSepolia,
       });
 
       expect(result).toEqual({
@@ -202,7 +203,7 @@ describe("networkScopedTransfer", () => {
           functionName: "approve",
           args: [transferArgs.to as Address, transferArgs.amount],
         }),
-        chain: null,
+        chain: base,
       });
 
       // Check transfer transaction
@@ -214,7 +215,7 @@ describe("networkScopedTransfer", () => {
           functionName: "transfer",
           args: [transferArgs.to as Address, transferArgs.amount],
         }),
-        chain: null,
+        chain: base,
       });
 
       expect(result).toEqual({
@@ -254,7 +255,7 @@ describe("networkScopedTransfer", () => {
           functionName: "approve",
           args: [recipientAccount.address, transferArgs.amount],
         }),
-        chain: null,
+        chain: base,
       });
 
       // Check transfer transaction
@@ -266,7 +267,7 @@ describe("networkScopedTransfer", () => {
           functionName: "transfer",
           args: [recipientAccount.address, transferArgs.amount],
         }),
-        chain: null,
+        chain: base,
       });
 
       expect(result).toEqual({
@@ -354,7 +355,7 @@ describe("networkScopedTransfer", () => {
         account: mockAccount.address,
         to: transferArgs.to,
         value: 0n,
-        chain: null,
+        chain: base,
       });
 
       expect(result).toEqual({
@@ -380,7 +381,7 @@ describe("networkScopedTransfer", () => {
         account: mockAccount.address,
         to: transferArgs.to,
         value: largeAmount,
-        chain: null,
+        chain: base,
       });
 
       expect(result).toEqual({
