@@ -1,14 +1,21 @@
-import { WaitForTransactionReceiptParameters } from "viem";
-import { base, baseSepolia, sepolia } from "viem/chains";
+import { Chain, WaitForTransactionReceiptParameters } from "viem";
+import { base, baseSepolia, mainnet, sepolia } from "viem/chains";
 
 import { resolveViemClients } from "./resolveViemClients.js";
-import { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
-import { TransactionResult } from "../../actions/evm/sendTransaction.js";
 import { transferWithViem } from "../../actions/evm/transfer/transferWithViem.js";
 
 import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js";
-import type { Network } from "../../actions/evm/transfer/types.js";
-import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
+import type { ListTokenBalancesOptions } from "../../actions/evm/listTokenBalances.js";
+import type { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
+import type {
+  SendTransactionOptions,
+  TransactionResult,
+} from "../../actions/evm/sendTransaction.js";
+import type { TransferOptions } from "../../actions/evm/transfer/types.js";
+import type {
+  CdpOpenApiClientType,
+  ListEvmTokenBalancesNetwork,
+} from "../../openapi-client/index.js";
 import type { Address, TransactionRequestEIP1559 } from "../../types/misc.js";
 
 /**
@@ -22,6 +29,24 @@ export type ToNetworkScopedEvmServerAccountOptions = {
 };
 
 /**
+ * Resolves the network identifier from a chain.
+ *
+ * @param chain - The chain to resolve the network from.
+ * @returns The network identifier.
+ */
+function resolveNetworkFromChainForListTokenBalances(chain: Chain): ListEvmTokenBalancesNetwork {
+  if (chain.id === base.id) {
+    return "base";
+  } else if (chain.id === baseSepolia.id) {
+    return "base-sepolia";
+  } else if (chain.id === mainnet.id) {
+    return "ethereum";
+  } else {
+    throw new Error(`CDP API does not support chain id: ${chain.id}`);
+  }
+}
+
+/**
  * Creates a Network-scoped Server-managed EvmAccount instance from an existing EvmAccount.
  * Use this to interact with previously deployed EvmAccounts on a specific network.
  *
@@ -31,10 +56,10 @@ export type ToNetworkScopedEvmServerAccountOptions = {
  * @param {string} options.network - The network to scope the account to.
  * @returns {NetworkScopedEvmServerAccount} A configured NetworkScopedEvmServerAccount instance ready for signing.
  */
-export async function toNetworkScopedEvmServerAccount(
+export async function toNetworkScopedEvmServerAccount<Network extends string>(
   apiClient: CdpOpenApiClientType,
-  options: ToNetworkScopedEvmServerAccountOptions,
-): Promise<NetworkScopedEvmServerAccount> {
+  options: ToNetworkScopedEvmServerAccountOptions & { network: Network },
+): Promise<NetworkScopedEvmServerAccount<Network>> {
   const { publicClient, walletClient, chain } = await resolveViemClients({
     networkOrNodeUrl: options.network,
     account: options.account,
@@ -42,41 +67,18 @@ export async function toNetworkScopedEvmServerAccount(
 
   const shouldUseApi = chain.id === base.id || chain.id === baseSepolia.id;
 
-  const account: NetworkScopedEvmServerAccount = {
+  // Build the account object dynamically based on network support
+  const account = {
     address: options.account.address as Address,
-    network: options.network,
+    network: options.network as Network,
     signMessage: options.account.signMessage,
     sign: options.account.sign,
     signTransaction: options.account.signTransaction,
     signTypedData: options.account.signTypedData,
     name: options.account.name,
-    type: "evm-server",
+    type: "evm-server" as const,
     policies: options.account.policies,
-    requestFaucet: async (faucetOptions: Omit<RequestFaucetOptions, "address" | "network">) => {
-      if (chain.id !== baseSepolia.id && chain.id !== sepolia.id) {
-        throw new Error(
-          "Requesting a faucet is supported only on base-sepolia or ethereum-sepolia",
-        );
-      }
-      return options.account.requestFaucet({
-        ...faucetOptions,
-        network: chain.id === baseSepolia.id ? "base-sepolia" : "ethereum-sepolia",
-      });
-    },
-    transfer: async transferArgs => {
-      if (shouldUseApi) {
-        return options.account.transfer({
-          ...transferArgs,
-          network: (chain.id === base.id ? "base" : "base-sepolia") as Network,
-        });
-      } else {
-        return transferWithViem(walletClient, account, {
-          ...transferArgs,
-          network: options.network as Network,
-        });
-      }
-    },
-    sendTransaction: async txOpts => {
+    sendTransaction: async (txOpts: Omit<SendTransactionOptions, "address" | "network">) => {
       if (shouldUseApi) {
         return options.account.sendTransaction({
           ...txOpts,
@@ -89,17 +91,56 @@ export async function toNetworkScopedEvmServerAccount(
         return { transactionHash: hash };
       }
     },
-    waitForTransactionReceipt: async (
-      options: WaitForTransactionReceiptParameters | TransactionResult,
-    ) => {
-      if ("transactionHash" in options) {
-        return publicClient.waitForTransactionReceipt({
-          hash: options.transactionHash,
+    transfer: async (transferArgs: Omit<TransferOptions, "address" | "network">) => {
+      if (shouldUseApi) {
+        return options.account.transfer({
+          ...transferArgs,
+          network: chain.id === base.id ? "base" : "base-sepolia",
+        });
+      } else {
+        return transferWithViem(walletClient, account, {
+          ...transferArgs,
+          network: chain.id === base.id ? "base" : "base-sepolia",
         });
       }
-      return publicClient.waitForTransactionReceipt(options);
     },
-  };
+    waitForTransactionReceipt: async (
+      waitOptions: WaitForTransactionReceiptParameters | TransactionResult,
+    ) => {
+      if ("transactionHash" in waitOptions) {
+        return publicClient.waitForTransactionReceipt({
+          hash: waitOptions.transactionHash,
+        });
+      }
+      return publicClient.waitForTransactionReceipt(waitOptions);
+    },
+  } as NetworkScopedEvmServerAccount<Network>;
+
+  // Conditionally add listTokenBalances if the network supports it
+  if (chain.id === base.id || chain.id === baseSepolia.id || chain.id === mainnet.id) {
+    Object.assign(account, {
+      listTokenBalances: async (
+        listTokenBalancesOptions: Omit<ListTokenBalancesOptions, "address" | "network">,
+      ) => {
+        return options.account.listTokenBalances({
+          ...listTokenBalancesOptions,
+          network: resolveNetworkFromChainForListTokenBalances(chain),
+        });
+      },
+    });
+  }
+
+  // Conditionally add requestFaucet if the network supports it
+  if (chain.id === baseSepolia.id || chain.id === sepolia.id) {
+    Object.assign(account, {
+      requestFaucet: async (faucetOptions: Omit<RequestFaucetOptions, "address" | "network">) => {
+        return options.account.requestFaucet({
+          ...faucetOptions,
+          network: chain.id === baseSepolia.id ? "base-sepolia" : "ethereum-sepolia",
+        });
+      },
+    });
+  }
 
   return account;
 }

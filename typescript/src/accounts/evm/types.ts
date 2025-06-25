@@ -1,3 +1,7 @@
+import {
+  ListTokenBalancesOptions,
+  ListTokenBalancesResult,
+} from "../../actions/evm/listTokenBalances.js";
 import { RequestFaucetOptions, RequestFaucetResult } from "../../actions/evm/requestFaucet.js";
 import { TransactionResult, SendTransactionOptions } from "../../actions/evm/sendTransaction.js";
 import { TransferOptions } from "../../actions/evm/transfer/types.js";
@@ -49,7 +53,9 @@ export type EvmServerAccount = Prettify<
       /** Indicates this is a server-managed account. */
       type: "evm-server";
       /** A function that returns a network-scoped server-managed account. */
-      useNetwork: (network: string) => Promise<NetworkScopedEvmServerAccount>;
+      useNetwork: <Network extends string>(
+        network: Network,
+      ) => Promise<NetworkScopedEvmServerAccount<Network>>;
     }
 >;
 
@@ -78,26 +84,49 @@ export type NetworkScopedEvmSmartAccount = Prettify<
   }
 >;
 
-type NetworkScopedAccountActions = Prettify<{
-  requestFaucet: (
-    options: Omit<RequestFaucetOptions, "address" | "network">,
-  ) => Promise<RequestFaucetResult>;
-  sendTransaction: (
-    options: Omit<SendTransactionOptions, "address" | "network">,
-  ) => Promise<TransactionResult>;
-  waitForTransactionReceipt: (
-    options: WaitForTransactionReceiptParameters | TransactionResult,
-  ) => Promise<TransactionReceipt>;
-  transfer: (options: Omit<TransferOptions, "address" | "network">) => Promise<TransactionResult>;
-}>;
+/**
+ * Networks supported by each method
+ */
+type ListTokenBalancesNetworks = "base" | "base-sepolia" | "ethereum";
+type RequestFaucetNetworks = "base-sepolia" | "ethereum-sepolia";
+
+/**
+ * Conditional account actions based on network
+ */
+type NetworkSpecificAccountActions<Network extends string> = Prettify<
+  // Always include sendTransaction, transfer and waitForTransactionReceipt
+  {
+    sendTransaction: (
+      options: Omit<SendTransactionOptions, "address" | "network">,
+    ) => Promise<TransactionResult>;
+    transfer: (options: Omit<TransferOptions, "address" | "network">) => Promise<TransactionResult>;
+    waitForTransactionReceipt: (
+      options: WaitForTransactionReceiptParameters | TransactionResult,
+    ) => Promise<TransactionReceipt>;
+  } & (Network extends ListTokenBalancesNetworks // Conditionally include listTokenBalances
+    ? {
+        listTokenBalances: (
+          options: Omit<ListTokenBalancesOptions, "address" | "network">,
+        ) => Promise<ListTokenBalancesResult>;
+      }
+    : Record<string, never>) &
+    // Conditionally include requestFaucet
+    (Network extends RequestFaucetNetworks
+      ? {
+          requestFaucet: (
+            options: Omit<RequestFaucetOptions, "address" | "network">,
+          ) => Promise<RequestFaucetResult>;
+        }
+      : Record<string, never>)
+>;
 
 /**
  * A network-scoped server-managed ethereum account
  */
-export type NetworkScopedEvmServerAccount = Prettify<
+export type NetworkScopedEvmServerAccount<Network extends string = string> = Prettify<
   Omit<EvmServerAccount, keyof AccountActions | "useNetwork"> &
-    NetworkScopedAccountActions & {
+    NetworkSpecificAccountActions<Network> & {
       /** The network this account is scoped to */
-      network: string;
+      network: Network;
     }
 >;

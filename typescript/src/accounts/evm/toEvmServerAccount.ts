@@ -169,7 +169,7 @@ export function toEvmServerAccount(
     name: options.account.name,
     type: "evm-server",
     policies: options.account.policies,
-    useNetwork: async (networkOrRpcUrl: string) => {
+    useNetwork: async <Network extends string>(networkOrRpcUrl: Network) => {
       return toNetworkScopedEvmServerAccount(apiClient, {
         account,
         network: networkOrRpcUrl,
