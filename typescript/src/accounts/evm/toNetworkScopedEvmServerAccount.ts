@@ -2,12 +2,14 @@ import { WaitForTransactionReceiptParameters } from "viem";
 import { base, baseSepolia, sepolia } from "viem/chains";
 
 import { resolveViemClients } from "./resolveViemClients.js";
+import { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
+import { transferWithViem } from "../../actions/evm/transfer/networkScopedTransfer.js";
 
 import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js";
-import type { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
-import type { TransactionResult } from "../../actions/evm/sendTransaction.js";
+import type { Network } from "../../actions/evm/transfer/types.js";
 import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
 import type { Address, TransactionRequestEIP1559 } from "../../types/misc.js";
+import { TransactionResult } from "../../actions/evm/sendTransaction.js";
 
 /**
  * Options for converting a pre-existing EvmAccount to a NetworkScopedEvmServerAccount.
@@ -60,6 +62,19 @@ export async function toNetworkScopedEvmServerAccount(
         ...faucetOptions,
         network: chain.id === baseSepolia.id ? "base-sepolia" : "ethereum-sepolia",
       });
+    },
+    transfer: async transferArgs => {
+      if (shouldUseApi) {
+        return options.account.transfer({
+          ...transferArgs,
+          network: (chain.id === base.id ? "base" : "base-sepolia") as Network,
+        });
+      } else {
+        return transferWithViem(walletClient, account, {
+          ...transferArgs,
+          network: options.network as Network,
+        });
+      }
     },
     sendTransaction: async txOpts => {
       if (shouldUseApi) {
