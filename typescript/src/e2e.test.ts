@@ -1666,7 +1666,7 @@ describe("CDP Client E2E Tests", () => {
 
       // Test read-only operations with the public client
       const chainId = await publicClient.getChainId();
-      expect(chainId).toBe(84532n);
+      expect(chainId).toBe(84532);
 
       // Test that transferWithViem function exists and can be imported
       expect(typeof transferWithViem).toBe("function");
