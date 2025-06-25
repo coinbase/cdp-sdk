@@ -1,5 +1,6 @@
 import { AxiosInstance, AxiosHeaders } from "axios";
 
+import { convertBigIntsToStrings } from "../../../utils/bigint.js";
 import { getAuthHeaders } from "../../utils/http.js";
 
 export interface AuthInterceptorOptions {
@@ -56,6 +57,11 @@ export function withAuth(axiosClient: AxiosInstance, options: AuthInterceptorOpt
 
     // Parse URL to get host and path
     const url = new URL(fullyQualifiedURL);
+
+    // Convert bigints in request body to strings for safe serialization
+    if (axiosConfig.data) {
+      axiosConfig.data = convertBigIntsToStrings(axiosConfig.data);
+    }
 
     // Get authentication headers
     const headers = await getAuthHeaders({

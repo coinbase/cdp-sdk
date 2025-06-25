@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import crypto from "crypto";
 import { InvalidWalletSecretFormatError, UndefinedWalletSecretError } from "../errors.js";
 import { generateJwt, JwtOptions, WalletJwtOptions, generateWalletJwt } from "./jwt.js";
+import { hash } from "../../utils/hash.js";
 
 describe("JWT Authentication", () => {
   // Generate EC256 key pair for testing
@@ -223,7 +224,9 @@ describe("JWT Authentication", () => {
     expect(payload.uris).toEqual([
       `${defaultWalletJwtOptions.requestMethod} ${defaultWalletJwtOptions.requestHost}${defaultWalletJwtOptions.requestPath}`,
     ]);
-    expect(payload.req).toEqual(defaultWalletJwtOptions.requestData);
+    expect(payload.reqHash).toEqual(
+      hash(Buffer.from(JSON.stringify(defaultWalletJwtOptions.requestData))),
+    );
     expect(typeof payload.iat).toBe("number");
     expect(typeof payload.nbf).toBe("number");
     expect(typeof payload.jti).toBe("string");
