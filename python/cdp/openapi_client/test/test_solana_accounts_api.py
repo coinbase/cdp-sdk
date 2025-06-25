@@ -90,6 +90,13 @@ class TestSolanaAccountsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_update_solana_account_policy(self) -> None:
+        """Test case for update_solana_account_policy
+
+        Update a Solana account's policy
+        """
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()

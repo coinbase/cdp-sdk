@@ -18,24 +18,27 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendEvmTransactionRequest(BaseModel):
+class UpdateSolanaAccountPolicyRequest(BaseModel):
     """
-    SendEvmTransactionRequest
+    UpdateSolanaAccountPolicyRequest
     """ # noqa: E501
-    network: StrictStr = Field(description="The network to send the transaction to.")
-    transaction: StrictStr = Field(description="The RLP-encoded transaction to sign and send, as a 0x-prefixed hex string.")
-    __properties: ClassVar[List[str]] = ["network", "transaction"]
+    account_policy: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The ID of the account-level policy to apply to the account, or an empty string to unset attached policy.", alias="accountPolicy")
+    __properties: ClassVar[List[str]] = ["accountPolicy"]
 
-    @field_validator('network')
-    def network_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['base', 'base-sepolia', 'ethereum', 'ethereum-sepolia']):
-            raise ValueError("must be one of enum values ('base', 'base-sepolia', 'ethereum', 'ethereum-sepolia')")
+    @field_validator('account_policy')
+    def account_policy_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"(^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)|(^$)", value):
+            raise ValueError(r"must validate the regular expression /(^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)|(^$)/")
         return value
 
     model_config = ConfigDict(
@@ -56,7 +59,7 @@ class SendEvmTransactionRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendEvmTransactionRequest from a JSON string"""
+        """Create an instance of UpdateSolanaAccountPolicyRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,7 +84,7 @@ class SendEvmTransactionRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendEvmTransactionRequest from a dict"""
+        """Create an instance of UpdateSolanaAccountPolicyRequest from a dict"""
         if obj is None:
             return None
 
@@ -89,8 +92,7 @@ class SendEvmTransactionRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "network": obj.get("network"),
-            "transaction": obj.get("transaction")
+            "accountPolicy": obj.get("accountPolicy")
         })
         return _obj
 

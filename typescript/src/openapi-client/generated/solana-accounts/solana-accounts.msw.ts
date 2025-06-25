@@ -76,6 +76,33 @@ export const getCreateSolanaAccountResponseMock = (
   ...overrideResponse,
 });
 
+export const getUpdateSolanaAccountPolicyResponseMock = (
+  overrideResponse: Partial<SolanaAccount> = {},
+): SolanaAccount => ({
+  address: faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  policies: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.fromRegExp(
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      ),
+    ),
+    undefined,
+  ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  ...overrideResponse,
+});
+
 export const getGetSolanaAccountResponseMock = (
   overrideResponse: Partial<SolanaAccount> = {},
 ): SolanaAccount => ({
@@ -218,6 +245,29 @@ export const getCreateSolanaAccountMockHandler = (
           : getCreateSolanaAccountResponseMock(),
       ),
       { status: 201, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getUpdateSolanaAccountPolicyMockHandler = (
+  overrideResponse?:
+    | SolanaAccount
+    | ((
+        info: Parameters<Parameters<typeof http.put>[1]>[0],
+      ) => Promise<SolanaAccount> | SolanaAccount),
+) => {
+  return http.put("*/v2/solana/accounts/:address/policy", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getUpdateSolanaAccountPolicyResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
     );
   });
 };
@@ -385,6 +435,7 @@ export const getSignSolanaMessageMockHandler = (
 export const getSolanaAccountsMock = () => [
   getListSolanaAccountsMockHandler(),
   getCreateSolanaAccountMockHandler(),
+  getUpdateSolanaAccountPolicyMockHandler(),
   getGetSolanaAccountMockHandler(),
   getUpdateSolanaAccountMockHandler(),
   getGetSolanaAccountByNameMockHandler(),

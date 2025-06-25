@@ -719,6 +719,8 @@ paths:
                   enum:
                     - base
                     - base-sepolia
+                    - ethereum
+                    - ethereum-sepolia
                   example: base-sepolia
                 transaction:
                   type: string
@@ -1971,6 +1973,8 @@ paths:
       operationId: createEvmSwapQuote
       tags:
         - EVM Swaps
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -2411,6 +2415,8 @@ paths:
       operationId: createPolicy
       tags:
         - Policy Engine
+      x-required-api-auth-scopes:
+        - policies#manage
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -2518,6 +2524,8 @@ paths:
       operationId: deletePolicy
       tags:
         - Policy Engine
+      x-required-api-auth-scopes:
+        - policies#manage
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
         - name: policyId
@@ -2570,6 +2578,8 @@ paths:
       operationId: updatePolicy
       tags:
         - Policy Engine
+      x-required-api-auth-scopes:
+        - policies#manage
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
         - name: policyId
@@ -2764,6 +2774,77 @@ paths:
                   value:
                     errorType: already_exists
                     errorMessage: Solana account with the given name already exists.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/solana/accounts/{address}/policy:
+    put:
+      x-audience: public
+      summary: Update a Solana account's policy
+      description: Updates an existing Solana account's policy.
+      operationId: updateSolanaAccountPolicy
+      tags:
+        - Solana Accounts
+      x-required-api-auth-scopes:
+        - policies#manage
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: address
+          description: The base58 encoded address of the Solana account.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+          example: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accountPolicy:
+                  type: string
+                  x-audience: public
+                  description: The ID of the account-level policy to apply to the account, or an empty string to unset attached policy.
+                  pattern: (^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)|(^$)
+                  example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: Successfully updated Solana account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolanaAccount'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'request body has an error: doesn''t match schema: Error at "name": string doesn''t match the regular expression  "^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"'
+        '404':
+          description: Solana account not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Solana account with the given address not found.
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
         '422':
           $ref: '#/components/responses/IdempotencyError'
         '500':

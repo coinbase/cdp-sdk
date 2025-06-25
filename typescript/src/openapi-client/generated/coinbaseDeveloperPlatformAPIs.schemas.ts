@@ -1490,6 +1490,8 @@ export type SendEvmTransactionBodyNetwork =
 export const SendEvmTransactionBodyNetwork = {
   base: "base",
   "base-sepolia": "base-sepolia",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
 } as const;
 
 export type SendEvmTransactionBody = {
@@ -1841,6 +1843,14 @@ Account names must be unique across all Solana accounts in the developer's CDP P
   /**
    * The ID of the account-level policy to apply to the account.
    * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  accountPolicy?: string;
+};
+
+export type UpdateSolanaAccountPolicyBody = {
+  /**
+   * The ID of the account-level policy to apply to the account, or an empty string to unset attached policy.
+   * @pattern (^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)|(^$)
    */
   accountPolicy?: string;
 };

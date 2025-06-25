@@ -19,6 +19,7 @@ import type {
   SignSolanaTransactionBody,
   SolanaAccount,
   UpdateSolanaAccountBody,
+  UpdateSolanaAccountPolicyBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -55,6 +56,25 @@ export const createSolanaAccount = (
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: createSolanaAccountBody,
+    },
+    options,
+  );
+};
+/**
+ * Updates an existing Solana account's policy.
+ * @summary Update a Solana account's policy
+ */
+export const updateSolanaAccountPolicy = (
+  address: string,
+  updateSolanaAccountPolicyBody: UpdateSolanaAccountPolicyBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SolanaAccount>(
+    {
+      url: `/v2/solana/accounts/${address}/policy`,
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      data: updateSolanaAccountPolicyBody,
     },
     options,
   );
@@ -194,6 +214,9 @@ export const signSolanaMessage = (
 export type ListSolanaAccountsResult = NonNullable<Awaited<ReturnType<typeof listSolanaAccounts>>>;
 export type CreateSolanaAccountResult = NonNullable<
   Awaited<ReturnType<typeof createSolanaAccount>>
+>;
+export type UpdateSolanaAccountPolicyResult = NonNullable<
+  Awaited<ReturnType<typeof updateSolanaAccountPolicy>>
 >;
 export type GetSolanaAccountResult = NonNullable<Awaited<ReturnType<typeof getSolanaAccount>>>;
 export type UpdateSolanaAccountResult = NonNullable<
