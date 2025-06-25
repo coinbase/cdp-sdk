@@ -33,7 +33,7 @@ import { sendSwapTransaction } from "../../actions/evm/swap/sendSwapTransaction.
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 
-import type { EvmServerAccount } from "./types.js";
+import type { EvmServerAccount, NetworkOrRpcUrl } from "./types.js";
 import type {
   SendTransactionOptions,
   TransactionResult,
@@ -169,7 +169,7 @@ export function toEvmServerAccount(
     name: options.account.name,
     type: "evm-server",
     policies: options.account.policies,
-    useNetwork: async <Network extends string>(networkOrRpcUrl: Network) => {
+    useNetwork: async <Network extends NetworkOrRpcUrl>(networkOrRpcUrl: Network) => {
       return toNetworkScopedEvmServerAccount(apiClient, {
         account,
         network: networkOrRpcUrl,

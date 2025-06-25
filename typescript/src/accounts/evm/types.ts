@@ -43,6 +43,26 @@ export type EvmAccount = {
 };
 
 /**
+ * Known supported networks for type hints
+ */
+export type KnownEvmNetworks =
+  | "base"
+  | "base-sepolia"
+  | "ethereum"
+  | "ethereum-sepolia"
+  | "polygon"
+  | "polygon-mumbai"
+  | "arbitrum"
+  | "arbitrum-sepolia"
+  | "optimism"
+  | "optimism-sepolia";
+
+/**
+ * Network input that accepts known networks or RPC URLs
+ */
+export type NetworkOrRpcUrl = KnownEvmNetworks | (string & {});
+
+/**
  * Server-managed ethereum account
  */
 export type EvmServerAccount = Prettify<
@@ -53,7 +73,7 @@ export type EvmServerAccount = Prettify<
       /** Indicates this is a server-managed account. */
       type: "evm-server";
       /** A function that returns a network-scoped server-managed account. */
-      useNetwork: <Network extends string>(
+      useNetwork: <Network extends NetworkOrRpcUrl>(
         network: Network,
       ) => Promise<NetworkScopedEvmServerAccount<Network>>;
     }
@@ -91,6 +111,12 @@ type ListTokenBalancesNetworks = "base" | "base-sepolia" | "ethereum";
 type RequestFaucetNetworks = "base-sepolia" | "ethereum-sepolia";
 
 /**
+ * Helper type to surface a TypeError when calling a method that doesn't exist based on the network
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+type EmptyObject = {};
+
+/**
  * Conditional account actions based on network
  */
 type NetworkSpecificAccountActions<Network extends string> = Prettify<
@@ -109,7 +135,7 @@ type NetworkSpecificAccountActions<Network extends string> = Prettify<
           options: Omit<ListTokenBalancesOptions, "address" | "network">,
         ) => Promise<ListTokenBalancesResult>;
       }
-    : Record<string, never>) &
+    : EmptyObject) &
     // Conditionally include requestFaucet
     (Network extends RequestFaucetNetworks
       ? {
@@ -117,7 +143,7 @@ type NetworkSpecificAccountActions<Network extends string> = Prettify<
             options: Omit<RequestFaucetOptions, "address" | "network">,
           ) => Promise<RequestFaucetResult>;
         }
-      : Record<string, never>)
+      : EmptyObject)
 >;
 
 /**

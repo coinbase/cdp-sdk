@@ -139,6 +139,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
       transfer: expect.any(Function),
       sendTransaction: expect.any(Function),
       waitForTransactionReceipt: expect.any(Function),
+      listTokenBalances: expect.any(Function),
     });
   });
 
@@ -171,24 +172,6 @@ describe("toNetworkScopedEvmServerAccount", () => {
   });
 
   describe("requestFaucet", () => {
-    it("should throw an error if the network is not base-sepolia or ethereum-sepolia", async () => {
-      mockResolveViemClients.mockResolvedValue({
-        publicClient: mockPublicClient as unknown as PublicClient<Transport, Chain>,
-        walletClient: mockWalletClient as unknown as WalletClient<Transport, Chain, Account>,
-        chain: base,
-      });
-
-      const mockAccount = createMockEvmServerAccount();
-      const result = await toNetworkScopedEvmServerAccount(mockApiClient, {
-        account: mockAccount,
-        network: "base",
-      });
-
-      await expect(result.requestFaucet({ token: "eth" })).rejects.toThrow(
-        "Requesting a faucet is supported only on base-sepolia or ethereum-sepolia",
-      );
-    });
-
     it("should call the requestFaucet function with the correct network", async () => {
       const mockAccount = createMockEvmServerAccount();
       const result = await toNetworkScopedEvmServerAccount(mockApiClient, {
