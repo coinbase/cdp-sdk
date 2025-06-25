@@ -69,7 +69,7 @@ describe("toEvmServerAccount", () => {
   let mockTransfer: Transfer;
 
   beforeEach(() => {
-    mockAddress = "0x123456789abcdef" as Address;
+    mockAddress = "0x0000000000000000000000000000000000000000" as Address;
     mockPaymentMethods = [
       {
         id: "0xmockpaymentmethodid",
@@ -147,7 +147,7 @@ describe("toEvmServerAccount", () => {
       transfer: expect.any(Function),
       type: "evm-server",
       waitForFundOperationReceipt: expect.any(Function),
-      __experimental_useNetwork: expect.any(Function),
+      useNetwork: expect.any(Function),
     });
   });
 
@@ -234,9 +234,9 @@ describe("toEvmServerAccount", () => {
     });
   });
 
-  describe("__experimental_useNetwork", () => {
+  describe("useNetwork", () => {
     it("should return a NetworkScopedEvmServerAccount", async () => {
-      const result = await serverAccount.__experimental_useNetwork("base-sepolia");
+      const result = await serverAccount.useNetwork("base-sepolia");
       expect(result.network).toBe("base-sepolia");
     });
   });
