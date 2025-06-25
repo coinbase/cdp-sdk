@@ -47,7 +47,6 @@ describe("transferWithViem", () => {
         account: mockAccount.address,
         to: transferArgs.to,
         value: transferArgs.amount,
-        chain: base,
       });
 
       expect(result).toEqual({
@@ -80,7 +79,6 @@ describe("transferWithViem", () => {
         account: mockAccount.address,
         to: recipientAccount.address,
         value: transferArgs.amount,
-        chain: baseSepolia,
       });
 
       expect(result).toEqual({
@@ -114,7 +112,6 @@ describe("transferWithViem", () => {
           functionName: "approve",
           args: [transferArgs.to as Address, transferArgs.amount],
         }),
-        chain: base,
       });
 
       // Check transfer transaction
@@ -126,7 +123,6 @@ describe("transferWithViem", () => {
           functionName: "transfer",
           args: [transferArgs.to as Address, transferArgs.amount],
         }),
-        chain: base,
       });
 
       expect(result).toEqual({
@@ -158,7 +154,6 @@ describe("transferWithViem", () => {
           functionName: "approve",
           args: [transferArgs.to as Address, transferArgs.amount],
         }),
-        chain: baseSepolia,
       });
 
       // Check transfer transaction
@@ -170,7 +165,6 @@ describe("transferWithViem", () => {
           functionName: "transfer",
           args: [transferArgs.to as Address, transferArgs.amount],
         }),
-        chain: baseSepolia,
       });
 
       expect(result).toEqual({
@@ -203,7 +197,6 @@ describe("transferWithViem", () => {
           functionName: "approve",
           args: [transferArgs.to as Address, transferArgs.amount],
         }),
-        chain: base,
       });
 
       // Check transfer transaction
@@ -215,7 +208,6 @@ describe("transferWithViem", () => {
           functionName: "transfer",
           args: [transferArgs.to as Address, transferArgs.amount],
         }),
-        chain: base,
       });
 
       expect(result).toEqual({
@@ -255,7 +247,6 @@ describe("transferWithViem", () => {
           functionName: "approve",
           args: [recipientAccount.address, transferArgs.amount],
         }),
-        chain: base,
       });
 
       // Check transfer transaction
@@ -267,7 +258,6 @@ describe("transferWithViem", () => {
           functionName: "transfer",
           args: [recipientAccount.address, transferArgs.amount],
         }),
-        chain: base,
       });
 
       expect(result).toEqual({
@@ -355,7 +345,6 @@ describe("transferWithViem", () => {
         account: mockAccount.address,
         to: transferArgs.to,
         value: 0n,
-        chain: base,
       });
 
       expect(result).toEqual({
@@ -381,7 +370,6 @@ describe("transferWithViem", () => {
         account: mockAccount.address,
         to: transferArgs.to,
         value: largeAmount,
-        chain: base,
       });
 
       expect(result).toEqual({
