@@ -9,13 +9,13 @@ import { encodeFunctionData, erc20Abi } from "viem";
 import { base, baseSepolia } from "viem/chains";
 
 describe("transferWithViem", () => {
-  let mockWalletClient: WalletClient;
+  let mockWalletClient: any;
   let mockAccount: EvmAccount;
 
   beforeEach(() => {
     mockWalletClient = {
       sendTransaction: vi.fn(),
-    } as unknown as WalletClient;
+    };
 
     mockAccount = {
       address: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" as Address,

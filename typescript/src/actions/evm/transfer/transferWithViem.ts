@@ -1,13 +1,12 @@
 import { encodeFunctionData, erc20Abi } from "viem";
 
 import { getErc20Address } from "./utils.js";
-import { resolveNetworkToChain } from "../../../accounts/evm/resolveViemClients.js";
 
 import type { Network, TransferOptions } from "./types.js";
 import type { EvmAccount } from "../../../accounts/evm/types.js";
 import type { Hex } from "../../../types/misc.js";
 import type { TransactionResult } from "../sendTransaction.js";
-import type { WalletClient } from "viem";
+import type { Account, Chain, Transport, WalletClient } from "viem";
 
 /**
  * Transfer an amount of a token from a network-scoped account to another account.
@@ -20,7 +19,7 @@ import type { WalletClient } from "viem";
  * @returns The result of the transfer.
  */
 export async function transferWithViem<T extends EvmAccount>(
-  walletClient: WalletClient,
+  walletClient: WalletClient<Transport, Chain, Account>,
   from: T,
   transferArgs: TransferOptions,
 ): Promise<TransactionResult> {
@@ -28,14 +27,12 @@ export async function transferWithViem<T extends EvmAccount>(
   const to = typeof transferArgs.to === "string" ? transferArgs.to : transferArgs.to.address;
   const value = transferArgs.amount;
   const network = transferArgs.network;
-  const chain = resolveNetworkToChain(network);
 
   if (token === "eth") {
     const hash = await walletClient.sendTransaction({
       account: from.address,
       to,
       value,
-      chain,
     });
     return { transactionHash: hash as Hex };
   }
@@ -51,7 +48,6 @@ export async function transferWithViem<T extends EvmAccount>(
       functionName: "approve",
       args: [to, value],
     }),
-    chain,
   });
 
   // Then execute the transfer
@@ -63,7 +59,6 @@ export async function transferWithViem<T extends EvmAccount>(
       functionName: "transfer",
       args: [to, value],
     }),
-    chain,
   });
 
   return { transactionHash: hash as Hex };

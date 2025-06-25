@@ -590,7 +590,7 @@ describe("CDP Client E2E Tests", () => {
     const signature = await cdp.evm.signTypedData({
       address: testAccount.address,
       domain: {
-        name: "TestDomain",
+        name: "EIP712Domain",
         chainId: 1,
         verifyingContract: "0x0000000000000000000000000000000000000000",
       },
@@ -600,15 +600,12 @@ describe("CDP Client E2E Tests", () => {
           { name: "chainId", type: "uint256" },
           { name: "verifyingContract", type: "address" },
         ],
-        TestMessage: [
-          { name: "value", type: "uint256" },
-          { name: "recipient", type: "address" },
-        ],
       },
-      primaryType: "TestMessage",
+      primaryType: "EIP712Domain",
       message: {
-        value: "1000000",
-        recipient: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+        name: "EIP712Domain",
+        chainId: 1,
+        verifyingContract: "0x0000000000000000000000000000000000000000",
       },
     });
     expect(signature).toBeDefined();
@@ -847,10 +844,9 @@ describe("CDP Client E2E Tests", () => {
 
     describe("sign typed data", () => {
       it("should sign typed data", async () => {
-        const signature = await cdp.evm.signTypedData({
-          address: testAccount.address,
+        const signature = await testAccount.signTypedData({
           domain: {
-            name: "TestDomain",
+            name: "EIP712Domain",
             chainId: 1,
             verifyingContract: "0x0000000000000000000000000000000000000000",
           },
@@ -860,16 +856,8 @@ describe("CDP Client E2E Tests", () => {
               { name: "chainId", type: "uint256" },
               { name: "verifyingContract", type: "address" },
             ],
-            TestMessage: [
-              { name: "value", type: "uint256" },
-              { name: "recipient", type: "address" },
-            ],
           },
-          primaryType: "TestMessage",
-          message: {
-            value: "1000000",
-            recipient: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-          },
+          primaryType: "EIP712Domain",
         });
         expect(signature).toBeDefined();
       });
@@ -1393,10 +1381,331 @@ describe("CDP Client E2E Tests", () => {
         });
 
         expect(receipt).toBeDefined();
-      } catch (error) {
-        console.log("Error: ", error);
-        console.log("Ignoring for now...");
+
+        // Find the RPC calls made during the transaction
+        const rpcCalls = fetchSpy.mock.calls.filter(call => {
+          const url = call[0] as string;
+          const body = call[1]?.body;
+          return (
+            url.includes(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL!) &&
+            body &&
+            body.toString().includes("eth_getTransactionReceipt")
+          );
+        });
+
+        // Assert that at least one RPC call was made to the Base Node URL
+        expect(rpcCalls.length).toBeGreaterThan(0);
+
+        // Verify the URL pattern matches the expected Base Node RPC format
+        const rpcUrl = rpcCalls[0][0] as string;
+        expect(rpcUrl).toBe(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL);
+
+        logger.log(`Custom Base Node RPC URL used: ${rpcUrl}`);
+      } finally {
+        fetchSpy.mockRestore();
       }
+    });
+  });
+
+  it("should use default RPC URL when using managed mode with non-Base network identifiers", async () => {
+    // Spy on global fetch to capture HTTP calls
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+    try {
+      const account = await cdp.evm.getOrCreateAccount({ name: testAccountName });
+
+      const opAccount = await account.useNetwork("optimism-sepolia");
+
+      // Wait for transaction receipt - this should use the Optimism Sepolia Node RPC
+      await opAccount.waitForTransactionReceipt({
+        hash: "0xe0f31e8abb03a68f4ee9868c22c311d4914fade28ae512cc02c1443edd90718f",
+      });
+
+      // Find the RPC calls made during the transaction
+      const rpcCalls = fetchSpy.mock.calls.filter(call => {
+        const url = call[0] as string;
+        const body = call[1]?.body;
+        return (
+          url.includes(optimismSepolia.rpcUrls.default.http[0]) &&
+          body &&
+          body.toString().includes("eth_getTransactionReceipt")
+        );
+      });
+
+      expect(rpcCalls.length).toBeGreaterThan(0);
+
+      const rpcUrl = rpcCalls[0][0] as string;
+      expect(rpcUrl).toBe(optimismSepolia.rpcUrls.default.http[0]);
+
+      logger.log(`Optimism Sepolia RPC URL used: ${rpcUrl}`);
+    } finally {
+      fetchSpy.mockRestore();
+    }
+  });
+
+  it("should use Base Node RPC URL when using managed mode with network identifiers", async () => {
+    if (process.env.E2E_BASE_PATH?.includes("localhost")) {
+      logger.log("Skipping test in local environment");
+      return;
+    }
+
+    // Spy on global fetch to capture HTTP calls
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+    try {
+      const account = await cdp.evm.getOrCreateAccount({ name: testAccountName });
+
+      const baseAccount = await account.useNetwork("base-sepolia");
+
+      const txResult = await baseAccount.sendTransaction({
+        transaction: {
+          to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+          value: parseEther("0.000001"),
+        },
+      });
+
+      // Wait for transaction receipt - this should use the Base Node RPC
+      await baseAccount.waitForTransactionReceipt({
+        hash: txResult.transactionHash,
+      });
+
+      // Find the RPC calls made during the transaction
+      const rpcCalls = fetchSpy.mock.calls.filter(call => {
+        const url = call[0] as string;
+        const body = call[1]?.body;
+        return (
+          url.includes("/rpc/v1/base-sepolia/") &&
+          body &&
+          body.toString().includes("eth_getTransactionReceipt")
+        );
+      });
+
+      expect(rpcCalls.length).toBeGreaterThan(0);
+
+      const rpcUrl = rpcCalls[0][0] as string;
+      expect(rpcUrl).toMatch(/\/rpc\/v1\/base-sepolia\/[a-zA-Z0-9-]+$/);
+
+      logger.log(`Base Node RPC URL used: ${rpcUrl}`);
+
+      // Also verify that the initial getBaseNodeRpcUrl call was made
+      const tokenCalls = fetchSpy.mock.calls.filter(call => {
+        const url = call[0] as string;
+        return url.includes("/apikeys/v1/tokens/active");
+      });
+
+      expect(tokenCalls.length).toBeGreaterThan(0);
+      logger.log(`Token endpoint called ${tokenCalls.length} times`);
+    } finally {
+      fetchSpy.mockRestore();
+    }
+  });
+
+  describe("transferWithViem e2e tests", () => {
+    it("should transfer ETH using transferWithViem directly", async () => {
+      // Import the function directly
+      const { transferWithViem } = await import("./actions/evm/transfer/transferWithViem.js");
+      const { resolveViemClients } = await import("./accounts/evm/resolveViemClients.js");
+
+      // Ensure sufficient balance
+      await ensureSufficientEthBalance(cdp, testAccount);
+
+      // Create a recipient account for testing
+      const recipientAccount = await cdp.evm.createAccount({ name: generateRandomName() });
+
+      // Resolve viem clients for base-sepolia
+      const { walletClient } = await resolveViemClients({
+        networkOrNodeUrl: "base-sepolia",
+        account: testAccount,
+      });
+
+      // Transfer ETH using transferWithViem directly
+      const transferResult = await transferWithViem(walletClient, testAccount, {
+        to: recipientAccount.address,
+        amount: parseEther("0.000001"),
+        token: "eth",
+        network: "base-sepolia",
+      });
+
+      expect(transferResult).toBeDefined();
+      expect(transferResult.transactionHash).toBeDefined();
+
+      // Wait for transaction receipt using the public client
+      const { publicClient } = await resolveViemClients({
+        networkOrNodeUrl: "base-sepolia",
+        account: testAccount,
+      });
+
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: transferResult.transactionHash,
+      });
+
+      expect(receipt).toBeDefined();
+      expect(receipt.status).toBe("success");
+    });
+
+    it("should transfer USDC using transferWithViem directly", async () => {
+      // Import the function directly
+      const { transferWithViem } = await import("./actions/evm/transfer/transferWithViem.js");
+      const { resolveViemClients } = await import("./accounts/evm/resolveViemClients.js");
+
+      // Ensure sufficient balance
+      await ensureSufficientEthBalance(cdp, testAccount);
+
+      // Create a recipient account for testing
+      const recipientAccount = await cdp.evm.createAccount({ name: generateRandomName() });
+
+      // Resolve viem clients for base-sepolia
+      const { walletClient } = await resolveViemClients({
+        networkOrNodeUrl: "base-sepolia",
+        account: testAccount,
+      });
+
+      // Transfer USDC using transferWithViem directly
+      const transferResult = await transferWithViem(walletClient, testAccount, {
+        to: recipientAccount.address,
+        amount: 0n, // Transfer 0 USDC for testing
+        token: "usdc",
+        network: "base-sepolia",
+      });
+
+      expect(transferResult).toBeDefined();
+      expect(transferResult.transactionHash).toBeDefined();
+
+      // Wait for transaction receipt using the public client
+      const { publicClient } = await resolveViemClients({
+        networkOrNodeUrl: "base-sepolia",
+        account: testAccount,
+      });
+
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: transferResult.transactionHash,
+      });
+
+      expect(receipt).toBeDefined();
+      expect(receipt.status).toBe("success");
+    });
+
+    it("should transfer ETH to EvmAccount object using transferWithViem directly", async () => {
+      // Import the function directly
+      const { transferWithViem } = await import("./actions/evm/transfer/transferWithViem.js");
+      const { resolveViemClients } = await import("./accounts/evm/resolveViemClients.js");
+
+      // Ensure sufficient balance
+      await ensureSufficientEthBalance(cdp, testAccount);
+
+      // Create a recipient account for testing
+      const recipientAccount = await cdp.evm.createAccount({ name: generateRandomName() });
+
+      // Resolve viem clients for base-sepolia
+      const { walletClient } = await resolveViemClients({
+        networkOrNodeUrl: "base-sepolia",
+        account: testAccount,
+      });
+
+      // Transfer ETH using transferWithViem with EvmAccount object
+      const transferResult = await transferWithViem(walletClient, testAccount, {
+        to: recipientAccount, // Pass the EvmAccount object directly
+        amount: parseEther("0.000001"),
+        token: "eth",
+        network: "base-sepolia",
+      });
+
+      expect(transferResult).toBeDefined();
+      expect(transferResult.transactionHash).toBeDefined();
+
+      // Wait for transaction receipt using the public client
+      const { publicClient } = await resolveViemClients({
+        networkOrNodeUrl: "base-sepolia",
+        account: testAccount,
+      });
+
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: transferResult.transactionHash,
+      });
+
+      expect(receipt).toBeDefined();
+      expect(receipt.status).toBe("success");
+    });
+
+    it("should handle custom ERC20 token transfer using transferWithViem directly", async () => {
+      // Import the function directly
+      const { transferWithViem } = await import("./actions/evm/transfer/transferWithViem.js");
+      const { resolveViemClients } = await import("./accounts/evm/resolveViemClients.js");
+
+      // Ensure sufficient balance
+      await ensureSufficientEthBalance(cdp, testAccount);
+
+      // Create a recipient account for testing
+      const recipientAccount = await cdp.evm.createAccount({ name: generateRandomName() });
+
+      // Resolve viem clients for base-sepolia
+      const { walletClient } = await resolveViemClients({
+        networkOrNodeUrl: "base-sepolia",
+        account: testAccount,
+      });
+
+      // Use a known ERC20 token address on base-sepolia for testing
+      const customTokenAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e" as Hex; // USDC on base-sepolia
+
+      // Transfer custom token using transferWithViem directly
+      const transferResult = await transferWithViem(walletClient, testAccount, {
+        to: recipientAccount.address,
+        amount: 0n, // Transfer 0 tokens for testing
+        token: customTokenAddress,
+        network: "base-sepolia",
+      });
+
+      expect(transferResult).toBeDefined();
+      expect(transferResult.transactionHash).toBeDefined();
+
+      // Wait for transaction receipt using the public client
+      const { publicClient } = await resolveViemClients({
+        networkOrNodeUrl: "base-sepolia",
+        account: testAccount,
+      });
+
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: transferResult.transactionHash,
+      });
+
+      expect(receipt).toBeDefined();
+      expect(receipt.status).toBe("success");
+    });
+
+    it("should test transferWithViem through network-scoped account on non-Base network", async () => {
+      // For this test, we'll use a custom RPC URL to simulate a non-Base network
+      // This will force the network-scoped account to use transferWithViem internally
+      if (!process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL) {
+        logger.log("CDP_E2E_BASE_SEPOLIA_RPC_URL is not set, skipping test");
+        return;
+      }
+
+      // Create a network-scoped account with custom RPC URL
+      const scopedAccount = await testAccount.useNetwork(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL);
+
+      // Ensure sufficient balance
+      await ensureSufficientEthBalance(cdp, testAccount);
+
+      // Create a recipient account for testing
+      const recipientAccount = await cdp.evm.createAccount({ name: generateRandomName() });
+
+      // This should internally use transferWithViem since it's using a custom RPC URL
+      const transferResult = await scopedAccount.transfer({
+        to: recipientAccount.address,
+        amount: parseEther("0.000001"),
+        token: "eth",
+      });
+
+      expect(transferResult).toBeDefined();
+      expect(transferResult.transactionHash).toBeDefined();
+
+      // Wait for transaction receipt
+      const receipt = await scopedAccount.waitForTransactionReceipt({
+        hash: transferResult.transactionHash,
+      });
+
+      expect(receipt).toBeDefined();
+      expect(receipt.status).toBe("success");
     });
   });
 });
