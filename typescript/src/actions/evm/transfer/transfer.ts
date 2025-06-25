@@ -1,9 +1,10 @@
+import { isValidNetworkForAccount } from "./types.js";
+
 import type {
   TransferExecutionStrategy,
   SmartAccountTransferOptions,
   TransferOptions,
 } from "./types.js";
-import { isValidNetworkForAccount, isSmartAccount } from "./types.js";
 import type { EvmAccount, EvmSmartAccount } from "../../../accounts/evm/types.js";
 import type { CdpOpenApiClientType } from "../../../openapi-client/index.js";
 import type { Address } from "../../../types/misc.js";

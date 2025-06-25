@@ -1,10 +1,11 @@
+import { EvmUserOperationNetwork } from "../../../openapi-client/index.js";
+
 import type { EvmAccount, EvmSmartAccount } from "../../../accounts/evm/types.js";
 import type {
   CdpOpenApiClientType,
   SendEvmTransactionBodyNetwork,
+  EvmUserOperationNetwork as EvmUserOperationNetworkType,
 } from "../../../openapi-client/index.js";
-import { EvmUserOperationNetwork } from "../../../openapi-client/index.js";
-import type { EvmUserOperationNetwork as EvmUserOperationNetworkType } from "../../../openapi-client/index.js";
 import type { TransactionResult } from "../sendTransaction.js";
 import type { SendUserOperationReturnType } from "../sendUserOperation.js";
 import type { Hex, Address } from "viem";
@@ -86,6 +87,9 @@ export function isValidNetworkForAccount(
 
 /**
  * Type guard to check if an account is a smart account.
+ *
+ * @param account - The account to check.
+ * @returns true if the account is a smart account, false otherwise.
  */
 export function isSmartAccount(account: EvmAccount | EvmSmartAccount): account is EvmSmartAccount {
   return "type" in account && account.type === "evm-smart";
