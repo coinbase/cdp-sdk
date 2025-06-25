@@ -3,6 +3,7 @@ import {
   ExportAccountOptions,
   GetAccountOptions,
   GetOrCreateAccountOptions,
+  ImportAccountOptions,
   ListAccountsOptions,
   ListAccountsResult,
   RequestFaucetOptions,
@@ -25,6 +26,8 @@ import {
   formatSolanaPrivateKey,
   generateExportEncryptionKeyPair,
 } from "../../utils/export.js";
+import { ImportEvmAccountPublicRSAKey } from "../evm/constants.js";
+import { constants, publicEncrypt } from "crypto";
 
 /**
  * The namespace containing all Solana methods.
@@ -131,6 +134,39 @@ export class SolanaClient implements SolanaClientInterface {
 
     const decryptedPrivateKey = decryptWithPrivateKey(privateKey, encryptedPrivateKey);
     return formatSolanaPrivateKey(decryptedPrivateKey);
+  }
+
+  async importAccount(options: ImportAccountOptions): Promise<SolanaAccount> {
+    const encryptionPublicKey = options.encryptionPublicKey || ImportEvmAccountPublicRSAKey;
+
+    const encryptedPrivateKey = publicEncrypt(
+      {
+        key: encryptionPublicKey,
+        padding: constants.RSA_PKCS1_OAEP_PADDING,
+        oaepHash: "sha256",
+      },
+      options.privateKey,
+    );
+
+    console.log("encryptedPrivateKey", encryptedPrivateKey.toString("base64"));
+
+    return {} as any;
+
+    // const openApiAccount = await CdpOpenApiClient.importSolanaAccount(
+    //   {
+    //     encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
+    //     name: options.name,
+    //     idempotencyKey: options.idempotencyKey,
+    //   },
+    // );
+
+    // const account = toSolanaAccount(CdpOpenApiClient, {
+    //   account: openApiAccount,
+    // });
+
+    // Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    // return account;
   }
 
   /**
