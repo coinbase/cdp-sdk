@@ -1621,7 +1621,7 @@ export const PrepareUserOperationBodyNetwork = {
   "base-sepolia": "base-sepolia",
   base: "base",
   "ethereum-sepolia": "ethereum-sepolia",
-  ethereum: "ethereum"
+  ethereum: "ethereum",
 } as const;
 
 export type PrepareUserOperationBody = {
