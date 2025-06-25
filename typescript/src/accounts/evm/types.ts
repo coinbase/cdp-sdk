@@ -85,7 +85,7 @@ type NetworkScopedAccountActions = Prettify<{
     options: Omit<SendTransactionOptions, "address" | "network">,
   ) => Promise<TransactionResult>;
   waitForTransactionReceipt: (
-    options: WaitForTransactionReceiptParameters,
+    options: WaitForTransactionReceiptParameters | TransactionResult,
   ) => Promise<TransactionReceipt>;
 }>;
 

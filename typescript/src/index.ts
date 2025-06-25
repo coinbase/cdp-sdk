@@ -7,3 +7,5 @@ export {
   type CreatePolicyBody,
   type UpdatePolicyBody,
 } from "./policies/schema.js";
+
+export { parseEther } from "viem";
