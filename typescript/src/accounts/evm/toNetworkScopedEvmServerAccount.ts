@@ -2,9 +2,10 @@ import { WaitForTransactionReceiptParameters } from "viem";
 import { base, baseSepolia, sepolia } from "viem/chains";
 
 import { resolveViemClients } from "./resolveViemClients.js";
-import { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
 
 import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js";
+import type { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
+import type { TransactionResult } from "../../actions/evm/sendTransaction.js";
 import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
 import type { Address, TransactionRequestEIP1559 } from "../../types/misc.js";
 
@@ -73,7 +74,14 @@ export async function toNetworkScopedEvmServerAccount(
         return { transactionHash: hash };
       }
     },
-    waitForTransactionReceipt: async (options: WaitForTransactionReceiptParameters) => {
+    waitForTransactionReceipt: async (
+      options: WaitForTransactionReceiptParameters | TransactionResult,
+    ) => {
+      if ("transactionHash" in options) {
+        return publicClient.waitForTransactionReceipt({
+          hash: options.transactionHash,
+        });
+      }
       return publicClient.waitForTransactionReceipt(options);
     },
   };

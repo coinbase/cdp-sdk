@@ -1,8 +1,7 @@
 // Usage: pnpm tsx evm/baseAccount.sendTransaction.ts
 
-import { CdpClient } from "@coinbase/cdp-sdk";
+import { CdpClient, parseEther } from "@coinbase/cdp-sdk";
 
-import { parseEther } from "viem";
 import "dotenv/config";
 
 const cdp = new CdpClient();
@@ -24,20 +23,18 @@ console.log(
   faucetTxReceipt.transactionHash
 );
 
-const txResult = await baseAccount.sendTransaction({
+const transaction = await baseAccount.sendTransaction({
   transaction: {
     to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
     value: parseEther("0.000001"),
   },
 });
 
-console.log("Transaction sent successfully!");
-console.log(
-  `Transaction explorer link: https://sepolia.basescan.org/tx/${txResult.transactionHash}`
-);
+console.log("Transaction sent! Waiting for confirmation...");
 
-const receipt = await baseAccount.waitForTransactionReceipt({
-  hash: txResult.transactionHash,
-});
+const receipt = await baseAccount.waitForTransactionReceipt(transaction);
 
 console.log("Transaction confirmed!", receipt);
+console.log(
+  `To view your transaction details, visit: https://sepolia.basescan.org/tx/${receipt.transactionHash}`
+);

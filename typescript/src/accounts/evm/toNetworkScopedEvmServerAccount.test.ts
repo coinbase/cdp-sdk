@@ -279,5 +279,21 @@ describe("toNetworkScopedEvmServerAccount", () => {
         hash: "0xtxhash",
       });
     });
+
+    it("should handle a TransactionResult object", async () => {
+      const mockAccount = createMockEvmServerAccount();
+      const result = await toNetworkScopedEvmServerAccount(mockApiClient, {
+        account: mockAccount,
+        network: "base",
+      });
+
+      await result.waitForTransactionReceipt({
+        transactionHash: "0xtxhash",
+      });
+
+      expect(mockPublicClient.waitForTransactionReceipt).toHaveBeenCalledWith({
+        hash: "0xtxhash",
+      });
+    });
   });
 });
