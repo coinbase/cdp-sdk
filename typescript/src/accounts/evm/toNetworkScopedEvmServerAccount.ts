@@ -2,6 +2,11 @@ import { WaitForTransactionReceiptParameters } from "viem";
 import { base, baseSepolia, sepolia } from "viem/chains";
 
 import { resolveViemClients } from "./resolveViemClients.js";
+<<<<<<< HEAD
+=======
+import { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
+import { transferWithViem } from "../../actions/evm/transfer/networkScopedTransfer.js";
+>>>>>>> dd7197c (fix last change)
 
 import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js";
 import type { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
