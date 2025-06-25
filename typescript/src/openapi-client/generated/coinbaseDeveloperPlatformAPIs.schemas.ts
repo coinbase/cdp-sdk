@@ -166,8 +166,6 @@ export type EvmUserOperationNetwork =
 export const EvmUserOperationNetwork = {
   "base-sepolia": "base-sepolia",
   base: "base",
-  "ethereum-sepolia": "ethereum-sepolia",
-  ethereum: "ethereum",
 } as const;
 
 /**
@@ -1620,8 +1618,6 @@ export type PrepareUserOperationBodyNetwork =
 export const PrepareUserOperationBodyNetwork = {
   "base-sepolia": "base-sepolia",
   base: "base",
-  "ethereum-sepolia": "ethereum-sepolia",
-  ethereum: "ethereum",
 } as const;
 
 export type PrepareUserOperationBody = {

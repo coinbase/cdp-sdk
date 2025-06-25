@@ -1,9 +1,10 @@
 import type { EvmAccount, EvmSmartAccount } from "../../../accounts/evm/types.js";
 import type {
   CdpOpenApiClientType,
-  EvmUserOperationNetwork,
   SendEvmTransactionBodyNetwork,
 } from "../../../openapi-client/index.js";
+import { EvmUserOperationNetwork } from "../../../openapi-client/index.js";
+import type { EvmUserOperationNetwork as EvmUserOperationNetworkType } from "../../../openapi-client/index.js";
 import type { TransactionResult } from "../sendTransaction.js";
 import type { SendUserOperationReturnType } from "../sendUserOperation.js";
 import type { Hex, Address } from "viem";
@@ -63,4 +64,29 @@ export interface TransferExecutionStrategy<T extends EvmAccount | EvmSmartAccoun
       network: TransferOptions["network"];
     } & (T extends EvmSmartAccount ? { paymasterUrl?: string } : object),
   ): Promise<T extends EvmSmartAccount ? SendUserOperationReturnType : TransactionResult>;
+}
+
+/**
+ * Validates that the network is supported for the given account type.
+ *
+ * @param network - The network to validate
+ * @param account - The account to check network support for
+ * @returns true if the network is valid for the account type
+ */
+export function isValidNetworkForAccount(
+  network: Network,
+  account: EvmAccount | EvmSmartAccount,
+): boolean {
+  if (isSmartAccount(account)) {
+    return Object.values(EvmUserOperationNetwork).includes(network as EvmUserOperationNetworkType);
+  }
+
+  return true;
+}
+
+/**
+ * Type guard to check if an account is a smart account.
+ */
+export function isSmartAccount(account: EvmAccount | EvmSmartAccount): account is EvmSmartAccount {
+  return "type" in account && account.type === "evm-smart";
 }

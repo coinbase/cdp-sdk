@@ -3,6 +3,7 @@ import type {
   SmartAccountTransferOptions,
   TransferOptions,
 } from "./types.js";
+import { isValidNetworkForAccount, isSmartAccount } from "./types.js";
 import type { EvmAccount, EvmSmartAccount } from "../../../accounts/evm/types.js";
 import type { CdpOpenApiClientType } from "../../../openapi-client/index.js";
 import type { Address } from "../../../types/misc.js";
@@ -24,6 +25,12 @@ export async function transfer<T extends EvmAccount | EvmSmartAccount>(
   transferArgs: T extends EvmSmartAccount ? SmartAccountTransferOptions : TransferOptions,
   transferStrategy: TransferExecutionStrategy<T>,
 ): Promise<T extends EvmSmartAccount ? SendUserOperationReturnType : TransactionResult> {
+  if (!isValidNetworkForAccount(transferArgs.network, from)) {
+    throw new Error(
+      `Network "${transferArgs.network}" is not supported for the given account type.`,
+    );
+  }
+
   const to =
     typeof transferArgs.to === "string" ? transferArgs.to : (transferArgs.to.address as Address);
 
