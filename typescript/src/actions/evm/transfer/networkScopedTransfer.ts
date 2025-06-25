@@ -19,7 +19,7 @@ import type { WalletClient } from "viem";
  * @param transferArgs - The transfer options.
  * @returns The result of the transfer.
  */
-export async function networkScopedTransfer<T extends EvmAccount>(
+export async function transferWithViem<T extends EvmAccount>(
   walletClient: WalletClient,
   from: T,
   transferArgs: TransferOptions,

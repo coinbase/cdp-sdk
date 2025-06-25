@@ -3,7 +3,7 @@ import { base, baseSepolia, sepolia } from "viem/chains";
 
 import { resolveViemClients } from "./resolveViemClients.js";
 import { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
-import { networkScopedTransfer } from "../../actions/evm/transfer/networkScopedTransfer.js";
+import { transferWithViem } from "../../actions/evm/transfer/networkScopedTransfer.js";
 
 import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js";
 import type { Network } from "../../actions/evm/transfer/types.js";
@@ -69,7 +69,7 @@ export async function toNetworkScopedEvmServerAccount(
           network: (chain.id === base.id ? "base" : "base-sepolia") as Network,
         });
       } else {
-        return networkScopedTransfer(walletClient, account, {
+        return transferWithViem(walletClient, account, {
           ...transferArgs,
           network: options.network as Network,
         });

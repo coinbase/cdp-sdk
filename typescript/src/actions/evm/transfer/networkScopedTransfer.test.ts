@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { networkScopedTransfer } from "./networkScopedTransfer.js";
+import { transferWithViem } from "./networkScopedTransfer.js";
 import type { TransferOptions } from "./types.js";
 import type { EvmAccount } from "../../../accounts/evm/types.js";
 import type { WalletClient } from "viem";
@@ -8,7 +8,7 @@ import { parseEther, parseUnits } from "viem";
 import { encodeFunctionData, erc20Abi } from "viem";
 import { base, baseSepolia } from "viem/chains";
 
-describe("networkScopedTransfer", () => {
+describe("transferWithViem", () => {
   let mockWalletClient: WalletClient;
   let mockAccount: EvmAccount;
 
@@ -40,7 +40,7 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
+      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
@@ -74,7 +74,7 @@ describe("networkScopedTransfer", () => {
         network: "base-sepolia",
       };
 
-      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
+      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
         account: mockAccount.address,
@@ -101,7 +101,7 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
+      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
 
@@ -145,7 +145,7 @@ describe("networkScopedTransfer", () => {
         network: "base-sepolia",
       };
 
-      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
+      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
 
@@ -190,7 +190,7 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
+      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
 
@@ -242,7 +242,7 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
+      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
 
@@ -288,9 +288,9 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      await expect(
-        networkScopedTransfer(mockWalletClient, mockAccount, transferArgs),
-      ).rejects.toThrow("Transaction failed");
+      await expect(transferWithViem(mockWalletClient, mockAccount, transferArgs)).rejects.toThrow(
+        "Transaction failed",
+      );
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
     });
@@ -306,9 +306,9 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      await expect(
-        networkScopedTransfer(mockWalletClient, mockAccount, transferArgs),
-      ).rejects.toThrow("Approve failed");
+      await expect(transferWithViem(mockWalletClient, mockAccount, transferArgs)).rejects.toThrow(
+        "Approve failed",
+      );
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
     });
@@ -329,9 +329,9 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      await expect(
-        networkScopedTransfer(mockWalletClient, mockAccount, transferArgs),
-      ).rejects.toThrow("Transfer failed");
+      await expect(transferWithViem(mockWalletClient, mockAccount, transferArgs)).rejects.toThrow(
+        "Transfer failed",
+      );
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
     });
@@ -349,7 +349,7 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
+      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
         account: mockAccount.address,
@@ -375,7 +375,7 @@ describe("networkScopedTransfer", () => {
         network: "base",
       };
 
-      const result = await networkScopedTransfer(mockWalletClient, mockAccount, transferArgs);
+      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
         account: mockAccount.address,
