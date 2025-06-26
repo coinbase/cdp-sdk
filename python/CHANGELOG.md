@@ -2,6 +2,17 @@
 
 <!-- towncrier release notes start -->
 
+## [1.16.0] - 2025-06-25
+
+### Features
+
+- Added support for EvmDataCriterion in policies, which can restrict smart contract interactions ([#220](https://github.com/coinbase/cdp-sdk/pull/220))
+
+### Bugfixes
+
+- Hash req body in wallet jwt claims ([#212](https://github.com/coinbase/cdp-sdk/pull/212))
+
+
 ## [1.15.0] - 2025-06-18
 
 ### Features
