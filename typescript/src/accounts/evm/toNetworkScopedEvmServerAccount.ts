@@ -1,5 +1,5 @@
-import { Chain, WaitForTransactionReceiptParameters } from "viem";
-import { base, baseSepolia, mainnet } from "viem/chains";
+import { WaitForTransactionReceiptParameters } from "viem";
+import { base, baseSepolia } from "viem/chains";
 
 import { isMethodSupportedOnNetwork } from "./networkCapabilities.js";
 import { resolveViemClients } from "./resolveViemClients.js";
@@ -32,24 +32,6 @@ export type ToNetworkScopedEvmServerAccountOptions = {
   /** The network to scope the account to. */
   network: string;
 };
-
-/**
- * Resolves the network identifier from a chain.
- *
- * @param chain - The chain to resolve the network from.
- * @returns The network identifier.
- */
-function resolveNetworkFromChainForListTokenBalances(chain: Chain): ListEvmTokenBalancesNetwork {
-  if (chain.id === base.id) {
-    return "base";
-  } else if (chain.id === baseSepolia.id) {
-    return "base-sepolia";
-  } else if (chain.id === mainnet.id) {
-    return "ethereum";
-  } else {
-    throw new Error(`CDP API does not support chain id: ${chain.id}`);
-  }
-}
 
 /**
  * Creates a Network-scoped Server-managed EvmAccount instance from an existing EvmAccount.
@@ -129,7 +111,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
       ) => {
         return options.account.listTokenBalances({
           ...listTokenBalancesOptions,
-          network: resolveNetworkFromChainForListTokenBalances(chain),
+          network: options.network as ListEvmTokenBalancesNetwork,
         });
       },
     });
