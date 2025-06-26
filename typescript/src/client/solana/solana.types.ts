@@ -162,5 +162,5 @@ export interface ImportAccountOptions {
   /** The idempotency key. */
   idempotencyKey?: string;
   /** The private key of the account. */
-  privateKey: Buffer | Uint8Array;
+  privateKey: string;
 }

@@ -10,9 +10,7 @@ import bs58 from 'bs58';
 const cdp = new CdpClient();
 
 const keypair = Keypair.generate();
-const privateKey = Buffer.from(keypair.secretKey.slice(0, 32));
-
-console.log("privateKey", privateKey.toString("base64"));
+const privateKey = bs58.encode(keypair.secretKey);
 
 const account = await cdp.solana.importAccount({
   privateKey: privateKey,

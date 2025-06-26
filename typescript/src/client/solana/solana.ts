@@ -1,5 +1,5 @@
 import { constants, publicEncrypt } from "crypto";
-
+import bs58 from "bs58";
 import {
   CreateAccountOptions,
   ExportAccountOptions,
@@ -140,6 +140,16 @@ export class SolanaClient implements SolanaClientInterface {
   }
 
   async importAccount(options: ImportAccountOptions): Promise<SolanaAccount> {
+    let privateKeyBytes = bs58.decode(options.privateKey);
+
+    if (privateKeyBytes.length !== 32 && privateKeyBytes.length !== 64) {
+      throw new Error("Invalid private key length");
+    }
+
+    if (privateKeyBytes.length === 64) {
+      privateKeyBytes = privateKeyBytes.subarray(0, 32);
+    }
+
     const encryptionPublicKey = options.encryptionPublicKey || ImportSolanaAccountPublicRSAKey;
 
     const encryptedPrivateKey = publicEncrypt(
@@ -148,7 +158,7 @@ export class SolanaClient implements SolanaClientInterface {
         padding: constants.RSA_PKCS1_OAEP_PADDING,
         oaepHash: "sha256",
       },
-      options.privateKey,
+      privateKeyBytes,
     );
     
     const openApiAccount = await CdpOpenApiClient.importSolanaAccount(
