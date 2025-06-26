@@ -147,26 +147,22 @@ export class SolanaClient implements SolanaClientInterface {
       },
       options.privateKey,
     );
+    
+    const openApiAccount = await CdpOpenApiClient.importSolanaAccount(
+      {
+        encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
+        name: options.name,
+        idempotencyKey: options.idempotencyKey,
+      },
+    );
 
-    console.log("encryptedPrivateKey", encryptedPrivateKey.toString("base64"));
+    const account = toSolanaAccount(CdpOpenApiClient, {
+      account: openApiAccount,
+    });
 
-    return {} as any;
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
 
-    // const openApiAccount = await CdpOpenApiClient.importSolanaAccount(
-    //   {
-    //     encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
-    //     name: options.name,
-    //     idempotencyKey: options.idempotencyKey,
-    //   },
-    // );
-
-    // const account = toSolanaAccount(CdpOpenApiClient, {
-    //   account: openApiAccount,
-    // });
-
-    // Analytics.wrapObjectMethodsWithErrorTracking(account);
-
-    // return account;
+    return account;
   }
 
   /**
