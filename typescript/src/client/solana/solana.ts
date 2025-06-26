@@ -1,5 +1,9 @@
 import { constants, publicEncrypt } from "crypto";
+
 import bs58 from "bs58";
+
+import { ImportSolanaAccountPublicRSAKey } from "./constants.js";
+
 import {
   CreateAccountOptions,
   ExportAccountOptions,
@@ -28,8 +32,6 @@ import {
   formatSolanaPrivateKey,
   generateExportEncryptionKeyPair,
 } from "../../utils/export.js";
-
-import { ImportSolanaAccountPublicRSAKey } from "./constants.js";
 
 
 /**
@@ -139,6 +141,44 @@ export class SolanaClient implements SolanaClientInterface {
     return formatSolanaPrivateKey(decryptedPrivateKey);
   }
 
+  /**
+   * Imports a Solana account using a private key.
+   * The private key will be encrypted before being stored securely.
+   *
+   * @param {ImportAccountOptions} options - Parameters for importing the Solana account.
+   * @param {string} options.privateKey - The base58 encoded private key to import (32 or 64 bytes).
+   * @param {string} [options.name] - The name of the account.
+   * @param {string} [options.encryptionPublicKey] - The RSA public key for encrypting the private key.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
+   * @returns A promise that resolves to the imported account.
+   *
+   * @example **Import with private key only**
+   *          ```ts
+   *          const account = await cdp.solana.importAccount({
+   *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
+   *          });
+   *          ```
+   *
+   * @example **Import with name**
+   *          ```ts
+   *          const account = await cdp.solana.importAccount({
+   *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
+   *            name: "ImportedAccount",
+   *          });
+   *          ```
+   *
+   * @example **Import with idempotency key**
+   *          ```ts
+   *          const idempotencyKey = uuidv4();
+   *          
+   *          const account = await cdp.solana.importAccount({
+   *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
+   *            name: "ImportedAccount",
+   *            idempotencyKey,
+   *          });
+   *          ```
+   */
   async importAccount(options: ImportAccountOptions): Promise<SolanaAccount> {
     let privateKeyBytes = bs58.decode(options.privateKey);
 
