@@ -1,3 +1,4 @@
+import { getBaseNodeRpcUrl } from "./getBaseNodeRpcUrl.js";
 import { isMethodSupportedOnNetwork } from "./networkCapabilities.js";
 import { fund } from "../../actions/evm/fund/fund.js";
 import { quoteFund } from "../../actions/evm/fund/quoteFund.js";
@@ -25,9 +26,9 @@ import type { ListTokenBalancesOptions } from "../../actions/evm/listTokenBalanc
 import type { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
 import type { SendUserOperationOptions } from "../../actions/evm/sendUserOperation.js";
 import type {
-  AccountQuoteSwapOptions,
-  AccountSwapOptions,
+  SmartAccountQuoteSwapOptions,
   SmartAccountSwapNetwork,
+  SmartAccountSwapOptions,
 } from "../../actions/evm/swap/types.js";
 import type { SmartAccountTransferOptions } from "../../actions/evm/transfer/types.js";
 import type { WaitForUserOperationOptions } from "../../actions/evm/waitForUserOperation.js";
@@ -63,10 +64,17 @@ export type ToNetworkScopedEvmSmartAccountOptions = {
  * @param {KnownEvmNetworks} options.network - The network to scope the smart account to.
  * @returns {NetworkScopedEvmSmartAccount} A configured NetworkScopedEvmSmartAccount instance ready for user operation submission.
  */
-export function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNetworks>(
+export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNetworks>(
   apiClient: CdpOpenApiClientType,
   options: ToNetworkScopedEvmSmartAccountOptions & { network: Network },
-): NetworkScopedEvmSmartAccount<Network> {
+): Promise<NetworkScopedEvmSmartAccount<Network>> {
+  const paymasterUrl = await (async () => {
+    if (options.network === "base" || options.network === "base-sepolia") {
+      return getBaseNodeRpcUrl(options.network);
+    }
+    return undefined;
+  })();
+
   const account = {
     address: options.smartAccount.address,
     network: options.network,
@@ -80,6 +88,7 @@ export function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNetworks>
         ...userOpOptions,
         smartAccount: options.smartAccount,
         network: options.network as EvmUserOperationNetwork,
+        paymasterUrl: userOpOptions.paymasterUrl ?? paymasterUrl,
       });
     },
     waitForUserOperation: async (
@@ -107,6 +116,7 @@ export function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNetworks>
           {
             ...transferOptions,
             network: options.network as EvmUserOperationNetwork,
+            paymasterUrl: transferOptions.paymasterUrl ?? paymasterUrl,
           },
           smartAccountTransferStrategy,
         );
@@ -167,7 +177,7 @@ export function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNetworks>
 
   if (isMethodSupportedOnNetwork("quoteSwap", options.network)) {
     Object.assign(account, {
-      quoteSwap: async (quoteSwapOptions: AccountQuoteSwapOptions) => {
+      quoteSwap: async (quoteSwapOptions: SmartAccountQuoteSwapOptions) => {
         return createSwapQuote(apiClient, {
           ...quoteSwapOptions,
           taker: options.smartAccount.address,
@@ -181,13 +191,14 @@ export function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNetworks>
 
   if (isMethodSupportedOnNetwork("swap", options.network)) {
     Object.assign(account, {
-      swap: async (swapOptions: AccountSwapOptions) => {
+      swap: async (swapOptions: SmartAccountSwapOptions) => {
         return sendSwapOperation(apiClient, {
           ...swapOptions,
           smartAccount: options.smartAccount,
           taker: options.smartAccount.address,
           signerAddress: options.owner.address,
           network: options.network as SmartAccountSwapNetwork,
+          paymasterUrl: swapOptions.paymasterUrl ?? paymasterUrl,
         });
       },
     });
