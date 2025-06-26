@@ -22,12 +22,25 @@ import {
 import { RequestFaucetOptions, RequestFaucetResult } from "../../actions/evm/requestFaucet.js";
 import { TransactionResult, SendTransactionOptions } from "../../actions/evm/sendTransaction.js";
 import {
+  SendUserOperationOptions,
+  SendUserOperationReturnType,
+} from "../../actions/evm/sendUserOperation.js";
+import {
   AccountQuoteSwapOptions,
   AccountQuoteSwapResult,
   AccountSwapOptions,
   AccountSwapResult,
+  SmartAccountQuoteSwapOptions,
+  SmartAccountQuoteSwapResult,
+  SmartAccountSwapOptions,
+  SmartAccountSwapResult,
 } from "../../actions/evm/swap/types.js";
 import { TransferOptions } from "../../actions/evm/transfer/types.js";
+import {
+  WaitForUserOperationOptions,
+  WaitForUserOperationReturnType,
+} from "../../actions/evm/waitForUserOperation.js";
+import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 
 import type { AccountActions, SmartAccountActions } from "../../actions/evm/types.js";
 import type { Address, Hash, Hex } from "../../types/misc.js";
@@ -125,8 +138,23 @@ type EvmSmartAccountProperties = {
   owners: EvmAccount[];
   /** Identifier for the smart account type. */
   type: "evm-smart";
-  /** Subject to breaking changes. A function that returns a network-scoped smart account. */
-  __experimental_useNetwork: (network: string) => Promise<NetworkScopedEvmSmartAccount>;
+  /**
+   * A function that returns a network-scoped smart account.
+   *
+   * @param network - The network name or RPC URL
+   * @example
+   * // For known networks, type is inferred automatically:
+   * const baseAccount = await smartAccount.useNetwork("base");
+   *
+   * // For custom RPC URLs with type hints (requires casting):
+   * const typedAccount = await smartAccount.useNetwork<"base">("https://mainnet.base.org" as "base");
+   *
+   * // For custom RPC URLs without type hints (only sendTransaction, transfer and waitForTransactionReceipt methods available):
+   * const customAccount = await smartAccount.useNetwork("https://mainnet.base.org");
+   */
+  useNetwork: <Network extends KnownEvmNetworks>(
+    network: Network,
+  ) => Promise<NetworkScopedEvmSmartAccount<Network>>;
 };
 
 /**
@@ -134,11 +162,86 @@ type EvmSmartAccountProperties = {
  */
 export type EvmSmartAccount = Prettify<EvmSmartAccountProperties & SmartAccountActions>;
 
-export type NetworkScopedEvmSmartAccount = Prettify<
-  Omit<EvmSmartAccountProperties, "__experimental_useNetwork"> & {
-    /** The network to scope the smart account object to. */
-    network: string;
-  }
+/**
+ * Helper type for network-specific smart account actions
+ */
+type NetworkSpecificSmartAccountActions<Network extends string> = Prettify<
+  // Always include sendUserOperation, waitForUserOperation and getUserOperation
+  {
+    sendUserOperation: <const callData extends unknown[]>(
+      options: Omit<SendUserOperationOptions<callData>, "smartAccount" | "network">,
+    ) => Promise<SendUserOperationReturnType>;
+    waitForUserOperation: (
+      options: Omit<WaitForUserOperationOptions, "smartAccountAddress" | "network">,
+    ) => Promise<WaitForUserOperationReturnType>;
+    getUserOperation: (
+      options: Omit<GetUserOperationOptions, "smartAccount" | "network">,
+    ) => Promise<UserOperation>;
+  } & (Network extends TransferNetworks
+    ? {
+        transfer: (
+          options: Omit<TransferOptions, "network">,
+        ) => Promise<SendUserOperationReturnType>;
+      }
+    : EmptyObject) &
+    // Conditionally include listTokenBalances
+    (Network extends ListTokenBalancesNetworks
+      ? {
+          listTokenBalances: (
+            options: Omit<ListTokenBalancesOptions, "address" | "network">,
+          ) => Promise<ListTokenBalancesResult>;
+        }
+      : EmptyObject) &
+    // Conditionally include requestFaucet
+    (Network extends RequestFaucetNetworks
+      ? {
+          requestFaucet: (
+            options: Omit<RequestFaucetOptions, "address" | "network">,
+          ) => Promise<RequestFaucetResult>;
+        }
+      : EmptyObject) &
+    // Conditionally include quoteFund
+    (Network extends QuoteFundNetworks
+      ? {
+          quoteFund: (options: Omit<QuoteFundOptions, "address" | "network">) => Promise<Quote>;
+        }
+      : EmptyObject) &
+    // Conditionally include fund
+    (Network extends FundNetworks
+      ? {
+          fund: (options: Omit<FundOptions, "address" | "network">) => Promise<FundOperationResult>;
+          waitForFundOperationReceipt: (
+            options: Omit<WaitForFundOperationOptions, "network">,
+          ) => Promise<WaitForFundOperationResult>;
+        }
+      : EmptyObject) &
+    // Conditionally include quoteSwap
+    (Network extends QuoteSwapNetworks
+      ? {
+          quoteSwap: (
+            options: Omit<SmartAccountQuoteSwapOptions, "network">,
+          ) => Promise<SmartAccountQuoteSwapResult>;
+        }
+      : EmptyObject) &
+    // Conditionally include swap
+    (Network extends SwapNetworks
+      ? {
+          swap: (
+            options: Omit<SmartAccountSwapOptions, "network">,
+          ) => Promise<SmartAccountSwapResult>;
+        }
+      : EmptyObject)
+>;
+
+/**
+ * A network-scoped smart account
+ */
+export type NetworkScopedEvmSmartAccount<Network extends string = string> = Prettify<
+  Omit<EvmSmartAccountProperties, "useNetwork"> &
+    NetworkSpecificSmartAccountActions<Network> & {
+      /** The network this account is scoped to */
+      network: Network;
+    }
 >;
 
 /**

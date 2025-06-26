@@ -36,7 +36,7 @@ export const NETWORK_CAPABILITIES = {
     quoteFund: false, // Only base is supported for quoteFund
     fund: false, // Only base is supported for fund
     waitForFundOperationReceipt: false,
-    transfer: false, // Not supported based on SendEvmTransactionBodyNetwork
+    transfer: true,
     sendTransaction: true,
     quoteSwap: true,
     swap: true,
@@ -47,7 +47,7 @@ export const NETWORK_CAPABILITIES = {
     quoteFund: false,
     fund: false,
     waitForFundOperationReceipt: false,
-    transfer: false, // Not supported based on SendEvmTransactionBodyNetwork
+    transfer: true,
     sendTransaction: true,
     quoteSwap: false,
     swap: false,

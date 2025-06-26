@@ -35,7 +35,7 @@ import {
 } from "../../actions/evm/waitForUserOperation.js";
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 
-import type { EvmAccount, EvmSmartAccount } from "./types.js";
+import type { EvmAccount, EvmSmartAccount, KnownEvmNetworks } from "./types.js";
 import type {
   SmartAccountQuoteSwapOptions,
   SmartAccountQuoteSwapResult,
@@ -156,11 +156,11 @@ export function toEvmSmartAccount(
 
     name: options.smartAccount.name,
     type: "evm-smart",
-    __experimental_useNetwork: async (networkOrRpcUrl: string) => {
+    useNetwork: async <Network extends KnownEvmNetworks>(network: Network) => {
       return toNetworkScopedEvmSmartAccount(apiClient, {
         smartAccount: account,
         owner: options.owner,
-        network: networkOrRpcUrl,
+        network,
       });
     },
   };
