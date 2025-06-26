@@ -1,6 +1,7 @@
 import { WaitForTransactionReceiptParameters } from "viem";
 import { base, baseSepolia, mainnet, sepolia } from "viem/chains";
 
+import { mapChainToNetwork } from "./chainToNetworkMapper.js";
 import { isMethodSupportedOnNetwork } from "./networkCapabilities.js";
 import { resolveViemClients } from "./resolveViemClients.js";
 import { transferWithViem } from "../../actions/evm/transfer/transferWithViem.js";
@@ -17,7 +18,10 @@ import type {
 } from "../../actions/evm/sendTransaction.js";
 import type { AccountQuoteSwapOptions, AccountSwapOptions } from "../../actions/evm/swap/types.js";
 import type { TransferOptions } from "../../actions/evm/transfer/types.js";
-import type { ListEvmTokenBalancesNetwork } from "../../openapi-client/index.js";
+import type {
+  ListEvmTokenBalancesNetwork,
+  SendEvmTransactionBodyNetwork,
+} from "../../openapi-client/index.js";
 import type { Address, TransactionRequestEIP1559 } from "../../types/misc.js";
 
 /**
@@ -67,7 +71,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
       if (shouldUseApiForSends) {
         return options.account.sendTransaction({
           ...txOpts,
-          network: chain.id === base.id ? "base" : "base-sepolia",
+          network: mapChainToNetwork(chain) as SendEvmTransactionBodyNetwork,
         });
       } else {
         const hash = await walletClient.sendTransaction(
@@ -80,13 +84,10 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
       if (shouldUseApiForSends) {
         return options.account.transfer({
           ...transferArgs,
-          network: chain.id === base.id ? "base" : "base-sepolia",
+          network: mapChainToNetwork(chain) as SendEvmTransactionBodyNetwork,
         });
       } else {
-        return transferWithViem(walletClient, account, {
-          ...transferArgs,
-          network: chain.id === base.id ? "base" : "base-sepolia",
-        });
+        return transferWithViem(walletClient, account, transferArgs);
       }
     },
     waitForTransactionReceipt: async (

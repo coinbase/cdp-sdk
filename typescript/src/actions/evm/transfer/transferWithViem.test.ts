@@ -15,6 +15,7 @@ describe("transferWithViem", () => {
   beforeEach(() => {
     mockWalletClient = {
       sendTransaction: vi.fn(),
+      chain: base, // Default to base chain for tests
     };
 
     mockAccount = {
@@ -40,7 +41,12 @@ describe("transferWithViem", () => {
         network: "base",
       };
 
-      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
+      const { network, ...transferArgsWithoutNetwork } = transferArgs;
+      const result = await transferWithViem(
+        mockWalletClient,
+        mockAccount,
+        transferArgsWithoutNetwork,
+      );
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
@@ -73,7 +79,13 @@ describe("transferWithViem", () => {
         network: "base-sepolia",
       };
 
-      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
+      mockWalletClient.chain = baseSepolia; // Set chain for this test
+      const { network, ...transferArgsWithoutNetwork } = transferArgs;
+      const result = await transferWithViem(
+        mockWalletClient,
+        mockAccount,
+        transferArgsWithoutNetwork,
+      );
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
         account: mockAccount.address,
@@ -99,7 +111,12 @@ describe("transferWithViem", () => {
         network: "base",
       };
 
-      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
+      const { network, ...transferArgsWithoutNetwork } = transferArgs;
+      const result = await transferWithViem(
+        mockWalletClient,
+        mockAccount,
+        transferArgsWithoutNetwork,
+      );
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
 
@@ -133,6 +150,7 @@ describe("transferWithViem", () => {
     it("should transfer USDC on base-sepolia network", async () => {
       const mockHash = "0xabcdef1234567890" as Hex;
       mockWalletClient.sendTransaction = vi.fn().mockResolvedValue(mockHash);
+      mockWalletClient.chain = baseSepolia; // Set chain to base-sepolia for this test
 
       const transferArgs: TransferOptions = {
         to: "0x1234567890123456789012345678901234567890" as Address,
@@ -141,7 +159,12 @@ describe("transferWithViem", () => {
         network: "base-sepolia",
       };
 
-      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
+      const { network, ...transferArgsWithoutNetwork } = transferArgs;
+      const result = await transferWithViem(
+        mockWalletClient,
+        mockAccount,
+        transferArgsWithoutNetwork,
+      );
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
 
@@ -184,7 +207,12 @@ describe("transferWithViem", () => {
         network: "base",
       };
 
-      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
+      const { network, ...transferArgsWithoutNetwork } = transferArgs;
+      const result = await transferWithViem(
+        mockWalletClient,
+        mockAccount,
+        transferArgsWithoutNetwork,
+      );
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
 
@@ -234,7 +262,12 @@ describe("transferWithViem", () => {
         network: "base",
       };
 
-      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
+      const { network, ...transferArgsWithoutNetwork } = transferArgs;
+      const result = await transferWithViem(
+        mockWalletClient,
+        mockAccount,
+        transferArgsWithoutNetwork,
+      );
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
 
@@ -278,9 +311,10 @@ describe("transferWithViem", () => {
         network: "base",
       };
 
-      await expect(transferWithViem(mockWalletClient, mockAccount, transferArgs)).rejects.toThrow(
-        "Transaction failed",
-      );
+      const { network, ...transferArgsWithoutNetwork } = transferArgs;
+      await expect(
+        transferWithViem(mockWalletClient, mockAccount, transferArgsWithoutNetwork),
+      ).rejects.toThrow("Transaction failed");
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
     });
@@ -296,9 +330,10 @@ describe("transferWithViem", () => {
         network: "base",
       };
 
-      await expect(transferWithViem(mockWalletClient, mockAccount, transferArgs)).rejects.toThrow(
-        "Approve failed",
-      );
+      const { network, ...transferArgsWithoutNetwork } = transferArgs;
+      await expect(
+        transferWithViem(mockWalletClient, mockAccount, transferArgsWithoutNetwork),
+      ).rejects.toThrow("Approve failed");
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
     });
@@ -319,9 +354,10 @@ describe("transferWithViem", () => {
         network: "base",
       };
 
-      await expect(transferWithViem(mockWalletClient, mockAccount, transferArgs)).rejects.toThrow(
-        "Transfer failed",
-      );
+      const { network, ...transferArgsWithoutNetwork } = transferArgs;
+      await expect(
+        transferWithViem(mockWalletClient, mockAccount, transferArgsWithoutNetwork),
+      ).rejects.toThrow("Transfer failed");
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
     });
@@ -339,7 +375,12 @@ describe("transferWithViem", () => {
         network: "base",
       };
 
-      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
+      const { network, ...transferArgsWithoutNetwork } = transferArgs;
+      const result = await transferWithViem(
+        mockWalletClient,
+        mockAccount,
+        transferArgsWithoutNetwork,
+      );
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
         account: mockAccount.address,
@@ -364,7 +405,12 @@ describe("transferWithViem", () => {
         network: "base",
       };
 
-      const result = await transferWithViem(mockWalletClient, mockAccount, transferArgs);
+      const { network, ...transferArgsWithoutNetwork } = transferArgs;
+      const result = await transferWithViem(
+        mockWalletClient,
+        mockAccount,
+        transferArgsWithoutNetwork,
+      );
 
       expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
         account: mockAccount.address,
