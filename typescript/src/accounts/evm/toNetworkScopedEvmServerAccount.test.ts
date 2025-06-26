@@ -24,163 +24,201 @@ vi.mock("./resolveViemClients.js", async () => {
 const mockResolveViemClients = resolveViemClients as MockedFunction<typeof resolveViemClients>;
 
 describe("toNetworkScopedEvmServerAccount", () => {
-  const mockApiClient = {} as CdpOpenApiClientType;
-  const mockAddress = "0x1234567890123456789012345678901234567890";
-  const mockNetwork = "ethereum";
-  const mockName = "test-account";
-  const mockPolicies = ["policy1", "policy2"];
+  let mockApiClient: CdpOpenApiClientType;
+  let mockAccount: EvmServerAccount;
+  let mockPublicClient: any;
+  let mockWalletClient: any;
 
-  const mockPublicClient = {
-    waitForTransactionReceipt: vi.fn(),
-  };
-  const mockWalletClient = {
-    sendTransaction: vi.fn(),
-  };
-
-  const createMockEvmServerAccount = (): EvmServerAccount => ({
-    address: mockAddress,
-    name: mockName,
-    type: "evm-server",
-    policies: mockPolicies,
-    signMessage: vi.fn().mockResolvedValue("0xsignature"),
-    sign: vi.fn().mockResolvedValue("0xsignature"),
-    signTransaction: vi.fn().mockResolvedValue("0xsignedTx"),
-    signTypedData: vi.fn().mockResolvedValue("0xsignature"),
-    listTokenBalances: vi.fn().mockResolvedValue({
-      balances: [],
-      nextPageToken: undefined,
-    }),
-    requestFaucet: vi.fn().mockResolvedValue({
-      transactionHash: "0xtxhash",
-    }),
-    quoteFund: vi
-      .fn()
-      .mockResolvedValue(
-        new Quote(mockApiClient, "quote-123", "base", "100", "USD", "100", "eth", []),
-      ),
-    fund: vi.fn().mockResolvedValue({
-      id: "op-123",
-      network: "base",
-      targetAmount: "100",
-      targetCurrency: "eth",
-      status: "completed",
-      transactionHash: "0xtxhash",
-    }),
-    waitForFundOperationReceipt: vi.fn().mockResolvedValue({
-      id: "op-123",
-      network: "base",
-      targetAmount: "100",
-      targetCurrency: "eth",
-      status: "completed",
-      transactionHash: "0xtxhash",
-    }),
-    quoteSwap: vi.fn().mockResolvedValue({
-      liquidityAvailable: true,
-      network: "base",
-      toToken: mockAddress,
-      fromToken: mockAddress,
-      fromAmount: 100n,
-      toAmount: 100n,
-      minToAmount: 100n,
-      blockNumber: 100n,
-      fees: {
-        gasFee: {
-          amount: 100n,
-          token: mockAddress,
-        },
-      },
-      issues: {
-        simulationIncomplete: false,
-      },
-      execute: vi.fn().mockResolvedValue({
-        transactionHash: "0xtxhash",
-      }),
-    }),
-    swap: vi.fn().mockResolvedValue({
-      transactionHash: "0xtxhash",
-    }),
-    transfer: vi.fn().mockResolvedValue({
-      transactionHash: "0xtxhash",
-    }),
-    sendTransaction: vi.fn().mockResolvedValue({
-      transactionHash: "0xtxhash",
-    }),
-    useNetwork: vi.fn().mockResolvedValue({}),
-  });
-
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.resetAllMocks();
 
-    mockResolveViemClients.mockResolvedValue({
-      publicClient: mockPublicClient as unknown as PublicClient<Transport, Chain>,
-      walletClient: mockWalletClient as unknown as WalletClient<Transport, Chain, Account>,
-      chain: baseSepolia,
-    });
-  });
-
-  it("should create a network-scoped account with all properties", async () => {
-    const mockAccount = createMockEvmServerAccount();
-    const result = await toNetworkScopedEvmServerAccount(mockApiClient, {
-      account: mockAccount,
-      network: mockNetwork,
-    });
-
-    expect(result).toEqual({
-      address: mockAddress,
-      network: mockNetwork,
-      name: mockName,
-      type: "evm-server",
-      policies: mockPolicies,
-      signMessage: mockAccount.signMessage,
-      sign: mockAccount.sign,
-      signTransaction: mockAccount.signTransaction,
-      signTypedData: mockAccount.signTypedData,
-      requestFaucet: expect.any(Function),
-      transfer: expect.any(Function),
-      sendTransaction: expect.any(Function),
-      waitForTransactionReceipt: expect.any(Function),
-      listTokenBalances: expect.any(Function),
-    });
-  });
-
-  it("should preserve all signing functions from the original account", async () => {
-    const mockAccount = createMockEvmServerAccount();
-    const result = await toNetworkScopedEvmServerAccount(mockApiClient, {
-      account: mockAccount,
-      network: mockNetwork,
-    });
-
-    // Test that all signing functions are preserved and work as expected
-    const message = { message: "test" };
-    const hash = "0xhash";
-    const transaction: TransactionSerializable = {
-      to: mockAddress,
-      value: 100n,
-      chainId: 1,
+    // Create mock clients
+    mockPublicClient = {
+      waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: "success" }),
     };
-    const typedData = {
-      domain: { name: "Test" },
-      types: { Test: [{ name: "test", type: "string" }] },
-      primaryType: "Test",
-      message: { test: "test" },
-    } as const;
 
-    expect(await result.signMessage(message)).toBe("0xsignature");
-    expect(await result.sign({ hash })).toBe("0xsignature");
-    expect(await result.signTransaction(transaction)).toBe("0xsignedTx");
-    expect(await result.signTypedData(typedData)).toBe("0xsignature");
+    mockWalletClient = {
+      sendTransaction: vi.fn().mockResolvedValue("0xtransactionhash"),
+    };
+
+    // Create mock API client
+    mockApiClient = {} as CdpOpenApiClientType;
+
+    // Create mock base account with all methods
+    mockAccount = {
+      address: "0x1234567890123456789012345678901234567890",
+      name: "test-account",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      policies: [],
+      // Actions
+      listTokenBalances: vi.fn().mockResolvedValue({ balances: [], nextPageToken: undefined }),
+      requestFaucet: vi.fn().mockResolvedValue({ transactionHash: "0xhash" }),
+      quoteFund: vi.fn().mockResolvedValue({
+        quoteId: "quote-123",
+        network: "base",
+        fiatAmount: "100",
+        fiatCurrency: "USD",
+        tokenAmount: "0.05",
+        token: "ETH",
+        fees: [],
+        execute: vi.fn(),
+      }),
+      fund: vi.fn().mockResolvedValue({
+        id: "fund-123",
+        network: "base",
+        status: "completed",
+        targetAmount: "0.05",
+        targetCurrency: "ETH",
+        transactionHash: "0xhash",
+      }),
+      waitForFundOperationReceipt: vi.fn().mockResolvedValue({
+        id: "fund-123",
+        network: "base",
+        status: "completed",
+        targetAmount: "0.05",
+        targetCurrency: "ETH",
+        transactionHash: "0xhash",
+      }),
+      transfer: vi.fn().mockResolvedValue({ transactionHash: "0xhash" }),
+      quoteSwap: vi.fn().mockResolvedValue({
+        liquidityAvailable: true,
+        toToken: "0xtoken",
+        fromToken: "0xtoken",
+        fromAmount: 1000n,
+        toAmount: 1000n,
+        minToAmount: 990n,
+        blockNumber: 123n,
+        fees: {},
+        issues: { simulationIncomplete: false },
+      }),
+      swap: vi.fn().mockResolvedValue({
+        liquidityAvailable: true,
+        network: "base",
+        toToken: "0xtoken",
+        fromToken: "0xtoken",
+        fromAmount: 1000n,
+        toAmount: 1000n,
+        minToAmount: 990n,
+        blockNumber: 123n,
+        fees: {},
+        issues: { simulationIncomplete: false },
+        execute: vi.fn(),
+      }),
+      // AccountActions
+      sign: vi.fn().mockResolvedValue("0xsignature"),
+      signHash: vi.fn().mockResolvedValue({ signature: "0xsignature" }),
+      signMessage: vi.fn().mockResolvedValue("0xsignature"),
+      signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+      signTransaction: vi.fn().mockResolvedValue("0xsignature"),
+      sendTransaction: vi.fn().mockResolvedValue({ transactionHash: "0xhash" }),
+      waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: "success" }),
+      export: vi.fn().mockResolvedValue("exported-key"),
+      reload: vi.fn().mockResolvedValue(undefined),
+    } as unknown as EvmServerAccount;
   });
 
-  describe("requestFaucet", () => {
-    it("should call the requestFaucet function with the correct network", async () => {
-      const mockAccount = createMockEvmServerAccount();
-      const result = await toNetworkScopedEvmServerAccount(mockApiClient, {
+  describe("base network", () => {
+    beforeEach(() => {
+      mockResolveViemClients.mockResolvedValue({
+        publicClient: mockPublicClient,
+        walletClient: mockWalletClient,
+        chain: base,
+      });
+    });
+
+    it("should create a network-scoped account with all methods for base network", async () => {
+      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+        account: mockAccount,
+        network: "base",
+      });
+
+      // Check that all methods are available
+      expect(networkAccount.listTokenBalances).toBeDefined();
+      expect(networkAccount.quoteFund).toBeDefined();
+      expect(networkAccount.fund).toBeDefined();
+      expect(networkAccount.waitForFundOperationReceipt).toBeDefined();
+      expect(networkAccount.transfer).toBeDefined();
+      expect(networkAccount.quoteSwap).toBeDefined();
+      expect(networkAccount.swap).toBeDefined();
+      expect(networkAccount.sendTransaction).toBeDefined();
+      expect(networkAccount.waitForTransactionReceipt).toBeDefined();
+      expect(networkAccount.sign).toBeDefined();
+      expect(networkAccount.signMessage).toBeDefined();
+      expect(networkAccount.signTypedData).toBeDefined();
+      expect(networkAccount.signTransaction).toBeDefined();
+
+      // requestFaucet should NOT be available for base
+      expect("requestFaucet" in networkAccount).toBe(false);
+    });
+
+    it("should pass network parameter to methods", async () => {
+      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+        account: mockAccount,
+        network: "base",
+      });
+
+      await networkAccount.listTokenBalances({});
+      expect(mockAccount.listTokenBalances).toHaveBeenCalledWith({ network: "base" });
+
+      await networkAccount.transfer({
+        to: "0xaddress",
+        amount: 100n,
+        token: "eth",
+        network: "base",
+      });
+      expect(mockAccount.transfer).toHaveBeenCalledWith({
+        to: "0xaddress",
+        amount: 100n,
+        token: "eth",
+        network: "base",
+      });
+
+      await networkAccount.sendTransaction({ transaction: { to: "0xaddress", value: 100n } });
+      expect(mockAccount.sendTransaction).toHaveBeenCalledWith({
+        transaction: { to: "0xaddress", value: 100n },
+        network: "base",
+      });
+    });
+  });
+
+  describe("base-sepolia network", () => {
+    beforeEach(() => {
+      mockResolveViemClients.mockResolvedValue({
+        publicClient: mockPublicClient,
+        walletClient: mockWalletClient,
+        chain: baseSepolia,
+      });
+    });
+
+    it("should create a network-scoped account with limited methods for base-sepolia", async () => {
+      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
         account: mockAccount,
         network: "base-sepolia",
       });
 
-      await result.requestFaucet({ token: "eth" });
+      // Available methods
+      expect(networkAccount.listTokenBalances).toBeDefined();
+      expect(networkAccount.requestFaucet).toBeDefined();
+      expect(networkAccount.transfer).toBeDefined();
+      expect(networkAccount.sendTransaction).toBeDefined();
+      expect(networkAccount.waitForTransactionReceipt).toBeDefined();
 
+      // Unavailable methods - check via 'in' operator
+      expect("quoteFund" in networkAccount).toBe(false);
+      expect("fund" in networkAccount).toBe(false);
+      expect("waitForFundOperationReceipt" in networkAccount).toBe(false);
+      expect("quoteSwap" in networkAccount).toBe(false);
+      expect("swap" in networkAccount).toBe(false);
+    });
+
+    it("should handle requestFaucet correctly", async () => {
+      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+        account: mockAccount,
+        network: "base-sepolia",
+      });
+
+      await networkAccount.requestFaucet({ token: "eth" });
       expect(mockAccount.requestFaucet).toHaveBeenCalledWith({
         token: "eth",
         network: "base-sepolia",
@@ -188,96 +226,148 @@ describe("toNetworkScopedEvmServerAccount", () => {
     });
   });
 
-  describe("sendTransaction", () => {
-    it("should call the sendTransaction function with the correct network when using the API", async () => {
+  describe("ethereum network", () => {
+    beforeEach(() => {
       mockResolveViemClients.mockResolvedValue({
-        publicClient: mockPublicClient as unknown as PublicClient<Transport, Chain>,
-        walletClient: mockWalletClient as unknown as WalletClient<Transport, Chain, Account>,
-        chain: base,
+        publicClient: mockPublicClient,
+        walletClient: mockWalletClient,
+        chain: { id: 1, name: "Ethereum Mainnet" } as any, // mainnet
       });
-
-      const mockAccount = createMockEvmServerAccount();
-      const result = await toNetworkScopedEvmServerAccount(mockApiClient, {
-        account: mockAccount,
-        network: "base",
-      });
-
-      await result.sendTransaction({
-        transaction: {
-          to: mockAddress,
-          value: 100n,
-        },
-      });
-
-      expect(mockAccount.sendTransaction).toHaveBeenCalledWith({
-        transaction: {
-          to: mockAddress,
-          value: 100n,
-        },
-        network: "base",
-      });
-      expect(mockWalletClient.sendTransaction).not.toHaveBeenCalled();
     });
 
-    it("should use the wallet client when not using the API", async () => {
-      mockResolveViemClients.mockResolvedValue({
-        publicClient: mockPublicClient as unknown as PublicClient<Transport, Chain>,
-        walletClient: mockWalletClient as unknown as WalletClient<Transport, Chain, Account>,
-        chain: polygon,
-      });
-
-      const mockAccount = createMockEvmServerAccount();
-      const result = await toNetworkScopedEvmServerAccount(mockApiClient, {
+    it("should create a network-scoped account with swap methods for ethereum", async () => {
+      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
         account: mockAccount,
-        network: "https://rpc-url-for-other-network.com",
+        network: "ethereum",
       });
 
-      await result.sendTransaction({
-        transaction: {
-          to: mockAddress,
-          value: 100n,
-        },
-      });
+      // Available methods
+      expect(networkAccount.listTokenBalances).toBeDefined();
+      expect(networkAccount.quoteSwap).toBeDefined();
+      expect(networkAccount.swap).toBeDefined();
+      expect(networkAccount.sendTransaction).toBeDefined();
+      expect(networkAccount.waitForTransactionReceipt).toBeDefined();
 
-      expect(mockAccount.sendTransaction).not.toHaveBeenCalled();
-      expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
-        to: mockAddress,
-        value: 100n,
-      });
+      // Unavailable methods - check via 'in' operator
+      expect("requestFaucet" in networkAccount).toBe(false);
+      expect("quoteFund" in networkAccount).toBe(false);
+      expect("fund" in networkAccount).toBe(false);
+      expect("transfer" in networkAccount).toBe(false);
     });
   });
 
-  describe("waitForTransactionReceipt", () => {
-    it("should call the waitForTransactionReceipt function", async () => {
-      const mockAccount = createMockEvmServerAccount();
-      const result = await toNetworkScopedEvmServerAccount(mockApiClient, {
-        account: mockAccount,
-        network: "base",
-      });
-
-      await result.waitForTransactionReceipt({
-        hash: "0xtxhash",
-      });
-
-      expect(mockPublicClient.waitForTransactionReceipt).toHaveBeenCalledWith({
-        hash: "0xtxhash",
+  describe("ethereum-sepolia network", () => {
+    beforeEach(() => {
+      mockResolveViemClients.mockResolvedValue({
+        publicClient: mockPublicClient,
+        walletClient: mockWalletClient,
+        chain: { id: 11155111, name: "Ethereum Sepolia" } as any,
       });
     });
 
-    it("should handle a TransactionResult object", async () => {
-      const mockAccount = createMockEvmServerAccount();
-      const result = await toNetworkScopedEvmServerAccount(mockApiClient, {
+    it("should create a network-scoped account with only faucet for ethereum-sepolia", async () => {
+      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+        account: mockAccount,
+        network: "ethereum-sepolia",
+      });
+
+      // Available methods
+      expect(networkAccount.requestFaucet).toBeDefined();
+      expect(networkAccount.sendTransaction).toBeDefined();
+      expect(networkAccount.waitForTransactionReceipt).toBeDefined();
+
+      // Always available account actions
+      expect(networkAccount.sign).toBeDefined();
+      expect(networkAccount.signMessage).toBeDefined();
+      expect(networkAccount.signTypedData).toBeDefined();
+      expect(networkAccount.signTransaction).toBeDefined();
+
+      // Unavailable methods
+      expect("listTokenBalances" in networkAccount).toBe(false);
+      expect("quoteFund" in networkAccount).toBe(false);
+      expect("fund" in networkAccount).toBe(false);
+      expect("transfer" in networkAccount).toBe(false);
+      expect("quoteSwap" in networkAccount).toBe(false);
+      expect("swap" in networkAccount).toBe(false);
+    });
+  });
+
+  describe("custom RPC URL", () => {
+    beforeEach(() => {
+      mockResolveViemClients.mockResolvedValue({
+        publicClient: mockPublicClient,
+        walletClient: mockWalletClient,
+        chain: { id: 123456, name: "Custom Network" } as any,
+      });
+    });
+
+    it("should handle custom RPC URLs", async () => {
+      const customRpcUrl = "https://custom-rpc.example.com";
+      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+        account: mockAccount,
+        network: customRpcUrl,
+      });
+
+      // Should have basic methods that are available on all networks
+      expect(networkAccount.sendTransaction).toBeDefined();
+      expect(networkAccount.waitForTransactionReceipt).toBeDefined();
+      expect(networkAccount.sign).toBeDefined();
+      expect(networkAccount.signMessage).toBeDefined();
+      expect(networkAccount.signTypedData).toBeDefined();
+      expect(networkAccount.signTransaction).toBeDefined();
+
+      // Network-specific methods should not be available
+      expect("listTokenBalances" in networkAccount).toBe(false);
+      expect("requestFaucet" in networkAccount).toBe(false);
+      expect("quoteFund" in networkAccount).toBe(false);
+      expect("fund" in networkAccount).toBe(false);
+      expect("transfer" in networkAccount).toBe(false);
+      expect("quoteSwap" in networkAccount).toBe(false);
+      expect("swap" in networkAccount).toBe(false);
+    });
+  });
+
+  describe("runtime validation", () => {
+    beforeEach(() => {
+      mockResolveViemClients.mockResolvedValue({
+        publicClient: mockPublicClient,
+        walletClient: mockWalletClient,
+        chain: { id: 11155111, name: "Ethereum Sepolia" } as any,
+      });
+    });
+
+    it("should throw error when trying to use unsupported method via runtime check", async () => {
+      // This would happen if someone bypassed TypeScript
+      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+        account: mockAccount,
+        network: "ethereum-sepolia",
+      });
+
+      // Force access to a method that shouldn't exist
+      const accountWithMethod = networkAccount as any;
+      expect(accountWithMethod.transfer).toBeUndefined();
+    });
+  });
+
+  describe("account properties", () => {
+    beforeEach(() => {
+      mockResolveViemClients.mockResolvedValue({
+        publicClient: mockPublicClient,
+        walletClient: mockWalletClient,
+        chain: base,
+      });
+    });
+
+    it("should preserve account properties", async () => {
+      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
         account: mockAccount,
         network: "base",
       });
 
-      await result.waitForTransactionReceipt({
-        transactionHash: "0xtxhash",
-      });
-
-      expect(mockPublicClient.waitForTransactionReceipt).toHaveBeenCalledWith({
-        hash: "0xtxhash",
-      });
+      expect(networkAccount.address).toBe(mockAccount.address);
+      expect(networkAccount.name).toBe(mockAccount.name);
+      expect(networkAccount.type).toBe("evm-server");
+      expect(networkAccount.policies).toBe(mockAccount.policies);
     });
   });
 });

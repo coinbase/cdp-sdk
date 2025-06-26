@@ -60,6 +60,30 @@ vi.mock("../../actions/evm/swap/createSwapQuote.js", () => ({
   }),
 }));
 
+vi.mock("./resolveViemClients.js", () => ({
+  resolveViemClients: vi.fn().mockResolvedValue({
+    publicClient: {
+      waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: "success" }),
+    },
+    walletClient: {
+      sendTransaction: vi.fn().mockResolvedValue("0xtransactionhash"),
+    },
+    chain: {
+      id: 8453, // base chain ID
+      name: "Base",
+    },
+  }),
+}));
+
+vi.mock("./toNetworkScopedEvmServerAccount.js", () => ({
+  toNetworkScopedEvmServerAccount: vi.fn().mockImplementation(async (apiClient, options) => ({
+    ...options.account,
+    network: options.network,
+    sendTransaction: options.account.sendTransaction,
+    waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: "success" }),
+  })),
+}));
+
 describe("toEvmServerAccount", () => {
   let mockApiClient: CdpOpenApiClientType;
   let mockAccount: EvmAccount;
@@ -235,9 +259,40 @@ describe("toEvmServerAccount", () => {
   });
 
   describe("useNetwork", () => {
-    it("should return a NetworkScopedEvmServerAccount", async () => {
-      const result = await serverAccount.useNetwork("base-sepolia");
-      expect(result.network).toBe("base-sepolia");
+    it("should create a network-scoped account", async () => {
+      const mockAccount = {
+        address: mockAddress,
+        name: "test-account",
+        policies: [],
+      };
+      const mockEvmServerAccount = toEvmServerAccount(mockApiClient, {
+        account: mockAccount,
+      });
+
+      const networkAccount = await mockEvmServerAccount.useNetwork("base");
+
+      expect(networkAccount.network).toBe("base");
+      expect(networkAccount.address).toBe(mockEvmServerAccount.address);
+      expect(networkAccount.name).toBe(mockEvmServerAccount.name);
+    });
+
+    it("should support different networks", async () => {
+      const mockAccount = {
+        address: mockAddress,
+        name: "test-account",
+        policies: [],
+      };
+      const mockEvmServerAccount = toEvmServerAccount(mockApiClient, {
+        account: mockAccount,
+      });
+
+      const baseAccount = await mockEvmServerAccount.useNetwork("base");
+      const sepoliaAccount = await mockEvmServerAccount.useNetwork("base-sepolia");
+      const customAccount = await mockEvmServerAccount.useNetwork("https://custom-rpc.example.com");
+
+      expect(baseAccount.network).toBe("base");
+      expect(sepoliaAccount.network).toBe("base-sepolia");
+      expect(customAccount.network).toBe("https://custom-rpc.example.com");
     });
   });
 
