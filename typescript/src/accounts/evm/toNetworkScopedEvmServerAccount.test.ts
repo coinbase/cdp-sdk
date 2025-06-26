@@ -1,17 +1,7 @@
 import { describe, expect, it, vi, beforeEach, MockedFunction } from "vitest";
 import { toNetworkScopedEvmServerAccount } from "./toNetworkScopedEvmServerAccount.js";
 import type { EvmServerAccount } from "./types.js";
-import type { CdpOpenApiClientType } from "../../openapi-client/index.js";
-import type {
-  Account,
-  Chain,
-  PublicClient,
-  TransactionSerializable,
-  Transport,
-  WalletClient,
-} from "viem";
-import { Quote } from "../../actions/evm/fund/Quote.js";
-import { base, baseSepolia, polygon } from "viem/chains";
+import { base, baseSepolia } from "viem/chains";
 import { resolveViemClients } from "./resolveViemClients.js";
 
 vi.mock("./resolveViemClients.js", async () => {
@@ -24,7 +14,6 @@ vi.mock("./resolveViemClients.js", async () => {
 const mockResolveViemClients = resolveViemClients as MockedFunction<typeof resolveViemClients>;
 
 describe("toNetworkScopedEvmServerAccount", () => {
-  let mockApiClient: CdpOpenApiClientType;
   let mockAccount: EvmServerAccount;
   let mockPublicClient: any;
   let mockWalletClient: any;
@@ -40,9 +29,6 @@ describe("toNetworkScopedEvmServerAccount", () => {
     mockWalletClient = {
       sendTransaction: vi.fn().mockResolvedValue("0xtransactionhash"),
     };
-
-    // Create mock API client
-    mockApiClient = {} as CdpOpenApiClientType;
 
     // Create mock base account with all methods
     mockAccount = {
@@ -128,7 +114,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
     });
 
     it("should create a network-scoped account with all methods for base network", async () => {
-      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+      const networkAccount = await toNetworkScopedEvmServerAccount({
         account: mockAccount,
         network: "base",
       });
@@ -153,7 +139,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
     });
 
     it("should pass network parameter to methods", async () => {
-      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+      const networkAccount = await toNetworkScopedEvmServerAccount({
         account: mockAccount,
         network: "base",
       });
@@ -192,7 +178,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
     });
 
     it("should create a network-scoped account with limited methods for base-sepolia", async () => {
-      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+      const networkAccount = await toNetworkScopedEvmServerAccount({
         account: mockAccount,
         network: "base-sepolia",
       });
@@ -213,7 +199,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
     });
 
     it("should handle requestFaucet correctly", async () => {
-      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+      const networkAccount = await toNetworkScopedEvmServerAccount({
         account: mockAccount,
         network: "base-sepolia",
       });
@@ -236,7 +222,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
     });
 
     it("should create a network-scoped account with swap methods for ethereum", async () => {
-      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+      const networkAccount = await toNetworkScopedEvmServerAccount({
         account: mockAccount,
         network: "ethereum",
       });
@@ -266,7 +252,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
     });
 
     it("should create a network-scoped account with only faucet for ethereum-sepolia", async () => {
-      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+      const networkAccount = await toNetworkScopedEvmServerAccount({
         account: mockAccount,
         network: "ethereum-sepolia",
       });
@@ -303,7 +289,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
 
     it("should handle custom RPC URLs", async () => {
       const customRpcUrl = "https://custom-rpc.example.com";
-      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+      const networkAccount = await toNetworkScopedEvmServerAccount({
         account: mockAccount,
         network: customRpcUrl,
       });
@@ -338,7 +324,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
 
     it("should throw error when trying to use unsupported method via runtime check", async () => {
       // This would happen if someone bypassed TypeScript
-      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+      const networkAccount = await toNetworkScopedEvmServerAccount({
         account: mockAccount,
         network: "ethereum-sepolia",
       });
@@ -359,7 +345,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
     });
 
     it("should preserve account properties", async () => {
-      const networkAccount = await toNetworkScopedEvmServerAccount(mockApiClient, {
+      const networkAccount = await toNetworkScopedEvmServerAccount({
         account: mockAccount,
         network: "base",
       });

@@ -17,10 +17,7 @@ import type {
 } from "../../actions/evm/sendTransaction.js";
 import type { AccountQuoteSwapOptions, AccountSwapOptions } from "../../actions/evm/swap/types.js";
 import type { TransferOptions } from "../../actions/evm/transfer/types.js";
-import type {
-  CdpOpenApiClientType,
-  ListEvmTokenBalancesNetwork,
-} from "../../openapi-client/index.js";
+import type { ListEvmTokenBalancesNetwork } from "../../openapi-client/index.js";
 import type { Address, TransactionRequestEIP1559 } from "../../types/misc.js";
 
 /**
@@ -37,14 +34,12 @@ export type ToNetworkScopedEvmServerAccountOptions = {
  * Creates a Network-scoped Server-managed EvmAccount instance from an existing EvmAccount.
  * Use this to interact with previously deployed EvmAccounts on a specific network.
  *
- * @param {CdpOpenApiClientType} apiClient - The API client.
  * @param {ToNetworkScopedEvmServerAccountOptions} options - Configuration options.
  * @param {EvmServerAccount} options.account - The EvmServerAccount that was previously created.
  * @param {string} options.network - The network to scope the account to.
  * @returns {NetworkScopedEvmServerAccount} A configured NetworkScopedEvmServerAccount instance ready for signing.
  */
 export async function toNetworkScopedEvmServerAccount<Network extends string>(
-  apiClient: CdpOpenApiClientType,
   options: ToNetworkScopedEvmServerAccountOptions & { network: Network },
 ): Promise<NetworkScopedEvmServerAccount<Network>> {
   const { publicClient, walletClient, chain } = await resolveViemClients({
@@ -54,16 +49,15 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
 
   const shouldUseApi = chain.id === base.id || chain.id === baseSepolia.id;
 
-  // Build the account object dynamically based on network support
   const account = {
     address: options.account.address as Address,
-    network: options.network as Network,
+    network: options.network,
     signMessage: options.account.signMessage,
     sign: options.account.sign,
     signTransaction: options.account.signTransaction,
     signTypedData: options.account.signTypedData,
     name: options.account.name,
-    type: "evm-server" as const,
+    type: "evm-server",
     policies: options.account.policies,
     sendTransaction: async (txOpts: Omit<SendTransactionOptions, "address" | "network">) => {
       if (shouldUseApi) {
@@ -103,7 +97,6 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     },
   } as NetworkScopedEvmServerAccount<Network>;
 
-  // Conditionally add listTokenBalances if the network supports it
   if (isMethodSupportedOnNetwork("listTokenBalances", options.network)) {
     Object.assign(account, {
       listTokenBalances: async (
@@ -117,7 +110,6 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     });
   }
 
-  // Conditionally add requestFaucet if the network supports it
   if (isMethodSupportedOnNetwork("requestFaucet", options.network)) {
     Object.assign(account, {
       requestFaucet: async (faucetOptions: Omit<RequestFaucetOptions, "address" | "network">) => {
@@ -129,7 +121,6 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     });
   }
 
-  // Conditionally add quoteFund if the network supports it
   if (isMethodSupportedOnNetwork("quoteFund", options.network)) {
     Object.assign(account, {
       quoteFund: async (quoteFundOptions: Omit<QuoteFundOptions, "address">) => {
@@ -140,7 +131,6 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     });
   }
 
-  // Conditionally add fund and waitForFundOperationReceipt if the network supports it
   if (isMethodSupportedOnNetwork("fund", options.network)) {
     Object.assign(account, {
       fund: async (fundOptions: Omit<FundOptions, "address">) => {
@@ -154,7 +144,6 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     });
   }
 
-  // Conditionally add transfer if the network supports it
   if (isMethodSupportedOnNetwork("transfer", options.network)) {
     Object.assign(account, {
       transfer: async (transferOptions: TransferOptions) => {
@@ -163,7 +152,6 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     });
   }
 
-  // Conditionally add quoteSwap if the network supports it
   if (isMethodSupportedOnNetwork("quoteSwap", options.network)) {
     Object.assign(account, {
       quoteSwap: async (quoteSwapOptions: AccountQuoteSwapOptions) => {
@@ -172,7 +160,6 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     });
   }
 
-  // Conditionally add swap if the network supports it
   if (isMethodSupportedOnNetwork("swap", options.network)) {
     Object.assign(account, {
       swap: async (swapOptions: AccountSwapOptions) => {

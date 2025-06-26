@@ -76,7 +76,7 @@ vi.mock("./resolveViemClients.js", () => ({
 }));
 
 vi.mock("./toNetworkScopedEvmServerAccount.js", () => ({
-  toNetworkScopedEvmServerAccount: vi.fn().mockImplementation(async (apiClient, options) => ({
+  toNetworkScopedEvmServerAccount: vi.fn().mockImplementation(async options => ({
     ...options.account,
     network: options.network,
     sendTransaction: options.account.sendTransaction,

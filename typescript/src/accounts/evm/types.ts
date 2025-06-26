@@ -110,8 +110,8 @@ export type EvmServerAccount = Prettify<
        * // For custom RPC URLs without type hints (only sendTransaction and waitForTransactionReceipt methods available):
        * const customAccount = await account.useNetwork("https://mainnet.base.org");
        */
-      useNetwork: <Network extends NetworkOrRpcUrl = NetworkOrRpcUrl>(
-        network: Network | string,
+      useNetwork: <Network extends NetworkOrRpcUrl>(
+        network: Network,
       ) => Promise<NetworkScopedEvmServerAccount<Network>>;
     }
 >;
