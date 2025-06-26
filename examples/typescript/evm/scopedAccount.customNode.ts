@@ -16,7 +16,9 @@ const account = await cdp.evm.getOrCreateAccount({
   name: "Playground-Account",
 });
 
-const baseAccount = await account.useNetwork(process.env.NODE_RPC_URL);
+const baseAccount = await account.useNetwork<"base-sepolia">(
+  process.env.NODE_RPC_URL as "base-sepolia"
+);
 
 const { transactionHash: faucetTransactionHash } =
   await baseAccount.requestFaucet({
