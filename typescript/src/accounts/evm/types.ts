@@ -96,9 +96,22 @@ export type EvmServerAccount = Prettify<
       name?: string;
       /** Indicates this is a server-managed account. */
       type: "evm-server";
-      /** A function that returns a network-scoped server-managed account. */
-      useNetwork: <Network extends NetworkOrRpcUrl>(
-        network: Network,
+      /**
+       * A function that returns a network-scoped server-managed account.
+       *
+       * @param network - The network name or RPC URL
+       * @example
+       * // For known networks, type is inferred automatically:
+       * const baseAccount = await account.useNetwork("base");
+       *
+       * // For custom RPC URLs with type hints (requires casting):
+       * const typedAccount = await account.useNetwork<"base">("https://mainnet.base.org" as "base");
+       *
+       * // For custom RPC URLs without type hints (only sendTransaction and waitForTransactionReceipt methods available):
+       * const customAccount = await account.useNetwork("https://mainnet.base.org");
+       */
+      useNetwork: <Network extends NetworkOrRpcUrl = NetworkOrRpcUrl>(
+        network: Network | string,
       ) => Promise<NetworkScopedEvmServerAccount<Network>>;
     }
 >;
