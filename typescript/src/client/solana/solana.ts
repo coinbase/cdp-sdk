@@ -165,8 +165,8 @@ export class SolanaClient implements SolanaClientInterface {
       {
         encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
         name: options.name,
-        idempotencyKey: options.idempotencyKey,
       },
+      options.idempotencyKey,
     );
 
     const account = toSolanaAccount(CdpOpenApiClient, {
