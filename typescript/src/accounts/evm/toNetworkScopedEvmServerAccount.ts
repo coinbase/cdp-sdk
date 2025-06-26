@@ -1,6 +1,7 @@
 import { Chain, WaitForTransactionReceiptParameters } from "viem";
-import { base, baseSepolia, mainnet, sepolia } from "viem/chains";
+import { base, baseSepolia, mainnet } from "viem/chains";
 
+import { isMethodSupportedOnNetwork } from "./networkCapabilities.js";
 import { resolveViemClients } from "./resolveViemClients.js";
 import { transferWithViem } from "../../actions/evm/transfer/transferWithViem.js";
 
@@ -117,7 +118,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
   } as NetworkScopedEvmServerAccount<Network>;
 
   // Conditionally add listTokenBalances if the network supports it
-  if (chain.id === base.id || chain.id === baseSepolia.id || chain.id === mainnet.id) {
+  if (isMethodSupportedOnNetwork("listTokenBalances", options.network)) {
     Object.assign(account, {
       listTokenBalances: async (
         listTokenBalancesOptions: Omit<ListTokenBalancesOptions, "address" | "network">,
@@ -131,7 +132,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
   }
 
   // Conditionally add requestFaucet if the network supports it
-  if (chain.id === baseSepolia.id || chain.id === sepolia.id) {
+  if (isMethodSupportedOnNetwork("requestFaucet", options.network)) {
     Object.assign(account, {
       requestFaucet: async (faucetOptions: Omit<RequestFaucetOptions, "address" | "network">) => {
         return options.account.requestFaucet({

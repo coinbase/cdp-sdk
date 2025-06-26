@@ -1,9 +1,32 @@
 import {
+  ListTokenBalancesNetworks,
+  RequestFaucetNetworks,
+  QuoteFundNetworks,
+  FundNetworks,
+  TransferNetworks,
+  QuoteSwapNetworks,
+  SwapNetworks,
+} from "./networkCapabilities.js";
+import { FundOptions } from "../../actions/evm/fund/fund.js";
+import { Quote } from "../../actions/evm/fund/Quote.js";
+import { QuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
+import { FundOperationResult } from "../../actions/evm/fund/types.js";
+import {
+  WaitForFundOperationOptions,
+  WaitForFundOperationResult,
+} from "../../actions/evm/fund/waitForFundOperationReceipt.js";
+import {
   ListTokenBalancesOptions,
   ListTokenBalancesResult,
 } from "../../actions/evm/listTokenBalances.js";
 import { RequestFaucetOptions, RequestFaucetResult } from "../../actions/evm/requestFaucet.js";
 import { TransactionResult, SendTransactionOptions } from "../../actions/evm/sendTransaction.js";
+import {
+  AccountQuoteSwapOptions,
+  AccountQuoteSwapResult,
+  AccountSwapOptions,
+  AccountSwapResult,
+} from "../../actions/evm/swap/types.js";
 import { TransferOptions } from "../../actions/evm/transfer/types.js";
 
 import type { AccountActions, SmartAccountActions } from "../../actions/evm/types.js";
@@ -105,12 +128,6 @@ export type NetworkScopedEvmSmartAccount = Prettify<
 >;
 
 /**
- * Networks supported by each method
- */
-type ListTokenBalancesNetworks = "base" | "base-sepolia" | "ethereum";
-type RequestFaucetNetworks = "base-sepolia" | "ethereum-sepolia";
-
-/**
  * Helper type to surface a TypeError when calling a method that doesn't exist based on the network
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -142,6 +159,39 @@ type NetworkSpecificAccountActions<Network extends string> = Prettify<
           requestFaucet: (
             options: Omit<RequestFaucetOptions, "address" | "network">,
           ) => Promise<RequestFaucetResult>;
+        }
+      : EmptyObject) &
+    // Conditionally include quoteFund
+    (Network extends QuoteFundNetworks
+      ? {
+          quoteFund: (options: Omit<QuoteFundOptions, "address">) => Promise<Quote>;
+        }
+      : EmptyObject) &
+    // Conditionally include fund
+    (Network extends FundNetworks
+      ? {
+          fund: (options: Omit<FundOptions, "address">) => Promise<FundOperationResult>;
+          waitForFundOperationReceipt: (
+            options: WaitForFundOperationOptions,
+          ) => Promise<WaitForFundOperationResult>;
+        }
+      : EmptyObject) &
+    // Conditionally include transfer
+    (Network extends TransferNetworks
+      ? {
+          transfer: (options: TransferOptions) => Promise<{ transactionHash: Hex }>;
+        }
+      : EmptyObject) &
+    // Conditionally include quoteSwap
+    (Network extends QuoteSwapNetworks
+      ? {
+          quoteSwap: (options: AccountQuoteSwapOptions) => Promise<AccountQuoteSwapResult>;
+        }
+      : EmptyObject) &
+    // Conditionally include swap
+    (Network extends SwapNetworks
+      ? {
+          swap: (options: AccountSwapOptions) => Promise<AccountSwapResult>;
         }
       : EmptyObject)
 >;
