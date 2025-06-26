@@ -719,6 +719,8 @@ paths:
                   enum:
                     - base
                     - base-sepolia
+                    - ethereum
+                    - ethereum-sepolia
                   example: base-sepolia
                 transaction:
                   type: string
@@ -1405,6 +1407,8 @@ paths:
       operationId: exportEvmAccount
       tags:
         - EVM Accounts
+      x-required-api-auth-scopes:
+        - accounts#export
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -1493,6 +1497,8 @@ paths:
       operationId: exportEvmAccountByName
       tags:
         - EVM Accounts
+      x-required-api-auth-scopes:
+        - accounts#export
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -1971,6 +1977,8 @@ paths:
       operationId: createEvmSwapQuote
       tags:
         - EVM Swaps
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -2411,6 +2419,8 @@ paths:
       operationId: createPolicy
       tags:
         - Policy Engine
+      x-required-api-auth-scopes:
+        - policies#manage
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -2518,6 +2528,8 @@ paths:
       operationId: deletePolicy
       tags:
         - Policy Engine
+      x-required-api-auth-scopes:
+        - policies#manage
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
         - name: policyId
@@ -2570,6 +2582,8 @@ paths:
       operationId: updatePolicy
       tags:
         - Policy Engine
+      x-required-api-auth-scopes:
+        - policies#manage
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
         - name: policyId
@@ -2958,6 +2972,8 @@ paths:
       operationId: exportSolanaAccount
       tags:
         - Solana Accounts
+      x-required-api-auth-scopes:
+        - accounts#export
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -3046,6 +3062,8 @@ paths:
       operationId: exportSolanaAccountByName
       tags:
         - Solana Accounts
+      x-required-api-auth-scopes:
+        - accounts#export
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'

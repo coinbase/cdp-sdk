@@ -1360,6 +1360,105 @@ describe("CDP Client E2E Tests", () => {
   });
 
   describe("network-scoped evm server accounts", () => {
+    describe("transfer", () => {
+      it("should use the provided RPC URL when sending a transaction on a non-CDP supported network", async () => {
+        // Spy on global fetch to capture HTTP calls
+        const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+        try {
+          const account = await cdp.evm.getOrCreateAccount({ name: testAccountName });
+
+          const opAccount = await account.useNetwork("https://sepolia.optimism.io");
+
+          await expect(
+            opAccount.transfer({
+              amount: parseEther("0"),
+              to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+              token: "eth",
+            }),
+          ).rejects.toThrow(); // expected error because sending tx on op without funds
+
+          // Find the RPC calls made during the transaction
+          const rpcCalls = fetchSpy.mock.calls.filter(call => {
+            const url = call[0] as string;
+            const body = call[1]?.body;
+            return (
+              url.includes("https://sepolia.optimism.io") &&
+              body &&
+              body.toString().includes("eth_sendTransaction")
+            );
+          });
+
+          expect(rpcCalls.length).toBeGreaterThan(0);
+
+          const rpcUrl = rpcCalls[0][0] as string;
+          expect(rpcUrl).toMatch(/https:\/\/sepolia\.optimism\.io/);
+
+          logger.log(`Optimism RPC URL used: ${rpcUrl}`);
+        } finally {
+          fetchSpy.mockRestore();
+        }
+      });
+
+      it("should use the CDP RPC URL when sending a transaction on a CDP supported network", async () => {
+        if (!process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL) {
+          logger.log("BASE_SEPOLIA_RPC_URL is not set, skipping test");
+          return;
+        }
+
+        // Spy on global fetch to capture HTTP calls
+        const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+        try {
+          const account = await cdp.evm.getOrCreateAccount({ name: testAccountName });
+
+          const baseAccount = await account.useNetwork(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL);
+
+          const transfer = await baseAccount.transfer({
+            amount: parseEther("0"),
+            to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+            token: "eth",
+          });
+
+          await baseAccount.waitForTransactionReceipt(transfer);
+
+          const sendTransactionCalls = fetchSpy.mock.calls.filter(call => {
+            const url = call[0] as string;
+            const body = call[1]?.body;
+            return (
+              url.includes(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL!) &&
+              body &&
+              body.toString().includes("eth_sendTransaction")
+            );
+          });
+
+          // Find the RPC calls made during the transaction
+          const getTransactionReceiptCalls = fetchSpy.mock.calls.filter(call => {
+            const url = call[0] as string;
+            const body = call[1]?.body;
+            return (
+              url.includes(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL!) &&
+              body &&
+              body.toString().includes("eth_getTransactionReceipt")
+            );
+          });
+
+          // This should be 0 because the transfer should use the CDP API
+          expect(sendTransactionCalls.length).toBe(0);
+
+          // This should be 1 because the wait should use the provided RPC URL
+          expect(getTransactionReceiptCalls.length).toBe(1);
+
+          const rpcUrl = getTransactionReceiptCalls[0][0] as string;
+          expect(rpcUrl).toMatch(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL!);
+
+          logger.log(`Base Sepolia RPC URL used: ${rpcUrl}`);
+        } finally {
+          fetchSpy.mockRestore();
+        }
+      });
+    });
+
     it("should use provided node when waiting for transaction receipt", async () => {
       if (!process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL) {
         logger.log("BASE_SEPOLIA_RPC_URL is not set, skipping test");

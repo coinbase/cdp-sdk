@@ -1,5 +1,17 @@
 # CDP SDK Changelog
 
+## 1.19.0
+
+### Minor Changes
+
+- [#227](https://github.com/coinbase/cdp-sdk/pull/227) [`7593f22`](https://github.com/coinbase/cdp-sdk/commit/7593f228aae4a2d6993b47e4168289b002456060) Thanks [@0xRAG](https://github.com/0xRAG)! - Added automatic fetching of Base Node URL when scoping an account to Base or Base Sepolia
+
+- [#228](https://github.com/coinbase/cdp-sdk/pull/228) [`2105a10`](https://github.com/coinbase/cdp-sdk/commit/2105a10d7ff643b946b8068091ad6ffc5229c202) Thanks [@0xRAG](https://github.com/0xRAG)! - Added ability to pass full transaction result into managed waitForTransactionReceipt
+
+### Patch Changes
+
+- [#210](https://github.com/coinbase/cdp-sdk/pull/210) [`ca57197`](https://github.com/coinbase/cdp-sdk/commit/ca57197a45891c3f8c85e43d45b7de3511196ab2) Thanks [@sddioulde](https://github.com/sddioulde)! - Updated wallet jwt claim to use hash of request body
+
 ## 1.18.0
 
 ### Minor Changes
