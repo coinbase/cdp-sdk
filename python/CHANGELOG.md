@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.17.0] - 2025-06-26
+
+### Features
+
+- Added ethereum & ethereum-sepolia to SendEvmTransaction ([#234](https://github.com/coinbase/cdp-sdk/pull/234))
+
+
 ## [1.16.0] - 2025-06-25
 
 ### Features
