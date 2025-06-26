@@ -136,6 +136,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
       signTransaction: mockAccount.signTransaction,
       signTypedData: mockAccount.signTypedData,
       requestFaucet: expect.any(Function),
+      transfer: expect.any(Function),
       sendTransaction: expect.any(Function),
       waitForTransactionReceipt: expect.any(Function),
     });
