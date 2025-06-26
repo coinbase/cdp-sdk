@@ -1490,6 +1490,8 @@ export type SendEvmTransactionBodyNetwork =
 export const SendEvmTransactionBodyNetwork = {
   base: "base",
   "base-sepolia": "base-sepolia",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
 } as const;
 
 export type SendEvmTransactionBody = {
