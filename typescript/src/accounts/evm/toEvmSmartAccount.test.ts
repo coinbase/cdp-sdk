@@ -92,14 +92,14 @@ describe("toEvmSmartAccount", () => {
     };
   });
 
-  describe("__experimental_useNetwork", () => {
+  describe("useNetwork", () => {
     it("should return a NetworkScopedEvmSmartAccount", async () => {
       const smartAccount = toEvmSmartAccount(mockApiClient, {
         smartAccount: mockSmartAccount,
         owner: mockOwner,
       });
 
-      const result = await smartAccount.__experimental_useNetwork("base-sepolia");
+      const result = await smartAccount.useNetwork("base-sepolia");
 
       expect(result.network).toBe("base-sepolia");
     });
@@ -127,7 +127,7 @@ describe("toEvmSmartAccount", () => {
       quoteFund: expect.any(Function),
       quoteSwap: expect.any(Function),
       swap: expect.any(Function),
-      __experimental_useNetwork: expect.any(Function),
+      useNetwork: expect.any(Function),
     });
   });
 
