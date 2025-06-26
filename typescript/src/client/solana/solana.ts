@@ -1,3 +1,5 @@
+import { constants, publicEncrypt } from "crypto";
+
 import {
   CreateAccountOptions,
   ExportAccountOptions,
@@ -26,8 +28,9 @@ import {
   formatSolanaPrivateKey,
   generateExportEncryptionKeyPair,
 } from "../../utils/export.js";
-import { ImportEvmAccountPublicRSAKey } from "../evm/constants.js";
-import { constants, publicEncrypt } from "crypto";
+
+import { ImportSolanaAccountPublicRSAKey } from "./constants.js";
+
 
 /**
  * The namespace containing all Solana methods.
@@ -137,7 +140,7 @@ export class SolanaClient implements SolanaClientInterface {
   }
 
   async importAccount(options: ImportAccountOptions): Promise<SolanaAccount> {
-    const encryptionPublicKey = options.encryptionPublicKey || ImportEvmAccountPublicRSAKey;
+    const encryptionPublicKey = options.encryptionPublicKey || ImportSolanaAccountPublicRSAKey;
 
     const encryptedPrivateKey = publicEncrypt(
       {
