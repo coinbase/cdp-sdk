@@ -844,7 +844,8 @@ describe("CDP Client E2E Tests", () => {
 
     describe("sign typed data", () => {
       it("should sign typed data", async () => {
-        const signature = await testAccount.signTypedData({
+        const signature = await cdp.evm.signTypedData({
+          address: testAccount.address,
           domain: {
             name: "EIP712Domain",
             chainId: 1,
@@ -858,6 +859,11 @@ describe("CDP Client E2E Tests", () => {
             ],
           },
           primaryType: "EIP712Domain",
+          message: {
+            name: "EIP712Domain",
+            chainId: 1,
+            verifyingContract: "0x0000000000000000000000000000000000000000",
+          },
         });
         expect(signature).toBeDefined();
       });
