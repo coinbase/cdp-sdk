@@ -66,13 +66,14 @@ export type EvmAccount = {
 };
 
 /**
- * Known supported networks for type hints
+ * Known EVM networks supported by the SDK.
  */
 export type KnownEvmNetworks =
   | "base"
   | "base-sepolia"
   | "ethereum"
   | "ethereum-sepolia"
+  | "ethereum-hoodi"
   | "polygon"
   | "polygon-mumbai"
   | "arbitrum"

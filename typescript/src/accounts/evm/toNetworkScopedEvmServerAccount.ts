@@ -6,12 +6,16 @@ import { resolveViemClients } from "./resolveViemClients.js";
 import { transferWithViem } from "../../actions/evm/transfer/transferWithViem.js";
 
 import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js";
+import type { FundOptions } from "../../actions/evm/fund/fund.js";
+import type { QuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
+import type { WaitForFundOperationOptions } from "../../actions/evm/fund/waitForFundOperationReceipt.js";
 import type { ListTokenBalancesOptions } from "../../actions/evm/listTokenBalances.js";
 import type { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
 import type {
   SendTransactionOptions,
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
+import type { AccountQuoteSwapOptions, AccountSwapOptions } from "../../actions/evm/swap/types.js";
 import type { TransferOptions } from "../../actions/evm/transfer/types.js";
 import type {
   CdpOpenApiClientType,
@@ -139,6 +143,58 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
           ...faucetOptions,
           network: chain.id === baseSepolia.id ? "base-sepolia" : "ethereum-sepolia",
         });
+      },
+    });
+  }
+
+  // Conditionally add quoteFund if the network supports it
+  if (isMethodSupportedOnNetwork("quoteFund", options.network)) {
+    Object.assign(account, {
+      quoteFund: async (quoteFundOptions: Omit<QuoteFundOptions, "address">) => {
+        return options.account.quoteFund({
+          ...quoteFundOptions,
+        });
+      },
+    });
+  }
+
+  // Conditionally add fund and waitForFundOperationReceipt if the network supports it
+  if (isMethodSupportedOnNetwork("fund", options.network)) {
+    Object.assign(account, {
+      fund: async (fundOptions: Omit<FundOptions, "address">) => {
+        return options.account.fund({
+          ...fundOptions,
+        });
+      },
+      waitForFundOperationReceipt: async (waitOptions: WaitForFundOperationOptions) => {
+        return options.account.waitForFundOperationReceipt(waitOptions);
+      },
+    });
+  }
+
+  // Conditionally add transfer if the network supports it
+  if (isMethodSupportedOnNetwork("transfer", options.network)) {
+    Object.assign(account, {
+      transfer: async (transferOptions: TransferOptions) => {
+        return options.account.transfer(transferOptions);
+      },
+    });
+  }
+
+  // Conditionally add quoteSwap if the network supports it
+  if (isMethodSupportedOnNetwork("quoteSwap", options.network)) {
+    Object.assign(account, {
+      quoteSwap: async (quoteSwapOptions: AccountQuoteSwapOptions) => {
+        return options.account.quoteSwap(quoteSwapOptions);
+      },
+    });
+  }
+
+  // Conditionally add swap if the network supports it
+  if (isMethodSupportedOnNetwork("swap", options.network)) {
+    Object.assign(account, {
+      swap: async (swapOptions: AccountSwapOptions) => {
+        return options.account.swap(swapOptions);
       },
     });
   }
