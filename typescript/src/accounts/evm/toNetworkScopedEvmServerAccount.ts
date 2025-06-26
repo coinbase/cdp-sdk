@@ -1,5 +1,5 @@
 import { WaitForTransactionReceiptParameters } from "viem";
-import { base, baseSepolia } from "viem/chains";
+import { base, baseSepolia, mainnet, sepolia } from "viem/chains";
 
 import { isMethodSupportedOnNetwork } from "./networkCapabilities.js";
 import { resolveViemClients } from "./resolveViemClients.js";
@@ -47,7 +47,11 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     account: options.account,
   });
 
-  const shouldUseApi = chain.id === base.id || chain.id === baseSepolia.id;
+  const shouldUseApiForSends =
+    chain.id === base.id ||
+    chain.id === baseSepolia.id ||
+    chain.id === mainnet.id ||
+    chain.id === sepolia.id;
 
   const account = {
     address: options.account.address as Address,
@@ -60,7 +64,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     type: "evm-server",
     policies: options.account.policies,
     sendTransaction: async (txOpts: Omit<SendTransactionOptions, "address" | "network">) => {
-      if (shouldUseApi) {
+      if (shouldUseApiForSends) {
         return options.account.sendTransaction({
           ...txOpts,
           network: chain.id === base.id ? "base" : "base-sepolia",

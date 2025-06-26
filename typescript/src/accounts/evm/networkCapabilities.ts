@@ -37,7 +37,7 @@ export const NETWORK_CAPABILITIES = {
     fund: false, // Only base is supported for fund
     waitForFundOperationReceipt: false,
     transfer: false, // Not supported based on SendEvmTransactionBodyNetwork
-    sendTransaction: true, // Always available (uses wallet client for non-base networks)
+    sendTransaction: true,
     quoteSwap: true,
     swap: true,
   },
@@ -48,7 +48,7 @@ export const NETWORK_CAPABILITIES = {
     fund: false,
     waitForFundOperationReceipt: false,
     transfer: false, // Not supported based on SendEvmTransactionBodyNetwork
-    sendTransaction: true, // Always available (uses wallet client for non-base networks)
+    sendTransaction: true,
     quoteSwap: false,
     swap: false,
   },
@@ -59,7 +59,7 @@ export const NETWORK_CAPABILITIES = {
     fund: false,
     waitForFundOperationReceipt: false,
     transfer: false,
-    sendTransaction: false, // Always available (uses wallet client for non-base networks)
+    sendTransaction: true, // Always available (uses wallet client for non-base networks)
     quoteSwap: false,
     swap: false,
   },
