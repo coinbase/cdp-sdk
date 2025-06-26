@@ -106,7 +106,7 @@ describe("SolanaClient", () => {
       expect(result.address).toBe("cdpSolanaAccount");
       expect(importSolanaAccountMock).toHaveBeenCalledWith(
         expect.objectContaining({ encryptedPrivateKey: expect.any(String), name: "Test" }),
-        undefined
+        undefined,
       );
     });
 
@@ -123,7 +123,7 @@ describe("SolanaClient", () => {
       expect(result.address).toBe("cdpSolanaAccount");
       expect(importSolanaAccountMock).toHaveBeenCalledWith(
         expect.objectContaining({ encryptedPrivateKey: expect.any(String), name: "Test" }),
-        undefined
+        undefined,
       );
     });
 
@@ -132,7 +132,7 @@ describe("SolanaClient", () => {
       const bs58Key = bs58.encode(privateKey);
 
       await expect(client.importAccount({ privateKey: bs58Key, name: "Test" })).rejects.toThrow(
-        "Invalid private key length"
+        "Invalid private key length",
       );
     });
 
@@ -147,11 +147,11 @@ describe("SolanaClient", () => {
 
       await client.importAccount({ privateKey: bs58Key, name: "Test", idempotencyKey: "idemp" });
       expect(importSolanaAccountMock).toHaveBeenCalledWith(
-        expect.objectContaining({ 
-          encryptedPrivateKey: expect.any(String), 
-          name: "Test"
+        expect.objectContaining({
+          encryptedPrivateKey: expect.any(String),
+          name: "Test",
         }),
-        "idemp"
+        "idemp",
       );
     });
   });
