@@ -1,5 +1,13 @@
 # CDP SDK Changelog
 
+## 1.20.0
+
+### Minor Changes
+
+- [#234](https://github.com/coinbase/cdp-sdk/pull/234) [`f66893d`](https://github.com/coinbase/cdp-sdk/commit/f66893d173fa35e58d97ece8d9db04b918873cc4) Thanks [@github-actions](https://github.com/apps/github-actions)! - Added ethereum & ethereum-sepolia to SendEvmTransaction
+
+- [#232](https://github.com/coinbase/cdp-sdk/pull/232) [`7193c6f`](https://github.com/coinbase/cdp-sdk/commit/7193c6fe15b072523cb2fd6fea3744001fb99235) Thanks [@superadi04](https://github.com/superadi04)! - Added transfer function to managed EvmServerAccount
+
 ## 1.19.0
 
 ### Minor Changes
