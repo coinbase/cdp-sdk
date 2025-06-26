@@ -233,12 +233,12 @@ describe("toNetworkScopedEvmServerAccount", () => {
       expect(networkAccount.swap).toBeDefined();
       expect(networkAccount.sendTransaction).toBeDefined();
       expect(networkAccount.waitForTransactionReceipt).toBeDefined();
+      expect(networkAccount.transfer).toBeDefined();
 
       // Unavailable methods - check via 'in' operator
       expect("requestFaucet" in networkAccount).toBe(false);
       expect("quoteFund" in networkAccount).toBe(false);
       expect("fund" in networkAccount).toBe(false);
-      expect("transfer" in networkAccount).toBe(false);
     });
   });
 
@@ -261,6 +261,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
       expect(networkAccount.requestFaucet).toBeDefined();
       expect(networkAccount.sendTransaction).toBeDefined();
       expect(networkAccount.waitForTransactionReceipt).toBeDefined();
+      expect(networkAccount.transfer).toBeDefined();
 
       // Always available account actions
       expect(networkAccount.sign).toBeDefined();
@@ -272,7 +273,6 @@ describe("toNetworkScopedEvmServerAccount", () => {
       expect("listTokenBalances" in networkAccount).toBe(false);
       expect("quoteFund" in networkAccount).toBe(false);
       expect("fund" in networkAccount).toBe(false);
-      expect("transfer" in networkAccount).toBe(false);
       expect("quoteSwap" in networkAccount).toBe(false);
       expect("swap" in networkAccount).toBe(false);
     });
@@ -296,6 +296,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
 
       // Should have basic methods that are available on all networks
       expect(networkAccount.sendTransaction).toBeDefined();
+      expect(networkAccount.transfer).toBeDefined();
       expect(networkAccount.waitForTransactionReceipt).toBeDefined();
       expect(networkAccount.sign).toBeDefined();
       expect(networkAccount.signMessage).toBeDefined();
@@ -307,7 +308,6 @@ describe("toNetworkScopedEvmServerAccount", () => {
       expect("requestFaucet" in networkAccount).toBe(false);
       expect("quoteFund" in networkAccount).toBe(false);
       expect("fund" in networkAccount).toBe(false);
-      expect("transfer" in networkAccount).toBe(false);
       expect("quoteSwap" in networkAccount).toBe(false);
       expect("swap" in networkAccount).toBe(false);
     });
@@ -331,7 +331,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
 
       // Force access to a method that shouldn't exist
       const accountWithMethod = networkAccount as any;
-      expect(accountWithMethod.transfer).toBeUndefined();
+      expect(accountWithMethod.swap).toBeUndefined();
     });
   });
 

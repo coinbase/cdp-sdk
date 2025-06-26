@@ -77,7 +77,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
       }
     },
     transfer: async (transferArgs: Omit<TransferOptions, "address" | "network">) => {
-      if (shouldUseApi) {
+      if (shouldUseApiForSends) {
         return options.account.transfer({
           ...transferArgs,
           network: chain.id === base.id ? "base" : "base-sepolia",
