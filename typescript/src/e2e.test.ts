@@ -844,8 +844,7 @@ describe("CDP Client E2E Tests", () => {
 
     describe("sign typed data", () => {
       it("should sign typed data", async () => {
-        const signature = await cdp.evm.signTypedData({
-          address: testAccount.address,
+        const signature = await testAccount.signTypedData({
           domain: {
             name: "EIP712Domain",
             chainId: 1,
@@ -1361,6 +1360,105 @@ describe("CDP Client E2E Tests", () => {
   });
 
   describe("network-scoped evm server accounts", () => {
+    describe("transfer", () => {
+      it("should use the provided RPC URL when sending a transaction on a non-CDP supported network", async () => {
+        // Spy on global fetch to capture HTTP calls
+        const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+        try {
+          const account = await cdp.evm.getOrCreateAccount({ name: testAccountName });
+
+          const opAccount = await account.useNetwork("https://sepolia.optimism.io");
+
+          await expect(
+            opAccount.transfer({
+              amount: parseEther("0"),
+              to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+              token: "eth",
+            }),
+          ).rejects.toThrow(); // expected error because sending tx on op without funds
+
+          // Find the RPC calls made during the transaction
+          const rpcCalls = fetchSpy.mock.calls.filter(call => {
+            const url = call[0] as string;
+            const body = call[1]?.body;
+            return (
+              url.includes("https://sepolia.optimism.io") &&
+              body &&
+              body.toString().includes("eth_sendTransaction")
+            );
+          });
+
+          expect(rpcCalls.length).toBeGreaterThan(0);
+
+          const rpcUrl = rpcCalls[0][0] as string;
+          expect(rpcUrl).toMatch(/https:\/\/sepolia\.optimism\.io/);
+
+          logger.log(`Optimism RPC URL used: ${rpcUrl}`);
+        } finally {
+          fetchSpy.mockRestore();
+        }
+      });
+
+      it("should use the CDP RPC URL when sending a transaction on a CDP supported network", async () => {
+        if (!process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL) {
+          logger.log("BASE_SEPOLIA_RPC_URL is not set, skipping test");
+          return;
+        }
+
+        // Spy on global fetch to capture HTTP calls
+        const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+        try {
+          const account = await cdp.evm.getOrCreateAccount({ name: testAccountName });
+
+          const baseAccount = await account.useNetwork(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL);
+
+          const transfer = await baseAccount.transfer({
+            amount: parseEther("0"),
+            to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+            token: "eth",
+          });
+
+          await baseAccount.waitForTransactionReceipt(transfer);
+
+          const sendTransactionCalls = fetchSpy.mock.calls.filter(call => {
+            const url = call[0] as string;
+            const body = call[1]?.body;
+            return (
+              url.includes(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL!) &&
+              body &&
+              body.toString().includes("eth_sendTransaction")
+            );
+          });
+
+          // Find the RPC calls made during the transaction
+          const getTransactionReceiptCalls = fetchSpy.mock.calls.filter(call => {
+            const url = call[0] as string;
+            const body = call[1]?.body;
+            return (
+              url.includes(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL!) &&
+              body &&
+              body.toString().includes("eth_getTransactionReceipt")
+            );
+          });
+
+          // This should be 0 because the transfer should use the CDP API
+          expect(sendTransactionCalls.length).toBe(0);
+
+          // This should be 1 because the wait should use the provided RPC URL
+          expect(getTransactionReceiptCalls.length).toBe(1);
+
+          const rpcUrl = getTransactionReceiptCalls[0][0] as string;
+          expect(rpcUrl).toMatch(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL!);
+
+          logger.log(`Base Sepolia RPC URL used: ${rpcUrl}`);
+        } finally {
+          fetchSpy.mockRestore();
+        }
+      });
+    });
+
     it("should use provided node when waiting for transaction receipt", async () => {
       if (!process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL) {
         logger.log("BASE_SEPOLIA_RPC_URL is not set, skipping test");
@@ -1504,183 +1602,6 @@ describe("CDP Client E2E Tests", () => {
     } finally {
       fetchSpy.mockRestore();
     }
-  });
-
-  describe("transferWithViem e2e tests", () => {
-    it("should test transferWithViem with mock wallet client for ETH transfer", async () => {
-      // Import the function directly
-      const { transferWithViem } = await import("./actions/evm/transfer/transferWithViem.js");
-
-      // Create a mock wallet client that simulates transaction submission
-      const mockWalletClient = {
-        sendTransaction: vi.fn().mockResolvedValue("0xmocktransactionhash"),
-      };
-
-      // Test ETH transfer with transferWithViem
-      const transferArgs = {
-        to: "0x1234567890123456789012345678901234567890" as Hex,
-        amount: parseEther("0.000001"),
-        token: "eth" as const,
-        network: "base-sepolia" as const,
-      };
-
-      const result = await transferWithViem(mockWalletClient as any, testAccount, transferArgs);
-
-      expect(result).toBeDefined();
-      expect(result.transactionHash).toBe("0xmocktransactionhash");
-      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(1);
-      expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
-        account: testAccount.address,
-        to: transferArgs.to,
-        value: transferArgs.amount,
-      });
-    });
-
-    it("should test transferWithViem with mock wallet client for USDC transfer", async () => {
-      // Import the function directly
-      const { transferWithViem } = await import("./actions/evm/transfer/transferWithViem.js");
-
-      // Create a mock wallet client that simulates transaction submission
-      const mockWalletClient = {
-        sendTransaction: vi
-          .fn()
-          .mockResolvedValueOnce("0xapprovehash") // First call for approve
-          .mockResolvedValueOnce("0xtransferhash"), // Second call for transfer
-      };
-
-      // Test USDC transfer with transferWithViem
-      const transferArgs = {
-        to: "0x1234567890123456789012345678901234567890" as Hex,
-        amount: 1000n, // 0.001 USDC
-        token: "usdc" as const,
-        network: "base-sepolia" as const,
-      };
-
-      const result = await transferWithViem(mockWalletClient as any, testAccount, transferArgs);
-
-      expect(result).toBeDefined();
-      expect(result.transactionHash).toBe("0xtransferhash");
-      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
-
-      // Check that approve was called first
-      expect(mockWalletClient.sendTransaction).toHaveBeenNthCalledWith(1, {
-        account: testAccount.address,
-        to: expect.any(String), // USDC contract address
-        data: expect.any(String), // Approve function data
-      });
-
-      // Check that transfer was called second
-      expect(mockWalletClient.sendTransaction).toHaveBeenNthCalledWith(2, {
-        account: testAccount.address,
-        to: expect.any(String), // USDC contract address
-        data: expect.any(String), // Transfer function data
-      });
-    });
-
-    it("should test transferWithViem with EvmAccount recipient", async () => {
-      // Import the function directly
-      const { transferWithViem } = await import("./actions/evm/transfer/transferWithViem.js");
-
-      // Create a mock wallet client
-      const mockWalletClient = {
-        sendTransaction: vi.fn().mockResolvedValue("0xmocktransactionhash"),
-      };
-
-      // Create a mock recipient account
-      const recipientAccount = {
-        address: "0x1234567890123456789012345678901234567890" as Hex,
-        sign: vi.fn(),
-        signMessage: vi.fn(),
-        signTransaction: vi.fn(),
-        signTypedData: vi.fn(),
-      };
-
-      // Test transfer with EvmAccount object as recipient
-      const transferArgs = {
-        to: recipientAccount,
-        amount: parseEther("0.000001"),
-        token: "eth" as const,
-        network: "base-sepolia" as const,
-      };
-
-      const result = await transferWithViem(mockWalletClient as any, testAccount, transferArgs);
-
-      expect(result).toBeDefined();
-      expect(result.transactionHash).toBe("0xmocktransactionhash");
-      expect(mockWalletClient.sendTransaction).toHaveBeenCalledWith({
-        account: testAccount.address,
-        to: recipientAccount.address,
-        value: transferArgs.amount,
-      });
-    });
-
-    it("should test transferWithViem with custom ERC20 token", async () => {
-      // Import the function directly
-      const { transferWithViem } = await import("./actions/evm/transfer/transferWithViem.js");
-
-      // Create a mock wallet client
-      const mockWalletClient = {
-        sendTransaction: vi
-          .fn()
-          .mockResolvedValueOnce("0xapprovehash")
-          .mockResolvedValueOnce("0xtransferhash"),
-      };
-
-      // Test transfer with custom ERC20 token address
-      const customTokenAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e" as Hex;
-      const transferArgs = {
-        to: "0x1234567890123456789012345678901234567890" as Hex,
-        amount: 1000n,
-        token: customTokenAddress,
-        network: "base-sepolia" as const,
-      };
-
-      const result = await transferWithViem(mockWalletClient as any, testAccount, transferArgs);
-
-      expect(result).toBeDefined();
-      expect(result.transactionHash).toBe("0xtransferhash");
-      expect(mockWalletClient.sendTransaction).toHaveBeenCalledTimes(2);
-
-      // Both calls should be to the custom token address
-      expect(mockWalletClient.sendTransaction).toHaveBeenNthCalledWith(1, {
-        account: testAccount.address,
-        to: customTokenAddress,
-        data: expect.any(String),
-      });
-
-      expect(mockWalletClient.sendTransaction).toHaveBeenNthCalledWith(2, {
-        account: testAccount.address,
-        to: customTokenAddress,
-        data: expect.any(String),
-      });
-    });
-
-    it("should test resolveViemClients and transferWithViem integration", async () => {
-      // Import the functions
-      const { transferWithViem } = await import("./actions/evm/transfer/transferWithViem.js");
-      const { resolveViemClients } = await import("./accounts/evm/resolveViemClients.js");
-
-      // Test that we can resolve viem clients (read-only operation)
-      const { publicClient, walletClient, chain } = await resolveViemClients({
-        networkOrNodeUrl: "base-sepolia",
-        account: testAccount,
-      });
-
-      expect(publicClient).toBeDefined();
-      expect(walletClient).toBeDefined();
-      expect(chain).toBeDefined();
-
-      // Test read-only operations with the public client
-      const chainId = await publicClient.getChainId();
-      expect(chainId).toBe(84532);
-
-      // Test that transferWithViem function exists and can be imported
-      expect(typeof transferWithViem).toBe("function");
-
-      // Note: We don't actually call transferWithViem with the real walletClient
-      // because it would try to send a transaction through the CDP RPC endpoint
-      // which doesn't support eth_sendTransaction
-    });
   });
 });
 
