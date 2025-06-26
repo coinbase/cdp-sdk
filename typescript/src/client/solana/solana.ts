@@ -3,7 +3,6 @@ import { constants, publicEncrypt } from "crypto";
 import bs58 from "bs58";
 
 import { ImportSolanaAccountPublicRSAKey } from "./constants.js";
-
 import {
   CreateAccountOptions,
   ExportAccountOptions,
@@ -32,7 +31,6 @@ import {
   formatSolanaPrivateKey,
   generateExportEncryptionKeyPair,
 } from "../../utils/export.js";
-
 
 /**
  * The namespace containing all Solana methods.
@@ -171,7 +169,7 @@ export class SolanaClient implements SolanaClientInterface {
    * @example **Import with idempotency key**
    *          ```ts
    *          const idempotencyKey = uuidv4();
-   *          
+   * 
    *          const account = await cdp.solana.importAccount({
    *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
    *            name: "ImportedAccount",
@@ -200,7 +198,7 @@ export class SolanaClient implements SolanaClientInterface {
       },
       privateKeyBytes,
     );
-    
+  
     const openApiAccount = await CdpOpenApiClient.importSolanaAccount(
       {
         encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
