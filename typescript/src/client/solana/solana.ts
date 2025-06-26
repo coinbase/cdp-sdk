@@ -169,7 +169,7 @@ export class SolanaClient implements SolanaClientInterface {
    * @example **Import with idempotency key**
    *          ```ts
    *          const idempotencyKey = uuidv4();
-   * 
+   *
    *          const account = await cdp.solana.importAccount({
    *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
    *            name: "ImportedAccount",
