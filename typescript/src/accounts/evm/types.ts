@@ -1,5 +1,32 @@
+import {
+  ListTokenBalancesNetworks,
+  RequestFaucetNetworks,
+  QuoteFundNetworks,
+  FundNetworks,
+  TransferNetworks,
+  QuoteSwapNetworks,
+  SwapNetworks,
+} from "./networkCapabilities.js";
+import { FundOptions } from "../../actions/evm/fund/fund.js";
+import { Quote } from "../../actions/evm/fund/Quote.js";
+import { QuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
+import { FundOperationResult } from "../../actions/evm/fund/types.js";
+import {
+  WaitForFundOperationOptions,
+  WaitForFundOperationResult,
+} from "../../actions/evm/fund/waitForFundOperationReceipt.js";
+import {
+  ListTokenBalancesOptions,
+  ListTokenBalancesResult,
+} from "../../actions/evm/listTokenBalances.js";
 import { RequestFaucetOptions, RequestFaucetResult } from "../../actions/evm/requestFaucet.js";
 import { TransactionResult, SendTransactionOptions } from "../../actions/evm/sendTransaction.js";
+import {
+  AccountQuoteSwapOptions,
+  AccountQuoteSwapResult,
+  AccountSwapOptions,
+  AccountSwapResult,
+} from "../../actions/evm/swap/types.js";
 import { TransferOptions } from "../../actions/evm/transfer/types.js";
 
 import type { AccountActions, SmartAccountActions } from "../../actions/evm/types.js";
@@ -39,6 +66,27 @@ export type EvmAccount = {
 };
 
 /**
+ * Known EVM networks supported by the SDK.
+ */
+export type KnownEvmNetworks =
+  | "base"
+  | "base-sepolia"
+  | "ethereum"
+  | "ethereum-sepolia"
+  | "ethereum-hoodi"
+  | "polygon"
+  | "polygon-mumbai"
+  | "arbitrum"
+  | "arbitrum-sepolia"
+  | "optimism"
+  | "optimism-sepolia";
+
+/**
+ * Network input that accepts known networks or RPC URLs
+ */
+export type NetworkOrRpcUrl = KnownEvmNetworks | (string & {});
+
+/**
  * Server-managed ethereum account
  */
 export type EvmServerAccount = Prettify<
@@ -48,8 +96,23 @@ export type EvmServerAccount = Prettify<
       name?: string;
       /** Indicates this is a server-managed account. */
       type: "evm-server";
-      /** A function that returns a network-scoped server-managed account. */
-      useNetwork: (network: string) => Promise<NetworkScopedEvmServerAccount>;
+      /**
+       * A function that returns a network-scoped server-managed account.
+       *
+       * @param network - The network name or RPC URL
+       * @example
+       * // For known networks, type is inferred automatically:
+       * const baseAccount = await account.useNetwork("base");
+       *
+       * // For custom RPC URLs with type hints (requires casting):
+       * const typedAccount = await account.useNetwork<"base">("https://mainnet.base.org" as "base");
+       *
+       * // For custom RPC URLs without type hints (only sendTransaction and waitForTransactionReceipt methods available):
+       * const customAccount = await account.useNetwork("https://mainnet.base.org");
+       */
+      useNetwork: <Network extends NetworkOrRpcUrl>(
+        network: Network,
+      ) => Promise<NetworkScopedEvmServerAccount<Network>>;
     }
 >;
 
@@ -78,26 +141,82 @@ export type NetworkScopedEvmSmartAccount = Prettify<
   }
 >;
 
-type NetworkScopedAccountActions = Prettify<{
-  requestFaucet: (
-    options: Omit<RequestFaucetOptions, "address" | "network">,
-  ) => Promise<RequestFaucetResult>;
-  sendTransaction: (
-    options: Omit<SendTransactionOptions, "address" | "network">,
-  ) => Promise<TransactionResult>;
-  waitForTransactionReceipt: (
-    options: WaitForTransactionReceiptParameters | TransactionResult,
-  ) => Promise<TransactionReceipt>;
-  transfer: (options: Omit<TransferOptions, "address" | "network">) => Promise<TransactionResult>;
-}>;
+/**
+ * Helper type to surface a TypeError when calling a method that doesn't exist based on the network
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+type EmptyObject = {};
+
+/**
+ * Conditional account actions based on network
+ */
+type NetworkSpecificAccountActions<Network extends string> = Prettify<
+  // Always include sendTransaction, transfer and waitForTransactionReceipt
+  {
+    sendTransaction: (
+      options: Omit<SendTransactionOptions, "address" | "network">,
+    ) => Promise<TransactionResult>;
+    transfer: (options: Omit<TransferOptions, "address" | "network">) => Promise<TransactionResult>;
+    waitForTransactionReceipt: (
+      options: WaitForTransactionReceiptParameters | TransactionResult,
+    ) => Promise<TransactionReceipt>;
+  } & (Network extends ListTokenBalancesNetworks // Conditionally include listTokenBalances
+    ? {
+        listTokenBalances: (
+          options: Omit<ListTokenBalancesOptions, "address" | "network">,
+        ) => Promise<ListTokenBalancesResult>;
+      }
+    : EmptyObject) &
+    // Conditionally include requestFaucet
+    (Network extends RequestFaucetNetworks
+      ? {
+          requestFaucet: (
+            options: Omit<RequestFaucetOptions, "address" | "network">,
+          ) => Promise<RequestFaucetResult>;
+        }
+      : EmptyObject) &
+    // Conditionally include quoteFund
+    (Network extends QuoteFundNetworks
+      ? {
+          quoteFund: (options: Omit<QuoteFundOptions, "address">) => Promise<Quote>;
+        }
+      : EmptyObject) &
+    // Conditionally include fund
+    (Network extends FundNetworks
+      ? {
+          fund: (options: Omit<FundOptions, "address">) => Promise<FundOperationResult>;
+          waitForFundOperationReceipt: (
+            options: WaitForFundOperationOptions,
+          ) => Promise<WaitForFundOperationResult>;
+        }
+      : EmptyObject) &
+    // Conditionally include transfer
+    (Network extends TransferNetworks
+      ? {
+          transfer: (options: TransferOptions) => Promise<{ transactionHash: Hex }>;
+        }
+      : EmptyObject) &
+    // Conditionally include quoteSwap
+    (Network extends QuoteSwapNetworks
+      ? {
+          quoteSwap: (options: AccountQuoteSwapOptions) => Promise<AccountQuoteSwapResult>;
+        }
+      : EmptyObject) &
+    // Conditionally include swap
+    (Network extends SwapNetworks
+      ? {
+          swap: (options: AccountSwapOptions) => Promise<AccountSwapResult>;
+        }
+      : EmptyObject)
+>;
 
 /**
  * A network-scoped server-managed ethereum account
  */
-export type NetworkScopedEvmServerAccount = Prettify<
+export type NetworkScopedEvmServerAccount<Network extends string = string> = Prettify<
   Omit<EvmServerAccount, keyof AccountActions | "useNetwork"> &
-    NetworkScopedAccountActions & {
+    NetworkSpecificAccountActions<Network> & {
       /** The network this account is scoped to */
-      network: string;
+      network: Network;
     }
 >;
