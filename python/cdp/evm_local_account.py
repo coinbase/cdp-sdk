@@ -9,7 +9,6 @@ from eth_account.types import TransactionDictType
 from eth_typing import Hash32
 
 from cdp.evm_server_account import EvmServerAccount
-from cdp.openapi_client.models.eip712_domain import EIP712Domain
 
 # Apply nest-asyncio to allow nested event loops
 nest_asyncio.apply()
@@ -156,12 +155,10 @@ class EvmLocalAccount(BaseAccount):
         )
 
         # https://github.com/ethereum/eth-account/blob/main/eth_account/account.py#L1047
-        signable_message = encode_typed_data(full_message=typed_data,)
+        signable_message = encode_typed_data(full_message=typed_data)
         message_hash = _hash_eip191_message(signable_message)
 
-        return _run_async(
-            self._server_account.unsafe_sign_hash(message_hash)
-        )
+        return _run_async(self._server_account.unsafe_sign_hash(message_hash))
 
     def _get_types_for_eip712_domain(
         self, domain: dict[str, Any] | None = None
