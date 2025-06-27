@@ -1,5 +1,6 @@
 import { encodeFunctionData } from "viem";
 
+import { getBaseNodeRpcUrl } from "../../accounts/evm/getBaseNodeRpcUrl.js";
 import {
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
@@ -106,7 +107,14 @@ export async function sendUserOperation<T extends readonly unknown[]>(
   client: CdpOpenApiClientType,
   options: SendUserOperationOptions<T>,
 ): Promise<SendUserOperationReturnType> {
-  const { calls, network, paymasterUrl } = options;
+  const { calls, network, paymasterUrl: _paymasterUrl } = options;
+
+  const paymasterUrl = await (async () => {
+    if (!_paymasterUrl && network === "base") {
+      return getBaseNodeRpcUrl("base");
+    }
+    return _paymasterUrl;
+  })();
 
   if (calls.length === 0) {
     throw new Error("Calls array is empty");
