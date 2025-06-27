@@ -3,7 +3,7 @@ from typing import Any
 
 import nest_asyncio
 from eth_account.datastructures import SignedMessage, SignedTransaction
-from eth_account.messages import SignableMessage
+from eth_account.messages import SignableMessage, _hash_eip191_message, encode_typed_data
 from eth_account.signers.base import BaseAccount
 from eth_account.types import TransactionDictType
 from eth_typing import Hash32
@@ -155,19 +155,12 @@ class EvmLocalAccount(BaseAccount):
             type_key=typed_data["primaryType"],
         )
 
+        # https://github.com/ethereum/eth-account/blob/main/eth_account/account.py#L1047
+        signable_message = encode_typed_data(full_message=typed_data,)
+        message_hash = _hash_eip191_message(signable_message)
+
         return _run_async(
-            self._server_account.sign_typed_data(
-                domain=EIP712Domain(
-                    name=typed_data["domain"].get("name"),
-                    version=typed_data["domain"].get("version"),
-                    chainId=typed_data["domain"].get("chainId"),
-                    verifyingContract=typed_data["domain"].get("verifyingContract"),
-                    salt=typed_data["domain"].get("salt"),
-                ),
-                types=typed_data["types"],
-                primary_type=typed_data["primaryType"],
-                message=typed_data["message"],
-            )
+            self._server_account.unsafe_sign_hash(message_hash)
         )
 
     def _get_types_for_eip712_domain(
