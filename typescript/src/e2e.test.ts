@@ -21,6 +21,7 @@ import type {
   ImportServerAccountOptions,
   SmartAccount,
 } from "./client/evm/evm.types.js";
+import type { ImportAccountOptions } from "./client/solana/solana.types.js";
 import {
   Keypair,
   PublicKey,
@@ -231,11 +232,17 @@ describe("CDP Client E2E Tests", () => {
     const privateKey = bs58.encode(keypair.secretKey); // secretKey is 64 bytes
     const randomName = generateRandomName();
 
-    logger.log("Importing solana account with base58 private key");
-    const importedAccount = await cdp.solana.importAccount({
+    const importAccountOptions: ImportAccountOptions = {
       privateKey,
       name: randomName,
-    });
+    };
+
+    if (process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY) {
+      importAccountOptions.encryptionPublicKey = process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY;
+    }
+
+    logger.log("Importing solana account with base58 private key");
+    const importedAccount = await cdp.solana.importAccount(importAccountOptions);
 
     expect(importedAccount).toBeDefined();
     expect(importedAccount.address).toBeDefined();
@@ -262,11 +269,17 @@ describe("CDP Client E2E Tests", () => {
     const privateKeyBytes = keypair2.secretKey; // This is already a Uint8Array
     const randomName2 = generateRandomName();
 
-    logger.log("Importing solana account with raw bytes private key");
-    const importedAccount2 = await cdp.solana.importAccount({
+    const importAccountOptions2: ImportAccountOptions = {
       privateKey: privateKeyBytes,
       name: randomName2,
-    });
+    };
+
+    if (process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY) {
+      importAccountOptions2.encryptionPublicKey = process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY;
+    }
+
+    logger.log("Importing solana account with raw bytes private key");
+    const importedAccount2 = await cdp.solana.importAccount(importAccountOptions2);
 
     expect(importedAccount2).toBeDefined();
     expect(importedAccount2.address).toBeDefined();
