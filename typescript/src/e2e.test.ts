@@ -226,11 +226,12 @@ describe("CDP Client E2E Tests", () => {
   });
 
   it("should import a solana account from a private key", async () => {
+    // Test 1: Import from base58 encoded private key
     const keypair = Keypair.generate();
     const privateKey = bs58.encode(keypair.secretKey); // secretKey is 64 bytes
     const randomName = generateRandomName();
 
-    logger.log("Importing solana account with private key");
+    logger.log("Importing solana account with base58 private key");
     const importedAccount = await cdp.solana.importAccount({
       privateKey,
       name: randomName,
@@ -255,6 +256,38 @@ describe("CDP Client E2E Tests", () => {
       message: "Hello, imported Solana account!",
     });
     expect(signature).toBeDefined();
+
+    // Test 2: Import from raw bytes directly
+    const keypair2 = Keypair.generate();
+    const privateKeyBytes = keypair2.secretKey; // This is already a Uint8Array
+    const randomName2 = generateRandomName();
+
+    logger.log("Importing solana account with raw bytes private key");
+    const importedAccount2 = await cdp.solana.importAccount({
+      privateKey: privateKeyBytes,
+      name: randomName2,
+    });
+
+    expect(importedAccount2).toBeDefined();
+    expect(importedAccount2.address).toBeDefined();
+    expect(importedAccount2.name).toBe(randomName2);
+    logger.log(`Imported solana account from bytes with address: ${importedAccount2.address}`);
+
+    // Verify we can retrieve the account imported from bytes
+    const accountByAddress2 = await cdp.solana.getAccount({ address: importedAccount2.address });
+    expect(accountByAddress2).toBeDefined();
+    expect(accountByAddress2.address).toBe(importedAccount2.address);
+
+    const accountByName2 = await cdp.solana.getAccount({ name: randomName2 });
+    expect(accountByName2).toBeDefined();
+    expect(accountByName2.address).toBe(importedAccount2.address);
+    expect(accountByName2.name).toBe(randomName2);
+
+    // Test signing with the account imported from bytes
+    const { signature: signature2 } = await importedAccount2.signMessage({
+      message: "Hello, imported Solana account from bytes!",
+    });
+    expect(signature2).toBeDefined();
   });
 
   it("should export an evm server account", async () => {
