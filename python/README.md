@@ -168,6 +168,21 @@ async def main():
 asyncio.run(main())
 ```
 
+#### Import a Solana account as follows:
+```python
+import asyncio
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        account = await cdp.solana.import_account(
+            private_key="3MLZ...Uko8zz",
+            name="MyAccount",
+        )
+
+asyncio.run(main())
+```
+
 ### Exporting EVM or Solana accounts
 
 #### Export an EVM account as follows:

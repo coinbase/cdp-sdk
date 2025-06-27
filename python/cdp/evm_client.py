@@ -19,7 +19,7 @@ from cdp.actions.evm.swap import (
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.analytics import wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
-from cdp.constants import ImportEvmAccountPublicRSAKey
+from cdp.constants import ImportAccountPublicRSAKey
 from cdp.evm_call_types import ContractCall, EncodedCall
 from cdp.evm_server_account import EvmServerAccount, ListEvmAccountsResponse
 from cdp.evm_smart_account import EvmSmartAccount, ListEvmSmartAccountsResponse
@@ -89,7 +89,7 @@ class EvmClient:
     async def import_account(
         self,
         private_key: str,
-        encryption_public_key: str | None = ImportEvmAccountPublicRSAKey,
+        encryption_public_key: str | None = ImportAccountPublicRSAKey,
         name: str | None = None,
         idempotency_key: str | None = None,
     ) -> EvmServerAccount:
