@@ -17,9 +17,11 @@ export type SolanaClientInterface = Omit<
   | "updateSolanaAccount" // mapped to updateAccount
   | "exportSolanaAccount" // mapped to exportAccount
   | "exportSolanaAccountByName" // mapped to exportAccount
+  | "importSolanaAccount" // mapped to importAccount
 > & {
   createAccount: (options: CreateAccountOptions) => Promise<Account>;
   exportAccount: (options: ExportAccountOptions) => Promise<string>;
+  importAccount: (options: ImportAccountOptions) => Promise<SolanaAccount>;
   getAccount: (options: GetAccountOptions) => Promise<Account>;
   getOrCreateAccount: (options: GetOrCreateAccountOptions) => Promise<Account>;
   updateAccount: (options: UpdateSolanaAccountOptions) => Promise<Account>;
@@ -147,4 +149,18 @@ export interface SignTransactionOptions {
   transaction: string;
   /** The idempotency key. */
   idempotencyKey?: string;
+}
+
+/**
+ * Options for importing a Solana account.
+ */
+export interface ImportAccountOptions {
+  /** The public RSA key used to encrypt the private key when importing a Solana account. */
+  encryptionPublicKey?: string;
+  /** The name of the account. */
+  name?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+  /** The private key of the account - can be a base58 encoded string or raw bytes. */
+  privateKey: string | Uint8Array;
 }

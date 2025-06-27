@@ -7,6 +7,7 @@ import { SolanaClient } from "./solana.js";
 import { decryptWithPrivateKey, formatSolanaPrivateKey } from "../../utils/export.js";
 import { generateExportEncryptionKeyPair } from "../../utils/export.js";
 import { Address } from "../../types/misc.js";
+import bs58 from "bs58";
 
 vi.mock("../../openapi-client/index.js", () => {
   return {
@@ -19,6 +20,7 @@ vi.mock("../../openapi-client/index.js", () => {
       signSolanaMessage: vi.fn(),
       signSolanaTransaction: vi.fn(),
       updateSolanaAccount: vi.fn(),
+      importSolanaAccount: vi.fn(),
       exportSolanaAccount: vi.fn(),
       exportSolanaAccountByName: vi.fn(),
     },
@@ -84,6 +86,72 @@ describe("SolanaClient", () => {
           accountPolicy: policyId,
         },
         undefined,
+      );
+    });
+  });
+
+  describe("importAccount", () => {
+    const mockAccountResponse = { address: "cdpSolanaAccount" };
+
+    it("should import an account with a 32-byte private key", async () => {
+      const privateKey = Buffer.alloc(32, 1); // 32 bytes
+      const bs58Key = bs58.encode(privateKey);
+
+      const importSolanaAccountMock = CdpOpenApiClient.importSolanaAccount as MockedFunction<
+        typeof CdpOpenApiClient.importSolanaAccount
+      >;
+      importSolanaAccountMock.mockResolvedValue(mockAccountResponse);
+
+      const result = await client.importAccount({ privateKey: bs58Key, name: "Test" });
+      expect(result.address).toBe("cdpSolanaAccount");
+      expect(importSolanaAccountMock).toHaveBeenCalledWith(
+        expect.objectContaining({ encryptedPrivateKey: expect.any(String), name: "Test" }),
+        undefined,
+      );
+    });
+
+    it("should import an account with a 64-byte private key (extracts first 32 bytes)", async () => {
+      const privateKey = Buffer.alloc(64, 2); // 64 bytes
+      const bs58Key = bs58.encode(privateKey);
+
+      const importSolanaAccountMock = CdpOpenApiClient.importSolanaAccount as MockedFunction<
+        typeof CdpOpenApiClient.importSolanaAccount
+      >;
+      importSolanaAccountMock.mockResolvedValue(mockAccountResponse);
+
+      const result = await client.importAccount({ privateKey: bs58Key, name: "Test" });
+      expect(result.address).toBe("cdpSolanaAccount");
+      expect(importSolanaAccountMock).toHaveBeenCalledWith(
+        expect.objectContaining({ encryptedPrivateKey: expect.any(String), name: "Test" }),
+        undefined,
+      );
+    });
+
+    it("should throw if private key is not 32 or 64 bytes", async () => {
+      const privateKey = Buffer.alloc(31, 3); // 31 bytes
+      const bs58Key = bs58.encode(privateKey);
+
+      await expect(client.importAccount({ privateKey: bs58Key, name: "Test" })).rejects.toThrow(
+        "Invalid private key length",
+      );
+    });
+
+    it("should pass idempotencyKey if provided", async () => {
+      const privateKey = Buffer.alloc(32, 4);
+      const bs58Key = bs58.encode(privateKey);
+
+      const importSolanaAccountMock = CdpOpenApiClient.importSolanaAccount as MockedFunction<
+        typeof CdpOpenApiClient.importSolanaAccount
+      >;
+      importSolanaAccountMock.mockResolvedValue(mockAccountResponse);
+
+      await client.importAccount({ privateKey: bs58Key, name: "Test", idempotencyKey: "idemp" });
+      expect(importSolanaAccountMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          encryptedPrivateKey: expect.any(String),
+          name: "Test",
+        }),
+        "idemp",
       );
     });
   });
