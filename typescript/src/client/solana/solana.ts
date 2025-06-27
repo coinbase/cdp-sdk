@@ -2,7 +2,7 @@ import { constants, publicEncrypt } from "crypto";
 
 import bs58 from "bs58";
 
-import { ImportSolanaAccountPublicRSAKey } from "./constants.js";
+import { ImportAccountPublicRSAKey } from "../../constants.js";
 import {
   CreateAccountOptions,
   ExportAccountOptions,
@@ -194,7 +194,7 @@ export class SolanaClient implements SolanaClientInterface {
       privateKeyBytes = privateKeyBytes.subarray(0, 32);
     }
 
-    const encryptionPublicKey = options.encryptionPublicKey || ImportSolanaAccountPublicRSAKey;
+    const encryptionPublicKey = options.encryptionPublicKey || ImportAccountPublicRSAKey;
 
     const encryptedPrivateKey = publicEncrypt(
       {
