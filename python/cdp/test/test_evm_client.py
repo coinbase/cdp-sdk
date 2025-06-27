@@ -6,7 +6,7 @@ from eth_account.typed_transactions import DynamicFeeTransaction
 from web3 import Web3
 
 from cdp.api_clients import ApiClients
-from cdp.constants import ImportEvmAccountPublicRSAKey
+from cdp.constants import ImportAccountPublicRSAKey
 from cdp.evm_client import EvmClient
 from cdp.evm_token_balances import (
     EvmToken,
@@ -163,7 +163,7 @@ async def test_import_account(
     )
 
     # Verify the encryption was called with correct parameters
-    mock_load_pem_public_key.assert_called_once_with(ImportEvmAccountPublicRSAKey.encode())
+    mock_load_pem_public_key.assert_called_once_with(ImportAccountPublicRSAKey.encode())
     mock_public_key.encrypt.assert_called_once_with(
         test_private_key_bytes,
         mock_oaep,
@@ -236,7 +236,7 @@ async def test_import_account_without_0x_prefix(
     )
 
     # Verify the encryption was called with correct parameters
-    mock_load_pem_public_key.assert_called_once_with(ImportEvmAccountPublicRSAKey.encode())
+    mock_load_pem_public_key.assert_called_once_with(ImportAccountPublicRSAKey.encode())
     mock_public_key.encrypt.assert_called_once_with(
         test_private_key_bytes,
         mock_oaep,
