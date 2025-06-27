@@ -225,6 +225,38 @@ describe("CDP Client E2E Tests", () => {
     expect(signedHash).toBeDefined();
   });
 
+  it("should import a solana account from a private key", async () => {
+    const keypair = Keypair.generate();
+    const privateKey = bs58.encode(keypair.secretKey); // secretKey is 64 bytes
+    const randomName = generateRandomName();
+
+    logger.log("Importing solana account with private key");
+    const importedAccount = await cdp.solana.importAccount({
+      privateKey,
+      name: randomName,
+    });
+
+    expect(importedAccount).toBeDefined();
+    expect(importedAccount.address).toBeDefined();
+    expect(importedAccount.name).toBe(randomName);
+    logger.log(`Imported solana account with address: ${importedAccount.address}`);
+
+    const accountByAddress = await cdp.solana.getAccount({ address: importedAccount.address });
+    expect(accountByAddress).toBeDefined();
+    expect(accountByAddress.address).toBe(importedAccount.address);
+
+    const accountByName = await cdp.solana.getAccount({ name: randomName });
+    expect(accountByName).toBeDefined();
+    expect(accountByName.address).toBe(importedAccount.address);
+    expect(accountByName.name).toBe(randomName);
+
+    // Test signing with the imported account
+    const { signature } = await importedAccount.signMessage({
+      message: "Hello, imported Solana account!",
+    });
+    expect(signature).toBeDefined();
+  });
+
   it("should export an evm server account", async () => {
     const privateKey = generatePrivateKey();
     const randomName = generateRandomName();
