@@ -1,14 +1,22 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it, vi, beforeEach, MockedFunction } from "vitest";
 import { sendUserOperation } from "./sendUserOperation.js";
 import { encodeFunctionData } from "viem";
 import { EvmUserOperationStatus, CdpOpenApiClientType } from "../../openapi-client/index.js";
 import { parseEther } from "viem";
 import { EvmSmartAccount } from "../../accounts/evm/types.js";
+import { getBaseNodeRpcUrl } from "../../accounts/evm/getBaseNodeRpcUrl.js";
 
 vi.mock("viem", () => ({
   encodeFunctionData: vi.fn().mockReturnValue("0xmockedEncodedData"),
   parseEther: vi.fn().mockImplementation(() => BigInt(500000)),
 }));
+
+vi.mock("../../accounts/evm/getBaseNodeRpcUrl.js", () => ({
+  getBaseNodeRpcUrl: vi
+    .fn()
+    .mockResolvedValue("https://api.developer.coinbase.com/rpc/v1/base/auto-generated-key"),
+}));
+const mockGetBaseNodeRpcUrl = getBaseNodeRpcUrl as MockedFunction<typeof getBaseNodeRpcUrl>;
 
 describe("sendUserOperation", () => {
   const mockErc20Abi = [{ name: "transfer", type: "function" }];
@@ -143,6 +151,41 @@ describe("sendUserOperation", () => {
       "0xsmartAccountAddress",
       expect.objectContaining({
         paymasterUrl: "https://paymaster.example.com",
+      }),
+    );
+  });
+
+  it("should automatically set paymasterUrl for base network when not provided", async () => {
+    mockGetBaseNodeRpcUrl.mockResolvedValue(
+      "https://api.developer.coinbase.com/rpc/v1/base/auto-generated-key",
+    );
+
+    await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
+      calls: [{ to: "0xrecipient", data: "0x" }],
+      network: "base",
+    });
+
+    expect(getBaseNodeRpcUrl).toHaveBeenCalledWith("base");
+    expect(mockClient.prepareUserOperation).toHaveBeenCalledWith(
+      "0xsmartAccountAddress",
+      expect.objectContaining({
+        paymasterUrl: "https://api.developer.coinbase.com/rpc/v1/base/auto-generated-key",
+      }),
+    );
+  });
+
+  it("should not set paymasterUrl for non-base networks when not provided", async () => {
+    await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
+      calls: [{ to: "0xrecipient", data: "0x" }],
+      network: "base-sepolia",
+    });
+
+    expect(mockClient.prepareUserOperation).toHaveBeenCalledWith(
+      "0xsmartAccountAddress",
+      expect.objectContaining({
+        paymasterUrl: undefined,
       }),
     );
   });
