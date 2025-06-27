@@ -32,6 +32,8 @@ const smartAccount = await cdp.evm.getOrCreateSmartAccount({
 // ============================================================================
 // Example 1: Base Network
 // Supports: transfer, listTokenBalances, quoteFund, fund, quoteSwap, swap
+// Will automatically use the paymaster URL from Coinbase Developer Platform
+// If you want to use a different paymaster, you can pass it in as an option
 // ============================================================================
 
 const baseAccount = await smartAccount.useNetwork("base");
@@ -45,6 +47,17 @@ await baseAccount.sendUserOperation({
       data: "0x",
     },
   ],
+});
+
+await baseAccount.sendUserOperation({
+  calls: [
+    {
+      to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+      value: 100n,
+      data: "0x",
+    },
+  ],
+  paymasterUrl: "https://your-paymster.com",
 });
 
 await baseAccount.transfer({

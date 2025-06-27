@@ -35,13 +35,16 @@ import {
   SmartAccountSwapOptions,
   SmartAccountSwapResult,
 } from "../../actions/evm/swap/types.js";
-import { TransferOptions } from "../../actions/evm/transfer/types.js";
 import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 
+import type {
+  SmartAccountTransferOptions,
+  TransferOptions,
+} from "../../actions/evm/transfer/types.js";
 import type { AccountActions, SmartAccountActions } from "../../actions/evm/types.js";
 import type { Address, Hash, Hex } from "../../types/misc.js";
 import type { Prettify } from "../../types/utils.js";
@@ -162,6 +165,9 @@ type EvmSmartAccountProperties = {
  */
 export type EvmSmartAccount = Prettify<EvmSmartAccountProperties & SmartAccountActions>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DistributedOmit<T, K extends PropertyKey> = T extends any ? Omit<T, K> : never;
+
 /**
  * Helper type for network-specific smart account actions
  */
@@ -180,7 +186,7 @@ type NetworkSpecificSmartAccountActions<Network extends string> = Prettify<
   } & (Network extends TransferNetworks
     ? {
         transfer: (
-          options: Omit<TransferOptions, "network">,
+          options: Omit<SmartAccountTransferOptions, "network">,
         ) => Promise<SendUserOperationReturnType>;
       }
     : EmptyObject) &
@@ -227,7 +233,7 @@ type NetworkSpecificSmartAccountActions<Network extends string> = Prettify<
     (Network extends SwapNetworks
       ? {
           swap: (
-            options: Omit<SmartAccountSwapOptions, "network">,
+            options: DistributedOmit<SmartAccountSwapOptions, "network">,
           ) => Promise<SmartAccountSwapResult>;
         }
       : EmptyObject)
