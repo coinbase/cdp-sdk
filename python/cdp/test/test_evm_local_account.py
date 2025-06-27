@@ -85,22 +85,25 @@ async def test_sign_typed_data_with_full_message(mock_server_account):
     signature_response = MagicMock()
     mock_server_account.sign_typed_data = AsyncMock(return_value=signature_response)
     evm_local_account = EvmLocalAccount(mock_server_account)
-    full_message = {
-        "domain": {
-            "name": "test",
-            "version": "test",
-            "chainId": 1,
-            "verifyingContract": "0x1234567890123456789012345678901234567890",
-        },
-        "types": {
-            "test": [
-                {"name": "test", "type": "test"},
-            ],
-        },
-        "primaryType": "test",
-        "message": {"test": "test"},
-    }
-    signed_message = evm_local_account.sign_typed_data(full_message=full_message)
+
+    signed_message = evm_local_account.sign_typed_data(
+        full_message={
+            "domain": {
+                "name": "test",
+                "version": "test",
+                "chainId": 1,
+                "verifyingContract": "0x1234567890123456789012345678901234567890",
+            },
+            "types": {
+                "test": [
+                    {"name": "test", "type": "test"},
+                ],
+            },
+            "primaryType": "test",
+            "message": {"test": "test"},
+        }
+    )
+
     mock_server_account.sign_typed_data.assert_called_once_with(
         domain=EIP712Domain(
             name="test",
@@ -108,9 +111,19 @@ async def test_sign_typed_data_with_full_message(mock_server_account):
             chainId=1,
             verifyingContract="0x1234567890123456789012345678901234567890",
         ),
-        types=full_message["types"],
-        primary_type=full_message["primaryType"],
-        message=full_message["message"],
+        types={
+            "EIP712Domain": [
+                {"name": "name", "type": "string"},
+                {"name": "version", "type": "string"},
+                {"name": "chainId", "type": "uint256"},
+                {"name": "verifyingContract", "type": "address"},
+            ],
+            "test": [{"name": "test", "type": "test"}],
+        },
+        primary_type="test",
+        message={
+            "test": "test",
+        },
     )
     assert signed_message == signature_response
 
@@ -122,27 +135,28 @@ async def test_sign_typed_data_with_domain_data_message_types_message_data(mock_
     signature_response = MagicMock()
     mock_server_account.sign_typed_data = AsyncMock(return_value=signature_response)
     evm_local_account = EvmLocalAccount(mock_server_account)
-    domain_data = {
-        "name": "test",
-        "version": "test",
-        "chainId": 1,
-        "verifyingContract": "0x1234567890123456789012345678901234567890",
-    }
-    message_types = {
-        "EIP712Domain": [
-            {"name": "name", "type": "string"},
-            {"name": "version", "type": "string"},
-            {"name": "chainId", "type": "uint256"},
-            {"name": "verifyingContract", "type": "address"},
-        ],
-        "test": [{"name": "test", "type": "test"}],
-    }
-    message_data = {"test": "test"}
+
     signed_message = evm_local_account.sign_typed_data(
-        domain_data=domain_data,
-        message_types=message_types,
-        message_data=message_data,
+        domain_data={
+            "name": "test",
+            "version": "test",
+            "chainId": 1,
+            "verifyingContract": "0x1234567890123456789012345678901234567890",
+        },
+        message_types={
+            "EIP712Domain": [
+                {"name": "name", "type": "string"},
+                {"name": "version", "type": "string"},
+                {"name": "chainId", "type": "uint256"},
+                {"name": "verifyingContract", "type": "address"},
+            ],
+            "test": [{"name": "test", "type": "test"}],
+        },
+        message_data={
+            "test": "test",
+        },
     )
+
     mock_server_account.sign_typed_data.assert_called_once_with(
         domain=EIP712Domain(
             name="test",
@@ -150,9 +164,163 @@ async def test_sign_typed_data_with_domain_data_message_types_message_data(mock_
             chainId=1,
             verifyingContract="0x1234567890123456789012345678901234567890",
         ),
-        types=message_types,
+        types={
+            "EIP712Domain": [
+                {"name": "name", "type": "string"},
+                {"name": "version", "type": "string"},
+                {"name": "chainId", "type": "uint256"},
+                {"name": "verifyingContract", "type": "address"},
+            ],
+            "test": [{"name": "test", "type": "test"}],
+        },
         primary_type="test",
-        message=message_data,
+        message={
+            "test": "test",
+        },
+    )
+    assert signed_message == signature_response
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_local_account.EvmServerAccount")
+async def test_sign_typed_data_with_bytes32_type(mock_server_account):
+    """Test that the EvmLocalAccount can sign typed data with a bytes32 type."""
+    signature_response = MagicMock()
+    mock_server_account.sign_typed_data = AsyncMock(return_value=signature_response)
+    evm_local_account = EvmLocalAccount(mock_server_account)
+
+    signed_message = evm_local_account.sign_typed_data(
+        full_message={
+            "domain": {
+                "name": "test",
+                "version": "test",
+                "chainId": 1,
+                "verifyingContract": "0x1234567890123456789012345678901234567890",
+            },
+            "types": {
+                "test": [
+                    {"name": "test", "type": "bytes32"},
+                ],
+            },
+            "primaryType": "test",
+            "message": {
+                "test": bytes.fromhex(
+                    "0000000000000000000000001234567890123456789012345678901234567890"
+                )
+            },
+        }
+    )
+
+    mock_server_account.sign_typed_data.assert_called_once_with(
+        domain=EIP712Domain(
+            name="test",
+            version="test",
+            chainId=1,
+            verifyingContract="0x1234567890123456789012345678901234567890",
+        ),
+        types={
+            "EIP712Domain": [
+                {"name": "name", "type": "string"},
+                {"name": "version", "type": "string"},
+                {"name": "chainId", "type": "uint256"},
+                {"name": "verifyingContract", "type": "address"},
+            ],
+            "test": [
+                {"name": "test", "type": "bytes32"},
+            ],
+        },
+        primary_type="test",
+        message={
+            "test": "0x0000000000000000000000001234567890123456789012345678901234567890",
+        },
+    )
+    assert signed_message == signature_response
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_local_account.EvmServerAccount")
+async def test_sign_typed_data_with_bytes32_type_without_eip712_domain_type(mock_server_account):
+    """Test that the EvmLocalAccount can sign typed data with a bytes32 type without the EIP712Domain type."""
+    signature_response = MagicMock()
+    mock_server_account.sign_typed_data = AsyncMock(return_value=signature_response)
+    evm_local_account = EvmLocalAccount(mock_server_account)
+
+    signed_message = evm_local_account.sign_typed_data(
+        full_message={
+            "domain": {
+                "name": "EIP712Domain",
+                "version": "1",
+            },
+            "types": {
+                "test": [
+                    {"name": "test", "type": "bytes32"},
+                ],
+            },
+            "primaryType": "test",
+            "message": {
+                "test": bytes.fromhex(
+                    "0000000000000000000000001234567890123456789012345678901234567890"
+                )
+            },
+        }
+    )
+
+    mock_server_account.sign_typed_data.assert_called_with(
+        domain=EIP712Domain(
+            name="EIP712Domain",
+            version="1",
+        ),
+        types={
+            "EIP712Domain": [
+                {"name": "name", "type": "string"},
+                {"name": "version", "type": "string"},
+            ],
+            "test": [
+                {"name": "test", "type": "bytes32"},
+            ],
+        },
+        primary_type="test",
+        message={
+            "test": "0x0000000000000000000000001234567890123456789012345678901234567890",
+        },
+    )
+    assert signed_message == signature_response
+
+    signed_message = evm_local_account.sign_typed_data(
+        domain_data={
+            "name": "EIP712Domain",
+            "version": "1",
+        },
+        message_types={
+            "test": [
+                {"name": "test", "type": "bytes32"},
+            ],
+        },
+        message_data={
+            "test": bytes.fromhex(
+                "0000000000000000000000001234567890123456789012345678901234567890"
+            )
+        },
+    )
+
+    mock_server_account.sign_typed_data.assert_called_with(
+        domain=EIP712Domain(
+            name="EIP712Domain",
+            version="1",
+        ),
+        types={
+            "EIP712Domain": [
+                {"name": "name", "type": "string"},
+                {"name": "version", "type": "string"},
+            ],
+            "test": [
+                {"name": "test", "type": "bytes32"},
+            ],
+        },
+        primary_type="test",
+        message={
+            "test": "0x0000000000000000000000001234567890123456789012345678901234567890",
+        },
     )
     assert signed_message == signature_response
 
@@ -164,19 +332,19 @@ async def test_sign_typed_data_with_bad_arguments(mock_server_account):
     evm_local_account = EvmLocalAccount(mock_server_account)
     with pytest.raises(
         ValueError,
-        match="Must provide either full_message or all of domain_data, message_types, and message_data",
+        match="Must provide either full_message or both message_types and message_data",
     ):
         evm_local_account.sign_typed_data()
 
     with pytest.raises(
         ValueError,
-        match="Must provide either full_message or all of domain_data, message_types, and message_data",
+        match="Must provide either full_message or both message_types and message_data",
     ):
         evm_local_account.sign_typed_data(full_message=None)
 
     with pytest.raises(
         ValueError,
-        match="Must provide either full_message or all of domain_data, message_types, and message_data",
+        match="Must provide either full_message or both message_types and message_data",
     ):
         evm_local_account.sign_typed_data(
             domain_data={"name": "test"},
@@ -185,19 +353,10 @@ async def test_sign_typed_data_with_bad_arguments(mock_server_account):
 
     with pytest.raises(
         ValueError,
-        match="Must provide either full_message or all of domain_data, message_types, and message_data",
+        match="Must provide either full_message or both message_types and message_data",
     ):
         evm_local_account.sign_typed_data(
             domain_data={"name": "test"},
-            message_data={"test": "test"},
-        )
-
-    with pytest.raises(
-        ValueError,
-        match="Must provide either full_message or all of domain_data, message_types, and message_data",
-    ):
-        evm_local_account.sign_typed_data(
-            message_types={"test": [{"name": "test", "type": "test"}]},
             message_data={"test": "test"},
         )
 
