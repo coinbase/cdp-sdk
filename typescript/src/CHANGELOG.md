@@ -1,5 +1,25 @@
 # CDP SDK Changelog
 
+## 1.21.0
+
+### Minor Changes
+
+- [#242](https://github.com/coinbase/cdp-sdk/pull/242) [`bcc21c1`](https://github.com/coinbase/cdp-sdk/commit/bcc21c1cb6880b7a31ec6731d3e8f434e1fff324) Thanks [@0xRAG](https://github.com/0xRAG)! - Automatically set paymasterUrl to Base Node URL on Smart Accounts scoped to Base
+
+- [#241](https://github.com/coinbase/cdp-sdk/pull/241) [`938233f`](https://github.com/coinbase/cdp-sdk/commit/938233f7e5db52f249fe15bdde1e22ff89a776fa) Thanks [@0xRAG](https://github.com/0xRAG)! - Added type-safe network hoisted methods to EvmSmartAccount
+
+- [#245](https://github.com/coinbase/cdp-sdk/pull/245) [`babe262`](https://github.com/coinbase/cdp-sdk/commit/babe262bac81249393133a77b8b4c7985bf2b537) Thanks [@0xRAG](https://github.com/0xRAG)! - Added automatic paymasterUrl when sending user operations
+
+  This will work with scoped and un-scoped smart accounts, as long as the network is `base`.
+
+- [#233](https://github.com/coinbase/cdp-sdk/pull/233) [`9d02af8`](https://github.com/coinbase/cdp-sdk/commit/9d02af82ce02ca541a3c05fbe7666dc6da42c31f) Thanks [@0xRAG](https://github.com/0xRAG)! - Added all methods to network-hoisted EvmServerAccount
+
+- [#239](https://github.com/coinbase/cdp-sdk/pull/239) [`cd87b8a`](https://github.com/coinbase/cdp-sdk/commit/cd87b8a87a720124d22fed567dbb8c3134849023) Thanks [@milan-cb](https://github.com/milan-cb)! - Added a importAccount method to the Solana client
+
+### Patch Changes
+
+- [#247](https://github.com/coinbase/cdp-sdk/pull/247) [`111b95b`](https://github.com/coinbase/cdp-sdk/commit/111b95b3529b376517242f54a63bec47922bfa8e) Thanks [@milan-cb](https://github.com/milan-cb)! - Fixed a bug that breaks dev E2E tests due to using wrong RSA public key
+
 ## 1.20.0
 
 ### Minor Changes
