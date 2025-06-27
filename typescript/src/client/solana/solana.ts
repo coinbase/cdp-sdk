@@ -2,7 +2,6 @@ import { constants, publicEncrypt } from "crypto";
 
 import bs58 from "bs58";
 
-import { ImportAccountPublicRSAKey } from "../../constants.js";
 import {
   CreateAccountOptions,
   ExportAccountOptions,
@@ -24,6 +23,7 @@ import { requestFaucet } from "../../actions/solana/requestFaucet.js";
 import { signMessage } from "../../actions/solana/signMessage.js";
 import { signTransaction } from "../../actions/solana/signTransaction.js";
 import { Analytics } from "../../analytics.js";
+import { ImportAccountPublicRSAKey } from "../../constants.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 import {
