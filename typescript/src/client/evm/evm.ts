@@ -2,7 +2,6 @@ import { constants, publicEncrypt } from "crypto";
 
 import { type Address, getTypesForEIP712Domain } from "viem";
 
-import { ImportEvmAccountPublicRSAKey } from "./constants.js";
 import {
   CreateServerAccountOptions,
   CreateSmartAccountOptions,
@@ -61,6 +60,7 @@ import {
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
 import { Analytics } from "../../analytics.js";
+import { ImportAccountPublicRSAKey } from "../../constants.js";
 import { APIError } from "../../openapi-client/errors.js";
 import {
   CdpOpenApiClient,
@@ -173,7 +173,7 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async importAccount(options: ImportServerAccountOptions): Promise<ServerAccount> {
-    const encryptionPublicKey = options.encryptionPublicKey || ImportEvmAccountPublicRSAKey;
+    const encryptionPublicKey = options.encryptionPublicKey || ImportAccountPublicRSAKey;
 
     const privateKeyHex = options.privateKey.startsWith("0x")
       ? options.privateKey.slice(2)

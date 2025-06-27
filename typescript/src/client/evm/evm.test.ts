@@ -36,7 +36,7 @@ import {
   GetOrCreateSmartAccountOptions,
 } from "./evm.types.js";
 import { APIError } from "../../openapi-client/errors.js";
-import { ImportEvmAccountPublicRSAKey } from "./constants.js";
+import { ImportAccountPublicRSAKey } from "../../constants.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
 vi.mock("../../openapi-client", () => {
@@ -1255,7 +1255,7 @@ describe("EvmClient", () => {
 
       expect(publicEncrypt).toHaveBeenCalledWith(
         {
-          key: ImportEvmAccountPublicRSAKey,
+          key: ImportAccountPublicRSAKey,
           padding: constants.RSA_PKCS1_OAEP_PADDING,
           oaepHash: "sha256",
         },
