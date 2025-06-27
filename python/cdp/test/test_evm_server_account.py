@@ -594,7 +594,7 @@ async def test_quote_fund_transfer_usdc_on_ethereum(
 
     assert isinstance(result, Quote)
     assert result.quote_id == payment_transfer.id
-    assert result.network == "base"
+    assert result.network == "ethereum"
     assert result.token == "usdc"
     assert result.fiat_amount == "1"
     assert result.fiat_currency == "usd"
@@ -644,7 +644,7 @@ async def test_quote_fund_transfer_eth_on_ethereum(
 
     assert isinstance(result, Quote)
     assert result.quote_id == payment_transfer.id
-    assert result.network == "base"
+    assert result.network == "ethereum"
     assert result.token == "eth"
     assert result.fiat_amount == "1000"
     assert result.fiat_currency == "usd"
