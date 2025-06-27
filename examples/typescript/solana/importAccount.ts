@@ -15,7 +15,6 @@ const privateKey = bs58.encode(keypair.secretKey); // secretKey is 64 bytes (32 
 
 const account = await cdp.solana.importAccount({
   privateKey: privateKey,
-  name: "MyAccount",
 });
 
 console.log("Imported account (64-byte key):", account.address);
@@ -32,7 +31,6 @@ const privateKey32 = bs58.encode(secondKeypair.secretKey.subarray(0, 32)); // Ta
 
 const secondAccount = await cdp.solana.importAccount({
   privateKey: privateKey32,
-  name: "MyAccount2",
 });
 
 console.log("Imported account (32-byte key):", secondAccount.address);
