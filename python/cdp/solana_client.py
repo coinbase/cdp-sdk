@@ -1,6 +1,4 @@
 import base64
-import re
-from typing import TYPE_CHECKING
 
 import base58
 from cryptography.hazmat.primitives import hashes
@@ -98,7 +96,7 @@ class SolanaClient:
             # Decode the private key from base58
             private_key_bytes = base58.b58decode(private_key)
         except Exception:
-            raise ValueError("Private key must be a valid base58 encoded string")
+            raise ValueError("Private key must be a valid base58 encoded string") from None
 
         if len(private_key_bytes) != 32 and len(private_key_bytes) != 64:
             raise ValueError("Private key must be 32 or 64 bytes")

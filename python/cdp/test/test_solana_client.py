@@ -10,6 +10,9 @@ from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccoun
 from cdp.openapi_client.models.export_solana_account200_response import (
     ExportSolanaAccount200Response,
 )
+from cdp.openapi_client.models.import_solana_account_request import (
+    ImportSolanaAccountRequest,
+)
 from cdp.openapi_client.models.list_solana_accounts200_response import (
     ListSolanaAccounts200Response as ListSolanaAccountsResponse,
 )
@@ -33,9 +36,6 @@ from cdp.openapi_client.models.sign_solana_transaction_request import (
 )
 from cdp.openapi_client.models.solana_account import SolanaAccount as SolanaAccountModel
 from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
-from cdp.openapi_client.models.import_solana_account_request import (
-    ImportSolanaAccountRequest,
-)
 from cdp.solana_client import SolanaClient
 from cdp.update_account_types import UpdateAccountOptions
 
@@ -481,12 +481,12 @@ async def test_import_account(
 
     # Mock base58 decode to return valid 32-byte private key
     mock_b58decode.return_value = b"a" * 32
-    
+
     # Mock RSA public key - use MagicMock not AsyncMock since encrypt is synchronous
     mock_public_key = MagicMock()
     mock_public_key.encrypt.return_value = b"encrypted_data"
     mock_load_pem_public_key.return_value = mock_public_key
-    
+
     # Mock base64 encode
     mock_b64encode.return_value.decode.return_value = "encrypted_private_key_b64"
 
@@ -538,12 +538,12 @@ async def test_import_account_with_64_byte_key(
 
     # Mock base58 decode to return valid 64-byte private key (should be truncated to 32)
     mock_b58decode.return_value = b"a" * 64
-    
+
     # Mock RSA public key - use MagicMock not AsyncMock since encrypt is synchronous
     mock_public_key = MagicMock()
     mock_public_key.encrypt.return_value = b"encrypted_data"
     mock_load_pem_public_key.return_value = mock_public_key
-    
+
     # Mock base64 encode
     mock_b64encode.return_value.decode.return_value = "encrypted_private_key_b64"
 
@@ -577,6 +577,6 @@ async def test_import_account_invalid_private_key(mock_b58decode):
     # Test with valid base58 but wrong length
     mock_b58decode.side_effect = None
     mock_b58decode.return_value = b"a" * 16  # Invalid length
-    
+
     with pytest.raises(ValueError, match="Private key must be 32 or 64 bytes"):
         await client.import_account(private_key="test_key")
