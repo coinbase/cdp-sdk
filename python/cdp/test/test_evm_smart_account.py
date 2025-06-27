@@ -350,6 +350,7 @@ async def test_quote_fund_transfer_eth_on_base(
     assert result.token == "eth"
     assert result.fees == []
 
+
 @pytest.mark.asyncio
 async def test_quote_fund_transfer_usdc_on_ethereum(
     smart_account_factory, payment_transfer_model_factory, payment_method_model_factory
@@ -422,7 +423,9 @@ async def test_quote_fund_transfer_eth_on_ethereum(
 
     smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
     # 1.1 ETH
-    result = await smart_account.quote_fund(network="ethereum", token="eth", amount=1100000000000000000)
+    result = await smart_account.quote_fund(
+        network="ethereum", token="eth", amount=1100000000000000000
+    )
 
     mock_payments_api.get_payment_methods.assert_called_once()
 
@@ -489,6 +492,7 @@ async def test_fund_transfer_eth_on_base(
     assert result.status == payment_transfer.status
     assert result.transaction_hash == payment_transfer.transaction_hash
 
+
 @pytest.mark.asyncio
 async def test_fund_transfer_usdc_on_base(
     smart_account_factory, payment_transfer_model_factory, payment_method_model_factory
@@ -534,6 +538,7 @@ async def test_fund_transfer_usdc_on_base(
     assert result.status == payment_transfer.status
     assert result.transaction_hash == payment_transfer.transaction_hash
 
+
 @pytest.mark.asyncio
 async def test_fund_transfer_eth_on_ethereum(
     smart_account_factory, payment_transfer_model_factory, payment_method_model_factory
@@ -578,6 +583,7 @@ async def test_fund_transfer_eth_on_ethereum(
     assert result.target_currency == payment_transfer.target_currency
     assert result.status == payment_transfer.status
     assert result.transaction_hash == payment_transfer.transaction_hash
+
 
 @pytest.mark.asyncio
 async def test_fund_transfer_usdc_on_ethereum(
