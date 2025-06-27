@@ -1,8 +1,18 @@
+import base64
+import re
+from typing import TYPE_CHECKING
+
+import base58
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
+
 from cdp.actions.solana.request_faucet import request_faucet
 from cdp.actions.solana.sign_message import sign_message
 from cdp.actions.solana.sign_transaction import sign_transaction
 from cdp.analytics import wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
+from cdp.constants import ImportEvmAccountPublicRSAKey
 from cdp.export import (
     decrypt_with_private_key,
     format_solana_private_key,
@@ -13,6 +23,7 @@ from cdp.openapi_client.models.create_solana_account_request import (
     CreateSolanaAccountRequest,
 )
 from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
+from cdp.openapi_client.models.import_solana_account_request import ImportSolanaAccountRequest
 from cdp.openapi_client.models.request_solana_faucet200_response import (
     RequestSolanaFaucet200Response as RequestSolanaFaucetResponse,
 )
@@ -63,6 +74,62 @@ class SolanaClient:
             solana_account_model=response,
             api_clients=self.api_clients,
         )
+
+    async def import_account(
+        self,
+        private_key: str,
+        encryption_public_key: str | None = ImportEvmAccountPublicRSAKey,
+        name: str | None = None,
+        idempotency_key: str | None = None,
+    ) -> SolanaAccount:
+        """Import a Solana account.
+
+        Args:
+            private_key (str): The private key of the account as a base58 encoded string.
+            encryption_public_key (str, optional): The public RSA key used to encrypt the private key when importing a Solana account. Defaults to the known public key.
+            name (str, optional): The name. Defaults to None.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        Returns:
+            SolanaAccount: The Solana account.
+
+        """
+        try:
+            # Decode the private key from base58
+            private_key_bytes = base58.b58decode(private_key)
+
+            if len(private_key_bytes) != 32 and len(private_key_bytes) != 64:
+                raise ValueError("Private key must be 32 or 64 bytes")
+
+            if len(private_key_bytes) == 64:
+                private_key_bytes = private_key_bytes[0:32]
+
+        except Exception:
+            raise ValueError("Private key must be a valid base58 encoded string")
+
+        try:
+            public_key = load_pem_public_key(encryption_public_key.encode())
+            encrypted_private_key = public_key.encrypt(
+                private_key_bytes,
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None,
+                ),
+            )
+            encrypted_private_key = base64.b64encode(encrypted_private_key).decode("utf-8")
+            solana_account = await self.api_clients.solana_accounts.import_solana_account(
+                import_solana_account_request=ImportSolanaAccountRequest(
+                    encrypted_private_key=encrypted_private_key,
+                    name=name,
+                ),
+                x_idempotency_key=idempotency_key,
+            )
+            return SolanaAccount(solana_account, self.api_clients)
+        except ApiError as e:
+            raise e
+        except Exception as e:
+            raise ValueError(f"Failed to import account: {e}") from e
 
     async def export_account(
         self,
