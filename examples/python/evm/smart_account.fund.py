@@ -9,7 +9,7 @@ load_dotenv()
 
 async def main():
     async with CdpClient() as cdp:
-        account = await cdp.evm.get_or_create_account(name="account")
+        account = await cdp.evm.create_account()
         smart_account = await cdp.evm.create_smart_account(owner=account)
 
         fund_operation = await smart_account.fund(

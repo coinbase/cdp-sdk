@@ -6,17 +6,16 @@ async function main() {
   const cdp = new CdpClient();
   const account = await cdp.evm.getOrCreateAccount({ name: "account" });
 
+  console.log("Funding account on Base: ", account.address)
   const fundOperation = await account.fund({
     network: "base",
     token: "eth",
     amount: 500000000000000n, // 0.0005 eth
   });
-
-
+  console.log("Funding operation: ", fundOperation)
   const completedTransfer = await account.waitForFundOperationReceipt({
     transferId: fundOperation.id,
   });
-
   console.log(completedTransfer);
 }
 

@@ -9,13 +9,13 @@ load_dotenv()
 
 async def main():
     async with CdpClient() as cdp:
-        account = await cdp.evm.get_or_create_account(name="account")
+        account = await cdp.evm.create_account()
         smart_account = await cdp.evm.create_smart_account(owner=account)
 
         quote = await smart_account.quote_fund(
             network="base",
             token="usdc",
-            amount=100000000,  # 100 USDC
+            amount=1000000,  # 1 USDC
         )
 
         # get details of the quote
