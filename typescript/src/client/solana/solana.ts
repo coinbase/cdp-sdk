@@ -144,7 +144,7 @@ export class SolanaClient implements SolanaClientInterface {
    * The private key will be encrypted before being stored securely.
    *
    * @param {ImportAccountOptions} options - Parameters for importing the Solana account.
-   * @param {string} options.privateKey - The base58 encoded private key to import (32 or 64 bytes).
+   * @param {string} options.privateKey - The private key to import (32 or 64 bytes). Can be a base58 encoded string or raw bytes.
    * @param {string} [options.name] - The name of the account.
    * @param {string} [options.encryptionPublicKey] - The RSA public key for encrypting the private key.
    * @param {string} [options.idempotencyKey] - An idempotency key.
@@ -178,7 +178,13 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async importAccount(options: ImportAccountOptions): Promise<SolanaAccount> {
-    let privateKeyBytes = bs58.decode(options.privateKey);
+    let privateKeyBytes: Uint8Array = new Uint8Array();
+
+    if (typeof options.privateKey === "string") {
+      privateKeyBytes = bs58.decode(options.privateKey);
+    } else {
+      privateKeyBytes = options.privateKey;
+    }
 
     if (privateKeyBytes.length !== 32 && privateKeyBytes.length !== 64) {
       throw new Error("Invalid private key length");

@@ -161,6 +161,6 @@ export interface ImportAccountOptions {
   name?: string;
   /** The idempotency key. */
   idempotencyKey?: string;
-  /** The private key of the account. */
-  privateKey: string;
+  /** The private key of the account - can be a base58 encoded string or raw bytes. */
+  privateKey: string | Uint8Array;
 }
