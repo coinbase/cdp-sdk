@@ -4,7 +4,7 @@
 export const ERROR_DOCS_PAGE_URL = "https://docs.cdp.coinbase.com/api-v2/docs/errors";
 
 /**
- * The public RSA key used to encrypt the private key when importing a Solana account.
+ * The public RSA key used to encrypt the private key when importing an EVM or Solana account.
  */
 export const ImportAccountPublicRSAKey = `-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA2Fxydgm/ryYk0IexQIuL
