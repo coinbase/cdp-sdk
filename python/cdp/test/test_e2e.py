@@ -125,6 +125,42 @@ async def test_import_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_import_solana_account(cdp_client):
+    """Test importing a Solana account."""
+    from solders.keypair import Keypair
+
+    # Generate a new Solana keypair
+    keypair = Keypair()
+    random_name = generate_random_name()
+
+    # Convert private key to base58 string (32 bytes)
+    private_key_bytes = bytes(keypair.secret())
+    private_key_b58 = base58.b58encode(private_key_bytes).decode()
+
+    import_account_options = {
+        "private_key": private_key_b58,
+        "name": random_name,
+    }
+
+    if os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY"):
+        import_account_options["encryption_public_key"] = os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY")
+
+    imported_account = await cdp_client.solana.import_account(
+        **import_account_options,
+    )
+    assert imported_account is not None
+    assert imported_account.address == str(keypair.pubkey())
+    assert imported_account.name == random_name
+
+    # Verify we can retrieve the imported account
+    retrieved_account = await cdp_client.solana.get_account(address=imported_account.address)
+    assert retrieved_account is not None
+    assert retrieved_account.address == str(keypair.pubkey())
+    assert retrieved_account.name == random_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_export_evm_account(cdp_client):
     """Test exporting an EVM account."""
     random_name = generate_random_name()

@@ -12,7 +12,7 @@ from cdp.actions.solana.sign_message import sign_message
 from cdp.actions.solana.sign_transaction import sign_transaction
 from cdp.analytics import wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
-from cdp.constants import ImportEvmAccountPublicRSAKey
+from cdp.constants import ImportAccountPublicRSAKey
 from cdp.export import (
     decrypt_with_private_key,
     format_solana_private_key,
@@ -78,7 +78,7 @@ class SolanaClient:
     async def import_account(
         self,
         private_key: str,
-        encryption_public_key: str | None = ImportEvmAccountPublicRSAKey,
+        encryption_public_key: str | None = ImportAccountPublicRSAKey,
         name: str | None = None,
         idempotency_key: str | None = None,
     ) -> SolanaAccount:
@@ -97,15 +97,14 @@ class SolanaClient:
         try:
             # Decode the private key from base58
             private_key_bytes = base58.b58decode(private_key)
-
-            if len(private_key_bytes) != 32 and len(private_key_bytes) != 64:
-                raise ValueError("Private key must be 32 or 64 bytes")
-
-            if len(private_key_bytes) == 64:
-                private_key_bytes = private_key_bytes[0:32]
-
         except Exception:
             raise ValueError("Private key must be a valid base58 encoded string")
+
+        if len(private_key_bytes) != 32 and len(private_key_bytes) != 64:
+            raise ValueError("Private key must be 32 or 64 bytes")
+
+        if len(private_key_bytes) == 64:
+            private_key_bytes = private_key_bytes[0:32]
 
         try:
             public_key = load_pem_public_key(encryption_public_key.encode())
