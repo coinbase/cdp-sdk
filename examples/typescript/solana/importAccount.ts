@@ -26,18 +26,18 @@ console.log("Original private key length:", keyBytes64.length, "bytes");
 // Importing account with 32-byte array private key
 console.log("--------------------------------");
 console.log("Importing account with raw bytes directly (32-byte)...");
-const fourthKeypair = Keypair.generate();
-const privateKeyBytes32 = fourthKeypair.secretKey.subarray(0, 32); // Take only first 32 bytes as Uint8Array
+const secondKeypair = Keypair.generate();
+const privateKeyBytes32 = secondKeypair.secretKey.subarray(0, 32); // Take only first 32 bytes as Uint8Array
 
-const fourthAccount = await cdp.solana.importAccount({
+const secondAccount = await cdp.solana.importAccount({
   privateKey: privateKeyBytes32, // Using raw bytes directly instead of base58 string
   name: "BytesAccount32",
 });
 
-console.log("Imported account (raw 32-byte):", fourthAccount.address);
+console.log("Imported account (raw 32-byte):", secondAccount.address);
 console.log("Raw private key length:", privateKeyBytes32.length, "bytes");
 
 console.log("--------------------------------");
 console.log("All accounts imported successfully!");
 console.log("64-byte string account address:", account.address);
-console.log("32-byte bytes account address:", fourthAccount.address);
+console.log("32-byte bytes account address:", secondAccount.address);
