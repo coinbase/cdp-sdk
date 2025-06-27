@@ -75,7 +75,7 @@ class SolanaClient:
 
     async def import_account(
         self,
-        private_key: str,
+        private_key: str | bytes,
         encryption_public_key: str | None = ImportAccountPublicRSAKey,
         name: str | None = None,
         idempotency_key: str | None = None,
@@ -83,7 +83,7 @@ class SolanaClient:
         """Import a Solana account.
 
         Args:
-            private_key (str): The private key of the account as a base58 encoded string.
+            private_key (str | bytes): The private key of the account as a base58 encoded string or raw bytes.
             encryption_public_key (str, optional): The public RSA key used to encrypt the private key when importing a Solana account. Defaults to the known public key.
             name (str, optional): The name. Defaults to None.
             idempotency_key (str, optional): The idempotency key. Defaults to None.
@@ -92,11 +92,16 @@ class SolanaClient:
             SolanaAccount: The Solana account.
 
         """
-        try:
-            # Decode the private key from base58
-            private_key_bytes = base58.b58decode(private_key)
-        except Exception:
-            raise ValueError("Private key must be a valid base58 encoded string") from None
+        # Handle both string (base58) and raw bytes input
+        if isinstance(private_key, str):
+            try:
+                # Decode the private key from base58
+                private_key_bytes = base58.b58decode(private_key)
+            except Exception:
+                raise ValueError("Private key must be a valid base58 encoded string") from None
+        else:
+            # private_key is already bytes
+            private_key_bytes = private_key
 
         if len(private_key_bytes) != 32 and len(private_key_bytes) != 64:
             raise ValueError("Private key must be 32 or 64 bytes")
