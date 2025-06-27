@@ -11,8 +11,7 @@ import {
 import { toAccount } from "viem/accounts";
 import * as chains from "viem/chains";
 
-import { generateJwt } from "../../auth/utils/jwt.js";
-import { config } from "../../openapi-client/cdpApiClient.js";
+import { getBaseNodeRpcUrl } from "./getBaseNodeRpcUrl.js";
 
 import type { EvmAccount } from "./types.js";
 
@@ -134,42 +133,6 @@ export type ResolvedViemClients = {
   /** The wallet client for sending transactions */
   walletClient: WalletClient<Transport, Chain, Account>;
 };
-
-/**
- * Get the base node RPC URL for a given network
- *
- * @param network - The network identifier
- * @returns The base node RPC URL or undefined if the network is not supported
- */
-async function getBaseNodeRpcUrl(network: "base" | "base-sepolia"): Promise<string | undefined> {
-  if (!config) {
-    return;
-  }
-
-  try {
-    const basePath = config.basePath?.replace("/platform", "");
-
-    const jwt = await generateJwt({
-      apiKeyId: config.apiKeyId,
-      apiKeySecret: config.apiKeySecret,
-      requestMethod: "GET",
-      requestHost: basePath.replace("https://", ""),
-      requestPath: "/apikeys/v1/tokens/active",
-    });
-
-    const response = await fetch(`${basePath}/apikeys/v1/tokens/active`, {
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    const json = await response.json();
-    return `${basePath}/rpc/v1/${network}/${json.id}`;
-  } catch {
-    return;
-  }
-}
 
 /**
  * Resolves viem clients based on a network identifier or Node URL.
