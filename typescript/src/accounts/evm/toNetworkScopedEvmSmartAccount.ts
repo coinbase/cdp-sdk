@@ -69,7 +69,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
   options: ToNetworkScopedEvmSmartAccountOptions & { network: Network },
 ): Promise<NetworkScopedEvmSmartAccount<Network>> {
   const paymasterUrl = await (async () => {
-    if (options.network === "base" || options.network === "base-sepolia") {
+    if (options.network === "base") {
       return getBaseNodeRpcUrl(options.network);
     }
     return undefined;
