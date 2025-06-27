@@ -130,6 +130,14 @@ const account = await cdp.evm.importAccount({
 const account = await cdp.solana.createAccount();
 ```
 
+#### Import a Solana account as follows:
+```typescript
+const account = await cdp.solana.importAccount({
+  privateKey: "3MLZ...Uko8zz",
+  name: "MyAccount",
+});
+```
+
 ### Exporting EVM or Solana accounts
 
 #### Export an EVM account as follows:

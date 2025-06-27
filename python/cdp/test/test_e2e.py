@@ -1620,6 +1620,106 @@ async def test_evm_local_account_sign_typed_data_with_full_message(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_evm_local_account_sign_typed_data_with_bytes32_type(cdp_client):
+    """Test signing typed data with a bytes32 type with an EVM local account."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    evm_local_account = EvmLocalAccount(account)
+    assert evm_local_account is not None
+
+    signature = evm_local_account.sign_typed_data(
+        full_message={
+            "domain": {
+                "name": "EIP712Domain",
+                "version": "1",
+                "chainId": 1,
+                "verifyingContract": "0x0000000000000000000000000000000000000000",
+            },
+            "types": {
+                "EIP712Domain": [
+                    {"name": "name", "type": "string"},
+                    {"name": "version", "type": "string"},
+                    {"name": "chainId", "type": "uint256"},
+                    {"name": "verifyingContract", "type": "address"},
+                ],
+                "TransferWithAuthorization": [
+                    {"name": "from", "type": "address"},
+                    {"name": "to", "type": "address"},
+                    {"name": "value", "type": "uint256"},
+                    {"name": "validAfter", "type": "uint256"},
+                    {"name": "validBefore", "type": "uint256"},
+                    {"name": "nonce", "type": "bytes32"},
+                ],
+            },
+            "primaryType": "TransferWithAuthorization",
+            "message": {
+                "from": "0x0123456789012345678901234567890123456789",
+                "to": "0x0123456789012345678901234567890123456789",
+                "value": 1000000,
+                "validAfter": 1000000,
+                "validBefore": 1000000,
+                "nonce": bytes.fromhex(
+                    "0000000000000000000000001234567890123456789012345678901234567890"
+                ),
+            },
+        },
+    )
+    assert signature is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_local_account_sign_typed_data_without_eip712_domain_type(cdp_client):
+    """Test signing typed data without eip712 domain type with an EVM local account."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    evm_local_account = EvmLocalAccount(account)
+    assert evm_local_account is not None
+
+    domain_data = {
+        "name": "EIP712Domain",
+        "version": "1",
+    }
+    message_types = {
+        "TransferWithAuthorization": [
+            {"name": "from", "type": "address"},
+            {"name": "to", "type": "address"},
+            {"name": "value", "type": "uint256"},
+            {"name": "validAfter", "type": "uint256"},
+            {"name": "validBefore", "type": "uint256"},
+            {"name": "nonce", "type": "bytes32"},
+        ]
+    }
+    message_data = {
+        "from": "0x0123456789012345678901234567890123456789",
+        "to": "0x0123456789012345678901234567890123456789",
+        "value": 1000000,
+        "validAfter": 1000000,
+        "validBefore": 1000000,
+        "nonce": bytes.fromhex("0000000000000000000000001234567890123456789012345678901234567890"),
+    }
+    signature = evm_local_account.sign_typed_data(
+        domain_data=domain_data,
+        message_types=message_types,
+        message_data=message_data,
+    )
+    assert signature is not None
+
+    signature = evm_local_account.sign_typed_data(
+        full_message={
+            "domain": domain_data,
+            "types": message_types,
+            "primaryType": "TransferWithAuthorization",
+            "message": message_data,
+        },
+    )
+    assert signature is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 @pytest.mark.skip(reason="Skipping due to nonce issue with concurrent test")
 async def test_evm_local_account_sign_and_send_transaction(cdp_client):
     """Test signing a transaction with an EVM local account."""

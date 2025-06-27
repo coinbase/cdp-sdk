@@ -88,6 +88,56 @@ async def main():
         )
         print("Signed typed data full message: ", signed_typed_data)
 
+        print("\nSigning typed data with bytes32 type...")
+        typed_data = {
+            "domain": {
+                "name": "MyDomain",
+                "version": "1",
+            },
+            "types": {
+                "Person": [
+                    {"name": "name", "type": "string"},
+                    {"name": "wallet", "type": "address"},
+                    {"name": "nonce", "type": "bytes32"},
+                ],
+            },
+            "primaryType": "Person",
+            "message": {
+                "name": "John Doe",
+                "wallet": "0x1234567890123456789012345678901234567890",
+                "nonce": bytes.fromhex(
+                    "0000000000000000000000001234567890123456789012345678901234567890"
+                ),
+            },
+        }
+        signed_typed_data = evm_local_account.sign_typed_data(
+            full_message=typed_data,
+        )
+        print("Signed typed data with bytes32 type: ", signed_typed_data)
+
+        print("\nSigning typed data with without EIP712Domain type...")
+        typed_data = {
+            "domain": {
+                "name": "MyDomain",
+                "version": "1",
+            },
+            "types": {
+                "Person": [
+                    {"name": "name", "type": "string"},
+                    {"name": "wallet", "type": "address"},
+                ],
+            },
+            "primaryType": "Person",
+            "message": {
+                "name": "John Doe",
+                "wallet": "0x1234567890123456789012345678901234567890",
+            },
+        }
+        signed_typed_data = evm_local_account.sign_typed_data(
+            full_message=typed_data,
+        )
+        print("Signed typed data without EIP712Domain type: ", signed_typed_data)
+
         print("\nSigning transaction...")
         w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
         nonce = w3.eth.get_transaction_count(evm_local_account.address)
