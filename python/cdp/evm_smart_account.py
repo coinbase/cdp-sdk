@@ -270,7 +270,7 @@ class EvmSmartAccount(BaseModel):
 
     async def quote_fund(
         self,
-        network: Literal["base"],
+        network: Literal["base", "ethereum"],
         amount: int,
         token: Literal["eth", "usdc"],
     ) -> Quote:
@@ -306,7 +306,7 @@ class EvmSmartAccount(BaseModel):
 
     async def fund(
         self,
-        network: Literal["base"],
+        network: Literal["base", "ethereum"],
         amount: int,
         token: Literal["eth", "usdc"],
     ) -> FundOperationResult:
