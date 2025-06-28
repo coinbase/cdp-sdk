@@ -2,6 +2,23 @@
 
 <!-- towncrier release notes start -->
 
+## [1.18.0] - 2025-06-27
+
+### Features
+
+- Added importAccount method for Solana client ([#244](https://github.com/coinbase/cdp-sdk/pull/244))
+
+### Bugfixes
+
+- Fixed EvmLocalAccount sign typed data compatibility with eth-account.
+
+  - Convert bytes32 to hex string to make it serializable
+  - Include EIP712 domain if missing from types
+  - Return SignedMessage
+
+  ([#246](https://github.com/coinbase/cdp-sdk/pull/246))
+
+
 ## [1.17.0] - 2025-06-26
 
 ### Features
