@@ -138,15 +138,20 @@ function requiresWalletAuth(requestMethod: string, requestPath: string): boolean
  * @returns Encoded correlation data as a query string
  */
 export function getCorrelationData(source?: string, sourceVersion?: string): string {
-  const data = {
+    const data: {
+    sdk_version: string;
+    sdk_language: string;
+    source: string;
+    source_version?: string;
+  } = {
     sdk_version: version,
     sdk_language: "typescript",
     source: source || "sdk-auth",
-  };
+  }; 
   if (sourceVersion) {
     data["source_version"] = sourceVersion;
   }
-  return Object.keys(data)
-    .map(key => `${key}=${encodeURIComponent(data[key])}`)
+  return (Object.keys(data) as Array<keyof typeof data>)
+    .map(key => `${key}=${encodeURIComponent(data[key] ?? "")}`)
     .join(",");
 }
