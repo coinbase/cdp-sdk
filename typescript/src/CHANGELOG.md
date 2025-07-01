@@ -1,5 +1,17 @@
 # CDP SDK Changelog
 
+## 1.22.0
+
+### Minor Changes
+
+- [#250](https://github.com/coinbase/cdp-sdk/pull/250) [`a11ecd2`](https://github.com/coinbase/cdp-sdk/commit/a11ecd2ebb59a4a9d475323322cb40d9c40911f1) Thanks [@0xRAG](https://github.com/0xRAG)! - Swapped built-in crypto library for uncrypto in auth subpackage to allow it to work in Next.js Edge runtime
+
+- [#251](https://github.com/coinbase/cdp-sdk/pull/251) [`57aa371`](https://github.com/coinbase/cdp-sdk/commit/57aa3717a9356f89031c1cf20c83f8b0f310dad7) Thanks [@suryatejamandadi-cb](https://github.com/suryatejamandadi-cb)! - Added ethereum mainnet support for the wallet fund and quoteFund operations for server/smart accounts
+
+### Patch Changes
+
+- [#194](https://github.com/coinbase/cdp-sdk/pull/194) [`b65c416`](https://github.com/coinbase/cdp-sdk/commit/b65c41678f717c1d25162cb8e2f1fb1f205b8051) Thanks [@0xRAG](https://github.com/0xRAG)! - Added check to ensure minimum required Node.js version
+
 ## 1.21.0
 
 ### Minor Changes
