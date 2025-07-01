@@ -258,7 +258,7 @@ async def test_request_faucet(smart_account_model_factory):
 
 
 @pytest.mark.asyncio
-async def test_quote_fund_transfer_usdc(
+async def test_quote_fund_transfer_usdc_on_base(
     smart_account_factory, payment_transfer_model_factory, payment_method_model_factory
 ):
     """Test quote_fund method."""
@@ -304,7 +304,7 @@ async def test_quote_fund_transfer_usdc(
 
 
 @pytest.mark.asyncio
-async def test_quote_fund_transfer_eth(
+async def test_quote_fund_transfer_eth_on_base(
     smart_account_factory, payment_transfer_model_factory, payment_method_model_factory
 ):
     """Test quote_fund method."""
@@ -350,9 +350,104 @@ async def test_quote_fund_transfer_eth(
     assert result.token == "eth"
     assert result.fees == []
 
+@pytest.mark.asyncio
+async def test_quote_fund_transfer_usdc_on_ethereum(
+    smart_account_factory, payment_transfer_model_factory, payment_method_model_factory
+):
+    """Test quote_fund method."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    smart_account = smart_account_factory(address, name)
+    payment_transfer = payment_transfer_model_factory()
+    payment_method = payment_method_model_factory()
+
+    mock_payments_api = AsyncMock()
+
+    mock_api_clients = AsyncMock(spec=ApiClients)
+    mock_api_clients.payments = mock_payments_api
+
+    mock_payments_api.get_payment_methods = AsyncMock(return_value=[payment_method])
+
+    mock_payments_api.create_payment_transfer_quote = AsyncMock(
+        return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
+    )
+
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    # 1 USDC
+    result = await smart_account.quote_fund(network="ethereum", token="usdc", amount=1000000)
+
+    mock_payments_api.get_payment_methods.assert_called_once()
+
+    mock_payments_api.create_payment_transfer_quote.assert_called_once()
+    call_args = mock_payments_api.create_payment_transfer_quote.call_args[1]
+    assert call_args["create_payment_transfer_quote_request"].source_type == "payment_method"
+    assert call_args["create_payment_transfer_quote_request"].target_type == "crypto_rail"
+    assert call_args["create_payment_transfer_quote_request"].amount == "1"
+    assert call_args["create_payment_transfer_quote_request"].currency == "usdc"
+
+    assert isinstance(result, Quote)
+    assert result.quote_id == payment_transfer.id
+    assert result.network == "ethereum"
+    assert result.token == "usdc"
+    assert result.fiat_amount == "1"
+    assert result.fiat_currency == "usd"
+    assert result.token_amount == "1"
+    assert result.token == "usdc"
+    assert result.fees == []
+
 
 @pytest.mark.asyncio
-async def test_fund_transfer_eth(
+async def test_quote_fund_transfer_eth_on_ethereum(
+    smart_account_factory, payment_transfer_model_factory, payment_method_model_factory
+):
+    """Test quote_fund method."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    smart_account = smart_account_factory(address, name)
+    payment_transfer = payment_transfer_model_factory(
+        source_amount="1000", source_currency="usd", target_amount="1.1", target_currency="eth"
+    )
+    payment_method = payment_method_model_factory()
+
+    mock_payments_api = AsyncMock()
+
+    mock_api_clients = AsyncMock(spec=ApiClients)
+    mock_api_clients.payments = mock_payments_api
+
+    mock_payments_api.get_payment_methods = AsyncMock(return_value=[payment_method])
+
+    mock_payments_api.create_payment_transfer_quote = AsyncMock(
+        return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
+    )
+
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    # 1.1 ETH
+    result = await smart_account.quote_fund(
+        network="ethereum", token="eth", amount=1100000000000000000
+    )
+
+    mock_payments_api.get_payment_methods.assert_called_once()
+
+    mock_payments_api.create_payment_transfer_quote.assert_called_once()
+    call_args = mock_payments_api.create_payment_transfer_quote.call_args[1]
+    assert call_args["create_payment_transfer_quote_request"].source_type == "payment_method"
+    assert call_args["create_payment_transfer_quote_request"].target_type == "crypto_rail"
+    assert call_args["create_payment_transfer_quote_request"].amount == "1.1"
+    assert call_args["create_payment_transfer_quote_request"].currency == "eth"
+
+    assert isinstance(result, Quote)
+    assert result.quote_id == payment_transfer.id
+    assert result.network == "ethereum"
+    assert result.token == "eth"
+    assert result.fiat_amount == "1000"
+    assert result.fiat_currency == "usd"
+    assert result.token_amount == "1.1"
+    assert result.token == "eth"
+    assert result.fees == []
+
+
+@pytest.mark.asyncio
+async def test_fund_transfer_eth_on_base(
     smart_account_factory, payment_transfer_model_factory, payment_method_model_factory
 ):
     """Test fund method."""
@@ -396,9 +491,8 @@ async def test_fund_transfer_eth(
     assert result.status == payment_transfer.status
     assert result.transaction_hash == payment_transfer.transaction_hash
 
-
 @pytest.mark.asyncio
-async def test_fund_transfer_usdc(
+async def test_fund_transfer_usdc_on_base(
     smart_account_factory, payment_transfer_model_factory, payment_method_model_factory
 ):
     """Test fund method with USDC."""

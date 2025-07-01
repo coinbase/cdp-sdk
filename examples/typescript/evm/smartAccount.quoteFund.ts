@@ -6,13 +6,13 @@ import "dotenv/config";
 async function main() {
   const cdp = new CdpClient();
 
-  const account = await cdp.evm.getOrCreateAccount({ name: "account" });
+  const account = await cdp.evm.createAccount();
   const smartAccount = await cdp.evm.createSmartAccount({ owner: account });
 
   const quote = await smartAccount.quoteFund({
     network: "base",
     token: "usdc",
-    amount: 100000000n, // 100 USDC
+    amount: 1000000n, // 1 USDC
   });
 
   // get details of the quote

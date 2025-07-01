@@ -31,6 +31,29 @@ def test_quote_initialization():
     assert valid_quote.fees[0].currency == "USD"
     assert valid_quote.fees[0].type == "exchange_fee"
 
+def test_quote_initialization_on_ethereum():
+    """Test quote initialization with valid parameters."""
+    valid_quote = Quote(
+        api_clients=MagicMock(spec=ApiClients),
+        quote_id="test-quote-id",
+        network="ethereum",
+        fiat_amount="100.00",
+        fiat_currency="USD",
+        token_amount="0.05",
+        token="eth",
+        fees=[Fee(type="exchange_fee", amount="1.00", currency="USD")],
+    )
+    assert valid_quote.quote_id == "test-quote-id"
+    assert valid_quote.network == "ethereum"
+    assert valid_quote.fiat_amount == "100.00"
+    assert valid_quote.fiat_currency == "USD"
+    assert valid_quote.token_amount == "0.05"
+    assert valid_quote.token == "eth"
+    assert len(valid_quote.fees) == 1
+    assert valid_quote.fees[0].amount == "1.00"
+    assert valid_quote.fees[0].currency == "USD"
+    assert valid_quote.fees[0].type == "exchange_fee"
+
 
 def test_quote_invalid_network():
     """Test quote initialization with invalid network."""
