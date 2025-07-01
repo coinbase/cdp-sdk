@@ -1693,10 +1693,11 @@ function timeout(ms: number) {
 function generateRandomName(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const charsWithHyphen = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-";
+  const minLength = 5;
 
   const firstChar = chars.charAt(Math.floor(Math.random() * chars.length));
 
-  const middleLength = Math.floor(Math.random() * 34);
+  const middleLength = Math.max(Math.floor(Math.random() * 34), minLength);
   let middlePart = "";
   for (let i = 0; i < middleLength; i++) {
     middlePart += charsWithHyphen.charAt(Math.floor(Math.random() * charsWithHyphen.length));
