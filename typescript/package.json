@@ -9,6 +9,7 @@
     "build:types": "tsc --project ./tsconfig.types.json",
     "changeset": "changeset",
     "changeset:version": "changeset version",
+    "check:auth-crypto-imports": "tsx scripts/check-auth-crypto-imports.ts",
     "clean": "rm -rf src/_esm src/_cjs src/_types",
     "docs": "typedoc --entryPoints ./src --entryPointStrategy expand --exclude ./src/tests/**/*.ts",
     "format": "prettier -c .prettierrc --write \"**/*.{ts,js,cjs,json,md}\"",
