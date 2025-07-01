@@ -1,9 +1,7 @@
-import * as crypto from "crypto";
-import { createPrivateKey } from "crypto";
-
 import { SignJWT, importPKCS8, importJWK, JWTPayload } from "jose";
+import { getRandomValues } from "uncrypto";
 
-import { hash } from "../../utils/hash.js";
+import { authHash } from "./hash.js";
 import { sortKeys } from "../../utils/sortKeys.js";
 import { InvalidWalletSecretFormatError, UndefinedWalletSecretError } from "../errors.js";
 
@@ -147,7 +145,7 @@ export async function generateJwt(options: JwtOptions): Promise<string> {
   const randomNonce = nonce();
 
   // Determine if we're using EC or Edwards key based on the key format
-  if (isValidECKey(options.apiKeySecret)) {
+  if (await isValidECKey(options.apiKeySecret)) {
     return await buildECJWT(
       options.apiKeySecret,
       options.apiKeyId,
@@ -193,16 +191,18 @@ export async function generateWalletJwt(options: WalletJwtOptions): Promise<stri
 
   if (Object.keys(options.requestData).length > 0) {
     const sortedData = sortKeys(options.requestData);
-    claims.reqHash = hash(Buffer.from(JSON.stringify(sortedData)));
+    claims.reqHash = await authHash(Buffer.from(JSON.stringify(sortedData)));
   }
 
   try {
-    const ecKey = createPrivateKey({
-      key: options.walletSecret,
-      format: "der",
-      type: "pkcs8",
-      encoding: "base64",
-    });
+    // Convert base64 DER to PEM format for jose
+    const derBuffer = Buffer.from(options.walletSecret, "base64");
+    const pemKey = `-----BEGIN PRIVATE KEY-----\n${derBuffer
+      .toString("base64")
+      .match(/.{1,64}/g)
+      ?.join("\n")}\n-----END PRIVATE KEY-----`;
+
+    const ecKey = await importPKCS8(pemKey, "ES256");
 
     return await new SignJWT(claims)
       .setProtectedHeader({ alg: "ES256", typ: "JWT" })
@@ -236,12 +236,11 @@ function isValidEd25519Key(str: string): boolean {
  * @param str - The string to test
  * @returns True if the string is a valid EC private key in PEM format
  */
-function isValidECKey(str: string): boolean {
+async function isValidECKey(str: string): Promise<boolean> {
   try {
-    // Attempt to create a private key object - will throw if invalid
-    const key = createPrivateKey(str);
-    // Check if it's an EC key by examining its asymmetric key type
-    return key.asymmetricKeyType === "ec";
+    // Try to import the key with jose - if it works, it's a valid EC key
+    await importPKCS8(str, "ES256");
+    return true;
   } catch {
     return false;
   }
@@ -268,12 +267,8 @@ async function buildECJWT(
   nonce: string,
 ): Promise<string> {
   try {
-    // Convert to PKCS8 format
-    const keyObj = createPrivateKey(privateKey);
-    const pkcs8Key = keyObj.export({ type: "pkcs8", format: "pem" }).toString();
-
-    // Import the key for signing
-    const ecKey = await importPKCS8(pkcs8Key, "ES256");
+    // Import the key directly with jose
+    const ecKey = await importPKCS8(privateKey, "ES256");
 
     // Sign and return the JWT
     return await new SignJWT(claims)
@@ -346,5 +341,7 @@ async function buildEdwardsJWT(
  * @returns {string} The generated nonce.
  */
 function nonce(): string {
-  return crypto.randomBytes(16).toString("hex");
+  const bytes = new Uint8Array(16);
+  getRandomValues(bytes);
+  return Buffer.from(bytes).toString("hex");
 }
