@@ -14,7 +14,7 @@ export interface QuoteFundOptions {
   /** The address of the account. */
   address: string;
   /** The network to request funds from. */
-  network: "base";
+  network: "base" | "ethereum";
   /** The amount to fund the account with, in atomic units (wei) of the token. */
   amount: bigint;
   /** The token to request funds for. */
