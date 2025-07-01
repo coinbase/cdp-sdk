@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.19.0] - 2025-07-01
+
+### Features
+
+- Added ethereum mainnet support for wallet fund and quote_fund operations ([#251](https://github.com/coinbase/cdp-sdk/pull/251))
+
+
 ## [1.18.0] - 2025-06-27
 
 ### Features
