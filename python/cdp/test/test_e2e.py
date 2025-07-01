@@ -1863,10 +1863,11 @@ def generate_random_name():
     """Generate a random name."""
     chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     chars_with_hyphen = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
+    min_length = 5
 
     first_char = chars[floor(random.random() * len(chars))]
 
-    middle_length = floor(random.random() * 34)
+    middle_length = max(floor(random.random() * 34), min_length)
     middle_part = ""
     for _ in range(middle_length):
         middle_part += chars_with_hyphen[floor(random.random() * len(chars_with_hyphen))]
