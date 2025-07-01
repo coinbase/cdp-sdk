@@ -67,6 +67,15 @@ export class CdpClient {
    * @param {CdpClientOptions} [options] - Configuration options for the CdpClient.
    */
   constructor(options: CdpClientOptions = {}) {
+    if (Number(process.versions.node.split(".")[0]) < 19) {
+      throw new Error(
+        `
+Node.js version ${process.versions.node} is not supported. CDP SDK requires Node.js version 19 or higher. Please upgrade your Node.js version to use the CDP SDK.
+We recommend using https://github.com/Schniz/fnm for managing your Node.js version.
+        `,
+      );
+    }
+
     const apiKeyId = options.apiKeyId ?? process.env.CDP_API_KEY_ID ?? process.env.CDP_API_KEY_NAME;
     const apiKeySecret = options.apiKeySecret ?? process.env.CDP_API_KEY_SECRET;
     const walletSecret = options.walletSecret ?? process.env.CDP_WALLET_SECRET;
