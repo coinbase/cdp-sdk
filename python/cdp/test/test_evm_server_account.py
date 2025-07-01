@@ -557,6 +557,7 @@ async def test_quote_fund_transfer_eth_on_base(
     assert result.token == "eth"
     assert result.fees == []
 
+
 @pytest.mark.asyncio
 async def test_quote_fund_transfer_usdc_on_ethereum(
     server_account_model_factory, payment_transfer_model_factory, payment_method_model_factory
@@ -743,6 +744,7 @@ async def test_fund_transfer_usdc_on_base(
     assert result.target_currency == payment_transfer.target_currency
     assert result.status == payment_transfer.status
     assert result.transaction_hash == payment_transfer.transaction_hash
+
 
 @pytest.mark.asyncio
 async def test_fund_transfer_eth_on_ethereum(

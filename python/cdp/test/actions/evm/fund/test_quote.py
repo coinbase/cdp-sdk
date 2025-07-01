@@ -31,6 +31,7 @@ def test_quote_initialization():
     assert valid_quote.fees[0].currency == "USD"
     assert valid_quote.fees[0].type == "exchange_fee"
 
+
 def test_quote_initialization_on_ethereum():
     """Test quote initialization with valid parameters."""
     valid_quote = Quote(
