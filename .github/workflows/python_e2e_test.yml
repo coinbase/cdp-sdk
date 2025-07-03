@@ -43,5 +43,6 @@ jobs:
           CDP_API_KEY_SECRET: ${{ secrets.CDP_API_KEY_SECRET }}
           CDP_WALLET_SECRET: ${{ secrets.CDP_WALLET_SECRET }}
           CDP_E2E_SMART_ACCOUNT_ADDRESS: ${{ vars.CDP_E2E_SMART_ACCOUNT_ADDRESS }}
+          CDP_E2E_SOLANA_RPC_URL: ${{ secrets.CDP_E2E_SOLANA_RPC_URL }}
           DISABLE_CDP_ERROR_REPORTING: true
         run: uv run pytest cdp/test/test_e2e.py -v

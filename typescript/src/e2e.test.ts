@@ -94,7 +94,12 @@ async function ensureSufficientSolBalance(cdp: CdpClient, account: SolanaAccount
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  const connection = new Connection("https://api.devnet.solana.com");
+  if (!process.env.CDP_E2E_SOLANA_RPC_URL) {
+    logger.log("CDP_E2E_SOLANA_RPC_URL is not set. Skipping SOL balance check.");
+    return;
+  }
+
+  const connection = new Connection(process.env.CDP_E2E_SOLANA_RPC_URL);
   let balance = await connection.getBalance(new PublicKey(account.address));
 
   // 1250000 is the amount the faucet gives, and is plenty to cover gas

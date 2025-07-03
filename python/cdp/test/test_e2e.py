@@ -933,6 +933,11 @@ async def test_solana_account_sign_message(cdp_client):
 @pytest.mark.asyncio
 async def test_solana_sign_transaction(cdp_client):
     """Test signing a transaction."""
+    if not os.getenv("CDP_E2E_SOLANA_RPC_URL"):
+        pytest.skip(
+            "CDP_E2E_SOLANA_RPC_URL is not set. Unable to get transaction to test signing with."
+        )
+
     account = await cdp_client.solana.create_account()
     assert account is not None
 
@@ -1733,7 +1738,7 @@ def _get_transaction(address: str):
     from solders.pubkey import Pubkey as PublicKey
     from solders.system_program import TransferParams, transfer
 
-    connection = SolanaClient("https://api.devnet.solana.com")
+    connection = SolanaClient(os.getenv("CDP_E2E_SOLANA_RPC_URL"))
 
     source_pubkey = PublicKey.from_string(address)
     dest_pubkey = PublicKey.from_string("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE")
@@ -1800,7 +1805,12 @@ async def _ensure_sufficient_eth_balance(cdp_client, account):
 
 async def _ensure_sufficient_sol_balance(cdp_client, account):
     """Ensure an account has sufficient SOL balance."""
-    connection = SolanaClient("https://api.devnet.solana.com")
+    if not os.getenv("CDP_E2E_SOLANA_RPC_URL"):
+        pytest.skip(
+            "CDP_E2E_SOLANA_RPC_URL is not set. Unable to get transaction to test signing with."
+        )
+
+    connection = SolanaClient(os.getenv("CDP_E2E_SOLANA_RPC_URL"))
 
     async def sleep(ms):
         await asyncio.sleep(ms / 1000)
