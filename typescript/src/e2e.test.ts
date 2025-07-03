@@ -94,12 +94,9 @@ async function ensureSufficientSolBalance(cdp: CdpClient, account: SolanaAccount
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  if (!process.env.CDP_E2E_SOLANA_RPC_URL) {
-    logger.log("CDP_E2E_SOLANA_RPC_URL is not set. Skipping SOL balance check.");
-    return;
-  }
-
-  const connection = new Connection(process.env.CDP_E2E_SOLANA_RPC_URL);
+  const connection = new Connection(
+    process.env.CDP_E2E_SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+  );
   let balance = await connection.getBalance(new PublicKey(account.address));
 
   // 1250000 is the amount the faucet gives, and is plenty to cover gas
@@ -1103,7 +1100,11 @@ describe("CDP Client E2E Tests", () => {
     });
 
     describe("transfer", () => {
-      it("should transfer native SOL", async () => {
+      const connection = new Connection(
+        process.env.CDP_E2E_SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+      );
+
+      it("should transfer native SOL and wait for confirmation", async () => {
         const { signature } = await testSolanaAccount.transfer({
           to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
           amount: 0n,
@@ -1112,9 +1113,22 @@ describe("CDP Client E2E Tests", () => {
         });
 
         expect(signature).toBeDefined();
+
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+        const confirmation = await connection.confirmTransaction(
+          {
+            signature,
+            blockhash,
+            lastValidBlockHeight,
+          },
+          "confirmed",
+        );
+
+        expect(confirmation.value.err).toBeNull();
       });
 
-      it("should transfer USDC", async () => {
+      it("should transfer USDC and wait for confirmation", async () => {
         const { signature } = await testSolanaAccount.transfer({
           to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
           amount: 0n,
@@ -1123,6 +1137,19 @@ describe("CDP Client E2E Tests", () => {
         });
 
         expect(signature).toBeDefined();
+
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+        const confirmation = await connection.confirmTransaction(
+          {
+            signature,
+            blockhash,
+            lastValidBlockHeight,
+          },
+          "confirmed",
+        );
+
+        expect(confirmation.value.err).toBeNull();
       });
     });
   });
