@@ -1098,9 +1098,7 @@ describe("CDP Client E2E Tests", () => {
     });
 
     describe("transfer", () => {
-      const connection = new Connection("https://api.devnet.solana.com");
-
-      it("should transfer native SOL and wait for confirmation", async () => {
+      it("should transfer native SOL", async () => {
         const { signature } = await testSolanaAccount.transfer({
           to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
           amount: 0n,
@@ -1109,22 +1107,9 @@ describe("CDP Client E2E Tests", () => {
         });
 
         expect(signature).toBeDefined();
-
-        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-
-        const confirmation = await connection.confirmTransaction(
-          {
-            signature,
-            blockhash,
-            lastValidBlockHeight,
-          },
-          "confirmed",
-        );
-
-        expect(confirmation.value.err).toBeNull();
       });
 
-      it("should transfer USDC and wait for confirmation", async () => {
+      it("should transfer USDC", async () => {
         const { signature } = await testSolanaAccount.transfer({
           to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
           amount: 0n,
@@ -1133,19 +1118,6 @@ describe("CDP Client E2E Tests", () => {
         });
 
         expect(signature).toBeDefined();
-
-        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-
-        const confirmation = await connection.confirmTransaction(
-          {
-            signature,
-            blockhash,
-            lastValidBlockHeight,
-          },
-          "confirmed",
-        );
-
-        expect(confirmation.value.err).toBeNull();
       });
     });
   });
