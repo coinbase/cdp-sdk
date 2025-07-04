@@ -780,7 +780,9 @@ async def test_transfer_usdc_smart_account(cdp_client):
 @pytest.mark.asyncio
 async def test_transfer_sol(solana_account):
     """Test transferring SOL."""
-    connection = SolanaClient("https://api.devnet.solana.com")
+    connection = SolanaClient(
+        os.getenv("CDP_E2E_SOLANA_RPC_URL") or "https://api.devnet.solana.com"
+    )
 
     await _ensure_sufficient_sol_balance(cdp_client, solana_account)
 
@@ -806,7 +808,9 @@ async def test_transfer_sol(solana_account):
 @pytest.mark.asyncio
 async def test_solana_account_transfer_usdc(solana_account):
     """Test transferring USDC tokens."""
-    connection = SolanaClient("https://api.devnet.solana.com")
+    connection = SolanaClient(
+        os.getenv("CDP_E2E_SOLANA_RPC_URL") or "https://api.devnet.solana.com"
+    )
 
     await _ensure_sufficient_sol_balance(cdp_client, solana_account)
 
@@ -1759,7 +1763,9 @@ def _get_transaction(address: str):
     from solders.pubkey import Pubkey as PublicKey
     from solders.system_program import TransferParams, transfer
 
-    connection = SolanaClient("https://api.devnet.solana.com")
+    connection = SolanaClient(
+        os.getenv("CDP_E2E_SOLANA_RPC_URL") or "https://api.devnet.solana.com"
+    )
 
     source_pubkey = PublicKey.from_string(address)
     dest_pubkey = PublicKey.from_string("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE")
@@ -1826,7 +1832,9 @@ async def _ensure_sufficient_eth_balance(cdp_client, account):
 
 async def _ensure_sufficient_sol_balance(cdp_client, account):
     """Ensure an account has sufficient SOL balance."""
-    connection = SolanaClient("https://api.devnet.solana.com")
+    connection = SolanaClient(
+        os.getenv("CDP_E2E_SOLANA_RPC_URL") or "https://api.devnet.solana.com"
+    )
 
     async def sleep(ms):
         await asyncio.sleep(ms / 1000)

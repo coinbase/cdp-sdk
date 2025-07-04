@@ -94,7 +94,9 @@ async function ensureSufficientSolBalance(cdp: CdpClient, account: SolanaAccount
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  const connection = new Connection("https://api.devnet.solana.com");
+  const connection = new Connection(
+    process.env.CDP_E2E_SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+  );
   let balance = await connection.getBalance(new PublicKey(account.address));
 
   // 1250000 is the amount the faucet gives, and is plenty to cover gas
@@ -1098,7 +1100,9 @@ describe("CDP Client E2E Tests", () => {
     });
 
     describe("transfer", () => {
-      const connection = new Connection("https://api.devnet.solana.com");
+      const connection = new Connection(
+        process.env.CDP_E2E_SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+      );
 
       it("should transfer native SOL and wait for confirmation", async () => {
         const { signature } = await testSolanaAccount.transfer({
