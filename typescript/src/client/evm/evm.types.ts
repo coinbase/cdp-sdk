@@ -61,6 +61,7 @@ export type EvmClientInterface = Omit<
   | "updateEvmAccount" // mapped to updateAccount
   | "exportEvmAccount"
   | "exportEvmAccountByName"
+  | "updateEvmSmartAccount" // 🚧 Coming soon
 > & {
   createAccount: (options: CreateServerAccountOptions) => Promise<ServerAccount>;
   createSmartAccount: (options: CreateSmartAccountOptions) => Promise<SmartAccount>;
