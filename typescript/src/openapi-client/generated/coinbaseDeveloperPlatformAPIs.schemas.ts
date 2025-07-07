@@ -992,6 +992,194 @@ export interface SignEvmMessageRule {
 }
 
 /**
+ * The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+ */
+export type EvmTypedAddressConditionOperator =
+  (typeof EvmTypedAddressConditionOperator)[keyof typeof EvmTypedAddressConditionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmTypedAddressConditionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * A schema for specifying criterion for an address field of an EVM typed message. The address can be deeply nested within the typed data's message.
+ */
+export interface EvmTypedAddressCondition {
+  /** A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 100 addresses per criterion. */
+  addresses: string[];
+  /** The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
+  operator: EvmTypedAddressConditionOperator;
+  /** The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected. */
+  path: string;
+}
+
+/**
+ * The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+ */
+export type EvmTypedNumericalConditionOperator =
+  (typeof EvmTypedNumericalConditionOperator)[keyof typeof EvmTypedNumericalConditionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmTypedNumericalConditionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * A schema for specifying criterion for a numerical field of an EVM typed message. The value can be deeply nested within the typed data's message.
+ */
+export interface EvmTypedNumericalCondition {
+  /**
+   * The amount that the value located at the message's path should be compared to.
+   * @pattern ^[0-9]+$
+   */
+  value: string;
+  /** The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `value` field will be on the right-hand side. */
+  operator: EvmTypedNumericalConditionOperator;
+  /** The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected. */
+  path: string;
+}
+
+/**
+ * A schema for specifying criterion for a string field of an EVM typed message. The value can be deeply nested within the typed data's message.
+ */
+export interface EvmTypedStringCondition {
+  /** A regular expression the field is matched against. */
+  match: string;
+  /** The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected. */
+  path: string;
+}
+
+/**
+ * The type of criterion to use. This should be `evmTypedDataField`.
+ */
+export type SignEvmTypedDataFieldCriterionType =
+  (typeof SignEvmTypedDataFieldCriterionType)[keyof typeof SignEvmTypedDataFieldCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataFieldCriterionType = {
+  evmTypedDataField: "evmTypedDataField",
+} as const;
+
+export type SignEvmTypedDataFieldCriterionTypesTypesItem = {
+  /** The name of a key within an EIP-712 data structure. */
+  name?: string;
+  /** The Solidity type of a value within an EIP-712 data structure. */
+  type?: string;
+};
+
+/**
+ * EIP-712 compliant map of model names to model definitions.
+ */
+export type SignEvmTypedDataFieldCriterionTypesTypes = {
+  [key: string]: SignEvmTypedDataFieldCriterionTypesTypesItem[];
+};
+
+/**
+ * An object containing EIP-712 type definitions, as well as a primary type for the root message object.
+ */
+export type SignEvmTypedDataFieldCriterionTypes = {
+  /** EIP-712 compliant map of model names to model definitions. */
+  types: SignEvmTypedDataFieldCriterionTypesTypes;
+  /** The name of the root EIP-712 type. This value must be included in the `types` object. */
+  primaryType: string;
+};
+
+export type SignEvmTypedDataFieldCriterionConditionsItem =
+  | EvmTypedAddressCondition
+  | EvmTypedNumericalCondition
+  | EvmTypedStringCondition;
+
+export interface SignEvmTypedDataFieldCriterion {
+  /** The type of criterion to use. This should be `evmTypedDataField`. */
+  type: SignEvmTypedDataFieldCriterionType;
+  /** An object containing EIP-712 type definitions, as well as a primary type for the root message object. */
+  types: SignEvmTypedDataFieldCriterionTypes;
+  /** A list of conditions to check against the data being signed. Each condition must be met for the rule to take effect. */
+  conditions: SignEvmTypedDataFieldCriterionConditionsItem[];
+}
+
+/**
+ * The type of criterion to use. This should be `evmTypedDataVerifyingContract`.
+ */
+export type SignEvmTypedDataVerifyingContractCriterionType =
+  (typeof SignEvmTypedDataVerifyingContractCriterionType)[keyof typeof SignEvmTypedDataVerifyingContractCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataVerifyingContractCriterionType = {
+  evmTypedDataVerifyingContract: "evmTypedDataVerifyingContract",
+} as const;
+
+/**
+ * The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+ */
+export type SignEvmTypedDataVerifyingContractCriterionOperator =
+  (typeof SignEvmTypedDataVerifyingContractCriterionOperator)[keyof typeof SignEvmTypedDataVerifyingContractCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataVerifyingContractCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * A schema for specifying criterion for a domain's verifying contract.
+ */
+export interface SignEvmTypedDataVerifyingContractCriterion {
+  /** The type of criterion to use. This should be `evmTypedDataVerifyingContract`. */
+  type: SignEvmTypedDataVerifyingContractCriterionType;
+  /** A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 100 addresses per criterion. */
+  addresses: string[];
+  /** The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
+  operator: SignEvmTypedDataVerifyingContractCriterionOperator;
+}
+
+export type SignEvmTypedDataCriteriaItem =
+  | SignEvmTypedDataFieldCriterion
+  | SignEvmTypedDataVerifyingContractCriterion;
+
+/**
+ * A schema for specifying criteria for the SignEvmTypedData operation.
+ */
+export type SignEvmTypedDataCriteria = SignEvmTypedDataCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SignEvmTypedDataRuleAction =
+  (typeof SignEvmTypedDataRuleAction)[keyof typeof SignEvmTypedDataRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SignEvmTypedDataRuleOperation =
+  (typeof SignEvmTypedDataRuleOperation)[keyof typeof SignEvmTypedDataRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataRuleOperation = {
+  signEvmTypedData: "signEvmTypedData",
+} as const;
+
+export interface SignEvmTypedDataRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SignEvmTypedDataRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SignEvmTypedDataRuleOperation;
+  criteria: SignEvmTypedDataCriteria;
+}
+
+/**
  * The type of criterion to use. This should be `solAddress`.
  */
 export type SolAddressCriterionType =
@@ -1099,6 +1287,7 @@ export type Rule =
   | SignEvmTransactionRule
   | SendEvmTransactionRule
   | SignEvmMessageRule
+  | SignEvmTypedDataRule
   | SignSolTransactionRule
   | SignEvmHashRule;
 
@@ -1418,7 +1607,7 @@ export type AlreadyExistsErrorResponse = Error;
 
 /**
  * A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-[Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token)
+[Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
 section of our Authentication docs for more details on how to generate your Wallet Token.
 
  */
@@ -1427,7 +1616,7 @@ export type XWalletAuthParameter = string;
 /**
  * An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
 When included, duplicate requests with the same key will return identical responses. 
-Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
+Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
  */
 export type IdempotencyKeyParameter = string;
@@ -1606,6 +1795,16 @@ export type ExportEvmAccountByNameBody = {
 export type ExportEvmAccountByName200 = {
   /** The base64-encoded, encrypted private key of the EVM account which is a 32 byte raw private key. The private key is encrypted in transport using the exportEncryptionKey in the request. */
   encryptedPrivateKey: string;
+};
+
+export type UpdateEvmSmartAccountBody = {
+  /**
+   * An optional name for the smart account.
+Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names must be unique across all EVM smart accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
 };
 
 /**

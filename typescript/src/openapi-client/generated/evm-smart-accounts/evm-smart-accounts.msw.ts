@@ -107,6 +107,28 @@ export const getGetEvmSmartAccountResponseMock = (
   ...overrideResponse,
 });
 
+export const getUpdateEvmSmartAccountResponseMock = (
+  overrideResponse: Partial<EvmSmartAccount> = {},
+): EvmSmartAccount => ({
+  address: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  owners: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+    faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  ),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  ...overrideResponse,
+});
+
 export const getPrepareUserOperationResponseMock = (
   overrideResponse: Partial<EvmUserOperation> = {},
 ): EvmUserOperation => ({
@@ -274,6 +296,29 @@ export const getGetEvmSmartAccountMockHandler = (
   });
 };
 
+export const getUpdateEvmSmartAccountMockHandler = (
+  overrideResponse?:
+    | EvmSmartAccount
+    | ((
+        info: Parameters<Parameters<typeof http.put>[1]>[0],
+      ) => Promise<EvmSmartAccount> | EvmSmartAccount),
+) => {
+  return http.put("*/v2/evm/smart-accounts/:address", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getUpdateEvmSmartAccountResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
 export const getPrepareUserOperationMockHandler = (
   overrideResponse?:
     | EvmUserOperation
@@ -350,6 +395,7 @@ export const getEvmSmartAccountsMock = () => [
   getCreateEvmSmartAccountMockHandler(),
   getGetEvmSmartAccountByNameMockHandler(),
   getGetEvmSmartAccountMockHandler(),
+  getUpdateEvmSmartAccountMockHandler(),
   getPrepareUserOperationMockHandler(),
   getGetUserOperationMockHandler(),
   getSendUserOperationMockHandler(),

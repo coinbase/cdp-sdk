@@ -191,26 +191,6 @@ export const signSolanaMessage = (
     options,
   );
 };
-
-export const importSolanaAccount = (
-  importSolanaAccountBody: {
-    name?: string;
-    encryptedPrivateKey: string;
-    idempotencyKey?: string;
-  },
-  options?: SecondParameter<typeof cdpApiClient>,
-) => {
-  return cdpApiClient<SolanaAccount>(
-    {
-      url: `/v2/solana/accounts/import`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      data: importSolanaAccountBody,
-    },
-    options,
-  );
-};
-
 export type ListSolanaAccountsResult = NonNullable<Awaited<ReturnType<typeof listSolanaAccounts>>>;
 export type CreateSolanaAccountResult = NonNullable<
   Awaited<ReturnType<typeof createSolanaAccount>>
