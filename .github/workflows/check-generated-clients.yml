@@ -1,0 +1,248 @@
+name: Check Generated Clients
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "openapi.yaml"
+      - "typescript/src/openapi-client/generated/**"
+      - "python/cdp/openapi_client/**"
+      - "go/openapi/**"
+      - ".github/workflows/check-generated-clients.yml"
+      - "scripts/preprocess_openapi.py" # Python preprocessing script
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-generated-clients:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      # TypeScript setup
+      - name: Install pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+        with:
+          node-version: 22
+          cache: "pnpm"
+          cache-dependency-path: typescript/pnpm-lock.yaml
+
+      - name: Install TypeScript dependencies
+        working-directory: ./typescript
+        run: pnpm install --frozen-lockfile
+
+      # Python setup
+      - name: Set up Python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.5.0
+        with:
+          python-version: "3.10"
+
+      - name: Install Python dependencies for preprocessing
+        run: |
+          pip install --upgrade pip
+          # Install any dependencies needed for the preprocessing script
+          pip install pyyaml || true
+
+      # Go setup
+      - name: Set up Go
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.4.0
+        with:
+          go-version: "1.23"
+          cache: true
+
+      - name: Install oapi-codegen
+        run: go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+
+      # Java setup for OpenAPI Generator (needed for Python)
+      - name: Set up JDK 11
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: "temurin"
+          java-version: "11"
+
+      - name: Install OpenAPI Generator
+        run: |
+          wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.11.0/openapi-generator-cli-7.11.0.jar -O openapi-generator-cli.jar
+          echo '#!/bin/sh' > /usr/local/bin/openapi-generator
+          echo 'java -jar ${{ github.workspace }}/openapi-generator-cli.jar "$@"' >> /usr/local/bin/openapi-generator
+          chmod +x /usr/local/bin/openapi-generator
+          openapi-generator version
+
+      # Store current state
+      - name: Store current git state
+        run: |
+          # Save the list of tracked files before generation
+          git ls-files > /tmp/tracked-files-before.txt
+
+      # Generate TypeScript client
+      - name: Generate TypeScript client
+        working-directory: ./typescript
+        run: |
+          echo "🔧 Generating TypeScript client..."
+          pnpm orval
+
+      # Generate Python client
+      - name: Generate Python client
+        working-directory: ./python
+        run: |
+          echo "🔧 Generating Python client..."
+          make python-client
+
+      # Generate Go client
+      - name: Generate Go client
+        working-directory: ./go
+        run: |
+          echo "🔧 Generating Go client..."
+          make client
+
+      # Check for differences
+      - name: Check for manual changes
+        id: check-diff
+        run: |
+          # Check if there are any changes
+          if ! git diff --exit-code; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            
+            echo "❌ ERROR: Generated client files have been manually modified!"
+            echo ""
+            echo "## Modified Files:"
+            echo ""
+            
+            # Show modified files with better formatting
+            git diff --name-only | while read -r file; do
+              if [[ $file == typescript/src/openapi-client/generated/* ]]; then
+                echo "  📝 TypeScript: $file"
+              elif [[ $file == python/cdp/openapi_client/* ]]; then
+                echo "  🐍 Python: $file"
+              elif [[ $file == go/openapi/* ]]; then
+                echo "  🐹 Go: $file"
+              else
+                echo "  📄 Other: $file"
+              fi
+            done
+            
+            echo ""
+            echo "## How to fix:"
+            echo ""
+            echo "1. Revert any manual changes to generated files"
+            echo "2. If you need to update the generated code, modify the OpenAPI spec instead"
+            echo "3. Run the generation commands locally:"
+            echo "   - TypeScript: cd typescript && pnpm orval"
+            echo "   - Python: cd python && make python-client"
+            echo "   - Go: cd go && make client"
+            echo ""
+            echo "Generated files should never be manually edited as they will be overwritten."
+            
+            # Check for new untracked files
+            git ls-files > /tmp/tracked-files-after.txt
+            NEW_FILES=$(comm -13 /tmp/tracked-files-before.txt /tmp/tracked-files-after.txt)
+            if [ -n "$NEW_FILES" ]; then
+              echo ""
+              echo "## New untracked files detected:"
+              echo "$NEW_FILES"
+            fi
+            
+            exit 1
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "✅ All generated client files are up-to-date!"
+          fi
+
+      # Show detailed diff if there are changes (for debugging)
+      - name: Show detailed diff
+        if: steps.check-diff.outputs.has_changes == 'true'
+        run: |
+          echo "## Detailed diff of changes:"
+          echo ""
+          echo "### TypeScript Changes:"
+          git diff --color=always -- 'typescript/src/openapi-client/generated/**' || echo "No TypeScript changes"
+          echo ""
+          echo "### Python Changes:"
+          git diff --color=always -- 'python/cdp/openapi_client/**' || echo "No Python changes"
+          echo ""
+          echo "### Go Changes:"
+          git diff --color=always -- 'go/openapi/**' || echo "No Go changes"
+
+            # Manage PR comment - create/update if failed, delete if passed
+      - name: Manage PR Comment
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const botCommentIdentifier = '<!-- check-generated-clients-bot -->';
+            const issueNumber = context.issue.number;
+            const checkFailed = '${{ steps.check-diff.outputs.has_changes }}' === 'true';
+
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+
+            const botComment = comments.data.find(comment => 
+              comment.body.includes(botCommentIdentifier) && 
+              comment.user.type === 'Bot'
+            );
+
+            // If checks passed and there's an existing comment, delete it
+            if (!checkFailed && botComment) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id
+              });
+              console.log('Deleted outdated bot comment');
+              return;
+            }
+
+            // If checks failed, create or update comment
+            if (checkFailed) {
+              const commentBody = `${botCommentIdentifier}
+            ### ⚠️ Generated Client Files Have Been Modified
+
+            This pull request contains manual changes to generated client files. These files are automatically generated from the OpenAPI specification and should not be edited directly.
+
+            **Please check the [workflow logs](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details on which files were modified.**
+
+            To fix this issue:
+            1. Revert any manual changes to files in:
+               - \`typescript/src/openapi-client/generated/\`
+               - \`python/cdp/openapi_client/\`
+               - \`go/openapi/\`
+            2. If you need to change the generated code, update the OpenAPI spec (\`openapi.yaml\`) instead
+            3. Run the generation commands locally to update the generated files
+
+            <sub>This comment will be automatically removed once the issue is resolved.</sub>
+            `;
+
+              if (botComment) {
+                // Update existing comment
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: commentBody
+                });
+                console.log('Updated existing bot comment');
+              } else {
+                // Create new comment
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  body: commentBody
+                });
+                console.log('Created new bot comment');
+              }
+            }
