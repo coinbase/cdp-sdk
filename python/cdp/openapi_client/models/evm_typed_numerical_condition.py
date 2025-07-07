@@ -19,27 +19,32 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ImportSolanaAccountRequest(BaseModel):
+class EvmTypedNumericalCondition(BaseModel):
     """
-    ImportSolanaAccountRequest
+    A schema for specifying criterion for a numerical field of an EVM typed message. The value can be deeply nested within the typed data's message.
     """ # noqa: E501
-    encrypted_private_key: StrictStr = Field(description="The base64-encoded, encrypted 32-byte private key of the Solana account. The private key must be encrypted using the CDP SDK's encryption scheme.", alias="encryptedPrivateKey")
-    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all EVM accounts in the developer's CDP Project.")
-    __properties: ClassVar[List[str]] = ["encryptedPrivateKey", "name"]
+    value: Annotated[str, Field(strict=True)] = Field(description="The amount that the value located at the message's path should be compared to.")
+    operator: StrictStr = Field(description="The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.")
+    path: StrictStr = Field(description="The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected.")
+    __properties: ClassVar[List[str]] = ["value", "operator", "path"]
 
-    @field_validator('name')
-    def name_validate_regular_expression(cls, value):
+    @field_validator('value')
+    def value_validate_regular_expression(cls, value):
         """Validates the regular expression"""
-        if value is None:
-            return value
+        if not re.match(r"^[0-9]+$", value):
+            raise ValueError(r"must validate the regular expression /^[0-9]+$/")
+        return value
 
-        if not re.match(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
+    @field_validator('operator')
+    def operator_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['>', '>=', '<', '<=', '==']):
+            raise ValueError("must be one of enum values ('>', '>=', '<', '<=', '==')")
         return value
 
     model_config = ConfigDict(
@@ -60,7 +65,7 @@ class ImportSolanaAccountRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ImportSolanaAccountRequest from a JSON string"""
+        """Create an instance of EvmTypedNumericalCondition from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -85,7 +90,7 @@ class ImportSolanaAccountRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ImportSolanaAccountRequest from a dict"""
+        """Create an instance of EvmTypedNumericalCondition from a dict"""
         if obj is None:
             return None
 
@@ -93,8 +98,9 @@ class ImportSolanaAccountRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "encryptedPrivateKey": obj.get("encryptedPrivateKey"),
-            "name": obj.get("name")
+            "value": obj.get("value"),
+            "operator": obj.get("operator"),
+            "path": obj.get("path")
         })
         return _obj
 

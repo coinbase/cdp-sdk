@@ -18,29 +18,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List
+from cdp.openapi_client.models.sign_evm_typed_data_field_criterion_types_types_value_inner import SignEvmTypedDataFieldCriterionTypesTypesValueInner
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ImportSolanaAccountRequest(BaseModel):
+class SignEvmTypedDataFieldCriterionTypes(BaseModel):
     """
-    ImportSolanaAccountRequest
+    An object containing EIP-712 type definitions, as well as a primary type for the root message object.
     """ # noqa: E501
-    encrypted_private_key: StrictStr = Field(description="The base64-encoded, encrypted 32-byte private key of the Solana account. The private key must be encrypted using the CDP SDK's encryption scheme.", alias="encryptedPrivateKey")
-    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all EVM accounts in the developer's CDP Project.")
-    __properties: ClassVar[List[str]] = ["encryptedPrivateKey", "name"]
-
-    @field_validator('name')
-    def name_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
-        return value
+    types: Dict[str, List[SignEvmTypedDataFieldCriterionTypesTypesValueInner]] = Field(description="EIP-712 compliant map of model names to model definitions.")
+    primary_type: StrictStr = Field(description="The name of the root EIP-712 type. This value must be included in the `types` object.", alias="primaryType")
+    __properties: ClassVar[List[str]] = ["types", "primaryType"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -60,7 +50,7 @@ class ImportSolanaAccountRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ImportSolanaAccountRequest from a JSON string"""
+        """Create an instance of SignEvmTypedDataFieldCriterionTypes from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,11 +71,20 @@ class ImportSolanaAccountRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each value in types (dict of array)
+        _field_dict_of_array = {}
+        if self.types:
+            for _key_types in self.types:
+                if self.types[_key_types] is not None:
+                    _field_dict_of_array[_key_types] = [
+                        _item.to_dict() for _item in self.types[_key_types]
+                    ]
+            _dict['types'] = _field_dict_of_array
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ImportSolanaAccountRequest from a dict"""
+        """Create an instance of SignEvmTypedDataFieldCriterionTypes from a dict"""
         if obj is None:
             return None
 
@@ -93,8 +92,15 @@ class ImportSolanaAccountRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "encryptedPrivateKey": obj.get("encryptedPrivateKey"),
-            "name": obj.get("name")
+            "types": dict(
+                (_k,
+                        [SignEvmTypedDataFieldCriterionTypesTypesValueInner.from_dict(_item) for _item in _v]
+                        if _v is not None
+                        else None
+                )
+                for _k, _v in obj.get("types", {}).items()
+            ),
+            "primaryType": obj.get("primaryType")
         })
         return _obj
 

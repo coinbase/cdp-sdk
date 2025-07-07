@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.error import Error
+from cdp.openapi_client.models.import_solana_account_request import ImportSolanaAccountRequest
 
-class TestError(unittest.TestCase):
-    """Error unit test stubs"""
+class TestImportSolanaAccountRequest(unittest.TestCase):
+    """ImportSolanaAccountRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,27 @@ class TestError(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> Error:
-        """Test Error
+    def make_instance(self, include_optional) -> ImportSolanaAccountRequest:
+        """Test ImportSolanaAccountRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `Error`
+        # uncomment below to create an instance of `ImportSolanaAccountRequest`
         """
-        model = Error()
+        model = ImportSolanaAccountRequest()
         if include_optional:
-            return Error(
-                error_type = 'invalid_request',
-                error_message = 'Unable to create EVM account',
-                correlation_id = '41deb8d59a9dc9a7-IAD',
-                error_link = 'https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid_request'
+            return ImportSolanaAccountRequest(
+                encrypted_private_key = 'U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=',
+                name = 'my-solana-wallet'
             )
         else:
-            return Error(
-                error_type = 'invalid_request',
-                error_message = 'Unable to create EVM account',
+            return ImportSolanaAccountRequest(
+                encrypted_private_key = 'U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=',
         )
         """
 
-    def testError(self):
-        """Test Error"""
+    def testImportSolanaAccountRequest(self):
+        """Test ImportSolanaAccountRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

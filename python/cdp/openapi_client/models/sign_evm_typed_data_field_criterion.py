@@ -19,27 +19,26 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
+from typing import Any, ClassVar, Dict, List
+from cdp.openapi_client.models.sign_evm_typed_data_field_criterion_conditions_inner import SignEvmTypedDataFieldCriterionConditionsInner
+from cdp.openapi_client.models.sign_evm_typed_data_field_criterion_types import SignEvmTypedDataFieldCriterionTypes
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ImportSolanaAccountRequest(BaseModel):
+class SignEvmTypedDataFieldCriterion(BaseModel):
     """
-    ImportSolanaAccountRequest
+    SignEvmTypedDataFieldCriterion
     """ # noqa: E501
-    encrypted_private_key: StrictStr = Field(description="The base64-encoded, encrypted 32-byte private key of the Solana account. The private key must be encrypted using the CDP SDK's encryption scheme.", alias="encryptedPrivateKey")
-    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all EVM accounts in the developer's CDP Project.")
-    __properties: ClassVar[List[str]] = ["encryptedPrivateKey", "name"]
+    type: StrictStr = Field(description="The type of criterion to use. This should be `evmTypedDataField`.")
+    types: SignEvmTypedDataFieldCriterionTypes
+    conditions: List[SignEvmTypedDataFieldCriterionConditionsInner] = Field(description="A list of conditions to check against the data being signed. Each condition must be met for the rule to take effect.")
+    __properties: ClassVar[List[str]] = ["type", "types", "conditions"]
 
-    @field_validator('name')
-    def name_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
+    @field_validator('type')
+    def type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['evmTypedDataField']):
+            raise ValueError("must be one of enum values ('evmTypedDataField')")
         return value
 
     model_config = ConfigDict(
@@ -60,7 +59,7 @@ class ImportSolanaAccountRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ImportSolanaAccountRequest from a JSON string"""
+        """Create an instance of SignEvmTypedDataFieldCriterion from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,11 +80,21 @@ class ImportSolanaAccountRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of types
+        if self.types:
+            _dict['types'] = self.types.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in conditions (list)
+        _items = []
+        if self.conditions:
+            for _item_conditions in self.conditions:
+                if _item_conditions:
+                    _items.append(_item_conditions.to_dict())
+            _dict['conditions'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ImportSolanaAccountRequest from a dict"""
+        """Create an instance of SignEvmTypedDataFieldCriterion from a dict"""
         if obj is None:
             return None
 
@@ -93,8 +102,9 @@ class ImportSolanaAccountRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "encryptedPrivateKey": obj.get("encryptedPrivateKey"),
-            "name": obj.get("name")
+            "type": obj.get("type"),
+            "types": SignEvmTypedDataFieldCriterionTypes.from_dict(obj["types"]) if obj.get("types") is not None else None,
+            "conditions": [SignEvmTypedDataFieldCriterionConditionsInner.from_dict(_item) for _item in obj["conditions"]] if obj.get("conditions") is not None else None
         })
         return _obj
 

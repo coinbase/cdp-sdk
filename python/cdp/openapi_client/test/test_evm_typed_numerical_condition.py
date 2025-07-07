@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.error import Error
+from cdp.openapi_client.models.evm_typed_numerical_condition import EvmTypedNumericalCondition
 
-class TestError(unittest.TestCase):
-    """Error unit test stubs"""
+class TestEvmTypedNumericalCondition(unittest.TestCase):
+    """EvmTypedNumericalCondition unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,30 @@ class TestError(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> Error:
-        """Test Error
+    def make_instance(self, include_optional) -> EvmTypedNumericalCondition:
+        """Test EvmTypedNumericalCondition
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `Error`
+        # uncomment below to create an instance of `EvmTypedNumericalCondition`
         """
-        model = Error()
+        model = EvmTypedNumericalCondition()
         if include_optional:
-            return Error(
-                error_type = 'invalid_request',
-                error_message = 'Unable to create EVM account',
-                correlation_id = '41deb8d59a9dc9a7-IAD',
-                error_link = 'https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid_request'
+            return EvmTypedNumericalCondition(
+                value = '1000000000000000000',
+                operator = '<=',
+                path = 'targets[0].amount'
             )
         else:
-            return Error(
-                error_type = 'invalid_request',
-                error_message = 'Unable to create EVM account',
+            return EvmTypedNumericalCondition(
+                value = '1000000000000000000',
+                operator = '<=',
+                path = 'targets[0].amount',
         )
         """
 
-    def testError(self):
-        """Test Error"""
+    def testEvmTypedNumericalCondition(self):
+        """Test EvmTypedNumericalCondition"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

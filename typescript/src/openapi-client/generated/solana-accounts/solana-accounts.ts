@@ -11,6 +11,7 @@ import type {
   ExportSolanaAccountBody,
   ExportSolanaAccountByName200,
   ExportSolanaAccountByNameBody,
+  ImportSolanaAccountBody,
   ListSolanaAccounts200,
   ListSolanaAccountsParams,
   SignSolanaMessage200,
@@ -105,6 +106,24 @@ export const getSolanaAccountByName = (
   );
 };
 /**
+ * Import an existing Solana account into the developer's CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
+ * @summary Import a Solana account
+ */
+export const importSolanaAccount = (
+  importSolanaAccountBody: ImportSolanaAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SolanaAccount>(
+    {
+      url: `/v2/solana/accounts/import`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: importSolanaAccountBody,
+    },
+    options,
+  );
+};
+/**
  * Export an existing Solana account's private key. It is important to store the private key in a secure place after it's exported.
  * @summary Export an Solana account
  */
@@ -191,26 +210,6 @@ export const signSolanaMessage = (
     options,
   );
 };
-
-export const importSolanaAccount = (
-  importSolanaAccountBody: {
-    name?: string;
-    encryptedPrivateKey: string;
-    idempotencyKey?: string;
-  },
-  options?: SecondParameter<typeof cdpApiClient>,
-) => {
-  return cdpApiClient<SolanaAccount>(
-    {
-      url: `/v2/solana/accounts/import`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      data: importSolanaAccountBody,
-    },
-    options,
-  );
-};
-
 export type ListSolanaAccountsResult = NonNullable<Awaited<ReturnType<typeof listSolanaAccounts>>>;
 export type CreateSolanaAccountResult = NonNullable<
   Awaited<ReturnType<typeof createSolanaAccount>>
@@ -221,6 +220,9 @@ export type UpdateSolanaAccountResult = NonNullable<
 >;
 export type GetSolanaAccountByNameResult = NonNullable<
   Awaited<ReturnType<typeof getSolanaAccountByName>>
+>;
+export type ImportSolanaAccountResult = NonNullable<
+  Awaited<ReturnType<typeof importSolanaAccount>>
 >;
 export type ExportSolanaAccountResult = NonNullable<
   Awaited<ReturnType<typeof exportSolanaAccount>>
