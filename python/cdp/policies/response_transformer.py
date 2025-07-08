@@ -4,11 +4,18 @@ from cdp.policies.types import (
     EvmAddressCriterion as EvmAddressCriterionModel,
     EvmMessageCriterion as EvmMessageCriterionModel,
     EvmNetworkCriterion as EvmNetworkCriterionModel,
+    EvmTypedAddressCondition as EvmTypedAddressConditionModel,
+    EvmTypedNumericalCondition as EvmTypedNumericalConditionModel,
+    EvmTypedStringCondition as EvmTypedStringConditionModel,
     Rule as RuleType,
     SendEvmTransactionRule as SendEvmTransactionRuleModel,
     SignEvmHashRule as SignEvmHashRuleModel,
     SignEvmMessageRule as SignEvmMessageRuleModel,
     SignEvmTransactionRule as SignEvmTransactionRuleModel,
+    SignEvmTypedDataFieldCriterion as SignEvmTypedDataFieldCriterionModel,
+    SignEvmTypedDataRule as SignEvmTypedDataRuleModel,
+    SignEvmTypedDataTypes as SignEvmTypedDataTypesModel,
+    SignEvmTypedDataVerifyingContractCriterion as SignEvmTypedDataVerifyingContractCriterionModel,
     SignSolanaTransactionRule as SignSolanaTransactionRuleModel,
     SolanaAddressCriterion as SolanaAddressCriterionModel,
 )
@@ -32,6 +39,42 @@ response_criterion_mapping = {
     "signEvmMessage": {
         "evmMessage": lambda c: EvmMessageCriterionModel(match=c.match),
     },
+    "signEvmTypedData": {
+        "evmTypedDataField": lambda c: SignEvmTypedDataFieldCriterionModel(
+            types=SignEvmTypedDataTypesModel(
+                types={
+                    key: [{"name": item.name, "type": item.type} for item in value]
+                    for key, value in c.types.types.items()
+                },
+                primaryType=c.types.primary_type,
+            ),
+            conditions=[
+                (
+                    EvmTypedAddressConditionModel(
+                        addresses=cond.actual_instance.addresses,
+                        operator=cond.actual_instance.operator,
+                        path=cond.actual_instance.path,
+                    )
+                    if hasattr(cond.actual_instance, "addresses")
+                    else EvmTypedNumericalConditionModel(
+                        value=cond.actual_instance.value,
+                        operator=cond.actual_instance.operator,
+                        path=cond.actual_instance.path,
+                    )
+                    if hasattr(cond.actual_instance, "value")
+                    else EvmTypedStringConditionModel(
+                        match=cond.actual_instance.match,
+                        path=cond.actual_instance.path,
+                    )
+                )
+                for cond in c.conditions
+            ],
+        ),
+        "evmTypedDataVerifyingContract": lambda c: SignEvmTypedDataVerifyingContractCriterionModel(
+            addresses=c.addresses,
+            operator=c.operator,
+        ),
+    },
     "signSolTransaction": {
         "solAddress": lambda c: SolanaAddressCriterionModel(
             addresses=c.addresses, operator=c.operator
@@ -45,6 +88,7 @@ response_rule_mapping = {
     "signEvmTransaction": SignEvmTransactionRuleModel,
     "signEvmHash": SignEvmHashRuleModel,
     "signEvmMessage": SignEvmMessageRuleModel,
+    "signEvmTypedData": SignEvmTypedDataRuleModel,
     "signSolTransaction": SignSolanaTransactionRuleModel,
 }
 
