@@ -1,5 +1,15 @@
 # CDP SDK Changelog
 
+## 1.23.0
+
+### Minor Changes
+
+- [#264](https://github.com/coinbase/cdp-sdk/pull/264) [`09ce300`](https://github.com/coinbase/cdp-sdk/commit/09ce300a773d1b9b63c97677ee1a5e4e4ee27c60) Thanks [@0xRAG](https://github.com/0xRAG)! - Added support for policy creation on signTypedData operations
+
+### Patch Changes
+
+- [#262](https://github.com/coinbase/cdp-sdk/pull/262) [`d4039e9`](https://github.com/coinbase/cdp-sdk/commit/d4039e9d5b0910c601e649f60506559c9b6205b3) Thanks [@0xRAG](https://github.com/0xRAG)! - Update smartAccount#transfer type to include optional paymasterUrl
+
 ## 1.22.0
 
 ### Minor Changes
