@@ -646,6 +646,12 @@ class EvmClient:
         )
         return EvmServerAccount(account, self.api_clients.evm_accounts, self.api_clients)
 
+    async def update_smart_account(
+        self,
+    ):
+        """Update an EVM Smart Account."""
+        pass
+
     async def wait_for_user_operation(
         self,
         smart_account_address: str,

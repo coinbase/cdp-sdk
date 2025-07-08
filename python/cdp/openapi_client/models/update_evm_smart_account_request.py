@@ -18,19 +18,18 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ImportSolanaAccountRequest(BaseModel):
+class UpdateEvmSmartAccountRequest(BaseModel):
     """
-    ImportSolanaAccountRequest
+    UpdateEvmSmartAccountRequest
     """ # noqa: E501
-    encrypted_private_key: StrictStr = Field(description="The base64-encoded, encrypted 32-byte private key of the Solana account. The private key must be encrypted using the CDP SDK's encryption scheme.", alias="encryptedPrivateKey")
-    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all EVM accounts in the developer's CDP Project.")
-    __properties: ClassVar[List[str]] = ["encryptedPrivateKey", "name"]
+    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the smart account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all EVM smart accounts in the developer's CDP Project.")
+    __properties: ClassVar[List[str]] = ["name"]
 
     @field_validator('name')
     def name_validate_regular_expression(cls, value):
@@ -60,7 +59,7 @@ class ImportSolanaAccountRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ImportSolanaAccountRequest from a JSON string"""
+        """Create an instance of UpdateEvmSmartAccountRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -85,7 +84,7 @@ class ImportSolanaAccountRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ImportSolanaAccountRequest from a dict"""
+        """Create an instance of UpdateEvmSmartAccountRequest from a dict"""
         if obj is None:
             return None
 
@@ -93,7 +92,6 @@ class ImportSolanaAccountRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "encryptedPrivateKey": obj.get("encryptedPrivateKey"),
             "name": obj.get("name")
         })
         return _obj

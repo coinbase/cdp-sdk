@@ -19,27 +19,32 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class ImportSolanaAccountRequest(BaseModel):
+class SignEvmTypedDataVerifyingContractCriterion(BaseModel):
     """
-    ImportSolanaAccountRequest
+    A schema for specifying criterion for a domain's verifying contract.
     """ # noqa: E501
-    encrypted_private_key: StrictStr = Field(description="The base64-encoded, encrypted 32-byte private key of the Solana account. The private key must be encrypted using the CDP SDK's encryption scheme.", alias="encryptedPrivateKey")
-    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all EVM accounts in the developer's CDP Project.")
-    __properties: ClassVar[List[str]] = ["encryptedPrivateKey", "name"]
+    type: StrictStr = Field(description="The type of criterion to use. This should be `evmTypedDataVerifyingContract`.")
+    addresses: List[Annotated[str, Field(strict=True)]] = Field(description="A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 100 addresses per criterion.")
+    operator: StrictStr = Field(description="The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.")
+    __properties: ClassVar[List[str]] = ["type", "addresses", "operator"]
 
-    @field_validator('name')
-    def name_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
+    @field_validator('type')
+    def type_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['evmTypedDataVerifyingContract']):
+            raise ValueError("must be one of enum values ('evmTypedDataVerifyingContract')")
+        return value
 
-        if not re.match(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
+    @field_validator('operator')
+    def operator_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['in', 'not in']):
+            raise ValueError("must be one of enum values ('in', 'not in')")
         return value
 
     model_config = ConfigDict(
@@ -60,7 +65,7 @@ class ImportSolanaAccountRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of ImportSolanaAccountRequest from a JSON string"""
+        """Create an instance of SignEvmTypedDataVerifyingContractCriterion from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -85,7 +90,7 @@ class ImportSolanaAccountRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of ImportSolanaAccountRequest from a dict"""
+        """Create an instance of SignEvmTypedDataVerifyingContractCriterion from a dict"""
         if obj is None:
             return None
 
@@ -93,8 +98,9 @@ class ImportSolanaAccountRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "encryptedPrivateKey": obj.get("encryptedPrivateKey"),
-            "name": obj.get("name")
+            "type": obj.get("type"),
+            "addresses": obj.get("addresses"),
+            "operator": obj.get("operator")
         })
         return _obj
 

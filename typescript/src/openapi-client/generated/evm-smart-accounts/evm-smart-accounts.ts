@@ -13,6 +13,7 @@ import type {
   ListEvmSmartAccountsParams,
   PrepareUserOperationBody,
   SendUserOperationBody,
+  UpdateEvmSmartAccountBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -74,6 +75,25 @@ export const getEvmSmartAccount = (
 ) => {
   return cdpApiClient<EvmSmartAccount>(
     { url: `/v2/evm/smart-accounts/${address}`, method: "GET" },
+    options,
+  );
+};
+/**
+ * Updates an existing EVM smart account. Use this to update the smart account's name.
+ * @summary Update an EVM Smart Account
+ */
+export const updateEvmSmartAccount = (
+  address: string,
+  updateEvmSmartAccountBody: UpdateEvmSmartAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmSmartAccount>(
+    {
+      url: `/v2/evm/smart-accounts/${address}`,
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      data: updateEvmSmartAccountBody,
+    },
     options,
   );
 };
@@ -143,6 +163,9 @@ export type GetEvmSmartAccountByNameResult = NonNullable<
   Awaited<ReturnType<typeof getEvmSmartAccountByName>>
 >;
 export type GetEvmSmartAccountResult = NonNullable<Awaited<ReturnType<typeof getEvmSmartAccount>>>;
+export type UpdateEvmSmartAccountResult = NonNullable<
+  Awaited<ReturnType<typeof updateEvmSmartAccount>>
+>;
 export type PrepareUserOperationResult = NonNullable<
   Awaited<ReturnType<typeof prepareUserOperation>>
 >;

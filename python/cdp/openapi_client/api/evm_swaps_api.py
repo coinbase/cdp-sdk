@@ -47,7 +47,7 @@ class EVMSwapsApi:
     async def create_evm_swap_quote(
         self,
         create_evm_swap_quote_request: CreateEvmSwapQuoteRequest,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -67,7 +67,7 @@ class EVMSwapsApi:
 
         :param create_evm_swap_quote_request: (required)
         :type create_evm_swap_quote_request: CreateEvmSwapQuoteRequest
-        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -123,7 +123,7 @@ class EVMSwapsApi:
     async def create_evm_swap_quote_with_http_info(
         self,
         create_evm_swap_quote_request: CreateEvmSwapQuoteRequest,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -143,7 +143,7 @@ class EVMSwapsApi:
 
         :param create_evm_swap_quote_request: (required)
         :type create_evm_swap_quote_request: CreateEvmSwapQuoteRequest
-        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -199,7 +199,7 @@ class EVMSwapsApi:
     async def create_evm_swap_quote_without_preload_content(
         self,
         create_evm_swap_quote_request: CreateEvmSwapQuoteRequest,
-        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. ")] = None,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -219,7 +219,7 @@ class EVMSwapsApi:
 
         :param create_evm_swap_quote_request: (required)
         :type create_evm_swap_quote_request: CreateEvmSwapQuoteRequest
-        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys. 
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
         :type x_idempotency_key: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -326,6 +326,7 @@ class EVMSwapsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -722,6 +723,7 @@ class EVMSwapsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(

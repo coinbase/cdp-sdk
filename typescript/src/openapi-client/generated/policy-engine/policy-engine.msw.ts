@@ -20,8 +20,13 @@ import type {
   EvmDataParameterConditionList,
   EvmMessageCriterion,
   EvmNetworkCriterion,
+  EvmTypedAddressCondition,
+  EvmTypedNumericalCondition,
+  EvmTypedStringCondition,
   ListPolicies200,
   Policy,
+  SignEvmTypedDataFieldCriterion,
+  SignEvmTypedDataVerifyingContractCriterion,
   SolAddressCriterion,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
@@ -172,6 +177,79 @@ export const getListPoliciesResponseEvmMessageCriterionMock = (
   ...overrideResponse,
 });
 
+export const getListPoliciesResponseEvmTypedAddressConditionMock = (
+  overrideResponse: Partial<EvmTypedAddressCondition> = {},
+): EvmTypedAddressCondition => ({
+  ...{
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+    path: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseEvmTypedNumericalConditionMock = (
+  overrideResponse: Partial<EvmTypedNumericalCondition> = {},
+): EvmTypedNumericalCondition => ({
+  ...{
+    value: faker.helpers.fromRegExp("^[0-9]+$"),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+    path: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseEvmTypedStringConditionMock = (
+  overrideResponse: Partial<EvmTypedStringCondition> = {},
+): EvmTypedStringCondition => ({
+  ...{ match: faker.string.alpha(20), path: faker.string.alpha(20) },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseSignEvmTypedDataFieldCriterionMock = (
+  overrideResponse: Partial<SignEvmTypedDataFieldCriterion> = {},
+): SignEvmTypedDataFieldCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["evmTypedDataField"] as const),
+    types: {
+      types: {
+        [faker.string.alphanumeric(5)]: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() => ({
+          name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+          type: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        })),
+      },
+      primaryType: faker.string.alpha(20),
+    },
+    conditions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () =>
+        faker.helpers.arrayElement([
+          { ...getListPoliciesResponseEvmTypedAddressConditionMock() },
+          { ...getListPoliciesResponseEvmTypedNumericalConditionMock() },
+          { ...getListPoliciesResponseEvmTypedStringConditionMock() },
+        ]),
+    ),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseSignEvmTypedDataVerifyingContractCriterionMock = (
+  overrideResponse: Partial<SignEvmTypedDataVerifyingContractCriterion> = {},
+): SignEvmTypedDataVerifyingContractCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["evmTypedDataVerifyingContract"] as const),
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getListPoliciesResponseSolAddressCriterionMock = (
   overrideResponse: Partial<SolAddressCriterion> = {},
 ): SolAddressCriterion => ({
@@ -238,6 +316,19 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
                 ).map(() =>
                   faker.helpers.arrayElement([
                     { ...getListPoliciesResponseEvmMessageCriterionMock() },
+                  ]),
+                ),
+              },
+              {
+                action: faker.helpers.arrayElement(["reject", "accept"] as const),
+                operation: faker.helpers.arrayElement(["signEvmTypedData"] as const),
+                criteria: Array.from(
+                  { length: faker.number.int({ min: 1, max: 10 }) },
+                  (_, i) => i + 1,
+                ).map(() =>
+                  faker.helpers.arrayElement([
+                    { ...getListPoliciesResponseSignEvmTypedDataFieldCriterionMock() },
+                    { ...getListPoliciesResponseSignEvmTypedDataVerifyingContractCriterionMock() },
                   ]),
                 ),
               },
@@ -414,6 +505,79 @@ export const getCreatePolicyResponseEvmMessageCriterionMock = (
   ...overrideResponse,
 });
 
+export const getCreatePolicyResponseEvmTypedAddressConditionMock = (
+  overrideResponse: Partial<EvmTypedAddressCondition> = {},
+): EvmTypedAddressCondition => ({
+  ...{
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+    path: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseEvmTypedNumericalConditionMock = (
+  overrideResponse: Partial<EvmTypedNumericalCondition> = {},
+): EvmTypedNumericalCondition => ({
+  ...{
+    value: faker.helpers.fromRegExp("^[0-9]+$"),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+    path: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseEvmTypedStringConditionMock = (
+  overrideResponse: Partial<EvmTypedStringCondition> = {},
+): EvmTypedStringCondition => ({
+  ...{ match: faker.string.alpha(20), path: faker.string.alpha(20) },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseSignEvmTypedDataFieldCriterionMock = (
+  overrideResponse: Partial<SignEvmTypedDataFieldCriterion> = {},
+): SignEvmTypedDataFieldCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["evmTypedDataField"] as const),
+    types: {
+      types: {
+        [faker.string.alphanumeric(5)]: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() => ({
+          name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+          type: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        })),
+      },
+      primaryType: faker.string.alpha(20),
+    },
+    conditions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () =>
+        faker.helpers.arrayElement([
+          { ...getCreatePolicyResponseEvmTypedAddressConditionMock() },
+          { ...getCreatePolicyResponseEvmTypedNumericalConditionMock() },
+          { ...getCreatePolicyResponseEvmTypedStringConditionMock() },
+        ]),
+    ),
+  },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseSignEvmTypedDataVerifyingContractCriterionMock = (
+  overrideResponse: Partial<SignEvmTypedDataVerifyingContractCriterion> = {},
+): SignEvmTypedDataVerifyingContractCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["evmTypedDataVerifyingContract"] as const),
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getCreatePolicyResponseSolAddressCriterionMock = (
   overrideResponse: Partial<SolAddressCriterion> = {},
 ): SolAddressCriterion => ({
@@ -475,6 +639,19 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
           (_, i) => i + 1,
         ).map(() =>
           faker.helpers.arrayElement([{ ...getCreatePolicyResponseEvmMessageCriterionMock() }]),
+        ),
+      },
+      {
+        action: faker.helpers.arrayElement(["reject", "accept"] as const),
+        operation: faker.helpers.arrayElement(["signEvmTypedData"] as const),
+        criteria: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() =>
+          faker.helpers.arrayElement([
+            { ...getCreatePolicyResponseSignEvmTypedDataFieldCriterionMock() },
+            { ...getCreatePolicyResponseSignEvmTypedDataVerifyingContractCriterionMock() },
+          ]),
         ),
       },
       {
@@ -645,6 +822,79 @@ export const getGetPolicyByIdResponseEvmMessageCriterionMock = (
   ...overrideResponse,
 });
 
+export const getGetPolicyByIdResponseEvmTypedAddressConditionMock = (
+  overrideResponse: Partial<EvmTypedAddressCondition> = {},
+): EvmTypedAddressCondition => ({
+  ...{
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+    path: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseEvmTypedNumericalConditionMock = (
+  overrideResponse: Partial<EvmTypedNumericalCondition> = {},
+): EvmTypedNumericalCondition => ({
+  ...{
+    value: faker.helpers.fromRegExp("^[0-9]+$"),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+    path: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseEvmTypedStringConditionMock = (
+  overrideResponse: Partial<EvmTypedStringCondition> = {},
+): EvmTypedStringCondition => ({
+  ...{ match: faker.string.alpha(20), path: faker.string.alpha(20) },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseSignEvmTypedDataFieldCriterionMock = (
+  overrideResponse: Partial<SignEvmTypedDataFieldCriterion> = {},
+): SignEvmTypedDataFieldCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["evmTypedDataField"] as const),
+    types: {
+      types: {
+        [faker.string.alphanumeric(5)]: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() => ({
+          name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+          type: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        })),
+      },
+      primaryType: faker.string.alpha(20),
+    },
+    conditions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () =>
+        faker.helpers.arrayElement([
+          { ...getGetPolicyByIdResponseEvmTypedAddressConditionMock() },
+          { ...getGetPolicyByIdResponseEvmTypedNumericalConditionMock() },
+          { ...getGetPolicyByIdResponseEvmTypedStringConditionMock() },
+        ]),
+    ),
+  },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseSignEvmTypedDataVerifyingContractCriterionMock = (
+  overrideResponse: Partial<SignEvmTypedDataVerifyingContractCriterion> = {},
+): SignEvmTypedDataVerifyingContractCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["evmTypedDataVerifyingContract"] as const),
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getGetPolicyByIdResponseSolAddressCriterionMock = (
   overrideResponse: Partial<SolAddressCriterion> = {},
 ): SolAddressCriterion => ({
@@ -706,6 +956,19 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
           (_, i) => i + 1,
         ).map(() =>
           faker.helpers.arrayElement([{ ...getGetPolicyByIdResponseEvmMessageCriterionMock() }]),
+        ),
+      },
+      {
+        action: faker.helpers.arrayElement(["reject", "accept"] as const),
+        operation: faker.helpers.arrayElement(["signEvmTypedData"] as const),
+        criteria: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() =>
+          faker.helpers.arrayElement([
+            { ...getGetPolicyByIdResponseSignEvmTypedDataFieldCriterionMock() },
+            { ...getGetPolicyByIdResponseSignEvmTypedDataVerifyingContractCriterionMock() },
+          ]),
         ),
       },
       {
@@ -876,6 +1139,79 @@ export const getUpdatePolicyResponseEvmMessageCriterionMock = (
   ...overrideResponse,
 });
 
+export const getUpdatePolicyResponseEvmTypedAddressConditionMock = (
+  overrideResponse: Partial<EvmTypedAddressCondition> = {},
+): EvmTypedAddressCondition => ({
+  ...{
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+    path: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseEvmTypedNumericalConditionMock = (
+  overrideResponse: Partial<EvmTypedNumericalCondition> = {},
+): EvmTypedNumericalCondition => ({
+  ...{
+    value: faker.helpers.fromRegExp("^[0-9]+$"),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+    path: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseEvmTypedStringConditionMock = (
+  overrideResponse: Partial<EvmTypedStringCondition> = {},
+): EvmTypedStringCondition => ({
+  ...{ match: faker.string.alpha(20), path: faker.string.alpha(20) },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseSignEvmTypedDataFieldCriterionMock = (
+  overrideResponse: Partial<SignEvmTypedDataFieldCriterion> = {},
+): SignEvmTypedDataFieldCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["evmTypedDataField"] as const),
+    types: {
+      types: {
+        [faker.string.alphanumeric(5)]: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() => ({
+          name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+          type: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        })),
+      },
+      primaryType: faker.string.alpha(20),
+    },
+    conditions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () =>
+        faker.helpers.arrayElement([
+          { ...getUpdatePolicyResponseEvmTypedAddressConditionMock() },
+          { ...getUpdatePolicyResponseEvmTypedNumericalConditionMock() },
+          { ...getUpdatePolicyResponseEvmTypedStringConditionMock() },
+        ]),
+    ),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseSignEvmTypedDataVerifyingContractCriterionMock = (
+  overrideResponse: Partial<SignEvmTypedDataVerifyingContractCriterion> = {},
+): SignEvmTypedDataVerifyingContractCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["evmTypedDataVerifyingContract"] as const),
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getUpdatePolicyResponseSolAddressCriterionMock = (
   overrideResponse: Partial<SolAddressCriterion> = {},
 ): SolAddressCriterion => ({
@@ -937,6 +1273,19 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
           (_, i) => i + 1,
         ).map(() =>
           faker.helpers.arrayElement([{ ...getUpdatePolicyResponseEvmMessageCriterionMock() }]),
+        ),
+      },
+      {
+        action: faker.helpers.arrayElement(["reject", "accept"] as const),
+        operation: faker.helpers.arrayElement(["signEvmTypedData"] as const),
+        criteria: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() =>
+          faker.helpers.arrayElement([
+            { ...getUpdatePolicyResponseSignEvmTypedDataFieldCriterionMock() },
+            { ...getUpdatePolicyResponseSignEvmTypedDataVerifyingContractCriterionMock() },
+          ]),
         ),
       },
       {
