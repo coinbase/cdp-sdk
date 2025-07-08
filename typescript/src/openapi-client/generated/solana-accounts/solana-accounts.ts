@@ -22,6 +22,8 @@ import type {
   UpdateSolanaAccountBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
+console.log("solana-accounts.ts");
+
 import { cdpApiClient } from "../../cdpApiClient.js";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
