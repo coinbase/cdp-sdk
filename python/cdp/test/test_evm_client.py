@@ -938,6 +938,42 @@ async def test_update_account(server_account_model_factory):
 
 
 @pytest.mark.asyncio
+async def test_update_smart_account(smart_account_model_factory):
+    """Test updating an EVM smart account."""
+    mock_evm_smart_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
+
+    evm_smart_account_model = smart_account_model_factory()
+
+    mock_evm_smart_accounts_api.update_evm_smart_account = AsyncMock(
+        return_value=evm_smart_account_model
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    test_address = "0x1234567890123456789012345678901234567890"
+    test_name = "updated-smart-account-name"
+    test_idempotency_key = "test-idempotency-key"
+    test_account_policy = "8e03978e-40d5-43e8-bc93-6894a57f9324"
+    update_options = UpdateAccountOptions(name=test_name, account_policy=test_account_policy)
+    mock_owner = AsyncMock()
+    mock_owner.address = "0x0987654321098765432109876543210987654321"
+
+    await client.update_smart_account(
+        address=test_address,
+        update=update_options,
+        idempotency_key=test_idempotency_key,
+        owner=mock_owner,
+    )
+
+    mock_evm_smart_accounts_api.update_evm_smart_account.assert_called_once_with(
+        address=test_address,
+        update_evm_smart_account_request=update_options,
+    )
+
+
+@pytest.mark.asyncio
 async def test_get_smart_account(smart_account_model_factory):
     """Test getting an EVM smart account."""
     mock_evm_smart_accounts_api = AsyncMock()

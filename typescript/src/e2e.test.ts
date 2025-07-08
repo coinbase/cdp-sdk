@@ -541,6 +541,44 @@ describe("CDP Client E2E Tests", () => {
     expect(retrievedSmartAccount).toBeDefined();
   });
 
+  it("should update an EVM smart account", async () => {
+    // Create a new smart account to update
+    const privateKey = generatePrivateKey();
+    const owner = privateKeyToAccount(privateKey);
+    const originalName = generateRandomName();
+
+    const smartAccountToUpdate = await cdp.evm.createSmartAccount({
+      owner: owner,
+      name: originalName,
+    });
+    expect(smartAccountToUpdate).toBeDefined();
+    expect(smartAccountToUpdate.name).toBe(originalName);
+
+    // Update the smart account with a new name
+    const updatedName = generateRandomName();
+    const updatedSmartAccount = await cdp.evm.updateSmartAccount({
+      address: smartAccountToUpdate.address,
+      owner: owner,
+      update: {
+        name: updatedName,
+      },
+    });
+
+    // Verify the update was successful
+    expect(updatedSmartAccount).toBeDefined();
+    expect(updatedSmartAccount.address).toBe(smartAccountToUpdate.address);
+    expect(updatedSmartAccount.name).toBe(updatedName);
+
+    // Verify we can get the updated smart account by its new name
+    const retrievedSmartAccount = await cdp.evm.getSmartAccount({
+      name: updatedName,
+      owner: owner,
+    });
+    expect(retrievedSmartAccount).toBeDefined();
+    expect(retrievedSmartAccount.address).toBe(smartAccountToUpdate.address);
+    expect(retrievedSmartAccount.name).toBe(updatedName);
+  });
+
   it("should prepare user operation", async () => {
     const privateKey = generatePrivateKey();
     const owner = privateKeyToAccount(privateKey);
