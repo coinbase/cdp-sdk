@@ -31,6 +31,7 @@ import {
   SmartAccount,
   SwapUnavailableResult,
   UpdateEvmAccountOptions,
+  UpdateEvmSmartAccountOptions,
   UserOperation,
   WaitForUserOperationOptions,
 } from "./evm.types.js";
@@ -77,7 +78,7 @@ import type {
 /**
  * The namespace containing all EVM methods.
  */
-export class EvmClient implements EvmClientInterface {
+export class EvmClient {
   /**
    * Creates a new CDP EVM account.
    *
@@ -1104,6 +1105,23 @@ export class EvmClient implements EvmClientInterface {
     Analytics.wrapObjectMethodsWithErrorTracking(account);
 
     return account;
+  }
+
+  async updateSmartAccount(options: UpdateEvmSmartAccountOptions): Promise<SmartAccount> {
+    const openApiSmartAccount = await CdpOpenApiClient.updateEvmSmartAccount(
+      options.address,
+      options.update,
+      options.idempotencyKey,
+    );
+
+    const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
+      smartAccount: openApiSmartAccount,
+      owner: options.owner,
+    });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
+
+    return smartAccount;
   }
 
   /**

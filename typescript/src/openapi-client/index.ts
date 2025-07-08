@@ -48,3 +48,8 @@ export const OpenApiPoliciesMethods = {
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
+export * from "./generated/end-user-accounts-under-development/end-user-accounts-under-development";
+export * from "./generated/embedded-wallets-under-development/embedded-wallets-under-development";
+export * from "./generated/wallet-secrets-internal/wallet-secrets-internal";
+export * from "./generated/cors-internal/cors-internal";
+export * from "./generated/x402-facilitator/x402-facilitator";
