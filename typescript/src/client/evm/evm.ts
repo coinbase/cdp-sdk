@@ -901,7 +901,7 @@ export class EvmClient implements EvmClientInterface {
   }
 
   /**
-   * Signs an EVM message.
+   * Signs an EIP-191 message.
    *
    * @param {SignMessageOptions} options - Parameters for signing the message.
    * @param {string} options.address - The address to sign the message for.
