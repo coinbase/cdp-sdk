@@ -39,6 +39,7 @@ class EvmSmartAccount(BaseModel):
         address: str,
         owner: BaseAccount,
         name: str | None = None,
+        policies: list[str] | None = None,
         api_clients: ApiClients | None = None,
     ) -> None:
         """Initialize the EvmSmartAccount class.
@@ -47,6 +48,7 @@ class EvmSmartAccount(BaseModel):
             address (str): The address of the smart account.
             owner (BaseAccount): The owner of the smart account.
             name (str | None): The name of the smart account.
+            policies (list[str] | None): A list of policy ID's that apply to the account.
             api_clients (ApiClients | None): The API client.
 
         """
@@ -55,6 +57,7 @@ class EvmSmartAccount(BaseModel):
         self.__address = address
         self.__owners = [owner]
         self.__name = name
+        self.__policies = policies
         self.__api_clients = api_clients
 
     @property
@@ -86,6 +89,16 @@ class EvmSmartAccount(BaseModel):
 
         """
         return self.__name
+
+    @property
+    def policies(self) -> list[str] | None:
+        """Gets the list of policies the apply to this account.
+
+        Returns:
+            list[str] | None: The list of Policy IDs.
+
+        """
+        return self.__policies
 
     async def transfer(
         self,

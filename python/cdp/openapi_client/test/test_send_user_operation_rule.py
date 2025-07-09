@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.rule import Rule
+from cdp.openapi_client.models.send_user_operation_rule import SendUserOperationRule
 
-class TestRule(unittest.TestCase):
-    """Rule unit test stubs"""
+class TestSendUserOperationRule(unittest.TestCase):
+    """SendUserOperationRule unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,30 @@ class TestRule(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> Rule:
-        """Test Rule
+    def make_instance(self, include_optional) -> SendUserOperationRule:
+        """Test SendUserOperationRule
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `Rule`
+        # uncomment below to create an instance of `SendUserOperationRule`
         """
-        model = Rule()
+        model = SendUserOperationRule()
         if include_optional:
-            return Rule(
+            return SendUserOperationRule(
                 action = 'accept',
                 operation = 'sendUserOperation',
-                criteria = [{type=ethValue, ethValue=1000000, operator=>=}, {type=evmAddress, addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in}]
+                criteria = [{"type":"ethValue","ethValue":"1000000","operator":">="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],"operator":"in"}]
             )
         else:
-            return Rule(
+            return SendUserOperationRule(
                 action = 'accept',
                 operation = 'sendUserOperation',
-                criteria = [{type=ethValue, ethValue=1000000, operator=>=}, {type=evmAddress, addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in}],
+                criteria = [{"type":"ethValue","ethValue":"1000000","operator":">="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],"operator":"in"}],
         )
         """
 
-    def testRule(self):
-        """Test Rule"""
+    def testSendUserOperationRule(self):
+        """Test SendUserOperationRule"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

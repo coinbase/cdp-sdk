@@ -137,6 +137,8 @@ tags:
             - `sendEvmTransaction` for signing a transaction, and sending it to a supported network
             - `signEvmHash` for signing an arbitrary 32 byte hash.
             - `signEvmMessage` for signing an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message.
+            - `prepareUserOperation` for preparing user operations on a smart account.
+            - `sendUserOperation` for sending user operations using a smart account.
       - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected. Only `signEvmTransaction` and `signSolTransaction` operations are currently supported.
       ## Policy Scope
       Policies can be applied at the project and/or account level:
@@ -236,6 +238,22 @@ tags:
       A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
       #### evmNetwork
       A criterion based on the intended network of the transaction. The `network` field in the `sendEvmTransaction` request body is compared to the criterion's `networks` field using the `operator` field.
+      #### evmData
+      A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
+      ### SendUserOperation Criteria
+      #### ethValue
+      A criterion based on the value of the user operation. The operation's `value` fields are compared to the criterion's `ethValue` field using the `operator` field.
+      #### evmAddress
+      A criterion based on the recipient address of the operation. The operation's `to` fields are compared to the criterion's `addresses` field using the `operator` field.
+      #### evmData
+      A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
+      ### PrepareUserOperation Criteria
+      #### ethValue
+      A criterion based on the value of the user operation. The operation's `value` fields are compared to the criterion's `ethValue` field using the `operator` field.
+      #### evmAddress
+      A criterion based on the recipient address of the user operation. The operation's `to` fields are compared to the criterion's `addresses` field using the `operator` field.
+      #### evmNetwork
+      A criterion based on the intended network of the user operation. The `network` field in the `prepareUserOperation` request body is compared to the criterion's `networks` field using the `operator` field.
       #### evmData
       A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
       ### SignEvmHash Criteria
@@ -1243,6 +1261,8 @@ paths:
         - apiKeyAuth: []
       tags:
         - EVM Smart Accounts
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         content:
           application/json:
@@ -4533,6 +4553,15 @@ components:
             Account names are guaranteed to be unique across all Smart Accounts in the developer's CDP Project.
           example: my-smart-account
           pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+        policies:
+          type: array
+          x-audience: public
+          description: The list of policy IDs that apply to the smart account. This will include both the project-level policy and the account-level policy, if one exists.
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example:
+            - 123e4567-e89b-12d3-a456-426614174000
         createdAt:
           type: string
           description: The UTC ISO 8601 timestamp at which the account was created.
@@ -5879,6 +5908,85 @@ components:
       required:
         - action
         - operation
+    PrepareUserOperationCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the PrepareUserOperation operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EthValueCriterion'
+          - $ref: '#/components/schemas/EvmAddressCriterion'
+          - $ref: '#/components/schemas/EvmNetworkCriterion'
+          - $ref: '#/components/schemas/EvmDataCriterion'
+      example:
+        - type: ethValue
+          ethValue: '1000000'
+          operator: '>='
+        - type: evmAddress
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+    PrepareUserOperationRule:
+      x-audience: public
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: prepareUserOperation
+          enum:
+            - prepareUserOperation
+        criteria:
+          $ref: '#/components/schemas/PrepareUserOperationCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    SendUserOperationCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the SendUserOperation operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EthValueCriterion'
+          - $ref: '#/components/schemas/EvmAddressCriterion'
+          - $ref: '#/components/schemas/EvmDataCriterion'
+      example:
+        - type: ethValue
+          ethValue: '1000000'
+          operator: '>='
+        - type: evmAddress
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+    SendUserOperationRule:
+      x-audience: public
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: sendUserOperation
+          enum:
+            - sendUserOperation
+        criteria:
+          $ref: '#/components/schemas/SendUserOperationCriteria'
+      required:
+        - action
+        - operation
+        - criteria
     Rule:
       type: object
       description: A rule that limits the behavior of an account.
@@ -5889,6 +5997,8 @@ components:
         - $ref: '#/components/schemas/SignEvmTypedDataRule'
         - $ref: '#/components/schemas/SignSolTransactionRule'
         - $ref: '#/components/schemas/SignEvmHashRule'
+        - $ref: '#/components/schemas/PrepareUserOperationRule'
+        - $ref: '#/components/schemas/SendUserOperationRule'
       example:
         action: accept
         operation: signEvmTransaction

@@ -141,6 +141,8 @@ type EvmSmartAccountProperties = {
   owners: EvmAccount[];
   /** Identifier for the smart account type. */
   type: "evm-smart";
+  /** The list of policy IDs that apply to the smart account. This will include both the project-level policy and the account-level policy, if one exists. */
+  policies: string[] | undefined;
   /**
    * A function that returns a network-scoped smart account.
    *

@@ -135,6 +135,8 @@ Account names are guaranteed to be unique across all Smart Accounts in the devel
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /** The list of policy IDs that apply to the smart account. This will include both the project-level policy and the account-level policy, if one exists. */
+  policies?: string[];
   /** The UTC ISO 8601 timestamp at which the account was created. */
   createdAt?: string;
   /** The UTC ISO 8601 timestamp at which the account was last updated. */
@@ -1280,6 +1282,89 @@ export interface SignEvmHashRule {
   operation: SignEvmHashRuleOperation;
 }
 
+export type PrepareUserOperationCriteriaItem =
+  | EthValueCriterion
+  | EvmAddressCriterion
+  | EvmNetworkCriterion
+  | EvmDataCriterion;
+
+/**
+ * A schema for specifying criteria for the PrepareUserOperation operation.
+ */
+export type PrepareUserOperationCriteria = PrepareUserOperationCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type PrepareUserOperationRuleAction =
+  (typeof PrepareUserOperationRuleAction)[keyof typeof PrepareUserOperationRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PrepareUserOperationRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type PrepareUserOperationRuleOperation =
+  (typeof PrepareUserOperationRuleOperation)[keyof typeof PrepareUserOperationRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PrepareUserOperationRuleOperation = {
+  prepareUserOperation: "prepareUserOperation",
+} as const;
+
+export interface PrepareUserOperationRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: PrepareUserOperationRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: PrepareUserOperationRuleOperation;
+  criteria: PrepareUserOperationCriteria;
+}
+
+export type SendUserOperationCriteriaItem =
+  | EthValueCriterion
+  | EvmAddressCriterion
+  | EvmDataCriterion;
+
+/**
+ * A schema for specifying criteria for the SendUserOperation operation.
+ */
+export type SendUserOperationCriteria = SendUserOperationCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SendUserOperationRuleAction =
+  (typeof SendUserOperationRuleAction)[keyof typeof SendUserOperationRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendUserOperationRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SendUserOperationRuleOperation =
+  (typeof SendUserOperationRuleOperation)[keyof typeof SendUserOperationRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendUserOperationRuleOperation = {
+  sendUserOperation: "sendUserOperation",
+} as const;
+
+export interface SendUserOperationRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SendUserOperationRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SendUserOperationRuleOperation;
+  criteria: SendUserOperationCriteria;
+}
+
 /**
  * A rule that limits the behavior of an account.
  */
@@ -1289,7 +1374,9 @@ export type Rule =
   | SignEvmMessageRule
   | SignEvmTypedDataRule
   | SignSolTransactionRule
-  | SignEvmHashRule;
+  | SignEvmHashRule
+  | PrepareUserOperationRule
+  | SendUserOperationRule;
 
 /**
  * The scope of the policy. Only one project-level policy can exist at any time.

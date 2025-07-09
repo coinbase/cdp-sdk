@@ -435,6 +435,45 @@ export const SignSolTransactionCriteriaSchema = z
 export type SignSolTransactionCriteria = z.infer<typeof SignSolTransactionCriteriaSchema>;
 
 /**
+ * Schema for criteria used in PrepareUserOperation operations
+ */
+export const PrepareUserOperationCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      EthValueCriterionSchema,
+      EvmAddressCriterionSchema,
+      EvmNetworkCriterionSchema,
+      EvmDataCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the prepareUserOperation operation.
+ * Can contain up to 10 individual criterion objects of ETH value, EVM address, EVM network, or EVM data types.
+ */
+export type PrepareUserOperationCriteria = z.infer<typeof PrepareUserOperationCriteriaSchema>;
+
+/**
+ * Schema for criteria used in SendUserOperation operations
+ */
+export const SendUserOperationCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      EthValueCriterionSchema,
+      EvmAddressCriterionSchema,
+      EvmDataCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the sendUserOperation operation.
+ * Can contain up to 10 individual criterion objects of ETH value, EVM address, or EVM data types.
+ */
+export type SendUserOperationCriteria = z.infer<typeof SendUserOperationCriteriaSchema>;
+
+/**
  * Enum for Solana Operation types
  */
 export const SolOperationEnum = z.enum(["signSolTransaction"]);
@@ -598,6 +637,52 @@ export const SignSolTransactionRuleSchema = z.object({
 export type SignSolTransactionRule = z.infer<typeof SignSolTransactionRuleSchema>;
 
 /**
+ * Type representing a 'prepareUserOperation' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const PrepareUserOperationRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the operation, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "prepareUserOperation".
+   */
+  operation: z.literal("prepareUserOperation"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: PrepareUserOperationCriteriaSchema,
+});
+export type PrepareUserOperationRule = z.infer<typeof PrepareUserOperationRuleSchema>;
+
+/**
+ * Type representing a 'sendUserOperation' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SendUserOperationRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the operation, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "sendUserOperation".
+   */
+  operation: z.literal("sendUserOperation"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SendUserOperationCriteriaSchema,
+});
+export type SendUserOperationRule = z.infer<typeof SendUserOperationRuleSchema>;
+
+/**
  * Schema for policy rules
  */
 export const RuleSchema = z.discriminatedUnion("operation", [
@@ -607,6 +692,8 @@ export const RuleSchema = z.discriminatedUnion("operation", [
   SignEvmTypedDataRuleSchema,
   SendEvmTransactionRuleSchema,
   SignSolTransactionRuleSchema,
+  PrepareUserOperationRuleSchema,
+  SendUserOperationRuleSchema,
 ]);
 
 /**

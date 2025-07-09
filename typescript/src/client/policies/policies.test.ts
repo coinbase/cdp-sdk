@@ -711,5 +711,268 @@ describe("PoliciesClient", () => {
       });
       expect(updatePolicyMock).toHaveBeenCalled();
     });
+
+    it("should permit valid prepareUserOperation policies", async () => {
+      const updatePolicyMock = CdpOpenApiClient.updatePolicy as MockedFunction<
+        typeof CdpOpenApiClient.updatePolicy
+      >;
+      updatePolicyMock.mockResolvedValue(mockPolicy);
+
+      const validPrepareUserOpPolicy = {
+        rules: [
+          {
+            action: "accept" as const,
+            operation: "prepareUserOperation" as const,
+            criteria: [
+              {
+                type: "ethValue" as const,
+                ethValue: "1000000000000000000",
+                operator: "<=" as const,
+              },
+              {
+                type: "evmAddress" as const,
+                addresses: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e" as const],
+                operator: "in" as const,
+              },
+              {
+                type: "evmNetwork" as const,
+                networks: ["base" as const, "base-sepolia" as const],
+                operator: "in" as const,
+              },
+              {
+                type: "evmData" as const,
+                abi: "erc20" as const,
+                conditions: [
+                  {
+                    function: "transfer",
+                    params: [{ name: "value", operator: "<=" as const, value: "10000" }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      await client.updatePolicy({
+        id: "policy-123",
+        policy: validPrepareUserOpPolicy,
+      });
+
+      expect(updatePolicyMock).toHaveBeenCalled();
+    });
+
+    it("should permit valid sendUserOperation policies", async () => {
+      const updatePolicyMock = CdpOpenApiClient.updatePolicy as MockedFunction<
+        typeof CdpOpenApiClient.updatePolicy
+      >;
+      updatePolicyMock.mockResolvedValue(mockPolicy);
+
+      const validSendUserOpPolicy = {
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "sendUserOperation" as const,
+            criteria: [
+              {
+                type: "ethValue" as const,
+                ethValue: "2000000000000000000",
+                operator: ">" as const,
+              },
+              {
+                type: "evmAddress" as const,
+                addresses: ["0x1234567890123456789012345678901234567890" as const],
+                operator: "not in" as const,
+              },
+              {
+                type: "evmData" as const,
+                abi: "erc721" as const,
+                conditions: [
+                  {
+                    function: "transferFrom",
+                    params: [
+                      {
+                        name: "tokenId",
+                        operator: "in" as const,
+                        values: ["1", "2", "3"],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      await client.updatePolicy({
+        id: "policy-123",
+        policy: validSendUserOpPolicy,
+      });
+
+      expect(updatePolicyMock).toHaveBeenCalled();
+    });
+
+    it("should throw ZodError for invalid prepareUserOperation criteria", async () => {
+      const updatePolicyMock = CdpOpenApiClient.updatePolicy as MockedFunction<
+        typeof CdpOpenApiClient.updatePolicy
+      >;
+
+      const invalidPrepareUserOpPolicies = [
+        // Using solAddress criterion (not supported for prepareUserOperation)
+        {
+          rules: [
+            {
+              action: "reject" as const,
+              operation: "prepareUserOperation" as const,
+              criteria: [
+                {
+                  type: "solAddress",
+                  addresses: ["9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"],
+                  operator: "in",
+                },
+              ],
+            },
+          ],
+        },
+        // Using evmMessage criterion (not supported for prepareUserOperation)
+        {
+          rules: [
+            {
+              action: "accept" as const,
+              operation: "prepareUserOperation" as const,
+              criteria: [
+                {
+                  type: "evmMessage",
+                  match: "^hello",
+                },
+              ],
+            },
+          ],
+        },
+      ];
+
+      for (const policy of invalidPrepareUserOpPolicies) {
+        await expect(
+          client.updatePolicy({
+            id: "policy-123",
+            // @ts-expect-error Intentionally using incorrect criteria structure for test
+            policy,
+          }),
+        ).rejects.toThrow(ZodError);
+        expect(updatePolicyMock).not.toHaveBeenCalled();
+      }
+    });
+
+    it("should throw ZodError for invalid sendUserOperation criteria", async () => {
+      const updatePolicyMock = CdpOpenApiClient.updatePolicy as MockedFunction<
+        typeof CdpOpenApiClient.updatePolicy
+      >;
+
+      const invalidSendUserOpPolicies = [
+        // Using solAddress criterion (not supported for sendUserOperation)
+        {
+          rules: [
+            {
+              action: "reject" as const,
+              operation: "sendUserOperation" as const,
+              criteria: [
+                {
+                  type: "solAddress",
+                  addresses: ["9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"],
+                  operator: "in",
+                },
+              ],
+            },
+          ],
+        },
+        // Using evmNetwork criterion (not supported for sendUserOperation)
+        {
+          rules: [
+            {
+              action: "accept" as const,
+              operation: "sendUserOperation" as const,
+              criteria: [
+                {
+                  type: "evmNetwork",
+                  networks: ["base"],
+                  operator: "in",
+                },
+              ],
+            },
+          ],
+        },
+        // Using evmMessage criterion (not supported for sendUserOperation)
+        {
+          rules: [
+            {
+              action: "reject" as const,
+              operation: "sendUserOperation" as const,
+              criteria: [
+                {
+                  type: "evmMessage",
+                  match: "^test message",
+                },
+              ],
+            },
+          ],
+        },
+      ];
+
+      for (const policy of invalidSendUserOpPolicies) {
+        await expect(
+          client.updatePolicy({
+            id: "policy-123",
+            // @ts-expect-error Intentionally using incorrect criteria structure for test
+            policy,
+          }),
+        ).rejects.toThrow(ZodError);
+        expect(updatePolicyMock).not.toHaveBeenCalled();
+      }
+    });
+
+    it("should create policies with prepareUserOperation and sendUserOperation operations", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+      createPolicyMock.mockResolvedValue(mockPolicy);
+
+      const policyWithUserOperations = {
+        scope: "account" as const,
+        description: "User operation policy",
+        rules: [
+          {
+            action: "accept" as const,
+            operation: "prepareUserOperation" as const,
+            criteria: [
+              {
+                type: "ethValue" as const,
+                ethValue: "1000000000000000000",
+                operator: "<=" as const,
+              },
+            ],
+          },
+          {
+            action: "reject" as const,
+            operation: "sendUserOperation" as const,
+            criteria: [
+              {
+                type: "evmAddress" as const,
+                addresses: ["0x1234567890123456789012345678901234567890" as const],
+                operator: "in" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = await client.createPolicy({
+        policy: policyWithUserOperations,
+        idempotencyKey: "idem-key",
+      });
+
+      expect(result).toEqual(mockPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyWithUserOperations, "idem-key");
+    });
   });
 });

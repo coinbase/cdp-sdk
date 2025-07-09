@@ -31,7 +31,8 @@ def smart_account_factory(local_account_factory):
         smart_account_address="0x1234567890123456789012345678901234567890",
         name="test-smart-account",
         account=local_account_factory,
+        policies=None,
     ):
-        return EvmSmartAccount(smart_account_address, account, name)
+        return EvmSmartAccount(smart_account_address, account, name, policies)
 
     return _create_smart_account

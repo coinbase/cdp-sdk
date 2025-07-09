@@ -223,6 +223,17 @@ const (
 	PolicyScopeProject PolicyScope = "project"
 )
 
+// Defines values for PrepareUserOperationRuleAction.
+const (
+	PrepareUserOperationRuleActionAccept PrepareUserOperationRuleAction = "accept"
+	PrepareUserOperationRuleActionReject PrepareUserOperationRuleAction = "reject"
+)
+
+// Defines values for PrepareUserOperationRuleOperation.
+const (
+	PrepareUserOperation PrepareUserOperationRuleOperation = "prepareUserOperation"
+)
+
 // Defines values for SendEvmTransactionRuleAction.
 const (
 	SendEvmTransactionRuleActionAccept SendEvmTransactionRuleAction = "accept"
@@ -232,6 +243,17 @@ const (
 // Defines values for SendEvmTransactionRuleOperation.
 const (
 	SendEvmTransaction SendEvmTransactionRuleOperation = "sendEvmTransaction"
+)
+
+// Defines values for SendUserOperationRuleAction.
+const (
+	SendUserOperationRuleActionAccept SendUserOperationRuleAction = "accept"
+	SendUserOperationRuleActionReject SendUserOperationRuleAction = "reject"
+)
+
+// Defines values for SendUserOperationRuleOperation.
+const (
+	SendUserOperation SendUserOperationRuleOperation = "sendUserOperation"
 )
 
 // Defines values for SignEvmHashRuleAction.
@@ -896,6 +918,9 @@ type EvmSmartAccount struct {
 	// Owners Today, only a single owner can be set for a Smart Account, but this is an array to allow having multiple owners in the future. The address is a 0x-prefixed, checksum address.
 	Owners []string `json:"owners"`
 
+	// Policies The list of policy IDs that apply to the smart account. This will include both the project-level policy and the account-level policy, if one exists.
+	Policies *[]string `json:"policies,omitempty"`
+
 	// UpdatedAt The UTC ISO 8601 timestamp at which the account was last updated.
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
@@ -1146,6 +1171,32 @@ type Policy struct {
 // PolicyScope The scope of the policy. Only one project-level policy can exist at any time.
 type PolicyScope string
 
+// PrepareUserOperationCriteria A schema for specifying criteria for the PrepareUserOperation operation.
+type PrepareUserOperationCriteria = []PrepareUserOperationCriteria_Item
+
+// PrepareUserOperationCriteria_Item defines model for PrepareUserOperationCriteria.Item.
+type PrepareUserOperationCriteria_Item struct {
+	union json.RawMessage
+}
+
+// PrepareUserOperationRule defines model for PrepareUserOperationRule.
+type PrepareUserOperationRule struct {
+	// Action Whether matching the rule will cause the request to be rejected or accepted.
+	Action PrepareUserOperationRuleAction `json:"action"`
+
+	// Criteria A schema for specifying criteria for the PrepareUserOperation operation.
+	Criteria PrepareUserOperationCriteria `json:"criteria"`
+
+	// Operation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+	Operation PrepareUserOperationRuleOperation `json:"operation"`
+}
+
+// PrepareUserOperationRuleAction Whether matching the rule will cause the request to be rejected or accepted.
+type PrepareUserOperationRuleAction string
+
+// PrepareUserOperationRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+type PrepareUserOperationRuleOperation string
+
 // Rule A rule that limits the behavior of an account.
 type Rule struct {
 	union json.RawMessage
@@ -1176,6 +1227,32 @@ type SendEvmTransactionRuleAction string
 
 // SendEvmTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SendEvmTransactionRuleOperation string
+
+// SendUserOperationCriteria A schema for specifying criteria for the SendUserOperation operation.
+type SendUserOperationCriteria = []SendUserOperationCriteria_Item
+
+// SendUserOperationCriteria_Item defines model for SendUserOperationCriteria.Item.
+type SendUserOperationCriteria_Item struct {
+	union json.RawMessage
+}
+
+// SendUserOperationRule defines model for SendUserOperationRule.
+type SendUserOperationRule struct {
+	// Action Whether matching the rule will cause the request to be rejected or accepted.
+	Action SendUserOperationRuleAction `json:"action"`
+
+	// Criteria A schema for specifying criteria for the SendUserOperation operation.
+	Criteria SendUserOperationCriteria `json:"criteria"`
+
+	// Operation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+	Operation SendUserOperationRuleOperation `json:"operation"`
+}
+
+// SendUserOperationRuleAction Whether matching the rule will cause the request to be rejected or accepted.
+type SendUserOperationRuleAction string
+
+// SendUserOperationRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+type SendUserOperationRuleOperation string
 
 // SignEvmHashRule defines model for SignEvmHashRule.
 type SignEvmHashRule struct {
@@ -1820,6 +1897,14 @@ type CreateEvmSmartAccountJSONBody struct {
 
 	// Owners Today, only a single owner can be set for a Smart Account, but this is an array to allow setting multiple owners in the future.
 	Owners []string `json:"owners"`
+}
+
+// CreateEvmSmartAccountParams defines parameters for CreateEvmSmartAccount.
+type CreateEvmSmartAccountParams struct {
+	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
 // UpdateEvmSmartAccountJSONBody defines parameters for UpdateEvmSmartAccount.
@@ -2562,6 +2647,120 @@ func (t *GetSwapPriceResponseWrapper) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+// AsEthValueCriterion returns the union data inside the PrepareUserOperationCriteria_Item as a EthValueCriterion
+func (t PrepareUserOperationCriteria_Item) AsEthValueCriterion() (EthValueCriterion, error) {
+	var body EthValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEthValueCriterion overwrites any union data inside the PrepareUserOperationCriteria_Item as the provided EthValueCriterion
+func (t *PrepareUserOperationCriteria_Item) FromEthValueCriterion(v EthValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEthValueCriterion performs a merge with any union data inside the PrepareUserOperationCriteria_Item, using the provided EthValueCriterion
+func (t *PrepareUserOperationCriteria_Item) MergeEthValueCriterion(v EthValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmAddressCriterion returns the union data inside the PrepareUserOperationCriteria_Item as a EvmAddressCriterion
+func (t PrepareUserOperationCriteria_Item) AsEvmAddressCriterion() (EvmAddressCriterion, error) {
+	var body EvmAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmAddressCriterion overwrites any union data inside the PrepareUserOperationCriteria_Item as the provided EvmAddressCriterion
+func (t *PrepareUserOperationCriteria_Item) FromEvmAddressCriterion(v EvmAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmAddressCriterion performs a merge with any union data inside the PrepareUserOperationCriteria_Item, using the provided EvmAddressCriterion
+func (t *PrepareUserOperationCriteria_Item) MergeEvmAddressCriterion(v EvmAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmNetworkCriterion returns the union data inside the PrepareUserOperationCriteria_Item as a EvmNetworkCriterion
+func (t PrepareUserOperationCriteria_Item) AsEvmNetworkCriterion() (EvmNetworkCriterion, error) {
+	var body EvmNetworkCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmNetworkCriterion overwrites any union data inside the PrepareUserOperationCriteria_Item as the provided EvmNetworkCriterion
+func (t *PrepareUserOperationCriteria_Item) FromEvmNetworkCriterion(v EvmNetworkCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmNetworkCriterion performs a merge with any union data inside the PrepareUserOperationCriteria_Item, using the provided EvmNetworkCriterion
+func (t *PrepareUserOperationCriteria_Item) MergeEvmNetworkCriterion(v EvmNetworkCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmDataCriterion returns the union data inside the PrepareUserOperationCriteria_Item as a EvmDataCriterion
+func (t PrepareUserOperationCriteria_Item) AsEvmDataCriterion() (EvmDataCriterion, error) {
+	var body EvmDataCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmDataCriterion overwrites any union data inside the PrepareUserOperationCriteria_Item as the provided EvmDataCriterion
+func (t *PrepareUserOperationCriteria_Item) FromEvmDataCriterion(v EvmDataCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmDataCriterion performs a merge with any union data inside the PrepareUserOperationCriteria_Item, using the provided EvmDataCriterion
+func (t *PrepareUserOperationCriteria_Item) MergeEvmDataCriterion(v EvmDataCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t PrepareUserOperationCriteria_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *PrepareUserOperationCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsSignEvmTransactionRule returns the union data inside the Rule as a SignEvmTransactionRule
 func (t Rule) AsSignEvmTransactionRule() (SignEvmTransactionRule, error) {
 	var body SignEvmTransactionRule
@@ -2718,6 +2917,58 @@ func (t *Rule) MergeSignEvmHashRule(v SignEvmHashRule) error {
 	return err
 }
 
+// AsPrepareUserOperationRule returns the union data inside the Rule as a PrepareUserOperationRule
+func (t Rule) AsPrepareUserOperationRule() (PrepareUserOperationRule, error) {
+	var body PrepareUserOperationRule
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromPrepareUserOperationRule overwrites any union data inside the Rule as the provided PrepareUserOperationRule
+func (t *Rule) FromPrepareUserOperationRule(v PrepareUserOperationRule) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergePrepareUserOperationRule performs a merge with any union data inside the Rule, using the provided PrepareUserOperationRule
+func (t *Rule) MergePrepareUserOperationRule(v PrepareUserOperationRule) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSendUserOperationRule returns the union data inside the Rule as a SendUserOperationRule
+func (t Rule) AsSendUserOperationRule() (SendUserOperationRule, error) {
+	var body SendUserOperationRule
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSendUserOperationRule overwrites any union data inside the Rule as the provided SendUserOperationRule
+func (t *Rule) FromSendUserOperationRule(v SendUserOperationRule) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSendUserOperationRule performs a merge with any union data inside the Rule, using the provided SendUserOperationRule
+func (t *Rule) MergeSendUserOperationRule(v SendUserOperationRule) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 func (t Rule) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
@@ -2838,6 +3089,94 @@ func (t SendEvmTransactionCriteria_Item) MarshalJSON() ([]byte, error) {
 }
 
 func (t *SendEvmTransactionCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsEthValueCriterion returns the union data inside the SendUserOperationCriteria_Item as a EthValueCriterion
+func (t SendUserOperationCriteria_Item) AsEthValueCriterion() (EthValueCriterion, error) {
+	var body EthValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEthValueCriterion overwrites any union data inside the SendUserOperationCriteria_Item as the provided EthValueCriterion
+func (t *SendUserOperationCriteria_Item) FromEthValueCriterion(v EthValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEthValueCriterion performs a merge with any union data inside the SendUserOperationCriteria_Item, using the provided EthValueCriterion
+func (t *SendUserOperationCriteria_Item) MergeEthValueCriterion(v EthValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmAddressCriterion returns the union data inside the SendUserOperationCriteria_Item as a EvmAddressCriterion
+func (t SendUserOperationCriteria_Item) AsEvmAddressCriterion() (EvmAddressCriterion, error) {
+	var body EvmAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmAddressCriterion overwrites any union data inside the SendUserOperationCriteria_Item as the provided EvmAddressCriterion
+func (t *SendUserOperationCriteria_Item) FromEvmAddressCriterion(v EvmAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmAddressCriterion performs a merge with any union data inside the SendUserOperationCriteria_Item, using the provided EvmAddressCriterion
+func (t *SendUserOperationCriteria_Item) MergeEvmAddressCriterion(v EvmAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsEvmDataCriterion returns the union data inside the SendUserOperationCriteria_Item as a EvmDataCriterion
+func (t SendUserOperationCriteria_Item) AsEvmDataCriterion() (EvmDataCriterion, error) {
+	var body EvmDataCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEvmDataCriterion overwrites any union data inside the SendUserOperationCriteria_Item as the provided EvmDataCriterion
+func (t *SendUserOperationCriteria_Item) FromEvmDataCriterion(v EvmDataCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEvmDataCriterion performs a merge with any union data inside the SendUserOperationCriteria_Item, using the provided EvmDataCriterion
+func (t *SendUserOperationCriteria_Item) MergeEvmDataCriterion(v EvmDataCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SendUserOperationCriteria_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SendUserOperationCriteria_Item) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -3437,9 +3776,9 @@ type ClientInterface interface {
 	ListEvmSmartAccounts(ctx context.Context, params *ListEvmSmartAccountsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateEvmSmartAccountWithBody request with any body
-	CreateEvmSmartAccountWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateEvmSmartAccountWithBody(ctx context.Context, params *CreateEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	CreateEvmSmartAccount(ctx context.Context, body CreateEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+	CreateEvmSmartAccount(ctx context.Context, params *CreateEvmSmartAccountParams, body CreateEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetEvmSmartAccountByName request
 	GetEvmSmartAccountByName(ctx context.Context, name string, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -3874,8 +4213,8 @@ func (c *CDPClient) ListEvmSmartAccounts(ctx context.Context, params *ListEvmSma
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) CreateEvmSmartAccountWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateEvmSmartAccountRequestWithBody(c.Server, contentType, body)
+func (c *CDPClient) CreateEvmSmartAccountWithBody(ctx context.Context, params *CreateEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateEvmSmartAccountRequestWithBody(c.Server, params, contentType, body)
 	if err != nil {
 		return nil, err
 	}
@@ -3886,8 +4225,8 @@ func (c *CDPClient) CreateEvmSmartAccountWithBody(ctx context.Context, contentTy
 	return c.Client.Do(req)
 }
 
-func (c *CDPClient) CreateEvmSmartAccount(ctx context.Context, body CreateEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateEvmSmartAccountRequest(c.Server, body)
+func (c *CDPClient) CreateEvmSmartAccount(ctx context.Context, params *CreateEvmSmartAccountParams, body CreateEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateEvmSmartAccountRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -5382,18 +5721,18 @@ func NewListEvmSmartAccountsRequest(server string, params *ListEvmSmartAccountsP
 }
 
 // NewCreateEvmSmartAccountRequest calls the generic CreateEvmSmartAccount builder with application/json body
-func NewCreateEvmSmartAccountRequest(server string, body CreateEvmSmartAccountJSONRequestBody) (*http.Request, error) {
+func NewCreateEvmSmartAccountRequest(server string, params *CreateEvmSmartAccountParams, body CreateEvmSmartAccountJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
 	buf, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
 	bodyReader = bytes.NewReader(buf)
-	return NewCreateEvmSmartAccountRequestWithBody(server, "application/json", bodyReader)
+	return NewCreateEvmSmartAccountRequestWithBody(server, params, "application/json", bodyReader)
 }
 
 // NewCreateEvmSmartAccountRequestWithBody generates requests for CreateEvmSmartAccount with any type of body
-func NewCreateEvmSmartAccountRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+func NewCreateEvmSmartAccountRequestWithBody(server string, params *CreateEvmSmartAccountParams, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -5417,6 +5756,21 @@ func NewCreateEvmSmartAccountRequestWithBody(server string, contentType string, 
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+	}
 
 	return req, nil
 }
@@ -7188,9 +7542,9 @@ type ClientWithResponsesInterface interface {
 	ListEvmSmartAccountsWithResponse(ctx context.Context, params *ListEvmSmartAccountsParams, reqEditors ...RequestEditorFn) (*ListEvmSmartAccountsResponse, error)
 
 	// CreateEvmSmartAccountWithBodyWithResponse request with any body
-	CreateEvmSmartAccountWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmSmartAccountResponse, error)
+	CreateEvmSmartAccountWithBodyWithResponse(ctx context.Context, params *CreateEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmSmartAccountResponse, error)
 
-	CreateEvmSmartAccountWithResponse(ctx context.Context, body CreateEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEvmSmartAccountResponse, error)
+	CreateEvmSmartAccountWithResponse(ctx context.Context, params *CreateEvmSmartAccountParams, body CreateEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEvmSmartAccountResponse, error)
 
 	// GetEvmSmartAccountByNameWithResponse request
 	GetEvmSmartAccountByNameWithResponse(ctx context.Context, name string, reqEditors ...RequestEditorFn) (*GetEvmSmartAccountByNameResponse, error)
@@ -8912,16 +9266,16 @@ func (c *ClientWithResponses) ListEvmSmartAccountsWithResponse(ctx context.Conte
 }
 
 // CreateEvmSmartAccountWithBodyWithResponse request with arbitrary body returning *CreateEvmSmartAccountResponse
-func (c *ClientWithResponses) CreateEvmSmartAccountWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmSmartAccountResponse, error) {
-	rsp, err := c.CreateEvmSmartAccountWithBody(ctx, contentType, body, reqEditors...)
+func (c *ClientWithResponses) CreateEvmSmartAccountWithBodyWithResponse(ctx context.Context, params *CreateEvmSmartAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEvmSmartAccountResponse, error) {
+	rsp, err := c.CreateEvmSmartAccountWithBody(ctx, params, contentType, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
 	return ParseCreateEvmSmartAccountResponse(rsp)
 }
 
-func (c *ClientWithResponses) CreateEvmSmartAccountWithResponse(ctx context.Context, body CreateEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEvmSmartAccountResponse, error) {
-	rsp, err := c.CreateEvmSmartAccount(ctx, body, reqEditors...)
+func (c *ClientWithResponses) CreateEvmSmartAccountWithResponse(ctx context.Context, params *CreateEvmSmartAccountParams, body CreateEvmSmartAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEvmSmartAccountResponse, error) {
+	rsp, err := c.CreateEvmSmartAccount(ctx, params, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
