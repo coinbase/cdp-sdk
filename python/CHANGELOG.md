@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.20.0] - 2025-07-08
+
+### Features
+
+- Added support for policy creation on signTypedData operations ([#264](https://github.com/coinbase/cdp-sdk/pull/264))
+
+
 ## [1.19.0] - 2025-07-01
 
 ### Features

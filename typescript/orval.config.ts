@@ -25,7 +25,7 @@ export default defineConfig({
       workspace: "./src/openapi-client",
     },
     hooks: {
-      afterAllFilesWrite: 'prettier -c .prettierrc --write "**/*.{ts,js,cjs,json,md}"',
+      afterAllFilesWrite: "pnpm format",
     },
   },
 });
