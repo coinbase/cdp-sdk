@@ -36,7 +36,9 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
 )
 from cdp.openapi_client.models.sign_evm_typed_data200_response import SignEvmTypedData200Response
 from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
+from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
+from cdp.update_smart_account_types import UpdateSmartAccountOptions
 
 
 def test_init():
@@ -955,8 +957,7 @@ async def test_update_smart_account(smart_account_model_factory):
     test_address = "0x1234567890123456789012345678901234567890"
     test_name = "updated-smart-account-name"
     test_idempotency_key = "test-idempotency-key"
-    test_account_policy = "8e03978e-40d5-43e8-bc93-6894a57f9324"
-    update_options = UpdateAccountOptions(name=test_name, account_policy=test_account_policy)
+    update_options = UpdateSmartAccountOptions(name=test_name)
     mock_owner = AsyncMock()
     mock_owner.address = "0x0987654321098765432109876543210987654321"
 
@@ -969,10 +970,11 @@ async def test_update_smart_account(smart_account_model_factory):
 
     mock_evm_smart_accounts_api.update_evm_smart_account.assert_called_once_with(
         address=test_address,
-        update_evm_smart_account_request=update_options,
+        update_evm_smart_account_request=UpdateEvmSmartAccountRequest(name=test_name),
     )
 
-    assert result == evm_smart_account_model
+    assert result.address == evm_smart_account_model.address
+    assert result.name == evm_smart_account_model.name
 
 
 @pytest.mark.asyncio
