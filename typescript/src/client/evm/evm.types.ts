@@ -261,7 +261,7 @@ export interface CreateSwapQuoteResult {
  */
 export interface GetUserOperationOptions {
   /** The smart account. */
-  smartAccount: SmartAccount;
+  smartAccount: SmartAccount | ReadonlySmartAccount | Address;
   /** The user operation hash. */
   userOpHash: Hex;
 }
