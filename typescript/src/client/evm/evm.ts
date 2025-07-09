@@ -31,6 +31,7 @@ import {
   SmartAccount,
   SwapUnavailableResult,
   UpdateEvmAccountOptions,
+  UpdateEvmSmartAccountOptions,
   UserOperation,
   WaitForUserOperationOptions,
 } from "./evm.types.js";
@@ -1104,6 +1105,35 @@ export class EvmClient implements EvmClientInterface {
     Analytics.wrapObjectMethodsWithErrorTracking(account);
 
     return account;
+  }
+
+  /**
+   * Updates a CDP EVM smart account.
+   *
+   * @param {UpdateEvmSmartAccountOptions} [options] - Optional parameters for updating the account.
+   * @param {string} options.address - The address of the account to update
+   * @param {UpdateEvmSmartAccount} options.update - An object containing account fields to update.
+   * @param {string} options.owner - The owner of the account.
+   * @param {string} [options.update.name] - The new name for the account.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
+   * @returns A promise that resolves to the updated account.
+   */
+  async updateSmartAccount(options: UpdateEvmSmartAccountOptions): Promise<SmartAccount> {
+    const openApiSmartAccount = await CdpOpenApiClient.updateEvmSmartAccount(
+      options.address,
+      options.update,
+      options.idempotencyKey,
+    );
+
+    const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
+      smartAccount: openApiSmartAccount,
+      owner: options.owner,
+    });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
+
+    return smartAccount;
   }
 
   /**

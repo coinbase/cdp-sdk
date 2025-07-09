@@ -21,6 +21,7 @@ from cdp.evm_local_account import EvmLocalAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.policies.types import (
     CreatePolicyOptions,
     EthValueCriterion,
@@ -1509,6 +1510,35 @@ async def test_update_solana_account(cdp_client):
     retrieved_account = await cdp_client.solana.get_account(name=updated_name)
     assert retrieved_account is not None
     assert retrieved_account.address == account_to_update.address
+    assert retrieved_account.name == updated_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_update_evm_smart_account(cdp_client):
+    """Test updating an EVM smart account."""
+    original_name = generate_random_name()
+    owner = Account.create()
+    account = await cdp_client.evm.create_smart_account(name=original_name, owner=owner)
+    assert account is not None
+    assert account.name == original_name
+
+    # Update the account with a new name
+    updated_name = generate_random_name()
+    updated_account = await cdp_client.evm.update_smart_account(
+        address=account.address,
+        update=UpdateEvmSmartAccountRequest(
+            name=updated_name,
+        ),
+        owner=owner,
+    )
+    assert updated_account is not None
+    assert updated_account.name == updated_name
+
+    # Verify we can get the updated account by its new name
+    retrieved_account = await cdp_client.evm.get_smart_account(name=updated_name, owner=owner)
+    assert retrieved_account is not None
+    assert retrieved_account.address == account.address
     assert retrieved_account.name == updated_name
 
 

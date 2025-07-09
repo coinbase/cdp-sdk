@@ -64,6 +64,7 @@ vi.mock("../../openapi-client", () => {
       signEvmTransaction: vi.fn(),
       signEvmTypedData: vi.fn(),
       updateEvmAccount: vi.fn(),
+      updateEvmSmartAccount: vi.fn(),
       getEvmSwapQuote: vi.fn(),
       createEvmSwap: vi.fn(),
       getEvmSwapPrice: vi.fn(),
@@ -233,7 +234,7 @@ describe("EvmClient", () => {
 
       const name = "test-smart-account";
       const createOptions = {
-        owner: owner,
+        owner,
         name,
       };
       const openApiEvmSmartAccount: OpenApiEvmSmartAccount = {
@@ -1208,6 +1209,137 @@ describe("EvmClient", () => {
         account: updatedAccount,
       });
       expect(result).toBe(serverAccount);
+    });
+  });
+
+  describe("updateEvmSmartAccount", () => {
+    it("should update an existing smart account", async () => {
+      const address = "0x123456789abcdef";
+      const updateData = {
+        name: "Updated Smart Account Name",
+      };
+      const updatedSmartAccount = {
+        address,
+        name: updateData.name,
+        owners: ["0x789"],
+      };
+      const owner: EvmAccount = {
+        address: "0x789" as Address,
+        sign: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signMessage: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature" as Hex),
+      };
+      const smartAccount: EvmSmartAccount = {
+        address: address as Address,
+        name: updateData.name,
+        type: "evm-smart" as const,
+        owners: [owner],
+        transfer: vi.fn(),
+        listTokenBalances: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+        useNetwork: vi.fn(),
+        quoteSwap: vi.fn(),
+        swap: vi.fn(),
+      };
+
+      const updateEvmSmartAccountMock = CdpOpenApiClient.updateEvmSmartAccount as MockedFunction<
+        typeof CdpOpenApiClient.updateEvmSmartAccount
+      >;
+      updateEvmSmartAccountMock.mockResolvedValue(updatedSmartAccount);
+
+      const toEvmSmartAccountMock = toEvmSmartAccount as MockedFunction<typeof toEvmSmartAccount>;
+      toEvmSmartAccountMock.mockReturnValue(smartAccount);
+
+      const options = {
+        address,
+        update: updateData,
+        owner,
+        idempotencyKey: "idem-key-12345",
+      };
+
+      const result = await client.updateSmartAccount(options);
+
+      expect(CdpOpenApiClient.updateEvmSmartAccount).toHaveBeenCalledWith(
+        address,
+        updateData,
+        "idem-key-12345",
+      );
+      expect(toEvmSmartAccount).toHaveBeenCalledWith(CdpOpenApiClient, {
+        smartAccount: updatedSmartAccount,
+        owner,
+      });
+      expect(result).toBe(smartAccount);
+    });
+
+    it("should update a smart account without an idempotency key", async () => {
+      const address = "0x987654321fedcba";
+      const updateData = {
+        name: "Another Updated Smart Account Name",
+      };
+      const updatedSmartAccount = {
+        address,
+        name: updateData.name,
+        owners: ["0x456"],
+      };
+      const owner: EvmAccount = {
+        address: "0x456" as Address,
+        sign: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signMessage: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature" as Hex),
+      };
+      const smartAccount: EvmSmartAccount = {
+        address: address as Address,
+        name: updateData.name,
+        type: "evm-smart" as const,
+        owners: [owner],
+        transfer: vi.fn(),
+        listTokenBalances: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+        useNetwork: vi.fn(),
+        quoteSwap: vi.fn(),
+        swap: vi.fn(),
+      };
+
+      const updateEvmSmartAccountMock = CdpOpenApiClient.updateEvmSmartAccount as MockedFunction<
+        typeof CdpOpenApiClient.updateEvmSmartAccount
+      >;
+      updateEvmSmartAccountMock.mockResolvedValue(updatedSmartAccount);
+
+      const toEvmSmartAccountMock = toEvmSmartAccount as MockedFunction<typeof toEvmSmartAccount>;
+      toEvmSmartAccountMock.mockReturnValue(smartAccount);
+
+      const options = {
+        address,
+        update: updateData,
+        owner,
+      };
+
+      const result = await client.updateSmartAccount(options);
+
+      expect(CdpOpenApiClient.updateEvmSmartAccount).toHaveBeenCalledWith(
+        address,
+        updateData,
+        undefined,
+      );
+      expect(toEvmSmartAccount).toHaveBeenCalledWith(CdpOpenApiClient, {
+        smartAccount: updatedSmartAccount,
+        owner,
+      });
+      expect(result).toBe(smartAccount);
     });
   });
 
