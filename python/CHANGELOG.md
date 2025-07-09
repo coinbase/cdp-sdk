@@ -2,6 +2,14 @@
 
 <!-- towncrier release notes start -->
 
+## [1.21.0] - 2025-07-09
+
+### Features
+
+- Added updateSmartAccount to EvmClient ([#267](https://github.com/coinbase/cdp-sdk/pull/267))
+- Added sendUserOperation, prepareUserOperation policy rules and EVM Smart Account policies ([#270](https://github.com/coinbase/cdp-sdk/pull/270))
+
+
 ## [1.20.0] - 2025-07-08
 
 ### Features
