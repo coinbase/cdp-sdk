@@ -27,6 +27,14 @@ export const getListEvmSmartAccountsResponseMock = (): ListEvmSmartAccounts200 =
           faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
           undefined,
         ]),
+        policies: faker.helpers.arrayElement([
+          Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+            faker.helpers.fromRegExp(
+              "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+            ),
+          ),
+          undefined,
+        ]),
         createdAt: faker.helpers.arrayElement([
           `${faker.date.past().toISOString().split(".")[0]}Z`,
           undefined,
@@ -52,6 +60,14 @@ export const getCreateEvmSmartAccountResponseMock = (
     faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
     undefined,
   ]),
+  policies: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.fromRegExp(
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      ),
+    ),
+    undefined,
+  ]),
   createdAt: faker.helpers.arrayElement([
     `${faker.date.past().toISOString().split(".")[0]}Z`,
     undefined,
@@ -72,6 +88,14 @@ export const getGetEvmSmartAccountByNameResponseMock = (
   ),
   name: faker.helpers.arrayElement([
     faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  policies: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.fromRegExp(
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      ),
+    ),
     undefined,
   ]),
   createdAt: faker.helpers.arrayElement([
@@ -96,6 +120,14 @@ export const getGetEvmSmartAccountResponseMock = (
     faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
     undefined,
   ]),
+  policies: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.fromRegExp(
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      ),
+    ),
+    undefined,
+  ]),
   createdAt: faker.helpers.arrayElement([
     `${faker.date.past().toISOString().split(".")[0]}Z`,
     undefined,
@@ -116,6 +148,14 @@ export const getUpdateEvmSmartAccountResponseMock = (
   ),
   name: faker.helpers.arrayElement([
     faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  policies: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.fromRegExp(
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      ),
+    ),
     undefined,
   ]),
   createdAt: faker.helpers.arrayElement([

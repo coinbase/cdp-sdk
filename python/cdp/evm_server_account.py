@@ -97,11 +97,11 @@ class EvmServerAccount(BaseAccount, BaseModel):
         return self.__name
 
     @property
-    def policies(self) -> list[str]:
+    def policies(self) -> list[str] | None:
         """Gets the list of policies the apply to this account.
 
         Returns:
-            str: The list of Policy IDs.
+            list[str] | None: The list of Policy IDs.
 
         """
         return self.__policies

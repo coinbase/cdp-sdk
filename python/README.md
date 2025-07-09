@@ -739,7 +739,7 @@ from cdp.actions.evm.swap import AccountSwapOptions
 async with CdpClient() as cdp:
     # Retrieve an existing EVM account with funds already in it
     account = await cdp.evm.get_or_create_account(name="MyExistingFundedAccount")
-    
+
     # Execute a swap directly on an EVM account in one line
     result = await account.swap(
         AccountSwapOptions(
@@ -762,7 +762,7 @@ async with CdpClient() as cdp:
     # Create or retrieve a smart account with funds already in it
     owner = await cdp.evm.get_or_create_account(name="MyOwnerAccount")
     smart_account = await cdp.evm.get_or_create_smart_account(name="MyExistingFundedSmartAccount", owner=owner)
-    
+
     # Execute a swap directly on a smart account in one line
     result = await smart_account.swap(
         SmartAccountSwapOptions(
@@ -775,7 +775,7 @@ async with CdpClient() as cdp:
         )
     )
     print(f"User operation hash: {result.user_op_hash}")
-    
+
     # Wait for the user operation to complete
     receipt = await smart_account.wait_for_user_operation(user_op_hash=result.user_op_hash)
     print(f"Status: {receipt.status}")
@@ -856,7 +856,7 @@ else:
     # Step 3: Execute using the quote
     result = await swap_quote.execute()
     print(f"User operation hash: {result.user_op_hash}")
-    
+
     # Wait for the user operation to complete
     receipt = await smart_account.wait_for_user_operation(user_op_hash=result.user_op_hash)
     print(f"Status: {receipt.status}")
@@ -1179,5 +1179,3 @@ For feature requests, feedback, or questions, please reach out to us in the
 ## Security
 
 If you discover a security vulnerability within this SDK, please see our [Security Policy](https://github.com/coinbase/cdp-sdk/tree/main/SECURITY.md) for disclosure information.
-
-

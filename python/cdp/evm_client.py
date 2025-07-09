@@ -194,10 +194,16 @@ class EvmClient:
 
         """
         evm_smart_account = await self.api_clients.evm_smart_accounts.create_evm_smart_account(
-            CreateEvmSmartAccountRequest(owners=[owner.address], name=name),
+            create_evm_smart_account_request=CreateEvmSmartAccountRequest(
+                owners=[owner.address], name=name
+            ),
         )
         return EvmSmartAccount(
-            evm_smart_account.address, owner, evm_smart_account.name, self.api_clients
+            evm_smart_account.address,
+            owner,
+            evm_smart_account.name,
+            evm_smart_account.policies,
+            self.api_clients,
         )
 
     async def get_or_create_smart_account(self, owner: BaseAccount, name: str) -> EvmSmartAccount:
@@ -297,7 +303,11 @@ class EvmClient:
         else:
             raise ValueError("Either address or name must be provided")
         return EvmSmartAccount(
-            evm_smart_account.address, owner, evm_smart_account.name, self.api_clients
+            evm_smart_account.address,
+            owner,
+            evm_smart_account.name,
+            evm_smart_account.policies,
+            self.api_clients,
         )
 
     async def get_user_operation(self, address: str, user_op_hash: str) -> EvmUserOperationModel:

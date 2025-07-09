@@ -514,7 +514,9 @@ async def test_create_smart_account(smart_account_model_factory):
     result = await client.create_smart_account(evm_smart_account_model)
 
     mock_evm_smart_accounts_api.create_evm_smart_account.assert_called_once_with(
-        CreateEvmSmartAccountRequest(owners=[evm_smart_account_model.address])
+        create_evm_smart_account_request=CreateEvmSmartAccountRequest(
+            owners=[evm_smart_account_model.address]
+        )
     )
 
     assert result.address == evm_smart_account_model.address
@@ -547,7 +549,9 @@ async def test_get_or_create_smart_account(smart_account_model_factory, local_ac
 
     assert mock_evm_smart_accounts_api.get_evm_smart_account_by_name.call_count == 2
     mock_evm_smart_accounts_api.create_evm_smart_account.assert_called_once_with(
-        CreateEvmSmartAccountRequest(owners=[owner.address], name=test_name)
+        create_evm_smart_account_request=CreateEvmSmartAccountRequest(
+            owners=[owner.address], name=test_name
+        )
     )
 
     assert result.address == smart_account_model.address

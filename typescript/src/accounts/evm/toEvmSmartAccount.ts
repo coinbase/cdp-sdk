@@ -77,6 +77,7 @@ export function toEvmSmartAccount(
   const account: EvmSmartAccount = {
     address: options.smartAccount.address as Address,
     owners: [options.owner],
+    policies: options.smartAccount.policies,
     async transfer(transferArgs): Promise<SendUserOperationReturnType> {
       return transfer(apiClient, account, transferArgs, smartAccountTransferStrategy);
     },

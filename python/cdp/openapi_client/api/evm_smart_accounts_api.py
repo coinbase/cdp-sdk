@@ -49,6 +49,7 @@ class EVMSmartAccountsApi:
     @validate_call
     async def create_evm_smart_account(
         self,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         create_evm_smart_account_request: Optional[CreateEvmSmartAccountRequest] = None,
         _request_timeout: Union[
             None,
@@ -67,6 +68,8 @@ class EVMSmartAccountsApi:
 
         Creates a new Smart Account.
 
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
         :param create_evm_smart_account_request:
         :type create_evm_smart_account_request: CreateEvmSmartAccountRequest
         :param _request_timeout: timeout setting for this request. If one
@@ -92,6 +95,7 @@ class EVMSmartAccountsApi:
         """ # noqa: E501
 
         _param = self._create_evm_smart_account_serialize(
+            x_idempotency_key=x_idempotency_key,
             create_evm_smart_account_request=create_evm_smart_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -121,6 +125,7 @@ class EVMSmartAccountsApi:
     @validate_call
     async def create_evm_smart_account_with_http_info(
         self,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         create_evm_smart_account_request: Optional[CreateEvmSmartAccountRequest] = None,
         _request_timeout: Union[
             None,
@@ -139,6 +144,8 @@ class EVMSmartAccountsApi:
 
         Creates a new Smart Account.
 
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
         :param create_evm_smart_account_request:
         :type create_evm_smart_account_request: CreateEvmSmartAccountRequest
         :param _request_timeout: timeout setting for this request. If one
@@ -164,6 +171,7 @@ class EVMSmartAccountsApi:
         """ # noqa: E501
 
         _param = self._create_evm_smart_account_serialize(
+            x_idempotency_key=x_idempotency_key,
             create_evm_smart_account_request=create_evm_smart_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -193,6 +201,7 @@ class EVMSmartAccountsApi:
     @validate_call
     async def create_evm_smart_account_without_preload_content(
         self,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         create_evm_smart_account_request: Optional[CreateEvmSmartAccountRequest] = None,
         _request_timeout: Union[
             None,
@@ -211,6 +220,8 @@ class EVMSmartAccountsApi:
 
         Creates a new Smart Account.
 
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
         :param create_evm_smart_account_request:
         :type create_evm_smart_account_request: CreateEvmSmartAccountRequest
         :param _request_timeout: timeout setting for this request. If one
@@ -236,6 +247,7 @@ class EVMSmartAccountsApi:
         """ # noqa: E501
 
         _param = self._create_evm_smart_account_serialize(
+            x_idempotency_key=x_idempotency_key,
             create_evm_smart_account_request=create_evm_smart_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -260,6 +272,7 @@ class EVMSmartAccountsApi:
 
     def _create_evm_smart_account_serialize(
         self,
+        x_idempotency_key,
         create_evm_smart_account_request,
         _request_auth,
         _content_type,
@@ -284,6 +297,8 @@ class EVMSmartAccountsApi:
         # process the path parameters
         # process the query parameters
         # process the header parameters
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
         # process the form parameters
         # process the body parameter
         if create_evm_smart_account_request is not None:

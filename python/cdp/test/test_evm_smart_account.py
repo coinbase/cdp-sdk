@@ -37,6 +37,10 @@ class TestEvmSmartAccount:
         assert account_no_name.owners == [owner]
         assert account_no_name.name is None
 
+        policies = ["c12a1144-a579-49da-acd8-fabe66805e32"]
+        account_with_policies = EvmSmartAccount(address, owner, name, policies)
+        assert account_with_policies.policies == policies
+
     def test_str_representation(self, smart_account_factory):
         """Test the string representation of the EvmSmartAccount."""
         smart_account = smart_account_factory()
@@ -102,7 +106,7 @@ async def test_list_token_balances(smart_account_factory, evm_token_balances_mod
         next_page_token="next-page-token",
     )
 
-    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
 
     result = await smart_account.list_token_balances(network="base-sepolia")
 
@@ -148,7 +152,7 @@ async def test_send_user_operation(
     owner = local_account_factory()
 
     smart_account = EvmSmartAccount(
-        smart_account_model.address, owner, smart_account_model.name, mock_api_clients
+        smart_account_model.address, owner, smart_account_model.name, None, mock_api_clients
     )
 
     function_call = FunctionCall(
@@ -186,7 +190,7 @@ async def test_wait_for_user_operation(
     owner = local_account_factory()
 
     smart_account = EvmSmartAccount(
-        smart_account_model.address, owner, smart_account_model.name, mock_api_clients
+        smart_account_model.address, owner, smart_account_model.name, None, mock_api_clients
     )
 
     result = await smart_account.wait_for_user_operation(
@@ -214,7 +218,7 @@ async def test_get_user_operation(
     owner = local_account_factory()
 
     smart_account = EvmSmartAccount(
-        smart_account_model.address, owner, smart_account_model.name, mock_api_clients
+        smart_account_model.address, owner, smart_account_model.name, None, mock_api_clients
     )
 
     result = await smart_account.get_user_operation(
@@ -242,6 +246,7 @@ async def test_request_faucet(smart_account_model_factory):
         smart_account_model.address,
         smart_account_model.owners[0],
         smart_account_model.name,
+        None,
         mock_api_instance,
     )
 
@@ -279,7 +284,7 @@ async def test_quote_fund_transfer_usdc_on_base(
         return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
     )
 
-    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
     # 1 USDC
     result = await smart_account.quote_fund(network="base", token="usdc", amount=1000000)
 
@@ -327,7 +332,7 @@ async def test_quote_fund_transfer_eth_on_base(
         return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
     )
 
-    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
     # 1.1 ETH
     result = await smart_account.quote_fund(network="base", token="eth", amount=1100000000000000000)
 
@@ -373,7 +378,7 @@ async def test_quote_fund_transfer_usdc_on_ethereum(
         return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
     )
 
-    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
     # 1 USDC
     result = await smart_account.quote_fund(network="ethereum", token="usdc", amount=1000000)
 
@@ -421,7 +426,7 @@ async def test_quote_fund_transfer_eth_on_ethereum(
         return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
     )
 
-    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
     # 1.1 ETH
     result = await smart_account.quote_fund(
         network="ethereum", token="eth", amount=1100000000000000000
@@ -471,7 +476,7 @@ async def test_fund_transfer_eth_on_base(
         return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
     )
 
-    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
     # 1.1 ETH
     result = await smart_account.fund(network="base", token="eth", amount=1100000000000000000)
 
@@ -517,7 +522,7 @@ async def test_fund_transfer_usdc_on_base(
         return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
     )
 
-    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
     # 1 USDC (6 decimals)
     result = await smart_account.fund(network="base", token="usdc", amount=1000000)
 
@@ -563,7 +568,7 @@ async def test_fund_transfer_eth_on_ethereum(
         return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
     )
 
-    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
     # 1.1 ETH
     result = await smart_account.fund(network="ethereum", token="eth", amount=1100000000000000000)
 
@@ -609,7 +614,7 @@ async def test_fund_transfer_usdc_on_ethereum(
         return_value=CreatePaymentTransferQuote201Response(transfer=payment_transfer)
     )
 
-    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
     # 1 USDC (6 decimals)
     result = await smart_account.fund(network="ethereum", token="usdc", amount=1000000)
 
@@ -647,7 +652,7 @@ async def test_wait_for_fund_operation_receipt_success(
     completed_transfer = payment_transfer_model_factory(status="completed")
     mock_payments_api.get_payment_transfer = AsyncMock(return_value=completed_transfer)
 
-    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
     result = await smart_account.wait_for_fund_operation_receipt(transfer_id="test-transfer-id")
 
     assert result == completed_transfer
@@ -670,7 +675,7 @@ async def test_wait_for_fund_operation_receipt_failure(
     failed_transfer = payment_transfer_model_factory(status="failed")
     mock_payments_api.get_payment_transfer = AsyncMock(return_value=failed_transfer)
 
-    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
     result = await smart_account.wait_for_fund_operation_receipt(transfer_id="test-transfer-id")
 
     assert result == failed_transfer
@@ -693,7 +698,7 @@ async def test_wait_for_fund_operation_receipt_timeout(
     pending_transfer = payment_transfer_model_factory(status="pending")
     mock_payments_api.get_payment_transfer = AsyncMock(return_value=pending_transfer)
 
-    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, mock_api_clients)
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
 
     with pytest.raises(TimeoutError):
         await smart_account.wait_for_fund_operation_receipt(

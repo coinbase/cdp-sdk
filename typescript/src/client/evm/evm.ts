@@ -698,6 +698,7 @@ export class EvmClient implements EvmClientInterface {
         address: account.address as Address,
         owners: [account.owners[0] as Address],
         type: "evm-smart",
+        policies: account.policies,
       })),
       nextPageToken: smartAccounts.nextPageToken,
     };

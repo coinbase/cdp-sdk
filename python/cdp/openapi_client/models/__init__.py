@@ -85,6 +85,7 @@ from cdp.openapi_client.models.payment_method_request import PaymentMethodReques
 from cdp.openapi_client.models.payment_rail_action import PaymentRailAction
 from cdp.openapi_client.models.policy import Policy
 from cdp.openapi_client.models.prepare_user_operation_request import PrepareUserOperationRequest
+from cdp.openapi_client.models.prepare_user_operation_rule import PrepareUserOperationRule
 from cdp.openapi_client.models.request_evm_faucet200_response import RequestEvmFaucet200Response
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.request_solana_faucet200_response import RequestSolanaFaucet200Response
@@ -95,6 +96,7 @@ from cdp.openapi_client.models.send_evm_transaction_criteria_inner import SendEv
 from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
 from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransactionRule
 from cdp.openapi_client.models.send_user_operation_request import SendUserOperationRequest
+from cdp.openapi_client.models.send_user_operation_rule import SendUserOperationRule
 from cdp.openapi_client.models.sign_evm_hash200_response import SignEvmHash200Response
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
 from cdp.openapi_client.models.sign_evm_hash_rule import SignEvmHashRule

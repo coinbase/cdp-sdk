@@ -5,11 +5,11 @@ from .types import FundOperationResult
 from .wait_for_fund_operation_receipt import wait_for_fund_operation_receipt
 
 __all__ = [
-    "FundOptions",
     "FundOperationResult",
+    "FundOptions",
+    "Quote",
     "QuoteFundOptions",
     "fund",
     "quote_fund",
     "wait_for_fund_operation_receipt",
-    "Quote",
 ]

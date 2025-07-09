@@ -27,6 +27,7 @@ describe("toEvmSmartAccount", () => {
   let mockUserOp: UserOperation;
   let mockPaymentMethods: PaymentMethod[];
   let mockTransfer: Transfer;
+  const mockProjectPolicy = crypto.randomUUID();
   beforeEach(() => {
     mockUserOp = {
       userOpHash: "0xuserophash",
@@ -89,6 +90,7 @@ describe("toEvmSmartAccount", () => {
       address: mockAddress,
       owners: [],
       name: "Test Account",
+      policies: [mockProjectPolicy],
     };
   });
 
@@ -116,6 +118,7 @@ describe("toEvmSmartAccount", () => {
       owners: [mockOwner],
       name: "Test Account",
       type: "evm-smart",
+      policies: [mockProjectPolicy],
       transfer: expect.any(Function),
       listTokenBalances: expect.any(Function),
       sendUserOperation: expect.any(Function),

@@ -1015,6 +1015,8 @@ We currently support the following policy rules:
 - `SignEvmMessageRule`
 - `SignEvmTransactionRule`
 - `SignSolanaTransactionRule`
+- `SendUserOperationRule`
+- `PrepareUserOperationRule`
 
 ## Authentication tools
 

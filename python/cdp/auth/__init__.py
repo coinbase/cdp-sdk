@@ -17,20 +17,20 @@ from .utils.ws import (
 )
 
 __all__ = [
-    # JWT utils exports
-    "generate_jwt",
-    "generate_wallet_jwt",
+    "GetAuthHeadersOptions",
+    "GetWebSocketAuthHeadersOptions",
     "JwtOptions",
-    "WalletJwtOptions",
     # Client exports
     "Urllib3AuthClient",
     "Urllib3AuthClientOptions",
+    "WalletJwtOptions",
+    # JWT utils exports
+    "generate_jwt",
+    "generate_wallet_jwt",
     # HTTP utils exports
     "get_auth_headers",
-    "GetAuthHeadersOptions",
     # WebSocket utils exports
     "get_websocket_auth_headers",
-    "GetWebSocketAuthHeadersOptions",
 ]
 
 """CDP SDK Auth package."""
