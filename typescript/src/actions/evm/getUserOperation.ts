@@ -24,7 +24,10 @@ export async function getUserOperation(
   client: CdpOpenApiClientType,
   options: GetUserOperationOptions,
 ): Promise<UserOperation> {
-  const userOp = await client.getUserOperation(options.smartAccount.address, options.userOpHash);
+  const address =
+    typeof options.smartAccount === "string" ? options.smartAccount : options.smartAccount.address;
+
+  const userOp = await client.getUserOperation(address, options.userOpHash);
 
   return {
     calls: userOp.calls.map(call => ({
