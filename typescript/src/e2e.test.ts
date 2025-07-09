@@ -526,7 +526,7 @@ describe("CDP Client E2E Tests", () => {
     const owner = privateKeyToAccount(privateKey);
 
     const smartAccount = await cdp.evm.createSmartAccount({
-      owner: owner,
+      owner,
     });
     expect(smartAccount).toBeDefined();
 
@@ -536,7 +536,7 @@ describe("CDP Client E2E Tests", () => {
 
     const retrievedSmartAccount = await cdp.evm.getSmartAccount({
       address: smartAccount.address,
-      owner: owner,
+      owner,
     });
     expect(retrievedSmartAccount).toBeDefined();
   });
@@ -548,7 +548,7 @@ describe("CDP Client E2E Tests", () => {
     const originalName = generateRandomName();
 
     const smartAccountToUpdate = await cdp.evm.createSmartAccount({
-      owner: owner,
+      owner,
       name: originalName,
     });
     expect(smartAccountToUpdate).toBeDefined();
@@ -558,7 +558,7 @@ describe("CDP Client E2E Tests", () => {
     const updatedName = generateRandomName();
     const updatedSmartAccount = await cdp.evm.updateSmartAccount({
       address: smartAccountToUpdate.address,
-      owner: owner,
+      owner,
       update: {
         name: updatedName,
       },
@@ -572,7 +572,7 @@ describe("CDP Client E2E Tests", () => {
     // Verify we can get the updated smart account by its new name
     const retrievedSmartAccount = await cdp.evm.getSmartAccount({
       name: updatedName,
-      owner: owner,
+      owner,
     });
     expect(retrievedSmartAccount).toBeDefined();
     expect(retrievedSmartAccount.address).toBe(smartAccountToUpdate.address);

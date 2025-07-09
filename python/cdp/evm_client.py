@@ -48,6 +48,7 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
 from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
 from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
+from cdp.update_smart_account_types import UpdateSmartAccountOptions
 
 if TYPE_CHECKING:
     from cdp.actions.evm.swap.types import QuoteSwapResult, SwapPriceResult, SwapUnavailableResult
@@ -650,7 +651,7 @@ class EvmClient:
     async def update_smart_account(
         self,
         address: str,
-        update: UpdateEvmSmartAccountRequest,
+        update: UpdateSmartAccountOptions,
         owner: BaseAccount,
         idempotency_key: str | None = None,
     ) -> EvmSmartAccount:
@@ -658,7 +659,7 @@ class EvmClient:
 
         Args:
             address (str): The address of the smart account.
-            update (UpdateEvmSmartAccountRequest): The updates to apply to the smart account.
+            update (UpdateSmartAccountOptions): The updates to apply to the smart account.
             owner (BaseAccount): The owner of the smart account.
             idempotency_key (str, optional): The idempotency key.
 
@@ -668,7 +669,9 @@ class EvmClient:
         """
         smart_account = await self.api_clients.evm_smart_accounts.update_evm_smart_account(
             address=address,
-            update_evm_smart_account_request=update,
+            update_evm_smart_account_request=UpdateEvmSmartAccountRequest(
+                name=update.name,
+            ),
         )
         return EvmSmartAccount(smart_account.address, owner, smart_account.name, self.api_clients)
 

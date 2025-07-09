@@ -22,8 +22,8 @@ import type {
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
-  UpdateEvmAccountBody,
-  UpdateEvmSmartAccountBody,
+  UpdateEvmAccountBody as UpdateEvmAccount,
+  UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
 } from "../../openapi-client/index.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";
@@ -418,9 +418,9 @@ export interface ReadonlySmartAccount
  */
 export interface UpdateEvmAccountOptions {
   /** The address of the account. */
-  address: string;
+  address: Address;
   /** The updates to apply to the account */
-  update: UpdateEvmAccountBody;
+  update: UpdateEvmAccount;
   /** The idempotency key. */
   idempotencyKey?: string;
 }
@@ -430,9 +430,9 @@ export interface UpdateEvmAccountOptions {
  */
 export interface UpdateEvmSmartAccountOptions {
   /** The address of the account. */
-  address: string;
+  address: Address;
   /** The updates to apply to the account */
-  update: UpdateEvmSmartAccountBody;
+  update: UpdateEvmSmartAccount;
   /** The idempotency key. */
   idempotencyKey?: string;
   /** The owner of the account. */

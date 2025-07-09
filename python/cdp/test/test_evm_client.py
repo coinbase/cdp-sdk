@@ -960,7 +960,7 @@ async def test_update_smart_account(smart_account_model_factory):
     mock_owner = AsyncMock()
     mock_owner.address = "0x0987654321098765432109876543210987654321"
 
-    await client.update_smart_account(
+    result = await client.update_smart_account(
         address=test_address,
         update=update_options,
         idempotency_key=test_idempotency_key,
@@ -971,6 +971,8 @@ async def test_update_smart_account(smart_account_model_factory):
         address=test_address,
         update_evm_smart_account_request=update_options,
     )
+
+    assert result == evm_smart_account_model
 
 
 @pytest.mark.asyncio

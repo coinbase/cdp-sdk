@@ -3,8 +3,8 @@
 import asyncio
 
 from cdp import CdpClient
-from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from dotenv import load_dotenv
+from cdp.update_smart_account_types import UpdateSmartAccountOptions
 
 load_dotenv()
 
@@ -22,8 +22,8 @@ async def main():
         print("Original name:", smart_account.name)
 
         # Update the smart account with a new name
-        updated_name = "MySmartAccount2"
-        update_request = UpdateEvmSmartAccountRequest(name=updated_name)
+        updated_name = "MySmartAccount3"
+        update_request = UpdateSmartAccountOptions(name=updated_name)
         
         updated_smart_account = await cdp.evm.update_smart_account(
             address=smart_account.address,

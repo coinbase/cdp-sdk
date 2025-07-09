@@ -1110,9 +1110,10 @@ export class EvmClient implements EvmClientInterface {
   /**
    * Updates a CDP EVM smart account.
    *
-   * @param {UpdateEvmSmartAccountOptions} [options] - Optional parameters for creating the account.
+   * @param {UpdateEvmSmartAccountOptions} [options] - Optional parameters for updating the account.
    * @param {string} options.address - The address of the account to update
-   * @param {UpdateEvmSmartAccountBody} options.update - An object containing account fields to update.
+   * @param {UpdateEvmSmartAccount} options.update - An object containing account fields to update.
+   * @param {string} options.owner - The owner of the account.
    * @param {string} [options.update.name] - The new name for the account.
    * @param {string} [options.idempotencyKey] - An idempotency key.
    *

@@ -10,7 +10,7 @@ const owner = await cdp.evm.createAccount();
 
 // Create a smart account with the CDP account as owner
 const smartAccount = await cdp.evm.getOrCreateSmartAccount({
-    owner: owner,
+    owner,
     name: "my-smart-account"
 });
 
@@ -20,7 +20,7 @@ console.log("Original name:", smartAccount.name);
 // Update the smart account with a new name
 const updatedSmartAccount = await cdp.evm.updateSmartAccount({
     address: smartAccount.address,
-    owner: owner,
+    owner,
     update: {
         name: "updated-smart-account-name"
     }

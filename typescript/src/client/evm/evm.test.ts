@@ -234,7 +234,7 @@ describe("EvmClient", () => {
 
       const name = "test-smart-account";
       const createOptions = {
-        owner: owner,
+        owner,
         name,
       };
       const openApiEvmSmartAccount: OpenApiEvmSmartAccount = {
