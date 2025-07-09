@@ -2,4 +2,4 @@
 "@coinbase/cdp-sdk": minor
 ---
 
-Add updateSmartAccount
+Added updateSmartAccount to EvmClient
