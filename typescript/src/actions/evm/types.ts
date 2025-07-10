@@ -29,7 +29,7 @@ import type {
   WaitForUserOperationReturnType,
 } from "./waitForUserOperation.js";
 
-type Actions = {
+export type Actions = {
   /**
    * List the token balances of an account.
    *
