@@ -11,7 +11,7 @@
     "changeset:version": "changeset version",
     "check:auth-crypto-imports": "tsx scripts/check-auth-crypto-imports.ts",
     "clean": "rm -rf src/_esm src/_cjs src/_types",
-    "docs": "typedoc --entryPoints ./src --entryPointStrategy expand --exclude ./src/tests/**/*.ts",
+    "docs": "typedoc --options ./typedoc.json",
     "format": "prettier -c .prettierrc --write \"**/*.{ts,js,cjs,json,md}\" && tsx scripts/sort-msw-index.ts",
     "format:check": "prettier -c .prettierrc --check \"**/*.{ts,js,cjs,json,md}\"",
     "lint": "eslint -c .eslintrc.json \"src/**/*.ts\"",
@@ -45,7 +45,7 @@
     "orval": "^7.6.0",
     "prettier": "^3.2.5",
     "tsx": "^4.19.3",
-    "typedoc": "^0.27.2",
+    "typedoc": "^0.28.7",
     "typescript": "^5.4.5",
     "uuid": "^11.1.0",
     "vitest": "^1.4.0"
