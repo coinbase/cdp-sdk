@@ -566,6 +566,44 @@ async def test_create_get_and_list_solana_accounts(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_list_solana_token_balances(cdp_client):
+    """Test listing solana token balances."""
+    address = "4PkiqJkUvxr9P8C1UsMqGN8NJsUcep9GahDRLfmeu8UK"
+
+    first_page = await cdp_client.solana.list_token_balances(
+        address=address,
+        network="solana-devnet",
+        page_size=1,
+    )
+    assert first_page is not None
+    assert len(first_page.balances) == 1
+    assert first_page.balances[0].token is not None
+    assert first_page.balances[0].token.mint_address is not None
+    assert first_page.balances[0].token.name is not None
+    assert first_page.balances[0].token.symbol is not None
+    assert first_page.balances[0].amount is not None
+    assert first_page.balances[0].amount.amount is not None
+    assert first_page.balances[0].amount.decimals is not None
+
+    if first_page.next_page_token is not None:
+        second_page = await cdp_client.solana.list_token_balances(
+            address=address,
+            network="solana-devnet",
+            page_size=1,
+            page_token=first_page.next_page_token,
+        )
+
+        assert second_page is not None
+        assert len(second_page.balances) == 1
+        assert second_page.balances[0].token is not None
+        assert second_page.balances[0].token.mint_address is not None
+        assert second_page.balances[0].amount is not None
+        assert second_page.balances[0].amount.amount is not None
+        assert second_page.balances[0].amount.decimals is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_solana_sign_fns(cdp_client):
     """Test signing functions."""
     account = await cdp_client.solana.create_account()
