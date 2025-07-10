@@ -10,6 +10,8 @@ import {
   ImportAccountOptions,
   ListAccountsOptions,
   ListAccountsResult,
+  ListTokenBalancesOptions,
+  ListTokenBalancesResult,
   RequestFaucetOptions,
   SignatureResult,
   SignMessageOptions,
@@ -498,5 +500,50 @@ export class SolanaClient implements SolanaClientInterface {
     Analytics.wrapObjectMethodsWithErrorTracking(account);
 
     return account;
+  }
+
+  /**
+   * Lists the token balances for a Solana account.
+   *
+   * @param {ListTokenBalancesOptions} options - Parameters for listing the Solana token balances.
+   * @param {string} options.address - The address of the account to list token balances for.
+   * @param {string} options.network - The network to list token balances for.
+   * @param {number} [options.pageSize] - The number of token balances to return.
+   * @param {string} [options.pageToken] - The page token to begin listing from.
+   * This is obtained by previous calls to this method.
+   *
+   * @returns A promise that resolves to an array of Solana token balance instances.
+   *
+   * @example
+   * ```ts
+   * const balances = await cdp.solana.listTokenBalances({ address: "...", network: "solana-devnet" });
+   * ```
+   */
+  async listTokenBalances(options: ListTokenBalancesOptions): Promise<ListTokenBalancesResult> {
+    const tokenBalances = await CdpOpenApiClient.listSolanaTokenBalances(
+      options.network,
+      options.address,
+      {
+        pageSize: options.pageSize,
+        pageToken: options.pageToken,
+      },
+    );
+
+    return {
+      balances: tokenBalances.balances.map(balance => {
+        return {
+          amount: {
+            amount: BigInt(balance.amount.amount),
+            decimals: balance.amount.decimals,
+          },
+          token: {
+            mintAddress: balance.token.mintAddress,
+            name: balance.token.name,
+            symbol: balance.token.symbol,
+          },
+        };
+      }),
+      nextPageToken: tokenBalances.nextPageToken,
+    };
   }
 }

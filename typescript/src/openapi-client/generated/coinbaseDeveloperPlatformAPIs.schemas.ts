@@ -1433,6 +1433,59 @@ Account names are guaranteed to be unique across all Solana accounts in the deve
 }
 
 /**
+ * The name of the supported Solana networks in human-readable format.
+ */
+export type ListSolanaTokenBalancesNetwork =
+  (typeof ListSolanaTokenBalancesNetwork)[keyof typeof ListSolanaTokenBalancesNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ListSolanaTokenBalancesNetwork = {
+  solana: "solana",
+  "solana-devnet": "solana-devnet",
+} as const;
+
+/**
+ * Amount of a given Solana token.
+ */
+export interface SolanaTokenAmount {
+  /**
+   * The amount is denominated in the smallest indivisible unit of the token. For SOL, the smallest indivisible unit is lamports (10^-9 SOL). For SPL tokens, the smallest unit is defined by the token's decimals configuration.
+   * @pattern ^[0-9]+$
+   */
+  amount: string;
+  /** 'decimals' is the exponential value N that satisfies the equation `amount * 10^-N = standard_denomination`. The standard denomination is the most commonly used denomination for the token.
+- For native SOL, `decimals` is 9 (1 SOL = 10^9 lamports). - For SPL tokens, `decimals` is defined in the token's mint configuration. */
+  decimals: number;
+}
+
+/**
+ * General information about a Solana token. Includes the mint address, and other identifying information.
+ */
+export interface SolanaToken {
+  /** The symbol of this token (ex: SOL, USDC, RAY).
+The token symbol is not unique. It is possible for two different tokens to have the same symbol.
+For the native SOL token, this symbol is "SOL". For SPL tokens, this symbol is defined in the token's metadata.
+Not all tokens have a symbol. This field will only be populated when the token has metadata available. */
+  symbol?: string;
+  /** The name of this token (ex: "Solana", "USD Coin", "Raydium").
+The token name is not unique. It is possible for two different tokens to have the same name.
+For the native SOL token, this name is "Solana". For SPL tokens, this name is defined in the token's metadata.
+Not all tokens have a name. This field will only be populated when the token has metadata available. */
+  name?: string;
+  /**
+   * The mint address of the token.
+For native SOL, the mint address is `So11111111111111111111111111111111111111111`. For SPL tokens, this is the mint address where the token is defined.
+   * @pattern ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+   */
+  mintAddress: string;
+}
+
+export interface SolanaTokenBalance {
+  amount: SolanaTokenAmount;
+  token: SolanaToken;
+}
+
+/**
  * The action of the payment method.
  */
 export type PaymentRailAction = (typeof PaymentRailAction)[keyof typeof PaymentRailAction];
@@ -2225,6 +2278,24 @@ export type RequestSolanaFaucet200 = {
   /** The signature identifying the transaction that requested the funds. */
   transactionSignature: string;
 };
+
+export type ListSolanaTokenBalancesParams = {
+  /**
+   * The number of balances to return per page.
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of balances. Will be empty if there are no more balances to fetch.
+   */
+  pageToken?: string;
+};
+
+export type ListSolanaTokenBalances200AllOf = {
+  /** The list of Solana token balances. */
+  balances: SolanaTokenBalance[];
+};
+
+export type ListSolanaTokenBalances200 = ListSolanaTokenBalances200AllOf & ListResponse;
 
 export type GetCryptoRailsParams = {
   /**
