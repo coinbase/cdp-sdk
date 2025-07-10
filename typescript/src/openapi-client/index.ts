@@ -48,3 +48,4 @@ export const OpenApiPoliciesMethods = {
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
+export * from "./generated/solana-token-balances/solana-token-balances";

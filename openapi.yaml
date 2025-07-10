@@ -370,6 +370,17 @@ tags:
 
 
       </Tip>
+  - name: Solana Token Balances
+    x-audience: public
+    description: |-
+      The Solana Token Balances APIs enable you to retrieve the balances of Solana addresses.
+      This includes SPL tokens and the native SOL token of the network.
+      ## Denomination
+      - 'amount' is denominated in the smallest indivisible unit of the token. For SOL, the smallest indivisible unit is lamports (10^-9 SOL). For SPL tokens, the smallest unit is defined by the token's decimals configuration.
+      - 'decimals' is the exponential value N that satisfies the equation `amount * 10^-N = standard_denomination`. The standard denomination is the most commonly used denomination for the token.
+
+        - For native SOL, `decimals` is 9 (1 SOL = 10^9 lamports).
+        - For SPL tokens, `decimals` is defined in the token's mint configuration.
   - name: x402 Facilitator
     x-audience: public
     description: |-
@@ -3727,6 +3738,112 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/solana/token-balances/{network}/{address}:
+    get:
+      summary: List Solana token balances
+      x-audience: public
+      description: |-
+        Lists the token balances of a Solana address on a given network. The balances include SPL tokens and the native SOL token. The response is paginated, and by default, returns 20 balances per page.
+
+        **Note:** This endpoint is still under development and does not yet provide strong availability or freshness guarantees. Freshness and availability of new token balances will improve over the coming weeks.
+      operationId: listSolanaTokenBalances
+      tags:
+        - Solana Token Balances
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: address
+          description: The base58 encoded Solana address to get balances for.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+          example: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+        - name: network
+          description: The human-readable network name to get the balances for.
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/ListSolanaTokenBalancesNetwork'
+          example: solana
+        - name: pageSize
+          description: The number of balances to return per page.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          example: 10
+        - name: pageToken
+          description: The token for the next page of balances. Will be empty if there are no more balances to fetch.
+          in: query
+          required: false
+          schema:
+            type: string
+          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+      responses:
+        '200':
+          description: Successfully listed token balances.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - balances
+                    properties:
+                      balances:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SolanaTokenBalance'
+                        description: The list of Solana token balances.
+                        example:
+                          - amount:
+                              amount: '1250000000'
+                              decimals: 9
+                            token:
+                              network: solana
+                              symbol: SOL
+                              name: Solana
+                              mintAddress: So11111111111111111111111111111111111111111
+                          - amount:
+                              amount: '123456000'
+                              decimals: 6
+                            token:
+                              network: solana
+                              symbol: USDC
+                              name: USD Coin
+                              mintAddress: 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU
+                  - $ref: '#/components/schemas/ListResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: string doesn't match the regular expression "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Address not found, or no balances found for the given address on this chain.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/payments/rails/payment-methods:
     get:
       summary: Get the fiat payment methods
@@ -6107,6 +6224,78 @@ components:
           format: date-time
       required:
         - address
+    ListSolanaTokenBalancesNetwork:
+      type: string
+      enum:
+        - solana
+        - solana-devnet
+      description: The name of the supported Solana networks in human-readable format.
+      example: solana
+    SolanaTokenAmount:
+      type: object
+      description: Amount of a given Solana token.
+      example:
+        amount: '1250000000'
+        decimals: 9
+      properties:
+        amount:
+          type: string
+          pattern: ^[0-9]+$
+          description: The amount is denominated in the smallest indivisible unit of the token. For SOL, the smallest indivisible unit is lamports (10^-9 SOL). For SPL tokens, the smallest unit is defined by the token's decimals configuration.
+          example: '1250000000'
+        decimals:
+          type: integer
+          format: int64
+          description: |-
+            'decimals' is the exponential value N that satisfies the equation `amount * 10^-N = standard_denomination`. The standard denomination is the most commonly used denomination for the token.
+            - For native SOL, `decimals` is 9 (1 SOL = 10^9 lamports). - For SPL tokens, `decimals` is defined in the token's mint configuration.
+          example: 9
+      required:
+        - amount
+        - decimals
+    SolanaToken:
+      type: object
+      description: General information about a Solana token. Includes the mint address, and other identifying information.
+      example:
+        symbol: SOL
+        name: Solana
+        mintAddress: So11111111111111111111111111111111111111111
+      properties:
+        symbol:
+          type: string
+          description: |-
+            The symbol of this token (ex: SOL, USDC, RAY).
+            The token symbol is not unique. It is possible for two different tokens to have the same symbol.
+            For the native SOL token, this symbol is "SOL". For SPL tokens, this symbol is defined in the token's metadata.
+            Not all tokens have a symbol. This field will only be populated when the token has metadata available.
+          example: SOL
+        name:
+          type: string
+          description: |-
+            The name of this token (ex: "Solana", "USD Coin", "Raydium").
+            The token name is not unique. It is possible for two different tokens to have the same name.
+            For the native SOL token, this name is "Solana". For SPL tokens, this name is defined in the token's metadata.
+            Not all tokens have a name. This field will only be populated when the token has metadata available.
+          example: Solana
+        mintAddress:
+          type: string
+          pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+          description: |-
+            The mint address of the token.
+            For native SOL, the mint address is `So11111111111111111111111111111111111111111`. For SPL tokens, this is the mint address where the token is defined.
+          example: So11111111111111111111111111111111111111111
+      required:
+        - mintAddress
+    SolanaTokenBalance:
+      type: object
+      properties:
+        amount:
+          $ref: '#/components/schemas/SolanaTokenAmount'
+        token:
+          $ref: '#/components/schemas/SolanaToken'
+      required:
+        - amount
+        - token
     PaymentRailAction:
       description: The action of the payment method.
       type: string
