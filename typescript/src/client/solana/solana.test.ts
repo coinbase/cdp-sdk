@@ -23,6 +23,7 @@ vi.mock("../../openapi-client/index.js", () => {
       importSolanaAccount: vi.fn(),
       exportSolanaAccount: vi.fn(),
       exportSolanaAccountByName: vi.fn(),
+      listSolanaTokenBalances: vi.fn(),
     },
   };
 });
@@ -567,6 +568,65 @@ describe("SolanaClient", () => {
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
         transfer: expect.any(Function),
+      });
+    });
+  });
+
+  describe("listTokenBalances", () => {
+    it("should list Solana token balances", async () => {
+      const listSolanaTokenBalancesMock =
+        CdpOpenApiClient.listSolanaTokenBalances as MockedFunction<
+          typeof CdpOpenApiClient.listSolanaTokenBalances
+        >;
+      const mockBalances = [
+        {
+          amount: {
+            amount: "100",
+            decimals: 9,
+          },
+          token: {
+            mintAddress: "So11111111111111111111111111111111111111111",
+            name: "Solana",
+            symbol: "SOL",
+          },
+        },
+        {
+          amount: {
+            amount: "200",
+            decimals: 6,
+          },
+          token: {
+            mintAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            name: "USDC",
+            symbol: "USDC",
+          },
+        },
+      ];
+      listSolanaTokenBalancesMock.mockResolvedValue({
+        balances: mockBalances,
+      });
+
+      const result = await client.listTokenBalances({
+        address: "cdpSolanaAccount",
+        network: "solana-devnet",
+      });
+
+      expect(listSolanaTokenBalancesMock).toHaveBeenCalledWith(
+        "solana-devnet",
+        "cdpSolanaAccount",
+        {
+          pageSize: undefined,
+          pageToken: undefined,
+        },
+      );
+      expect(result).toEqual({
+        balances: mockBalances.map(balance => ({
+          amount: {
+            amount: BigInt(balance.amount.amount),
+            decimals: balance.amount.decimals,
+          },
+          token: balance.token,
+        })),
       });
     });
   });

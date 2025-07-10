@@ -1,5 +1,9 @@
 import { Account, SolanaAccount } from "../../accounts/solana/types.js";
-import { OpenApiSolanaMethods, UpdateSolanaAccountBody } from "../../openapi-client/index.js";
+import {
+  ListSolanaTokenBalancesNetwork,
+  OpenApiSolanaMethods,
+  UpdateSolanaAccountBody,
+} from "../../openapi-client/index.js";
 
 /**
  * The SolanaClient type, where all OpenApiSolanaMethods methods are wrapped.
@@ -18,6 +22,7 @@ export type SolanaClientInterface = Omit<
   | "exportSolanaAccount" // mapped to exportAccount
   | "exportSolanaAccountByName" // mapped to exportAccount
   | "importSolanaAccount" // mapped to importAccount
+  | "listSolanaTokenBalances" // mapped to listTokenBalances
 > & {
   createAccount: (options: CreateAccountOptions) => Promise<Account>;
   exportAccount: (options: ExportAccountOptions) => Promise<string>;
@@ -29,6 +34,7 @@ export type SolanaClientInterface = Omit<
   requestFaucet: (options: RequestFaucetOptions) => Promise<SignatureResult>;
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
   signTransaction: (options: SignTransactionOptions) => Promise<SignatureResult>;
+  listTokenBalances: (options: ListTokenBalancesOptions) => Promise<ListTokenBalancesResult>;
 };
 
 /**
@@ -163,4 +169,57 @@ export interface ImportAccountOptions {
   idempotencyKey?: string;
   /** The private key of the account - can be a base58 encoded string or raw bytes. */
   privateKey: string | Uint8Array;
+}
+
+/**
+ * Options for listing Solana token balances.
+ */
+export interface ListTokenBalancesOptions {
+  /** The address of the account. */
+  address: string;
+  /** The network to list token balances for. */
+  network: ListSolanaTokenBalancesNetwork;
+  /** The page size. */
+  pageSize?: number;
+  /** The page token. */
+  pageToken?: string;
+}
+
+export interface SolanaTokenAmount {
+  /** The amount of the token. */
+  amount: bigint;
+  /** The number of decimals in the token. */
+  decimals: number;
+}
+
+export interface SolanaToken {
+  /** The token address. */
+  mintAddress: string;
+  /** The token name. */
+  name?: string;
+  /** The token symbol. */
+  symbol?: string;
+}
+
+/**
+ * A Solana token balance.
+ */
+export interface SolanaTokenBalance {
+  /** The amount of the token. */
+  amount: SolanaTokenAmount;
+  /** The token. */
+  token: SolanaToken;
+}
+
+/**
+ * The result of listing Solana token balances.
+ */
+export interface ListTokenBalancesResult {
+  /** The token balances. */
+  balances: SolanaTokenBalance[];
+  /**
+   * The next page token to paginate through the token balances.
+   * If undefined, there are no more token balances to paginate through.
+   */
+  nextPageToken?: string;
 }

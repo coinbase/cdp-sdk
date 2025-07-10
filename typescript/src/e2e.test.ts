@@ -809,6 +809,41 @@ describe("CDP Client E2E Tests", () => {
     expect(secondPage.balances[0].amount.decimals).toBeDefined();
   });
 
+  it("should list solana token balances", async () => {
+    const address = "4PkiqJkUvxr9P8C1UsMqGN8NJsUcep9GahDRLfmeu8UK";
+
+    const firstPage = await cdp.solana.listTokenBalances({
+      address,
+      network: "solana-devnet",
+      pageSize: 1,
+    });
+
+    expect(firstPage).toBeDefined();
+    expect(firstPage.balances.length).toEqual(1);
+    expect(firstPage.balances[0].token).toBeDefined();
+    expect(firstPage.balances[0].token.mintAddress).toBeDefined();
+    expect(firstPage.balances[0].token.name).toBeDefined();
+    expect(firstPage.balances[0].token.symbol).toBeDefined();
+    expect(firstPage.balances[0].amount).toBeDefined();
+    expect(firstPage.balances[0].amount.amount).toBeDefined();
+    expect(firstPage.balances[0].amount.decimals).toBeDefined();
+
+    const secondPage = await cdp.solana.listTokenBalances({
+      address,
+      network: "solana-devnet",
+      pageSize: 1,
+      pageToken: firstPage.nextPageToken,
+    });
+
+    expect(secondPage).toBeDefined();
+    expect(secondPage.balances.length).toEqual(1);
+    expect(secondPage.balances[0].token).toBeDefined();
+    expect(secondPage.balances[0].token.mintAddress).toBeDefined();
+    expect(secondPage.balances[0].amount).toBeDefined();
+    expect(secondPage.balances[0].amount.amount).toBeDefined();
+    expect(secondPage.balances[0].amount.decimals).toBeDefined();
+  });
+
   describe("get or create account", () => {
     it("should get or create an evm account", async () => {
       const randomName = generateRandomName();

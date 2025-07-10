@@ -6,3 +6,4 @@ export * from "./faucets/faucets.msw.js";
 export * from "./payments-alpha/payments-alpha.msw.js";
 export * from "./policy-engine/policy-engine.msw.js";
 export * from "./solana-accounts/solana-accounts.msw.js";
+export * from "./solana-token-balances/solana-token-balances.msw.js";

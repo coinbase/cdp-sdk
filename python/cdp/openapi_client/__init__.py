@@ -26,6 +26,7 @@ from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
+from cdp.openapi_client.api.solana_token_balances_api import SolanaTokenBalancesApi
 
 # import ApiClient
 from cdp.openapi_client.api_response import ApiResponse
@@ -102,6 +103,8 @@ from cdp.openapi_client.models.list_evm_token_balances_network import ListEvmTok
 from cdp.openapi_client.models.list_policies200_response import ListPolicies200Response
 from cdp.openapi_client.models.list_response import ListResponse
 from cdp.openapi_client.models.list_solana_accounts200_response import ListSolanaAccounts200Response
+from cdp.openapi_client.models.list_solana_token_balances200_response import ListSolanaTokenBalances200Response
+from cdp.openapi_client.models.list_solana_token_balances_network import ListSolanaTokenBalancesNetwork
 from cdp.openapi_client.models.payment_method import PaymentMethod
 from cdp.openapi_client.models.payment_method_limits import PaymentMethodLimits
 from cdp.openapi_client.models.payment_method_limits_source_limit import PaymentMethodLimitsSourceLimit
@@ -149,6 +152,9 @@ from cdp.openapi_client.models.sign_solana_transaction200_response import SignSo
 from cdp.openapi_client.models.sign_solana_transaction_request import SignSolanaTransactionRequest
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
 from cdp.openapi_client.models.solana_account import SolanaAccount
+from cdp.openapi_client.models.solana_token import SolanaToken
+from cdp.openapi_client.models.solana_token_amount import SolanaTokenAmount
+from cdp.openapi_client.models.solana_token_balance import SolanaTokenBalance
 from cdp.openapi_client.models.swap_unavailable_response import SwapUnavailableResponse
 from cdp.openapi_client.models.token import Token
 from cdp.openapi_client.models.token_amount import TokenAmount
