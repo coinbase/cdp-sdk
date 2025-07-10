@@ -33,6 +33,13 @@ from cdp.openapi_client.models.sign_solana_transaction200_response import (
 )
 from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
 from cdp.solana_account import ListSolanaAccountsResponse, SolanaAccount
+from cdp.solana_token_balances import (
+    ListSolanaTokenBalancesResult,
+    SolanaNetwork,
+    SolanaToken,
+    SolanaTokenAmount,
+    SolanaTokenBalance,
+)
 from cdp.update_account_types import UpdateAccountOptions
 
 
@@ -356,4 +363,47 @@ class SolanaClient:
         return SolanaAccount(
             solana_account_model=response,
             api_clients=self.api_clients,
+        )
+
+    async def list_token_balances(
+        self,
+        address: str,
+        network: SolanaNetwork,
+        page_size: int | None = None,
+        page_token: str | None = None,
+    ) -> ListSolanaTokenBalancesResult:
+        """List the token balances for a Solana account.
+
+        Args:
+            address (str): The address of the account.
+            network (SolanaNetwork): The network to list the token balances for.
+            page_size (int, optional): The number of token balances to return per page. Defaults to None.
+            page_token (str, optional): The token for the next page of token balances, if any. Defaults to None.
+
+        Returns:
+            ListSolanaTokenBalancesResult: The list of Solana token balances, and an optional next page token.
+
+        """
+        response = await self.api_clients.solana_token_balances.list_solana_token_balances(
+            address=address,
+            network=network,
+            page_size=page_size,
+            page_token=page_token,
+        )
+        return ListSolanaTokenBalancesResult(
+            balances=[
+                SolanaTokenBalance(
+                    amount=SolanaTokenAmount(
+                        amount=int(balance.amount.amount),
+                        decimals=balance.amount.decimals,
+                    ),
+                    token=SolanaToken(
+                        mint_address=balance.token.mint_address,
+                        name=balance.token.name,
+                        symbol=balance.token.symbol,
+                    ),
+                )
+                for balance in response.balances
+            ],
+            next_page_token=response.next_page_token,
         )

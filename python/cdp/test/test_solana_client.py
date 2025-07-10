@@ -329,6 +329,32 @@ async def test_list_accounts():
 
 
 @pytest.mark.asyncio
+async def test_list_token_balances(solana_token_balances_model_factory):
+    """Test listing Solana token balances."""
+    mock_solana_token_balances_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.solana_token_balances = mock_solana_token_balances_api
+
+    mock_token_balances = solana_token_balances_model_factory()
+    mock_solana_token_balances_api.list_solana_token_balances = AsyncMock(
+        return_value=mock_token_balances
+    )
+
+    client = SolanaClient(api_clients=mock_api_clients)
+
+    result = await client.list_token_balances(address="test_sol_address", network="solana")
+
+    mock_solana_token_balances_api.list_solana_token_balances.assert_called_once_with(
+        address="test_sol_address", network="solana", page_size=None, page_token=None
+    )
+
+    assert len(result.balances) == 1
+    assert result.balances[0].token.mint_address == "So11111111111111111111111111111111111111111"
+    assert result.balances[0].amount.amount == 1000000000
+    assert result.balances[0].amount.decimals == 9
+
+
+@pytest.mark.asyncio
 async def test_sign_message():
     """Test signing a Solana message."""
     mock_solana_accounts_api = AsyncMock()

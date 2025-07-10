@@ -6,6 +6,7 @@ from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
+from cdp.openapi_client.api.solana_token_balances_api import SolanaTokenBalancesApi
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 
 
@@ -23,6 +24,7 @@ class ApiClients:
         _evm_token_balances (Optional[EVMTokenBalancesApi]): The EVMTokenBalancesApi client instance.
         _faucets (Optional[FaucetsApi]): The FaucetsApi client instance.
         _solana_accounts (Optional[SolanaAccountsApi]): The SolanaAccountsApi client instance.
+        _solana_token_balances (Optional[SolanaTokenBalancesApi]): The SolanaTokenBalancesApi client instance.
 
     """
 
@@ -41,8 +43,24 @@ class ApiClients:
         self._evm_token_balances: EVMTokenBalancesApi | None = None
         self._faucets: FaucetsApi | None = None
         self._solana_accounts: SolanaAccountsApi | None = None
+        self._solana_token_balances: SolanaTokenBalancesApi | None = None
         self._policies: PolicyEngineApi | None = None
         self._payments: PaymentsAlphaApi | None = None
+
+    @property
+    def solana_token_balances(self) -> SolanaTokenBalancesApi:
+        """Get the SolanaTokenBalancesApi client instance.
+
+        Returns:
+            SolanaTokenBalancesApi: The SolanaTokenBalancesApi client instance.
+
+        Note:
+            This property lazily initializes the SolanaTokenBalancesApi client on first access.
+
+        """
+        if self._solana_token_balances is None:
+            self._solana_token_balances = SolanaTokenBalancesApi(api_client=self._cdp_client)
+        return self._solana_token_balances
 
     @property
     def evm_accounts(self) -> EVMAccountsApi:
