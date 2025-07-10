@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.22.0] - 2025-07-10
+
+### Features
+
+- Added list_token_balances on Solana to get SOL and SPL token balances ([#277](https://github.com/coinbase/cdp-sdk/pull/277))
+
+
 ## [1.21.0] - 2025-07-09
 
 ### Features
