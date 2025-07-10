@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.25.0
+
+### Minor Changes
+
+- [#275](https://github.com/coinbase/cdp-sdk/pull/275) [`64073d0`](https://github.com/coinbase/cdp-sdk/commit/64073d09dc620117b25a3a981f7d52fa3b0db755) Thanks [@sddioulde](https://github.com/sddioulde)! - Added listTokenBalances to retrieve SOL and SPL token balances for a Solana account
+
 ## 1.24.0
 
 ### Minor Changes
