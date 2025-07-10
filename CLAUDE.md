@@ -44,7 +44,7 @@ pnpm format
 pnpm format:check
 
 # Generate docs
-pnpm docs
+pnpm run docs
 
 # Generate OpenAPI client
 pnpm orval
@@ -122,6 +122,7 @@ make check-openapi
 - `CdpClient` - Main client for API interactions
 - `EvmServerAccount` - Server-managed EVM accounts
 - `EvmSmartAccount` - Smart contract accounts for EVM
+- `SolanaAccount` - Server-managed Solana accounts
 - Account management, transaction signing, and policy controls
 - Account types for EVM and Solana blockchains
 - Compatible with Viem for Ethereum interactions
@@ -131,6 +132,7 @@ make check-openapi
 - `CdpClient` - Main client class
 - `EvmServerAccount` - Server-managed EVM accounts
 - `EvmSmartAccount` - Smart contract accounts
+- `SolanaAccount` - Server-managed Solana accounts
 - Account types for EVM and Solana blockchains
 - Compatible with Web3.py for Ethereum interactions
 

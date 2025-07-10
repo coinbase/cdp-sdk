@@ -31,7 +31,7 @@ pnpm format
 pnpm format:check
 
 # Generate docs
-pnpm docs
+pnpm run docs
 
 # Generate OpenAPI client
 pnpm orval
