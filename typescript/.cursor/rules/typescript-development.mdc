@@ -1,0 +1,38 @@
+---
+globs: typescript/**
+alwaysApply: false
+---
+
+## Development Commands
+
+```bash
+# Install dependencies
+pnpm install
+
+# Build the SDK
+pnpm build
+
+# Run tests
+pnpm test
+
+# Run E2E tests
+pnpm test:e2e
+
+# Lint code
+pnpm lint
+
+# Fix linting issues
+pnpm lint:fix
+
+# Format code
+pnpm format
+
+# Check formatting
+pnpm format:check
+
+# Generate docs
+pnpm docs
+
+# Generate OpenAPI client
+pnpm orval
+```

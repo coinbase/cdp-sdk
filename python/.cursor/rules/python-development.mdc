@@ -1,0 +1,35 @@
+---
+globs: python/**
+alwaysApply: false
+---
+
+## Development Commands
+
+```bash
+# Install dependencies (with dev dependencies)
+uv sync
+
+# Run tests
+make test
+
+# Run only unit tests (exclude E2E)
+make e2e
+
+# Lint
+make lint
+
+# Fix linting issues
+make lint-fix
+
+# Format code
+make format
+
+# Check formatting
+make format-check
+
+# Generate docs
+make docs
+
+# Generate OpenAPI client
+make python-client
+```
