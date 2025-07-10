@@ -205,6 +205,12 @@ const (
 	ListEvmTokenBalancesNetworkEthereum    ListEvmTokenBalancesNetwork = "ethereum"
 )
 
+// Defines values for ListSolanaTokenBalancesNetwork.
+const (
+	Solana       ListSolanaTokenBalancesNetwork = "solana"
+	SolanaDevnet ListSolanaTokenBalancesNetwork = "solana-devnet"
+)
+
 // Defines values for PaymentMethodType.
 const (
 	Card        PaymentMethodType = "card"
@@ -1098,6 +1104,9 @@ type ListResponse struct {
 	NextPageToken *string `json:"nextPageToken,omitempty"`
 }
 
+// ListSolanaTokenBalancesNetwork The name of the supported Solana networks in human-readable format.
+type ListSolanaTokenBalancesNetwork string
+
 // PaymentMethod The fiat payment method object.
 type PaymentMethod struct {
 	// Actions The actions for the payment method.
@@ -1459,6 +1468,44 @@ type SolanaAccount struct {
 
 	// UpdatedAt The ISO 8601 UTC timestamp at which the account was last updated.
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+}
+
+// SolanaToken General information about a Solana token. Includes the mint address, and other identifying information.
+type SolanaToken struct {
+	// MintAddress The mint address of the token.
+	// For native SOL, the mint address is `So11111111111111111111111111111111111111111`. For SPL tokens, this is the mint address where the token is defined.
+	MintAddress string `json:"mintAddress"`
+
+	// Name The name of this token (ex: "Solana", "USD Coin", "Raydium").
+	// The token name is not unique. It is possible for two different tokens to have the same name.
+	// For the native SOL token, this name is "Solana". For SPL tokens, this name is defined in the token's metadata.
+	// Not all tokens have a name. This field will only be populated when the token has metadata available.
+	Name *string `json:"name,omitempty"`
+
+	// Symbol The symbol of this token (ex: SOL, USDC, RAY).
+	// The token symbol is not unique. It is possible for two different tokens to have the same symbol.
+	// For the native SOL token, this symbol is "SOL". For SPL tokens, this symbol is defined in the token's metadata.
+	// Not all tokens have a symbol. This field will only be populated when the token has metadata available.
+	Symbol *string `json:"symbol,omitempty"`
+}
+
+// SolanaTokenAmount Amount of a given Solana token.
+type SolanaTokenAmount struct {
+	// Amount The amount is denominated in the smallest indivisible unit of the token. For SOL, the smallest indivisible unit is lamports (10^-9 SOL). For SPL tokens, the smallest unit is defined by the token's decimals configuration.
+	Amount string `json:"amount"`
+
+	// Decimals 'decimals' is the exponential value N that satisfies the equation `amount * 10^-N = standard_denomination`. The standard denomination is the most commonly used denomination for the token.
+	// - For native SOL, `decimals` is 9 (1 SOL = 10^9 lamports). - For SPL tokens, `decimals` is defined in the token's mint configuration.
+	Decimals int64 `json:"decimals"`
+}
+
+// SolanaTokenBalance defines model for SolanaTokenBalance.
+type SolanaTokenBalance struct {
+	// Amount Amount of a given Solana token.
+	Amount SolanaTokenAmount `json:"amount"`
+
+	// Token General information about a Solana token. Includes the mint address, and other identifying information.
+	Token SolanaToken `json:"token"`
 }
 
 // SwapUnavailableResponse defines model for SwapUnavailableResponse.
@@ -2255,6 +2302,15 @@ type RequestSolanaFaucetJSONBody struct {
 
 // RequestSolanaFaucetJSONBodyToken defines parameters for RequestSolanaFaucet.
 type RequestSolanaFaucetJSONBodyToken string
+
+// ListSolanaTokenBalancesParams defines parameters for ListSolanaTokenBalances.
+type ListSolanaTokenBalancesParams struct {
+	// PageSize The number of balances to return per page.
+	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of balances. Will be empty if there are no more balances to fetch.
+	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
 
 // CreateEvmAccountJSONRequestBody defines body for CreateEvmAccount for application/json ContentType.
 type CreateEvmAccountJSONRequestBody CreateEvmAccountJSONBody
@@ -3899,6 +3955,9 @@ type ClientInterface interface {
 	RequestSolanaFaucetWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	RequestSolanaFaucet(ctx context.Context, body RequestSolanaFaucetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListSolanaTokenBalances request
+	ListSolanaTokenBalances(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *CDPClient) ListEvmAccounts(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4767,6 +4826,18 @@ func (c *CDPClient) RequestSolanaFaucetWithBody(ctx context.Context, contentType
 
 func (c *CDPClient) RequestSolanaFaucet(ctx context.Context, body RequestSolanaFaucetJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRequestSolanaFaucetRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListSolanaTokenBalances(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListSolanaTokenBalancesRequest(c.Server, network, address, params)
 	if err != nil {
 		return nil, err
 	}
@@ -7431,6 +7502,85 @@ func NewRequestSolanaFaucetRequestWithBody(server string, contentType string, bo
 	return req, nil
 }
 
+// NewListSolanaTokenBalancesRequest generates requests for ListSolanaTokenBalances
+func NewListSolanaTokenBalancesRequest(server string, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "network", runtime.ParamLocationPath, network)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/solana/token-balances/%s/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 func (c *CDPClient) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -7665,6 +7815,9 @@ type ClientWithResponsesInterface interface {
 	RequestSolanaFaucetWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RequestSolanaFaucetResponse, error)
 
 	RequestSolanaFaucetWithResponse(ctx context.Context, body RequestSolanaFaucetJSONRequestBody, reqEditors ...RequestEditorFn) (*RequestSolanaFaucetResponse, error)
+
+	// ListSolanaTokenBalancesWithResponse request
+	ListSolanaTokenBalancesWithResponse(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListSolanaTokenBalancesResponse, error)
 }
 
 type ListEvmAccountsResponse struct {
@@ -9042,6 +9195,39 @@ func (r RequestSolanaFaucetResponse) StatusCode() int {
 	return 0
 }
 
+type ListSolanaTokenBalancesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Balances The list of Solana token balances.
+		Balances []SolanaTokenBalance `json:"balances"`
+
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+	}
+	JSON400 *Error
+	JSON404 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListSolanaTokenBalancesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListSolanaTokenBalancesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // ListEvmAccountsWithResponse request returning *ListEvmAccountsResponse
 func (c *ClientWithResponses) ListEvmAccountsWithResponse(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*ListEvmAccountsResponse, error) {
 	rsp, err := c.ListEvmAccounts(ctx, params, reqEditors...)
@@ -9670,6 +9856,15 @@ func (c *ClientWithResponses) RequestSolanaFaucetWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseRequestSolanaFaucetResponse(rsp)
+}
+
+// ListSolanaTokenBalancesWithResponse request returning *ListSolanaTokenBalancesResponse
+func (c *ClientWithResponses) ListSolanaTokenBalancesWithResponse(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListSolanaTokenBalancesResponse, error) {
+	rsp, err := c.ListSolanaTokenBalances(ctx, network, address, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListSolanaTokenBalancesResponse(rsp)
 }
 
 // ParseListEvmAccountsResponse parses an HTTP response from a ListEvmAccountsWithResponse call
@@ -12944,6 +13139,73 @@ func ParseRequestSolanaFaucetResponse(rsp *http.Response) (*RequestSolanaFaucetR
 			return nil, err
 		}
 		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListSolanaTokenBalancesResponse parses an HTTP response from a ListSolanaTokenBalancesWithResponse call
+func ParseListSolanaTokenBalancesResponse(rsp *http.Response) (*ListSolanaTokenBalancesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListSolanaTokenBalancesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Balances The list of Solana token balances.
+			Balances []SolanaTokenBalance `json:"balances"`
+
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError
