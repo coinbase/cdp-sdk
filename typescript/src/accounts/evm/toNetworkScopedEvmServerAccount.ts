@@ -149,14 +149,6 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     });
   }
 
-  if (isMethodSupportedOnNetwork("transfer", options.network)) {
-    Object.assign(account, {
-      transfer: async (transferOptions: TransferOptions) => {
-        return options.account.transfer(transferOptions);
-      },
-    });
-  }
-
   if (isMethodSupportedOnNetwork("quoteSwap", options.network)) {
     Object.assign(account, {
       quoteSwap: async (quoteSwapOptions: AccountQuoteSwapOptions) => {
