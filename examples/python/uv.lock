@@ -245,7 +245,7 @@ wheels = [
 
 [[package]]
 name = "cdp-sdk"
-version = "1.19.0"
+version = "1.22.0"
 source = { editable = "../../python" }
 dependencies = [
     { name = "aiohttp" },

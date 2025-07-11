@@ -507,7 +507,7 @@ export class SolanaClient implements SolanaClientInterface {
    *
    * @param {ListTokenBalancesOptions} options - Parameters for listing the Solana token balances.
    * @param {string} options.address - The address of the account to list token balances for.
-   * @param {string} options.network - The network to list token balances for.
+   * @param {string} [options.network] - The network to list token balances for. Defaults to "solana".
    * @param {number} [options.pageSize] - The number of token balances to return.
    * @param {string} [options.pageToken] - The page token to begin listing from.
    * This is obtained by previous calls to this method.
@@ -521,7 +521,7 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async listTokenBalances(options: ListTokenBalancesOptions): Promise<ListTokenBalancesResult> {
     const tokenBalances = await CdpOpenApiClient.listSolanaTokenBalances(
-      options.network,
+      options.network || "solana",
       options.address,
       {
         pageSize: options.pageSize,

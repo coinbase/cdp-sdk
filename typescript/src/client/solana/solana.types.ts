@@ -178,7 +178,7 @@ export interface ListTokenBalancesOptions {
   /** The address of the account. */
   address: string;
   /** The network to list token balances for. */
-  network: ListSolanaTokenBalancesNetwork;
+  network?: ListSolanaTokenBalancesNetwork;
   /** The page size. */
   pageSize?: number;
   /** The page token. */
