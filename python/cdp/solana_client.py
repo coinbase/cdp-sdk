@@ -1,5 +1,4 @@
 import base64
-from typing import Optional
 
 import base58
 from cryptography.hazmat.primitives import hashes
@@ -369,7 +368,7 @@ class SolanaClient:
     async def list_token_balances(
         self,
         address: str,
-        network: Optional[SolanaNetwork] = "solana",
+        network: SolanaNetwork | None = "solana",
         page_size: int | None = None,
         page_token: str | None = None,
     ) -> ListSolanaTokenBalancesResult:
