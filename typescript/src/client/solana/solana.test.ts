@@ -629,5 +629,46 @@ describe("SolanaClient", () => {
         })),
       });
     });
+
+    it("should list Solana token balances with solana as the network if network is not provided", async () => {
+      const listSolanaTokenBalancesMock =
+        CdpOpenApiClient.listSolanaTokenBalances as MockedFunction<
+          typeof CdpOpenApiClient.listSolanaTokenBalances
+        >;
+      const mockBalances = [
+        {
+          amount: {
+            amount: "100",
+            decimals: 9,
+          },
+          token: {
+            mintAddress: "So11111111111111111111111111111111111111111",
+            name: "Solana",
+            symbol: "SOL",
+          },
+        },
+      ];
+      listSolanaTokenBalancesMock.mockResolvedValue({
+        balances: mockBalances,
+      });
+
+      const result = await client.listTokenBalances({
+        address: "cdpSolanaAccount",
+      });
+
+      expect(listSolanaTokenBalancesMock).toHaveBeenCalledWith("solana", "cdpSolanaAccount", {
+        pageSize: undefined,
+        pageToken: undefined,
+      });
+      expect(result).toEqual({
+        balances: mockBalances.map(balance => ({
+          amount: {
+            amount: BigInt(balance.amount.amount),
+            decimals: balance.amount.decimals,
+          },
+          token: balance.token,
+        })),
+      });
+    });
   });
 });
