@@ -368,7 +368,7 @@ class SolanaClient:
     async def list_token_balances(
         self,
         address: str,
-        network: SolanaNetwork,
+        network: SolanaNetwork | None = "solana",
         page_size: int | None = None,
         page_token: str | None = None,
     ) -> ListSolanaTokenBalancesResult:
@@ -376,7 +376,7 @@ class SolanaClient:
 
         Args:
             address (str): The address of the account.
-            network (SolanaNetwork): The network to list the token balances for.
+            network (SolanaNetwork, optional): The network to list the token balances for. Defaults to "solana".
             page_size (int, optional): The number of token balances to return per page. Defaults to None.
             page_token (str, optional): The token for the next page of token balances, if any. Defaults to None.
 
