@@ -54,6 +54,7 @@ class EvmSmartAccount(BaseModel):
             api_clients (ApiClients | None): The API client.
             network (str | None): The default network for this account instance.
             rpc_url (str | None): The default RPC URL for this account instance.
+
         """
         super().__init__()
 
@@ -574,7 +575,9 @@ class EvmSmartAccount(BaseModel):
             idempotency_key=idempotency_key,
         )
 
-    def use_network(self, network: str | None = None, rpc_url: str | None = None) -> "EvmSmartAccount":
+    def use_network(
+        self, network: str | None = None, rpc_url: str | None = None
+    ) -> "EvmSmartAccount":
         """Return a new EvmSmartAccount instance scoped to the given network or RPC URL."""
         return EvmSmartAccount(
             address=self.__address,

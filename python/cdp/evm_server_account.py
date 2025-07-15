@@ -636,7 +636,9 @@ class EvmServerAccount(BaseAccount, BaseModel):
             interval_seconds=interval_seconds,
         )
 
-    def use_network(self, network: str | None = None, rpc_url: str | None = None) -> "EvmServerAccount":
+    def use_network(
+        self, network: str | None = None, rpc_url: str | None = None
+    ) -> "EvmServerAccount":
         """Return a new EvmServerAccount instance scoped to the given network or RPC URL."""
         return EvmServerAccount(
             evm_server_account_model=EvmServerAccountModel(
