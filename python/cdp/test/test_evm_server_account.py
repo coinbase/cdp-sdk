@@ -68,6 +68,33 @@ def test_repr_representation(mock_api, server_account_model_factory):
     assert repr(server_account) == expected
 
 
+def test_use_network(server_account_model_factory):
+    """Test the use_network method returns a new instance with the correct network and rpc_url."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    policies = ["policy-1", "policy-2"]
+    network = "base"
+    rpc_url = "https://mainnet.base.org"
+
+    # Create the original account
+    server_account_model = server_account_model_factory(address, name)
+    # Patch policies directly for test
+    server_account_model.policies = policies
+    from cdp.evm_server_account import EvmServerAccount
+    dummy_api = object()
+    account = EvmServerAccount(server_account_model, dummy_api, dummy_api)
+
+    # Use use_network to create a network-scoped account
+    network_account = account.use_network(network=network, rpc_url=rpc_url)
+
+    assert isinstance(network_account, EvmServerAccount)
+    assert network_account.address == address
+    assert network_account.name == name
+    assert network_account.policies == policies
+    assert network_account._EvmServerAccount__network == network
+    assert network_account._EvmServerAccount__rpc_url == rpc_url
+
+
 @pytest.mark.asyncio
 @patch("cdp.evm_server_account.EVMAccountsApi")
 async def test_sign_message_with_bytes(mock_api, server_account_model_factory):

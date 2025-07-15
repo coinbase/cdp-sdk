@@ -73,7 +73,7 @@ class TestEvmSmartAccount:
         assert account_no_name.owners == smart_account.owners
         assert account_no_name.name is None
 
-
+    
 @pytest.mark.asyncio
 async def test_list_token_balances(smart_account_factory, evm_token_balances_model_factory):
     """Test list_token_balances method."""
@@ -681,6 +681,30 @@ async def test_wait_for_fund_operation_receipt_failure(
     assert result == failed_transfer
     mock_payments_api.get_payment_transfer.assert_called_once_with("test-transfer-id")
 
+
+@pytest.mark.asyncio
+def test_use_network(smart_account_factory, local_account_factory):
+    """Test the use_network method returns a new instance with the correct network and rpc_url."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-smart-account"
+    policies = ["policy-1", "policy-2"]
+    network = "base"
+    rpc_url = "https://mainnet.base.org"
+    owner = local_account_factory()
+
+    # Create the original smart account
+    account = smart_account_factory(address, name, owner, policies)
+
+    # Use use_network to create a network-scoped account
+    network_account = account.use_network(network=network, rpc_url=rpc_url)
+
+    assert isinstance(network_account, EvmSmartAccount)
+    assert network_account.address == address
+    assert network_account.name == name
+    assert network_account.owners == [account.owners[0]]
+    assert network_account.policies == policies
+    assert network_account._EvmSmartAccount__network == network
+    assert network_account._EvmSmartAccount__rpc_url == rpc_url
 
 @pytest.mark.asyncio
 async def test_wait_for_fund_operation_receipt_timeout(
