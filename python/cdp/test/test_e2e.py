@@ -1824,6 +1824,71 @@ async def test_evm_local_account_sign_and_send_transaction(cdp_client):
     assert tx_receipt is not None
 
 
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_use_network_evm_server_account_e2e(cdp_client):
+    """E2E: Test use_network for EvmServerAccount only."""
+    server_account = await cdp_client.evm.create_account(name=generate_random_name())
+    assert server_account is not None
+    orig_address = server_account.address
+    orig_name = server_account.name
+    orig_policies = server_account.policies
+
+    network = "base"
+    rpc_url = "https://mainnet.base.org"
+    network_account = server_account.use_network(network=network, rpc_url=rpc_url)
+
+    from cdp.evm_server_account import EvmServerAccount
+
+    assert isinstance(network_account, EvmServerAccount)
+    assert network_account.address == orig_address
+    assert network_account.name == orig_name
+    assert network_account.policies == orig_policies
+    assert network_account._EvmServerAccount__network == network
+    assert network_account._EvmServerAccount__rpc_url == rpc_url
+
+    try:
+        balances = await network_account.list_token_balances(network=network)
+        assert balances is not None
+    except Exception as e:
+        print(f"EvmServerAccount list_token_balances failed (expected in some testnets): {e}")
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_use_network_evm_smart_account_e2e(cdp_client):
+    """E2E: Test use_network for EvmSmartAccount only."""
+    from eth_account.account import Account
+
+    owner = Account.create()
+    smart_account = await cdp_client.evm.create_smart_account(owner=owner)
+    assert smart_account is not None
+    orig_address = smart_account.address
+    orig_name = smart_account.name
+    orig_policies = smart_account.policies
+    orig_owners = smart_account.owners
+
+    network = "base"
+    rpc_url = "https://mainnet.base.org"
+    network_smart_account = smart_account.use_network(network=network, rpc_url=rpc_url)
+
+    from cdp.evm_smart_account import EvmSmartAccount
+
+    assert isinstance(network_smart_account, EvmSmartAccount)
+    assert network_smart_account.address == orig_address
+    assert network_smart_account.name == orig_name
+    assert network_smart_account.policies == orig_policies
+    assert network_smart_account.owners == orig_owners
+    assert network_smart_account._EvmSmartAccount__network == network
+    assert network_smart_account._EvmSmartAccount__rpc_url == rpc_url
+
+    try:
+        balances = await network_smart_account.list_token_balances(network=network)
+        assert balances is not None
+    except Exception as e:
+        print(f"EvmSmartAccount list_token_balances failed (expected in some testnets): {e}")
+
+
 def _get_transaction(address: str):
     """Help method to create a transaction."""
     from solana.rpc.api import Client as SolanaClient
