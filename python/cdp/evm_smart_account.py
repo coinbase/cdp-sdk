@@ -41,6 +41,8 @@ class EvmSmartAccount(BaseModel):
         name: str | None = None,
         policies: list[str] | None = None,
         api_clients: ApiClients | None = None,
+        network: str | None = None,
+        rpc_url: str | None = None,
     ) -> None:
         """Initialize the EvmSmartAccount class.
 
@@ -50,7 +52,8 @@ class EvmSmartAccount(BaseModel):
             name (str | None): The name of the smart account.
             policies (list[str] | None): A list of policy ID's that apply to the account.
             api_clients (ApiClients | None): The API client.
-
+            network (str | None): The default network for this account instance.
+            rpc_url (str | None): The default RPC URL for this account instance.
         """
         super().__init__()
 
@@ -59,6 +62,8 @@ class EvmSmartAccount(BaseModel):
         self.__name = name
         self.__policies = policies
         self.__api_clients = api_clients
+        self.__network = network
+        self.__rpc_url = rpc_url
 
     @property
     def address(self) -> str:
@@ -99,6 +104,16 @@ class EvmSmartAccount(BaseModel):
 
         """
         return self.__policies
+
+    @property
+    def network(self) -> str | None:
+        """Get the default network for this account instance."""
+        return self.__network
+
+    @property
+    def rpc_url(self) -> str | None:
+        """Get the default RPC URL for this account instance."""
+        return self.__rpc_url
 
     async def transfer(
         self,
@@ -158,6 +173,7 @@ class EvmSmartAccount(BaseModel):
             transfer,
         )
 
+        network = network or self.network
         return await transfer(
             api_clients=self.__api_clients,
             from_account=self,
@@ -186,6 +202,7 @@ class EvmSmartAccount(BaseModel):
             [ListTokenBalancesResult]: The token balances for the smart account on the network.
 
         """
+        network = network or self.network
         return await list_token_balances(
             self.__api_clients.evm_token_balances,
             self.address,
@@ -209,6 +226,7 @@ class EvmSmartAccount(BaseModel):
             str: The transaction hash of the faucet request.
 
         """
+        network = network or self.network
         return await request_faucet(
             self.__api_clients.faucets,
             self.address,
@@ -233,6 +251,7 @@ class EvmSmartAccount(BaseModel):
             EvmUserOperationModel: The user operation model.
 
         """
+        network = network or self.network
         return await send_user_operation(
             self.__api_clients,
             self.address,
@@ -305,6 +324,7 @@ class EvmSmartAccount(BaseModel):
                 - fees: List of fees associated with the quote
 
         """
+        network = network or self.network
         fund_options = QuoteFundOptions(
             network=network,
             amount=amount,
@@ -342,6 +362,7 @@ class EvmSmartAccount(BaseModel):
                     - fees: List of fees associated with the transfer
 
         """
+        network = network or self.network
         fund_options = FundOptions(
             network=network,
             amount=amount,
@@ -462,7 +483,7 @@ class EvmSmartAccount(BaseModel):
 
             send_options = SendSwapOperationOptions(
                 smart_account=self,
-                network=options.swap_quote.network,  # Get network from quote
+                network=options.swap_quote.network or self.network,
                 paymaster_url=paymaster_url,
                 idempotency_key=options.idempotency_key,
                 swap_quote=options.swap_quote,
@@ -471,7 +492,7 @@ class EvmSmartAccount(BaseModel):
             # Inline pattern
             send_options = SendSwapOperationOptions(
                 smart_account=self,
-                network=options.network,
+                network=options.network or self.network,
                 paymaster_url=options.paymaster_url,
                 idempotency_key=options.idempotency_key,
                 from_token=options.from_token,
@@ -538,6 +559,7 @@ class EvmSmartAccount(BaseModel):
         from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
 
         # Call create_swap_quote with smart account address as taker and owner address as signer
+        network = network or self.network
         return await create_swap_quote(
             api_clients=self.__api_clients,
             from_token=from_token,
@@ -550,6 +572,18 @@ class EvmSmartAccount(BaseModel):
             smart_account=self,
             paymaster_url=paymaster_url,
             idempotency_key=idempotency_key,
+        )
+
+    def use_network(self, network: str | None = None, rpc_url: str | None = None) -> "EvmSmartAccount":
+        """Return a new EvmSmartAccount instance scoped to the given network or RPC URL."""
+        return EvmSmartAccount(
+            address=self.__address,
+            owner=self.__owners[0],
+            name=self.__name,
+            policies=self.__policies,
+            api_clients=self.__api_clients,
+            network=network,
+            rpc_url=rpc_url,
         )
 
     def __str__(self) -> str:
