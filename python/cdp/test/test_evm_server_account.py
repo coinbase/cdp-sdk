@@ -81,6 +81,7 @@ def test_use_network(server_account_model_factory):
     # Patch policies directly for test
     server_account_model.policies = policies
     from cdp.evm_server_account import EvmServerAccount
+
     dummy_api = object()
     account = EvmServerAccount(server_account_model, dummy_api, dummy_api)
 

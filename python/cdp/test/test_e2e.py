@@ -1839,6 +1839,7 @@ async def test_use_network_evm_server_account_e2e(cdp_client):
     network_account = server_account.use_network(network=network, rpc_url=rpc_url)
 
     from cdp.evm_server_account import EvmServerAccount
+
     assert isinstance(network_account, EvmServerAccount)
     assert network_account.address == orig_address
     assert network_account.name == orig_name
@@ -1858,6 +1859,7 @@ async def test_use_network_evm_server_account_e2e(cdp_client):
 async def test_use_network_evm_smart_account_e2e(cdp_client):
     """E2E: Test use_network for EvmSmartAccount only."""
     from eth_account.account import Account
+
     owner = Account.create()
     smart_account = await cdp_client.evm.create_smart_account(owner=owner)
     assert smart_account is not None
@@ -1871,6 +1873,7 @@ async def test_use_network_evm_smart_account_e2e(cdp_client):
     network_smart_account = smart_account.use_network(network=network, rpc_url=rpc_url)
 
     from cdp.evm_smart_account import EvmSmartAccount
+
     assert isinstance(network_smart_account, EvmSmartAccount)
     assert network_smart_account.address == orig_address
     assert network_smart_account.name == orig_name

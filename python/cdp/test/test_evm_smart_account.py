@@ -73,7 +73,7 @@ class TestEvmSmartAccount:
         assert account_no_name.owners == smart_account.owners
         assert account_no_name.name is None
 
-    
+
 @pytest.mark.asyncio
 async def test_list_token_balances(smart_account_factory, evm_token_balances_model_factory):
     """Test list_token_balances method."""
@@ -705,6 +705,7 @@ def test_use_network(smart_account_factory, local_account_factory):
     assert network_account.policies == policies
     assert network_account._EvmSmartAccount__network == network
     assert network_account._EvmSmartAccount__rpc_url == rpc_url
+
 
 @pytest.mark.asyncio
 async def test_wait_for_fund_operation_receipt_timeout(
