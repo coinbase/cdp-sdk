@@ -13,6 +13,7 @@ import * as chains from "viem/chains";
 
 import { getBaseNodeRpcUrl } from "./getBaseNodeRpcUrl.js";
 import { NETWORK_TO_CHAIN_MAP, resolveNetworkToChain } from "./networkToChainResolver.js";
+import { UserInputValidationError } from "../../errors.js";
 
 import type { EvmAccount } from "./types.js";
 
@@ -49,7 +50,7 @@ function isNetworkIdentifier(input: string): boolean {
 async function resolveNodeUrlToChain(nodeUrl: string): Promise<Chain> {
   // First validate that it's a proper URL
   if (!isValidUrl(nodeUrl)) {
-    throw new Error(`Invalid URL format: ${nodeUrl}`);
+    throw new UserInputValidationError(`Invalid URL format: ${nodeUrl}`);
   }
 
   // Create a temporary public client to get the chain ID
@@ -188,6 +189,8 @@ export async function resolveViemClients(
     }
 
     // Otherwise, throw a generic error about unsupported input
-    throw new Error(`Unsupported network identifier or invalid Node URL: ${networkOrNodeUrl}`);
+    throw new UserInputValidationError(
+      `Unsupported network identifier or invalid Node URL: ${networkOrNodeUrl}`,
+    );
   }
 }

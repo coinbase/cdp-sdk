@@ -1,6 +1,7 @@
 import { formatUnits } from "viem";
 
 import { FundOperationResult } from "./types.js";
+import { UserInputValidationError } from "../../../errors.js";
 import {
   CreatePaymentTransferQuoteBodySourceType,
   CreatePaymentTransferQuoteBodyTargetType,
@@ -42,8 +43,8 @@ export async function fund(
     throw new Error("No card found to fund account");
   }
 
-  if (options.token.toLowerCase() !== "eth" && options.token.toLowerCase() !== "usdc") {
-    throw new Error("Invalid currency, must be eth or usdc");
+  if (options.token !== "eth" && options.token !== "usdc") {
+    throw new UserInputValidationError("Invalid token, must be eth or usdc");
   }
 
   const decimals = options.token === "eth" ? 18 : 6;

@@ -15,3 +15,21 @@ export class TimeoutError extends Error {
     }
   }
 }
+
+/**
+ * UserInputValidationError is thrown when validation of a user-supplied input fails.
+ */
+export class UserInputValidationError extends Error {
+  /**
+   * Initializes a new UserInputValidationError instance.
+   *
+   * @param message - The user input validation error message.
+   */
+  constructor(message: string) {
+    super(message);
+    this.name = "UserInputValidationError";
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, UserInputValidationError);
+    }
+  }
+}
