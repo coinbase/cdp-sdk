@@ -19,6 +19,7 @@ vi.mock("../../openapi-client/index.js", () => {
       requestSolanaFaucet: vi.fn(),
       signSolanaMessage: vi.fn(),
       signSolanaTransaction: vi.fn(),
+      sendSolanaTransaction: vi.fn(),
       updateSolanaAccount: vi.fn(),
       importSolanaAccount: vi.fn(),
       exportSolanaAccount: vi.fn(),
@@ -423,6 +424,23 @@ describe("SolanaClient", () => {
         transaction: "someTransaction",
       });
       expect(result).toEqual({ signature: "someSignature" });
+    });
+  });
+
+  describe("sendTransaction", () => {
+    it("should send a Solana transaction", async () => {
+      const sendSolanaTransactionMock = CdpOpenApiClient.sendSolanaTransaction as MockedFunction<
+        typeof CdpOpenApiClient.sendSolanaTransaction
+      >;
+      sendSolanaTransactionMock.mockResolvedValue({
+        transactionSignature: "someTransactionSignature",
+      });
+
+      const result = await client.sendTransaction({
+        network: "solana-devnet",
+        transaction: "someTransaction",
+      });
+      expect(result).toEqual({ signature: "someTransactionSignature" });
     });
   });
 

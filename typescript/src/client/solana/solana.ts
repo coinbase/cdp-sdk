@@ -13,15 +13,18 @@ import {
   ListTokenBalancesOptions,
   ListTokenBalancesResult,
   RequestFaucetOptions,
+  SendTransactionOptions,
   SignatureResult,
   SignMessageOptions,
   SignTransactionOptions,
   SolanaClientInterface,
+  TransactionResult,
   UpdateSolanaAccountOptions,
 } from "./solana.types.js";
 import { toSolanaAccount } from "../../accounts/solana/toSolanaAccount.js";
 import { SolanaAccount } from "../../accounts/solana/types.js";
 import { requestFaucet } from "../../actions/solana/requestFaucet.js";
+import { sendTransaction } from "../../actions/solana/sendTransaction.js";
 import { signMessage } from "../../actions/solana/signMessage.js";
 import { signTransaction } from "../../actions/solana/signTransaction.js";
 import { Analytics } from "../../analytics.js";
@@ -501,6 +504,28 @@ export class SolanaClient implements SolanaClientInterface {
     Analytics.wrapObjectMethodsWithErrorTracking(account);
 
     return account;
+  }
+
+  /**
+   * Sends a Solana transaction using the Coinbase API.
+   *
+   * @param {SendTransactionOptions} options - Parameters for sending the Solana transaction.
+   * @param {string} options.network - The network to send the transaction to.
+   * @param {string} options.transaction - The base64 encoded transaction to send.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
+   * @returns A promise that resolves to the transaction result.
+   *
+   * @example
+   * ```ts
+   * const signature = await cdp.solana.sendTransaction({
+   *   network: "solana-devnet",
+   *   transaction: "...",
+   * });
+   * ```
+   */
+  async sendTransaction(options: SendTransactionOptions): Promise<TransactionResult> {
+    return sendTransaction(CdpOpenApiClient, options);
   }
 
   /**
