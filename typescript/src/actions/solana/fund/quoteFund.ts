@@ -13,8 +13,6 @@ import { BaseQuoteFundOptions } from "../../types.js";
  * Options for getting a quote to fund a Solana account.
  */
 export interface SolanaQuoteFundOptions extends BaseQuoteFundOptions {
-  /** The network to request funds from. */
-  network: "solana";
   /** The token to request funds for. */
   token: "sol" | "usdc";
 }
@@ -55,7 +53,7 @@ export async function quoteFund(
     targetType: CreatePaymentTransferQuoteBodyTargetType.crypto_rail,
     target: {
       currency: options.token,
-      network: options.network,
+      network: "solana",
       address: options.address,
     },
     amount,
@@ -65,7 +63,7 @@ export async function quoteFund(
   return new SolanaQuote(
     apiClient,
     response.transfer.id,
-    options.network,
+    "solana",
     response.transfer.sourceAmount,
     response.transfer.sourceCurrency,
     response.transfer.targetAmount,

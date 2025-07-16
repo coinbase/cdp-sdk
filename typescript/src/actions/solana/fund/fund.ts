@@ -12,8 +12,6 @@ import { BaseFundOptions, FundOperationResult } from "../../types.js";
  * Options for funding a Solana account.
  */
 export interface SolanaFundOptions extends BaseFundOptions {
-  /** The network to request funds from. */
-  network: "solana";
   /** The token to request funds for. */
   token: "sol" | "usdc";
 }
@@ -54,7 +52,7 @@ export async function fund(
     targetType: CreatePaymentTransferQuoteBodyTargetType.crypto_rail,
     target: {
       currency: options.token,
-      network: options.network,
+      network: "solana",
       address: options.address,
     },
     amount,

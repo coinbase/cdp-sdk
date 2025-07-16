@@ -90,7 +90,6 @@ describe("quoteFund", () => {
       address: address,
       amount: parseUnits("1", 9),
       token: "sol",
-      network: "solana",
     };
 
     const result = await quoteFund(mockApiClient, quoteFundArgs);
@@ -133,7 +132,6 @@ describe("quoteFund", () => {
       address: address,
       amount: parseUnits("1", 6),
       token: "usdc",
-      network: "solana",
     };
 
     const result = await quoteFund(mockApiClient, quoteFundArgs);
@@ -176,7 +174,6 @@ describe("quoteFund", () => {
       address: address,
       amount: parseUnits("1", 9),
       token: "sol",
-      network: "solana",
     };
 
     await expect(quoteFund(mockApiClient, quoteFundArgs)).rejects.toThrow(
