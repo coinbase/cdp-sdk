@@ -2,15 +2,15 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from cdp.actions.evm.fund.quote import Quote
-from cdp.actions.evm.fund.types import FundOperationResult
+from cdp.actions.quote import EvmQuote
+from cdp.actions.types import FundOperationResult
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.fee import Fee
 
 
 def test_quote_initialization():
     """Test quote initialization with valid parameters."""
-    valid_quote = Quote(
+    valid_quote = EvmQuote(
         api_clients=MagicMock(spec=ApiClients),
         quote_id="test-quote-id",
         network="base",
@@ -34,7 +34,7 @@ def test_quote_initialization():
 
 def test_quote_initialization_on_ethereum():
     """Test quote initialization with valid parameters."""
-    valid_quote = Quote(
+    valid_quote = EvmQuote(
         api_clients=MagicMock(spec=ApiClients),
         quote_id="test-quote-id",
         network="ethereum",
@@ -59,7 +59,7 @@ def test_quote_initialization_on_ethereum():
 def test_quote_invalid_network():
     """Test quote initialization with invalid network."""
     with pytest.raises(ValueError):
-        Quote(
+        EvmQuote(
             api_clients=MagicMock(spec=ApiClients),
             quote_id="test-quote-id",
             network="invalid-network",  # Invalid network
@@ -80,7 +80,7 @@ async def test_quote_execute(payment_transfer_model_factory):
     mock_transfer = payment_transfer_model_factory()
     mock_api_clients.payments.execute_payment_transfer_quote = AsyncMock(return_value=mock_transfer)
 
-    quote = Quote(
+    quote = EvmQuote(
         api_clients=mock_api_clients,
         quote_id="test-quote-id",
         network="base",
@@ -115,7 +115,7 @@ async def test_quote_execute_api_error():
         side_effect=Exception("API Error")
     )
 
-    quote = Quote(
+    quote = EvmQuote(
         api_clients=mock_api_clients,
         quote_id="test-quote-id",
         network="base",
