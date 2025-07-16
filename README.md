@@ -12,7 +12,6 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-0052FF?style=flat-square)](https://github.com/coinbase/cdp-sdk/blob/main/LICENSE.md)
 
 </div>
-
 <br />
 
 ## Table of Contents
