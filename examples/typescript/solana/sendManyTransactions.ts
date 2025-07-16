@@ -11,14 +11,12 @@ import {
     Transaction,
 } from "@solana/web3.js";
 
-// Hardcoded source address
-const SOURCE_ADDRESS = "24BHWjbv27FmkkQtqhNdm37tm9QJXmbNm2hf7TvsueLK";
-
 /**
  * This script demonstrates sending multiple concurrent transactions to test nonce assignment:
- * 1. Use the hardcoded Solana address as source
- * 2. Send concurrent transactions (one per destination address) and track their resolution order
- * 3. Wait for all transactions to be confirmed
+ * 1. Create a new Solana account on CDP
+ * 2. Request SOL from CDP faucet
+ * 3. Send concurrent transactions (one per destination address) and track their resolution order
+ * 4. Wait for all transactions to be confirmed
  */
 async function main() {
     const cdp = new CdpClient();
@@ -36,11 +34,38 @@ async function main() {
     try {
         const connection = new Connection("https://api.devnet.solana.com");
 
-        console.log("Using SOL account:", SOURCE_ADDRESS);
+        // Step 1: Create a new Solana account
+        const account = await cdp.solana.createAccount({
+            name: "test-sol-account",
+        });
+        console.log("Successfully created Solana account:", account.address);
 
-        // Check account balance
-        const balance = await connection.getBalance(new PublicKey(SOURCE_ADDRESS));
-        console.log("Account balance:", balance / 1e9, "SOL");
+        // Step 2: Request SOL from the faucet
+        const faucetResp = await cdp.solana.requestFaucet({
+            address: account.address,
+            token: "sol",
+        });
+        console.log("Successfully requested SOL from faucet:", faucetResp.signature);
+
+        // Wait for the faucet transaction and check balance
+        let balance = 0;
+        let attempts = 0;
+        const maxAttempts = 30;
+
+        while (balance === 0 && attempts < maxAttempts) {
+            balance = await connection.getBalance(new PublicKey(account.address));
+            if (balance === 0) {
+                console.log("Waiting for funds...");
+                await sleep(1000);
+                attempts++;
+            }
+        }
+
+        if (balance === 0) {
+            throw new Error("Account not funded after multiple attempts");
+        }
+
+        console.log("Account funded with", balance / 1e9, "SOL");
 
         const totalLamportsNeeded = lamportsToSend * destinationAddresses.length;
         if (balance < totalLamportsNeeded) {
@@ -49,7 +74,7 @@ async function main() {
             );
         }
 
-        // Step 1: Create and send concurrent transactions (one per destination)
+        // Step 3: Create and send concurrent transactions (one per destination)
         const transactions: Promise<{ signature: string; index: number }>[] = [];
 
         for (let i = 0; i < destinationAddresses.length; i++) {
@@ -59,7 +84,7 @@ async function main() {
             const transaction = new Transaction();
             transaction.add(
                 SystemProgram.transfer({
-                    fromPubkey: new PublicKey(SOURCE_ADDRESS),
+                    fromPubkey: new PublicKey(account.address),
                     toPubkey: new PublicKey(destinationAddress),
                     lamports: lamportsToSend,
                 })
@@ -67,7 +92,7 @@ async function main() {
 
             // A more recent blockhash is set in the backend by CDP
             transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
-            transaction.feePayer = new PublicKey(SOURCE_ADDRESS);
+            transaction.feePayer = new PublicKey(account.address);
 
             const serializedTx = Buffer.from(
                 transaction.serialize({ requireAllSignatures: false })
@@ -114,7 +139,7 @@ async function main() {
 
         console.log(`Sent ${destinationAddresses.length} concurrent transactions`);
 
-        // Step 2: Wait for all transactions to be confirmed
+        // Step 4: Wait for all transactions to be confirmed
 
         // Create a promise for each transaction that waits for its confirmation
         const confirmationPromises = transactions.map(async (txPromise) => {
