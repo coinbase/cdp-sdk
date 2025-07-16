@@ -7,7 +7,12 @@ import {
   WaitForFundOperationResult,
 } from "./fund/waitForFundOperationReceipt.js";
 import { SendUserOperationOptions, SendUserOperationReturnType } from "./sendUserOperation.js";
-import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
+import { KnownEvmNetworks } from "../../accounts/evm/types.js";
+import {
+  GetUserOperationOptions,
+  SignTypedDataOptions,
+  UserOperation,
+} from "../../client/evm/evm.types.js";
 import { Hex } from "../../types/misc.js";
 
 import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTokenBalances.js";
@@ -601,4 +606,38 @@ export type SmartAccountActions = Actions & {
    * ```
    */
   swap: (options: SmartAccountSwapOptions) => Promise<SmartAccountSwapResult>;
+
+  /**
+   * Signs a typed data message.
+   *
+   * @param {SignTypedDataOptions} options - Configuration options for signing the typed data.
+   * @param {string} options.network - The network to sign the typed data on
+   * @param {string} options.typedData - The typed data to sign
+   *
+   * @returns A promise that resolves to the signature.
+   *
+   * @example
+   * ```ts
+   * const signature = await smartAccount.signTypedData({
+   *   network: "base-sepolia",
+   *   typedData: {
+   *     domain: {
+   *       name: "Test",
+   *       chainId: 84532,
+   *       verifyingContract: "0x0000000000000000000000000000000000000000",
+   *     },
+   *     types: {
+   *       Test: [{ name: "name", type: "string" }],
+   *     },
+   *     primaryType: "Test",
+   *     message: {
+   *       name: "John Doe",
+   *     },
+   *   },
+   * });
+   * ```
+   */
+  signTypedData: (
+    options: Omit<SignTypedDataOptions, "address"> & { network: KnownEvmNetworks },
+  ) => Promise<Hex>;
 };

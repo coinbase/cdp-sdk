@@ -1,3 +1,4 @@
+import { resolveNetworkToChain } from "./networkToChainResolver.js";
 import { toNetworkScopedEvmSmartAccount } from "./toNetworkScopedEvmSmartAccount.js";
 import { fund, FundOptions } from "../../actions/evm/fund/fund.js";
 import { Quote } from "../../actions/evm/fund/Quote.js";
@@ -24,6 +25,7 @@ import {
   type SendUserOperationReturnType,
   sendUserOperation,
 } from "../../actions/evm/sendUserOperation.js";
+import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { sendSwapOperation } from "../../actions/evm/swap/sendSwapOperation.js";
 import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
@@ -33,7 +35,11 @@ import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
-import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
+import {
+  GetUserOperationOptions,
+  SignTypedDataOptions,
+  UserOperation,
+} from "../../client/evm/evm.types.js";
 
 import type { EvmAccount, EvmSmartAccount, KnownEvmNetworks } from "./types.js";
 import type {
@@ -46,7 +52,7 @@ import type {
   CdpOpenApiClientType,
   EvmSmartAccount as EvmSmartAccountModel,
 } from "../../openapi-client/index.js";
-import type { Address } from "../../types/misc.js";
+import type { Address, Hex } from "../../types/misc.js";
 
 /**
  * Options for converting a pre-existing EvmSmartAccount and owner to a EvmSmartAccount
@@ -153,6 +159,16 @@ export function toEvmSmartAccount(
         taker: this.address, // Always use smart account's address as taker
         signerAddress: this.owners[0].address, // Always use owner's address as signer
       });
+    },
+    async signTypedData(
+      options: Omit<SignTypedDataOptions, "address"> & { network: KnownEvmNetworks },
+    ): Promise<Hex> {
+      const result = await signAndWrapTypedDataForSmartAccount(apiClient, {
+        chainId: BigInt(resolveNetworkToChain(options.network).id),
+        smartAccount: account,
+        typedData: options,
+      });
+      return result.signature;
     },
 
     name: options.smartAccount.name,

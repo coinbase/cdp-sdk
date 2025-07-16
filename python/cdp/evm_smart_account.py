@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 
 from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, ConfigDict, Field
@@ -15,6 +15,9 @@ from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_user_operation import send_user_operation
+from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
+    SignAndWrapTypedDataForSmartAccountOptions,
+)
 from cdp.actions.evm.swap.types import (
     QuoteSwapResult,
     SmartAccountSwapOptions,
@@ -23,6 +26,7 @@ from cdp.actions.evm.swap.types import (
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall
+from cdp.evm_message_types import EIP712Domain
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount as EvmSmartAccountModel
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
@@ -550,6 +554,47 @@ class EvmSmartAccount(BaseModel):
             smart_account=self,
             paymaster_url=paymaster_url,
             idempotency_key=idempotency_key,
+        )
+
+    async def sign_typed_data(
+        self,
+        domain: EIP712Domain,
+        types: dict[str, Any],
+        primary_type: str,
+        message: dict[str, Any],
+        network: str,
+    ) -> str:
+        """Sign a typed data object with the smart account.
+
+        Args:
+            domain: The domain of the typed data.
+            types: The types of the typed data.
+            primary_type: The primary type of the typed data.
+            message: The message to sign.
+            network: The network to sign the typed data on.
+
+        Returns:
+            str: The signature of the typed data.
+
+        """
+        from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
+            sign_and_wrap_typed_data_for_smart_account,
+        )
+        from cdp.network_config import get_chain_id
+
+        return await sign_and_wrap_typed_data_for_smart_account(
+            api_clients=self.__api_clients,
+            options=SignAndWrapTypedDataForSmartAccountOptions(
+                smart_account=self,
+                chain_id=get_chain_id(network),
+                typed_data={
+                    "domain": domain,
+                    "types": types,
+                    "primaryType": primary_type,
+                    "message": message,
+                },
+                owner_index=0,  # Only one owner for now
+            ),
         )
 
     def __str__(self) -> str:

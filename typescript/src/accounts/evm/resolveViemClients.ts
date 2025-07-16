@@ -12,24 +12,9 @@ import { toAccount } from "viem/accounts";
 import * as chains from "viem/chains";
 
 import { getBaseNodeRpcUrl } from "./getBaseNodeRpcUrl.js";
+import { NETWORK_TO_CHAIN_MAP, resolveNetworkToChain } from "./networkToChainResolver.js";
 
 import type { EvmAccount } from "./types.js";
-
-/**
- * Network identifier to viem chain mapping
- */
-const NETWORK_TO_CHAIN_MAP: Record<string, Chain> = {
-  base: chains.base,
-  "base-sepolia": chains.baseSepolia,
-  ethereum: chains.mainnet,
-  "ethereum-sepolia": chains.sepolia,
-  polygon: chains.polygon,
-  "polygon-mumbai": chains.polygonMumbai,
-  arbitrum: chains.arbitrum,
-  "arbitrum-sepolia": chains.arbitrumSepolia,
-  optimism: chains.optimism,
-  "optimism-sepolia": chains.optimismSepolia,
-};
 
 /**
  * Get a chain from the viem chains object
@@ -53,20 +38,6 @@ function getChain(id: number): Chain {
 function isNetworkIdentifier(input: string): boolean {
   const normalizedInput = input.toLowerCase();
   return NETWORK_TO_CHAIN_MAP[normalizedInput] !== undefined;
-}
-
-/**
- * Resolves a network identifier to a viem chain
- *
- * @param network - The network identifier to resolve
- * @returns The resolved viem chain
- */
-function resolveNetworkToChain(network: string): Chain {
-  const chain = NETWORK_TO_CHAIN_MAP[network.toLowerCase()];
-  if (!chain) {
-    throw new Error(`Unsupported network identifier: ${network}`);
-  }
-  return chain;
 }
 
 /**
