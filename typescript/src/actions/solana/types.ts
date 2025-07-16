@@ -125,7 +125,6 @@ export type AccountActions = {
    * Gets a quote to fund a Solana account.
    *
    * @param options - The options for the quote fund.
-   * @param options.network - The network to fund the account on.
    * @param options.token - The token to fund the account with.
    * @param options.amount - The amount of the token to fund represented as an atomic unit.
    * It's common to use `parseUnits` utils from viem to convert to atomic units.
@@ -136,7 +135,6 @@ export type AccountActions = {
    * @example
    * ```ts
    * const quote = await account.quoteFund({
-   *   network: "solana",
    *   token: "usdc",
    *   amount: 1000000n,
    * });
@@ -148,7 +146,6 @@ export type AccountActions = {
    * Funds a Solana account with the specified token amount.
    *
    * @param options - The options for the fund operation.
-   * @param options.network - The network to fund the account on.
    * @param options.token - The token to fund the account with (e.g., 'usdc').
    * @param options.amount - The amount of the token to fund represented as an atomic unit.
    * It's common to use `parseUnits` utils from viem to convert to atomic units.
@@ -159,7 +156,6 @@ export type AccountActions = {
    * @example
    * ```ts
    * const fundOperation = await account.fund({
-   *   network: "solana",
    *   token: "usdc",
    *   amount: 1000000n,
    * });

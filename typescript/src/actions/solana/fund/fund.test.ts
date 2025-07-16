@@ -86,7 +86,6 @@ describe("fund", () => {
       address: address,
       amount: parseUnits("1", 9),
       token: "sol",
-      network: "solana",
     };
 
     const result = await fund(mockApiClient, fundArgs);
@@ -127,7 +126,6 @@ describe("fund", () => {
       address: address,
       amount: parseUnits("1", 6),
       token: "usdc",
-      network: "solana",
     };
 
     const result = await fund(mockApiClient, fundArgs);
@@ -168,7 +166,6 @@ describe("fund", () => {
       address: address,
       amount: parseUnits("1", 9),
       token: "sol",
-      network: "solana",
     };
 
     await expect(fund(mockApiClient, fundArgs)).rejects.toThrow("No card found to fund account");
