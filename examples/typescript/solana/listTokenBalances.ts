@@ -18,6 +18,9 @@ for (const balance of firstPage.balances) {
   console.log("Balance amount:", balance.amount.amount);
   console.log("Balance decimals:", balance.amount.decimals);
   console.log("Balance token mint address:", balance.token.mintAddress);
+  console.log("Balance token symbol:", balance.token.symbol);
+  console.log("Balance token name:", balance.token.name);
+  console.log('---');
 }
 
 if (firstPage.nextPageToken) {
@@ -33,5 +36,8 @@ if (firstPage.nextPageToken) {
     console.log("Balance amount:", balance.amount.amount);
     console.log("Balance decimals:", balance.amount.decimals);
     console.log("Balance token mint address:", balance.token.mintAddress);
+    console.log("Balance token symbol:", balance.token.symbol);
+    console.log("Balance token name:", balance.token.name);
+    console.log('---');
   }
 }
