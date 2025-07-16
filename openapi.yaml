@@ -37,7 +37,7 @@ tags:
         to `POST` and `DELETE` endpoints in the EVM and Solana Account APIs.
 
 
-      To learn more about creating and using using these keys, visit our [Authentication docs](https://docs.cdp.coinbase.com/api-reference/v2/authentication).
+      To learn more about creating and using these keys, visit our [Authentication docs](https://docs.cdp.coinbase.com/api-reference/v2/authentication).
 
       <Tip>
 
@@ -104,7 +104,7 @@ tags:
       - `POST /v2/payments/transfers/{transferId}/execute`: Execute a transfer quote.
       - `GET  /v2/payments/transfers/{transferId}`: Get a transfer by transferId.
       ### Payment Rails
-      Payment rails are the the source or the target of a transfer.
+      Payment rails are the source or the target of a transfer.
       We support the following payment rails:
       - Crypto rails: Onchain currency and networks to send and receive crypto (e.g. Currency: USDC, Network: Ethereum, Solana, Bitcoin, Polygon, Avalanche).
       - Payment methods: Payment methods that are previously added in your account (e.g Debit Card).
@@ -358,7 +358,7 @@ tags:
         to `POST` and `DELETE` endpoints in the EVM and Solana Account APIs.
 
 
-      To learn more about creating and using using these keys, visit our [Authentication docs](https://docs.cdp.coinbase.com/api-reference/v2/authentication).
+      To learn more about creating and using these keys, visit our [Authentication docs](https://docs.cdp.coinbase.com/api-reference/v2/authentication).
 
       <Tip>
 
@@ -3638,6 +3638,128 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/solana/accounts/send/transaction:
+    post:
+      x-audience: public
+      summary: Send a Solana transaction
+      description: |-
+        Signs and sends a single Solana transaction using multiple Solana accounts. The transaction may contain contain several instructions, each of which may require signatures from different account keys.
+
+        The transaction should be serialized into a byte array and base64 encoded. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.
+
+        **Transaction types**
+
+        The following transaction types are supported:
+        * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions)
+        * [Versioned transactions](https://solana.com/developers/guides/advanced/versions)
+
+        **Instruction Batching**
+
+        To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.
+
+        **Network Support**
+
+        The following Solana networks are supported:
+        * `solana` - Solana Mainnet
+        * `solana-devnet` - Solana Devnet
+
+        The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+      operationId: sendSolanaTransaction
+      tags:
+        - Solana Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                network:
+                  type: string
+                  description: The Solana network to send the transaction to.
+                  enum:
+                    - solana
+                    - solana-devnet
+                  example: solana-devnet
+                transaction:
+                  type: string
+                  description: The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.
+                  example: AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA=
+              required:
+                - network
+                - transaction
+      responses:
+        '200':
+          description: Successfully signed and sent transaction.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionSignature:
+                    type: string
+                    description: The base58 encoded transaction signature.
+                    example: 5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW
+                required:
+                  - transactionSignature
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                malformed_transaction:
+                  value:
+                    errorType: malformed_transaction
+                    errorMessage: Malformed unsigned transaction.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '403':
+          description: Access to resource forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Unable to sign transaction for this address
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Solana account with the given address not found.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/solana/faucet:
     post:
       x-audience: public
@@ -4271,7 +4393,7 @@ components:
           1. Wait for the time window to reset
           2. Use funds more efficiently in your testing
 
-          For more information on faucet limits, please visit the [EVM Faucet endpoint](../reference/requestEvmFaucet) or the [Solana Faucet endpoint](../reference/requestSolanaFaucet).
+          For more information on faucet limits, please visit the [EVM Faucet endpoint](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/faucets/request-funds-on-evm-test-networks) or the [Solana Faucet endpoint](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/faucets/request-funds-on-solana-devnet).
         forbidden: |-
           This error occurs when you don't have permission to access the resource.
 
@@ -4287,7 +4409,7 @@ components:
           3. Track used keys within your application
 
           **Example idempotency key implementation:**
-          ```typescript
+          ```typescript lines wrap
           import { v4 as uuidv4 } from 'uuid';
 
           function createIdempotencyKey() {
@@ -4348,7 +4470,7 @@ components:
              - **Solana**: Validate base64 encoding
           2. Ensure all required transaction fields are present
           3. Validate transaction parameters are within acceptable ranges
-          4. Check that the transaction type is supported on the target network (see our [Supported Networks](https://docs.cdp.coinbase.com/cdp-apis/docs/networks) page for more details)
+          4. Check that the transaction type is supported on the target network (see our [Supported Networks](https://docs.cdp.coinbase.com/get-started/supported-networks) page for more details)
 
           **Common causes:**
           - Invalid hex encoding for EVM transactions
@@ -4388,7 +4510,7 @@ components:
           3. Wait for rate limit window to reset
 
           **Best practices:**
-          ```typescript
+          ```typescript lines wrap
           async function withRetry(fn: () => Promise<any>) {
             let delay = 1000;
             while (true) {
@@ -4415,7 +4537,7 @@ components:
           4. Implement request tracking to identify premature cancellations
 
           **Best practices:**
-          ```typescript
+          ```typescript lines wrap
           async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
             const timeout = new Promise((_, reject) => {
               setTimeout(() => {
@@ -4451,7 +4573,7 @@ components:
           3. Use streaming endpoints for large data sets
 
           **Example retry implementation:**
-          ```typescript
+          ```typescript lines wrap
           async function withRetryAndTimeout<T>(
             operation: () => Promise<T>,
             maxRetries = 3,
