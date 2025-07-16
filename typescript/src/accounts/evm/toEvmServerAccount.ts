@@ -8,15 +8,8 @@ import {
 } from "viem";
 
 import { toNetworkScopedEvmServerAccount } from "./toNetworkScopedEvmServerAccount.js";
-import { FundOptions, fund } from "../../actions/evm/fund/fund.js";
-import { Quote } from "../../actions/evm/fund/Quote.js";
-import { QuoteFundOptions, quoteFund } from "../../actions/evm/fund/quoteFund.js";
-import { FundOperationResult } from "../../actions/evm/fund/types.js";
-import {
-  WaitForFundOperationOptions,
-  WaitForFundOperationResult,
-  waitForFundOperationReceipt,
-} from "../../actions/evm/fund/waitForFundOperationReceipt.js";
+import { EvmFundOptions, fund } from "../../actions/evm/fund/fund.js";
+import { EvmQuoteFundOptions, quoteFund } from "../../actions/evm/fund/quoteFund.js";
 import {
   listTokenBalances,
   type ListTokenBalancesResult,
@@ -32,6 +25,13 @@ import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { sendSwapTransaction } from "../../actions/evm/swap/sendSwapTransaction.js";
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
+import { EvmQuote } from "../../actions/Quote.js";
+import { FundOperationResult } from "../../actions/types.js";
+import {
+  WaitForFundOperationOptions,
+  WaitForFundOperationResult,
+  waitForFundOperationReceipt,
+} from "../../actions/waitForFundOperationReceipt.js";
 import { Analytics } from "../../analytics.js";
 
 import type { EvmServerAccount, NetworkOrRpcUrl } from "./types.js";
@@ -189,7 +189,7 @@ export function toEvmServerAccount(
         address: this.address,
       });
     },
-    async quoteFund(options: Omit<QuoteFundOptions, "address">): Promise<Quote> {
+    async quoteFund(options: Omit<EvmQuoteFundOptions, "address">): Promise<EvmQuote> {
       Analytics.trackAction({
         action: "quote_fund",
         accountType: "evm_server",
@@ -203,7 +203,7 @@ export function toEvmServerAccount(
         address: this.address,
       });
     },
-    async fund(options: Omit<FundOptions, "address">): Promise<FundOperationResult> {
+    async fund(options: Omit<EvmFundOptions, "address">): Promise<FundOperationResult> {
       Analytics.trackAction({
         action: "fund",
         accountType: "evm_server",
