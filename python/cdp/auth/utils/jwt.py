@@ -13,6 +13,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec, ed25519
 from pydantic import BaseModel, Field, field_validator
 
+from cdp.errors import UserInputValidationError
 from cdp.utils import sort_keys
 
 
@@ -78,7 +79,9 @@ class JwtOptions(BaseModel):
         valid_methods = ["GET", "POST", "PUT", "DELETE", "PATCH"]
         upper_method = v.upper()
         if upper_method not in valid_methods:
-            raise ValueError(f"Invalid request method. Must be one of: {', '.join(valid_methods)}")
+            raise UserInputValidationError(
+                f"Invalid request method. Must be one of: {', '.join(valid_methods)}"
+            )
         return upper_method
 
 
@@ -121,7 +124,9 @@ class WalletJwtOptions(BaseModel):
         valid_methods = ["GET", "POST", "PUT", "DELETE", "PATCH"]
         upper_method = v.upper()
         if upper_method not in valid_methods:
-            raise ValueError(f"Invalid request method. Must be one of: {', '.join(valid_methods)}")
+            raise UserInputValidationError(
+                f"Invalid request method. Must be one of: {', '.join(valid_methods)}"
+            )
         return upper_method
 
 

@@ -20,6 +20,7 @@ from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.analytics import wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
 from cdp.constants import ImportAccountPublicRSAKey
+from cdp.errors import UserInputValidationError
 from cdp.evm_call_types import ContractCall, EncodedCall
 from cdp.evm_server_account import EvmServerAccount, ListEvmAccountsResponse
 from cdp.evm_smart_account import EvmSmartAccount, ListEvmSmartAccountsResponse
@@ -106,10 +107,13 @@ class EvmClient:
         Returns:
             EvmServerAccount: The EVM server account.
 
+        Raises:
+            UserInputValidationError: If the private key is not a valid hexadecimal string.
+
         """
         private_key_hex = private_key[2:] if private_key.startswith("0x") else private_key
         if not re.match(r"^[0-9a-fA-F]+$", private_key_hex):
-            raise ValueError("Private key must be a valid hexadecimal string")
+            raise UserInputValidationError("Private key must be a valid hexadecimal string")
 
         try:
             private_key_bytes = bytes.fromhex(private_key_hex)
@@ -153,7 +157,7 @@ class EvmClient:
             str: The decrypted private key which is a 32-byte private key hex string without a "0x" prefix.
 
         Raises:
-            ValueError: If neither address nor name is provided.
+            UserInputValidationError: If neither address nor name is provided.
 
         """
         public_key, private_key = generate_export_encryption_key_pair()
@@ -178,7 +182,7 @@ class EvmClient:
             )
             return decrypt_with_private_key(private_key, response.encrypted_private_key)
 
-        raise ValueError("Either address or name must be provided")
+        raise UserInputValidationError("Either address or name must be provided")
 
     async def create_smart_account(
         self, owner: BaseAccount, name: str | None = None
@@ -244,13 +248,16 @@ class EvmClient:
         Returns:
             EvmServerAccount: The EVM server account.
 
+        Raises:
+            UserInputValidationError: If neither address nor name is provided.
+
         """
         if address:
             evm_account = await self.api_clients.evm_accounts.get_evm_account(address)
         elif name:
             evm_account = await self.api_clients.evm_accounts.get_evm_account_by_name(name)
         else:
-            raise ValueError("Either address or name must be provided")
+            raise UserInputValidationError("Either address or name must be provided")
         return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
 
     async def get_or_create_account(self, name: str | None = None) -> EvmServerAccount:
@@ -291,6 +298,9 @@ class EvmClient:
         Returns:
             EvmSmartAccount: The EVM smart account.
 
+        Raises:
+            UserInputValidationError: If neither address nor name is provided.
+
         """
         if address:
             evm_smart_account = await self.api_clients.evm_smart_accounts.get_evm_smart_account(
@@ -301,7 +311,7 @@ class EvmClient:
                 await self.api_clients.evm_smart_accounts.get_evm_smart_account_by_name(name)
             )
         else:
-            raise ValueError("Either address or name must be provided")
+            raise UserInputValidationError("Either address or name must be provided")
         return EvmSmartAccount(
             evm_smart_account.address,
             owner,

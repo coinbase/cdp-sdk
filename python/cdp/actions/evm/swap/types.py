@@ -5,6 +5,8 @@ from typing import Any
 from pydantic import BaseModel, Field, PrivateAttr, field_validator
 from web3 import Web3
 
+from cdp.errors import UserInputValidationError
+
 # Supported networks for swap
 SUPPORTED_SWAP_NETWORKS = ["base", "ethereum"]
 
@@ -28,9 +30,11 @@ class BaseSendSwapTransactionOptions(BaseModel):
     @field_validator("address")
     @classmethod
     def validate_address(cls, v: str) -> str:
-        """Validate address format."""
+        """Validate that the address is a valid Ethereum address."""
         if not v.startswith("0x") or len(v) != 42:
-            raise ValueError("Address must be a valid Ethereum address (0x + 40 hex chars)")
+            raise UserInputValidationError(
+                "Address must be a valid Ethereum address (0x + 40 hex chars)"
+            )
         return v
 
 
@@ -57,7 +61,9 @@ class InlineSendSwapTransactionOptions(BaseSendSwapTransactionOptions):
     def validate_network(cls, v: str) -> str:
         """Validate network is supported."""
         if v not in SUPPORTED_SWAP_NETWORKS:
-            raise ValueError(f"Network must be one of: {', '.join(SUPPORTED_SWAP_NETWORKS)}")
+            raise UserInputValidationError(
+                f"Network must be one of: {', '.join(SUPPORTED_SWAP_NETWORKS)}"
+            )
         return v
 
     @field_validator("from_amount")
@@ -71,7 +77,9 @@ class InlineSendSwapTransactionOptions(BaseSendSwapTransactionOptions):
     def validate_token_addresses(cls, v: str) -> str:
         """Validate address format."""
         if not v.startswith("0x") or len(v) != 42:
-            raise ValueError("Address must be a valid Ethereum address (0x + 40 hex chars)")
+            raise UserInputValidationError(
+                "Address must be a valid Ethereum address (0x + 40 hex chars)"
+            )
         return v
 
 
@@ -100,7 +108,7 @@ class SwapParams(BaseModel):
         if v is None:
             return 100  # 1% default
         if v < 0 or v > 10000:
-            raise ValueError("Slippage basis points must be between 0 and 10000")
+            raise UserInputValidationError("Slippage basis points must be between 0 and 10000")
         return v
 
     @field_validator("network")
@@ -108,7 +116,9 @@ class SwapParams(BaseModel):
     def validate_network(cls, v: str) -> str:
         """Validate network is supported."""
         if v not in SUPPORTED_SWAP_NETWORKS:
-            raise ValueError(f"Network must be one of: {', '.join(SUPPORTED_SWAP_NETWORKS)}")
+            raise UserInputValidationError(
+                f"Network must be one of: {', '.join(SUPPORTED_SWAP_NETWORKS)}"
+            )
         return v
 
     @field_validator("from_amount")
@@ -122,7 +132,9 @@ class SwapParams(BaseModel):
     def validate_address(cls, v: str) -> str:
         """Validate address format."""
         if not v.startswith("0x") or len(v) != 42:
-            raise ValueError("Address must be a valid Ethereum address (0x + 40 hex chars)")
+            raise UserInputValidationError(
+                "Address must be a valid Ethereum address (0x + 40 hex chars)"
+            )
         return v
 
     @field_validator("taker")
@@ -132,7 +144,9 @@ class SwapParams(BaseModel):
         if v is None:
             return None
         if not v.startswith("0x") or len(v) != 42:
-            raise ValueError("Taker address must be a valid Ethereum address (0x + 40 hex chars)")
+            raise UserInputValidationError(
+                "Taker address must be a valid Ethereum address (0x + 40 hex chars)"
+            )
         return v
 
 
@@ -263,7 +277,7 @@ class AccountSwapOptions(BaseModel):
     def validate_addresses(cls, v):
         """Validate Ethereum addresses."""
         if v is not None and not Web3.is_address(v):
-            raise ValueError(f"Invalid Ethereum address: {v}")
+            raise UserInputValidationError(f"Invalid Ethereum address: {v}")
         return v
 
     @field_validator("slippage_bps")
@@ -271,7 +285,7 @@ class AccountSwapOptions(BaseModel):
     def validate_slippage(cls, v):
         """Validate slippage is within reasonable bounds."""
         if v is not None and (v < 0 or v > 10000):
-            raise ValueError("Slippage must be between 0 and 10000 basis points")
+            raise UserInputValidationError("Slippage must be between 0 and 10000 basis points")
         return v
 
 
@@ -306,7 +320,7 @@ class SmartAccountSwapOptions(BaseModel):
     def validate_addresses(cls, v):
         """Validate Ethereum addresses."""
         if v is not None and not Web3.is_address(v):
-            raise ValueError(f"Invalid Ethereum address: {v}")
+            raise UserInputValidationError(f"Invalid Ethereum address: {v}")
         return v
 
     @field_validator("slippage_bps")
@@ -314,7 +328,7 @@ class SmartAccountSwapOptions(BaseModel):
     def validate_slippage(cls, v):
         """Validate slippage is within reasonable bounds."""
         if v is not None and (v < 0 or v > 10000):
-            raise ValueError("Slippage must be between 0 and 10000 basis points")
+            raise UserInputValidationError("Slippage must be between 0 and 10000 basis points")
         return v
 
 

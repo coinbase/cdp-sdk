@@ -11,6 +11,7 @@ from cdp.actions.solana.sign_transaction import sign_transaction
 from cdp.analytics import wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
 from cdp.constants import ImportAccountPublicRSAKey
+from cdp.errors import UserInputValidationError
 from cdp.export import (
     decrypt_with_private_key,
     format_solana_private_key,
@@ -98,6 +99,10 @@ class SolanaClient:
         Returns:
             SolanaAccount: The Solana account.
 
+        Raises:
+            UserInputValidationError: If the private key is not a valid base58 encoded string or is not 32 or 64 bytes.
+            ValueError: If the import fails.
+
         """
         # Handle both string (base58) and raw bytes input
         if isinstance(private_key, str):
@@ -105,13 +110,15 @@ class SolanaClient:
                 # Decode the private key from base58
                 private_key_bytes = base58.b58decode(private_key)
             except Exception:
-                raise ValueError("Private key must be a valid base58 encoded string") from None
+                raise UserInputValidationError(
+                    "Private key must be a valid base58 encoded string"
+                ) from None
         else:
             # private_key is already bytes
             private_key_bytes = private_key
 
         if len(private_key_bytes) != 32 and len(private_key_bytes) != 64:
-            raise ValueError("Private key must be 32 or 64 bytes")
+            raise UserInputValidationError("Private key must be 32 or 64 bytes")
 
         if len(private_key_bytes) == 64:
             private_key_bytes = private_key_bytes[0:32]
@@ -157,7 +164,7 @@ class SolanaClient:
             str: The decrypted private key which is a base58 encoding of the account's full 64-byte private key.
 
         Raises:
-            ValueError: If neither address nor name is provided.
+            UserInputValidationError: If neither address nor name is provided.
 
         """
         public_key, private_key = generate_export_encryption_key_pair()
@@ -188,7 +195,7 @@ class SolanaClient:
             )
             return format_solana_private_key(decrypted_private_key)
 
-        raise ValueError("Either address or name must be provided")
+        raise UserInputValidationError("Either address or name must be provided")
 
     async def get_account(
         self, address: str | None = None, name: str | None = None
@@ -202,13 +209,16 @@ class SolanaClient:
         Returns:
             SolanaAccount: The Solana account model.
 
+        Raises:
+            UserInputValidationError: If neither address nor name is provided.
+
         """
         if address:
             response = await self.api_clients.solana_accounts.get_solana_account(address)
         elif name:
             response = await self.api_clients.solana_accounts.get_solana_account_by_name(name)
         else:
-            raise ValueError("Either address or name must be provided")
+            raise UserInputValidationError("Either address or name must be provided")
 
         return SolanaAccount(
             solana_account_model=response,
