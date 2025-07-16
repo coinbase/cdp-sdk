@@ -2,17 +2,16 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from cdp.actions.evm.fund.types import FundOperationResult
+from cdp.actions.types import FundOperationResult
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.fee import Fee
 
 
-class Quote(BaseModel):
-    """A quote to fund an EVM account."""
+class BaseQuote(BaseModel):
+    """A quote to fund an account."""
 
     api_clients: ApiClients
     quote_id: str
-    network: Literal["base", "ethereum"]
     fiat_amount: str
     fiat_currency: str
     token_amount: str
@@ -32,3 +31,19 @@ class Quote(BaseModel):
             status=transfer.status,
             transaction_hash=transfer.transaction_hash,
         )
+
+
+class EvmQuote(BaseQuote):
+    """A quote to fund an EVM account."""
+
+    network: Literal["base", "ethereum"]
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+
+class SolanaQuote(BaseQuote):
+    """A quote to fund a Solana account."""
+
+    network: Literal["solana"]
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)

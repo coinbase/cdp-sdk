@@ -14,25 +14,22 @@ from cdp.openapi_client.models.transfer_source import TransferSource
 from cdp.openapi_client.models.transfer_target import TransferTarget
 
 
-class EvmFundOptions(BaseModel):
-    """The options for funding an EVM account."""
-
-    # The network to fund the account on
-    network: Literal["base", "ethereum"]
+class SolanaFundOptions(BaseModel):
+    """The options for funding a Solana account."""
 
     # The amount of the token to fund
     amount: int
 
     # The token to fund
-    token: Literal["eth", "usdc"]
+    token: Literal["sol", "usdc"]
 
 
 async def fund(
     api_clients: ApiClients,
     address: str,
-    fund_options: EvmFundOptions,
+    fund_options: SolanaFundOptions,
 ) -> FundOperationResult:
-    """Fund an EVM account."""
+    """Fund a Solana account."""
     payment_methods = await api_clients.payments.get_payment_methods()
 
     card_payment_method = next(
@@ -47,7 +44,7 @@ async def fund(
     if not card_payment_method:
         raise ValueError("No card found to fund account")
 
-    decimals = 18 if fund_options.token == "eth" else 6
+    decimals = 9 if fund_options.token == "sol" else 6
     amount = format_units(fund_options.amount, decimals)
 
     create_payment_transfer_request = CreatePaymentTransferQuoteRequest(
@@ -55,9 +52,7 @@ async def fund(
         source=TransferSource(PaymentMethodRequest(id=card_payment_method.id)),
         target_type="crypto_rail",
         target=TransferTarget(
-            CryptoRailAddress(
-                currency=fund_options.token, network=fund_options.network, address=address
-            )
+            CryptoRailAddress(currency=fund_options.token, network="solana", address=address)
         ),
         amount=amount,
         currency=fund_options.token,

@@ -2,8 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from cdp.actions.evm.fund.quote import Quote
-from cdp.actions.evm.fund.util import format_units
+from cdp.actions.quote import EvmQuote
+from cdp.actions.util import format_units
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_payment_transfer_quote_request import (
     CreatePaymentTransferQuoteRequest,
@@ -14,7 +14,7 @@ from cdp.openapi_client.models.transfer_source import TransferSource
 from cdp.openapi_client.models.transfer_target import TransferTarget
 
 
-class QuoteFundOptions(BaseModel):
+class EvmQuoteFundOptions(BaseModel):
     """The options for getting a quote to fund an EVM account."""
 
     # The network to fund the account on
@@ -30,8 +30,8 @@ class QuoteFundOptions(BaseModel):
 async def quote_fund(
     api_clients: ApiClients,
     address: str,
-    quote_fund_options: QuoteFundOptions,
-) -> Quote:
+    quote_fund_options: EvmQuoteFundOptions,
+) -> EvmQuote:
     """Get a quote to fund an EVM account."""
     payment_methods = await api_clients.payments.get_payment_methods()
 
@@ -70,7 +70,7 @@ async def quote_fund(
     )
     transfer = response.transfer
 
-    return Quote(
+    return EvmQuote(
         api_clients=api_clients,
         quote_id=transfer.id,
         network=quote_fund_options.network,
