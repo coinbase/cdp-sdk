@@ -2253,6 +2253,30 @@ export type SignSolanaMessage200 = {
 };
 
 /**
+ * The Solana network to send the transaction to.
+ */
+export type SendSolanaTransactionBodyNetwork =
+  (typeof SendSolanaTransactionBodyNetwork)[keyof typeof SendSolanaTransactionBodyNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendSolanaTransactionBodyNetwork = {
+  solana: "solana",
+  "solana-devnet": "solana-devnet",
+} as const;
+
+export type SendSolanaTransactionBody = {
+  /** The Solana network to send the transaction to. */
+  network: SendSolanaTransactionBodyNetwork;
+  /** The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching. */
+  transaction: string;
+};
+
+export type SendSolanaTransaction200 = {
+  /** The base58 encoded transaction signature. */
+  transactionSignature: string;
+};
+
+/**
  * The token to request funds for.
  */
 export type RequestSolanaFaucetBodyToken =

@@ -13,6 +13,7 @@ import type {
   ExportSolanaAccount200,
   ExportSolanaAccountByName200,
   ListSolanaAccounts200,
+  SendSolanaTransaction200,
   SignSolanaMessage200,
   SignSolanaTransaction200,
   SolanaAccount,
@@ -202,6 +203,13 @@ export const getSignSolanaTransactionResponseMock = (
 export const getSignSolanaMessageResponseMock = (
   overrideResponse: Partial<SignSolanaMessage200> = {},
 ): SignSolanaMessage200 => ({ signature: faker.string.alpha(20), ...overrideResponse });
+
+export const getSendSolanaTransactionResponseMock = (
+  overrideResponse: Partial<SendSolanaTransaction200> = {},
+): SendSolanaTransaction200 => ({
+  transactionSignature: faker.string.alpha(20),
+  ...overrideResponse,
+});
 
 export const getListSolanaAccountsMockHandler = (
   overrideResponse?:
@@ -432,6 +440,29 @@ export const getSignSolanaMessageMockHandler = (
     );
   });
 };
+
+export const getSendSolanaTransactionMockHandler = (
+  overrideResponse?:
+    | SendSolanaTransaction200
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<SendSolanaTransaction200> | SendSolanaTransaction200),
+) => {
+  return http.post("*/v2/solana/accounts/send/transaction", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getSendSolanaTransactionResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 export const getSolanaAccountsMock = () => [
   getListSolanaAccountsMockHandler(),
   getCreateSolanaAccountMockHandler(),
@@ -443,4 +474,5 @@ export const getSolanaAccountsMock = () => [
   getExportSolanaAccountByNameMockHandler(),
   getSignSolanaTransactionMockHandler(),
   getSignSolanaMessageMockHandler(),
+  getSendSolanaTransactionMockHandler(),
 ];
