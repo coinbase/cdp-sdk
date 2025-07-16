@@ -3,13 +3,7 @@ import Axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
 import { withAuth } from "../auth/hooks/axios/index.js";
 import { ERROR_DOCS_PAGE_URL } from "../constants.js";
-import {
-  isOpenAPIError,
-  APIError,
-  HttpErrorType,
-  UnknownApiError,
-  UnknownError,
-} from "./errors.js";
+import { isOpenAPIError, APIError, UnknownError, NetworkError } from "./errors.js";
 
 import type { Prettify } from "../types/utils.js";
 
@@ -135,11 +129,52 @@ export const cdpApiClient = async <T>(
   } catch (error) {
     // eslint-disable-next-line import/no-named-as-default-member
     if (Axios.isAxiosError(error) && !error.response) {
-      throw new UnknownApiError(
-        HttpErrorType.unknown,
-        error.cause instanceof Error ? error.cause.message : error.message,
-        error.cause,
-      );
+      // Network-level errors (no response received)
+      const errorMessage = (error.message || "").toLowerCase();
+      const errorCode = error.code?.toLowerCase();
+
+      // Categorize network errors based on error messages and codes
+      if (errorCode === "econnrefused" || errorMessage.includes("connection refused")) {
+        throw new NetworkError(
+          "network_connection_failed",
+          "Unable to connect to CDP service. The service may be unavailable.",
+          { code: error.code, message: error.message, retryable: true },
+          error.cause,
+        );
+      } else if (
+        errorCode === "etimedout" ||
+        errorCode === "econnaborted" ||
+        errorMessage.includes("timeout")
+      ) {
+        throw new NetworkError(
+          "network_timeout",
+          "Request timed out. Please try again.",
+          { code: error.code, message: error.message, retryable: true },
+          error.cause,
+        );
+      } else if (errorCode === "enotfound" || errorMessage.includes("getaddrinfo")) {
+        throw new NetworkError(
+          "network_dns_failure",
+          "DNS resolution failed. Please check your network connection.",
+          { code: error.code, message: error.message, retryable: false },
+          error.cause,
+        );
+      } else if (errorMessage.includes("network error") || errorMessage.includes("econnreset")) {
+        throw new NetworkError(
+          "network_connection_failed",
+          "Network error occurred. Please check your connection and try again.",
+          { code: error.code, message: error.message, retryable: true },
+          error.cause,
+        );
+      } else {
+        // Generic network error
+        throw new NetworkError(
+          "unknown",
+          error.cause instanceof Error ? error.cause.message : error.message,
+          { code: error.code, message: error.message, retryable: true },
+          error.cause,
+        );
+      }
     }
 
     // eslint-disable-next-line import/no-named-as-default-member
@@ -155,20 +190,55 @@ export const cdpApiClient = async <T>(
         );
       } else {
         const statusCode = error.response.status;
+        const responseData = error.response.data;
+
+        // Check for gateway-level errors that might indicate network issues
+        const isGatewayError =
+          responseData &&
+          typeof responseData === "string" &&
+          (responseData.toLowerCase().includes("forbidden") ||
+            responseData.toLowerCase().includes("ip") ||
+            responseData.toLowerCase().includes("blocked") ||
+            responseData.toLowerCase().includes("gateway"));
+
         switch (statusCode) {
           case 401:
             throw new APIError(
               statusCode,
-              HttpErrorType.unauthorized,
+              "unauthorized",
               "Unauthorized.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}#unauthorized`,
               error.cause,
             );
+          case 403:
+            // Special handling for IP blocklist and other gateway-level 403s
+            if (isGatewayError) {
+              throw new NetworkError(
+                "network_ip_blocked",
+                "Access denied. Your IP address may be blocked or restricted.",
+                {
+                  code: "IP_BLOCKED",
+                  message:
+                    typeof responseData === "string" ? responseData : JSON.stringify(responseData),
+                  retryable: false,
+                },
+                error.cause,
+              );
+            }
+            // Regular 403 forbidden error
+            throw new APIError(
+              statusCode,
+              "unauthorized",
+              "Forbidden. You don't have permission to access this resource.",
+              undefined,
+              `${ERROR_DOCS_PAGE_URL}#forbidden`,
+              error.cause,
+            );
           case 404:
             throw new APIError(
               statusCode,
-              HttpErrorType.not_found,
+              "not_found",
               "API not found.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}#not_found`,
@@ -177,7 +247,7 @@ export const cdpApiClient = async <T>(
           case 502:
             throw new APIError(
               statusCode,
-              HttpErrorType.bad_gateway,
+              "bad_gateway",
               "Bad gateway.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}`,
@@ -186,7 +256,7 @@ export const cdpApiClient = async <T>(
           case 503:
             throw new APIError(
               statusCode,
-              HttpErrorType.service_unavailable,
+              "service_unavailable",
               "Service unavailable. Please try again later.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}`,
@@ -209,7 +279,7 @@ export const cdpApiClient = async <T>(
 
             throw new APIError(
               statusCode,
-              HttpErrorType.unexpected_error,
+              "unexpected_error",
               errorMessage,
               undefined,
               `${ERROR_DOCS_PAGE_URL}`,

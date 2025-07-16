@@ -7,5 +7,6 @@ export {
   type CreatePolicyBody,
   type UpdatePolicyBody,
 } from "./policies/schema.js";
+export { NetworkError } from "./openapi-client/errors.js";
 
 export { parseEther } from "viem";
