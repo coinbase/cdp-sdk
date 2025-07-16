@@ -1,5 +1,17 @@
 # CDP SDK Changelog
 
+## 1.26.0
+
+### Minor Changes
+
+- [#284](https://github.com/coinbase/cdp-sdk/pull/284) [`8f62c03`](https://github.com/coinbase/cdp-sdk/commit/8f62c039acebdee3bc2d40abe9fcb02f301d4b8d) Thanks [@0xRAG](https://github.com/0xRAG)! - Added signTypedData on EvmSmartAccount
+
+### Patch Changes
+
+- [#282](https://github.com/coinbase/cdp-sdk/pull/282) [`d125258`](https://github.com/coinbase/cdp-sdk/commit/d125258c2dcf3fe6104cf9df0290d9904c2019fb) Thanks [@sddioulde](https://github.com/sddioulde)! - Made solana mainnet default network for listTokenBalances
+
+- [#281](https://github.com/coinbase/cdp-sdk/pull/281) [`8a8d687`](https://github.com/coinbase/cdp-sdk/commit/8a8d687e4410abe277f932afd19f0e19cc5a5bf6) Thanks [@0xRAG](https://github.com/0xRAG)! - Fixed network scoped server account transfer
+
 ## 1.25.0
 
 ### Minor Changes
