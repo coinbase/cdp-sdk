@@ -2,6 +2,17 @@
 
 <!-- towncrier release notes start -->
 
+## [1.23.0] - 2025-07-16
+
+### Features
+
+- Added signTypedData on EvmSmartAccount ([#284](https://github.com/coinbase/cdp-sdk/pull/284))
+
+### Bugfixes
+
+- Made solana mainnet default network for listTokenBalances ([#282](https://github.com/coinbase/cdp-sdk/pull/282))
+
+
 ## [1.22.0] - 2025-07-10
 
 ### Features
