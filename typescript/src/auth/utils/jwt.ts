@@ -2,6 +2,7 @@ import { SignJWT, importPKCS8, importJWK, JWTPayload } from "jose";
 import { getRandomValues } from "uncrypto";
 
 import { authHash } from "./hash.js";
+import { UserInputValidationError } from "../../errors.js";
 import { sortKeys } from "../../utils/sortKeys.js";
 import { InvalidWalletSecretFormatError, UndefinedWalletSecretError } from "../errors.js";
 
@@ -164,7 +165,9 @@ export async function generateJwt(options: JwtOptions): Promise<string> {
       randomNonce,
     );
   } else {
-    throw new Error("Invalid key format - must be either PEM EC key or base64 Ed25519 key");
+    throw new UserInputValidationError(
+      "Invalid key format - must be either PEM EC key or base64 Ed25519 key",
+    );
   }
 }
 
@@ -306,7 +309,7 @@ async function buildEdwardsJWT(
     // Decode the base64 key (expecting 64 bytes: 32 for seed + 32 for public key)
     const decoded = Buffer.from(privateKey, "base64");
     if (decoded.length !== 64) {
-      throw new Error("Invalid Ed25519 key length");
+      throw new UserInputValidationError("Invalid Ed25519 key length");
     }
 
     const seed = decoded.subarray(0, 32);

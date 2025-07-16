@@ -1,5 +1,6 @@
 import md5 from "md5";
 
+import { UserInputValidationError } from "./errors.js";
 import { APIError, HttpErrorType } from "./openapi-client/errors.js";
 import { version } from "./version.js";
 
@@ -181,6 +182,10 @@ function wrapObjectMethodsWithErrorTracking(object: any): void {
  */
 function shouldTrackError(error: unknown): boolean {
   if (!(error instanceof Error)) {
+    return false;
+  }
+
+  if (error instanceof UserInputValidationError) {
     return false;
   }
 

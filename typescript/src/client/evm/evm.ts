@@ -62,6 +62,7 @@ import {
 } from "../../actions/evm/waitForUserOperation.js";
 import { Analytics } from "../../analytics.js";
 import { ImportAccountPublicRSAKey } from "../../constants.js";
+import { UserInputValidationError } from "../../errors.js";
 import { APIError } from "../../openapi-client/errors.js";
 import {
   CdpOpenApiClient,
@@ -181,7 +182,7 @@ export class EvmClient implements EvmClientInterface {
       : options.privateKey;
 
     if (!/^[0-9a-fA-F]+$/.test(privateKeyHex)) {
-      throw new Error("Private key must be a valid hexadecimal string");
+      throw new UserInputValidationError("Private key must be a valid hexadecimal string");
     }
 
     try {
@@ -268,7 +269,7 @@ export class EvmClient implements EvmClientInterface {
         );
       }
 
-      throw new Error("Either address or name must be provided");
+      throw new UserInputValidationError("Either address or name must be provided");
     })();
 
     return decryptWithPrivateKey(privateKey, encryptedPrivateKey);
@@ -373,7 +374,7 @@ export class EvmClient implements EvmClientInterface {
         return CdpOpenApiClient.getEvmAccountByName(options.name);
       }
 
-      throw new Error("Either address or name must be provided");
+      throw new UserInputValidationError("Either address or name must be provided");
     })();
 
     const account = toEvmServerAccount(CdpOpenApiClient, {
@@ -414,7 +415,7 @@ export class EvmClient implements EvmClientInterface {
       } else if (options.name) {
         return CdpOpenApiClient.getEvmSmartAccountByName(options.name);
       }
-      throw new Error("Either address or name must be provided");
+      throw new UserInputValidationError("Either address or name must be provided");
     })();
 
     const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {

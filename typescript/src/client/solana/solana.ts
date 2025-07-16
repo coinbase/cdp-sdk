@@ -26,6 +26,7 @@ import { signMessage } from "../../actions/solana/signMessage.js";
 import { signTransaction } from "../../actions/solana/signTransaction.js";
 import { Analytics } from "../../analytics.js";
 import { ImportAccountPublicRSAKey } from "../../constants.js";
+import { UserInputValidationError } from "../../errors.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 import {
@@ -134,7 +135,7 @@ export class SolanaClient implements SolanaClientInterface {
         );
       }
 
-      throw new Error("Either address or name must be provided");
+      throw new UserInputValidationError("Either address or name must be provided");
     })();
 
     const decryptedPrivateKey = decryptWithPrivateKey(privateKey, encryptedPrivateKey);
@@ -189,7 +190,7 @@ export class SolanaClient implements SolanaClientInterface {
     }
 
     if (privateKeyBytes.length !== 32 && privateKeyBytes.length !== 64) {
-      throw new Error("Invalid private key length");
+      throw new UserInputValidationError("Invalid private key length");
     }
 
     if (privateKeyBytes.length === 64) {
@@ -259,7 +260,7 @@ export class SolanaClient implements SolanaClientInterface {
         return CdpOpenApiClient.getSolanaAccountByName(options.name);
       }
 
-      throw new Error("Either address or name must be provided");
+      throw new UserInputValidationError("Either address or name must be provided");
     })();
 
     const account = toSolanaAccount(CdpOpenApiClient, {
