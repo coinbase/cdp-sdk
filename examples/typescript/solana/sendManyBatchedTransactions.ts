@@ -12,7 +12,7 @@ import {
 } from "@solana/web3.js";
 
 /**
- * This script demonstrates sending multiple concurrent transactions:
+ * This script demonstrates sending multiple concurrent transactions that have multiple instructions:
  * 1. Create a new Solana account on CDP
  * 2. Request SOL from CDP faucet
  * 3. Send concurrent transactions (one per destination address) and track their resolution order
@@ -87,7 +87,12 @@ async function main() {
                     fromPubkey: new PublicKey(account.address),
                     toPubkey: new PublicKey(destinationAddress),
                     lamports: lamportsToSend,
-                })
+                }),
+                SystemProgram.transfer({
+                    fromPubkey: new PublicKey(account.address),
+                    toPubkey: new PublicKey(destinationAddress),
+                    lamports: lamportsToSend + 1,
+                }),
             );
 
             // A more recent blockhash is set in the backend by CDP
