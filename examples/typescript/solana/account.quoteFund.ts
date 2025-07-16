@@ -8,7 +8,6 @@ async function main() {
   const account = await cdp.solana.getOrCreateAccount({ name: "account" });
 
   const quote = await account.quoteFund({
-    network: "solana",
     token: "sol",
     amount: 10000000n, // 0.01 sol
   });
