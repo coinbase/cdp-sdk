@@ -7,7 +7,6 @@ async function main() {
   const account = await cdp.solana.getOrCreateAccount({ name: "account" });
 
   const fundOperation = await account.fund({
-    network: "solana",
     token: "sol",
     amount: 10000000n, // 0.01 sol
   });
