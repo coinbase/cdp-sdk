@@ -8,6 +8,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+from cdp.errors import UserInputValidationError
+
 """Type representing the action of a policy rule.
 Determines whether matching the rule will cause a request to be rejected or accepted."""
 Action = Literal["reject", "accept"]
@@ -30,11 +32,11 @@ class EthValueCriterion(BaseModel):
     )
 
     @field_validator("ethValue")
-    def eth_value_validate_regular_expression(cls, value):
-        """Validate the regular expression."""
-        if not re.match(r"^[0-9]+$", value):
-            raise ValueError("ethValue must contain only digits")
-        return value
+    def validate_eth_value(cls, v: str) -> str:
+        """Validate that ethValue contains only digits."""
+        if not v.isdigit():
+            raise UserInputValidationError("ethValue must contain only digits")
+        return v
 
 
 class EvmAddressCriterion(BaseModel):
@@ -57,7 +59,7 @@ class EvmAddressCriterion(BaseModel):
     def validate_addresses_length(cls, v):
         """Validate the number of addresses."""
         if len(v) > 100:
-            raise ValueError("Maximum of 100 addresses allowed")
+            raise UserInputValidationError("Maximum of 100 addresses allowed")
         return v
 
     @field_validator("addresses")
@@ -65,7 +67,9 @@ class EvmAddressCriterion(BaseModel):
         """Validate each address has 0x prefix and is correct length and format."""
         for addr in v:
             if not re.match(r"^0x[0-9a-fA-F]{40}$", addr):
-                raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{40}$/")
+                raise UserInputValidationError(
+                    r"must validate the regular expression /^0x[0-9a-fA-F]{40}$/"
+                )
         return v
 
 
@@ -166,7 +170,7 @@ class EvmTypedAddressCondition(BaseModel):
     def validate_addresses_length(cls, v):
         """Validate the number of addresses."""
         if len(v) > 100:
-            raise ValueError("Maximum of 100 addresses allowed")
+            raise UserInputValidationError("Maximum of 100 addresses allowed")
         return v
 
     @field_validator("addresses")
@@ -174,7 +178,9 @@ class EvmTypedAddressCondition(BaseModel):
         """Validate each address has 0x prefix and is correct length and format."""
         for addr in v:
             if not re.match(r"^0x[0-9a-fA-F]{40}$", addr):
-                raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{40}$/")
+                raise UserInputValidationError(
+                    r"must validate the regular expression /^0x[0-9a-fA-F]{40}$/"
+                )
         return v
 
 
@@ -195,11 +201,11 @@ class EvmTypedNumericalCondition(BaseModel):
     )
 
     @field_validator("value")
-    def value_validate_regular_expression(cls, value):
-        """Validate the regular expression."""
-        if not re.match(r"^[0-9]+$", value):
-            raise ValueError("value must contain only digits")
-        return value
+    def validate_value(cls, v: str) -> str:
+        """Validate that value contains only digits."""
+        if not v.isdigit():
+            raise UserInputValidationError("value must contain only digits")
+        return v
 
 
 class EvmTypedStringCondition(BaseModel):
@@ -267,7 +273,7 @@ class SignEvmTypedDataVerifyingContractCriterion(BaseModel):
     def validate_addresses_length(cls, v):
         """Validate the number of addresses."""
         if len(v) > 100:
-            raise ValueError("Maximum of 100 addresses allowed")
+            raise UserInputValidationError("Maximum of 100 addresses allowed")
         return v
 
     @field_validator("addresses")
@@ -275,7 +281,9 @@ class SignEvmTypedDataVerifyingContractCriterion(BaseModel):
         """Validate each address has 0x prefix and is correct length and format."""
         for addr in v:
             if not re.match(r"^0x[0-9a-fA-F]{40}$", addr):
-                raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{40}$/")
+                raise UserInputValidationError(
+                    r"must validate the regular expression /^0x[0-9a-fA-F]{40}$/"
+                )
         return v
 
 
@@ -337,7 +345,7 @@ class SolanaAddressCriterion(BaseModel):
         sol_address_regex = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
         for address in v:
             if not sol_address_regex.match(address):
-                raise ValueError(f"Invalid address format: {address}")
+                raise UserInputValidationError(f"Invalid address format: {address}")
         return v
 
 

@@ -8,6 +8,7 @@ from eth_account.signers.base import BaseAccount
 from eth_account.types import TransactionDictType
 from eth_typing import Hash32
 
+from cdp.errors import UserInputValidationError
 from cdp.evm_server_account import EvmServerAccount
 
 # Apply nest-asyncio to allow nested event loops
@@ -121,6 +122,10 @@ class EvmLocalAccount(BaseAccount):
         Returns:
             SignedMessage: The signed message.
 
+        Raises:
+            UserInputValidationError: If neither full_message nor both message_types and message_data are provided.
+            ValueError: If the primaryType cannot be inferred from message_types.
+
         """
         if full_message is not None:
             typed_data = full_message
@@ -135,7 +140,7 @@ class EvmLocalAccount(BaseAccount):
                 "message": message_data,
             }
         else:
-            raise ValueError(
+            raise UserInputValidationError(
                 "Must provide either full_message or both message_types and message_data"
             )
 
