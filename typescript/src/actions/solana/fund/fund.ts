@@ -6,36 +6,35 @@ import {
   CreatePaymentTransferQuoteBodyTargetType,
   type CdpOpenApiClientType,
 } from "../../../openapi-client/index.js";
-import { EvmQuote } from "../../Quote.js";
-import { BaseQuoteFundOptions } from "../../types.js";
+import { BaseFundOptions, FundOperationResult } from "../../types.js";
 
 /**
- * Options for getting a quote to fund an EVM account.
+ * Options for funding a Solana account.
  */
-export interface EvmQuoteFundOptions extends BaseQuoteFundOptions {
+export interface SolanaFundOptions extends BaseFundOptions {
   /** The network to request funds from. */
-  network: "base" | "ethereum";
+  network: "solana";
   /** The token to request funds for. */
-  token: "eth" | "usdc";
+  token: "sol" | "usdc";
 }
 
 /**
- * Gets a quote to fund an EVM account.
+ * Funds a Solana account.
  *
  * @param apiClient - The API client.
- * @param options - The options for getting a quote to fund an EVM account.
+ * @param options - The options for funding a Solana account.
  *
- * @returns A promise that resolves to the quote.
+ * @returns A promise that resolves to the fund operation result.
  */
-export async function quoteFund(
+export async function fund(
   apiClient: CdpOpenApiClientType,
-  options: EvmQuoteFundOptions,
-): Promise<EvmQuote> {
-  if (options.token !== "eth" && options.token !== "usdc") {
-    throw new UserInputValidationError("Invalid token, must be eth or usdc");
+  options: SolanaFundOptions,
+): Promise<FundOperationResult> {
+  if (options.token !== "sol" && options.token !== "usdc") {
+    throw new UserInputValidationError("Invalid token, must be sol or usdc");
   }
 
-  const decimals = options.token === "eth" ? 18 : 6;
+  const decimals = options.token === "sol" ? 9 : 6;
   const amount = formatUnits(options.amount, decimals);
 
   const paymentMethods = await apiClient.getPaymentMethods();
@@ -60,20 +59,15 @@ export async function quoteFund(
     },
     amount,
     currency: options.token,
+    execute: true,
   });
 
-  return new EvmQuote(
-    apiClient,
-    response.transfer.id,
-    options.network,
-    response.transfer.sourceAmount,
-    response.transfer.sourceCurrency,
-    response.transfer.targetAmount,
-    response.transfer.targetCurrency,
-    response.transfer.fees.map(fee => ({
-      type: fee.type,
-      amount: fee.amount,
-      currency: fee.currency,
-    })),
-  );
+  return {
+    id: response.transfer.id,
+    network: response.transfer.target.network,
+    status: response.transfer.status,
+    targetAmount: response.transfer.targetAmount,
+    targetCurrency: response.transfer.targetCurrency,
+    transactionHash: response.transfer.transactionHash,
+  };
 }

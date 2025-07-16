@@ -1,11 +1,10 @@
-import { FundOptions } from "./fund/fund.js";
-import { Quote } from "./fund/Quote.js";
-import { QuoteFundOptions } from "./fund/quoteFund.js";
-import { FundOperationResult } from "./fund/types.js";
+import { FundOperationResult } from "../types.js";
 import {
   WaitForFundOperationOptions,
   WaitForFundOperationResult,
-} from "./fund/waitForFundOperationReceipt.js";
+} from "../waitForFundOperationReceipt.js";
+import { EvmFundOptions } from "./fund/fund.js";
+import { EvmQuoteFundOptions } from "./fund/quoteFund.js";
 import { SendUserOperationOptions, SendUserOperationReturnType } from "./sendUserOperation.js";
 import { KnownEvmNetworks } from "../../accounts/evm/types.js";
 import {
@@ -14,6 +13,7 @@ import {
   UserOperation,
 } from "../../client/evm/evm.types.js";
 import { Hex } from "../../types/misc.js";
+import { EvmQuote } from "../Quote.js";
 
 import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTokenBalances.js";
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
@@ -95,7 +95,7 @@ export type Actions = {
    * });
    * ```
    */
-  quoteFund: (options: Omit<QuoteFundOptions, "address">) => Promise<Quote>;
+  quoteFund: (options: Omit<EvmQuoteFundOptions, "address">) => Promise<EvmQuote>;
 
   /**
    * Funds an EVM account with the specified token amount.
@@ -118,7 +118,7 @@ export type Actions = {
    * });
    * ```
    */
-  fund: (options: Omit<FundOptions, "address">) => Promise<FundOperationResult>;
+  fund: (options: Omit<EvmFundOptions, "address">) => Promise<FundOperationResult>;
 
   /**
    * Waits for a fund operation to complete and returns the transfer receipt.

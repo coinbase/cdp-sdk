@@ -1,23 +1,19 @@
 import { formatUnits } from "viem";
 
-import { FundOperationResult } from "./types.js";
 import { UserInputValidationError } from "../../../errors.js";
 import {
   CreatePaymentTransferQuoteBodySourceType,
   CreatePaymentTransferQuoteBodyTargetType,
   type CdpOpenApiClientType,
 } from "../../../openapi-client/index.js";
+import { BaseFundOptions, FundOperationResult } from "../../types.js";
 
 /**
  * Options for funding an EVM account.
  */
-export interface FundOptions {
-  /** The address of the account. */
-  address: string;
+export interface EvmFundOptions extends BaseFundOptions {
   /** The network to request funds from. */
   network: "base" | "ethereum";
-  /** The amount to fund the account with, in atomic units (wei) of the token. */
-  amount: bigint;
   /** The token to request funds for. */
   token: "eth" | "usdc";
 }
@@ -32,8 +28,15 @@ export interface FundOptions {
  */
 export async function fund(
   apiClient: CdpOpenApiClientType,
-  options: FundOptions,
+  options: EvmFundOptions,
 ): Promise<FundOperationResult> {
+  if (options.token !== "eth" && options.token !== "usdc") {
+    throw new UserInputValidationError("Invalid token, must be eth or usdc");
+  }
+
+  const decimals = options.token === "eth" ? 18 : 6;
+  const amount = formatUnits(options.amount, decimals);
+
   const paymentMethods = await apiClient.getPaymentMethods();
   const cardPaymentMethod = paymentMethods.find(
     method => method.type === "card" && method.actions.includes("source"),
@@ -42,13 +45,6 @@ export async function fund(
   if (!cardPaymentMethod) {
     throw new Error("No card found to fund account");
   }
-
-  if (options.token !== "eth" && options.token !== "usdc") {
-    throw new UserInputValidationError("Invalid token, must be eth or usdc");
-  }
-
-  const decimals = options.token === "eth" ? 18 : 6;
-  const amount = formatUnits(options.amount, decimals);
 
   const response = await apiClient.createPaymentTransferQuote({
     sourceType: CreatePaymentTransferQuoteBodySourceType.payment_method,
