@@ -1,4 +1,4 @@
-// Usage: pnpm tsx solana/sendManyTransactions.ts [sourceAddress]
+// Usage: pnpm tsx solana/sendManyTransactions.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
@@ -11,141 +11,187 @@ import {
     Transaction,
 } from "@solana/web3.js";
 
+// Hardcoded source address
+const SOURCE_ADDRESS = "24BHWjbv27FmkkQtqhNdm37tm9QJXmbNm2hf7TvsueLK";
+
 /**
- * This script will:
- * 1. Either use a provided Solana address or create a new one
- * 2. If a new account is created, requests SOL from CDP faucet
- * 3. Creates and sends a transaction with CDP to send SOL to set of destination addresses
- * 4. Waits for transaction confirmation
- *
- * @param {string} [sourceAddress] - The source address to use
- * @returns A promise that resolves when the transaction is confirmed
+ * This script demonstrates sending multiple concurrent transactions to test nonce assignment:
+ * 1. Use the hardcoded Solana address as source
+ * 2. Send concurrent transactions (one per destination address) and track their resolution order
+ * 3. Wait for all transactions to be confirmed
  */
-async function main(sourceAddress?: string) {
+async function main() {
     const cdp = new CdpClient();
 
-    // Required: Destination addresses to batch send SOL to
+    // Destination addresses - number of these determines number of transactions
     const destinationAddresses = [
         "ANVUJaJoVaJZELtV2AvRp7V5qPV1B84o29zAwDhPj1c2",
         "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
         "4PkiqJkUvxr9P8C1UsMqGN8NJsUcep9GahDRLfmeu8UK",
     ];
 
-
-    // Amount of lamports to send (default: 1000 = 0.000001 SOL)
-    const lamportsToSend = 1000;
+    // Amount of lamports to send (10 = 0.00000001 SOL)
+    const lamportsToSend = 10;
 
     try {
         const connection = new Connection("https://api.devnet.solana.com");
 
-        let fromAddress: string;
-        if (sourceAddress) {
-            fromAddress = sourceAddress;
-            console.log("Using existing SOL account:", fromAddress);
-        } else {
-            const account = await cdp.solana.createAccount({
-                name: "test-sol-account",
-            });
+        console.log("Using SOL account:", SOURCE_ADDRESS);
 
-            fromAddress = account.address;
-            console.log("Successfully created new SOL account:", fromAddress);
+        // Check account balance
+        const balance = await connection.getBalance(new PublicKey(SOURCE_ADDRESS));
+        console.log("Account balance:", balance / 1e9, "SOL");
 
-            // Request SOL from faucet
-            const faucetResp = await cdp.solana.requestFaucet({
-                address: fromAddress,
-                token: "sol",
-            });
-            console.log(
-                "Successfully requested SOL from faucet:",
-                faucetResp.signature
+        const totalLamportsNeeded = lamportsToSend * destinationAddresses.length;
+        if (balance < totalLamportsNeeded) {
+            throw new Error(
+                `Insufficient balance: ${balance} lamports, need at least ${totalLamportsNeeded} lamports`
             );
         }
 
-        // Wait until the address has balance
-        let balance = 0;
-        let attempts = 0;
-        const maxAttempts = 30;
+        // Step 1: Create and send concurrent transactions (one per destination)
+        const transactions: Promise<{ signature: string; index: number }>[] = [];
 
-        while (balance === 0 && attempts < maxAttempts) {
-            balance = await connection.getBalance(new PublicKey(fromAddress));
-            if (balance === 0) {
-                console.log("Waiting for funds...");
-                await sleep(1000);
-                attempts++;
+        for (let i = 0; i < destinationAddresses.length; i++) {
+            const destinationAddress = destinationAddresses[i];
+
+            // Create individual transaction for this destination
+            const transaction = new Transaction();
+            transaction.add(
+                SystemProgram.transfer({
+                    fromPubkey: new PublicKey(SOURCE_ADDRESS),
+                    toPubkey: new PublicKey(destinationAddress),
+                    lamports: lamportsToSend,
+                })
+            );
+
+            // A more recent blockhash is set in the backend by CDP
+            transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
+            transaction.feePayer = new PublicKey(SOURCE_ADDRESS);
+
+            const serializedTx = Buffer.from(
+                transaction.serialize({ requireAllSignatures: false })
+            ).toString("base64");
+
+            // Create a promise that will resolve with the transaction signature and its index
+            const txPromise = (async (index: number, destAddr: string) => {
+                let retryCount = 0;
+                const MAX_RETRIES = 10;
+                const BASE_DELAY = 1000; // 1 second
+
+                // eslint-disable-next-line no-constant-condition
+                while (true) {
+                    try {
+                        const txResult = await cdp.solana.sendTransaction({
+                            network: "solana-devnet",
+                            transaction: serializedTx,
+                        });
+
+                        return { signature: txResult.signature, index };
+                    } catch (error) {
+                        if (retryCount < MAX_RETRIES) {
+                            // Add jitter between 0 and 0.5 of the base delay
+                            const jitter = Math.random() * (BASE_DELAY / 2);
+                            const delay = BASE_DELAY * Math.pow(2, retryCount) + jitter;
+
+                            console.log(
+                                `Rate limit exceeded for transaction #${index} to ${destAddr}, retrying in ${Math.round(
+                                    delay
+                                )}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`
+                            );
+
+                            await sleep(delay);
+                            retryCount++;
+                        } else {
+                            throw error;
+                        }
+                    }
+                }
+            })(i, destinationAddress);
+
+            transactions.push(txPromise);
+        }
+
+        console.log(`Sent ${destinationAddresses.length} concurrent transactions`);
+
+        // Step 2: Wait for all transactions to be confirmed
+
+        // Create a promise for each transaction that waits for its confirmation
+        const confirmationPromises = transactions.map(async (txPromise) => {
+            const { signature, index } = await txPromise;
+            console.log(`Transaction #${index} sent with signature: ${signature}`);
+            console.log(`Waiting for confirmation of transaction #${index}...`);
+
+            try {
+                const latestBlockhash = await connection.getLatestBlockhash();
+                const confirmation = await connection.confirmTransaction({
+                    signature,
+                    blockhash: latestBlockhash.blockhash,
+                    lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+                });
+
+                console.log(`Transaction #${index} confirmed!`);
+                console.log(`- Destination: ${destinationAddresses[index]}`);
+                console.log(`- Amount: ${lamportsToSend / 1e9} SOL`);
+                console.log(`- Status: ${confirmation.value.err ? "failed" : "success"}`);
+                console.log(`- Explorer: https://explorer.solana.com/tx/${signature}?cluster=devnet`);
+
+                return {
+                    confirmation: confirmation.value.err ? null : confirmation,
+                    signature,
+                    index,
+                    destinationAddress: destinationAddresses[index]
+                };
+            } catch (error) {
+                console.log(`Transaction #${index} timed out waiting for confirmation:`, error);
+                return {
+                    confirmation: null,
+                    signature,
+                    index,
+                    destinationAddress: destinationAddresses[index]
+                };
             }
-        }
-
-        if (balance === 0) {
-            throw new Error("Account not funded after multiple attempts");
-        }
-
-        console.log("Account funded with", balance / 1e9, "SOL");
-
-        if (balance < lamportsToSend) {
-            throw new Error(
-                `Insufficient balance: ${balance} lamports, need at least ${lamportsToSend} lamports`
-            );
-        }
-
-        const transaction = new Transaction();
-        const instructions = destinationAddresses.map((destinationAddress) =>
-            SystemProgram.transfer({
-                fromPubkey: new PublicKey(fromAddress),
-                toPubkey: new PublicKey(destinationAddress),
-                lamports: lamportsToSend,
-            })
-        );
-        transaction.add(...instructions);
-
-        // A more recent blockhash is set in the backend by CDP
-        transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58()
-        transaction.feePayer = new PublicKey(fromAddress);
-
-        const serializedTx = Buffer.from(
-            transaction.serialize({ requireAllSignatures: false })
-        ).toString("base64");
-
-        console.log("Transaction serialized successfully");
-
-        const txResult = await cdp.solana.sendTransaction({
-            network: "solana-devnet",
-            transaction: serializedTx,
         });
 
-        const signature = txResult.signature;
-        console.log("Solana transaction hash:", signature);
+        // Wait for all confirmation promises to resolve
+        const results = await Promise.all(confirmationPromises);
 
-        console.log("Waiting for transaction to be confirmed");
-        const latestBlockhash = await connection.getLatestBlockhash();
-        const confirmation = await connection.confirmTransaction({
-            signature,
-            blockhash: latestBlockhash.blockhash,
-            lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-        });
+        // Log summary
+        const successfulTxs = results.filter((r) => r.confirmation !== null);
+        const failedTxs = results.filter((r) => r.confirmation === null);
 
-        if (confirmation.value.err) {
-            throw new Error(
-                `Transaction failed: ${confirmation.value.err.toString()}`
-            );
+        console.log("\nTransaction Summary:");
+        console.log(`Total transactions: ${results.length}`);
+        console.log(`Successful transactions: ${successfulTxs.length}`);
+        console.log(`Failed/timed out transactions: ${failedTxs.length}`);
+
+        if (successfulTxs.length > 0) {
+            console.log("\nSuccessful transactions in order of confirmation:");
+            successfulTxs.forEach(({ signature, index, destinationAddress }) => {
+                console.log(
+                    `Transaction #${index}: ${signature} -> ${destinationAddress}`
+                );
+            });
         }
 
-        console.log(
-            "Transaction confirmed:",
-            confirmation.value.err ? "failed" : "success"
-        );
-        console.log(
-            `Transaction explorer link: https://explorer.solana.com/tx/${signature}?cluster=devnet`
-        );
+        if (failedTxs.length > 0) {
+            console.log("\nFailed transactions:");
+            failedTxs.forEach(({ signature, index, destinationAddress }) => {
+                console.log(
+                    `Transaction #${index}: ${signature} -> ${destinationAddress}`
+                );
+            });
+        }
 
         return {
-            fromAddress,
-            destinationAddresses,
-            amount: lamportsToSend / 1e9,
-            signature,
-            success: !confirmation.value.err,
+            totalTransactions: results.length,
+            successfulTransactions: successfulTxs.length,
+            failedTransactions: failedTxs.length,
+            results
         };
+
     } catch (error) {
-        console.error("Error processing SOL transaction:", error);
+        console.error("Error processing SOL transactions:", error);
         throw error;
     }
 }
@@ -160,6 +206,4 @@ function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const sourceAddress = process.argv.length > 2 ? process.argv[2] : undefined;
-
-main(sourceAddress).catch(console.error);
+main().catch(console.error);
