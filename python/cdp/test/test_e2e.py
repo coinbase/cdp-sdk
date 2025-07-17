@@ -1012,6 +1012,36 @@ async def test_solana_sign_transaction(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_solana_send_transaction(cdp_client):
+    """Test sending a transaction."""
+    account = await cdp_client.solana.create_account()
+    assert account is not None
+
+    await _ensure_sufficient_sol_balance(cdp_client, account)
+
+    response = await cdp_client.solana.send_transaction(
+        network="solana-devnet", transaction=_get_transaction(account.address)
+    )
+    assert response is not None
+    assert response.transaction_signature is not None
+
+    connection = SolanaClient(
+        os.getenv("CDP_E2E_SOLANA_RPC_URL") or "https://api.devnet.solana.com"
+    )
+
+    last_valid_block_height = connection.get_latest_blockhash()
+    confirmation = connection.confirm_transaction(
+        tx_sig=response.transaction_signature,
+        last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
+        commitment="confirmed",
+    )
+
+    assert confirmation is not None
+    assert confirmation.value[0].err is None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_create_account_policy(cdp_client):
     """Test creating an account policy."""
     policy = await cdp_client.policies.create_policy(
