@@ -1180,7 +1180,7 @@ describe("CDP Client E2E Tests", () => {
 
         const { signature } = await cdp.solana.sendTransaction({
           network: "solana-devnet",
-          transaction: createAndEncodeTransaction(testSolanaAccount.address),
+          transaction: createAndEncodeTransaction("4PkiqJkUvxr9P8C1UsMqGN8NJsUcep9GahDRLfmeu8UK"),
         });
 
         expect(signature).toBeDefined();
@@ -1819,7 +1819,7 @@ function createAndEncodeTransaction(address: string) {
 
   const fromPubkey = new PublicKey(address);
 
-  const transferAmount = 0.01 * LAMPORTS_PER_SOL;
+  const transferAmount = 0.000000001 * LAMPORTS_PER_SOL;
 
   const transaction = new Transaction().add(
     SystemProgram.transfer({
