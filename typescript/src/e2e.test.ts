@@ -1180,7 +1180,7 @@ describe("CDP Client E2E Tests", () => {
 
         const { signature } = await cdp.solana.sendTransaction({
           network: "solana-devnet",
-          transaction: createAndEncodeTransaction("4PkiqJkUvxr9P8C1UsMqGN8NJsUcep9GahDRLfmeu8UK"),
+          transaction: createAndEncodeTransaction(testSolanaAccount.address),
         });
 
         expect(signature).toBeDefined();
