@@ -10,8 +10,8 @@ import base64
 import time
 
 from solana.rpc.api import Client as SolanaClient
-from solana.rpc.types import TxOpts
 from solders.message import Message
+from solders.signature import Signature
 from solders.pubkey import Pubkey as PublicKey
 from solders.system_program import TransferParams, transfer
 
@@ -111,33 +111,18 @@ async def send_transaction(
     # Encode to base64 used by CDP API
     serialized_tx = base64.b64encode(tx_bytes).decode("utf-8")
 
-    print("Signing transaction...")
-
-    try:
-        response = await cdp.solana.sign_transaction(
-            sender_address, transaction=serialized_tx
-        )
-        signed_tx = response.signed_transaction
-        print("Transaction signed successfully")
-    except Exception as e:
-        print(f"Error signing transaction: {e}")
-        if hasattr(e, "body"):
-            print(f"Error body: {e.body}")
-        raise
-
-    # Decode the signed transaction from base64
-    decoded_signed_tx = base64.b64decode(signed_tx)
-
     print("Sending transaction to network...")
-    tx_resp = connection.send_raw_transaction(
-        decoded_signed_tx,
-        opts=TxOpts(skip_preflight=False, preflight_commitment="processed"),
+    tx_resp = await cdp.solana.send_transaction(
+        network="solana-devnet",
+        transaction=serialized_tx,
     )
-    signature = tx_resp.value
+    signature = tx_resp.transaction_signature
     print(f"Solana transaction hash: {signature}")
 
     print("Confirming transaction...")
-    confirmation = connection.confirm_transaction(signature, commitment="processed")
+    confirmation = connection.confirm_transaction(
+        Signature.from_string(signature), commitment="processed"
+    )
 
     if hasattr(confirmation, "err") and confirmation.err:
         raise ValueError(f"Transaction failed: {confirmation.err}")

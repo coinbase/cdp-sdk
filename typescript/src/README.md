@@ -353,6 +353,8 @@ console.log(`Transaction confirmed! Explorer link: https://sepolia.basescan.org/
 
 You can use CDP SDK to send transactions on Solana.
 
+For complete examples, check out [sendTransaction.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/sendTransaction.ts), [sendManyTransactions.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/sendManyTransactions.ts), and [sendManyBatchedTransactions.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/sendManyBatchedTransactions.ts).
+
 ```typescript
 import { CdpClient } from "../../../typescript/src/index.js";
 import "dotenv/config";
