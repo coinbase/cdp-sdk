@@ -1819,7 +1819,8 @@ function createAndEncodeTransaction(address: string) {
 
   const fromPubkey = new PublicKey(address);
 
-  const transferAmount = 0.000000001 * LAMPORTS_PER_SOL;
+  // Covers the minimum amount of rent for a system account (0.00089088 SOL)
+  const transferAmount = 0.001 * LAMPORTS_PER_SOL;
 
   const transaction = new Transaction().add(
     SystemProgram.transfer({
