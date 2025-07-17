@@ -1,8 +1,9 @@
 # Usage:
-# uv run python solana/send_batch_transaction.py
+# uv run python solana/send_many_batch_transactions.py
 #   [--sender <sender_address>] - optional, if not provided, a new account will be created and funded from the faucet
 #   [--destinations <destination_addresses>] - optional, a comma separated list of destination addresses.
-#                                              If not a default set of destination addresses will be used.
+#                                              If not provided, default addresses will be used.
+#   [--num-transactions <number>] - optional, number of batch transactions to send (default: 3)
 #   [--amount <amount_in_lamports>] - optional, if not provided, a default amount of 1000 lamports will be used
 
 import argparse
@@ -73,34 +74,39 @@ async def wait_for_balance(connection: SolanaClient, address: str):
     return balance
 
 
-async def send_transaction(
+async def send_batch_transaction(
     cdp: CdpClient,
+    connection: SolanaClient,
     sender_address: str,
     destination_addresses: list[str],
-    amount: int = 1000,
+    amount: int,
+    transaction_number: int,
 ):
-    connection = SolanaClient("https://api.devnet.solana.com")
-
+    """Send a single transaction with 2 transfers"""
     source_pubkey = PublicKey.from_string(sender_address)
-    dest_pubkeys = [PublicKey.from_string(address) for address in destination_addresses]
+    
+    # Take only the first 2 destinations for this batch
+    dest_pubkeys = [PublicKey.from_string(address) for address in destination_addresses[:2]]
 
     print(
-        f"Preparing to send {amount} lamports each to {len(destination_addresses)} addresses from {sender_address}"
+        f"Transaction {transaction_number}: Preparing to send {amount} lamports each to 2 addresses from {sender_address}"
     )
 
-    transfer_param_list = [
-        TransferParams(
-            from_pubkey=source_pubkey, to_pubkey=dest_pubkey, lamports=amount
+    # Create 2 transfer instructions
+    transfer_instructions = []
+    for i, dest_pubkey in enumerate(dest_pubkeys):
+        transfer_params = TransferParams(
+            from_pubkey=source_pubkey, 
+            to_pubkey=dest_pubkey, 
+            lamports=amount
         )
-        for dest_pubkey in dest_pubkeys
-    ]
-    transfer_instr_list = [
-        transfer(transfer_param) for transfer_param in transfer_param_list
-    ]
+        transfer_instr = transfer(transfer_params)
+        transfer_instructions.append(transfer_instr)
+        print(f"  Transfer {i+1}: {amount} lamports to {destination_addresses[i]}")
 
     # A more recent blockhash is set in the backend by CDP
     message = Message.new_with_blockhash(
-        transfer_instr_list,
+        transfer_instructions,
         source_pubkey,
         Hash.from_string("SysvarRecentB1ockHashes11111111111111111111"),
     )
@@ -116,48 +122,100 @@ async def send_transaction(
     # Encode to base64 used by CDP API
     serialized_tx = base64.b64encode(tx_bytes).decode("utf-8")
 
-    print("Sending transaction to network...")
+    print(f"Transaction {transaction_number}: Sending to network...")
     tx_resp = await cdp.solana.send_transaction(
         network="solana-devnet",
         transaction=serialized_tx,
     )
     signature = tx_resp.transaction_signature
-    print(f"Solana transaction hash: {signature}")
+    print(f"Transaction {transaction_number}: Solana transaction hash: {signature}")
 
-    print("Confirming transaction...")
+    print(f"Transaction {transaction_number}: Confirming...")
     confirmation = connection.confirm_transaction(
         Signature.from_string(signature), commitment="processed"
     )
 
     if hasattr(confirmation, "err") and confirmation.err:
-        raise ValueError(f"Transaction failed: {confirmation.err}")
+        raise ValueError(f"Transaction {transaction_number} failed: {confirmation.err}")
 
     print(
-        f"Transaction confirmed: {'failed' if hasattr(confirmation, 'err') and confirmation.err else 'success'}"
+        f"Transaction {transaction_number}: {'failed' if hasattr(confirmation, 'err') and confirmation.err else 'success'}"
     )
     print(
-        f"Transaction explorer link: https://explorer.solana.com/tx/{signature}?cluster=devnet"
+        f"Transaction {transaction_number}: Explorer link: https://explorer.solana.com/tx/{signature}?cluster=devnet"
     )
 
     return signature
 
 
+async def send_many_batch_transactions(
+    cdp: CdpClient,
+    sender_address: str,
+    destination_addresses: list[str],
+    num_transactions: int,
+    amount: int = 1000,
+):
+    """Send multiple transactions, each with 2 transfers"""
+    connection = SolanaClient("https://api.devnet.solana.com")
+    
+    print(f"Preparing to send {num_transactions} batch transactions")
+    print(f"Each transaction will contain 2 transfers of {amount} lamports each")
+    
+    # Ensure we have enough destination addresses
+    if len(destination_addresses) < 2:
+        raise ValueError("Need at least 2 destination addresses for batch transactions")
+    
+    signatures = []
+    
+    for i in range(num_transactions):
+        print(f"\n--- Batch Transaction {i+1}/{num_transactions} ---")
+        
+        # Rotate through destination addresses for variety
+        # For transaction i, use destinations at indices (2*i) and (2*i+1), wrapping around
+        dest_indices = [(2*i) % len(destination_addresses), (2*i+1) % len(destination_addresses)]
+        batch_destinations = [destination_addresses[idx] for idx in dest_indices]
+        
+        try:
+            signature = await send_batch_transaction(
+                cdp, connection, sender_address, batch_destinations, amount, i+1
+            )
+            signatures.append(signature)
+            
+            # Small delay between transactions
+            if i < num_transactions - 1:
+                print("Waiting 2 seconds before next transaction...")
+                await asyncio.sleep(2)
+                
+        except Exception as e:
+            print(f"Transaction {i+1} failed: {e}")
+            raise
+    
+    print(f"\n✅ Successfully sent {len(signatures)} batch transactions!")
+    return signatures
+
+
 async def main():
-    parser = argparse.ArgumentParser(description="Solana transfer script")
+    parser = argparse.ArgumentParser(description="Solana batch transfer script - sends multiple transactions with 2 transfers each")
     parser.add_argument(
         "--sender",
         help="Sender address (if not provided, a new account will be created)",
     )
     parser.add_argument(
         "--destinations",
-        default="ANVUJaJoVaJZELtV2AvRp7V5qPV1B84o29zAwDhPj1c2,EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo,4PkiqJkUvxr9P8C1UsMqGN8NJsUcep9GahDRLfmeu8UK",
-        help="Destination address",
+        default="ANVUJaJoVaJZELtV2AvRp7V5qPV1B84o29zAwDhPj1c2,EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo,4PkiqJkUvxr9P8C1UsMqGN8NJsUcep9GahDRLfmeu8UK,3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+        help="Comma separated list of destination addresses",
+    )
+    parser.add_argument(
+        "--num-transactions",
+        type=int,
+        default=3,
+        help="Number of batch transactions to send (default: 3)",
     )
     parser.add_argument(
         "--amount",
         type=int,
         default=1000,
-        help="Amount in lamports to send (default: 1000)",
+        help="Amount in lamports to send per transfer (default: 1000)",
     )
     args = parser.parse_args()
 
@@ -190,12 +248,19 @@ async def main():
                     await request_faucet(cdp, sender_address)
                     await wait_for_balance(connection, sender_address)
 
-            await send_transaction(
-                cdp, sender_address, args.destinations.split(","), args.amount
+            destination_addresses = args.destinations.split(",")
+            
+            await send_many_batch_transactions(
+                cdp, 
+                sender_address, 
+                destination_addresses, 
+                args.num_transactions,
+                args.amount
             )
 
         except Exception as error:
             print(f"Error in process: {error}")
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

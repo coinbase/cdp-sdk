@@ -13,6 +13,7 @@ from eth_account.account import Account
 from eth_account.messages import encode_defunct
 from solana.rpc.api import Client as SolanaClient
 from solders.pubkey import Pubkey as PublicKey
+from solders.signature import Signature
 from web3 import Web3
 
 from cdp import CdpClient
@@ -1008,6 +1009,33 @@ async def test_solana_sign_transaction(cdp_client):
     response = await account.sign_transaction(transaction=_get_transaction(account.address))
     assert response is not None
     assert response.signed_transaction is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_solana_send_transaction(cdp_client, solana_account):
+    """Test sending a transaction."""
+    await _ensure_sufficient_sol_balance(cdp_client, solana_account)
+
+    response = await cdp_client.solana.send_transaction(
+        network="solana-devnet", transaction=_get_transaction(solana_account.address)
+    )
+    assert response is not None
+    assert response.transaction_signature is not None
+
+    connection = SolanaClient(
+        os.getenv("CDP_E2E_SOLANA_RPC_URL") or "https://api.devnet.solana.com"
+    )
+
+    last_valid_block_height = connection.get_latest_blockhash()
+    confirmation = connection.confirm_transaction(
+        tx_sig=Signature.from_string(response.transaction_signature),
+        last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
+        commitment="confirmed",
+    )
+
+    assert confirmation is not None
+    assert confirmation.value[0].err is None
 
 
 @pytest.mark.e2e

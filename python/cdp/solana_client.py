@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
 from cdp.actions.solana.request_faucet import request_faucet
+from cdp.actions.solana.send_transaction import send_transaction
 from cdp.actions.solana.sign_message import sign_message
 from cdp.actions.solana.sign_transaction import sign_transaction
 from cdp.analytics import wrap_class_with_error_tracking
@@ -324,6 +325,27 @@ class SolanaClient:
             self.api_clients.solana_accounts,
             address,
             transaction,
+            idempotency_key,
+        )
+
+    async def send_transaction(
+        self,
+        network: str,
+        transaction: str,
+        idempotency_key: str | None = None,
+    ) -> str:
+        """Send a Solana transaction.
+
+        Args:
+            network (str): The network to send the transaction to.
+            transaction (str): The transaction to send.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        """
+        return await send_transaction(
+            self.api_clients.solana_accounts,
+            transaction,
+            network,
             idempotency_key,
         )
 

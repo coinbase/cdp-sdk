@@ -351,7 +351,58 @@ console.log(`Transaction confirmed! Explorer link: https://sepolia.basescan.org/
 
 #### Solana
 
-For Solana, we recommend using the `@solana/web3.js` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/examples/typescript/solana/signAndSendTransaction.ts).
+You can use CDP SDK to send transactions on Solana.
+
+For complete examples, check out [sendTransaction.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/sendTransaction.ts), [sendManyTransactions.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/sendManyTransactions.ts), and [sendManyBatchedTransactions.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/sendManyBatchedTransactions.ts).
+
+```typescript
+import { CdpClient } from "@coinbase/cdp-sdk";
+import "dotenv/config";
+
+import {
+  PublicKey,
+  SystemProgram,
+  SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+  Transaction,
+} from "@solana/web3.js";
+
+const cdp = new CdpClient();
+
+const account = await cdp.solana.createAccount();
+
+const faucetResp = await cdp.solana.requestFaucet({
+  address: account.address,
+  token: "sol",
+});
+
+const transaction = new Transaction();
+transaction.add(
+  SystemProgram.transfer({
+    fromPubkey: new PublicKey(account.address),
+    toPubkey: new PublicKey("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE"),
+    lamports: 10000,
+  })
+);
+
+// A more recent blockhash is set in the backend by CDP
+transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
+transaction.feePayer = new PublicKey(account.address);
+
+const serializedTx = Buffer.from(
+  transaction.serialize({ requireAllSignatures: false })
+).toString("base64");
+
+console.log("Transaction serialized successfully");
+
+const txResult = await cdp.solana.sendTransaction({
+  network: "solana-devnet",
+  transaction: serializedTx,
+});
+
+console.log(
+  `Transaction confirmed! Explorer link: https://explorer.solana.com/tx/${txResult.signature}?cluster=devnet`
+);
+```
 
 ### EVM Smart Accounts
 

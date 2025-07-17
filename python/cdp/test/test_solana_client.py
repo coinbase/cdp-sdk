@@ -22,6 +22,12 @@ from cdp.openapi_client.models.request_solana_faucet200_response import (
 from cdp.openapi_client.models.request_solana_faucet_request import (
     RequestSolanaFaucetRequest,
 )
+from cdp.openapi_client.models.send_solana_transaction200_response import (
+    SendSolanaTransaction200Response as SendSolanaTransactionResponse,
+)
+from cdp.openapi_client.models.send_solana_transaction_request import (
+    SendSolanaTransactionRequest,
+)
 from cdp.openapi_client.models.sign_solana_message200_response import (
     SignSolanaMessage200Response as SignSolanaMessageResponse,
 )
@@ -436,6 +442,40 @@ async def test_sign_transaction():
     mock_solana_accounts_api.sign_solana_transaction.assert_called_once_with(
         address=test_address,
         sign_solana_transaction_request=SignSolanaTransactionRequest(transaction=test_transaction),
+        x_idempotency_key=test_idempotency_key,
+    )
+
+    assert result == mock_response
+
+
+@pytest.mark.asyncio
+async def test_send_transaction():
+    """Test sending a Solana transaction."""
+    mock_solana_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.solana_accounts = mock_solana_accounts_api
+
+    mock_response = SendSolanaTransactionResponse(
+        transaction_signature="test_transaction_signature"
+    )
+    mock_solana_accounts_api.send_solana_transaction = AsyncMock(return_value=mock_response)
+
+    client = SolanaClient(api_clients=mock_api_clients)
+
+    test_network = "solana-devnet"
+    test_transaction = "test_transaction"
+    test_idempotency_key = "test-idempotency-key"
+
+    result = await client.send_transaction(
+        network=test_network,
+        transaction=test_transaction,
+        idempotency_key=test_idempotency_key,
+    )
+
+    mock_solana_accounts_api.send_solana_transaction.assert_called_once_with(
+        send_solana_transaction_request=SendSolanaTransactionRequest(
+            network=test_network, transaction=test_transaction
+        ),
         x_idempotency_key=test_idempotency_key,
     )
 

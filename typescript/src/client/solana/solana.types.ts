@@ -2,6 +2,8 @@ import { Account, SolanaAccount } from "../../accounts/solana/types.js";
 import {
   ListSolanaTokenBalancesNetwork,
   OpenApiSolanaMethods,
+  SendSolanaTransactionBody,
+  SendSolanaTransactionBodyNetwork,
   UpdateSolanaAccountBody,
 } from "../../openapi-client/index.js";
 
@@ -23,6 +25,7 @@ export type SolanaClientInterface = Omit<
   | "exportSolanaAccountByName" // mapped to exportAccount
   | "importSolanaAccount" // mapped to importAccount
   | "listSolanaTokenBalances" // mapped to listTokenBalances
+  | "sendSolanaTransaction" // mapped to sendTransaction
 > & {
   createAccount: (options: CreateAccountOptions) => Promise<Account>;
   exportAccount: (options: ExportAccountOptions) => Promise<string>;
@@ -35,6 +38,7 @@ export type SolanaClientInterface = Omit<
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
   signTransaction: (options: SignTransactionOptions) => Promise<SignatureResult>;
   listTokenBalances: (options: ListTokenBalancesOptions) => Promise<ListTokenBalancesResult>;
+  sendTransaction: (options: SendSolanaTransactionBody) => Promise<SignatureResult>;
 };
 
 /**
@@ -183,6 +187,26 @@ export interface ListTokenBalancesOptions {
   pageSize?: number;
   /** The page token. */
   pageToken?: string;
+}
+
+/**
+ * Options for sending a Solana transaction.
+ */
+export interface SendTransactionOptions {
+  /** The network to send the transaction to. */
+  network: SendSolanaTransactionBodyNetwork;
+  /** The base64 encoded transaction to send. */
+  transaction: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+}
+
+/**
+ * The result of sending a Solana transaction.
+ */
+export interface TransactionResult {
+  /** The signature of the transaction base58 encoded. */
+  signature: string;
 }
 
 export interface SolanaTokenAmount {

@@ -207,8 +207,8 @@ const (
 
 // Defines values for ListSolanaTokenBalancesNetwork.
 const (
-	Solana       ListSolanaTokenBalancesNetwork = "solana"
-	SolanaDevnet ListSolanaTokenBalancesNetwork = "solana-devnet"
+	ListSolanaTokenBalancesNetworkSolana       ListSolanaTokenBalancesNetwork = "solana"
+	ListSolanaTokenBalancesNetworkSolanaDevnet ListSolanaTokenBalancesNetwork = "solana-devnet"
 )
 
 // Defines values for PaymentMethodType.
@@ -417,6 +417,12 @@ const (
 const (
 	Account CreatePolicyJSONBodyScope = "account"
 	Project CreatePolicyJSONBodyScope = "project"
+)
+
+// Defines values for SendSolanaTransactionJSONBodyNetwork.
+const (
+	SendSolanaTransactionJSONBodyNetworkSolana       SendSolanaTransactionJSONBodyNetwork = "solana"
+	SendSolanaTransactionJSONBodyNetworkSolanaDevnet SendSolanaTransactionJSONBodyNetwork = "solana-devnet"
 )
 
 // Defines values for RequestSolanaFaucetJSONBodyToken.
@@ -2216,6 +2222,31 @@ type ImportSolanaAccountParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
+// SendSolanaTransactionJSONBody defines parameters for SendSolanaTransaction.
+type SendSolanaTransactionJSONBody struct {
+	// Network The Solana network to send the transaction to.
+	Network SendSolanaTransactionJSONBodyNetwork `json:"network"`
+
+	// Transaction The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.
+	Transaction string `json:"transaction"`
+}
+
+// SendSolanaTransactionParams defines parameters for SendSolanaTransaction.
+type SendSolanaTransactionParams struct {
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
+// SendSolanaTransactionJSONBodyNetwork defines parameters for SendSolanaTransaction.
+type SendSolanaTransactionJSONBodyNetwork string
+
 // UpdateSolanaAccountJSONBody defines parameters for UpdateSolanaAccount.
 type UpdateSolanaAccountJSONBody struct {
 	// AccountPolicy The ID of the account-level policy to apply to the account, or an empty string to unset attached policy.
@@ -2377,6 +2408,9 @@ type ExportSolanaAccountByNameJSONRequestBody ExportSolanaAccountByNameJSONBody
 
 // ImportSolanaAccountJSONRequestBody defines body for ImportSolanaAccount for application/json ContentType.
 type ImportSolanaAccountJSONRequestBody ImportSolanaAccountJSONBody
+
+// SendSolanaTransactionJSONRequestBody defines body for SendSolanaTransaction for application/json ContentType.
+type SendSolanaTransactionJSONRequestBody SendSolanaTransactionJSONBody
 
 // UpdateSolanaAccountJSONRequestBody defines body for UpdateSolanaAccount for application/json ContentType.
 type UpdateSolanaAccountJSONRequestBody UpdateSolanaAccountJSONBody
@@ -3928,6 +3962,11 @@ type ClientInterface interface {
 
 	ImportSolanaAccount(ctx context.Context, params *ImportSolanaAccountParams, body ImportSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// SendSolanaTransactionWithBody request with any body
+	SendSolanaTransactionWithBody(ctx context.Context, params *SendSolanaTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendSolanaTransaction(ctx context.Context, params *SendSolanaTransactionParams, body SendSolanaTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetSolanaAccount request
 	GetSolanaAccount(ctx context.Context, address string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -4694,6 +4733,30 @@ func (c *CDPClient) ImportSolanaAccountWithBody(ctx context.Context, params *Imp
 
 func (c *CDPClient) ImportSolanaAccount(ctx context.Context, params *ImportSolanaAccountParams, body ImportSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewImportSolanaAccountRequest(c.Server, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SendSolanaTransactionWithBody(ctx context.Context, params *SendSolanaTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendSolanaTransactionRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SendSolanaTransaction(ctx context.Context, params *SendSolanaTransactionParams, body SendSolanaTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendSolanaTransactionRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -7147,6 +7210,72 @@ func NewImportSolanaAccountRequestWithBody(server string, params *ImportSolanaAc
 	return req, nil
 }
 
+// NewSendSolanaTransactionRequest calls the generic SendSolanaTransaction builder with application/json body
+func NewSendSolanaTransactionRequest(server string, params *SendSolanaTransactionParams, body SendSolanaTransactionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendSolanaTransactionRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewSendSolanaTransactionRequestWithBody generates requests for SendSolanaTransaction with any type of body
+func NewSendSolanaTransactionRequestWithBody(server string, params *SendSolanaTransactionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/solana/accounts/send/transaction")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewGetSolanaAccountRequest generates requests for GetSolanaAccount
 func NewGetSolanaAccountRequest(server string, address string) (*http.Request, error) {
 	var err error
@@ -7787,6 +7916,11 @@ type ClientWithResponsesInterface interface {
 	ImportSolanaAccountWithBodyWithResponse(ctx context.Context, params *ImportSolanaAccountParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ImportSolanaAccountResponse, error)
 
 	ImportSolanaAccountWithResponse(ctx context.Context, params *ImportSolanaAccountParams, body ImportSolanaAccountJSONRequestBody, reqEditors ...RequestEditorFn) (*ImportSolanaAccountResponse, error)
+
+	// SendSolanaTransactionWithBodyWithResponse request with any body
+	SendSolanaTransactionWithBodyWithResponse(ctx context.Context, params *SendSolanaTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendSolanaTransactionResponse, error)
+
+	SendSolanaTransactionWithResponse(ctx context.Context, params *SendSolanaTransactionParams, body SendSolanaTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*SendSolanaTransactionResponse, error)
 
 	// GetSolanaAccountWithResponse request
 	GetSolanaAccountWithResponse(ctx context.Context, address string, reqEditors ...RequestEditorFn) (*GetSolanaAccountResponse, error)
@@ -9006,6 +9140,40 @@ func (r ImportSolanaAccountResponse) StatusCode() int {
 	return 0
 }
 
+type SendSolanaTransactionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// TransactionSignature The base58 encoded transaction signature.
+		TransactionSignature string `json:"transactionSignature"`
+	}
+	JSON400 *Error
+	JSON401 *Error
+	JSON402 *PaymentMethodRequiredError
+	JSON403 *Error
+	JSON404 *Error
+	JSON422 *IdempotencyError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SendSolanaTransactionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendSolanaTransactionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetSolanaAccountResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -9762,6 +9930,23 @@ func (c *ClientWithResponses) ImportSolanaAccountWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseImportSolanaAccountResponse(rsp)
+}
+
+// SendSolanaTransactionWithBodyWithResponse request with arbitrary body returning *SendSolanaTransactionResponse
+func (c *ClientWithResponses) SendSolanaTransactionWithBodyWithResponse(ctx context.Context, params *SendSolanaTransactionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendSolanaTransactionResponse, error) {
+	rsp, err := c.SendSolanaTransactionWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendSolanaTransactionResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendSolanaTransactionWithResponse(ctx context.Context, params *SendSolanaTransactionParams, body SendSolanaTransactionJSONRequestBody, reqEditors ...RequestEditorFn) (*SendSolanaTransactionResponse, error) {
+	rsp, err := c.SendSolanaTransaction(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendSolanaTransactionResponse(rsp)
 }
 
 // GetSolanaAccountWithResponse request returning *GetSolanaAccountResponse
@@ -12649,6 +12834,98 @@ func ParseImportSolanaAccountResponse(rsp *http.Response) (*ImportSolanaAccountR
 			return nil, err
 		}
 		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSendSolanaTransactionResponse parses an HTTP response from a SendSolanaTransactionWithResponse call
+func ParseSendSolanaTransactionResponse(rsp *http.Response) (*SendSolanaTransactionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendSolanaTransactionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// TransactionSignature The base58 encoded transaction signature.
+			TransactionSignature string `json:"transactionSignature"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
 		var dest IdempotencyError
