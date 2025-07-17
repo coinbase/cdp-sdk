@@ -1172,6 +1172,34 @@ describe("CDP Client E2E Tests", () => {
       });
     });
 
+    describe("send transaction", () => {
+      it("should send a transaction", async () => {
+        const connection = new Connection(
+          process.env.CDP_E2E_SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+        );
+
+        const { signature } = await cdp.solana.sendTransaction({
+          network: "solana-devnet",
+          transaction: createAndEncodeTransaction(testSolanaAccount.address),
+        });
+
+        expect(signature).toBeDefined();
+
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+        const confirmation = await connection.confirmTransaction(
+          {
+            signature,
+            blockhash,
+            lastValidBlockHeight,
+          },
+          "confirmed",
+        );
+
+        expect(confirmation.value.err).toBeNull();
+      });
+    });
+
     describe("transfer", () => {
       const connection = new Connection(
         process.env.CDP_E2E_SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
