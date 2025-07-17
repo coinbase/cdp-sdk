@@ -14,7 +14,7 @@ import { CdpOpenApiClientType } from "../../openapi-client/index.js";
  *
  * @example
  * ```ts
- * const signature = await cdp.solana.sendTransaction({
+ * const signature = await sendTransaction({
  *   network: "solana-devnet",
  *   transaction: "...",
  * });
