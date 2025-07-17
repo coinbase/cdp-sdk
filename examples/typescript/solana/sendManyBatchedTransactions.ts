@@ -1,4 +1,4 @@
-// Usage: pnpm tsx solana/sendManyTransactions.ts
+// Usage: pnpm tsx solana/sendManyBatchedTransactions.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
