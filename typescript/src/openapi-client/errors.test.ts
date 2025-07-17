@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { APIError, HttpErrorType, isOpenAPIError } from "./errors.js";
+import { APIError, isOpenAPIError } from "./errors.js";
 import {
   Error as OpenAPIError,
   ErrorType as OpenAPIErrorType,
@@ -9,7 +9,7 @@ describe("Errors", () => {
   describe("APIError", () => {
     it("should create an instance with the correct properties", () => {
       const statusCode = 404;
-      const errorType = HttpErrorType.not_found;
+      const errorType = "not_found";
       const errorMessage = "Resource not found";
       const correlationId = "abc-123-xyz";
 
@@ -27,7 +27,7 @@ describe("Errors", () => {
 
     it("should create an instance without correlationId", () => {
       const statusCode = 500;
-      const errorType = HttpErrorType.unexpected_error;
+      const errorType = "unexpected_error";
       const errorMessage = "Something went wrong";
 
       const error = new APIError(statusCode, errorType, errorMessage);
@@ -43,16 +43,6 @@ describe("Errors", () => {
       const error = new APIError(statusCode, errorType, errorMessage);
 
       expect(error.errorType).toBe(errorType);
-    });
-  });
-
-  describe("HttpErrorType", () => {
-    it("should have the expected error types", () => {
-      expect(HttpErrorType.unexpected_error).toBe("unexpected_error");
-      expect(HttpErrorType.unauthorized).toBe("unauthorized");
-      expect(HttpErrorType.not_found).toBe("not_found");
-      expect(HttpErrorType.bad_gateway).toBe("bad_gateway");
-      expect(HttpErrorType.service_unavailable).toBe("service_unavailable");
     });
   });
 

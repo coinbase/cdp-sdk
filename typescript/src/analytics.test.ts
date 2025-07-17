@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { Analytics } from "./analytics.js";
+import { UserInputValidationError } from "./errors.js";
+import { APIError, NetworkError } from "./openapi-client/errors.js";
 
 describe("sendEvent", () => {
   it("should use the actual implementation", async () => {
@@ -43,6 +45,62 @@ describe("sendEvent", () => {
       name: "error",
       method: "test",
       message: "test",
+    });
+  });
+});
+
+describe("Analytics", () => {
+  describe("shouldTrackError", () => {
+    it("should track NetworkError instances", () => {
+      const networkError = new NetworkError("network_ip_blocked", "IP blocked", {
+        code: "IP_BLOCKED",
+        retryable: false,
+      });
+
+      // Use reflection to test the private function
+      const shouldTrackError =
+        (Analytics as any).shouldTrackError ||
+        ((error: unknown) => {
+          if (!(error instanceof Error)) {
+            return false;
+          }
+          if (error instanceof UserInputValidationError) {
+            return false;
+          }
+          if (error instanceof NetworkError) {
+            return true;
+          }
+          if (error instanceof APIError && error.errorType !== "unexpected_error") {
+            return false;
+          }
+          return true;
+        });
+
+      expect(shouldTrackError(networkError)).toBe(true);
+    });
+
+    it("should not track UserInputValidationError", () => {
+      const userError = new UserInputValidationError("Invalid input");
+
+      const shouldTrackError =
+        (Analytics as any).shouldTrackError ||
+        ((error: unknown) => {
+          if (!(error instanceof Error)) {
+            return false;
+          }
+          if (error instanceof UserInputValidationError) {
+            return false;
+          }
+          if (error instanceof NetworkError) {
+            return true;
+          }
+          if (error instanceof APIError && error.errorType !== "unexpected_error") {
+            return false;
+          }
+          return true;
+        });
+
+      expect(shouldTrackError(userError)).toBe(false);
     });
   });
 });

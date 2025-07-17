@@ -1,7 +1,7 @@
 /**
  * The URL to the Coinbase CDP API error docs page.
  */
-export const ERROR_DOCS_PAGE_URL = "https://docs.cdp.coinbase.com/api-v2/docs/errors";
+export const ERROR_DOCS_PAGE_URL = "https://docs.cdp.coinbase.com/api-reference/v2/errors";
 
 /**
  * The public RSA key used to encrypt the private key when importing an EVM or Solana account.

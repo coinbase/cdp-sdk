@@ -1,10 +1,12 @@
 import json
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
-from cdp.analytics import Analytics, ErrorEventData
+from cdp.analytics import Analytics, ErrorEventData, should_track_error
+from cdp.errors import UserInputValidationError
+from cdp.openapi_client.errors import ApiError, HttpErrorType, NetworkError
 
 
 @pytest.mark.asyncio
@@ -16,7 +18,7 @@ async def test_send_event(mock_post, mock_send_event):
     os.environ["DISABLE_CDP_ERROR_REPORTING"] = "false"
 
     try:
-        mock_response = MagicMock()
+        mock_response = Mock()
         mock_response.ok = True
         mock_response.status_code = 200
         mock_post.return_value = mock_response
@@ -56,3 +58,43 @@ async def test_send_event(mock_post, mock_send_event):
             os.environ["DISABLE_CDP_ERROR_REPORTING"] = original_env
         else:
             del os.environ["DISABLE_CDP_ERROR_REPORTING"]
+
+
+def test_should_track_error_user_input_validation():
+    """Test that UserInputValidationError is not tracked."""
+    error = UserInputValidationError("Invalid input")
+    assert not should_track_error(error)
+
+
+def test_should_track_error_api_error_expected():
+    """Test that expected API errors are not tracked."""
+    error = ApiError(
+        http_code=400,
+        error_type="invalid_request",  # Using string literal as per API specification
+        error_message="Invalid request",
+    )
+    assert not should_track_error(error)
+
+
+def test_should_track_error_api_error_unexpected():
+    """Test that unexpected API errors are tracked."""
+    error = ApiError(
+        http_code=500, error_type=HttpErrorType.UNEXPECTED_ERROR, error_message="Unexpected error"
+    )
+    assert should_track_error(error)
+
+
+def test_should_track_error_network_error():
+    """Test that NetworkError instances are tracked."""
+    error = NetworkError(
+        error_type=HttpErrorType.NETWORK_IP_BLOCKED,
+        error_message="IP blocked",
+        network_details={"code": "IP_BLOCKED", "retryable": False},
+    )
+    assert should_track_error(error)
+
+
+def test_should_track_error_generic_exception():
+    """Test that generic exceptions are tracked."""
+    error = ValueError("Some value error")
+    assert should_track_error(error)

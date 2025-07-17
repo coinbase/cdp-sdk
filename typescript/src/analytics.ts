@@ -1,7 +1,7 @@
 import md5 from "md5";
 
 import { UserInputValidationError } from "./errors.js";
-import { APIError, HttpErrorType } from "./openapi-client/errors.js";
+import { APIError, NetworkError } from "./openapi-client/errors.js";
 import { version } from "./version.js";
 
 /**
@@ -189,7 +189,11 @@ function shouldTrackError(error: unknown): boolean {
     return false;
   }
 
-  if (error instanceof APIError && error.errorType !== HttpErrorType.unexpected_error) {
+  if (error instanceof NetworkError) {
+    return true;
+  }
+
+  if (error instanceof APIError && error.errorType !== "unexpected_error") {
     return false;
   }
 

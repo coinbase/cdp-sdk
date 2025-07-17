@@ -13,7 +13,7 @@ from pydantic import BaseModel
 
 from cdp.__version__ import __version__
 from cdp.errors import UserInputValidationError
-from cdp.openapi_client.errors import ApiError
+from cdp.openapi_client.errors import ApiError, HttpErrorType, NetworkError
 
 # This is a public client id for the analytics service
 public_client_id = "54f2ee2fb3d2b901a829940d70fbfc13"
@@ -206,7 +206,10 @@ def should_track_error(error: Exception) -> bool:
     if isinstance(error, UserInputValidationError):
         return False
 
-    if isinstance(error, ApiError) and error.error_type != "unexpected_error":  # noqa: SIM103
+    if isinstance(error, NetworkError):
+        return True
+
+    if isinstance(error, ApiError) and error.error_type != HttpErrorType.UNEXPECTED_ERROR:  # noqa: SIM103
         return False
 
     return True
