@@ -15,6 +15,7 @@ from solana.rpc.api import Client as SolanaClient
 from solders.message import Message
 from solders.pubkey import Pubkey as PublicKey
 from solders.signature import Signature
+from solders.hash import Hash
 from solders.system_program import TransferParams, transfer
 
 from cdp import CdpClient
@@ -91,9 +92,6 @@ async def send_batch_transaction(
         f"Transaction {transaction_number}: Preparing to send {amount} lamports each to 2 addresses from {sender_address}"
     )
 
-    blockhash_resp = connection.get_latest_blockhash()
-    blockhash = blockhash_resp.value.blockhash
-
     # Create 2 transfer instructions
     transfer_instructions = []
     for i, dest_pubkey in enumerate(dest_pubkeys):
@@ -106,10 +104,11 @@ async def send_batch_transaction(
         transfer_instructions.append(transfer_instr)
         print(f"  Transfer {i+1}: {amount} lamports to {destination_addresses[i]}")
 
+    # A more recent blockhash is set in the backend by CDP
     message = Message.new_with_blockhash(
         transfer_instructions,
         source_pubkey,
-        blockhash,
+        Hash.from_string("SysvarRecentB1ockHashes11111111111111111111"),
     )
 
     # Create a transaction envelope with signature space
