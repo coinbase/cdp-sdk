@@ -30,6 +30,8 @@ from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageReq
 from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
+from cdp.to_network_scoped_evm_server_account import ToNetworkScopedEvmServerAccountOptions, to_network_scoped_evm_server_account, NetworkScopedEvmServerAccount
+import asyncio
 
 
 @patch("cdp.evm_server_account.EVMAccountsApi")
@@ -69,7 +71,7 @@ def test_repr_representation(mock_api, server_account_model_factory):
 
 
 def test_use_network(server_account_model_factory):
-    """Test the use_network method returns a new instance with the correct network and rpc_url."""
+    """Test creating a network-scoped account using to_network_scoped_evm_server_account."""
     address = "0x1234567890123456789012345678901234567890"
     name = "test-account"
     policies = ["policy-1", "policy-2"]
@@ -81,19 +83,23 @@ def test_use_network(server_account_model_factory):
     # Patch policies directly for test
     server_account_model.policies = policies
     from cdp.evm_server_account import EvmServerAccount
+    from cdp.to_network_scoped_evm_server_account import ToNetworkScopedEvmServerAccountOptions, to_network_scoped_evm_server_account, NetworkScopedEvmServerAccount
+    import asyncio
 
     dummy_api = object()
     account = EvmServerAccount(server_account_model, dummy_api, dummy_api)
 
-    # Use use_network to create a network-scoped account
-    network_account = account.use_network(network=network, rpc_url=rpc_url)
+    # Use to_network_scoped_evm_server_account to create a network-scoped account
+    options = ToNetworkScopedEvmServerAccountOptions(account=account, network=network)
+    network_account = asyncio.get_event_loop().run_until_complete(
+        to_network_scoped_evm_server_account(options)
+    )
 
-    assert isinstance(network_account, EvmServerAccount)
+    assert isinstance(network_account, NetworkScopedEvmServerAccount)
     assert network_account.address == address
-    assert network_account.name == name
-    assert network_account.policies == policies
-    assert network_account._EvmServerAccount__network == network
-    assert network_account._EvmServerAccount__rpc_url == rpc_url
+    assert network_account.network == network
+    # rpc_url is None unless passed explicitly
+    assert network_account.rpc_url is None
 
 
 @pytest.mark.asyncio

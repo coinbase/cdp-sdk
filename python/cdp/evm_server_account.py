@@ -59,8 +59,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
         evm_server_account_model: EvmServerAccountModel,
         evm_accounts_api: EVMAccountsApi,
         api_clients: ApiClients,
-        network: str | None = None,
-        rpc_url: str | None = None,
     ) -> None:
         """Initialize the EvmServerAccount class.
 
@@ -68,8 +66,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
             evm_server_account_model (EvmServerAccountModel): The EVM server account model.
             evm_accounts_api (EVMAccountsApi): The EVM accounts API.
             api_clients (ApiClients): The API client.
-            network (str | None): The network to use for this account.
-            rpc_url (str | None): The RPC URL to use for this account.
 
         """
         super().__init__()
@@ -79,8 +75,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
         self.__policies = evm_server_account_model.policies
         self.__evm_accounts_api = evm_accounts_api
         self.__api_clients = api_clients
-        self.__network = network
-        self.__rpc_url = rpc_url
 
     @property
     def address(self) -> str:
@@ -286,7 +280,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
         """
         from cdp.actions.evm.transfer import account_transfer_strategy, transfer
 
-        network = network or self.network
         return await transfer(
             api_clients=self.__api_clients,
             from_account=self,
@@ -325,7 +318,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             # Use inline options
             options = InlineSendSwapTransactionOptions(
                 address=self.address,
-                network=swap_options.network or self.network,
+                network=swap_options.network,
                 from_token=swap_options.from_token,
                 to_token=swap_options.to_token,
                 from_amount=swap_options.from_amount,
@@ -384,7 +377,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
         from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
 
         # Call create_swap_quote directly with the account address as taker
-        network = network or self.network
         return await create_swap_quote(
             api_clients=self.__api_clients,
             from_token=from_token,
@@ -412,7 +404,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
             str: The transaction hash of the faucet request.
 
         """
-        network = network or self.network
         return await request_faucet(
             self.__api_clients.faucets,
             self.address,
@@ -471,7 +462,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
             [ListTokenBalancesResult]: The token balances for the account on the network.
 
         """
-        network = network or self.network
         return await list_token_balances(
             self.__api_clients.evm_token_balances,
             self.address,
@@ -518,7 +508,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
             str: The transaction hash.
 
         """
-        network = network or self.network
         return await send_transaction(
             evm_accounts=self.__evm_accounts_api,
             address=self.address,
@@ -551,7 +540,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
                 - fees: List of fees associated with the quote
 
         """
-        network = network or self.network
         fund_options = QuoteFundOptions(
             network=network,
             amount=amount,
@@ -589,7 +577,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
                     - fees: List of fees associated with the transfer
 
         """
-        network = network or self.network
         fund_options = FundOptions(
             network=network,
             amount=amount,
@@ -634,22 +621,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
             transfer_id=transfer_id,
             timeout_seconds=timeout_seconds,
             interval_seconds=interval_seconds,
-        )
-
-    def use_network(
-        self, network: str | None = None, rpc_url: str | None = None
-    ) -> "EvmServerAccount":
-        """Return a new EvmServerAccount instance scoped to the given network or RPC URL."""
-        return EvmServerAccount(
-            evm_server_account_model=EvmServerAccountModel(
-                address=self.__address,
-                name=self.__name,
-                policies=self.__policies,
-            ),
-            evm_accounts_api=self.__evm_accounts_api,
-            api_clients=self.__api_clients,
-            network=network,
-            rpc_url=rpc_url,
         )
 
     def __str__(self) -> str:

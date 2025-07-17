@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 
 from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, ConfigDict, Field
@@ -15,6 +15,9 @@ from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_user_operation import send_user_operation
+from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
+    SignAndWrapTypedDataForSmartAccountOptions,
+)
 from cdp.actions.evm.swap.types import (
     QuoteSwapResult,
     SmartAccountSwapOptions,
@@ -23,6 +26,7 @@ from cdp.actions.evm.swap.types import (
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall
+from cdp.evm_message_types import EIP712Domain
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount as EvmSmartAccountModel
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
@@ -41,8 +45,6 @@ class EvmSmartAccount(BaseModel):
         name: str | None = None,
         policies: list[str] | None = None,
         api_clients: ApiClients | None = None,
-        network: str | None = None,
-        rpc_url: str | None = None,
     ) -> None:
         """Initialize the EvmSmartAccount class.
 
@@ -52,8 +54,6 @@ class EvmSmartAccount(BaseModel):
             name (str | None): The name of the smart account.
             policies (list[str] | None): A list of policy ID's that apply to the account.
             api_clients (ApiClients | None): The API client.
-            network (str | None): The default network for this account instance.
-            rpc_url (str | None): The default RPC URL for this account instance.
 
         """
         super().__init__()
@@ -63,8 +63,6 @@ class EvmSmartAccount(BaseModel):
         self.__name = name
         self.__policies = policies
         self.__api_clients = api_clients
-        self.__network = network
-        self.__rpc_url = rpc_url
 
     @property
     def address(self) -> str:
@@ -105,16 +103,6 @@ class EvmSmartAccount(BaseModel):
 
         """
         return self.__policies
-
-    @property
-    def network(self) -> str | None:
-        """Get the default network for this account instance."""
-        return self.__network
-
-    @property
-    def rpc_url(self) -> str | None:
-        """Get the default RPC URL for this account instance."""
-        return self.__rpc_url
 
     async def transfer(
         self,
@@ -174,7 +162,6 @@ class EvmSmartAccount(BaseModel):
             transfer,
         )
 
-        network = network or self.network
         return await transfer(
             api_clients=self.__api_clients,
             from_account=self,
@@ -203,7 +190,6 @@ class EvmSmartAccount(BaseModel):
             [ListTokenBalancesResult]: The token balances for the smart account on the network.
 
         """
-        network = network or self.network
         return await list_token_balances(
             self.__api_clients.evm_token_balances,
             self.address,
@@ -227,7 +213,6 @@ class EvmSmartAccount(BaseModel):
             str: The transaction hash of the faucet request.
 
         """
-        network = network or self.network
         return await request_faucet(
             self.__api_clients.faucets,
             self.address,
@@ -252,7 +237,6 @@ class EvmSmartAccount(BaseModel):
             EvmUserOperationModel: The user operation model.
 
         """
-        network = network or self.network
         return await send_user_operation(
             self.__api_clients,
             self.address,
@@ -325,7 +309,6 @@ class EvmSmartAccount(BaseModel):
                 - fees: List of fees associated with the quote
 
         """
-        network = network or self.network
         fund_options = QuoteFundOptions(
             network=network,
             amount=amount,
@@ -363,7 +346,6 @@ class EvmSmartAccount(BaseModel):
                     - fees: List of fees associated with the transfer
 
         """
-        network = network or self.network
         fund_options = FundOptions(
             network=network,
             amount=amount,
@@ -484,7 +466,7 @@ class EvmSmartAccount(BaseModel):
 
             send_options = SendSwapOperationOptions(
                 smart_account=self,
-                network=options.swap_quote.network or self.network,
+                network=options.swap_quote.network,  # Get network from quote
                 paymaster_url=paymaster_url,
                 idempotency_key=options.idempotency_key,
                 swap_quote=options.swap_quote,
@@ -493,7 +475,7 @@ class EvmSmartAccount(BaseModel):
             # Inline pattern
             send_options = SendSwapOperationOptions(
                 smart_account=self,
-                network=options.network or self.network,
+                network=options.network,
                 paymaster_url=options.paymaster_url,
                 idempotency_key=options.idempotency_key,
                 from_token=options.from_token,
@@ -560,7 +542,6 @@ class EvmSmartAccount(BaseModel):
         from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
 
         # Call create_swap_quote with smart account address as taker and owner address as signer
-        network = network or self.network
         return await create_swap_quote(
             api_clients=self.__api_clients,
             from_token=from_token,
@@ -575,18 +556,45 @@ class EvmSmartAccount(BaseModel):
             idempotency_key=idempotency_key,
         )
 
-    def use_network(
-        self, network: str | None = None, rpc_url: str | None = None
-    ) -> "EvmSmartAccount":
-        """Return a new EvmSmartAccount instance scoped to the given network or RPC URL."""
-        return EvmSmartAccount(
-            address=self.__address,
-            owner=self.__owners[0],
-            name=self.__name,
-            policies=self.__policies,
+    async def sign_typed_data(
+        self,
+        domain: EIP712Domain,
+        types: dict[str, Any],
+        primary_type: str,
+        message: dict[str, Any],
+        network: str,
+    ) -> str:
+        """Sign a typed data object with the smart account.
+
+        Args:
+            domain: The domain of the typed data.
+            types: The types of the typed data.
+            primary_type: The primary type of the typed data.
+            message: The message to sign.
+            network: The network to sign the typed data on.
+
+        Returns:
+            str: The signature of the typed data.
+
+        """
+        from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
+            sign_and_wrap_typed_data_for_smart_account,
+        )
+        from cdp.network_config import get_chain_id
+
+        return await sign_and_wrap_typed_data_for_smart_account(
             api_clients=self.__api_clients,
-            network=network,
-            rpc_url=rpc_url,
+            options=SignAndWrapTypedDataForSmartAccountOptions(
+                smart_account=self,
+                chain_id=get_chain_id(network),
+                typed_data={
+                    "domain": domain,
+                    "types": types,
+                    "primaryType": primary_type,
+                    "message": message,
+                },
+                owner_index=0,  # Only one owner for now
+            ),
         )
 
     def __str__(self) -> str:

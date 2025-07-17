@@ -684,7 +684,7 @@ async def test_wait_for_fund_operation_receipt_failure(
 
 @pytest.mark.asyncio
 def test_use_network(smart_account_factory, local_account_factory):
-    """Test the use_network method returns a new instance with the correct network and rpc_url."""
+    """Test creating a network-scoped smart account using to_network_scoped_evm_smart_account."""
     address = "0x1234567890123456789012345678901234567890"
     name = "test-smart-account"
     policies = ["policy-1", "policy-2"]
@@ -695,16 +695,23 @@ def test_use_network(smart_account_factory, local_account_factory):
     # Create the original smart account
     account = smart_account_factory(address, name, owner, policies)
 
-    # Use use_network to create a network-scoped account
-    network_account = account.use_network(network=network, rpc_url=rpc_url)
+    from cdp.to_network_scoped_evm_smart_account import ToNetworkScopedEvmSmartAccountOptions, to_network_scoped_evm_smart_account, NetworkScopedEvmSmartAccount
+    import asyncio
 
-    assert isinstance(network_account, EvmSmartAccount)
+    # Use to_network_scoped_evm_smart_account to create a network-scoped smart account
+    options = ToNetworkScopedEvmSmartAccountOptions(smart_account=account, network=network, owner=owner)
+    network_account = asyncio.get_event_loop().run_until_complete(
+        to_network_scoped_evm_smart_account(options)
+    )
+
+    assert isinstance(network_account, NetworkScopedEvmSmartAccount)
     assert network_account.address == address
     assert network_account.name == name
-    assert network_account.owners == [account.owners[0]]
+    assert network_account.owner == owner
     assert network_account.policies == policies
-    assert network_account._EvmSmartAccount__network == network
-    assert network_account._EvmSmartAccount__rpc_url == rpc_url
+    assert network_account.network == network
+    # rpc_url is None unless passed explicitly
+    assert network_account.rpc_url is None
 
 
 @pytest.mark.asyncio
