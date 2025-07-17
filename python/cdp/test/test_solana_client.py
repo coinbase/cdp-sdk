@@ -362,7 +362,7 @@ async def test_list_token_balances(solana_token_balances_model_factory):
 
 @pytest.mark.asyncio
 async def test_list_token_balances_with_solana_network_if_not_provided(
-    solana_token_balances_model_factory
+    solana_token_balances_model_factory,
 ):
     """Test listing Solana token balances."""
     mock_solana_token_balances_api = AsyncMock()
