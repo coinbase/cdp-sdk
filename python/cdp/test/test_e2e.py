@@ -1013,15 +1013,14 @@ async def test_solana_sign_transaction(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_solana_send_transaction(cdp_client):
+async def test_solana_send_transaction(solana_account):
     """Test sending a transaction."""
-    account = await cdp_client.solana.create_account()
-    assert account is not None
+    client = CdpClient(**client_args)
 
-    await _ensure_sufficient_sol_balance(cdp_client, account)
+    await _ensure_sufficient_sol_balance(client, solana_account)
 
-    response = await cdp_client.solana.send_transaction(
-        network="solana-devnet", transaction=_get_transaction(account.address)
+    response = await client.solana.send_transaction(
+        network="solana-devnet", transaction=_get_transaction(solana_account.address)
     )
     assert response is not None
     assert response.transaction_signature is not None
@@ -1039,6 +1038,8 @@ async def test_solana_send_transaction(cdp_client):
 
     assert confirmation is not None
     assert confirmation.value[0].err is None
+
+    await client.close()
 
 
 @pytest.mark.e2e
