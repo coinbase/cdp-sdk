@@ -835,7 +835,7 @@ async def test_transfer_sol(solana_account):
     last_valid_block_height = connection.get_latest_blockhash()
 
     confirmation = connection.confirm_transaction(
-        tx_sig=Signature.from_string(signature),
+        tx_sig=signature,
         last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
         commitment="confirmed",
     )
@@ -863,7 +863,7 @@ async def test_solana_account_transfer_usdc(solana_account):
     last_valid_block_height = connection.get_latest_blockhash()
 
     confirmation = connection.confirm_transaction(
-        tx_sig=Signature.from_string(signature),
+        tx_sig=signature,
         last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
         commitment="confirmed",
     )
