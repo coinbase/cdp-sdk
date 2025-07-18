@@ -2,6 +2,18 @@
 
 <!-- towncrier release notes start -->
 
+## [1.24.0] - 2025-07-18
+
+### Features
+
+- Added sendTransaction function for Solana accounts ([#291](https://github.com/coinbase/cdp-sdk/pull/291))
+- Improved network error handling ([#293](https://github.com/coinbase/cdp-sdk/pull/293))
+
+### Bugfixes
+
+- Gracefully handle closed client connections ([#298](https://github.com/coinbase/cdp-sdk/pull/298))
+
+
 ## [1.23.0] - 2025-07-16
 
 ### Features
