@@ -21,10 +21,10 @@ from cdp.actions.evm.swap.types import (
     SmartAccountSwapResult,
 )
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
-from cdp.analytics import track_action
 from cdp.actions.quote import EvmQuote
 from cdp.actions.types import FundOperationResult
 from cdp.actions.wait_for_fund_operation_receipt import wait_for_fund_operation_receipt
+from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall
 from cdp.evm_message_types import EIP712Domain

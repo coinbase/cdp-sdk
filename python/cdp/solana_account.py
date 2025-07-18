@@ -7,9 +7,9 @@ from cdp.actions.solana.fund import SolanaFundOptions, SolanaQuoteFundOptions, f
 from cdp.actions.solana.request_faucet import request_faucet
 from cdp.actions.solana.sign_message import sign_message
 from cdp.actions.solana.sign_transaction import sign_transaction
-from cdp.analytics import track_action
 from cdp.actions.types import FundOperationResult
 from cdp.actions.wait_for_fund_operation_receipt import wait_for_fund_operation_receipt
+from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.request_solana_faucet200_response import (
     RequestSolanaFaucet200Response as RequestSolanaFaucetResponse,
