@@ -1,5 +1,13 @@
 # CDP SDK Changelog
 
+## 1.27.0
+
+### Minor Changes
+
+- [#291](https://github.com/coinbase/cdp-sdk/pull/291) [`2f91319`](https://github.com/coinbase/cdp-sdk/commit/2f91319c3e74a4d5a437222e16b4b891cda74a97) Thanks [@marcin-cb](https://github.com/marcin-cb)! - Added SendTransaction method to the Solana client
+
+- [#293](https://github.com/coinbase/cdp-sdk/pull/293) [`da89fd1`](https://github.com/coinbase/cdp-sdk/commit/da89fd120f37788d9f917d0cc0969396fba98d78) Thanks [@0xRAG](https://github.com/0xRAG)! - Improved network error handling
+
 ## 1.26.0
 
 ### Minor Changes
