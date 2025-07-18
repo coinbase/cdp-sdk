@@ -3,6 +3,10 @@
 from collections.abc import Callable
 from typing import Any, Literal
 
+from eth_account import Account as EthAccount
+from web3 import Web3
+from web3.middleware import geth_poa_middleware
+
 from cdp.actions.evm.swap import AccountSwapOptions
 from cdp.evm_server_account import EvmServerAccount
 from cdp.network_capabilities import is_method_supported_on_network
@@ -30,17 +34,30 @@ class NetworkScopedEvmServerAccount:
     """
 
     def __init__(
-        self, evm_server_account: EvmServerAccount, network: str, rpc_url: str | None = None
+        self,
+        evm_server_account: EvmServerAccount,
+        network: str,
+        rpc_url: str | None = None,
+        private_key: str | None = None,
     ):
         self._evm_server_account = evm_server_account
         self._network = network
         self._rpc_url = rpc_url
+        self._private_key = private_key
         self._should_use_api_for_sends = network in [
             "base",
             "base-sepolia",
             "ethereum",
             "ethereum-sepolia",
         ]
+        self._web3 = None
+        self._signer = None
+        if rpc_url and not self._should_use_api_for_sends:
+            self._web3 = Web3(Web3.HTTPProvider(rpc_url))
+            # Add POA middleware for testnets if needed
+            self._web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+            if private_key:
+                self._signer = EthAccount.from_key(private_key)
         self._supported_methods: dict[str, Callable] = {}
         self._init_supported_methods()
 
@@ -51,7 +68,6 @@ class NetworkScopedEvmServerAccount:
         self._supported_methods["wait_for_transaction_receipt"] = (
             self._network_scoped_wait_for_transaction_receipt
         )
-
         # Conditionally add network-specific methods
         if is_method_supported_on_network("listTokenBalances", self._network):
             self._supported_methods["list_token_balances"] = (
@@ -72,27 +88,31 @@ class NetworkScopedEvmServerAccount:
             self._supported_methods["swap"] = self._network_scoped_swap
 
     def __getattr__(self, name: str) -> Any:
-        """Handle dynamic attribute access for supported methods and properties.
-
-        Args:
-            name: The name of the attribute being accessed
-
-        Returns:
-            The requested attribute value or method
-
-        Raises:
-            AttributeError: If the attribute is not supported
-
-        """
+        """Dynamically access supported methods and account properties, or raise AttributeError if not found."""
         if name in self._supported_methods:
             return self._supported_methods[name]
-        # Allow access to some properties
+        # Expose account properties
         if name == "network":
             return self._network
         if name == "rpc_url":
             return self._rpc_url
         if name == "address":
             return self._evm_server_account.address
+        if name == "name":
+            return getattr(self._evm_server_account, "name", None)
+        if name == "type":
+            return "evm-server"
+        if name == "policies":
+            return getattr(self._evm_server_account, "policies", None)
+        # Expose signing methods
+        if name == "sign":
+            return getattr(self._evm_server_account, "sign", None)
+        if name == "sign_message":
+            return getattr(self._evm_server_account, "sign_message", None)
+        if name == "sign_transaction":
+            return getattr(self._evm_server_account, "sign_transaction", None)
+        if name == "sign_typed_data":
+            return getattr(self._evm_server_account, "sign_typed_data", None)
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
     async def _network_scoped_send_transaction(
@@ -100,11 +120,39 @@ class NetworkScopedEvmServerAccount:
         transaction: str | dict[str, Any],
         idempotency_key: str | None = None,
     ) -> str:
-        return await self._evm_server_account.send_transaction(
-            transaction=transaction,
-            network=self._network,
-            idempotency_key=idempotency_key,
-        )
+        """Send a transaction using the API for managed networks, or directly via web3.py for custom RPC on non-managed networks.
+
+        If a private key is provided, sign and send the transaction dict. Otherwise, require a signed tx hex string.
+        """
+        if self._web3:
+            if self._signer and isinstance(transaction, dict):
+                # Fill in from, sign, and send
+                tx = dict(transaction)
+                if "from" not in tx:
+                    tx["from"] = self._signer.address
+                if "nonce" not in tx:
+                    tx["nonce"] = self._web3.eth.get_transaction_count(self._signer.address)
+                if "gas" not in tx:
+                    tx["gas"] = self._web3.eth.estimate_gas(tx)
+                if "gasPrice" not in tx and "maxFeePerGas" not in tx:
+                    tx["gasPrice"] = self._web3.eth.gas_price
+                signed = self._signer.sign_transaction(tx)
+                tx_hash = self._web3.eth.send_raw_transaction(signed.rawTransaction)
+                return self._web3.toHex(tx_hash)
+            elif isinstance(transaction, str):
+                # If transaction is a raw signed tx hex string
+                tx_hash = self._web3.eth.send_raw_transaction(transaction)
+                return self._web3.toHex(tx_hash)
+            else:
+                raise NotImplementedError(
+                    "For custom RPC sends, provide a transaction dict (with private_key) or a raw signed transaction hex string."
+                )
+        else:
+            return await self._evm_server_account.send_transaction(
+                transaction=transaction,
+                network=self._network,
+                idempotency_key=idempotency_key,
+            )
 
     async def _network_scoped_transfer(
         self,
@@ -112,6 +160,24 @@ class NetworkScopedEvmServerAccount:
         amount: int,
         token: str,
     ) -> str:
+        """Transfer using the API for managed networks, or via web3.py for custom RPC if private_key is provided."""
+        if self._web3:
+            if not self._signer:
+                raise NotImplementedError(
+                    "Direct transfer via custom RPC requires a private_key. Otherwise, use send_transaction with a signed transaction."
+                )
+            # For demo: only ETH transfer. Token transfer would require ABI and contract interaction.
+            tx = {
+                "to": to,
+                "value": amount,
+                "from": self._signer.address,
+            }
+            tx["nonce"] = self._web3.eth.get_transaction_count(self._signer.address)
+            tx["gas"] = self._web3.eth.estimate_gas(tx)
+            tx["gasPrice"] = self._web3.eth.gas_price
+            signed = self._signer.sign_transaction(tx)
+            tx_hash = self._web3.eth.send_raw_transaction(signed.rawTransaction)
+            return self._web3.toHex(tx_hash)
         return await self._evm_server_account.transfer(
             to=to,
             amount=amount,
@@ -126,13 +192,27 @@ class NetworkScopedEvmServerAccount:
         interval_seconds: float = 0.2,
         rpc_url: str | None = None,
     ) -> dict:
-        return await self._evm_server_account.wait_for_transaction_receipt(
-            transaction_hash=transaction_hash,
-            network=self._network,
-            timeout_seconds=timeout_seconds,
-            interval_seconds=interval_seconds,
-            rpc_url=rpc_url or self._rpc_url,
-        )
+        """Wait for transaction receipt using web3.py if custom RPC is set, otherwise use the API."""
+        if self._web3:
+            import asyncio
+            from time import time
+
+            start = time()
+            while True:
+                receipt = self._web3.eth.get_transaction_receipt(transaction_hash)
+                if receipt:
+                    return dict(receipt)
+                if time() - start > timeout_seconds:
+                    raise TimeoutError("Timeout waiting for transaction receipt via custom RPC.")
+                await asyncio.sleep(interval_seconds)
+        else:
+            return await self._evm_server_account.wait_for_transaction_receipt(
+                transaction_hash=transaction_hash,
+                network=self._network,
+                timeout_seconds=timeout_seconds,
+                interval_seconds=interval_seconds,
+                rpc_url=rpc_url or self._rpc_url,
+            )
 
     async def _network_scoped_list_token_balances(
         self,

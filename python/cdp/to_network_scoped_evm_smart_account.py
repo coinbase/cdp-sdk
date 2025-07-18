@@ -3,6 +3,10 @@
 from collections.abc import Callable
 from typing import Any, Literal
 
+from eth_account import Account as EthAccount
+from web3 import Web3
+from web3.middleware import geth_poa_middleware
+
 from cdp.actions.evm.swap.types import SmartAccountSwapOptions
 from cdp.evm_call_types import ContractCall
 from cdp.evm_smart_account import EvmSmartAccount
@@ -38,16 +42,30 @@ class NetworkScopedEvmSmartAccount:
         network: str,
         rpc_url: str | None = None,
         owner=None,
+        private_key: str | None = None,
     ):
         self._evm_smart_account = evm_smart_account
         self._network = network
         self._rpc_url = rpc_url
         self._owner = owner or (evm_smart_account.owners[0] if evm_smart_account.owners else None)
+        self._private_key = private_key
+        self._web3 = None
+        self._signer = None
+        self._should_use_api = network in [
+            "base",
+            "base-sepolia",
+            "ethereum",
+            "ethereum-sepolia",
+        ]
+        if rpc_url and not self._should_use_api:
+            self._web3 = Web3(Web3.HTTPProvider(rpc_url))
+            self._web3.middleware_onion.inject(geth_poa_middleware, layer=0)
+            if private_key:
+                self._signer = EthAccount.from_key(private_key)
         self._supported_methods: dict[str, Callable] = {}
         self._init_supported_methods()
 
     def _init_supported_methods(self):
-        # Always include base methods
         self._supported_methods["send_user_operation"] = self._network_scoped_send_user_operation
         self._supported_methods["wait_for_user_operation"] = (
             self._network_scoped_wait_for_user_operation
@@ -56,7 +74,6 @@ class NetworkScopedEvmSmartAccount:
         self._supported_methods["wait_for_transaction_receipt"] = (
             self._network_scoped_wait_for_transaction_receipt
         )
-        # Conditionally add network-specific methods
         if is_method_supported_on_network("transfer", self._network):
             self._supported_methods["transfer"] = self._network_scoped_transfer
         if is_method_supported_on_network("listTokenBalances", self._network):
@@ -78,19 +95,9 @@ class NetworkScopedEvmSmartAccount:
             self._supported_methods["swap"] = self._network_scoped_swap
 
     def __getattr__(self, name: str) -> Any:
-        """Handle dynamic attribute access for supported methods and properties.
-
-        Args:
-            name: The name of the attribute being accessed
-        Returns:
-            The requested attribute value or method
-        Raises:
-            AttributeError: If the attribute is not supported
-
-        """
+        """Dynamically access supported methods and account properties, or raise AttributeError if not found."""
         if name in self._supported_methods:
             return self._supported_methods[name]
-        # Allow access to some properties
         if name == "network":
             return self._network
         if name == "rpc_url":
@@ -101,8 +108,21 @@ class NetworkScopedEvmSmartAccount:
             return self._evm_smart_account.address
         if name == "name":
             return self._evm_smart_account.name
+        if name == "type":
+            return "evm-smart"
+        if name == "owners":
+            return self._evm_smart_account.owners
         if name == "policies":
             return self._evm_smart_account.policies
+        # Expose signing methods if present
+        if name == "sign":
+            return getattr(self._owner, "sign", None)
+        if name == "sign_message":
+            return getattr(self._owner, "sign_message", None)
+        if name == "sign_transaction":
+            return getattr(self._owner, "sign_transaction", None)
+        if name == "sign_typed_data":
+            return getattr(self._owner, "sign_typed_data", None)
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
     async def _network_scoped_send_user_operation(
@@ -110,11 +130,36 @@ class NetworkScopedEvmSmartAccount:
         calls: list[ContractCall],
         paymaster_url: str | None = None,
     ):
-        return await self._evm_smart_account.send_user_operation(
-            calls=calls,
-            network=self._network,
-            paymaster_url=paymaster_url,
-        )
+        if self._should_use_api:
+            return await self._evm_smart_account.send_user_operation(
+                calls=calls,
+                network=self._network,
+                paymaster_url=paymaster_url,
+            )
+        else:
+            raise NotImplementedError(
+                "Direct user operation submission via custom RPC is not supported in Python SDK."
+            )
+
+    async def _network_scoped_transfer(
+        self,
+        to: str,
+        amount: int,
+        token: str,
+        paymaster_url: str | None = None,
+    ):
+        if self._should_use_api:
+            return await self._evm_smart_account.transfer(
+                to=to,
+                amount=amount,
+                token=token,
+                network=self._network,
+                paymaster_url=paymaster_url,
+            )
+        else:
+            raise NotImplementedError(
+                "Direct smart account transfer via custom RPC is not supported in Python SDK."
+            )
 
     async def _network_scoped_wait_for_user_operation(
         self,
@@ -134,20 +179,33 @@ class NetworkScopedEvmSmartAccount:
     ):
         return await self._evm_smart_account.get_user_operation(user_op_hash=user_op_hash)
 
-    async def _network_scoped_transfer(
+    async def _network_scoped_wait_for_transaction_receipt(
         self,
-        to: str,
-        amount: int,
-        token: str,
-        paymaster_url: str | None = None,
-    ):
-        return await self._evm_smart_account.transfer(
-            to=to,
-            amount=amount,
-            token=token,
-            network=self._network,
-            paymaster_url=paymaster_url,
-        )
+        transaction_hash: str,
+        timeout_seconds: float = 20,
+        interval_seconds: float = 0.2,
+        rpc_url: str | None = None,
+    ) -> dict:
+        if self._web3:
+            import asyncio
+            from time import time
+
+            start = time()
+            while True:
+                receipt = self._web3.eth.get_transaction_receipt(transaction_hash)
+                if receipt:
+                    return dict(receipt)
+                if time() - start > timeout_seconds:
+                    raise TimeoutError("Timeout waiting for transaction receipt via custom RPC.")
+                await asyncio.sleep(interval_seconds)
+        else:
+            return await self._evm_smart_account.wait_for_transaction_receipt(
+                transaction_hash=transaction_hash,
+                network=self._network,
+                timeout_seconds=timeout_seconds,
+                interval_seconds=interval_seconds,
+                rpc_url=rpc_url or self._rpc_url,
+            )
 
     async def _network_scoped_list_token_balances(
         self,
@@ -229,21 +287,6 @@ class NetworkScopedEvmSmartAccount:
         if not hasattr(options, "network") or getattr(options, "network", None) is None:
             options.network = self._network
         return await self._evm_smart_account.swap(options)
-
-    async def _network_scoped_wait_for_transaction_receipt(
-        self,
-        transaction_hash: str,
-        timeout_seconds: float = 20,
-        interval_seconds: float = 0.2,
-        rpc_url: str | None = None,
-    ) -> dict:
-        return await self._evm_smart_account.wait_for_transaction_receipt(
-            transaction_hash=transaction_hash,
-            network=self._network,
-            timeout_seconds=timeout_seconds,
-            interval_seconds=interval_seconds,
-            rpc_url=rpc_url or self._rpc_url,
-        )
 
 
 async def to_network_scoped_evm_smart_account(
