@@ -4,14 +4,11 @@ from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, ConfigDict, Field
 
 from cdp.actions.evm.fund import (
-    FundOptions,
-    QuoteFundOptions,
+    EvmFundOptions,
+    EvmQuoteFundOptions,
     fund,
     quote_fund,
-    wait_for_fund_operation_receipt,
 )
-from cdp.actions.evm.fund.quote import Quote
-from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_user_operation import send_user_operation
@@ -24,6 +21,9 @@ from cdp.actions.evm.swap.types import (
     SmartAccountSwapResult,
 )
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
+from cdp.actions.quote import EvmQuote
+from cdp.actions.types import FundOperationResult
+from cdp.actions.wait_for_fund_operation_receipt import wait_for_fund_operation_receipt
 from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall
@@ -333,7 +333,7 @@ class EvmSmartAccount(BaseModel):
         network: Literal["base", "ethereum"],
         amount: int,
         token: Literal["eth", "usdc"],
-    ) -> Quote:
+    ) -> EvmQuote:
         """Quote a fund operation.
 
         Args:
@@ -360,7 +360,7 @@ class EvmSmartAccount(BaseModel):
             },
         )
 
-        fund_options = QuoteFundOptions(
+        fund_options = EvmQuoteFundOptions(
             network=network,
             amount=amount,
             token=token,
@@ -416,7 +416,7 @@ class EvmSmartAccount(BaseModel):
             },
         )
 
-        fund_options = FundOptions(
+        fund_options = EvmFundOptions(
             network=network,
             amount=amount,
             token=token,
