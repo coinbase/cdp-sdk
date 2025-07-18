@@ -225,9 +225,6 @@ class SolanaAccount(BaseModel):
         track_action(
             action="quote_fund",
             account_type="solana",
-            properties={
-                "network": "solana",
-            },
         )
 
         fund_options = SolanaQuoteFundOptions(
@@ -267,9 +264,6 @@ class SolanaAccount(BaseModel):
         track_action(
             action="fund",
             account_type="solana",
-            properties={
-                "network": "solana",
-            },
         )
 
         fund_options = SolanaFundOptions(
