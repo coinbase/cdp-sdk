@@ -6,7 +6,7 @@
 
 ### Features
 
-- Add sendTransaction function for Solana accounts ([#291](https://github.com/coinbase/cdp-sdk/pull/291))
+- Added sendTransaction function for Solana accounts ([#291](https://github.com/coinbase/cdp-sdk/pull/291))
 - Improved network error handling ([#293](https://github.com/coinbase/cdp-sdk/pull/293))
 
 ### Bugfixes
