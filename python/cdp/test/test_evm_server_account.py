@@ -1,3 +1,4 @@
+import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -30,8 +31,6 @@ from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageReq
 from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
-from cdp.to_network_scoped_evm_server_account import ToNetworkScopedEvmServerAccountOptions, to_network_scoped_evm_server_account, NetworkScopedEvmServerAccount
-import asyncio
 
 
 @patch("cdp.evm_server_account.EVMAccountsApi")
@@ -71,34 +70,26 @@ def test_repr_representation(mock_api, server_account_model_factory):
 
 
 def test_use_network(server_account_model_factory):
-    """Test creating a network-scoped account using to_network_scoped_evm_server_account."""
+    """Test creating a network-scoped account using the use_network method."""
     address = "0x1234567890123456789012345678901234567890"
     name = "test-account"
     policies = ["policy-1", "policy-2"]
     network = "base"
-    rpc_url = "https://mainnet.base.org"
 
     # Create the original account
     server_account_model = server_account_model_factory(address, name)
     # Patch policies directly for test
     server_account_model.policies = policies
     from cdp.evm_server_account import EvmServerAccount
-    from cdp.to_network_scoped_evm_server_account import ToNetworkScopedEvmServerAccountOptions, to_network_scoped_evm_server_account, NetworkScopedEvmServerAccount
-    import asyncio
 
     dummy_api = object()
     account = EvmServerAccount(server_account_model, dummy_api, dummy_api)
 
-    # Use to_network_scoped_evm_server_account to create a network-scoped account
-    options = ToNetworkScopedEvmServerAccountOptions(account=account, network=network)
-    network_account = asyncio.get_event_loop().run_until_complete(
-        to_network_scoped_evm_server_account(options)
-    )
+    # Test the use_network method
+    network_account = asyncio.get_event_loop().run_until_complete(account.use_network(network))
 
-    assert isinstance(network_account, NetworkScopedEvmServerAccount)
     assert network_account.address == address
     assert network_account.network == network
-    # rpc_url is None unless passed explicitly
     assert network_account.rpc_url is None
 
 

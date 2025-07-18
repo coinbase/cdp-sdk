@@ -18,13 +18,10 @@ async def main():
         smart_account = await cdp.evm.get_or_create_smart_account(owner=owner, name="UseNetworkDemoSmartAccount")
         print(f"Original smart account address: {smart_account.address}")
 
-        # Scope the smart account to a specific network using to_network_scoped_evm_smart_account
-        from cdp.to_network_scoped_evm_smart_account import ToNetworkScopedEvmSmartAccountOptions, to_network_scoped_evm_smart_account
+        # Scope the smart account to a specific network using the use_network method
         network = "base"
-        rpc_url = "https://mainnet.base.org"  # You can use any supported RPC URL
-        options = ToNetworkScopedEvmSmartAccountOptions(smart_account=smart_account, network=network, owner=owner)
-        network_smart_account = await to_network_scoped_evm_smart_account(options)
-        print(f"Created network-scoped smart account for network '{network}' and RPC '{rpc_url}'")
+        network_smart_account = await smart_account.use_network(network)
+        print(f"Created network-scoped smart account for network '{network}'")
 
         # Now you can use the network-scoped smart account to call network-specific methods
         print(f"Listing token balances for smart account {network_smart_account.address} on network '{network}'...")

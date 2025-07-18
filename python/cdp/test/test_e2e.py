@@ -37,8 +37,6 @@ from cdp.policies.types import (
     UpdatePolicyOptions,
 )
 from cdp.update_account_types import UpdateAccountOptions
-from cdp.to_network_scoped_evm_server_account import ToNetworkScopedEvmServerAccountOptions, to_network_scoped_evm_server_account, NetworkScopedEvmServerAccount
-from cdp.to_network_scoped_evm_smart_account import ToNetworkScopedEvmSmartAccountOptions, to_network_scoped_evm_smart_account, NetworkScopedEvmSmartAccount
 
 load_dotenv()
 
@@ -1833,16 +1831,11 @@ async def test_use_network_evm_server_account_e2e(cdp_client):
     server_account = await cdp_client.evm.create_account(name=generate_random_name())
     assert server_account is not None
     orig_address = server_account.address
-    orig_name = server_account.name
-    orig_policies = server_account.policies
 
     network = "base"
-    rpc_url = "https://mainnet.base.org"
-    # Use to_network_scoped_evm_server_account to create a network-scoped account
-    options = ToNetworkScopedEvmServerAccountOptions(account=server_account, network=network)
-    network_account = await to_network_scoped_evm_server_account(options)
+    # Use the use_network method to create a network-scoped account
+    network_account = await server_account.use_network(network)
 
-    assert isinstance(network_account, NetworkScopedEvmServerAccount)
     assert network_account.address == orig_address
     assert network_account.network == network
     # rpc_url is None unless passed explicitly
@@ -1852,7 +1845,9 @@ async def test_use_network_evm_server_account_e2e(cdp_client):
         balances = await network_account.list_token_balances()
         assert balances is not None
     except Exception as e:
-        print(f"NetworkScopedEvmServerAccount list_token_balances failed (expected in some testnets): {e}")
+        print(
+            f"NetworkScopedEvmServerAccount list_token_balances failed (expected in some testnets): {e}"
+        )
 
 
 @pytest.mark.e2e
@@ -1867,15 +1862,11 @@ async def test_use_network_evm_smart_account_e2e(cdp_client):
     orig_address = smart_account.address
     orig_name = smart_account.name
     orig_policies = smart_account.policies
-    orig_owners = smart_account.owners
 
     network = "base"
-    rpc_url = "https://mainnet.base.org"
-    # Use to_network_scoped_evm_smart_account to create a network-scoped smart account
-    options = ToNetworkScopedEvmSmartAccountOptions(smart_account=smart_account, network=network, owner=owner)
-    network_smart_account = await to_network_scoped_evm_smart_account(options)
+    # Use the use_network method to create a network-scoped smart account
+    network_smart_account = await smart_account.use_network(network)
 
-    assert isinstance(network_smart_account, NetworkScopedEvmSmartAccount)
     assert network_smart_account.address == orig_address
     assert network_smart_account.name == orig_name
     assert network_smart_account.policies == orig_policies
@@ -1888,7 +1879,9 @@ async def test_use_network_evm_smart_account_e2e(cdp_client):
         balances = await network_smart_account.list_token_balances()
         assert balances is not None
     except Exception as e:
-        print(f"NetworkScopedEvmSmartAccount list_token_balances failed (expected in some testnets): {e}")
+        print(
+            f"NetworkScopedEvmSmartAccount list_token_balances failed (expected in some testnets): {e}"
+        )
 
 
 def _get_transaction(address: str):

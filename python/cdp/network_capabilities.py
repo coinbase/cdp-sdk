@@ -1,5 +1,5 @@
-"""
-Centralized configuration for network capabilities.
+"""Centralized configuration for network capabilities.
+
 This defines which methods are available on which networks.
 """
 
@@ -8,7 +8,7 @@ from typing import Literal
 # Network names that are supported
 NetworkName = Literal[
     "base",
-    "base-sepolia", 
+    "base-sepolia",
     "ethereum",
     "ethereum-sepolia",
     "ethereum-hoodi",
@@ -23,7 +23,7 @@ NetworkName = Literal[
 # Method names that can be checked
 MethodName = Literal[
     "listTokenBalances",
-    "requestFaucet", 
+    "requestFaucet",
     "quoteFund",
     "fund",
     "waitForFundOperationReceipt",
@@ -161,31 +161,30 @@ NETWORK_CAPABILITIES = {
 
 
 def get_networks_supporting_method(method: MethodName) -> list[NetworkName]:
-    """
-    Helper to get networks that support a specific method.
-    
+    """Get networks that support a specific method.
+
     Args:
         method: The method name to check support for
-        
+
     Returns:
         An array of network names that support the method
+
     """
     return [
-        network for network, config in NETWORK_CAPABILITIES.items()
-        if config.get(method, False)
+        network for network, config in NETWORK_CAPABILITIES.items() if config.get(method, False)
     ]
 
 
 def is_method_supported_on_network(method: MethodName, network: str) -> bool:
-    """
-    Helper to check if a network supports a method.
-    
+    """Check if a network supports a method.
+
     Args:
         method: The method name to check
         network: The network name to check
-        
+
     Returns:
         True if the network supports the method, False otherwise
+
     """
     network_config = NETWORK_CAPABILITIES.get(network)
-    return network_config.get(method, False) if network_config else False 
+    return network_config.get(method, False) if network_config else False

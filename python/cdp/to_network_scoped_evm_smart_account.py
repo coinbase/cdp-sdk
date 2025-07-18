@@ -1,26 +1,25 @@
-"""
-Functions to convert existing EVM smart accounts to network-scoped versions.
-"""
+"""Functions to convert existing EVM smart accounts to network-scoped versions."""
 
-from typing import Any, Dict, Literal, Callable
+from collections.abc import Callable
+from typing import Any, Literal
 
-from cdp.evm_smart_account import EvmSmartAccount
-from cdp.network_capabilities import is_method_supported_on_network
 from cdp.actions.evm.swap.types import SmartAccountSwapOptions
 from cdp.evm_call_types import ContractCall
+from cdp.evm_smart_account import EvmSmartAccount
+from cdp.network_capabilities import is_method_supported_on_network
 
 
 class ToNetworkScopedEvmSmartAccountOptions:
     """Options for converting a pre-existing EvmSmartAccount to a NetworkScopedEvmSmartAccount."""
-    
+
     def __init__(self, smart_account: EvmSmartAccount, network: str, owner=None):
-        """
-        Initialize the options.
-        
+        """Initialize the options.
+
         Args:
             smart_account: The EvmSmartAccount that was previously created.
             network: The network to scope the account to.
             owner: The owner account for the smart account.
+
         """
         self.smart_account = smart_account
         self.network = network
@@ -28,11 +27,18 @@ class ToNetworkScopedEvmSmartAccountOptions:
 
 
 class NetworkScopedEvmSmartAccount:
-    """
-    A network-scoped EVM smart account that only exposes methods supported by the network.
+    """A network-scoped EVM smart account that only exposes methods supported by the network.
+
     Uses dynamic attribute access to match the TypeScript approach.
     """
-    def __init__(self, evm_smart_account: EvmSmartAccount, network: str, rpc_url: str | None = None, owner=None):
+
+    def __init__(
+        self,
+        evm_smart_account: EvmSmartAccount,
+        network: str,
+        rpc_url: str | None = None,
+        owner=None,
+    ):
         self._evm_smart_account = evm_smart_account
         self._network = network
         self._rpc_url = rpc_url
@@ -43,27 +49,45 @@ class NetworkScopedEvmSmartAccount:
     def _init_supported_methods(self):
         # Always include base methods
         self._supported_methods["send_user_operation"] = self._network_scoped_send_user_operation
-        self._supported_methods["wait_for_user_operation"] = self._network_scoped_wait_for_user_operation
+        self._supported_methods["wait_for_user_operation"] = (
+            self._network_scoped_wait_for_user_operation
+        )
         self._supported_methods["get_user_operation"] = self._network_scoped_get_user_operation
-        self._supported_methods["wait_for_transaction_receipt"] = self._network_scoped_wait_for_transaction_receipt
+        self._supported_methods["wait_for_transaction_receipt"] = (
+            self._network_scoped_wait_for_transaction_receipt
+        )
         # Conditionally add network-specific methods
         if is_method_supported_on_network("transfer", self._network):
             self._supported_methods["transfer"] = self._network_scoped_transfer
         if is_method_supported_on_network("listTokenBalances", self._network):
-            self._supported_methods["list_token_balances"] = self._network_scoped_list_token_balances
+            self._supported_methods["list_token_balances"] = (
+                self._network_scoped_list_token_balances
+            )
         if is_method_supported_on_network("requestFaucet", self._network):
             self._supported_methods["request_faucet"] = self._network_scoped_request_faucet
         if is_method_supported_on_network("quoteFund", self._network):
             self._supported_methods["quote_fund"] = self._network_scoped_quote_fund
         if is_method_supported_on_network("fund", self._network):
             self._supported_methods["fund"] = self._network_scoped_fund
-            self._supported_methods["wait_for_fund_operation_receipt"] = self._network_scoped_wait_for_fund_operation_receipt
+            self._supported_methods["wait_for_fund_operation_receipt"] = (
+                self._network_scoped_wait_for_fund_operation_receipt
+            )
         if is_method_supported_on_network("quoteSwap", self._network):
             self._supported_methods["quote_swap"] = self._network_scoped_quote_swap
         if is_method_supported_on_network("swap", self._network):
             self._supported_methods["swap"] = self._network_scoped_swap
 
     def __getattr__(self, name: str) -> Any:
+        """Handle dynamic attribute access for supported methods and properties.
+
+        Args:
+            name: The name of the attribute being accessed
+        Returns:
+            The requested attribute value or method
+        Raises:
+            AttributeError: If the attribute is not supported
+
+        """
         if name in self._supported_methods:
             return self._supported_methods[name]
         # Allow access to some properties
@@ -202,7 +226,7 @@ class NetworkScopedEvmSmartAccount:
         self,
         options: SmartAccountSwapOptions,
     ):
-        if not hasattr(options, 'network') or getattr(options, 'network', None) is None:
+        if not hasattr(options, "network") or getattr(options, "network", None) is None:
             options.network = self._network
         return await self._evm_smart_account.swap(options)
 
@@ -225,16 +249,14 @@ class NetworkScopedEvmSmartAccount:
 async def to_network_scoped_evm_smart_account(
     options: ToNetworkScopedEvmSmartAccountOptions,
 ) -> NetworkScopedEvmSmartAccount:
-    """
-    Creates a Network-scoped Smart Account instance from an existing EvmSmartAccount.
+    """Create a Network-scoped Smart Account instance from an existing EvmSmartAccount.
+
     Use this to interact with previously deployed EvmSmartAccounts on a specific network.
-    
+
     Args:
         options: Configuration options containing the smart account, network, and owner
-        
     Returns:
         A configured NetworkScopedEvmSmartAccount instance ready for network-specific operations
-        
     Example:
         ```python
         # Create a network-scoped smart account
@@ -245,14 +267,14 @@ async def to_network_scoped_evm_smart_account(
                 owner=owner_account
             )
         )
-        
         # Now you can use network-specific methods
         await network_smart_account.list_token_balances()
         await network_smart_account.quote_fund(amount=1000000, token="usdc")
         ```
+
     """
     return NetworkScopedEvmSmartAccount(
         evm_smart_account=options.smart_account,
         network=options.network,
         owner=options.owner,
-    ) 
+    )

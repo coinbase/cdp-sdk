@@ -47,6 +47,7 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
 from cdp.openapi_client.models.transfer import Transfer
+from cdp.to_network_scoped_evm_server_account import NetworkScopedEvmServerAccount
 
 
 class EvmServerAccount(BaseAccount, BaseModel):
@@ -622,6 +623,34 @@ class EvmServerAccount(BaseAccount, BaseModel):
             timeout_seconds=timeout_seconds,
             interval_seconds=interval_seconds,
         )
+
+    async def use_network(self, network: str) -> NetworkScopedEvmServerAccount:
+        """Create a network-scoped version of this account.
+
+        Args:
+            network: The network to scope the account to
+
+        Returns:
+            A NetworkScopedEvmServerAccount instance ready for network-specific operations
+
+        Example:
+            ```python
+            # Create a network-scoped account
+            base_account = await account.use_network("base")
+
+            # Now you can use network-specific methods
+            await base_account.list_token_balances()
+            await base_account.quote_fund(amount=1000000, token="usdc")
+            ```
+
+        """
+        from cdp.to_network_scoped_evm_server_account import (
+            ToNetworkScopedEvmServerAccountOptions,
+            to_network_scoped_evm_server_account,
+        )
+
+        options = ToNetworkScopedEvmServerAccountOptions(account=self, network=network)
+        return await to_network_scoped_evm_server_account(options)
 
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.

@@ -31,6 +31,7 @@ from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount as EvmSmartAccountModel
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
 from cdp.openapi_client.models.transfer import Transfer
+from cdp.to_network_scoped_evm_smart_account import NetworkScopedEvmSmartAccount
 
 
 class EvmSmartAccount(BaseModel):
@@ -596,6 +597,38 @@ class EvmSmartAccount(BaseModel):
                 owner_index=0,  # Only one owner for now
             ),
         )
+
+    async def use_network(self, network: str) -> NetworkScopedEvmSmartAccount:
+        """Create a network-scoped version of this smart account.
+
+        Args:
+            network: The network to scope the smart account to
+
+        Returns:
+            A NetworkScopedEvmSmartAccount instance ready for network-specific operations
+
+        Example:
+            ```python
+            # Create a network-scoped smart account
+            base_smart_account = await smart_account.use_network("base")
+
+            # Now you can use network-specific methods
+            await base_smart_account.list_token_balances()
+            await base_smart_account.quote_fund(amount=1000000, token="usdc")
+            ```
+
+        """
+        from cdp.to_network_scoped_evm_smart_account import (
+            ToNetworkScopedEvmSmartAccountOptions,
+            to_network_scoped_evm_smart_account,
+        )
+
+        # Use the first owner as the default owner for network scoping
+        owner = self.owners[0] if self.owners else None
+        options = ToNetworkScopedEvmSmartAccountOptions(
+            smart_account=self, network=network, owner=owner
+        )
+        return await to_network_scoped_evm_smart_account(options)
 
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.

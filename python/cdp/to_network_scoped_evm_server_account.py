@@ -1,40 +1,46 @@
-"""
-Functions to convert existing EVM server accounts to network-scoped versions.
-"""
+"""Functions to convert existing EVM server accounts to network-scoped versions."""
 
-from typing import Any, Dict, Literal, Callable
+from collections.abc import Callable
+from typing import Any, Literal
 
+from cdp.actions.evm.swap import AccountSwapOptions
 from cdp.evm_server_account import EvmServerAccount
 from cdp.network_capabilities import is_method_supported_on_network
-from cdp.actions.evm.fund import FundOptions, QuoteFundOptions
-from cdp.actions.evm.swap import AccountSwapOptions
 
 
 class ToNetworkScopedEvmServerAccountOptions:
     """Options for converting a pre-existing EvmAccount to a NetworkScopedEvmServerAccount."""
-    
+
     def __init__(self, account: EvmServerAccount, network: str):
-        """
-        Initialize the options.
-        
+        """Initialize the options.
+
         Args:
             account: The EvmServerAccount that was previously created.
             network: The network to scope the account to.
+
         """
         self.account = account
         self.network = network
 
 
 class NetworkScopedEvmServerAccount:
-    """
-    A network-scoped EVM server account that only exposes methods supported by the network.
+    """A network-scoped EVM server account that only exposes methods supported by the network.
+
     Uses dynamic attribute access to match the TypeScript approach.
     """
-    def __init__(self, evm_server_account: EvmServerAccount, network: str, rpc_url: str | None = None):
+
+    def __init__(
+        self, evm_server_account: EvmServerAccount, network: str, rpc_url: str | None = None
+    ):
         self._evm_server_account = evm_server_account
         self._network = network
         self._rpc_url = rpc_url
-        self._should_use_api_for_sends = network in ["base", "base-sepolia", "ethereum", "ethereum-sepolia"]
+        self._should_use_api_for_sends = network in [
+            "base",
+            "base-sepolia",
+            "ethereum",
+            "ethereum-sepolia",
+        ]
         self._supported_methods: dict[str, Callable] = {}
         self._init_supported_methods()
 
@@ -42,24 +48,42 @@ class NetworkScopedEvmServerAccount:
         # Always include base methods
         self._supported_methods["send_transaction"] = self._network_scoped_send_transaction
         self._supported_methods["transfer"] = self._network_scoped_transfer
-        self._supported_methods["wait_for_transaction_receipt"] = self._network_scoped_wait_for_transaction_receipt
+        self._supported_methods["wait_for_transaction_receipt"] = (
+            self._network_scoped_wait_for_transaction_receipt
+        )
 
         # Conditionally add network-specific methods
         if is_method_supported_on_network("listTokenBalances", self._network):
-            self._supported_methods["list_token_balances"] = self._network_scoped_list_token_balances
+            self._supported_methods["list_token_balances"] = (
+                self._network_scoped_list_token_balances
+            )
         if is_method_supported_on_network("requestFaucet", self._network):
             self._supported_methods["request_faucet"] = self._network_scoped_request_faucet
         if is_method_supported_on_network("quoteFund", self._network):
             self._supported_methods["quote_fund"] = self._network_scoped_quote_fund
         if is_method_supported_on_network("fund", self._network):
             self._supported_methods["fund"] = self._network_scoped_fund
-            self._supported_methods["wait_for_fund_operation_receipt"] = self._network_scoped_wait_for_fund_operation_receipt
+            self._supported_methods["wait_for_fund_operation_receipt"] = (
+                self._network_scoped_wait_for_fund_operation_receipt
+            )
         if is_method_supported_on_network("quoteSwap", self._network):
             self._supported_methods["quote_swap"] = self._network_scoped_quote_swap
         if is_method_supported_on_network("swap", self._network):
             self._supported_methods["swap"] = self._network_scoped_swap
 
     def __getattr__(self, name: str) -> Any:
+        """Handle dynamic attribute access for supported methods and properties.
+
+        Args:
+            name: The name of the attribute being accessed
+
+        Returns:
+            The requested attribute value or method
+
+        Raises:
+            AttributeError: If the attribute is not supported
+
+        """
         if name in self._supported_methods:
             return self._supported_methods[name]
         # Allow access to some properties
@@ -73,7 +97,7 @@ class NetworkScopedEvmServerAccount:
 
     async def _network_scoped_send_transaction(
         self,
-        transaction: str | Dict[str, Any],
+        transaction: str | dict[str, Any],
         idempotency_key: str | None = None,
     ) -> str:
         return await self._evm_server_account.send_transaction(
@@ -187,7 +211,7 @@ class NetworkScopedEvmServerAccount:
         self,
         swap_options: AccountSwapOptions,
     ):
-        if hasattr(swap_options, 'network'):
+        if hasattr(swap_options, "network"):
             swap_options.network = self._network
         return await self._evm_server_account.swap(swap_options)
 
@@ -195,16 +219,16 @@ class NetworkScopedEvmServerAccount:
 async def to_network_scoped_evm_server_account(
     options: ToNetworkScopedEvmServerAccountOptions,
 ) -> NetworkScopedEvmServerAccount:
-    """
-    Creates a Network-scoped Server-managed EvmAccount instance from an existing EvmAccount.
+    """Create a Network-scoped Server-managed EvmAccount instance from an existing EvmAccount.
+
     Use this to interact with previously deployed EvmAccounts on a specific network.
-    
+
     Args:
         options: Configuration options containing the account and network
-        
+
     Returns:
         A configured NetworkScopedEvmServerAccount instance ready for network-specific operations
-        
+
     Example:
         ```python
         # Create a network-scoped account
@@ -214,13 +238,14 @@ async def to_network_scoped_evm_server_account(
                 network="base"
             )
         )
-        
+
         # Now you can use network-specific methods
         await network_account.list_token_balances()
         await network_account.quote_fund(amount=1000000, token="usdc")
         ```
+
     """
     return NetworkScopedEvmServerAccount(
         evm_server_account=options.account,
         network=options.network,
-    ) 
+    )

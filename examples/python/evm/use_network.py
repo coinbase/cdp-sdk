@@ -13,13 +13,10 @@ async def main():
         account = await cdp.evm.get_or_create_account(name="UseNetworkDemoAccount")
         print(f"Original account address: {account.address}")
 
-        # Scope the account to a specific network using to_network_scoped_evm_server_account
-        from cdp.to_network_scoped_evm_server_account import ToNetworkScopedEvmServerAccountOptions, to_network_scoped_evm_server_account
+        # Scope the account to a specific network using the use_network method
         network = "base"
-        rpc_url = "https://mainnet.base.org"  # You can use any supported RPC URL
-        options = ToNetworkScopedEvmServerAccountOptions(account=account, network=network)
-        network_account = await to_network_scoped_evm_server_account(options)
-        print(f"Created network-scoped account for network '{network}' and RPC '{rpc_url}'")
+        network_account = await account.use_network(network)
+        print(f"Created network-scoped account for network '{network}'")
 
         # Now you can use the network-scoped account to call network-specific methods
         print(f"Listing token balances for account {network_account.address} on network '{network}'...")
