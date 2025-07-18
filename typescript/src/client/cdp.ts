@@ -121,8 +121,14 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/typescr
       sourceVersion: version,
     });
 
-    if (process.env.DISABLE_CDP_ERROR_REPORTING !== "true") {
+    if (
+      process.env.DISABLE_CDP_ERROR_REPORTING !== "true" ||
+      process.env.DISABLE_CDP_USAGE_TRACKING !== "true"
+    ) {
       Analytics.identifier = apiKeyId;
+    }
+
+    if (process.env.DISABLE_CDP_ERROR_REPORTING !== "true") {
       Analytics.wrapClassWithErrorTracking(CdpClient);
       Analytics.wrapClassWithErrorTracking(EvmClient);
       Analytics.wrapClassWithErrorTracking(SolanaClient);

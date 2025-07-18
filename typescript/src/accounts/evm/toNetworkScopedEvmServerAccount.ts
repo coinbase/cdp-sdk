@@ -5,6 +5,7 @@ import { mapChainToNetwork } from "./chainToNetworkMapper.js";
 import { isMethodSupportedOnNetwork } from "./networkCapabilities.js";
 import { resolveViemClients } from "./resolveViemClients.js";
 import { transferWithViem } from "../../actions/evm/transfer/transferWithViem.js";
+import { Analytics } from "../../analytics.js";
 
 import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js";
 import type { FundOptions } from "../../actions/evm/fund/fund.js";
@@ -74,6 +75,14 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
           network: mapChainToNetwork(chain) as SendEvmTransactionBodyNetwork,
         });
       } else {
+        Analytics.trackAction({
+          action: "sendTransaction",
+          accountType: "evm-server",
+          properties: {
+            network: options.network,
+          },
+        });
+
         const hash = await walletClient.sendTransaction(
           txOpts.transaction as TransactionRequestEIP1559,
         );
@@ -87,12 +96,25 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
           network: mapChainToNetwork(chain) as SendEvmTransactionBodyNetwork,
         });
       } else {
+        Analytics.trackAction({
+          action: "transfer",
+          accountType: "evm-server",
+          properties: {
+            network: options.network,
+          },
+        });
+
         return transferWithViem(walletClient, account, transferArgs);
       }
     },
     waitForTransactionReceipt: async (
       waitOptions: WaitForTransactionReceiptParameters | TransactionResult,
     ) => {
+      Analytics.trackAction({
+        action: "waitForTransactionReceipt",
+        accountType: "evm-server",
+      });
+
       if ("transactionHash" in waitOptions) {
         return publicClient.waitForTransactionReceipt({
           hash: waitOptions.transactionHash,

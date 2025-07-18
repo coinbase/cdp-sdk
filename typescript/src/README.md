@@ -19,6 +19,7 @@
 - [Policy Management](#policy-management)
 - [Authentication tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
+- [Usage Tracking](#usage-tracking)
 - [License](#license)
 - [Support](#support)
 - [Security](#security)
@@ -1075,11 +1076,15 @@ This SDK also contains simple tools for authenticating REST API requests to the 
 
 ## Error Reporting
 
-This SDK contains error reporting functionality that sends error events to the CDP. If you would like to disable this behavior, you can set the `DISABLE_CDP_ERROR_REPORTING` environment variable to `true`.
+This SDK contains error reporting functionality that sends error events to CDP. If you would like to disable this behavior, you can set the `DISABLE_CDP_ERROR_REPORTING` environment variable to `true`.
 
 ```bash
 DISABLE_CDP_ERROR_REPORTING=true
 ```
+
+## Usage Tracking
+
+This SDK contains usage tracking functionality that sends usage events to CDP. If you would like to disable this behavior, you can set the `DISABLE_CDP_USAGE_TRACKING` environment variable to `true`.
 
 ## License
 

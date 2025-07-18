@@ -7,6 +7,7 @@ import {
   DeletePolicyOptions,
   UpdatePolicyOptions,
 } from "./policies.types.js";
+import { Analytics } from "../../analytics.js";
 import {
   CdpOpenApiClient,
   CreatePolicyBody,
@@ -57,6 +58,13 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    */
   async listPolicies(options: ListPoliciesOptions = {}): Promise<ListPoliciesResult> {
+    Analytics.trackAction({
+      action: "listPolicies",
+      properties: {
+        scope: options.scope,
+      },
+    });
+
     return CdpOpenApiClient.listPolicies(options) as Promise<ListPoliciesResult>;
   }
 
@@ -129,10 +137,18 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    */
   async createPolicy(options: CreatePolicyOptions): Promise<Policy> {
+    Analytics.trackAction({
+      action: "createPolicy",
+      properties: {
+        scope: options.policy.scope,
+      },
+    });
+
     CreatePolicyBodySchema.parse(options.policy);
     return CdpOpenApiClient.createPolicy(
       // There are arbitrary differences between the abitype Abi and the openapi Abi
       options.policy as CreatePolicyBody,
+
       options.idempotencyKey,
     ) as Promise<Policy>;
   }
@@ -156,6 +172,10 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    */
   async getPolicyById(options: GetPolicyByIdOptions): Promise<Policy> {
+    Analytics.trackAction({
+      action: "getPolicyById",
+    });
+
     return CdpOpenApiClient.getPolicyById(options.id) as Promise<Policy>;
   }
 
@@ -188,6 +208,10 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    */
   async deletePolicy(options: DeletePolicyOptions): Promise<void> {
+    Analytics.trackAction({
+      action: "deletePolicy",
+    });
+
     return CdpOpenApiClient.deletePolicy(options.id, options.idempotencyKey);
   }
 
@@ -244,6 +268,10 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    */
   async updatePolicy(options: UpdatePolicyOptions): Promise<Policy> {
+    Analytics.trackAction({
+      action: "updatePolicy",
+    });
+
     UpdatePolicyBodySchema.parse(options.policy);
     return CdpOpenApiClient.updatePolicy(
       options.id,

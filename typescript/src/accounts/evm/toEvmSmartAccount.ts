@@ -35,6 +35,7 @@ import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
+import { Analytics } from "../../analytics.js";
 import {
   GetUserOperationOptions,
   SignTypedDataOptions,
@@ -85,11 +86,27 @@ export function toEvmSmartAccount(
     owners: [options.owner],
     policies: options.smartAccount.policies,
     async transfer(transferArgs): Promise<SendUserOperationReturnType> {
+      Analytics.trackAction({
+        action: "transfer",
+        accountType: "evm-smart",
+        properties: {
+          network: transferArgs.network,
+        },
+      });
+
       return transfer(apiClient, account, transferArgs, smartAccountTransferStrategy);
     },
     async listTokenBalances(
       options: Omit<ListTokenBalancesOptions, "address">,
     ): Promise<ListTokenBalancesResult> {
+      Analytics.trackAction({
+        action: "listTokenBalances",
+        accountType: "evm-smart",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return listTokenBalances(apiClient, {
         ...options,
         address: this.address,
@@ -98,6 +115,14 @@ export function toEvmSmartAccount(
     async sendUserOperation(
       options: Omit<SendUserOperationOptions<unknown[]>, "smartAccount">,
     ): Promise<SendUserOperationReturnType> {
+      Analytics.trackAction({
+        action: "sendUserOperation",
+        accountType: "evm-smart",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return sendUserOperation(apiClient, {
         ...options,
         smartAccount: account,
@@ -106,6 +131,11 @@ export function toEvmSmartAccount(
     async waitForUserOperation(
       options: Omit<WaitForUserOperationOptions, "smartAccountAddress">,
     ): Promise<WaitForUserOperationReturnType> {
+      Analytics.trackAction({
+        action: "waitForUserOperation",
+        accountType: "evm-smart",
+      });
+
       return waitForUserOperation(apiClient, {
         ...options,
         smartAccountAddress: account.address,
@@ -114,6 +144,11 @@ export function toEvmSmartAccount(
     async getUserOperation(
       options: Omit<GetUserOperationOptions, "smartAccount">,
     ): Promise<UserOperation> {
+      Analytics.trackAction({
+        action: "getUserOperation",
+        accountType: "evm-smart",
+      });
+
       return getUserOperation(apiClient, {
         ...options,
         smartAccount: account,
@@ -122,18 +157,42 @@ export function toEvmSmartAccount(
     async requestFaucet(
       options: Omit<RequestFaucetOptions, "address">,
     ): Promise<RequestFaucetResult> {
+      Analytics.trackAction({
+        action: "requestFaucet",
+        accountType: "evm-smart",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return requestFaucet(apiClient, {
         ...options,
         address: account.address,
       });
     },
     async quoteFund(options: Omit<QuoteFundOptions, "address">): Promise<Quote> {
+      Analytics.trackAction({
+        action: "quoteFund",
+        accountType: "evm-smart",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return quoteFund(apiClient, {
         ...options,
         address: this.address,
       });
     },
     async fund(options: Omit<FundOptions, "address">): Promise<FundOperationResult> {
+      Analytics.trackAction({
+        action: "fund",
+        accountType: "evm-smart",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return fund(apiClient, {
         ...options,
         address: this.address,
@@ -142,9 +201,22 @@ export function toEvmSmartAccount(
     async waitForFundOperationReceipt(
       options: WaitForFundOperationOptions,
     ): Promise<WaitForFundOperationResult> {
+      Analytics.trackAction({
+        action: "waitForFundOperationReceipt",
+        accountType: "evm-smart",
+      });
+
       return waitForFundOperationReceipt(apiClient, options);
     },
     async quoteSwap(options: SmartAccountQuoteSwapOptions): Promise<SmartAccountQuoteSwapResult> {
+      Analytics.trackAction({
+        action: "quoteSwap",
+        accountType: "evm-smart",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return createSwapQuote(apiClient, {
         ...options,
         taker: this.address, // Always use smart account's address as taker
@@ -153,6 +225,14 @@ export function toEvmSmartAccount(
       });
     },
     async swap(options: SmartAccountSwapOptions): Promise<SmartAccountSwapResult> {
+      Analytics.trackAction({
+        action: "swap",
+        accountType: "evm-smart",
+        properties: {
+          network: "network" in options ? options.network : undefined,
+        },
+      });
+
       return sendSwapOperation(apiClient, {
         ...options,
         smartAccount: account,
@@ -163,6 +243,14 @@ export function toEvmSmartAccount(
     async signTypedData(
       options: Omit<SignTypedDataOptions, "address"> & { network: KnownEvmNetworks },
     ): Promise<Hex> {
+      Analytics.trackAction({
+        action: "signTypedData",
+        accountType: "evm-smart",
+        properties: {
+          network: options.network,
+        },
+      });
+
       const result = await signAndWrapTypedDataForSmartAccount(apiClient, {
         chainId: BigInt(resolveNetworkToChain(options.network).id),
         smartAccount: account,
@@ -174,6 +262,14 @@ export function toEvmSmartAccount(
     name: options.smartAccount.name,
     type: "evm-smart",
     useNetwork: async <Network extends KnownEvmNetworks>(network: Network) => {
+      Analytics.trackAction({
+        action: "useNetwork",
+        accountType: "evm-smart",
+        properties: {
+          network,
+        },
+      });
+
       return toNetworkScopedEvmSmartAccount(apiClient, {
         smartAccount: account,
         owner: options.owner,
