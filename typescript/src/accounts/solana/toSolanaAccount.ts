@@ -99,7 +99,7 @@ export function toSolanaAccount(
         action: "quote_fund",
         accountType: "solana",
         properties: {
-          network: options.network,
+          network: "solana",
         },
       });
 
@@ -113,7 +113,7 @@ export function toSolanaAccount(
         action: "fund",
         accountType: "solana",
         properties: {
-          network: options.network,
+          network: "solana",
         },
       });
 
