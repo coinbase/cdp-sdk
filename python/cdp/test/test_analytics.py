@@ -1,6 +1,6 @@
 import json
 import os
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -10,18 +10,26 @@ from cdp.openapi_client.errors import ApiError, HttpErrorType, NetworkError
 
 
 @pytest.mark.asyncio
-@patch("requests.post")
-async def test_send_event(mock_post, mock_send_event):
+@patch("aiohttp.ClientSession")
+async def test_send_event(mock_client_session_class, mock_send_event):
     """Test sending an error event."""
     # Temporarily disable the environment variable
     original_env = os.environ.get("DISABLE_CDP_ERROR_REPORTING")
     os.environ["DISABLE_CDP_ERROR_REPORTING"] = "false"
 
     try:
-        mock_response = Mock()
-        mock_response.ok = True
-        mock_response.status_code = 200
-        mock_post.return_value = mock_response
+        # Mock the aiohttp session and response
+        mock_response = AsyncMock()
+        mock_response.status = 200
+        mock_response.text = AsyncMock(return_value="OK")
+
+        mock_post = AsyncMock(return_value=mock_response)
+        mock_session = AsyncMock()
+        mock_session.post = mock_post
+        mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session.__aexit__ = AsyncMock()
+
+        mock_client_session_class.return_value = mock_session
 
         original_send_event = mock_send_event.original
 
@@ -30,8 +38,13 @@ async def test_send_event(mock_post, mock_send_event):
 
         await original_send_event(event_data)
 
+        # Verify the session was created
+        mock_client_session_class.assert_called_once()
+
+        # Verify post was called
         mock_post.assert_called_once()
 
+        # Get the call arguments
         args, kwargs = mock_post.call_args
         assert args[0] == "https://cca-lite.coinbase.com/amp"
 

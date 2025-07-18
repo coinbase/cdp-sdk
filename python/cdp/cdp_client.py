@@ -92,8 +92,13 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
         self._solana = SolanaClient(self.api_clients)
         self._policies = PoliciesClient(self.api_clients)
 
-        if os.getenv("DISABLE_CDP_ERROR_REPORTING") != "true":
+        if (
+            os.getenv("DISABLE_CDP_ERROR_REPORTING") != "true"
+            or os.getenv("DISABLE_CDP_USAGE_TRACKING") != "true"
+        ):
             Analytics["identifier"] = api_key_id
+
+        if os.getenv("DISABLE_CDP_ERROR_REPORTING") != "true":
             wrap_class_with_error_tracking(CdpClient)
             wrap_class_with_error_tracking(EvmClient)
             wrap_class_with_error_tracking(SolanaClient)

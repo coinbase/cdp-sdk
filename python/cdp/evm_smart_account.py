@@ -24,6 +24,7 @@ from cdp.actions.evm.swap.types import (
     SmartAccountSwapResult,
 )
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
+from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import ContractCall
 from cdp.evm_message_types import EIP712Domain
@@ -157,6 +158,14 @@ class EvmSmartAccount(BaseModel):
             ... })
 
         """
+        track_action(
+            action="transfer",
+            account_type="evm_smart",
+            properties={
+                "network": network,
+            },
+        )
+
         from cdp.actions.evm.transfer import (
             smart_account_transfer_strategy,
             transfer,
@@ -190,6 +199,14 @@ class EvmSmartAccount(BaseModel):
             [ListTokenBalancesResult]: The token balances for the smart account on the network.
 
         """
+        track_action(
+            action="list_token_balances",
+            account_type="evm_smart",
+            properties={
+                "network": network,
+            },
+        )
+
         return await list_token_balances(
             self.__api_clients.evm_token_balances,
             self.address,
@@ -213,6 +230,14 @@ class EvmSmartAccount(BaseModel):
             str: The transaction hash of the faucet request.
 
         """
+        track_action(
+            action="request_faucet",
+            account_type="evm_smart",
+            properties={
+                "network": network,
+            },
+        )
+
         return await request_faucet(
             self.__api_clients.faucets,
             self.address,
@@ -237,6 +262,14 @@ class EvmSmartAccount(BaseModel):
             EvmUserOperationModel: The user operation model.
 
         """
+        track_action(
+            action="send_user_operation",
+            account_type="evm_smart",
+            properties={
+                "network": network,
+            },
+        )
+
         return await send_user_operation(
             self.__api_clients,
             self.address,
@@ -263,6 +296,11 @@ class EvmSmartAccount(BaseModel):
             EvmUserOperationModel: The user operation model.
 
         """
+        track_action(
+            action="wait_for_user_operation",
+            account_type="evm_smart",
+        )
+
         return await wait_for_user_operation(
             self.__api_clients,
             self.address,
@@ -281,6 +319,11 @@ class EvmSmartAccount(BaseModel):
             EvmUserOperationModel: The user operation model.
 
         """
+        track_action(
+            action="get_user_operation",
+            account_type="evm_smart",
+        )
+
         return await self.__api_clients.evm_smart_accounts.get_user_operation(
             self.address, user_op_hash
         )
@@ -309,6 +352,14 @@ class EvmSmartAccount(BaseModel):
                 - fees: List of fees associated with the quote
 
         """
+        track_action(
+            action="quote_fund",
+            account_type="evm_smart",
+            properties={
+                "network": network,
+            },
+        )
+
         fund_options = QuoteFundOptions(
             network=network,
             amount=amount,
@@ -345,7 +396,26 @@ class EvmSmartAccount(BaseModel):
                     - target_currency: The target currency
                     - fees: List of fees associated with the transfer
 
+        Examples:
+            >>> # Fund an account with USDC
+            >>> account = await cdp.evm.get_smart_account("account-id")
+            >>> fund_result = await account.fund(
+            ...     network="base",
+            ...     amount=1000000,  # 1 USDC (USDC has 6 decimals)
+            ...     token="usdc"
+            ... )
+            >>> # Wait for fund operation to complete
+            >>> result = await account.wait_for_fund_operation_receipt(fund_result.transfer.id)
+
         """
+        track_action(
+            action="fund",
+            account_type="evm_smart",
+            properties={
+                "network": network,
+            },
+        )
+
         fund_options = FundOptions(
             network=network,
             amount=amount,
@@ -385,6 +455,11 @@ class EvmSmartAccount(BaseModel):
             TimeoutError: If the transfer does not complete within the timeout period.
 
         """
+        track_action(
+            action="wait_for_fund_operation_receipt",
+            account_type="evm_smart",
+        )
+
         return await wait_for_fund_operation_receipt(
             api_clients=self.__api_clients,
             transfer_id=transfer_id,
@@ -451,6 +526,14 @@ class EvmSmartAccount(BaseModel):
             ```
 
         """
+        track_action(
+            action="swap",
+            account_type="evm_smart",
+            properties={
+                "network": options.network,
+            },
+        )
+
         from cdp.actions.evm.swap.send_swap_operation import (
             SendSwapOperationOptions,
             send_swap_operation,
@@ -539,6 +622,11 @@ class EvmSmartAccount(BaseModel):
             ```
 
         """
+        track_action(
+            action="create_swap_quote",
+            properties={"network": network},
+        )
+
         from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
 
         # Call create_swap_quote with smart account address as taker and owner address as signer
@@ -577,6 +665,14 @@ class EvmSmartAccount(BaseModel):
             str: The signature of the typed data.
 
         """
+        track_action(
+            action="sign_typed_data",
+            account_type="evm_smart",
+            properties={
+                "network": network,
+            },
+        )
+
         from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
             sign_and_wrap_typed_data_for_smart_account,
         )

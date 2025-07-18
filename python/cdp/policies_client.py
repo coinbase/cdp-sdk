@@ -1,3 +1,4 @@
+from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
@@ -33,6 +34,13 @@ class PoliciesClient:
             Policy: The created policy.
 
         """
+        track_action(
+            action="create_policy",
+            properties={
+                "scope": policy.scope,
+            },
+        )
+
         openapi_policy = await self.api_clients.policies.create_policy(
             create_policy_request=CreatePolicyRequest(
                 scope=policy.scope,
@@ -69,6 +77,8 @@ class PoliciesClient:
             Policy: The updated policy.
 
         """
+        track_action(action="update_policy")
+
         openapi_policy = await self.api_clients.policies.update_policy(
             policy_id=id,
             update_policy_request=UpdatePolicyRequest(
@@ -100,6 +110,8 @@ class PoliciesClient:
             idempotency_key (str | None, optional): The idempotency key. Defaults to None.
 
         """
+        track_action(action="delete_policy")
+
         return await self.api_clients.policies.delete_policy(
             policy_id=id,
             x_idempotency_key=idempotency_key,
@@ -115,6 +127,8 @@ class PoliciesClient:
             Policy: The requested policy.
 
         """
+        track_action(action="get_policy_by_id")
+
         openapi_policy = await self.api_clients.policies.get_policy_by_id(
             policy_id=id,
         )
@@ -146,6 +160,13 @@ class PoliciesClient:
             ListPoliciesResult: A paginated list of policies.
 
         """
+        track_action(
+            action="list_policies",
+            properties={
+                "scope": scope,
+            },
+        )
+
         openapi_policies = await self.api_clients.policies.list_policies(
             page_size=page_size,
             page_token=page_token,
