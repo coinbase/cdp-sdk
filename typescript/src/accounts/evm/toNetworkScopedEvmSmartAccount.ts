@@ -12,6 +12,7 @@ import { sendSwapOperation } from "../../actions/evm/swap/sendSwapOperation.js";
 import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import { waitForUserOperation } from "../../actions/evm/waitForUserOperation.js";
+import { Analytics } from "../../analytics.js";
 
 import type {
   EvmAccount,
@@ -84,6 +85,14 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
     sendUserOperation: async (
       userOpOptions: Omit<SendUserOperationOptions<unknown[]>, "smartAccount" | "network">,
     ) => {
+      Analytics.trackAction({
+        action: "send_user_operation",
+        accountType: "evm_smart",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return sendUserOperation(apiClient, {
         ...userOpOptions,
         smartAccount: options.smartAccount,
@@ -94,12 +103,22 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
     waitForUserOperation: async (
       waitOptions: Omit<WaitForUserOperationOptions, "smartAccountAddress">,
     ) => {
+      Analytics.trackAction({
+        action: "wait_for_user_operation",
+        accountType: "evm_smart",
+      });
+
       return waitForUserOperation(apiClient, {
         ...waitOptions,
         smartAccountAddress: options.smartAccount.address,
       });
     },
     getUserOperation: async (getOptions: Omit<GetUserOperationOptions, "smartAccount">) => {
+      Analytics.trackAction({
+        action: "get_user_operation",
+        accountType: "evm_smart",
+      });
+
       return getUserOperation(apiClient, {
         ...getOptions,
         smartAccount: options.smartAccount,
@@ -110,6 +129,14 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
   if (isMethodSupportedOnNetwork("transfer", options.network)) {
     Object.assign(account, {
       transfer: async (transferOptions: Omit<SmartAccountTransferOptions, "network">) => {
+        Analytics.trackAction({
+          action: "transfer",
+          accountType: "evm_smart",
+          properties: {
+            network: options.network,
+          },
+        });
+
         return transfer(
           apiClient,
           options.smartAccount,
@@ -129,6 +156,14 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
       listTokenBalances: async (
         listOptions: Omit<ListTokenBalancesOptions, "address" | "network">,
       ) => {
+        Analytics.trackAction({
+          action: "list_token_balances",
+          accountType: "evm_smart",
+          properties: {
+            network: options.network,
+          },
+        });
+
         return listTokenBalances(apiClient, {
           ...listOptions,
           address: options.smartAccount.address,
@@ -141,6 +176,14 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
   if (isMethodSupportedOnNetwork("requestFaucet", options.network)) {
     Object.assign(account, {
       requestFaucet: async (faucetOptions: Omit<RequestFaucetOptions, "address" | "network">) => {
+        Analytics.trackAction({
+          action: "request_faucet",
+          accountType: "evm_smart",
+          properties: {
+            network: options.network,
+          },
+        });
+
         return requestFaucet(apiClient, {
           ...faucetOptions,
           address: options.smartAccount.address,
@@ -153,6 +196,14 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
   if (isMethodSupportedOnNetwork("quoteFund", options.network)) {
     Object.assign(account, {
       quoteFund: async (quoteOptions: Omit<QuoteFundOptions, "address">) => {
+        Analytics.trackAction({
+          action: "quote_fund",
+          accountType: "evm_smart",
+          properties: {
+            network: options.network,
+          },
+        });
+
         return quoteFund(apiClient, {
           ...quoteOptions,
           address: options.smartAccount.address,
@@ -164,6 +215,14 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
   if (isMethodSupportedOnNetwork("fund", options.network)) {
     Object.assign(account, {
       fund: async (fundOptions: Omit<FundOptions, "address">) => {
+        Analytics.trackAction({
+          action: "fund",
+          accountType: "evm_smart",
+          properties: {
+            network: options.network,
+          },
+        });
+
         return fund(apiClient, {
           ...fundOptions,
           address: options.smartAccount.address,
@@ -178,6 +237,14 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
   if (isMethodSupportedOnNetwork("quoteSwap", options.network)) {
     Object.assign(account, {
       quoteSwap: async (quoteSwapOptions: SmartAccountQuoteSwapOptions) => {
+        Analytics.trackAction({
+          action: "quote_swap",
+          accountType: "evm_smart",
+          properties: {
+            network: options.network,
+          },
+        });
+
         return createSwapQuote(apiClient, {
           ...quoteSwapOptions,
           taker: options.smartAccount.address,
@@ -192,6 +259,14 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
   if (isMethodSupportedOnNetwork("swap", options.network)) {
     Object.assign(account, {
       swap: async (swapOptions: SmartAccountSwapOptions) => {
+        Analytics.trackAction({
+          action: "swap",
+          accountType: "evm_smart",
+          properties: {
+            network: options.network,
+          },
+        });
+
         return sendSwapOperation(apiClient, {
           ...swapOptions,
           smartAccount: options.smartAccount,

@@ -115,6 +115,11 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async createAccount(options: CreateServerAccountOptions = {}): Promise<ServerAccount> {
+    Analytics.trackAction({
+      action: "create_account",
+      accountType: "evm_server",
+    });
+
     const openApiAccount = await CdpOpenApiClient.createEvmAccount(
       {
         name: options.name,
@@ -175,6 +180,11 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async importAccount(options: ImportServerAccountOptions): Promise<ServerAccount> {
+    Analytics.trackAction({
+      action: "import_account",
+      accountType: "evm_server",
+    });
+
     const encryptionPublicKey = options.encryptionPublicKey || ImportAccountPublicRSAKey;
 
     const privateKeyHex = options.privateKey.startsWith("0x")
@@ -246,6 +256,11 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async exportAccount(options: ExportServerAccountOptions): Promise<string> {
+    Analytics.trackAction({
+      action: "export_account",
+      accountType: "evm_server",
+    });
+
     const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
 
     const { encryptedPrivateKey } = await (async () => {
@@ -321,6 +336,11 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async createSmartAccount(options: CreateSmartAccountOptions): Promise<SmartAccount> {
+    Analytics.trackAction({
+      action: "create_smart_account",
+      accountType: "evm_smart",
+    });
+
     const openApiSmartAccount = await CdpOpenApiClient.createEvmSmartAccount(
       {
         owners: [options.owner.address],
@@ -365,6 +385,11 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async getAccount(options: GetServerAccountOptions): Promise<ServerAccount> {
+    Analytics.trackAction({
+      action: "get_account",
+      accountType: "evm_server",
+    });
+
     const openApiAccount = await (() => {
       if (options.address) {
         return CdpOpenApiClient.getEvmAccount(options.address);
@@ -409,6 +434,10 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async getSmartAccount(options: GetSmartAccountOptions): Promise<SmartAccount> {
+    Analytics.trackAction({
+      action: "get_smart_account",
+    });
+
     const openApiSmartAccount = await (async () => {
       if (options.address) {
         return CdpOpenApiClient.getEvmSmartAccount(options.address);
@@ -444,6 +473,11 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async getOrCreateAccount(options: GetOrCreateServerAccountOptions): Promise<ServerAccount> {
+    Analytics.trackAction({
+      action: "get_or_create_account",
+      accountType: "evm_server",
+    });
+
     try {
       const account = await this.getAccount(options);
       return account;
@@ -464,7 +498,6 @@ export class EvmClient implements EvmClientInterface {
           throw error;
         }
       }
-
       throw error;
     }
   }
@@ -489,6 +522,11 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async getOrCreateSmartAccount(options: GetOrCreateSmartAccountOptions): Promise<SmartAccount> {
+    Analytics.trackAction({
+      action: "get_or_create_smart_account",
+      accountType: "evm_smart",
+    });
+
     try {
       const account = await this.getSmartAccount(options);
       return account;
@@ -509,7 +547,6 @@ export class EvmClient implements EvmClientInterface {
           throw error;
         }
       }
-
       throw error;
     }
   }
@@ -535,6 +572,13 @@ export class EvmClient implements EvmClientInterface {
   async getSwapPrice(
     options: GetSwapPriceOptions,
   ): Promise<GetSwapPriceResult | SwapUnavailableResult> {
+    Analytics.trackAction({
+      action: "get_swap_price",
+      properties: {
+        network: options.network,
+      },
+    });
+
     return getSwapPrice(CdpOpenApiClient, options);
   }
 
@@ -559,6 +603,13 @@ export class EvmClient implements EvmClientInterface {
   async createSwapQuote(
     options: CreateSwapQuoteOptions,
   ): Promise<CreateSwapQuoteResult | SwapUnavailableResult> {
+    Analytics.trackAction({
+      action: "create_swap_quote",
+      properties: {
+        network: options.network,
+      },
+    });
+
     return createSwapQuote(CdpOpenApiClient, options);
   }
 
@@ -580,6 +631,10 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async getUserOperation(options: GetUserOperationOptions): Promise<UserOperation> {
+    Analytics.trackAction({
+      action: "get_user_operation",
+    });
+
     return getUserOperation(CdpOpenApiClient, options);
   }
 
@@ -608,6 +663,11 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async listAccounts(options: ListServerAccountsOptions = {}): Promise<ListServerAccountResult> {
+    Analytics.trackAction({
+      action: "list_accounts",
+      accountType: "evm_server",
+    });
+
     const ethAccounts = await CdpOpenApiClient.listEvmAccounts({
       pageSize: options.pageSize,
       pageToken: options.pageToken,
@@ -662,6 +722,13 @@ export class EvmClient implements EvmClientInterface {
    * }
    */
   async listTokenBalances(options: ListTokenBalancesOptions): Promise<ListTokenBalancesResult> {
+    Analytics.trackAction({
+      action: "list_token_balances",
+      properties: {
+        network: options.network,
+      },
+    });
+
     return listTokenBalances(CdpOpenApiClient, options);
   }
 
@@ -687,8 +754,13 @@ export class EvmClient implements EvmClientInterface {
    *          while (page.nextPageToken) {
    *            page = await cdp.evm.listSmartAccounts({ pageToken: page.nextPageToken });
    *          }
+   *          ```
    */
   async listSmartAccounts(options: ListSmartAccountsOptions = {}): Promise<ListSmartAccountResult> {
+    Analytics.trackAction({
+      action: "list_smart_accounts",
+    });
+
     const smartAccounts = await CdpOpenApiClient.listEvmSmartAccounts({
       pageSize: options.pageSize,
       pageToken: options.pageToken,
@@ -732,6 +804,13 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async prepareUserOperation(options: PrepareUserOperationOptions): Promise<UserOperation> {
+    Analytics.trackAction({
+      action: "prepare_user_operation",
+      properties: {
+        network: options.network,
+      },
+    });
+
     const userOp = await CdpOpenApiClient.prepareUserOperation(options.smartAccount.address, {
       network: options.network,
       calls: options.calls.map(call => ({
@@ -775,6 +854,13 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async requestFaucet(options: RequestFaucetOptions): Promise<RequestFaucetResult> {
+    Analytics.trackAction({
+      action: "request_faucet",
+      properties: {
+        network: options.network,
+      },
+    });
+
     return requestFaucet(CdpOpenApiClient, options);
   }
 
@@ -825,6 +911,13 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async sendTransaction(options: SendTransactionOptions): Promise<TransactionResult> {
+    Analytics.trackAction({
+      action: "send_transaction",
+      properties: {
+        network: options.network,
+      },
+    });
+
     return sendTransaction(CdpOpenApiClient, options);
   }
 
@@ -859,6 +952,13 @@ export class EvmClient implements EvmClientInterface {
   async sendUserOperation(
     options: SendUserOperationOptions<unknown[]>,
   ): Promise<SendUserOperationReturnType> {
+    Analytics.trackAction({
+      action: "send_user_operation",
+      properties: {
+        network: options.network,
+      },
+    });
+
     return sendUserOperation(CdpOpenApiClient, {
       smartAccount: options.smartAccount,
       network: options.network,
@@ -890,6 +990,10 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async signHash(options: SignHashOptions): Promise<SignatureResult> {
+    Analytics.trackAction({
+      action: "sign_hash",
+    });
+
     const signature = await CdpOpenApiClient.signEvmHash(
       options.address,
       {
@@ -925,6 +1029,10 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async signMessage(options: SignMessageOptions): Promise<SignatureResult> {
+    Analytics.trackAction({
+      action: "sign_message",
+    });
+
     const signature = await CdpOpenApiClient.signEvmMessage(
       options.address,
       {
@@ -984,6 +1092,10 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async signTypedData(options: SignTypedDataOptions): Promise<SignatureResult> {
+    Analytics.trackAction({
+      action: "sign_typed_data",
+    });
+
     const { domain, message, primaryType } = options;
     const types = {
       EIP712Domain: getTypesForEIP712Domain({ domain }),
@@ -1039,6 +1151,10 @@ export class EvmClient implements EvmClientInterface {
    * ```
    */
   async signTransaction(options: SignTransactionOptions): Promise<SignatureResult> {
+    Analytics.trackAction({
+      action: "sign_transaction",
+    });
+
     const signature = await CdpOpenApiClient.signEvmTransaction(
       options.address,
       {
@@ -1094,6 +1210,10 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async updateAccount(options: UpdateEvmAccountOptions): Promise<ServerAccount> {
+    Analytics.trackAction({
+      action: "update_account",
+    });
+
     const openApiAccount = await CdpOpenApiClient.updateEvmAccount(
       options.address,
       options.update,
@@ -1122,6 +1242,10 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the updated account.
    */
   async updateSmartAccount(options: UpdateEvmSmartAccountOptions): Promise<SmartAccount> {
+    Analytics.trackAction({
+      action: "update_smart_account",
+    });
+
     const openApiSmartAccount = await CdpOpenApiClient.updateEvmSmartAccount(
       options.address,
       options.update,
@@ -1173,6 +1297,10 @@ export class EvmClient implements EvmClientInterface {
   async waitForUserOperation(
     options: WaitForUserOperationOptions,
   ): Promise<WaitForUserOperationReturnType> {
+    Analytics.trackAction({
+      action: "wait_for_user_operation",
+    });
+
     return waitForUserOperation(CdpOpenApiClient, {
       ...options,
     });

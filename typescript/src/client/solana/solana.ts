@@ -73,6 +73,11 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async createAccount(options: CreateAccountOptions = {}): Promise<SolanaAccount> {
+    Analytics.trackAction({
+      action: "create_account",
+      accountType: "solana",
+    });
+
     const openApiAccount = await CdpOpenApiClient.createSolanaAccount(
       {
         name: options.name,
@@ -115,6 +120,11 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async exportAccount(options: ExportAccountOptions): Promise<string> {
+    Analytics.trackAction({
+      action: "export_account",
+      accountType: "solana",
+    });
+
     const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
 
     const { encryptedPrivateKey } = await (async () => {
@@ -184,6 +194,11 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async importAccount(options: ImportAccountOptions): Promise<SolanaAccount> {
+    Analytics.trackAction({
+      action: "import_account",
+      accountType: "solana",
+    });
+
     let privateKeyBytes: Uint8Array = new Uint8Array();
 
     if (typeof options.privateKey === "string") {
@@ -254,6 +269,11 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async getAccount(options: GetAccountOptions): Promise<SolanaAccount> {
+    Analytics.trackAction({
+      action: "get_account",
+      accountType: "solana",
+    });
+
     const openApiAccount = await (() => {
       if (options.address) {
         return CdpOpenApiClient.getSolanaAccount(options.address);
@@ -291,6 +311,11 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async getOrCreateAccount(options: GetOrCreateAccountOptions): Promise<SolanaAccount> {
+    Analytics.trackAction({
+      action: "get_or_create_account",
+      accountType: "solana",
+    });
+
     try {
       const account = await this.getAccount(options);
       return account;
@@ -345,6 +370,11 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async listAccounts(options: ListAccountsOptions = {}): Promise<ListAccountsResult> {
+    Analytics.trackAction({
+      action: "list_accounts",
+      accountType: "solana",
+    });
+
     const solAccounts = await CdpOpenApiClient.listSolanaAccounts({
       pageSize: options.pageSize,
       pageToken: options.pageToken,
@@ -383,6 +413,11 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async requestFaucet(options: RequestFaucetOptions): Promise<SignatureResult> {
+    Analytics.trackAction({
+      action: "request_faucet",
+      accountType: "solana",
+    });
+
     return requestFaucet(CdpOpenApiClient, options);
   }
 
@@ -409,6 +444,11 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async signMessage(options: SignMessageOptions): Promise<SignatureResult> {
+    Analytics.trackAction({
+      action: "sign_message",
+      accountType: "solana",
+    });
+
     return signMessage(CdpOpenApiClient, options);
   }
 
@@ -446,6 +486,11 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async signTransaction(options: SignTransactionOptions): Promise<SignatureResult> {
+    Analytics.trackAction({
+      action: "sign_transaction",
+      accountType: "solana",
+    });
+
     return signTransaction(CdpOpenApiClient, options);
   }
 
@@ -491,6 +536,11 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async updateAccount(options: UpdateSolanaAccountOptions): Promise<SolanaAccount> {
+    Analytics.trackAction({
+      action: "update_account",
+      accountType: "solana",
+    });
+
     const openApiAccount = await CdpOpenApiClient.updateSolanaAccount(
       options.address,
       options.update,
@@ -525,6 +575,14 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async sendTransaction(options: SendTransactionOptions): Promise<TransactionResult> {
+    Analytics.trackAction({
+      action: "send_transaction",
+      accountType: "solana",
+      properties: {
+        network: options.network,
+      },
+    });
+
     return sendTransaction(CdpOpenApiClient, options);
   }
 
@@ -546,6 +604,14 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async listTokenBalances(options: ListTokenBalancesOptions): Promise<ListTokenBalancesResult> {
+    Analytics.trackAction({
+      action: "list_token_balances",
+      accountType: "solana",
+      properties: {
+        network: options.network,
+      },
+    });
+
     const tokenBalances = await CdpOpenApiClient.listSolanaTokenBalances(
       options.network || "solana",
       options.address,

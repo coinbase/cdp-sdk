@@ -32,6 +32,7 @@ import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { sendSwapTransaction } from "../../actions/evm/swap/sendSwapTransaction.js";
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
+import { Analytics } from "../../analytics.js";
 
 import type { EvmServerAccount, NetworkOrRpcUrl } from "./types.js";
 import type {
@@ -71,6 +72,11 @@ export function toEvmServerAccount(
   const account: EvmServerAccount = {
     address: options.account.address as Address,
     async signMessage({ message }) {
+      Analytics.trackAction({
+        action: "sign_message",
+        accountType: "evm_server",
+      });
+
       const result = await apiClient.signEvmMessage(options.account.address, {
         message: message.toString(),
       });
@@ -78,6 +84,11 @@ export function toEvmServerAccount(
     },
 
     async sign(parameters: { hash: Hash }) {
+      Analytics.trackAction({
+        action: "sign",
+        accountType: "evm_server",
+      });
+
       const result = await apiClient.signEvmHash(options.account.address, {
         hash: parameters.hash,
       });
@@ -85,6 +96,11 @@ export function toEvmServerAccount(
     },
 
     async signTransaction(transaction: TransactionSerializable) {
+      Analytics.trackAction({
+        action: "sign_transaction",
+        accountType: "evm_server",
+      });
+
       const result = await apiClient.signEvmTransaction(options.account.address, {
         transaction: serializeTransaction(transaction),
       });
@@ -95,6 +111,11 @@ export function toEvmServerAccount(
       const typedData extends TypedData | Record<string, unknown>,
       primaryType extends keyof typedData | "EIP712Domain" = keyof typedData,
     >(parameters: TypedDataDefinition<typedData, primaryType>) {
+      Analytics.trackAction({
+        action: "sign_typed_data",
+        accountType: "evm_server",
+      });
+
       const { domain = {}, message, primaryType } = parameters as HashTypedDataParameters;
       const types = {
         EIP712Domain: getTypesForEIP712Domain({ domain }),
@@ -112,11 +133,27 @@ export function toEvmServerAccount(
       return result.signature as Hex;
     },
     async transfer(transferArgs): Promise<TransactionResult> {
+      Analytics.trackAction({
+        action: "transfer",
+        accountType: "evm_server",
+        properties: {
+          network: transferArgs.network,
+        },
+      });
+
       return transfer(apiClient, account, transferArgs, accountTransferStrategy);
     },
     async listTokenBalances(
       options: Omit<ListTokenBalancesOptions, "address">,
     ): Promise<ListTokenBalancesResult> {
+      Analytics.trackAction({
+        action: "list_token_balances",
+        accountType: "evm_server",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return listTokenBalances(apiClient, {
         ...options,
         address: this.address,
@@ -125,24 +162,56 @@ export function toEvmServerAccount(
     async requestFaucet(
       options: Omit<RequestFaucetOptions, "address">,
     ): Promise<RequestFaucetResult> {
+      Analytics.trackAction({
+        action: "request_faucet",
+        accountType: "evm_server",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return requestFaucet(apiClient, {
         ...options,
         address: this.address,
       });
     },
     async sendTransaction(options: Omit<SendTransactionOptions, "address">) {
+      Analytics.trackAction({
+        action: "send_transaction",
+        accountType: "evm_server",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return sendTransaction(apiClient, {
         ...options,
         address: this.address,
       });
     },
     async quoteFund(options: Omit<QuoteFundOptions, "address">): Promise<Quote> {
+      Analytics.trackAction({
+        action: "quote_fund",
+        accountType: "evm_server",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return quoteFund(apiClient, {
         ...options,
         address: this.address,
       });
     },
     async fund(options: Omit<FundOptions, "address">): Promise<FundOperationResult> {
+      Analytics.trackAction({
+        action: "fund",
+        accountType: "evm_server",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return fund(apiClient, {
         ...options,
         address: this.address,
@@ -151,15 +220,36 @@ export function toEvmServerAccount(
     async waitForFundOperationReceipt(
       options: WaitForFundOperationOptions,
     ): Promise<WaitForFundOperationResult> {
+      Analytics.trackAction({
+        action: "wait_for_fund_operation_receipt",
+        accountType: "evm_server",
+      });
+
       return waitForFundOperationReceipt(apiClient, options);
     },
     async quoteSwap(options: AccountQuoteSwapOptions): Promise<AccountQuoteSwapResult> {
+      Analytics.trackAction({
+        action: "quote_swap",
+        accountType: "evm_server",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return createSwapQuote(apiClient, {
         ...options,
         taker: this.address,
       });
     },
     async swap(options: AccountSwapOptions): Promise<AccountSwapResult> {
+      Analytics.trackAction({
+        action: "swap",
+        accountType: "evm_server",
+        properties: {
+          network: "network" in options ? options.network : undefined,
+        },
+      });
+
       return sendSwapTransaction(apiClient, {
         ...options,
         address: this.address,
@@ -170,6 +260,14 @@ export function toEvmServerAccount(
     type: "evm-server",
     policies: options.account.policies,
     useNetwork: async <Network extends NetworkOrRpcUrl>(networkOrRpcUrl: Network) => {
+      Analytics.trackAction({
+        action: "use_network",
+        accountType: "evm_server",
+        properties: {
+          network: networkOrRpcUrl,
+        },
+      });
+
       return toNetworkScopedEvmServerAccount({
         account,
         network: networkOrRpcUrl,

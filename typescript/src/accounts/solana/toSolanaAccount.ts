@@ -3,6 +3,7 @@ import { requestFaucet } from "../../actions/solana/requestFaucet.js";
 import { signMessage } from "../../actions/solana/signMessage.js";
 import { signTransaction } from "../../actions/solana/signTransaction.js";
 import { transfer, type TransferOptions } from "../../actions/solana/transfer.js";
+import { Analytics } from "../../analytics.js";
 import {
   RequestFaucetOptions,
   SignatureResult,
@@ -35,12 +36,22 @@ export function toSolanaAccount(
     address: options.account.address,
     name: options.account.name,
     async requestFaucet(options: Omit<RequestFaucetOptions, "address">): Promise<SignatureResult> {
+      Analytics.trackAction({
+        action: "request_faucet",
+        accountType: "solana",
+      });
+
       return requestFaucet(apiClient, {
         ...options,
         address: account.address,
       });
     },
     async signMessage(options: Omit<SignMessageOptions, "address">): Promise<SignatureResult> {
+      Analytics.trackAction({
+        action: "sign_message",
+        accountType: "solana",
+      });
+
       return signMessage(apiClient, {
         ...options,
         address: account.address,
@@ -49,6 +60,11 @@ export function toSolanaAccount(
     async signTransaction(
       options: Omit<SignTransactionOptions, "address">,
     ): Promise<SignatureResult> {
+      Analytics.trackAction({
+        action: "sign_transaction",
+        accountType: "solana",
+      });
+
       return signTransaction(apiClient, {
         ...options,
         address: account.address,
@@ -56,6 +72,14 @@ export function toSolanaAccount(
     },
     policies: options.account.policies,
     async transfer(options: Omit<TransferOptions, "from">): Promise<SignatureResult> {
+      Analytics.trackAction({
+        action: "transfer",
+        accountType: "solana",
+        properties: {
+          network: options.network,
+        },
+      });
+
       return transfer(apiClient, {
         ...options,
         from: account.address,
