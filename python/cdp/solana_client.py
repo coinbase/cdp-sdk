@@ -9,7 +9,7 @@ from cdp.actions.solana.request_faucet import request_faucet
 from cdp.actions.solana.send_transaction import send_transaction
 from cdp.actions.solana.sign_message import sign_message
 from cdp.actions.solana.sign_transaction import sign_transaction
-from cdp.analytics import wrap_class_with_error_tracking
+from cdp.analytics import track_action, wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
 from cdp.constants import ImportAccountPublicRSAKey
 from cdp.errors import UserInputValidationError
@@ -69,6 +69,8 @@ class SolanaClient:
             SolanaAccount: The Solana account model.
 
         """
+        track_action(action="create_account", account_type="solana")
+
         response = await self.api_clients.solana_accounts.create_solana_account(
             x_idempotency_key=idempotency_key,
             create_solana_account_request=CreateSolanaAccountRequest(
@@ -105,6 +107,8 @@ class SolanaClient:
             ValueError: If the import fails.
 
         """
+        track_action(action="import_account", account_type="solana")
+
         # Handle both string (base58) and raw bytes input
         if isinstance(private_key, str):
             try:
@@ -168,6 +172,8 @@ class SolanaClient:
             UserInputValidationError: If neither address nor name is provided.
 
         """
+        track_action(action="export_account", account_type="solana")
+
         public_key, private_key = generate_export_encryption_key_pair()
 
         if address:
@@ -214,6 +220,8 @@ class SolanaClient:
             UserInputValidationError: If neither address nor name is provided.
 
         """
+        track_action(action="get_account", account_type="solana")
+
         if address:
             response = await self.api_clients.solana_accounts.get_solana_account(address)
         elif name:
@@ -239,6 +247,8 @@ class SolanaClient:
             SolanaAccount: The Solana account model.
 
         """
+        track_action(action="get_or_create_account", account_type="solana")
+
         try:
             account = await self.get_account(name=name)
             return account
@@ -269,6 +279,8 @@ class SolanaClient:
             ListSolanaAccountsResponse: The list of Solana accounts, and an optional next page token.
 
         """
+        track_action(action="list_accounts", account_type="solana")
+
         response = await self.api_clients.solana_accounts.list_solana_accounts(
             page_size=page_size, page_token=page_token
         )
@@ -300,6 +312,8 @@ class SolanaClient:
             SignSolanaMessageResponse: The response containing the signature.
 
         """
+        track_action(action="sign_message", account_type="solana")
+
         return await sign_message(
             self.api_clients.solana_accounts,
             address,
@@ -321,6 +335,8 @@ class SolanaClient:
             SignSolanaTransactionResponse: The response containing the signed transaction.
 
         """
+        track_action(action="sign_transaction", account_type="solana")
+
         return await sign_transaction(
             self.api_clients.solana_accounts,
             address,
@@ -342,6 +358,10 @@ class SolanaClient:
             idempotency_key (str, optional): The idempotency key. Defaults to None.
 
         """
+        track_action(
+            action="send_transaction", account_type="solana", properties={"network": network}
+        )
+
         return await send_transaction(
             self.api_clients.solana_accounts,
             transaction,
@@ -364,6 +384,8 @@ class SolanaClient:
             RequestSolanaFaucetResponse: The response containing the transaction hash.
 
         """
+        track_action(action="request_faucet", account_type="solana")
+
         return await request_faucet(
             self.api_clients.faucets,
             address,
@@ -384,6 +406,8 @@ class SolanaClient:
             SolanaAccount: The updated Solana account.
 
         """
+        track_action(action="update_account", account_type="solana")
+
         response = await self.api_clients.solana_accounts.update_solana_account(
             address=address,
             update_solana_account_request=UpdateSolanaAccountRequest(
@@ -416,6 +440,12 @@ class SolanaClient:
             ListSolanaTokenBalancesResult: The list of Solana token balances, and an optional next page token.
 
         """
+        track_action(
+            action="list_token_balances",
+            account_type="solana",
+            properties={"network": network},
+        )
+
         response = await self.api_clients.solana_token_balances.list_solana_token_balances(
             address=address,
             network=network,

@@ -17,7 +17,7 @@ from cdp.actions.evm.swap import (
     get_swap_price as swap_get_swap_price,
 )
 from cdp.actions.evm.wait_for_user_operation import wait_for_user_operation
-from cdp.analytics import wrap_class_with_error_tracking
+from cdp.analytics import track_action, wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
 from cdp.constants import ImportAccountPublicRSAKey
 from cdp.errors import UserInputValidationError
@@ -80,6 +80,8 @@ class EvmClient:
             EvmServerAccount: The EVM server account.
 
         """
+        track_action(action="create_account", account_type="evm_server")
+
         evm_account = await self.api_clients.evm_accounts.create_evm_account(
             x_idempotency_key=idempotency_key,
             create_evm_account_request=CreateEvmAccountRequest(
@@ -111,6 +113,8 @@ class EvmClient:
             UserInputValidationError: If the private key is not a valid hexadecimal string.
 
         """
+        track_action(action="import_account", account_type="evm_server")
+
         private_key_hex = private_key[2:] if private_key.startswith("0x") else private_key
         if not re.match(r"^[0-9a-fA-F]+$", private_key_hex):
             raise UserInputValidationError("Private key must be a valid hexadecimal string")
@@ -160,6 +164,8 @@ class EvmClient:
             UserInputValidationError: If neither address nor name is provided.
 
         """
+        track_action(action="export_account", account_type="evm_server")
+
         public_key, private_key = generate_export_encryption_key_pair()
 
         if address:
@@ -197,6 +203,8 @@ class EvmClient:
             EvmSmartAccount: The EVM smart account.
 
         """
+        track_action(action="create_smart_account", account_type="evm_smart")
+
         evm_smart_account = await self.api_clients.evm_smart_accounts.create_evm_smart_account(
             create_evm_smart_account_request=CreateEvmSmartAccountRequest(
                 owners=[owner.address], name=name
@@ -221,6 +229,8 @@ class EvmClient:
             EvmSmartAccount: The EVM smart account.
 
         """
+        track_action(action="get_or_create_smart_account", account_type="evm_smart")
+
         try:
             account = await self.get_smart_account(name=name, owner=owner)
             return account
@@ -252,6 +262,8 @@ class EvmClient:
             UserInputValidationError: If neither address nor name is provided.
 
         """
+        track_action(action="get_account", account_type="evm_server")
+
         if address:
             evm_account = await self.api_clients.evm_accounts.get_evm_account(address)
         elif name:
@@ -270,6 +282,8 @@ class EvmClient:
             EvmServerAccount: The EVM server account.
 
         """
+        track_action(action="get_or_create_account", account_type="evm_server")
+
         try:
             account = await self.get_account(name=name)
             return account
@@ -302,6 +316,8 @@ class EvmClient:
             UserInputValidationError: If neither address nor name is provided.
 
         """
+        track_action(action="get_smart_account")
+
         if address:
             evm_smart_account = await self.api_clients.evm_smart_accounts.get_evm_smart_account(
                 address
@@ -331,6 +347,8 @@ class EvmClient:
             EvmUserOperationModel: The user operation model.
 
         """
+        track_action(action="get_user_operation")
+
         return await self.api_clients.evm_smart_accounts.get_user_operation(address, user_op_hash)
 
     async def list_accounts(
@@ -348,6 +366,8 @@ class EvmClient:
             ListEvmAccountsResponse: The list of EVM accounts.
 
         """
+        track_action(action="list_accounts", account_type="evm_server")
+
         response = await self.api_clients.evm_accounts.list_evm_accounts(
             page_size=page_size, page_token=page_token
         )
@@ -379,6 +399,8 @@ class EvmClient:
             [ListTokenBalancesResult]: The token balances for the address on the network.
 
         """
+        track_action(action="list_token_balances", properties={"network": network})
+
         return await list_token_balances(
             self.api_clients.evm_token_balances,
             address,
@@ -404,6 +426,8 @@ class EvmClient:
             with an owner to get an EvmSmartAccount instance that can be used to send user operations.
 
         """
+        track_action(action="list_smart_accounts")
+
         response = await self.api_clients.evm_smart_accounts.list_evm_smart_accounts(
             page_size=page_size, page_token=page_token
         )
@@ -431,6 +455,8 @@ class EvmClient:
             EvmUserOperationModel: The user operation model.
 
         """
+        track_action(action="prepare_user_operation", properties={"network": network})
+
         evm_calls = [
             EvmCall(
                 to=call.to,
@@ -466,6 +492,8 @@ class EvmClient:
             str: The transaction hash of the faucet request.
 
         """
+        track_action(action="request_faucet", properties={"network": network})
+
         return await request_faucet(self.api_clients.faucets, address, network, token)
 
     async def sign_hash(self, address: str, hash: str, idempotency_key: str | None = None) -> str:
@@ -480,6 +508,8 @@ class EvmClient:
             str: The signed hash.
 
         """
+        track_action(action="sign_hash")
+
         response = await self.api_clients.evm_accounts.sign_evm_hash(
             address=address,
             sign_evm_hash_request=SignEvmHashRequest(hash=hash),
@@ -501,6 +531,8 @@ class EvmClient:
             str: The signed message.
 
         """
+        track_action(action="sign_message")
+
         response = await self.api_clients.evm_accounts.sign_evm_message(
             address=address,
             sign_evm_message_request=SignEvmMessageRequest(message=message),
@@ -531,6 +563,8 @@ class EvmClient:
             str: The signature.
 
         """
+        track_action(action="sign_typed_data")
+
         eip712_message = EIP712Message(
             domain=domain,
             types=types,
@@ -558,6 +592,8 @@ class EvmClient:
             str: The signed transaction.
 
         """
+        track_action(action="sign_transaction")
+
         response = await self.api_clients.evm_accounts.sign_evm_transaction(
             address=address,
             sign_evm_transaction_request=SignEvmTransactionRequest(transaction=transaction),
@@ -605,6 +641,8 @@ class EvmClient:
             str: The transaction hash.
 
         """
+        track_action(action="send_transaction", properties={"network": network})
+
         return await send_transaction(
             self.api_clients.evm_accounts,
             address,
@@ -632,6 +670,8 @@ class EvmClient:
             EvmUserOperationModel: The user operation model.
 
         """
+        track_action(action="send_user_operation", properties={"network": network})
+
         return await send_user_operation(
             self.api_clients,
             smart_account.address,
@@ -658,6 +698,8 @@ class EvmClient:
             EvmServerAccount: The updated EVM account.
 
         """
+        track_action(action="update_account", account_type="evm_server")
+
         account = await self.api_clients.evm_accounts.update_evm_account(
             address=address,
             update_evm_account_request=UpdateEvmAccountRequest(
@@ -687,6 +729,8 @@ class EvmClient:
             EvmSmartAccount: The updated EVM smart account.
 
         """
+        track_action(action="update_smart_account", account_type="evm_smart")
+
         smart_account = await self.api_clients.evm_smart_accounts.update_evm_smart_account(
             address=address,
             update_evm_smart_account_request=UpdateEvmSmartAccountRequest(
@@ -714,6 +758,8 @@ class EvmClient:
             EvmUserOperationModel: The user operation model.
 
         """
+        track_action(action="wait_for_user_operation")
+
         return await wait_for_user_operation(
             self.api_clients,
             smart_account_address,
@@ -745,6 +791,8 @@ class EvmClient:
             SwapPriceResult: The swap price with estimated output amount.
 
         """
+        track_action(action="get_swap_price", properties={"network": network})
+
         return await swap_get_swap_price(
             self.api_clients,
             from_token,
@@ -811,6 +859,8 @@ class EvmClient:
             ```
 
         """
+        track_action(action="create_swap_quote", properties={"network": network})
+
         return await swap_create_swap_quote(
             self.api_clients,
             from_token,
