@@ -1,9 +1,9 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { waitForFundOperationReceipt } from "./waitForFundOperationReceipt.js";
-import { TransferStatus, CdpOpenApiClientType } from "../../../openapi-client/index.js";
-import { wait } from "../../../utils/wait.js";
+import { TransferStatus, CdpOpenApiClientType } from "../openapi-client/index.js";
+import { wait } from "../utils/wait.js";
 
-vi.mock("../../../utils/wait", () => ({
+vi.mock("../utils/wait", () => ({
   wait: vi.fn(),
 }));
 

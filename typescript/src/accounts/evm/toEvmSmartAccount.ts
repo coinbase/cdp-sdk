@@ -1,14 +1,7 @@
 import { resolveNetworkToChain } from "./networkToChainResolver.js";
 import { toNetworkScopedEvmSmartAccount } from "./toNetworkScopedEvmSmartAccount.js";
-import { fund, FundOptions } from "../../actions/evm/fund/fund.js";
-import { Quote } from "../../actions/evm/fund/Quote.js";
-import { quoteFund, QuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
-import { FundOperationResult } from "../../actions/evm/fund/types.js";
-import {
-  WaitForFundOperationResult,
-  waitForFundOperationReceipt,
-  WaitForFundOperationOptions,
-} from "../../actions/evm/fund/waitForFundOperationReceipt.js";
+import { fund, EvmFundOptions } from "../../actions/evm/fund/fund.js";
+import { quoteFund, EvmQuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import {
   listTokenBalances,
@@ -35,6 +28,13 @@ import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
+import { EvmQuote } from "../../actions/Quote.js";
+import { FundOperationResult } from "../../actions/types.js";
+import {
+  WaitForFundOperationResult,
+  waitForFundOperationReceipt,
+  WaitForFundOperationOptions,
+} from "../../actions/waitForFundOperationReceipt.js";
 import { Analytics } from "../../analytics.js";
 import {
   GetUserOperationOptions,
@@ -170,7 +170,7 @@ export function toEvmSmartAccount(
         address: account.address,
       });
     },
-    async quoteFund(options: Omit<QuoteFundOptions, "address">): Promise<Quote> {
+    async quoteFund(options: Omit<EvmQuoteFundOptions, "address">): Promise<EvmQuote> {
       Analytics.trackAction({
         action: "quote_fund",
         accountType: "evm_smart",
@@ -184,7 +184,7 @@ export function toEvmSmartAccount(
         address: this.address,
       });
     },
-    async fund(options: Omit<FundOptions, "address">): Promise<FundOperationResult> {
+    async fund(options: Omit<EvmFundOptions, "address">): Promise<FundOperationResult> {
       Analytics.trackAction({
         action: "fund",
         accountType: "evm_smart",

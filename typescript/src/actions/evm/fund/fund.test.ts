@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CdpOpenApiClientType } from "../../../openapi-client/index.js";
 import { Address } from "../../../types/misc.js";
 import { parseEther } from "viem";
-import { fund, FundOptions } from "./fund.js";
+import { fund, EvmFundOptions } from "./fund.js";
 
 describe("fund", () => {
   const address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" as Address;
@@ -138,7 +138,7 @@ describe("fund", () => {
       createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockEthEthereumTransfer }),
     } as unknown as CdpOpenApiClientType;
 
-    const fundArgs: FundOptions = {
+    const fundArgs: EvmFundOptions = {
       address: address,
       amount: parseEther("1"),
       token: "eth",
@@ -179,7 +179,7 @@ describe("fund", () => {
       createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockUsdcEthereumTransfer }),
     } as unknown as CdpOpenApiClientType;
 
-    const fundArgs: FundOptions = {
+    const fundArgs: EvmFundOptions = {
       address: address,
       amount: 1000000n, // 1 USDC
       token: "usdc",
@@ -220,7 +220,7 @@ describe("fund", () => {
       createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockEthBaseTransfer }),
     } as unknown as CdpOpenApiClientType;
 
-    const fundArgs: FundOptions = {
+    const fundArgs: EvmFundOptions = {
       address: address,
       amount: parseEther("1"),
       token: "eth",
@@ -261,7 +261,7 @@ describe("fund", () => {
       createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockUsdcBaseTransfer }),
     } as unknown as CdpOpenApiClientType;
 
-    const fundArgs: FundOptions = {
+    const fundArgs: EvmFundOptions = {
       address: address,
       amount: 1000000n, // 1 USDC
       token: "usdc",
@@ -302,7 +302,7 @@ describe("fund", () => {
       createPaymentTransferQuote: vi.fn(),
     } as unknown as CdpOpenApiClientType;
 
-    const fundArgs: FundOptions = {
+    const fundArgs: EvmFundOptions = {
       address: address,
       amount: parseEther("1"),
       token: "eth",
