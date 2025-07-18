@@ -2,6 +2,17 @@
 
 <!-- towncrier release notes start -->
 
+## [1.24.0] - 2025-07-18
+
+### Features
+
+- Improved network error handling ([#293](https://github.com/coinbase/cdp-sdk/pull/293))
+
+### Bugfixes
+
+- Gracefully handle closed client connections ([#298](https://github.com/coinbase/cdp-sdk/pull/298))
+
+
 ## [1.23.0] - 2025-07-16
 
 ### Features
