@@ -311,6 +311,34 @@ describe("toNetworkScopedEvmServerAccount", () => {
       expect("quoteSwap" in networkAccount).toBe(false);
       expect("swap" in networkAccount).toBe(false);
     });
+
+    it("should recognize base-sepolia chain via RPC URL and enable appropriate methods", async () => {
+      // Mock base-sepolia chain ID (84532)
+      mockResolveViemClients.mockResolvedValue({
+        publicClient: mockPublicClient,
+        walletClient: mockWalletClient,
+        chain: { id: 84532, name: "Base Sepolia" } as any,
+      });
+
+      const baseSpoliaRpcUrl = "https://base-sepolia.infura.io/v3/your-api-key";
+      const networkAccount = await toNetworkScopedEvmServerAccount({
+        account: mockAccount,
+        network: baseSpoliaRpcUrl,
+      });
+
+      // Should have methods available on base-sepolia
+      expect("listTokenBalances" in networkAccount).toBe(true);
+      expect("requestFaucet" in networkAccount).toBe(true);
+      expect(networkAccount.sendTransaction).toBeDefined();
+      expect(networkAccount.waitForTransactionReceipt).toBeDefined();
+      expect(networkAccount.transfer).toBeDefined();
+
+      // Should NOT have mainnet-only methods
+      expect("quoteFund" in networkAccount).toBe(false);
+      expect("fund" in networkAccount).toBe(false);
+      expect("quoteSwap" in networkAccount).toBe(false);
+      expect("swap" in networkAccount).toBe(false);
+    });
   });
 
   describe("runtime validation", () => {
