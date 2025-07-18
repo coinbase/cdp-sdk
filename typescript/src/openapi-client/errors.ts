@@ -10,8 +10,6 @@ export type HttpErrorType =
   | "not_found"
   | "bad_gateway"
   | "service_unavailable"
-  | "forbidden"
-  | "policy_violation"
   | "unknown"
   | "network_timeout"
   | "network_connection_failed"
