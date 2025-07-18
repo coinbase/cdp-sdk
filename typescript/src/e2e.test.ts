@@ -1003,7 +1003,7 @@ describe("CDP Client E2E Tests", () => {
         const signature = await testAccount.signTypedData({
           domain: {
             name: "EIP712Domain",
-            chainId: 1n,
+            chainId: 1,
             verifyingContract: "0x0000000000000000000000000000000000000000",
           },
           types: {
@@ -1016,7 +1016,7 @@ describe("CDP Client E2E Tests", () => {
           primaryType: "EIP712Domain",
           message: {
             name: "EIP712Domain",
-            chainId: 1n,
+            chainId: 1,
             verifyingContract: "0x0000000000000000000000000000000000000000",
           },
         });
