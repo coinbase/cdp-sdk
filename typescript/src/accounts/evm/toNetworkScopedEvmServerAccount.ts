@@ -76,8 +76,8 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
         });
       } else {
         Analytics.trackAction({
-          action: "sendTransaction",
-          accountType: "evm-server",
+          action: "send_transaction",
+          accountType: "evm_server",
           properties: {
             network: options.network,
           },
@@ -98,7 +98,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
       } else {
         Analytics.trackAction({
           action: "transfer",
-          accountType: "evm-server",
+          accountType: "evm_server",
           properties: {
             network: options.network,
           },
@@ -111,8 +111,8 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
       waitOptions: WaitForTransactionReceiptParameters | TransactionResult,
     ) => {
       Analytics.trackAction({
-        action: "waitForTransactionReceipt",
-        accountType: "evm-server",
+        action: "wait_for_transaction_receipt",
+        accountType: "evm_server",
       });
 
       if ("transactionHash" in waitOptions) {

@@ -73,8 +73,8 @@ export function toEvmServerAccount(
     address: options.account.address as Address,
     async signMessage({ message }) {
       Analytics.trackAction({
-        action: "signMessage",
-        accountType: "evm-server",
+        action: "sign_message",
+        accountType: "evm_server",
       });
 
       const result = await apiClient.signEvmMessage(options.account.address, {
@@ -86,7 +86,7 @@ export function toEvmServerAccount(
     async sign(parameters: { hash: Hash }) {
       Analytics.trackAction({
         action: "sign",
-        accountType: "evm-server",
+        accountType: "evm_server",
       });
 
       const result = await apiClient.signEvmHash(options.account.address, {
@@ -97,8 +97,8 @@ export function toEvmServerAccount(
 
     async signTransaction(transaction: TransactionSerializable) {
       Analytics.trackAction({
-        action: "signTransaction",
-        accountType: "evm-server",
+        action: "sign_transaction",
+        accountType: "evm_server",
       });
 
       const result = await apiClient.signEvmTransaction(options.account.address, {
@@ -112,8 +112,8 @@ export function toEvmServerAccount(
       primaryType extends keyof typedData | "EIP712Domain" = keyof typedData,
     >(parameters: TypedDataDefinition<typedData, primaryType>) {
       Analytics.trackAction({
-        action: "signTypedData",
-        accountType: "evm-server",
+        action: "sign_typed_data",
+        accountType: "evm_server",
       });
 
       const { domain = {}, message, primaryType } = parameters as HashTypedDataParameters;
@@ -135,7 +135,7 @@ export function toEvmServerAccount(
     async transfer(transferArgs): Promise<TransactionResult> {
       Analytics.trackAction({
         action: "transfer",
-        accountType: "evm-server",
+        accountType: "evm_server",
         properties: {
           network: transferArgs.network,
         },
@@ -147,8 +147,8 @@ export function toEvmServerAccount(
       options: Omit<ListTokenBalancesOptions, "address">,
     ): Promise<ListTokenBalancesResult> {
       Analytics.trackAction({
-        action: "listTokenBalances",
-        accountType: "evm-server",
+        action: "list_token_balances",
+        accountType: "evm_server",
         properties: {
           network: options.network,
         },
@@ -163,8 +163,8 @@ export function toEvmServerAccount(
       options: Omit<RequestFaucetOptions, "address">,
     ): Promise<RequestFaucetResult> {
       Analytics.trackAction({
-        action: "requestFaucet",
-        accountType: "evm-server",
+        action: "request_faucet",
+        accountType: "evm_server",
         properties: {
           network: options.network,
         },
@@ -177,8 +177,8 @@ export function toEvmServerAccount(
     },
     async sendTransaction(options: Omit<SendTransactionOptions, "address">) {
       Analytics.trackAction({
-        action: "sendTransaction",
-        accountType: "evm-server",
+        action: "send_transaction",
+        accountType: "evm_server",
         properties: {
           network: options.network,
         },
@@ -191,8 +191,8 @@ export function toEvmServerAccount(
     },
     async quoteFund(options: Omit<QuoteFundOptions, "address">): Promise<Quote> {
       Analytics.trackAction({
-        action: "quoteFund",
-        accountType: "evm-server",
+        action: "quote_fund",
+        accountType: "evm_server",
         properties: {
           network: options.network,
         },
@@ -206,7 +206,7 @@ export function toEvmServerAccount(
     async fund(options: Omit<FundOptions, "address">): Promise<FundOperationResult> {
       Analytics.trackAction({
         action: "fund",
-        accountType: "evm-server",
+        accountType: "evm_server",
         properties: {
           network: options.network,
         },
@@ -221,16 +221,16 @@ export function toEvmServerAccount(
       options: WaitForFundOperationOptions,
     ): Promise<WaitForFundOperationResult> {
       Analytics.trackAction({
-        action: "waitForFundOperationReceipt",
-        accountType: "evm-server",
+        action: "wait_for_fund_operation_receipt",
+        accountType: "evm_server",
       });
 
       return waitForFundOperationReceipt(apiClient, options);
     },
     async quoteSwap(options: AccountQuoteSwapOptions): Promise<AccountQuoteSwapResult> {
       Analytics.trackAction({
-        action: "quoteSwap",
-        accountType: "evm-server",
+        action: "quote_swap",
+        accountType: "evm_server",
         properties: {
           network: options.network,
         },
@@ -244,7 +244,7 @@ export function toEvmServerAccount(
     async swap(options: AccountSwapOptions): Promise<AccountSwapResult> {
       Analytics.trackAction({
         action: "swap",
-        accountType: "evm-server",
+        accountType: "evm_server",
         properties: {
           network: "network" in options ? options.network : undefined,
         },
@@ -261,8 +261,8 @@ export function toEvmServerAccount(
     policies: options.account.policies,
     useNetwork: async <Network extends NetworkOrRpcUrl>(networkOrRpcUrl: Network) => {
       Analytics.trackAction({
-        action: "useNetwork",
-        accountType: "evm-server",
+        action: "use_network",
+        accountType: "evm_server",
         properties: {
           network: networkOrRpcUrl,
         },

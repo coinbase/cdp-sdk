@@ -37,7 +37,7 @@ type ActionEventData = {
   /**
    * The account type, e.g. "evm-server", "evm-smart", "solana"
    */
-  accountType?: "evm-server" | "evm-smart" | "solana";
+  accountType?: "evm_server" | "evm_smart" | "solana";
   /**
    * Additional properties specific to the action
    */
@@ -127,7 +127,7 @@ async function sendEvent(event: EventData): Promise<void> {
  */
 function trackAction(params: {
   action: string;
-  accountType?: "evm-server" | "evm-smart" | "solana";
+  accountType?: "evm_server" | "evm_smart" | "solana";
   properties?: Record<string, unknown>;
 }): void {
   if (

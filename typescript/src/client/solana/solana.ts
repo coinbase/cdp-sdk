@@ -74,7 +74,7 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async createAccount(options: CreateAccountOptions = {}): Promise<SolanaAccount> {
     Analytics.trackAction({
-      action: "createAccount",
+      action: "create_account",
       accountType: "solana",
     });
 
@@ -121,7 +121,7 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async exportAccount(options: ExportAccountOptions): Promise<string> {
     Analytics.trackAction({
-      action: "exportAccount",
+      action: "export_account",
       accountType: "solana",
     });
 
@@ -195,7 +195,7 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async importAccount(options: ImportAccountOptions): Promise<SolanaAccount> {
     Analytics.trackAction({
-      action: "importAccount",
+      action: "import_account",
       accountType: "solana",
     });
 
@@ -270,7 +270,7 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async getAccount(options: GetAccountOptions): Promise<SolanaAccount> {
     Analytics.trackAction({
-      action: "getAccount",
+      action: "get_account",
       accountType: "solana",
     });
 
@@ -312,7 +312,7 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async getOrCreateAccount(options: GetOrCreateAccountOptions): Promise<SolanaAccount> {
     Analytics.trackAction({
-      action: "getOrCreateAccount",
+      action: "get_or_create_account",
       accountType: "solana",
     });
 
@@ -371,7 +371,7 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async listAccounts(options: ListAccountsOptions = {}): Promise<ListAccountsResult> {
     Analytics.trackAction({
-      action: "listAccounts",
+      action: "list_accounts",
       accountType: "solana",
     });
 
@@ -414,7 +414,7 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async requestFaucet(options: RequestFaucetOptions): Promise<SignatureResult> {
     Analytics.trackAction({
-      action: "requestFaucet",
+      action: "request_faucet",
       accountType: "solana",
     });
 
@@ -445,7 +445,7 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async signMessage(options: SignMessageOptions): Promise<SignatureResult> {
     Analytics.trackAction({
-      action: "signMessage",
+      action: "sign_message",
       accountType: "solana",
     });
 
@@ -487,7 +487,7 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async signTransaction(options: SignTransactionOptions): Promise<SignatureResult> {
     Analytics.trackAction({
-      action: "signTransaction",
+      action: "sign_transaction",
       accountType: "solana",
     });
 
@@ -537,7 +537,7 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async updateAccount(options: UpdateSolanaAccountOptions): Promise<SolanaAccount> {
     Analytics.trackAction({
-      action: "updateAccount",
+      action: "update_account",
       accountType: "solana",
     });
 
@@ -575,6 +575,14 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async sendTransaction(options: SendTransactionOptions): Promise<TransactionResult> {
+    Analytics.trackAction({
+      action: "send_transaction",
+      accountType: "solana",
+      properties: {
+        network: options.network,
+      },
+    });
+
     return sendTransaction(CdpOpenApiClient, options);
   }
 
@@ -597,7 +605,7 @@ export class SolanaClient implements SolanaClientInterface {
    */
   async listTokenBalances(options: ListTokenBalancesOptions): Promise<ListTokenBalancesResult> {
     Analytics.trackAction({
-      action: "listTokenBalances",
+      action: "list_token_balances",
       accountType: "solana",
       properties: {
         network: options.network,

@@ -59,7 +59,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    */
   async listPolicies(options: ListPoliciesOptions = {}): Promise<ListPoliciesResult> {
     Analytics.trackAction({
-      action: "listPolicies",
+      action: "list_policies",
       properties: {
         scope: options.scope,
       },
@@ -138,7 +138,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    */
   async createPolicy(options: CreatePolicyOptions): Promise<Policy> {
     Analytics.trackAction({
-      action: "createPolicy",
+      action: "create_policy",
       properties: {
         scope: options.policy.scope,
       },
@@ -173,7 +173,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    */
   async getPolicyById(options: GetPolicyByIdOptions): Promise<Policy> {
     Analytics.trackAction({
-      action: "getPolicyById",
+      action: "get_policy_by_id",
     });
 
     return CdpOpenApiClient.getPolicyById(options.id) as Promise<Policy>;
@@ -209,7 +209,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    */
   async deletePolicy(options: DeletePolicyOptions): Promise<void> {
     Analytics.trackAction({
-      action: "deletePolicy",
+      action: "delete_policy",
     });
 
     return CdpOpenApiClient.deletePolicy(options.id, options.idempotencyKey);
@@ -269,7 +269,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    */
   async updatePolicy(options: UpdatePolicyOptions): Promise<Policy> {
     Analytics.trackAction({
-      action: "updatePolicy",
+      action: "update_policy",
     });
 
     UpdatePolicyBodySchema.parse(options.policy);

@@ -37,7 +37,7 @@ export function toSolanaAccount(
     name: options.account.name,
     async requestFaucet(options: Omit<RequestFaucetOptions, "address">): Promise<SignatureResult> {
       Analytics.trackAction({
-        action: "requestFaucet",
+        action: "request_faucet",
         accountType: "solana",
       });
 
@@ -48,7 +48,7 @@ export function toSolanaAccount(
     },
     async signMessage(options: Omit<SignMessageOptions, "address">): Promise<SignatureResult> {
       Analytics.trackAction({
-        action: "signMessage",
+        action: "sign_message",
         accountType: "solana",
       });
 
@@ -61,7 +61,7 @@ export function toSolanaAccount(
       options: Omit<SignTransactionOptions, "address">,
     ): Promise<SignatureResult> {
       Analytics.trackAction({
-        action: "signTransaction",
+        action: "sign_transaction",
         accountType: "solana",
       });
 
