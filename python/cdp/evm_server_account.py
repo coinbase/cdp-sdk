@@ -31,10 +31,10 @@ from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.actions.evm.swap import AccountSwapOptions
 from cdp.actions.evm.swap.types import AccountSwapResult, QuoteSwapResult
-from cdp.analytics import track_action
 from cdp.actions.quote import EvmQuote
 from cdp.actions.types import FundOperationResult
 from cdp.actions.wait_for_fund_operation_receipt import wait_for_fund_operation_receipt
+from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
