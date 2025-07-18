@@ -98,9 +98,6 @@ export function toSolanaAccount(
       Analytics.trackAction({
         action: "quote_fund",
         accountType: "solana",
-        properties: {
-          network: "solana",
-        },
       });
 
       return quoteFund(apiClient, {
@@ -112,9 +109,6 @@ export function toSolanaAccount(
       Analytics.trackAction({
         action: "fund",
         accountType: "solana",
-        properties: {
-          network: "solana",
-        },
       });
 
       return fund(apiClient, {
