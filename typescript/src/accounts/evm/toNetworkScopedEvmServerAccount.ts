@@ -52,6 +52,12 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     account: options.account,
   });
 
+  /*
+   * Determine the actual network name from the resolved chain
+   * This handles cases where options.network is an RPC URL
+   */
+  const resolvedNetworkName = mapChainToNetwork(chain) ?? options.network;
+
   const shouldUseApiForSends =
     chain.id === base.id ||
     chain.id === baseSepolia.id ||
@@ -124,7 +130,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     },
   } as NetworkScopedEvmServerAccount<Network>;
 
-  if (isMethodSupportedOnNetwork("listTokenBalances", options.network)) {
+  if (isMethodSupportedOnNetwork("listTokenBalances", resolvedNetworkName)) {
     Object.assign(account, {
       listTokenBalances: async (
         listTokenBalancesOptions: Omit<ListTokenBalancesOptions, "address" | "network">,
@@ -137,7 +143,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     });
   }
 
-  if (isMethodSupportedOnNetwork("requestFaucet", options.network)) {
+  if (isMethodSupportedOnNetwork("requestFaucet", resolvedNetworkName)) {
     Object.assign(account, {
       requestFaucet: async (faucetOptions: Omit<RequestFaucetOptions, "address" | "network">) => {
         return options.account.requestFaucet({
@@ -148,7 +154,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     });
   }
 
-  if (isMethodSupportedOnNetwork("quoteFund", options.network)) {
+  if (isMethodSupportedOnNetwork("quoteFund", resolvedNetworkName)) {
     Object.assign(account, {
       quoteFund: async (quoteFundOptions: Omit<QuoteFundOptions, "address">) => {
         return options.account.quoteFund({
@@ -158,7 +164,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     });
   }
 
-  if (isMethodSupportedOnNetwork("fund", options.network)) {
+  if (isMethodSupportedOnNetwork("fund", resolvedNetworkName)) {
     Object.assign(account, {
       fund: async (fundOptions: Omit<FundOptions, "address">) => {
         return options.account.fund({
@@ -171,7 +177,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     });
   }
 
-  if (isMethodSupportedOnNetwork("quoteSwap", options.network)) {
+  if (isMethodSupportedOnNetwork("quoteSwap", resolvedNetworkName)) {
     Object.assign(account, {
       quoteSwap: async (quoteSwapOptions: AccountQuoteSwapOptions) => {
         return options.account.quoteSwap(quoteSwapOptions);
@@ -179,7 +185,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     });
   }
 
-  if (isMethodSupportedOnNetwork("swap", options.network)) {
+  if (isMethodSupportedOnNetwork("swap", resolvedNetworkName)) {
     Object.assign(account, {
       swap: async (swapOptions: AccountSwapOptions) => {
         return options.account.swap(swapOptions);
