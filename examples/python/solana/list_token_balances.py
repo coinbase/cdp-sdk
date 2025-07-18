@@ -22,6 +22,9 @@ async def main():
             print(f"Balance amount: {balance.amount.amount}")
             print(f"Balance decimals: {balance.amount.decimals}")
             print(f"Balance token mint address: {balance.token.mint_address}")
+            print(f"Balance token symbol: {balance.token.symbol}")
+            print(f"Balance token name: {balance.token.name}")
+            print('---')
 
         if token_balances.next_page_token:
             token_balances = await cdp.solana.list_token_balances(
@@ -36,6 +39,8 @@ async def main():
                 print(f"Balance amount: {balance.amount.amount}")
                 print(f"Balance decimals: {balance.amount.decimals}")
                 print(f"Balance token mint address: {balance.token.mint_address}")
-
+                print(f"Balance token symbol: {balance.token.symbol}")
+                print(f"Balance token name: {balance.token.name}")
+                print('---')
 
 asyncio.run(main())
