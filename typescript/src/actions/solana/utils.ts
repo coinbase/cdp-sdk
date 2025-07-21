@@ -2,13 +2,12 @@ import { Connection } from "@solana/web3.js";
 
 import {
   GENESIS_HASH_MAINNET,
-  GENESIS_HASH_TESTNET,
   GENESIS_HASH_DEVNET,
   USDC_MAINNET_MINT_ADDRESS,
   USDC_DEVNET_MINT_ADDRESS,
 } from "./constants.js";
 
-export type Network = "mainnet" | "devnet" | "testnet";
+export type Network = "mainnet" | "devnet";
 
 type GetOrCreateConnectionOptions = {
   networkOrConnection: Network | Connection;
@@ -33,9 +32,7 @@ export function getOrCreateConnection({
   return new Connection(
     networkOrConnection === "mainnet"
       ? "https://api.mainnet-beta.solana.com"
-      : networkOrConnection === "devnet"
-        ? "https://api.devnet.solana.com"
-        : "https://api.testnet.solana.com",
+      : "https://api.devnet.solana.com",
   );
 }
 
@@ -43,7 +40,7 @@ export function getOrCreateConnection({
  * Get the network of the connected Solana node
  *
  * @param connection - The connection to the Solana network
- * @throws {Error} If the network is not mainnet, devnet, or testnet
+ * @throws {Error} If the network is not mainnet or devnet
  *
  * @returns The network of the connected Solana node
  */
@@ -54,11 +51,9 @@ export async function getConnectedNetwork(connection: Connection): Promise<Netwo
     return "mainnet";
   } else if (genesisHash === GENESIS_HASH_DEVNET) {
     return "devnet";
-  } else if (genesisHash === GENESIS_HASH_TESTNET) {
-    return "testnet";
   }
 
-  throw new Error("Unknown network");
+  throw new Error("Unknown or unsupported network");
 }
 
 /**
@@ -71,9 +66,6 @@ export async function getConnectedNetwork(connection: Connection): Promise<Netwo
 export function getUsdcMintAddress(network: Network): string {
   if (network === "mainnet") {
     return USDC_MAINNET_MINT_ADDRESS;
-  } else if (network === "devnet") {
-    return USDC_DEVNET_MINT_ADDRESS;
-  } else {
-    throw new Error("Testnet is not supported for USDC");
   }
+  return USDC_DEVNET_MINT_ADDRESS;
 }

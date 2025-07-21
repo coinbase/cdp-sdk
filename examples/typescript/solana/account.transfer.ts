@@ -12,7 +12,7 @@ const sender = await cdp.solana.getOrCreateAccount({
   name: "Sender",
 });
 
-const amount = BigInt(0.0001 * LAMPORTS_PER_SOL);
+const amount = BigInt(0.000001 * LAMPORTS_PER_SOL);
 
 await faucetIfNeeded(sender.address, amount);
 
