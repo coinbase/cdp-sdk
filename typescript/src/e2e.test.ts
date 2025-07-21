@@ -178,8 +178,8 @@ describe("CDP Client E2E Tests", () => {
     })();
     testSolanaAccount = await cdp.solana.getOrCreateAccount({ name: testAccountName });
 
-    if(testAccount.policies?.length || 0 > 0) {
-      await cdp.evm.updateAccount({address: testAccount.address, update: { accountPolicy: "" }})
+    if (testAccount.policies?.length || 0 > 0) {
+      await cdp.evm.updateAccount({ address: testAccount.address, update: { accountPolicy: "" } });
     }
   });
 
