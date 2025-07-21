@@ -51,6 +51,16 @@ const logger = {
       console.log(...args);
     }
   },
+  warn: (...args: any[]) => {
+    if (process.env.E2E_LOGGING) {
+      console.warn(...args);
+    }
+  },
+  error: (...args: any[]) => {
+    if (process.env.E2E_LOGGING) {
+      console.error(...args);
+    }
+  },
 };
 
 // Helper function to stringify objects with bigint values
@@ -167,6 +177,10 @@ describe("CDP Client E2E Tests", () => {
       }
     })();
     testSolanaAccount = await cdp.solana.getOrCreateAccount({ name: testAccountName });
+
+    if(testAccount.policies?.length || 0 > 0) {
+      await cdp.evm.updateAccount({address: testAccount.address, update: { accountPolicy: "" }})
+    }
   });
 
   beforeEach(async () => {
@@ -1549,6 +1563,10 @@ describe("CDP Client E2E Tests", () => {
   });
 
   describe("Policy Evaluation", () => {
+    const policyViolation = {
+      statusCode: 403,
+      errorType: "policy_violation",
+    };
     let policy: Policy;
 
     beforeAll(async () => {
@@ -1574,9 +1592,13 @@ describe("CDP Client E2E Tests", () => {
           accountPolicy: "",
         },
       });
-      await cdp.policies.deletePolicy({
-        id: policy!.id,
-      });
+      if (policy) {
+        await cdp.policies.deletePolicy({
+          id: policy.id,
+        });
+      } else {
+        logger.warn("unable to delete policy, upstream likely unreliable");
+      }
     }
 
     afterAll(cleanup);
@@ -1602,8 +1624,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.signTransaction({
+          await expect(() =>
+            cdp.evm.signTransaction({
               address: testAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
@@ -1615,14 +1637,8 @@ describe("CDP Client E2E Tests", () => {
                 gasLimit: BigInt(21000),
                 nonce: 0,
               }),
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
 
         it("<=", async () => {
@@ -1642,8 +1658,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.signTransaction({
+          await expect(() =>
+            cdp.evm.signTransaction({
               address: testAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
@@ -1655,14 +1671,8 @@ describe("CDP Client E2E Tests", () => {
                 gasLimit: BigInt(21000),
                 nonce: 0,
               }),
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
 
         it(">", async () => {
@@ -1682,8 +1692,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.signTransaction({
+          await expect(() =>
+            cdp.evm.signTransaction({
               address: testAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
@@ -1695,14 +1705,8 @@ describe("CDP Client E2E Tests", () => {
                 gasLimit: BigInt(21000),
                 nonce: 0,
               }),
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
 
         it("<", async () => {
@@ -1722,8 +1726,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.signTransaction({
+          await expect(() =>
+            cdp.evm.signTransaction({
               address: testAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
@@ -1735,14 +1739,8 @@ describe("CDP Client E2E Tests", () => {
                 gasLimit: BigInt(21000),
                 nonce: 0,
               }),
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
 
         it("==", async () => {
@@ -1762,8 +1760,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.signTransaction({
+          await expect(() =>
+            cdp.evm.signTransaction({
               address: testAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
@@ -1775,14 +1773,8 @@ describe("CDP Client E2E Tests", () => {
                 gasLimit: BigInt(21000),
                 nonce: 0,
               }),
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
       });
 
@@ -1810,8 +1802,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.signTransaction({
+          await expect(() =>
+            cdp.evm.signTransaction({
               address: testAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
@@ -1823,14 +1815,8 @@ describe("CDP Client E2E Tests", () => {
                 gasLimit: BigInt(21000),
                 nonce: 0,
               }),
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
 
         it("not in", async () => {
@@ -1856,8 +1842,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.signTransaction({
+          await expect(() =>
+            cdp.evm.signTransaction({
               address: testAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
@@ -1869,14 +1855,8 @@ describe("CDP Client E2E Tests", () => {
                 gasLimit: BigInt(21000),
                 nonce: 0,
               }),
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
       });
 
@@ -1936,11 +1916,11 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            const transferData =
-              "0xa9059cbb000000000000000000000000742d35cc6634c0532925a3b844bc454e4438f44e0000000000000000000000000000000000000000000000000000000000200000"; // transfer to address with 2M tokens
+          const transferData =
+            "0xa9059cbb000000000000000000000000742d35cc6634c0532925a3b844bc454e4438f44e0000000000000000000000000000000000000000000000000000000000200000"; // transfer to address with 2M tokens
 
-            await cdp.evm.signTransaction({
+          await expect(() =>
+            cdp.evm.signTransaction({
               address: testAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
@@ -1952,14 +1932,8 @@ describe("CDP Client E2E Tests", () => {
                 gasLimit: BigInt(100000),
                 nonce: 0,
               }),
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
       });
     });
@@ -1983,8 +1957,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.sendTransaction({
+          await expect(() =>
+            cdp.evm.sendTransaction({
               network: "base-sepolia",
               address: testAccount.address,
               transaction: serializeTransaction({
@@ -1997,14 +1971,8 @@ describe("CDP Client E2E Tests", () => {
                 gasLimit: BigInt(21000),
                 nonce: 0,
               }),
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
       });
 
@@ -2032,8 +2000,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.sendTransaction({
+          await expect(() =>
+            cdp.evm.sendTransaction({
               address: testAccount.address,
               network: "base-sepolia",
               transaction: serializeTransaction({
@@ -2046,14 +2014,8 @@ describe("CDP Client E2E Tests", () => {
                 gasLimit: BigInt(21000),
                 nonce: 0,
               }),
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
       });
 
@@ -2075,8 +2037,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.sendTransaction({
+          await expect(() =>
+            cdp.evm.sendTransaction({
               address: testAccount.address,
               network: "base-sepolia",
               transaction: serializeTransaction({
@@ -2089,14 +2051,8 @@ describe("CDP Client E2E Tests", () => {
                 gasLimit: BigInt(21000),
                 nonce: 0,
               }),
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
 
         it("not in", async () => {
@@ -2116,8 +2072,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.sendTransaction({
+          await expect(() =>
+            cdp.evm.sendTransaction({
               address: testAccount.address,
               network: "base-sepolia",
               transaction: serializeTransaction({
@@ -2130,14 +2086,8 @@ describe("CDP Client E2E Tests", () => {
                 gasLimit: BigInt(21000),
                 nonce: 0,
               }),
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
       });
 
@@ -2197,11 +2147,11 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            const transferData =
-              "0xa9059cbb000000000000000000000000742d35cc6634c0532925a3b844bc454e4438f44e0000000000000000000000000000000000000000000000000000000000200000"; // transfer to address with 2M tokens
+          const transferData =
+            "0xa9059cbb000000000000000000000000742d35cc6634c0532925a3b844bc454e4438f44e0000000000000000000000000000000000000000000000000000000000200000"; // transfer to address with 2M tokens
 
-            await cdp.evm.sendTransaction({
+          await expect(() =>
+            cdp.evm.sendTransaction({
               network: "base-sepolia",
               address: testAccount.address,
               transaction: serializeTransaction({
@@ -2214,14 +2164,8 @@ describe("CDP Client E2E Tests", () => {
                 gasLimit: BigInt(100000),
                 nonce: 0,
               }),
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
       });
     });
@@ -2245,18 +2189,12 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.signMessage({
+          await expect(() =>
+            cdp.evm.signMessage({
               address: testAccount.address,
               message: "forbidden message content",
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
 
         it("complex regex pattern", async () => {
@@ -2276,18 +2214,12 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.signMessage({
+          await expect(() =>
+            cdp.evm.signMessage({
               address: testAccount.address,
               message: "I want to transfer 1000 tokens to my friend",
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
       });
     });
@@ -2304,18 +2236,14 @@ describe("CDP Client E2E Tests", () => {
           address: testAccount.address,
           update: { accountPolicy: policy.id },
         });
-        try {
-          await cdp.evm.signHash({
+        await expect(() =>
+          cdp.evm.signHash({
             address: testAccount.address,
             hash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-          });
-          expect(true).toBe(false); // Should not reach here
-        } catch (e: any) {
-          const apiError = e as APIError;
-          expect(e).toBeInstanceOf(APIError);
-          expect(apiError.statusCode).toBe(403);
-          expect(apiError.errorType).toBe("policy_violation");
-        }
+          }),
+        ).rejects.toThrowError(
+          expect.objectContaining({ statusCode: 403, errorType: "policy_violation" }),
+        );
       });
     });
 
@@ -2361,8 +2289,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.signTypedData({
+          await expect(() =>
+            cdp.evm.signTypedData({
               address: testAccount.address,
               types: {
                 Permit: [
@@ -2387,14 +2315,8 @@ describe("CDP Client E2E Tests", () => {
                 nonce: 0,
                 deadline: Math.floor(Date.now() / 1000) + 3600,
               },
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
 
         it("address field constraint", async () => {
@@ -2437,8 +2359,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.signTypedData({
+          await expect(() =>
+            cdp.evm.signTypedData({
               address: testAccount.address,
               types: {
                 Permit: [
@@ -2463,14 +2385,8 @@ describe("CDP Client E2E Tests", () => {
                 nonce: 0,
                 deadline: Math.floor(Date.now() / 1000) + 3600,
               },
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
       });
 
@@ -2498,8 +2414,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.signTypedData({
+          await expect(() =>
+            cdp.evm.signTypedData({
               address: testAccount.address,
               types: {
                 Permit: [
@@ -2524,14 +2440,8 @@ describe("CDP Client E2E Tests", () => {
                 nonce: 0,
                 deadline: Math.floor(Date.now() / 1000) + 3600,
               },
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
 
         it("not in", async () => {
@@ -2557,8 +2467,8 @@ describe("CDP Client E2E Tests", () => {
             address: testAccount.address,
             update: { accountPolicy: policy.id },
           });
-          try {
-            await cdp.evm.signTypedData({
+          await expect(() =>
+            cdp.evm.signTypedData({
               address: testAccount.address,
               types: {
                 Permit: [
@@ -2583,14 +2493,8 @@ describe("CDP Client E2E Tests", () => {
                 nonce: 0,
                 deadline: Math.floor(Date.now() / 1000) + 3600,
               },
-            });
-            expect(true).toBe(false); // Should not reach here
-          } catch (e: any) {
-            const apiError = e as APIError;
-            expect(e).toBeInstanceOf(APIError);
-            expect(apiError.statusCode).toBe(403);
-            expect(apiError.errorType).toBe("policy_violation");
-          }
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });
       });
     });
