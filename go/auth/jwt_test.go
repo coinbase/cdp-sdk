@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
+	"math/big"
 	"strings"
 	"testing"
 
@@ -236,7 +237,12 @@ func TestGenerateWalletJWT(t *testing.T) {
 
 		expectedURI := defaultOptions.RequestMethod + " " + defaultOptions.RequestHost + defaultOptions.RequestPath
 		assert.Equal(t, []interface{}{expectedURI}, claims["uris"])
-		assert.Equal(t, defaultOptions.RequestData, claims["req"])
+
+		// Verify reqHash is present and is a valid hex string
+		reqHash, ok := claims["reqHash"].(string)
+		assert.True(t, ok, "expected reqHash to be a string")
+		assert.NotEmpty(t, reqHash)
+		assert.Equal(t, 64, len(reqHash), "SHA-256 hash should be 64 hex characters")
 
 		// Verify presence of required claims
 		assert.NotNil(t, claims["iat"])
@@ -277,8 +283,8 @@ func TestGenerateWalletJWT(t *testing.T) {
 		claims, ok := parsedToken.Claims.(jwt.MapClaims)
 		require.True(t, ok, "expected claims to be jwt.MapClaims")
 
-		_, hasReq := claims["req"]
-		assert.False(t, hasReq, "req claim should not be present")
+		_, hasReqHash := claims["reqHash"]
+		assert.False(t, hasReqHash, "reqHash claim should not be present")
 	})
 
 	t.Run("uses correct algorithm and type", func(t *testing.T) {
@@ -297,5 +303,96 @@ func TestGenerateWalletJWT(t *testing.T) {
 
 		assert.Equal(t, "ES256", header["alg"])
 		assert.Equal(t, "JWT", header["typ"])
+	})
+
+	t.Run("produces deterministic hash for same request data", func(t *testing.T) {
+		// Create two options with the same data but keys in different order
+		options1 := defaultOptions
+		options1.RequestData = map[string]interface{}{
+			"b": "value2",
+			"a": "value1",
+			"c": map[string]interface{}{
+				"nested2": 2,
+				"nested1": 1,
+			},
+		}
+
+		options2 := defaultOptions
+		options2.RequestData = map[string]interface{}{
+			"a": "value1",
+			"c": map[string]interface{}{
+				"nested1": 1,
+				"nested2": 2,
+			},
+			"b": "value2",
+		}
+
+		// Generate tokens
+		token1, err := GenerateWalletJWT(options1)
+		require.NoError(t, err)
+
+		token2, err := GenerateWalletJWT(options2)
+		require.NoError(t, err)
+
+		// Parse tokens to extract reqHash
+		parsedToken1, _ := jwt.Parse(token1, func(_ *jwt.Token) (interface{}, error) {
+			return nil, jwt.ErrInvalidKeyType
+		})
+		claims1, _ := parsedToken1.Claims.(jwt.MapClaims)
+		reqHash1 := claims1["reqHash"].(string)
+
+		parsedToken2, _ := jwt.Parse(token2, func(_ *jwt.Token) (interface{}, error) {
+			return nil, jwt.ErrInvalidKeyType
+		})
+		claims2, _ := parsedToken2.Claims.(jwt.MapClaims)
+		reqHash2 := claims2["reqHash"].(string)
+
+		// Both should produce the same hash
+		assert.Equal(t, reqHash1, reqHash2, "Same data should produce same hash regardless of key order")
+	})
+
+	t.Run("handles big.Int and big.Float values", func(t *testing.T) {
+		// Create options with big.Int and big.Float values
+		bigIntValue := new(big.Int)
+		bigIntValue.SetString("123456789012345678901234567890", 10)
+
+		bigFloatValue := new(big.Float)
+		bigFloatValue.SetString("123.456789012345678901234567890")
+
+		options := defaultOptions
+		options.RequestData = map[string]interface{}{
+			"bigInt":   bigIntValue,
+			"bigFloat": bigFloatValue,
+			"regular":  "value",
+			"nested": map[string]interface{}{
+				"bigIntNested": bigIntValue,
+			},
+		}
+
+		// Generate token
+		token, err := GenerateWalletJWT(options)
+		require.NoError(t, err)
+
+		// Parse token to extract reqHash
+		parsedToken, _ := jwt.Parse(token, func(_ *jwt.Token) (interface{}, error) {
+			return nil, jwt.ErrInvalidKeyType
+		})
+		claims, _ := parsedToken.Claims.(jwt.MapClaims)
+		reqHash := claims["reqHash"].(string)
+
+		// Verify hash is generated successfully
+		assert.NotEmpty(t, reqHash)
+		assert.Equal(t, 64, len(reqHash), "SHA-256 hash should be 64 hex characters")
+
+		// Test with nil big.Int and big.Float
+		optionsWithNil := defaultOptions
+		optionsWithNil.RequestData = map[string]interface{}{
+			"bigInt":   (*big.Int)(nil),
+			"bigFloat": (*big.Float)(nil),
+		}
+
+		tokenWithNil, err := GenerateWalletJWT(optionsWithNil)
+		require.NoError(t, err)
+		assert.NotEmpty(t, tokenWithNil)
 	})
 }
