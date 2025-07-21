@@ -66,9 +66,9 @@ export const EvmAddressCriterionSchema = z.object({
   /**
    * Array of EVM addresses to compare against.
    * Each address must be a 0x-prefixed 40-character hexadecimal string.
-   * Limited to a maximum of 100 addresses per criterion.
+   * Limited to a maximum of 300 addresses per criterion.
    */
-  addresses: z.array(Address).max(100),
+  addresses: z.array(Address).max(300),
   /**
    * The operator to use for evaluating transaction addresses.
    * "in" checks if an address is in the provided list.
@@ -128,9 +128,9 @@ export const EvmTypedAddressConditionSchema = z.object({
   /**
    * Array of EVM addresses to compare against.
    * Each address must be a 0x-prefixed 40-character hexadecimal string.
-   * Limited to a maximum of 100 addresses per condition.
+   * Limited to a maximum of 300 addresses per condition.
    */
-  addresses: z.array(Address).max(100),
+  addresses: z.array(Address).max(300),
   /**
    * The operator to use for evaluating addresses.
    * "in" checks if an address is in the provided list.
@@ -235,9 +235,9 @@ export const SignEvmTypedDataVerifyingContractCriterionSchema = z.object({
   /**
    * Array of EVM addresses allowed or disallowed as verifying contracts.
    * Each address must be a 0x-prefixed 40-character hexadecimal string.
-   * Limited to a maximum of 100 addresses per criterion.
+   * Limited to a maximum of 300 addresses per criterion.
    */
-  addresses: z.array(Address).max(100),
+  addresses: z.array(Address).max(300),
   /**
    * The operator to use for evaluating verifying contract addresses.
    * "in" checks if the verifying contract is in the provided list.
