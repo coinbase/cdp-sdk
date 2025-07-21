@@ -100,7 +100,8 @@ async function ensureSufficientSolBalance(cdp: CdpClient, account: SolanaAccount
   let balance = await connection.getBalance(new PublicKey(account.address));
 
   // 1250000 is the amount the faucet gives, and is plenty to cover gas
-  if (balance >= 1250000) {
+  // Increase to 12500000 to give us more buffer for testing transfers via sendTransaction.
+  if (balance >= 12500000) {
     return;
   }
 
@@ -1180,7 +1181,11 @@ describe("CDP Client E2E Tests", () => {
 
         const { signature } = await cdp.solana.sendTransaction({
           network: "solana-devnet",
-          transaction: createAndEncodeTransaction(testSolanaAccount.address),
+          transaction: createAndEncodeTransaction(
+            testSolanaAccount.address,
+            "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+            10,
+          ),
         });
 
         expect(signature).toBeDefined();
@@ -1813,14 +1818,13 @@ function generateRandomName(): string {
 }
 
 // Helper function to create and encode a Solana transaction
-function createAndEncodeTransaction(address: string) {
-  const recipientKeypair = Keypair.generate();
-  const recipientAddress = recipientKeypair.publicKey;
+function createAndEncodeTransaction(address: string, to?: string, amount?: number) {
+  const recipientAddress = to ? new PublicKey(to) : Keypair.generate().publicKey;
 
   const fromPubkey = new PublicKey(address);
 
   // Covers the minimum amount of rent for a system account (0.00089088 SOL)
-  const transferAmount = 0.001 * LAMPORTS_PER_SOL;
+  const transferAmount = amount !== undefined ? amount : 0.001 * LAMPORTS_PER_SOL;
 
   const transaction = new Transaction().add(
     SystemProgram.transfer({

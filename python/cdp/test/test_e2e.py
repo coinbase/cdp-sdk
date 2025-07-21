@@ -1018,7 +1018,10 @@ async def test_solana_send_transaction(cdp_client, solana_account):
     await _ensure_sufficient_sol_balance(cdp_client, solana_account)
 
     response = await cdp_client.solana.send_transaction(
-        network="solana-devnet", transaction=_get_transaction(solana_account.address)
+        network="solana-devnet",
+        transaction=_get_transaction(
+            solana_account.address, "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo", 10
+        ),
     )
     assert response is not None
     assert response.transaction_signature is not None
@@ -1852,9 +1855,10 @@ async def test_evm_local_account_sign_and_send_transaction(cdp_client):
     assert tx_receipt is not None
 
 
-def _get_transaction(address: str):
+def _get_transaction(address: str, to: str | None = None, amount: int | None = None):
     """Help method to create a transaction."""
     from solana.rpc.api import Client as SolanaClient
+    from solders.keypair import Keypair
     from solders.message import Message
     from solders.pubkey import Pubkey as PublicKey
     from solders.system_program import TransferParams, transfer
@@ -1864,13 +1868,15 @@ def _get_transaction(address: str):
     )
 
     source_pubkey = PublicKey.from_string(address)
-    dest_pubkey = PublicKey.from_string("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE")
+    dest_pubkey = PublicKey.from_string(to) if to else Keypair().pubkey()
 
     blockhash_resp = connection.get_latest_blockhash()
     blockhash = blockhash_resp.value.blockhash
 
+    transfer_amount = amount if amount is not None else 1000
+
     transfer_params = TransferParams(
-        from_pubkey=source_pubkey, to_pubkey=dest_pubkey, lamports=1000
+        from_pubkey=source_pubkey, to_pubkey=dest_pubkey, lamports=transfer_amount
     )
     transfer_instr = transfer(transfer_params)
 
@@ -1936,7 +1942,8 @@ async def _ensure_sufficient_sol_balance(cdp_client, account):
         await asyncio.sleep(ms / 1000)
 
     # 1250000 is the amount the faucet gives, and is plenty to cover gas
-    min_required_balance = 1250000
+    # Increase to 12500000 to give us more buffer for testing transfers via sendTransaction.
+    min_required_balance = 12500000
 
     # Get initial balance
     balance_resp = connection.get_balance(PublicKey.from_string(account.address))
