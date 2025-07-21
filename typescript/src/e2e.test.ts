@@ -1570,6 +1570,7 @@ describe("CDP Client E2E Tests", () => {
     let policy: Policy;
 
     beforeAll(async () => {
+      await ensureSufficientEthBalance(cdp, testAccount);
       policy = await cdp.policies.createPolicy({
         policy: {
           description: Date.now().toString(),
