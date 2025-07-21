@@ -44,4 +44,5 @@ jobs:
           CDP_E2E_SOLANA_RPC_URL: ${{ secrets.CDP_E2E_SOLANA_RPC_URL }}
           E2E_LOGGING: true
           DISABLE_CDP_ERROR_REPORTING: true
+          DISABLE_CDP_USAGE_TRACKING: true
         run: pnpm run test:e2e
