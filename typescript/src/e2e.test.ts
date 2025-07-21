@@ -153,7 +153,6 @@ describe("CDP Client E2E Tests", () => {
 
     testAccount = await cdp.evm.getOrCreateAccount({ name: testAccountName });
     testSmartAccount = await (async () => {
-      console.log(process.env.CDP_E2E_SMART_ACCOUNT_ADDRESS);
       if (process.env.CDP_E2E_SMART_ACCOUNT_ADDRESS) {
         logger.log("CDP_E2E_SMART_ACCOUNT_ADDRESS is set. Using existing smart account.");
         return cdp.evm.getSmartAccount({
