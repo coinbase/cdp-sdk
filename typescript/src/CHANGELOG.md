@@ -1,5 +1,17 @@
 # CDP SDK Changelog
 
+## 1.28.0
+
+### Minor Changes
+
+- [#304](https://github.com/coinbase/cdp-sdk/pull/304) [`d6363f6`](https://github.com/coinbase/cdp-sdk/commit/d6363f667457e172474c3aadcfb7cbdaadb536f2) Thanks [@sammccord](https://github.com/sammccord)! - Increased address criterion validation to 300 from 100
+
+### Patch Changes
+
+- [#309](https://github.com/coinbase/cdp-sdk/pull/309) [`ee7601c`](https://github.com/coinbase/cdp-sdk/commit/ee7601ce9700272162684435721f42bc9e0af3b5) Thanks [@sddioulde](https://github.com/sddioulde)! - Updated transfer to use SendSolanaTransaction
+
+- [#299](https://github.com/coinbase/cdp-sdk/pull/299) [`d5e6e20`](https://github.com/coinbase/cdp-sdk/commit/d5e6e206d760e2b72d46ea9676d3a0b9306877b3) Thanks [@0xRAG](https://github.com/0xRAG)! - Fixed managed methods not being available when using custom RPC URLs with EVM server accounts
+
 ## 1.27.0
 
 ### Minor Changes
