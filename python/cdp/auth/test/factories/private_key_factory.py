@@ -1,8 +1,8 @@
 import base64
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import ec, ed25519
 
 import pytest
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ec, ed25519
 
 
 @pytest.fixture
@@ -11,6 +11,7 @@ def ec_private_key_factory():
 
     Returns:
         callable: A factory function that creates PEM-encoded EC private keys
+
     """
 
     def _create_key():
@@ -31,6 +32,7 @@ def ed25519_private_key_factory():
 
     Returns:
         callable: A factory function that creates base64-encoded Ed25519 private keys
+
     """
 
     def _create_key():

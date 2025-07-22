@@ -1,1 +1,1 @@
-export { SolanaClient } from "./solana";
+export { SolanaClient } from "./solana.js";

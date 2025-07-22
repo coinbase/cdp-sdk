@@ -1,19 +1,24 @@
 import base64
+import hashlib
+import json
 import random
 import time
-from typing import Union, Optional, Dict, Any
-from urllib.parse import urlparse
-from datetime import datetime
-from cryptography.hazmat.primitives import serialization
-import jwt
 import uuid
+from datetime import datetime
+from typing import Any
+from urllib.parse import urlparse
 
+import jwt
+from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec, ed25519
 from pydantic import BaseModel, Field, field_validator
 
+from cdp.errors import UserInputValidationError
+from cdp.utils import sort_keys
+
 
 class JwtOptions(BaseModel):
-    """Configuration options for JWT generation.
+    r"""Configuration options for JWT generation.
 
     This class holds all necessary parameters for generating a JWT token
     for authenticating with Coinbase's REST APIs. It supports both EC (ES256)
@@ -28,39 +33,53 @@ class JwtOptions(BaseModel):
             Examples:
                 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==' (Edwards key (Ed25519))
                 '-----BEGIN EC PRIVATE KEY-----\\n...\\n...\\n...==\\n-----END EC PRIVATE KEY-----\\n' (EC key (ES256))
-        request_method - The HTTP method for the request (e.g. 'GET', 'POST')
-        request_host - The host for the request (e.g. 'api.cdp.coinbase.com')
-        request_path - The path for the request (e.g. '/platform/v1/wallets')
+        request_method - The HTTP method for the request (e.g. 'GET', 'POST'), or None for JWTs intended for websocket connections
+        request_host - The host for the request (e.g. 'api.cdp.coinbase.com'), or None for JWTs intended for websocket connections
+        request_path - The path for the request (e.g. '/platform/v1/wallets'), or None for JWTs intended for websocket connections
         expires_in - Optional expiration time in seconds (defaults to 120)
+        audience - Optional audience claim for the JWT
+
     """
 
     api_key_id: str = Field(..., description="The API key ID")
     api_key_secret: str = Field(..., description="The API key secret")
-    request_method: str = Field(..., description="The HTTP method for the request")
-    request_host: str = Field(..., description="The host for the request")
-    request_path: str = Field(..., description="The path for the request")
-    expires_in: Optional[int] = Field(
-        120, description="Optional expiration time in seconds"
+    request_method: str | None = Field(
+        None,
+        description="The HTTP method for the request or None for JWTs intended for websocket connections",
     )
+    request_host: str | None = Field(
+        None,
+        description="The host for the request or None for JWTs intended for websocket connections",
+    )
+    request_path: str | None = Field(
+        None,
+        description="The path for the request or None for JWTs intended for websocket connections",
+    )
+    expires_in: int | None = Field(120, description="Optional expiration time in seconds")
+    audience: list[str] | None = Field(None, description="Optional audience claim for the JWT")
 
     @field_validator("request_method")
     @classmethod
-    def validate_request_method(cls, v: str) -> str:
+    def validate_request_method(cls, v: str | None) -> str | None:
         """Validate the HTTP request method.
 
         Args:
-            v - The request method to validate
+            v: The request method to validate, or None for JWTs intended for websocket connections
 
         Returns:
-            The validated request method in uppercase
+            The validated request method in uppercase, or None
 
         Raises:
             ValueError: If the request method is invalid
+
         """
+        if v is None:
+            return None
+
         valid_methods = ["GET", "POST", "PUT", "DELETE", "PATCH"]
         upper_method = v.upper()
         if upper_method not in valid_methods:
-            raise ValueError(
+            raise UserInputValidationError(
                 f"Invalid request method. Must be one of: {', '.join(valid_methods)}"
             )
         return upper_method
@@ -78,13 +97,14 @@ class WalletJwtOptions(BaseModel):
         request_host - The host for the request (e.g. 'api.cdp.coinbase.com')
         request_path - The path for the request (e.g. '/platform/v1/wallets/{wallet_id}/addresses')
         request_data - The request data for the request (e.g. { "wallet_id": "1234567890" })
+
     """
 
     wallet_auth_key: str = Field(..., description="The wallet authentication key")
     request_method: str = Field(..., description="The HTTP method for the request")
     request_host: str = Field(..., description="The host for the request")
     request_path: str = Field(..., description="The path for the request")
-    request_data: Dict[str, Any] = Field(..., description="The request data")
+    request_data: dict[str, Any] = Field(..., description="The request data")
 
     @field_validator("request_method")
     @classmethod
@@ -92,43 +112,59 @@ class WalletJwtOptions(BaseModel):
         """Validate the HTTP request method.
 
         Args:
-            v - The request method to validate
+            v: The request method to validate
 
         Returns:
             The validated request method in uppercase
 
         Raises:
             ValueError: If the request method is invalid
+
         """
         valid_methods = ["GET", "POST", "PUT", "DELETE", "PATCH"]
         upper_method = v.upper()
         if upper_method not in valid_methods:
-            raise ValueError(
+            raise UserInputValidationError(
                 f"Invalid request method. Must be one of: {', '.join(valid_methods)}"
             )
         return upper_method
 
 
 def generate_jwt(options: JwtOptions) -> str:
-    """Generates a JWT (Bearer token) for authenticating with Coinbase's REST APIs.
-    Supports both EC (ES256) and Ed25519 (EdDSA) keys.
+    """Generate a JWT (Bearer token) for authenticating with Coinbase's APIs.
+
+    Supports both EC (ES256) and Ed25519 (EdDSA) keys. Also supports JWTs meant for
+    websocket connections by allowing request_method, request_host, and request_path
+    to all be None, in which case the 'uris' claim is omitted from the JWT.
 
     Args:
-        options - The configuration options for generating the JWT
+        options: The configuration options for generating the JWT
 
     Returns:
         The generated JWT (Bearer token) string
 
     Raises:
         ValueError: If required parameters are missing, invalid, or if JWT signing fails
+
     """
     # Validate required parameters
     if not options.api_key_id:
         raise ValueError("Key ID is required")
     if not options.api_key_secret:
         raise ValueError("Private key is required")
-    if not all([options.request_method, options.request_host, options.request_path]):
-        raise ValueError("Request details (method, host, path) are required")
+
+    # Check if we have a REST API request or a websocket connection
+    has_all_uri_params = all([options.request_method, options.request_host, options.request_path])
+    has_no_uri_params = all(
+        param is None
+        for param in [options.request_method, options.request_host, options.request_path]
+    )
+
+    # Ensure we either have all request parameters or none (for websocket)
+    if not (has_all_uri_params or has_no_uri_params):
+        raise ValueError(
+            "Either all request details (method, host, path) must be provided, or all must be None for JWTs intended for websocket connections"
+        )
 
     try:
         # Parse the private key
@@ -150,10 +186,6 @@ def generate_jwt(options: JwtOptions) -> str:
             "nonce": _generate_nonce(),
         }
 
-        # Build the URI claim
-        parsed_url = urlparse(f"{options.request_host}{options.request_path}")
-        uri = f"{options.request_method} {parsed_url.netloc}{parsed_url.path}"
-
         # Create claims with timing
         now = int(time.time())
         expires_in = options.expires_in or 120  # Default to 120 seconds
@@ -161,31 +193,39 @@ def generate_jwt(options: JwtOptions) -> str:
         claims = {
             "sub": options.api_key_id,
             "iss": "cdp",
-            "aud": ["cdp_service"],
+            "aud": options.audience if options.audience is not None else ["cdp_service"],
             "nbf": now,
             "exp": now + expires_in,
-            "uris": [uri],
         }
+
+        # Add the uris claim only for JWTs intended for REST API requests, not for websocket connections
+        if has_all_uri_params:
+            # Build the URI claim
+            parsed_url = urlparse(f"{options.request_host}{options.request_path}")
+            uri = f"{options.request_method} {parsed_url.netloc}{parsed_url.path}"
+            claims["uris"] = [uri]
 
         # Generate the JWT
         return jwt.encode(claims, private_key, algorithm=algorithm, headers=header)
 
-    except Exception as e:
-        raise ValueError(f"Failed to generate JWT: {str(e)}")
+    except Exception as error:
+        raise ValueError(f"Failed to generate JWT: {error!s}") from error
 
 
 def generate_wallet_jwt(options: WalletJwtOptions) -> str:
-    """Builds a wallet authentication JWT for the given API endpoint URL.
+    """Build a wallet authentication JWT for the given API endpoint URL.
+
     Used for authenticating with specific endpoints that require wallet authentication.
 
     Args:
-        options - The configuration options for generating the wallet auth JWT
+        options: The configuration options for generating the wallet auth JWT
 
     Returns:
         The generated JWT (Bearer token) string
 
     Raises:
         ValueError: If required parameters are missing or if JWT signing fails
+
     """
     if not options.wallet_auth_key:
         raise ValueError("Server Wallet Secret is not defined")
@@ -196,7 +236,9 @@ def generate_wallet_jwt(options: WalletJwtOptions) -> str:
     claims = {"uris": [uri], "iat": now, "nbf": now, "jti": str(uuid.uuid4())}
 
     if options.request_data:
-        claims["req"] = options.request_data
+        sorted_data = sort_keys(options.request_data)
+        json_bytes = json.dumps(sorted_data, separators=(",", ":"), sort_keys=True).encode("utf-8")
+        claims["reqHash"] = hashlib.sha256(json_bytes).hexdigest()
 
     try:
         der_bytes = serialization.load_der_private_key(
@@ -214,22 +256,23 @@ def generate_wallet_jwt(options: WalletJwtOptions) -> str:
         return token
 
     except Exception as error:
-        raise ValueError(f"Could not create the EC key: {str(error)}")
+        raise ValueError(f"Could not create the EC key: {error!s}") from error
 
 
 def _parse_private_key(
     key_data: str,
-) -> Union[ec.EllipticCurvePrivateKey, ed25519.Ed25519PrivateKey]:
+) -> ec.EllipticCurvePrivateKey | ed25519.Ed25519PrivateKey:
     """Parse a private key from PEM or base64 format.
 
     Args:
-        key_data - The private key data in either PEM (EC) or base64 (Ed25519) format
+        key_data: The private key data in either PEM (EC) or base64 (Ed25519) format
 
     Returns:
         The parsed private key object
 
     Raises:
         ValueError: If the key cannot be parsed or is of an unsupported type
+
     """
     # First try parsing as PEM (EC key)
     try:
@@ -257,5 +300,6 @@ def _generate_nonce() -> str:
 
     Returns:
         A 16-character random string of digits
+
     """
     return "".join(random.choices("0123456789", k=16))

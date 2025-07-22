@@ -1,18 +1,19 @@
-from typing import Optional, Dict, Any, Union
-from urllib.parse import urlparse
-import urllib3
 import json
 import logging
+from typing import Any
+from urllib.parse import urlparse
+
+import urllib3
 from pydantic import BaseModel, Field
 
-from cdp.auth.utils.http import get_auth_headers, GetAuthHeadersOptions
+from cdp.auth.utils.http import GetAuthHeadersOptions, get_auth_headers
 
 # Add logger
 logger = logging.getLogger(__name__)
 
 
 class Urllib3AuthClientOptions(BaseModel):
-    """Configuration options for the authenticated HTTP client.
+    r"""Configuration options for the authenticated HTTP client.
 
     Attributes:
         api_key_id - The API key ID
@@ -32,30 +33,33 @@ class Urllib3AuthClientOptions(BaseModel):
         [source_version] - Optional version of the source of the request
 
         [expires_in] - Optional expiration time in seconds (defaults to 120)
+
     """
 
     api_key_id: str = Field(..., description="The API key ID")
     api_key_secret: str = Field(..., description="The API key secret")
-    wallet_secret: Optional[str] = Field(None, description="Optional wallet secret")
-    source: Optional[str] = Field(None, description="Optional source identifier")
-    source_version: Optional[str] = Field(None, description="Optional source version")
-    expires_in: Optional[int] = Field(
-        None, description="Optional JWT expiration time in seconds"
-    )
+    wallet_secret: str | None = Field(None, description="Optional wallet secret")
+    source: str | None = Field(None, description="Optional source identifier")
+    source_version: str | None = Field(None, description="Optional source version")
+    expires_in: int | None = Field(None, description="Optional JWT expiration time in seconds")
 
 
 class Urllib3AuthClient:
     """HTTP client that automatically adds authentication headers."""
 
     def __init__(
-        self, options: Urllib3AuthClientOptions, base_url: str, debug: bool = False
+        self,
+        options: Urllib3AuthClientOptions,
+        base_url: str,
+        debug: bool = False,
     ):
         """Initialize the authenticated HTTP client.
 
         Args:
-            options - The authentication configuration options
-            base_url - The base URL for all requests
-            debug - Whether to enable debug logging
+            options: The authentication configuration options
+            base_url: The base URL for all requests
+            debug: Whether to enable debug logging
+
         """
         self.options = options
         self.base_url = base_url.rstrip("/")
@@ -66,21 +70,22 @@ class Urllib3AuthClient:
         self,
         method: str,
         url: str,
-        headers: Optional[Dict[str, str]] = None,
-        body: Optional[Union[Dict[str, Any], bytes]] = None,
+        headers: dict[str, str] | None = None,
+        body: dict[str, Any] | bytes | None = None,
         **kwargs: Any,
     ) -> urllib3.HTTPResponse:
         """Make an authenticated HTTP request.
 
         Args:
-            method - The HTTP method
-            url - The URL to request (relative or absolute)
-            headers - Optional additional headers
-            body - Optional request body (can be a dict for JSON or bytes)
-            **kwargs - Additional arguments passed to urllib3.request()
+            method: The HTTP method
+            url: The URL to request (relative or absolute)
+            headers: Optional additional headers
+            body: Optional request body (can be a dict for JSON or bytes)
+            **kwargs: Additional arguments passed to urllib3.request()
 
         Returns:
             urllib3.HTTPResponse
+
         """
         # Handle relative URLs
         if not url.startswith("http"):
@@ -89,9 +94,7 @@ class Urllib3AuthClient:
         # Initialize request headers and body
         request_headers = headers or {}
         body_dict = body if isinstance(body, dict) else {}
-        body_bytes = (
-            json.dumps(body).encode("utf-8") if isinstance(body, dict) else body
-        )
+        body_bytes = json.dumps(body).encode("utf-8") if isinstance(body, dict) else body
 
         # Get auth headers
         parsed_url = urlparse(url)

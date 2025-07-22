@@ -7,22 +7,28 @@
  */
 import type {
   CreateSolanaAccountBody,
+  ExportSolanaAccount200,
+  ExportSolanaAccountBody,
+  ExportSolanaAccountByName200,
+  ExportSolanaAccountByNameBody,
+  ImportSolanaAccountBody,
   ListSolanaAccounts200,
   ListSolanaAccountsParams,
+  SendSolanaTransaction200,
+  SendSolanaTransactionBody,
   SignSolanaMessage200,
   SignSolanaMessageBody,
   SignSolanaTransaction200,
   SignSolanaTransactionBody,
-  SolanaAccount
-} from '../coinbaseDeveloperPlatformAPIs.schemas';
+  SolanaAccount,
+  UpdateSolanaAccountBody,
+} from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
-import { cdpApiClient } from '../../cdpApiClient';
-
+import { cdpApiClient } from "../../cdpApiClient.js";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-
-  /**
+/**
  * Lists the Solana accounts belonging to the developer.
 The response is paginated, and by default, returns 20 accounts per page.
 
@@ -30,53 +36,134 @@ If a name is provided, the response will contain only the account with that name
  * @summary List Solana accounts or get account by name
  */
 export const listSolanaAccounts = (
-    params?: ListSolanaAccountsParams,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<ListSolanaAccounts200>(
-      {url: `/v2/solana/accounts`, method: 'GET',
-        params
-    },
-      options);
-    }
-  /**
+  params?: ListSolanaAccountsParams,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ListSolanaAccounts200>(
+    { url: `/v2/solana/accounts`, method: "GET", params },
+    options,
+  );
+};
+/**
  * Creates a new Solana account.
  * @summary Create a Solana account
  */
 export const createSolanaAccount = (
-    createSolanaAccountBody?: CreateSolanaAccountBody,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<SolanaAccount>(
-      {url: `/v2/solana/accounts`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: createSolanaAccountBody
+  createSolanaAccountBody?: CreateSolanaAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SolanaAccount>(
+    {
+      url: `/v2/solana/accounts`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createSolanaAccountBody,
     },
-      options);
-    }
-  /**
+    options,
+  );
+};
+/**
  * Gets a Solana account by its address.
  * @summary Get a Solana account by address
  */
 export const getSolanaAccount = (
-    address: string,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<SolanaAccount>(
-      {url: `/v2/solana/accounts/${address}`, method: 'GET'
+  address: string,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SolanaAccount>(
+    { url: `/v2/solana/accounts/${address}`, method: "GET" },
+    options,
+  );
+};
+/**
+ * Updates an existing Solana account. Use this to update the account's name or account-level policy.
+ * @summary Update a Solana account
+ */
+export const updateSolanaAccount = (
+  address: string,
+  updateSolanaAccountBody: UpdateSolanaAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SolanaAccount>(
+    {
+      url: `/v2/solana/accounts/${address}`,
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      data: updateSolanaAccountBody,
     },
-      options);
-    }
-  /**
+    options,
+  );
+};
+/**
  * Gets a Solana account by its name.
  * @summary Get a Solana account by name
  */
 export const getSolanaAccountByName = (
-    name: string,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<SolanaAccount>(
-      {url: `/v2/solana/accounts/by-name/${name}`, method: 'GET'
+  name: string,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SolanaAccount>(
+    { url: `/v2/solana/accounts/by-name/${name}`, method: "GET" },
+    options,
+  );
+};
+/**
+ * Import an existing Solana account into the developer's CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
+ * @summary Import a Solana account
+ */
+export const importSolanaAccount = (
+  importSolanaAccountBody: ImportSolanaAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SolanaAccount>(
+    {
+      url: `/v2/solana/accounts/import`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: importSolanaAccountBody,
     },
-      options);
-    }
-  /**
+    options,
+  );
+};
+/**
+ * Export an existing Solana account's private key. It is important to store the private key in a secure place after it's exported.
+ * @summary Export an Solana account
+ */
+export const exportSolanaAccount = (
+  address: string,
+  exportSolanaAccountBody: ExportSolanaAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ExportSolanaAccount200>(
+    {
+      url: `/v2/solana/accounts/${address}/export`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: exportSolanaAccountBody,
+    },
+    options,
+  );
+};
+/**
+ * Export an existing Solana account's private key by its name. It is important to store the private key in a secure place after it's exported.
+ * @summary Export a Solana account by name
+ */
+export const exportSolanaAccountByName = (
+  name: string,
+  exportSolanaAccountByNameBody: ExportSolanaAccountByNameBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ExportSolanaAccountByName200>(
+    {
+      url: `/v2/solana/accounts/export/by-name/${name}`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: exportSolanaAccountByNameBody,
+    },
+    options,
+  );
+};
+/**
  * Signs a transaction with the given Solana account.
 The unsigned transaction should be serialized into a byte array and then encoded as base64.
 
@@ -90,36 +177,103 @@ The developer is responsible for ensuring that the unsigned transaction is valid
  * @summary Sign a transaction
  */
 export const signSolanaTransaction = (
-    address: string,
-    signSolanaTransactionBody: SignSolanaTransactionBody,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<SignSolanaTransaction200>(
-      {url: `/v2/solana/accounts/${address}/sign/transaction`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: signSolanaTransactionBody
+  address: string,
+  signSolanaTransactionBody: SignSolanaTransactionBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SignSolanaTransaction200>(
+    {
+      url: `/v2/solana/accounts/${address}/sign/transaction`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: signSolanaTransactionBody,
     },
-      options);
-    }
-  /**
+    options,
+  );
+};
+/**
  * Signs an arbitrary message with the given Solana account.
 
 **WARNING:** Never sign a message that you didn't generate, as it can be an arbitrary transaction. For example, it might send all of your funds to an attacker.
  * @summary Sign a message
  */
 export const signSolanaMessage = (
-    address: string,
-    signSolanaMessageBody: SignSolanaMessageBody,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<SignSolanaMessage200>(
-      {url: `/v2/solana/accounts/${address}/sign/message`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: signSolanaMessageBody
+  address: string,
+  signSolanaMessageBody: SignSolanaMessageBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SignSolanaMessage200>(
+    {
+      url: `/v2/solana/accounts/${address}/sign/message`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: signSolanaMessageBody,
     },
-      options);
-    }
-  export type ListSolanaAccountsResult = NonNullable<Awaited<ReturnType<typeof listSolanaAccounts>>>
-export type CreateSolanaAccountResult = NonNullable<Awaited<ReturnType<typeof createSolanaAccount>>>
-export type GetSolanaAccountResult = NonNullable<Awaited<ReturnType<typeof getSolanaAccount>>>
-export type GetSolanaAccountByNameResult = NonNullable<Awaited<ReturnType<typeof getSolanaAccountByName>>>
-export type SignSolanaTransactionResult = NonNullable<Awaited<ReturnType<typeof signSolanaTransaction>>>
-export type SignSolanaMessageResult = NonNullable<Awaited<ReturnType<typeof signSolanaMessage>>>
+    options,
+  );
+};
+/**
+ * Signs and sends a single Solana transaction using multiple Solana accounts. The transaction may contain contain several instructions, each of which may require signatures from different account keys.
+
+The transaction should be serialized into a byte array and base64 encoded. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.
+
+**Transaction types**
+
+The following transaction types are supported:
+* [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions)
+* [Versioned transactions](https://solana.com/developers/guides/advanced/versions)
+
+**Instruction Batching**
+
+To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.
+
+**Network Support**
+
+The following Solana networks are supported:
+* `solana` - Solana Mainnet
+* `solana-devnet` - Solana Devnet
+
+The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+ * @summary Send a Solana transaction
+ */
+export const sendSolanaTransaction = (
+  sendSolanaTransactionBody: SendSolanaTransactionBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SendSolanaTransaction200>(
+    {
+      url: `/v2/solana/accounts/send/transaction`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: sendSolanaTransactionBody,
+    },
+    options,
+  );
+};
+export type ListSolanaAccountsResult = NonNullable<Awaited<ReturnType<typeof listSolanaAccounts>>>;
+export type CreateSolanaAccountResult = NonNullable<
+  Awaited<ReturnType<typeof createSolanaAccount>>
+>;
+export type GetSolanaAccountResult = NonNullable<Awaited<ReturnType<typeof getSolanaAccount>>>;
+export type UpdateSolanaAccountResult = NonNullable<
+  Awaited<ReturnType<typeof updateSolanaAccount>>
+>;
+export type GetSolanaAccountByNameResult = NonNullable<
+  Awaited<ReturnType<typeof getSolanaAccountByName>>
+>;
+export type ImportSolanaAccountResult = NonNullable<
+  Awaited<ReturnType<typeof importSolanaAccount>>
+>;
+export type ExportSolanaAccountResult = NonNullable<
+  Awaited<ReturnType<typeof exportSolanaAccount>>
+>;
+export type ExportSolanaAccountByNameResult = NonNullable<
+  Awaited<ReturnType<typeof exportSolanaAccountByName>>
+>;
+export type SignSolanaTransactionResult = NonNullable<
+  Awaited<ReturnType<typeof signSolanaTransaction>>
+>;
+export type SignSolanaMessageResult = NonNullable<Awaited<ReturnType<typeof signSolanaMessage>>>;
+export type SendSolanaTransactionResult = NonNullable<
+  Awaited<ReturnType<typeof sendSolanaTransaction>>
+>;

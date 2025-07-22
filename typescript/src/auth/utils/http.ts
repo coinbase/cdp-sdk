@@ -1,5 +1,5 @@
-import { generateWalletJwt, generateJwt } from "./jwt";
-import { version } from "../../../package.json";
+import { generateWalletJwt, generateJwt } from "./jwt.js";
+import { version } from "../../version.js";
 
 /**
  * Options for generating authentication headers for API requests.
@@ -62,6 +62,11 @@ export interface GetAuthHeadersOptions {
    * Optional expiration time in seconds (defaults to 120)
    */
   expiresIn?: number;
+
+  /**
+   * Optional audience claim for the JWT
+   */
+  audience?: string[];
 }
 
 /**
@@ -83,6 +88,7 @@ export async function getAuthHeaders(
     requestHost: options.requestHost,
     requestPath: options.requestPath,
     expiresIn: options.expiresIn,
+    audience: options.audience,
   });
   headers["Authorization"] = `Bearer ${jwt}`;
   headers["Content-Type"] = "application/json";
@@ -90,7 +96,9 @@ export async function getAuthHeaders(
   // Add wallet auth if needed
   if (requiresWalletAuth(options.requestMethod, options.requestPath)) {
     if (!options.walletSecret) {
-      throw new Error("Wallet Secret not configured. Call configure() first.");
+      throw new Error(
+        "Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
+      );
     }
 
     const walletAuthToken = await generateWalletJwt({
@@ -129,7 +137,7 @@ function requiresWalletAuth(requestMethod: string, requestPath: string): boolean
  * @param sourceVersion - The version of the source making the request
  * @returns Encoded correlation data as a query string
  */
-function getCorrelationData(source?: string, sourceVersion?: string): string {
+export function getCorrelationData(source?: string, sourceVersion?: string): string {
   const data = {
     sdk_version: version,
     sdk_language: "typescript",

@@ -22,17 +22,20 @@ type JwtOptions struct {
 	//   '-----BEGIN EC PRIVATE KEY-----\n...\n...\n...==\n-----END EC PRIVATE KEY-----\n' (EC key (ES256))
 	KeySecret string
 
-	// RequestMethod is the HTTP method for the request (e.g. 'GET', 'POST')
+	// RequestMethod is the HTTP method for the request (e.g. 'GET', 'POST'), or empty string for JWTs intended for websocket connections
 	RequestMethod string
 
-	// RequestHost is the host for the request (e.g. 'api.cdp.coinbase.com')
+	// RequestHost is the host for the request (e.g. 'api.cdp.coinbase.com'), or empty string for JWTs intended for websocket connections
 	RequestHost string
 
-	// RequestPath is the path for the request (e.g. '/platform/v1/wallets')
+	// RequestPath is the path for the request (e.g. '/platform/v1/wallets'), or empty string for JWTs intended for websocket connections
 	RequestPath string
 
 	// ExpiresIn is the optional expiration time in seconds (defaults to 120)
 	ExpiresIn int64
+
+	// Audience is the optional audience claim for the JWT
+	Audience []string
 }
 
 // WalletJwtOptions represents the configuration options for generating the JWT.
@@ -55,7 +58,7 @@ type WalletJwtOptions struct {
 
 // WalletAuthClaims represents the JWT claims structure for wallet authentication.
 type WalletAuthClaims struct {
-	URIs []string               `json:"uris"`
-	Req  map[string]interface{} `json:"req,omitempty"`
+	URIs    []string `json:"uris"`
+	ReqHash string   `json:"reqHash,omitempty"`
 	jwt.RegisteredClaims
 }

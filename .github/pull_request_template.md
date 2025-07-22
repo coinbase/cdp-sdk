@@ -48,6 +48,8 @@ EVM Account Address:  0xC2c7D554292Bb6AE502fafc3F5c0C46B534d6f31
 
 A couple of things to include in your PR for completeness:
 
+- [ ] Updated the [typescript README](https://github.com/coinbase/cdp-sdk/blob/main/typescript/src/README.md) if relevant
+- [ ] Updated the [python README](https://github.com/coinbase/cdp-sdk/blob/main/python/README.md) if relevant
 - [ ] Added a changelog entry
 
 <!--

@@ -1,6 +1,5 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 from urllib.parse import urlparse
-
 
 from cdp.auth.clients.urllib3.client import Urllib3AuthClient
 from cdp.auth.utils.http import GetAuthHeadersOptions
@@ -84,7 +83,7 @@ def test_request_with_debug(
     log_format, status, headers, body = response_log_call[0]
     assert "HTTP Response:" in log_format
     assert status == 200
-    assert b'{"test": "data"}' == response.data
+    assert response.data == b'{"test": "data"}'
 
     assert response is mock_response
     assert response.status == 200

@@ -1,14 +1,22 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { sendUserOperation } from "./sendUserOperation";
+import { describe, expect, it, vi, beforeEach, MockedFunction } from "vitest";
+import { sendUserOperation } from "./sendUserOperation.js";
 import { encodeFunctionData } from "viem";
-import { EvmUserOperationStatus, CdpOpenApiClientType } from "../../openapi-client";
+import { EvmUserOperationStatus, CdpOpenApiClientType } from "../../openapi-client/index.js";
 import { parseEther } from "viem";
-import { EvmSmartAccount } from "../../accounts/types";
+import { EvmSmartAccount } from "../../accounts/evm/types.js";
+import { getBaseNodeRpcUrl } from "../../accounts/evm/getBaseNodeRpcUrl.js";
 
 vi.mock("viem", () => ({
   encodeFunctionData: vi.fn().mockReturnValue("0xmockedEncodedData"),
   parseEther: vi.fn().mockImplementation(() => BigInt(500000)),
 }));
+
+vi.mock("../../accounts/evm/getBaseNodeRpcUrl.js", () => ({
+  getBaseNodeRpcUrl: vi
+    .fn()
+    .mockResolvedValue("https://api.developer.coinbase.com/rpc/v1/base/auto-generated-key"),
+}));
+const mockGetBaseNodeRpcUrl = getBaseNodeRpcUrl as MockedFunction<typeof getBaseNodeRpcUrl>;
 
 describe("sendUserOperation", () => {
   const mockErc20Abi = [{ name: "transfer", type: "function" }];
@@ -40,7 +48,8 @@ describe("sendUserOperation", () => {
 
   it("should throw error if calls array is empty", async () => {
     await expect(
-      sendUserOperation(mockClient, mockSmartAccount, {
+      sendUserOperation(mockClient, {
+        smartAccount: mockSmartAccount,
         calls: [],
         network: "base-sepolia",
       }),
@@ -48,7 +57,8 @@ describe("sendUserOperation", () => {
   });
 
   it("should handle calls with abi and functionName", async () => {
-    const result = await sendUserOperation(mockClient, mockSmartAccount, {
+    const result = await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
       calls: [
         {
           to: "0xrecipient",
@@ -98,7 +108,8 @@ describe("sendUserOperation", () => {
   });
 
   it("should handle direct calls with to, value and data", async () => {
-    const result = await sendUserOperation(mockClient, mockSmartAccount, {
+    const result = await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
       calls: [
         {
           to: "0xrecipient",
@@ -129,7 +140,8 @@ describe("sendUserOperation", () => {
   });
 
   it("should pass paymasterUrl when provided", async () => {
-    await sendUserOperation(mockClient, mockSmartAccount, {
+    await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
       calls: [{ to: "0xrecipient", data: "0x" }],
       network: "base-sepolia",
       paymasterUrl: "https://paymaster.example.com",
@@ -143,8 +155,44 @@ describe("sendUserOperation", () => {
     );
   });
 
+  it("should automatically set paymasterUrl for base network when not provided", async () => {
+    mockGetBaseNodeRpcUrl.mockResolvedValue(
+      "https://api.developer.coinbase.com/rpc/v1/base/auto-generated-key",
+    );
+
+    await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
+      calls: [{ to: "0xrecipient", data: "0x" }],
+      network: "base",
+    });
+
+    expect(getBaseNodeRpcUrl).toHaveBeenCalledWith("base");
+    expect(mockClient.prepareUserOperation).toHaveBeenCalledWith(
+      "0xsmartAccountAddress",
+      expect.objectContaining({
+        paymasterUrl: "https://api.developer.coinbase.com/rpc/v1/base/auto-generated-key",
+      }),
+    );
+  });
+
+  it("should not set paymasterUrl for non-base networks when not provided", async () => {
+    await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
+      calls: [{ to: "0xrecipient", data: "0x" }],
+      network: "base-sepolia",
+    });
+
+    expect(mockClient.prepareUserOperation).toHaveBeenCalledWith(
+      "0xsmartAccountAddress",
+      expect.objectContaining({
+        paymasterUrl: undefined,
+      }),
+    );
+  });
+
   it("should handle multiple calls in one operation", async () => {
-    await sendUserOperation(mockClient, mockSmartAccount, {
+    await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
       calls: [
         {
           to: "0xrecipient1",

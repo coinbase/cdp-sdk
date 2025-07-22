@@ -36,8 +36,8 @@ class RequestEvmFaucetRequest(BaseModel):
     @field_validator('network')
     def network_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['base-sepolia', 'ethereum-sepolia']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'ethereum-sepolia')")
+        if value not in set(['base-sepolia', 'ethereum-sepolia', 'ethereum-hoodi']):
+            raise ValueError("must be one of enum values ('base-sepolia', 'ethereum-sepolia', 'ethereum-hoodi')")
         return value
 
     @field_validator('address')

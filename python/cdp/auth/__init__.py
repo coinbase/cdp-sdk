@@ -3,27 +3,34 @@
 This package provides authentication utilities and JWT token handling functionality.
 """
 
+from .clients.urllib3.client import Urllib3AuthClient, Urllib3AuthClientOptions
+from .utils.http import GetAuthHeadersOptions, get_auth_headers
 from .utils.jwt import (
-    generate_jwt,
-    generate_wallet_jwt,
     JwtOptions,
     WalletJwtOptions,
+    generate_jwt,
+    generate_wallet_jwt,
 )
-from .utils.http import get_auth_headers, GetAuthHeadersOptions
-from .clients.urllib3.client import Urllib3AuthClient, Urllib3AuthClientOptions
+from .utils.ws import (
+    GetWebSocketAuthHeadersOptions,
+    get_websocket_auth_headers,
+)
 
 __all__ = [
-    # JWT utils exports
-    "generate_jwt",
-    "generate_wallet_jwt",
+    "GetAuthHeadersOptions",
+    "GetWebSocketAuthHeadersOptions",
     "JwtOptions",
-    "WalletJwtOptions",
     # Client exports
     "Urllib3AuthClient",
     "Urllib3AuthClientOptions",
+    "WalletJwtOptions",
+    # JWT utils exports
+    "generate_jwt",
+    "generate_wallet_jwt",
     # HTTP utils exports
     "get_auth_headers",
-    "GetAuthHeadersOptions",
+    # WebSocket utils exports
+    "get_websocket_auth_headers",
 ]
 
 """CDP SDK Auth package."""

@@ -1,10 +1,11 @@
-import type { Address, Hex } from "../../types/misc";
-import { wait, WaitOptions } from "../../utils/wait";
 import {
   EvmUserOperationStatus,
   EvmUserOperation,
   CdpOpenApiClientType,
-} from "../../openapi-client";
+} from "../../openapi-client/index.js";
+import { wait, WaitOptions } from "../../utils/wait.js";
+
+import type { Address, Hex } from "../../types/misc.js";
 
 /**
  * Options for waiting for a user operation.

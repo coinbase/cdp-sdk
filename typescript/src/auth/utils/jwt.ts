@@ -1,7 +1,10 @@
-import * as crypto from "crypto";
-import { createPrivateKey } from "crypto";
 import { SignJWT, importPKCS8, importJWK, JWTPayload } from "jose";
-import { InvalidWalletSecretFormatError, UndefinedWalletSecretError } from "../errors";
+import { getRandomValues } from "uncrypto";
+
+import { authHash } from "./hash.js";
+import { UserInputValidationError } from "../../errors.js";
+import { sortKeys } from "../../utils/sortKeys.js";
+import { InvalidWalletSecretFormatError, UndefinedWalletSecretError } from "../errors.js";
 
 /**
  * JwtOptions contains configuration for JWT generation.
@@ -30,24 +33,29 @@ export interface JwtOptions {
   apiKeySecret: string;
 
   /**
-   * The HTTP method for the request (e.g. 'GET', 'POST')
+   * The HTTP method for the request (e.g. 'GET', 'POST'), or null for JWTs intended for websocket connections
    */
-  requestMethod: string;
+  requestMethod?: string | null;
 
   /**
-   * The host for the request (e.g. 'api.cdp.coinbase.com')
+   * The host for the request (e.g. 'api.cdp.coinbase.com'), or null for JWTs intended for websocket connections
    */
-  requestHost: string;
+  requestHost?: string | null;
 
   /**
-   * The path for the request (e.g. '/platform/v1/wallets')
+   * The path for the request (e.g. '/platform/v1/wallets'), or null for JWTs intended for websocket connections
    */
-  requestPath: string;
+  requestPath?: string | null;
 
   /**
    * Optional expiration time in seconds (defaults to 120)
    */
   expiresIn?: number;
+
+  /**
+   * Optional audience claim for the JWT
+   */
+  audience?: string[];
 }
 
 /**
@@ -86,7 +94,9 @@ export interface WalletJwtOptions {
 
 /**
  * Generates a JWT (also known as a Bearer token) for authenticating with Coinbase's REST APIs.
- * Supports both EC (ES256) and Ed25519 (EdDSA) keys.
+ * Supports both EC (ES256) and Ed25519 (EdDSA) keys. Also supports JWTs meant for
+ * websocket connections by allowing requestMethod, requestHost, and requestPath to all be
+ * null, in which case the 'uris' claim is omitted from the JWT.
  *
  * @param options - The configuration options for generating the JWT
  * @returns The generated JWT (Bearer token) string
@@ -100,27 +110,43 @@ export async function generateJwt(options: JwtOptions): Promise<string> {
   if (!options.apiKeySecret) {
     throw new Error("Private key is required");
   }
-  if (!options.requestMethod || !options.requestHost || !options.requestPath) {
-    throw new Error("Request details (method, host, path) are required");
+
+  // Check if we have a REST API request or a websocket connection
+  const hasAllRequestParams = Boolean(
+    options.requestMethod && options.requestHost && options.requestPath,
+  );
+  const hasNoRequestParams =
+    (options.requestMethod === undefined || options.requestMethod === null) &&
+    (options.requestHost === undefined || options.requestHost === null) &&
+    (options.requestPath === undefined || options.requestPath === null);
+
+  // Ensure we either have all request parameters or none (for websocket)
+  if (!hasAllRequestParams && !hasNoRequestParams) {
+    throw new Error(
+      "Either all request details (method, host, path) must be provided, or all must be null for JWTs intended for websocket connections",
+    );
   }
 
   const now = Math.floor(Date.now() / 1000);
   const expiresIn = options.expiresIn || 120; // Default to 120 seconds if not specified
-  const uri = `${options.requestMethod} ${options.requestHost}${options.requestPath}`;
 
   // Prepare the JWT payload
-  const claims = {
+  const claims: JWTPayload = {
     sub: options.apiKeyId,
     iss: "cdp",
-    aud: ["cdp_service"],
-    uris: [uri],
+    aud: options.audience || ["cdp_service"],
   };
+
+  // Add the uris claim only for REST API requests
+  if (hasAllRequestParams) {
+    claims.uris = [`${options.requestMethod} ${options.requestHost}${options.requestPath}`];
+  }
 
   // Generate random nonce for the header
   const randomNonce = nonce();
 
   // Determine if we're using EC or Edwards key based on the key format
-  if (isValidECKey(options.apiKeySecret)) {
+  if (await isValidECKey(options.apiKeySecret)) {
     return await buildECJWT(
       options.apiKeySecret,
       options.apiKeyId,
@@ -139,7 +165,9 @@ export async function generateJwt(options: JwtOptions): Promise<string> {
       randomNonce,
     );
   } else {
-    throw new Error("Invalid key format - must be either PEM EC key or base64 Ed25519 key");
+    throw new UserInputValidationError(
+      "Invalid key format - must be either PEM EC key or base64 Ed25519 key",
+    );
   }
 }
 
@@ -165,16 +193,19 @@ export async function generateWalletJwt(options: WalletJwtOptions): Promise<stri
   };
 
   if (Object.keys(options.requestData).length > 0) {
-    claims.req = options.requestData;
+    const sortedData = sortKeys(options.requestData);
+    claims.reqHash = await authHash(Buffer.from(JSON.stringify(sortedData)));
   }
 
   try {
-    const ecKey = createPrivateKey({
-      key: options.walletSecret,
-      format: "der",
-      type: "pkcs8",
-      encoding: "base64",
-    });
+    // Convert base64 DER to PEM format for jose
+    const derBuffer = Buffer.from(options.walletSecret, "base64");
+    const pemKey = `-----BEGIN PRIVATE KEY-----\n${derBuffer
+      .toString("base64")
+      .match(/.{1,64}/g)
+      ?.join("\n")}\n-----END PRIVATE KEY-----`;
+
+    const ecKey = await importPKCS8(pemKey, "ES256");
 
     return await new SignJWT(claims)
       .setProtectedHeader({ alg: "ES256", typ: "JWT" })
@@ -208,12 +239,11 @@ function isValidEd25519Key(str: string): boolean {
  * @param str - The string to test
  * @returns True if the string is a valid EC private key in PEM format
  */
-function isValidECKey(str: string): boolean {
+async function isValidECKey(str: string): Promise<boolean> {
   try {
-    // Attempt to create a private key object - will throw if invalid
-    const key = createPrivateKey(str);
-    // Check if it's an EC key by examining its asymmetric key type
-    return key.asymmetricKeyType === "ec";
+    // Try to import the key with jose - if it works, it's a valid EC key
+    await importPKCS8(str, "ES256");
+    return true;
   } catch {
     return false;
   }
@@ -240,12 +270,8 @@ async function buildECJWT(
   nonce: string,
 ): Promise<string> {
   try {
-    // Convert to PKCS8 format
-    const keyObj = createPrivateKey(privateKey);
-    const pkcs8Key = keyObj.export({ type: "pkcs8", format: "pem" }).toString();
-
-    // Import the key for signing
-    const ecKey = await importPKCS8(pkcs8Key, "ES256");
+    // Import the key directly with jose
+    const ecKey = await importPKCS8(privateKey, "ES256");
 
     // Sign and return the JWT
     return await new SignJWT(claims)
@@ -283,7 +309,7 @@ async function buildEdwardsJWT(
     // Decode the base64 key (expecting 64 bytes: 32 for seed + 32 for public key)
     const decoded = Buffer.from(privateKey, "base64");
     if (decoded.length !== 64) {
-      throw new Error("Invalid Ed25519 key length");
+      throw new UserInputValidationError("Invalid Ed25519 key length");
     }
 
     const seed = decoded.subarray(0, 32);
@@ -318,5 +344,7 @@ async function buildEdwardsJWT(
  * @returns {string} The generated nonce.
  */
 function nonce(): string {
-  return crypto.randomBytes(16).toString("hex");
+  const bytes = new Uint8Array(16);
+  getRandomValues(bytes);
+  return Buffer.from(bytes).toString("hex");
 }

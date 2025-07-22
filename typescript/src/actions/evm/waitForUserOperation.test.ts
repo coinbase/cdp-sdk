@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { waitForUserOperation } from "./waitForUserOperation";
-import { EvmUserOperationStatus, CdpOpenApiClientType } from "../../openapi-client";
-import { wait } from "../../utils/wait";
+import { waitForUserOperation } from "./waitForUserOperation.js";
+import { EvmUserOperationStatus, CdpOpenApiClientType } from "../../openapi-client/index.js";
+import { wait } from "../../utils/wait.js";
 
 vi.mock("../../utils/wait", () => ({
   wait: vi.fn(),

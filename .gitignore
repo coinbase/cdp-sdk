@@ -53,6 +53,9 @@ out/
 *.pem
 .vercel
 .turbo
+_cjs
+_esm
+_types
 
 # TypeScript
 *.tsbuildinfo
@@ -68,6 +71,7 @@ typescript/docs
 *.out
 go.work
 vendor/
+go/docs
 
 # OpenAPI
 openapi-preprocessed.yaml

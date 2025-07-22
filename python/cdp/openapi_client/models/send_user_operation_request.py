@@ -27,7 +27,7 @@ class SendUserOperationRequest(BaseModel):
     """
     SendUserOperationRequest
     """ # noqa: E501
-    signature: StrictStr = Field(description="The hex-encoded signature of the user operation.")
+    signature: StrictStr = Field(description="The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.")
     __properties: ClassVar[List[str]] = ["signature"]
 
     model_config = ConfigDict(

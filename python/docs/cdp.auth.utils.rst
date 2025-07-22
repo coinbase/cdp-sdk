@@ -20,6 +20,14 @@ cdp.auth.utils.jwt module
    :undoc-members:
    :show-inheritance:
 
+cdp.auth.utils.ws module
+------------------------
+
+.. automodule:: cdp.auth.utils.ws
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

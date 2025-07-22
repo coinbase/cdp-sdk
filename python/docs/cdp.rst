@@ -9,6 +9,7 @@ Subpackages
 
    cdp.auth
    cdp.openapi_client
+   cdp.x402
 
 Submodules
 ----------
@@ -61,6 +62,22 @@ cdp.evm\_client module
    :undoc-members:
    :show-inheritance:
 
+cdp.evm\_local\_account module
+------------------------------
+
+.. automodule:: cdp.evm_local_account
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cdp.evm\_message\_types module
+------------------------------
+
+.. automodule:: cdp.evm_message_types
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 cdp.evm\_server\_account module
 -------------------------------
 
@@ -77,10 +94,58 @@ cdp.evm\_smart\_account module
    :undoc-members:
    :show-inheritance:
 
+cdp.evm\_token\_balances module
+-------------------------------
+
+.. automodule:: cdp.evm_token_balances
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cdp.evm\_transaction\_types module
+----------------------------------
+
+.. automodule:: cdp.evm_transaction_types
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cdp.export module
+-----------------
+
+.. automodule:: cdp.export
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cdp.policies\_client module
+---------------------------
+
+.. automodule:: cdp.policies_client
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cdp.solana\_account module
+--------------------------
+
+.. automodule:: cdp.solana_account
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 cdp.solana\_client module
 -------------------------
 
 .. automodule:: cdp.solana_client
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cdp.update\_account\_types module
+---------------------------------
+
+.. automodule:: cdp.update_account_types
    :members:
    :undoc-members:
    :show-inheritance:

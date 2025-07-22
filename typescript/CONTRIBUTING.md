@@ -90,14 +90,11 @@ Add unit tests for EVM in `src/client/evm/evm.test.ts` and Solana in `src/client
 
 Run `pnpm test` to run all tests in the SDK.
 
+Run `E2E_LOGGING=true pnpm test:e2e` to run the E2E tests with logging. Make sure to copy the `.env.example` file to `.env`, and optionally set the `CDP_E2E_SMART_ACCOUNT_ADDRESS` environment variable to the address of a smart account you want to use across test runs. This is useful if you are testing a lot and don't want to run into faucet rate limits.
+
 ## Example Scripts
 
-The CDP SDK includes several runnable examples. To run an example, ensure your `.env` file is set up correctly. Then run `pnpm tsx <path-to-example>`.
-
-- `src/examples/createEthAccount.ts` is a simple example that creates an Ethereum account.
-- `src/examples/sendEthTx.ts` is an example that sends a transaction to the Ethereum blockchain.
-- `src/examples/createSolAccount.ts` is a simple example that creates a Solana account.
-- `src/examples/sendSolTx.ts` is an example that sends a transaction to the Solana blockchain.
+The CDP SDK includes several runnable examples. See [examples/README.md](../examples/typescript/README.md) for more information. When you make a change to the SDK code, your change will automatically take effect when you run an example.
 
 ## Code Style
 

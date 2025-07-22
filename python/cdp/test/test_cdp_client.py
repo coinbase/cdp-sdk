@@ -1,10 +1,12 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from cdp import CdpClient
 
 
 def test_init_with_default_params():
+    """Test initializing the client with default parameters."""
     api_key_id = "test_api_key_id"
     api_key_secret = "test_api_key_secret"
     wallet_secret = "test_wallet_secret"
@@ -20,6 +22,7 @@ def test_init_with_default_params():
 
 
 def test_init_with_custom_params():
+    """Test initializing the client with custom parameters."""
     api_key_id = "test_api_key_id"
     api_key_secret = "test_api_key_secret"
     wallet_secret = "test_wallet_secret"
@@ -49,12 +52,14 @@ def test_init_with_custom_params():
 
 
 def test_evm_property():
+    """Test the evm property."""
     client = CdpClient("api_key_id", "api_key_secret", "wallet_secret")
     evm_client = client.evm
     assert evm_client == client._evm
 
 
 def test_solana_property():
+    """Test the solana property."""
     client = CdpClient("api_key_id", "api_key_secret", "wallet_secret")
     solana_client = client.solana
     assert solana_client == client._solana
@@ -63,6 +68,7 @@ def test_solana_property():
 @pytest.mark.asyncio
 @patch("cdp.api_clients.ApiClients.close")
 async def test_close(mock_close):
+    """Test closing the client."""
     mock_close.return_value = None
 
     client = CdpClient("api_key_id", "api_key_secret", "wallet_secret")
@@ -70,3 +76,30 @@ async def test_close(mock_close):
 
     mock_close.assert_called_once()
     assert result is None
+
+
+@pytest.mark.asyncio
+@patch("cdp.api_clients.ApiClients.close")
+async def test_use_after_close_raises_error(mock_close):
+    """Test that using a closed client raises a clear error."""
+    mock_close.return_value = None
+
+    client = CdpClient("api_key_id", "api_key_secret", "wallet_secret")
+    await client.close()
+
+    # Test that accessing properties after close raises RuntimeError
+    with pytest.raises(RuntimeError) as exc_info:
+        _ = client.evm
+
+    assert "Cannot use a closed CDP client" in str(exc_info.value)
+    assert "create a new client instance" in str(exc_info.value)
+
+    with pytest.raises(RuntimeError) as exc_info:
+        _ = client.solana
+
+    assert "Cannot use a closed CDP client" in str(exc_info.value)
+
+    with pytest.raises(RuntimeError) as exc_info:
+        _ = client.policies
+
+    assert "Cannot use a closed CDP client" in str(exc_info.value)

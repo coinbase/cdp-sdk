@@ -1,28 +1,29 @@
 import base64
+from urllib.parse import urlparse
+
+import jwt as jwt_lib
 import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec, ed25519
-from urllib.parse import urlparse
-import jwt as jwt_lib
 from pydantic import ValidationError
 
 # Import JWT utilities from the utils package
 from cdp.auth.utils.jwt import (
-    generate_jwt,
-    _parse_private_key,
-    _generate_nonce,
     JwtOptions,
+    _generate_nonce,
+    _parse_private_key,
+    generate_jwt,
 )
 
 
 # Test fixtures for common test data
 @pytest.fixture
 def ec_private_key():
-    """
-    Fixture that generates an EC private key in PEM format for testing.
+    """Fixture that generates an EC private key in PEM format for testing.
 
     Returns:
         str: PEM-encoded EC private key
+
     """
     private_key = ec.generate_private_key(ec.SECP256K1())
     pem = private_key.private_bytes(
@@ -35,11 +36,11 @@ def ec_private_key():
 
 @pytest.fixture
 def ed25519_private_key():
-    """
-    Fixture that generates an Ed25519 private key in base64 format for testing.
+    """Fixture that generates an Ed25519 private key in base64 format for testing.
 
     Returns:
         str: Base64-encoded Ed25519 private key
+
     """
     private_key = ed25519.Ed25519PrivateKey.generate()
     private_bytes = private_key.private_bytes(
@@ -55,21 +56,25 @@ def ed25519_private_key():
 
 
 @pytest.fixture
-def jwt_options():
-    """
-    Fixture that provides basic JWT options for testing.
+def jwt_options(jwt_options_factory):
+    """Fixture that provides basic JWT options for testing.
 
     Returns:
         JwtOptions: Basic JWT options for testing
+
     """
-    return JwtOptions(
-        api_key_id="test-key-id",
-        api_key_secret="dummy-secret",  # Will be replaced in tests
-        request_method="GET",
-        request_host="https://api.cdp.coinbase.com",
-        request_path="/v1/test",
-        expires_in=120,
-    )
+    return jwt_options_factory()
+
+
+@pytest.fixture
+def websocket_jwt_options(websocket_jwt_options_factory):
+    """Fixture that provides JWT options for WebSocket testing with null request parameters.
+
+    Returns:
+        JwtOptions: JWT options for WebSocket testing
+
+    """
+    return websocket_jwt_options_factory()
 
 
 def test_parse_private_key_ec(ec_private_key_factory):
@@ -153,6 +158,62 @@ def test_generate_jwt_ed25519(ed25519_private_key_factory, jwt_options_factory):
     assert decoded["sub"] == options.api_key_id
     assert decoded["iss"] == "cdp"
     assert "uris" in decoded
+
+
+def test_generate_websocket_jwt_ec(ec_private_key_factory, websocket_jwt_options_factory):
+    """Test WebSocket JWT generation with EC key and null request parameters."""
+    # Setup
+    key_data = ec_private_key_factory()
+    options = websocket_jwt_options_factory(api_key_secret=key_data)
+
+    # Execute
+    token = generate_jwt(options)
+
+    # Verify
+    decoded = jwt_lib.decode(token, options={"verify_signature": False})
+    assert decoded["sub"] == options.api_key_id
+    assert decoded["iss"] == "cdp"
+    assert decoded["aud"] == ["cdp_service"]
+    assert isinstance(decoded["nbf"], int)
+    assert isinstance(decoded["exp"], int)
+    assert decoded["exp"] - decoded["nbf"] == options.expires_in
+    # WebSocket JWTs should not have uris claim
+    assert "uris" not in decoded
+
+
+def test_generate_websocket_jwt_ed25519(ed25519_private_key_factory, websocket_jwt_options_factory):
+    """Test WebSocket JWT generation with Ed25519 key and null request parameters."""
+    # Setup
+    key_data = ed25519_private_key_factory()
+    options = websocket_jwt_options_factory(api_key_secret=key_data)
+
+    # Execute
+    token = generate_jwt(options)
+
+    # Verify
+    decoded = jwt_lib.decode(token, options={"verify_signature": False})
+    assert decoded["sub"] == options.api_key_id
+    assert decoded["iss"] == "cdp"
+    # WebSocket JWTs should not have uris claim
+    assert "uris" not in decoded
+
+
+def test_invalid_request_parameters_mix():
+    """Test that having a mix of null and non-null request parameters raises an error."""
+    # Setup
+    options = JwtOptions(
+        api_key_id="test-key-id",
+        api_key_secret="dummy-secret",
+        request_method="GET",  # Specified
+        request_host=None,  # Null
+        request_path="/test",  # Specified
+    )
+
+    # Execute & Verify
+    with pytest.raises(
+        ValueError, match="Either all request details.*must be provided, or all must be None"
+    ):
+        generate_jwt(options)
 
 
 @pytest.mark.parametrize(

@@ -1,32 +1,53 @@
-export * from "./generated/coinbaseDeveloperPlatformAPIs.schemas";
-export * from "./generated/evm-accounts/evm-accounts";
-export * from "./generated/evm-smart-accounts/evm-smart-accounts";
-export * from "./generated/solana-accounts/solana-accounts";
-export * from "./generated/faucets/faucets";
+export * from "./generated/coinbaseDeveloperPlatformAPIs.schemas.js";
+export * from "./generated/evm-accounts/evm-accounts.js";
+export * from "./generated/evm-smart-accounts/evm-smart-accounts.js";
+export * from "./generated/evm-swaps/evm-swaps.js";
+export * from "./generated/evm-token-balances/evm-token-balances.js";
+export * from "./generated/solana-accounts/solana-accounts.js";
+export * from "./generated/solana-token-balances/solana-token-balances.js";
+export * from "./generated/faucets/faucets.js";
+export * from "./generated/policy-engine/policy-engine.js";
+export * from "./generated/payments-alpha/payments-alpha.js";
 
-import * as evm from "./generated/evm-accounts/evm-accounts";
-import * as evmSmartAccounts from "./generated/evm-smart-accounts/evm-smart-accounts";
-import * as solana from "./generated/solana-accounts/solana-accounts";
-import * as faucets from "./generated/faucets/faucets";
-import { configure } from "./cdpApiClient";
+import { configure } from "./cdpApiClient.js";
+import * as evm from "./generated/evm-accounts/evm-accounts.js";
+import * as evmSmartAccounts from "./generated/evm-smart-accounts/evm-smart-accounts.js";
+import * as evmSwaps from "./generated/evm-swaps/evm-swaps.js";
+import * as evmTokenBalances from "./generated/evm-token-balances/evm-token-balances.js";
+import * as faucets from "./generated/faucets/faucets.js";
+import * as payments from "./generated/payments-alpha/payments-alpha.js";
+import * as policies from "./generated/policy-engine/policy-engine.js";
+import * as solana from "./generated/solana-accounts/solana-accounts.js";
+import * as solanaTokenBalances from "./generated/solana-token-balances/solana-token-balances.js";
 
 export const CdpOpenApiClient = {
   ...evm,
   ...evmSmartAccounts,
+  ...evmSwaps,
+  ...evmTokenBalances,
   ...solana,
+  ...solanaTokenBalances,
   ...faucets,
+  ...policies,
+  ...payments,
   configure,
 };
 
 export const OpenApiEvmMethods = {
   ...evm,
   ...evmSmartAccounts,
+  ...evmSwaps,
+  ...evmTokenBalances,
   requestEvmFaucet: faucets.requestEvmFaucet,
 };
 
 export const OpenApiSolanaMethods = {
   ...solana,
   requestSolanaFaucet: faucets.requestSolanaFaucet,
+};
+
+export const OpenApiPoliciesMethods = {
+  ...policies,
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;

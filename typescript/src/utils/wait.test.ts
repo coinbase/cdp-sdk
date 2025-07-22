@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { wait } from "./wait";
-import { TimeoutError } from "../errors";
+import { wait } from "./wait.js";
+import { TimeoutError } from "../errors.js";
 
 describe("wait", () => {
   beforeEach(() => {

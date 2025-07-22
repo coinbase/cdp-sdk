@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@coinbase/cdp-sdk": "workspace:*",
+    "@solana/web3.js": "^1.98.1",
+    "@types/node": "^22.14.1",
+    "bs58": "^6.0.0",
+    "dotenv": "^16.5.0",
+    "permissionless": "^0.2.47",
+    "tsx": "^4.19.3",
+    "viem": "^2.21.26"
+  },
+  "scripts": {
+    "build": "tsc"
+  }
+}

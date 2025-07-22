@@ -20,10 +20,42 @@ cdp.openapi\_client.api.evm\_smart\_accounts\_api module
    :undoc-members:
    :show-inheritance:
 
+cdp.openapi\_client.api.evm\_swaps\_api module
+----------------------------------------------
+
+.. automodule:: cdp.openapi_client.api.evm_swaps_api
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cdp.openapi\_client.api.evm\_token\_balances\_api module
+--------------------------------------------------------
+
+.. automodule:: cdp.openapi_client.api.evm_token_balances_api
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 cdp.openapi\_client.api.faucets\_api module
 -------------------------------------------
 
 .. automodule:: cdp.openapi_client.api.faucets_api
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cdp.openapi\_client.api.payments\_alpha\_api module
+---------------------------------------------------
+
+.. automodule:: cdp.openapi_client.api.payments_alpha_api
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cdp.openapi\_client.api.policy\_engine\_api module
+--------------------------------------------------
+
+.. automodule:: cdp.openapi_client.api.policy_engine_api
    :members:
    :undoc-members:
    :show-inheritance:

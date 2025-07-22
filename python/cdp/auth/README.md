@@ -25,16 +25,29 @@ pip install cdp-sdk
 ```python
 from cdp.auth.utils.jwt import generate_jwt, JwtOptions
 
+# For REST (HTTP) requests
 jwt = generate_jwt(JwtOptions(
     api_key_id="YOUR_API_KEY_ID",
     api_key_secret="YOUR_API_KEY_SECRET",
     request_method="GET",
     request_host="api.cdp.coinbase.com",
-    request_path="/platform/v1/wallets",
+    request_path="/platform/v2/evm/accounts",
     expires_in=120  # optional (defaults to 120 seconds)
 ))
 
 print(jwt)
+
+# For websocket connections
+websocket_jwt = generate_jwt(JwtOptions(
+    api_key_id="YOUR_API_KEY_ID",
+    api_key_secret="YOUR_API_KEY_SECRET",
+    request_method=None,
+    request_host=None,
+    request_path=None,
+    expires_in=120  # optional (defaults to 120 seconds)
+))
+
+print(websocket_jwt)
 ```
 
 For information about the above parameters, please refer to the [Authentication parameters](#authentication-parameters) section.
@@ -42,7 +55,7 @@ For information about the above parameters, please refer to the [Authentication 
 **Step 3**: Use your JWT (Bearer token) in the `Authorization` header of your HTTP request:
 
 ```bash
-curl -L 'https://api.cdp.coinbase.com/platform/v1/wallets' \
+curl -L 'https://api.cdp.coinbase.com/platform/v2/evm/accounts' \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -H 'Authorization: Bearer $jwt'
@@ -68,14 +81,12 @@ headers = get_auth_headers(
     GetAuthHeadersOptions(
         api_key_id="YOUR_API_KEY_ID",
         api_key_secret="YOUR_API_KEY_SECRET",
+        wallet_secret="YOUR_WALLET_SECRET",
         request_method="POST",
         request_host="api.cdp.coinbase.com",
-        request_path="/platform/v1/wallets",
-        request_body={  # optional
-            "wallet": {
-                "network_id":"base-sepolia",
-                "use_server_signer":false
-            }
+        request_path="/platform/v2/evm/accounts",
+        request_body={
+            "name": "MyAccount",
         },
         expires_in=120  # optional (defaults to 120 seconds)
     )
@@ -106,7 +117,8 @@ from cdp.auth.clients import Urllib3AuthClient, Urllib3AuthClientOptions
 client = Urllib3AuthClient(
     Urllib3AuthClientOptions(
         api_key_id="YOUR_API_KEY_ID",
-        api_key_secret="YOUR_API_KEY_SECRET"
+        api_key_secret="YOUR_API_KEY_SECRET",
+        wallet_secret="YOUR_WALLET_SECRET"
     ),
     base_url="https://api.cdp.coinbase.com"
 )
@@ -116,12 +128,9 @@ client = Urllib3AuthClient(
 try:
     response = client.request(
         "POST",
-        "/platform/v1/wallets",
+        "/platform/v2/evm/accounts",
         body={
-            "wallet": {
-                "network_id":"base-sepolia",
-                "use_server_signer":false
-            }
+            "name": "MyAccount",
         }
     )
     print(response.data)
@@ -146,7 +155,9 @@ The following table provides more context of many of the authentication paramete
 | :--------------- | :------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `api_key_id`     | true     | The unique identifier for your API key. Supported formats are:<br/>- `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`<br/>- `organizations/{orgId}/apiKeys/{keyId}`                                                                                                                               |
 | `api_key_secret` | true     | Your API key secret. Supported formats are:<br/>- Edwards key (Ed25519): `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==`<br/>- Elliptic Curve key (ES256): `-----BEGIN EC PRIVATE KEY-----\n...\n...\n...==\n-----END EC PRIVATE KEY-----\n` |
-| `request_method` | true     | The HTTP method for the API request you're authenticating (ie, `GET`, `POST`, `PUT`, `DELETE`).                                                                                                                                                                                         |
-| `request_host`   | true     | The API host you're calling (ie, `api.cdp.coinbase.com`).                                                                                                                                                                                                                               |
-| `request_path`   | true     | The path of the specific API endpoint you're calling (ie, `/platform/v1/wallets`).                                                                                                                                                                                                      |
+| `request_method` | true*   | The HTTP method for the API request you're authenticating (ie, `GET`, `POST`, `PUT`, `DELETE`). Can be `None` for JWTs intended for websocket connections.                                                                                                                               |
+| `request_host`   | true*   | The API host you're calling (ie, `api.cdp.coinbase.com`). Can be `None` for JWTs intended for websocket connections.                                                                                                                                                                     |
+| `request_path`   | true*   | The path of the specific API endpoint you're calling (ie, `/platform/v1/wallets`). Can be `None` for JWTs intended for websocket connections.                                                                                                                                            |
 | `expires_in`     | false    | The JWT expiration time in seconds. After this time, the JWT will no longer be valid, and a new one must be generated. Defaults to `120` (ie, 2 minutes) if not specified.                                                                                                              |
+
+\* Either all three request parameters (`request_method`, `request_host`, and `request_path`) must be provided for REST API requests, or all three must be `None` for JWTs intended for websocket connections.

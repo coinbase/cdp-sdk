@@ -113,7 +113,7 @@ HTTPSignatureAuthSetting = TypedDict(
 AuthSettings = TypedDict(
     "AuthSettings",
     {
-        "bearerAuth": BearerFormatAuthSetting,
+        "apiKeyAuth": BearerFormatAuthSetting,
     },
     total=False,
 )
@@ -483,7 +483,7 @@ class Configuration:
         """
         auth: AuthSettings = {}
         if self.access_token is not None:
-            auth['bearerAuth'] = {
+            auth['apiKeyAuth'] = {
                 'type': 'bearer',
                 'in': 'header',
                 'format': 'JWT',

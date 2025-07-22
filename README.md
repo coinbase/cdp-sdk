@@ -19,9 +19,12 @@
 
 - [📖 Overview](#-overview)
 - [🚀 Quickstart](#-quickstart)
+- [📚 Documentation](#-documentation)
+- [💡 Examples](#-examples)
 - [🤝 Contributing](#-contributing)
 - [🚨 Security and Bug Reports](#-security-and-bug-reports)
 - [📧 Contact](#-contact)
+- [✍️ Contributors](#-contributors)
 - [📝 License](#-license)
 
 ## 📖 Overview
@@ -35,6 +38,23 @@ CDP SDK has full-featured client libraries for the following languages. Follow t
 - [TypeScript](./typescript)
 - [Python](./python)
 - [Go](./go)
+
+## 📚 Documentation
+
+CDP SDK has auto-generated SDK docs for each of the full-featured client libraries:
+
+- [TypeScript](https://coinbase.github.io/cdp-sdk/typescript)
+- [Python](https://coinbase.github.io/cdp-sdk/python)
+- [Go](https://coinbase.github.io/cdp-sdk/go)
+
+Further documentation is also available on the CDP docs website:
+
+- [Wallet API v2](https://docs.cdp.coinbase.com/wallet-api-v2/docs/welcome)
+- [API Reference](https://docs.cdp.coinbase.com/api-v2/docs/welcome)
+
+## 💡 Examples
+
+CDP SDK contains fully runnable examples, see the [examples/README.md](./examples/README.md) for more info.
 
 ## 🤝 Contributing
 
@@ -58,6 +78,12 @@ Resources:
 
 - [CDP API Reference](https://docs.cdp.coinbase.com/api-v2/docs/welcome)
 - [GitHub Issues](https://github.com/coinbase/cdp-sdk/issues)
+
+## ✍ Contributors
+
+<a href="https://github.com/coinbase/cdp-sdk/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=coinbase/cdp-sdk" />
+</a>
 
 ## 📝 License
 

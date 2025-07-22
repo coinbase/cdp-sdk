@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { getAuthHeaders } from "./http";
-import { generateWalletJwt, generateJwt } from "./jwt";
-import { version } from "../../../package.json";
+import { getAuthHeaders } from "./http.js";
+import { generateWalletJwt, generateJwt } from "./jwt.js";
+import { version } from "../../version.js";
 
 // Mock the imported modules
 vi.mock("./jwt");

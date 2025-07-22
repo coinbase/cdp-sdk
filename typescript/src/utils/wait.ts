@@ -1,4 +1,4 @@
-import { TimeoutError } from "../errors";
+import { TimeoutError } from "../errors.js";
 
 /**
  * Options for the wait function

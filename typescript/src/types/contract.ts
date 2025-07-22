@@ -12,8 +12,8 @@ import type {
   ResolvedRegister,
 } from "abitype";
 
-import type { Hex } from "./misc";
-import type { IsUnion, UnionToTuple } from "./utils";
+import type { Hex } from "./misc.js";
+import type { IsUnion, UnionToTuple } from "./utils.js";
 
 export type ContractFunctionName<
   abi extends Abi | readonly unknown[] = Abi,

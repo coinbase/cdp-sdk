@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 
 
 @pytest.fixture
@@ -8,13 +9,17 @@ def http_response_factory():
 
     Returns:
         callable: A factory function that creates mock HTTP response objects
+
     """
 
     def _create_response(
-        status=200,
-        data=b'{"test": "data"}',
-        headers={"Content-Type": "application/json"},
+        status: int = 200,
+        data: bytes = b'{"test": "data"}',
+        headers: dict[str, str] | None = None,
     ):
+        """Create a mock HTTP response object."""
+        if not headers:
+            headers = {"Content-Type": "application/json"}
         mock_response = MagicMock()
         mock_response.status = status
         mock_response.data = data

@@ -1,7 +1,11 @@
-import Axios, { AxiosInstance, AxiosRequestConfig, HttpStatusCode } from "axios";
-import { withAuth } from "../auth/hooks/axios";
-import { APIError, isOpenAPIError, HttpErrorType } from "./errors";
-import { ERROR_DOCS_PAGE_URL } from "../constants";
+// eslint-disable-next-line import/no-named-as-default
+import Axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+
+import { withAuth } from "../auth/hooks/axios/index.js";
+import { ERROR_DOCS_PAGE_URL } from "../constants.js";
+import { isOpenAPIError, APIError, UnknownError, NetworkError } from "./errors.js";
+
+import type { Prettify } from "../types/utils.js";
 
 /**
  * The options for the CDP API.
@@ -46,14 +50,24 @@ export type CdpOptions = {
 
 let axiosInstance: AxiosInstance;
 
+export let config: Prettify<Omit<CdpOptions, "basePath"> & { basePath: string }> | undefined =
+  undefined;
+
 /**
  * Configures the CDP client with the given options.
  *
  * @param {CdpOptions} options - The CDP options.
  */
 export const configure = (options: CdpOptions) => {
+  const baseURL = options.basePath || "https://api.cdp.coinbase.com/platform";
+
+  config = {
+    ...options,
+    basePath: baseURL,
+  };
+
   axiosInstance = Axios.create({
-    baseURL: options.basePath || "https://api.cdp.coinbase.com/platform",
+    baseURL,
   });
 
   axiosInstance = withAuth(axiosInstance, {
@@ -113,6 +127,57 @@ export const cdpApiClient = async <T>(
     const response = await axiosInstance(configWithIdempotencyKey);
     return response.data as T;
   } catch (error) {
+    // eslint-disable-next-line import/no-named-as-default-member
+    if (Axios.isAxiosError(error) && !error.response) {
+      // Network-level errors (no response received)
+      const errorMessage = (error.message || "").toLowerCase();
+      const errorCode = error.code?.toLowerCase();
+
+      // Categorize network errors based on error messages and codes
+      if (errorCode === "econnrefused" || errorMessage.includes("connection refused")) {
+        throw new NetworkError(
+          "network_connection_failed",
+          "Unable to connect to CDP service. The service may be unavailable.",
+          { code: error.code, message: error.message, retryable: true },
+          error.cause,
+        );
+      } else if (
+        errorCode === "etimedout" ||
+        errorCode === "econnaborted" ||
+        errorMessage.includes("timeout")
+      ) {
+        throw new NetworkError(
+          "network_timeout",
+          "Request timed out. Please try again.",
+          { code: error.code, message: error.message, retryable: true },
+          error.cause,
+        );
+      } else if (errorCode === "enotfound" || errorMessage.includes("getaddrinfo")) {
+        throw new NetworkError(
+          "network_dns_failure",
+          "DNS resolution failed. Please check your network connection.",
+          { code: error.code, message: error.message, retryable: false },
+          error.cause,
+        );
+      } else if (errorMessage.includes("network error") || errorMessage.includes("econnreset")) {
+        throw new NetworkError(
+          "network_connection_failed",
+          "Network error occurred. Please check your connection and try again.",
+          { code: error.code, message: error.message, retryable: true },
+          error.cause,
+        );
+      } else {
+        // Generic network error
+        throw new NetworkError(
+          "unknown",
+          error.cause instanceof Error ? error.cause.message : error.message,
+          { code: error.code, message: error.message, retryable: true },
+          error.cause,
+        );
+      }
+    }
+
+    // eslint-disable-next-line import/no-named-as-default-member
     if (Axios.isAxiosError(error) && error.response) {
       if (isOpenAPIError(error.response.data)) {
         throw new APIError(
@@ -121,71 +186,114 @@ export const cdpApiClient = async <T>(
           error.response.data.errorMessage,
           error.response.data.correlationId,
           error.response.data.errorLink,
+          error.cause,
         );
       } else {
         const statusCode = error.response.status;
+        const responseData = error.response.data;
+
+        // Check for gateway-level errors that might indicate network issues
+        const isGatewayError =
+          responseData &&
+          typeof responseData === "string" &&
+          (responseData.toLowerCase().includes("forbidden") ||
+            responseData.toLowerCase().includes("ip") ||
+            responseData.toLowerCase().includes("blocked") ||
+            responseData.toLowerCase().includes("gateway"));
+
         switch (statusCode) {
           case 401:
             throw new APIError(
               statusCode,
-              HttpErrorType.unauthorized,
+              "unauthorized",
               "Unauthorized.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}#unauthorized`,
+              error.cause,
+            );
+          case 403:
+            // Special handling for IP blocklist and other gateway-level 403s
+            if (isGatewayError) {
+              throw new NetworkError(
+                "network_ip_blocked",
+                "Access denied. Your IP address may be blocked or restricted.",
+                {
+                  code: "IP_BLOCKED",
+                  message:
+                    typeof responseData === "string" ? responseData : JSON.stringify(responseData),
+                  retryable: false,
+                },
+                error.cause,
+              );
+            }
+            // Regular 403 forbidden error
+            throw new APIError(
+              statusCode,
+              "unauthorized",
+              "Forbidden. You don't have permission to access this resource.",
+              undefined,
+              `${ERROR_DOCS_PAGE_URL}#forbidden`,
+              error.cause,
             );
           case 404:
             throw new APIError(
               statusCode,
-              HttpErrorType.not_found,
+              "not_found",
               "API not found.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}#not_found`,
+              error.cause,
             );
           case 502:
             throw new APIError(
               statusCode,
-              HttpErrorType.bad_gateway,
+              "bad_gateway",
               "Bad gateway.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}`,
+              error.cause,
             );
           case 503:
             throw new APIError(
               statusCode,
-              HttpErrorType.service_unavailable,
+              "service_unavailable",
               "Service unavailable. Please try again later.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}`,
+              error.cause,
             );
-          default:
+          default: {
+            let errorText = "";
+
+            if (error.response.data) {
+              try {
+                errorText = JSON.stringify(error.response.data);
+              } catch {
+                errorText = String(error.response.data);
+              }
+            }
+
+            const errorMessage = errorText
+              ? `An unexpected error occurred: ${errorText}`
+              : "An unexpected error occurred.";
+
             throw new APIError(
               statusCode,
-              HttpErrorType.unexpected_error,
-              "An unexpected error occurred.",
+              "unexpected_error",
+              errorMessage,
               undefined,
               `${ERROR_DOCS_PAGE_URL}`,
+              error.cause,
             );
+          }
         }
       }
-    } else if (Axios.isAxiosError(error) && error.request) {
-      throw new APIError(
-        HttpStatusCode.ServiceUnavailable,
-        HttpErrorType.service_unavailable,
-        "Network error, unable to reach the service.",
-        undefined,
-        `${ERROR_DOCS_PAGE_URL}`,
-      );
-    } else {
-      throw new APIError(
-        HttpStatusCode.InternalServerError,
-        HttpErrorType.unexpected_error,
-        error instanceof Error
-          ? error.message
-          : `An unexpected error occurred: ${JSON.stringify(error, Object.getOwnPropertyNames(error))}`,
-        undefined,
-        `${ERROR_DOCS_PAGE_URL}`,
-      );
     }
+
+    throw new UnknownError(
+      "Something went wrong. Please reach out at https://discord.com/channels/1220414409550336183/1271495764580896789 for help.",
+      error instanceof Error ? error : undefined,
+    );
   }
 };
 

@@ -2,9 +2,9 @@
 // Adapted from viem (https://github.com/wevm/viem)
 
 import type { AbiStateMutability, Address } from "viem";
-import type { GetMulticallContractParameters } from "./multicall";
-import type { OneOf, Prettify } from "./utils";
-import type { Hex } from "./misc";
+import type { GetMulticallContractParameters } from "./multicall.js";
+import type { OneOf, Prettify } from "./utils.js";
+import type { Hex } from "./misc.js";
 
 export type Call<call = unknown, extraProperties extends Record<string, unknown> = {}> = OneOf<
   | (extraProperties & {

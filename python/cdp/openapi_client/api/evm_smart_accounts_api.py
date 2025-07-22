@@ -26,6 +26,7 @@ from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
 from cdp.openapi_client.models.list_evm_smart_accounts200_response import ListEvmSmartAccounts200Response
 from cdp.openapi_client.models.prepare_user_operation_request import PrepareUserOperationRequest
 from cdp.openapi_client.models.send_user_operation_request import SendUserOperationRequest
+from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
 from cdp.openapi_client.api_response import ApiResponse
@@ -48,6 +49,7 @@ class EVMSmartAccountsApi:
     @validate_call
     async def create_evm_smart_account(
         self,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         create_evm_smart_account_request: Optional[CreateEvmSmartAccountRequest] = None,
         _request_timeout: Union[
             None,
@@ -66,6 +68,8 @@ class EVMSmartAccountsApi:
 
         Creates a new Smart Account.
 
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
         :param create_evm_smart_account_request:
         :type create_evm_smart_account_request: CreateEvmSmartAccountRequest
         :param _request_timeout: timeout setting for this request. If one
@@ -91,6 +95,7 @@ class EVMSmartAccountsApi:
         """ # noqa: E501
 
         _param = self._create_evm_smart_account_serialize(
+            x_idempotency_key=x_idempotency_key,
             create_evm_smart_account_request=create_evm_smart_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -101,7 +106,10 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "EvmSmartAccount",
             '400': "Error",
+            '402': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -117,6 +125,7 @@ class EVMSmartAccountsApi:
     @validate_call
     async def create_evm_smart_account_with_http_info(
         self,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         create_evm_smart_account_request: Optional[CreateEvmSmartAccountRequest] = None,
         _request_timeout: Union[
             None,
@@ -135,6 +144,8 @@ class EVMSmartAccountsApi:
 
         Creates a new Smart Account.
 
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
         :param create_evm_smart_account_request:
         :type create_evm_smart_account_request: CreateEvmSmartAccountRequest
         :param _request_timeout: timeout setting for this request. If one
@@ -160,6 +171,7 @@ class EVMSmartAccountsApi:
         """ # noqa: E501
 
         _param = self._create_evm_smart_account_serialize(
+            x_idempotency_key=x_idempotency_key,
             create_evm_smart_account_request=create_evm_smart_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -170,7 +182,10 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "EvmSmartAccount",
             '400': "Error",
+            '402': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -186,6 +201,7 @@ class EVMSmartAccountsApi:
     @validate_call
     async def create_evm_smart_account_without_preload_content(
         self,
+        x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         create_evm_smart_account_request: Optional[CreateEvmSmartAccountRequest] = None,
         _request_timeout: Union[
             None,
@@ -204,6 +220,8 @@ class EVMSmartAccountsApi:
 
         Creates a new Smart Account.
 
+        :param x_idempotency_key: An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
+        :type x_idempotency_key: str
         :param create_evm_smart_account_request:
         :type create_evm_smart_account_request: CreateEvmSmartAccountRequest
         :param _request_timeout: timeout setting for this request. If one
@@ -229,6 +247,7 @@ class EVMSmartAccountsApi:
         """ # noqa: E501
 
         _param = self._create_evm_smart_account_serialize(
+            x_idempotency_key=x_idempotency_key,
             create_evm_smart_account_request=create_evm_smart_account_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
@@ -239,7 +258,10 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "EvmSmartAccount",
             '400': "Error",
+            '402': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -250,6 +272,7 @@ class EVMSmartAccountsApi:
 
     def _create_evm_smart_account_serialize(
         self,
+        x_idempotency_key,
         create_evm_smart_account_request,
         _request_auth,
         _content_type,
@@ -274,6 +297,8 @@ class EVMSmartAccountsApi:
         # process the path parameters
         # process the query parameters
         # process the header parameters
+        if x_idempotency_key is not None:
+            _header_params['X-Idempotency-Key'] = x_idempotency_key
         # process the form parameters
         # process the body parameter
         if create_evm_smart_account_request is not None:
@@ -304,7 +329,7 @@ class EVMSmartAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -383,6 +408,8 @@ class EVMSmartAccountsApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -453,6 +480,8 @@ class EVMSmartAccountsApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -523,6 +552,8 @@ class EVMSmartAccountsApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -574,12 +605,288 @@ class EVMSmartAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/v2/evm/smart-accounts/{address}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def get_evm_smart_account_by_name(
+        self,
+        name: Annotated[StrictStr, Field(description="The name of the Smart Account.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> EvmSmartAccount:
+        """Get a Smart Account by name
+
+        Gets a Smart Account by its name.
+
+        :param name: The name of the Smart Account. (required)
+        :type name: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_evm_smart_account_by_name_serialize(
+            name=name,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmSmartAccount",
+            '400': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def get_evm_smart_account_by_name_with_http_info(
+        self,
+        name: Annotated[StrictStr, Field(description="The name of the Smart Account.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[EvmSmartAccount]:
+        """Get a Smart Account by name
+
+        Gets a Smart Account by its name.
+
+        :param name: The name of the Smart Account. (required)
+        :type name: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_evm_smart_account_by_name_serialize(
+            name=name,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmSmartAccount",
+            '400': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def get_evm_smart_account_by_name_without_preload_content(
+        self,
+        name: Annotated[StrictStr, Field(description="The name of the Smart Account.")],
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get a Smart Account by name
+
+        Gets a Smart Account by its name.
+
+        :param name: The name of the Smart Account. (required)
+        :type name: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_evm_smart_account_by_name_serialize(
+            name=name,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmSmartAccount",
+            '400': "Error",
+            '404': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_evm_smart_account_by_name_serialize(
+        self,
+        name,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if name is not None:
+            _path_params['name'] = name
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/v2/evm/smart-accounts/by-name/{name}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -657,6 +964,8 @@ class EVMSmartAccountsApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -731,6 +1040,8 @@ class EVMSmartAccountsApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -805,6 +1116,8 @@ class EVMSmartAccountsApi:
             '400': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -859,7 +1172,7 @@ class EVMSmartAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -941,6 +1254,8 @@ class EVMSmartAccountsApi:
             '200': "ListEvmSmartAccounts200Response",
             '400': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1014,6 +1329,8 @@ class EVMSmartAccountsApi:
             '200': "ListEvmSmartAccounts200Response",
             '400': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1087,6 +1404,8 @@ class EVMSmartAccountsApi:
             '200': "ListEvmSmartAccounts200Response",
             '400': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1145,7 +1464,7 @@ class EVMSmartAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1226,8 +1545,11 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "EvmUserOperation",
             '400': "Error",
+            '403': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1300,8 +1622,11 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "EvmUserOperation",
             '400': "Error",
+            '403': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1374,8 +1699,11 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '201': "EvmUserOperation",
             '400': "Error",
+            '403': "Error",
             '404': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1443,7 +1771,7 @@ class EVMSmartAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
@@ -1485,7 +1813,7 @@ class EVMSmartAccountsApi:
     ) -> EvmUserOperation:
         """Send a user operation
 
-        Sends a user operation with a signature.
+        Sends a user operation with a signature. The payload to sign must be the `userOpHash` field of the user operation. This hash should be signed directly (not using `personal_sign` or EIP-191 message hashing). The signature must be 65 bytes in length, consisting of: - 32 bytes for the `r` value - 32 bytes for the `s` value - 1 byte for the `v` value (must be 27 or 28) If using the CDP Paymaster, the user operation must be signed and sent within 2 minutes of being prepared.
 
         :param address: The address of the Smart Account to send the user operation from. (required)
         :type address: str
@@ -1528,8 +1856,13 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "EvmUserOperation",
             '400': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1563,7 +1896,7 @@ class EVMSmartAccountsApi:
     ) -> ApiResponse[EvmUserOperation]:
         """Send a user operation
 
-        Sends a user operation with a signature.
+        Sends a user operation with a signature. The payload to sign must be the `userOpHash` field of the user operation. This hash should be signed directly (not using `personal_sign` or EIP-191 message hashing). The signature must be 65 bytes in length, consisting of: - 32 bytes for the `r` value - 32 bytes for the `s` value - 1 byte for the `v` value (must be 27 or 28) If using the CDP Paymaster, the user operation must be signed and sent within 2 minutes of being prepared.
 
         :param address: The address of the Smart Account to send the user operation from. (required)
         :type address: str
@@ -1606,8 +1939,13 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "EvmUserOperation",
             '400': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1641,7 +1979,7 @@ class EVMSmartAccountsApi:
     ) -> RESTResponseType:
         """Send a user operation
 
-        Sends a user operation with a signature.
+        Sends a user operation with a signature. The payload to sign must be the `userOpHash` field of the user operation. This hash should be signed directly (not using `personal_sign` or EIP-191 message hashing). The signature must be 65 bytes in length, consisting of: - 32 bytes for the `r` value - 32 bytes for the `s` value - 1 byte for the `v` value (must be 27 or 28) If using the CDP Paymaster, the user operation must be signed and sent within 2 minutes of being prepared.
 
         :param address: The address of the Smart Account to send the user operation from. (required)
         :type address: str
@@ -1684,8 +2022,13 @@ class EVMSmartAccountsApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "EvmUserOperation",
             '400': "Error",
+            '402': "Error",
+            '403': "Error",
             '404': "Error",
+            '429': "Error",
             '500': "Error",
+            '502': "Error",
+            '503': "Error",
         }
         response_data = await self.api_client.call_api(
             *_param,
@@ -1756,12 +2099,322 @@ class EVMSmartAccountsApi:
 
         # authentication setting
         _auth_settings: List[str] = [
-            'bearerAuth'
+            'apiKeyAuth'
         ]
 
         return self.api_client.param_serialize(
             method='POST',
             resource_path='/v2/evm/smart-accounts/{address}/user-operations/{userOpHash}/send',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    async def update_evm_smart_account(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM smart account. The address does not need to be checksummed.")],
+        update_evm_smart_account_request: Optional[UpdateEvmSmartAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> EvmSmartAccount:
+        """Update an EVM Smart Account
+
+        Updates an existing EVM smart account. Use this to update the smart account's name.
+
+        :param address: The 0x-prefixed address of the EVM smart account. The address does not need to be checksummed. (required)
+        :type address: str
+        :param update_evm_smart_account_request:
+        :type update_evm_smart_account_request: UpdateEvmSmartAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_evm_smart_account_serialize(
+            address=address,
+            update_evm_smart_account_request=update_evm_smart_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmSmartAccount",
+            '400': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    async def update_evm_smart_account_with_http_info(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM smart account. The address does not need to be checksummed.")],
+        update_evm_smart_account_request: Optional[UpdateEvmSmartAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[EvmSmartAccount]:
+        """Update an EVM Smart Account
+
+        Updates an existing EVM smart account. Use this to update the smart account's name.
+
+        :param address: The 0x-prefixed address of the EVM smart account. The address does not need to be checksummed. (required)
+        :type address: str
+        :param update_evm_smart_account_request:
+        :type update_evm_smart_account_request: UpdateEvmSmartAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_evm_smart_account_serialize(
+            address=address,
+            update_evm_smart_account_request=update_evm_smart_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmSmartAccount",
+            '400': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        await response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    async def update_evm_smart_account_without_preload_content(
+        self,
+        address: Annotated[str, Field(strict=True, description="The 0x-prefixed address of the EVM smart account. The address does not need to be checksummed.")],
+        update_evm_smart_account_request: Optional[UpdateEvmSmartAccountRequest] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Update an EVM Smart Account
+
+        Updates an existing EVM smart account. Use this to update the smart account's name.
+
+        :param address: The 0x-prefixed address of the EVM smart account. The address does not need to be checksummed. (required)
+        :type address: str
+        :param update_evm_smart_account_request:
+        :type update_evm_smart_account_request: UpdateEvmSmartAccountRequest
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_evm_smart_account_serialize(
+            address=address,
+            update_evm_smart_account_request=update_evm_smart_account_request,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EvmSmartAccount",
+            '400': "Error",
+            '404': "Error",
+            '409': "Error",
+            '422': "Error",
+            '500': "Error",
+            '502': "Error",
+            '503': "Error",
+        }
+        response_data = await self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _update_evm_smart_account_serialize(
+        self,
+        address,
+        update_evm_smart_account_request,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if address is not None:
+            _path_params['address'] = address
+        # process the query parameters
+        # process the header parameters
+        # process the form parameters
+        # process the body parameter
+        if update_evm_smart_account_request is not None:
+            _body_params = update_evm_smart_account_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+            'apiKeyAuth'
+        ]
+
+        return self.api_client.param_serialize(
+            method='PUT',
+            resource_path='/v2/evm/smart-accounts/{address}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

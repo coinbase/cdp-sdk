@@ -64,10 +64,10 @@ lint-fix: clean validation_deps
 	@ printf "\nFixing lint issues\n"
 	@golangci-lint run --timeout=5m --config=.golangci.yaml --fix ./...
 
-.PHONY: lint-yaml
-lint-yaml:
-	@printf "Lint yaml files"
-	@yamlfmt -lint -conf .yamlfmt.yaml
+.PHONY: docs
+docs:
+	@printf "\nGenerating docs\n"
+	@golds -gen -dir=./docs -emphasize-wdpkgs
 
 .PHONY: test
 test: build_deps
@@ -76,7 +76,7 @@ test: build_deps
 
 .PHONY: client
 client:
-	@ printf "Generating client...\n"
+	@ printf "\nGenerating client...\n"
 	@ python ../scripts/preprocess_openapi.py ../openapi.yaml ../openapi-preprocessed.yaml
 	@ oapi-codegen --config=client-config.yaml -o ./openapi/client.gen.go ../openapi-preprocessed.yaml
-	@ printf "Client generated successfully!\n"
+	@ printf "\nClient generated successfully!\n"

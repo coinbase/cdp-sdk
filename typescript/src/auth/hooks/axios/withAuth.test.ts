@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi, type Mock } from "vitest";
-import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosHeaders } from "axios";
-import { withAuth } from "./withAuth";
-import { generateWalletJwt, generateJwt } from "../../utils/jwt";
-import { version } from "../../../../package.json";
+import axios, { AxiosInstance, AxiosHeaders } from "axios";
+import { withAuth } from "./withAuth.js";
+import { generateWalletJwt, generateJwt } from "../../utils/jwt.js";
+import pkgJson from "../../../package.json" with { type: "json" };
+
+const version = pkgJson.version;
 
 // Mock the imported modules
 vi.mock("../../utils/jwt");
@@ -127,6 +129,58 @@ describe("withAuth", () => {
     });
 
     expect(generateWalletJwt).not.toHaveBeenCalled();
+  });
+
+  it("should convert bigint values to strings in request data", async () => {
+    const instance = withAuth(axiosInstance, options);
+
+    const requestData = {
+      wallet_id: "1234567890",
+      amount: BigInt("1000000000000000000"),
+      gas: BigInt("21000"),
+      nested: {
+        value: BigInt("500000000000000000"),
+      },
+      array: [BigInt("1000000000000000000"), "string", BigInt("2000000000000000000")],
+    };
+
+    const response = await instance.request({
+      url: "https://api.example.com/v2/evm/accounts",
+      method: "POST",
+      headers: new AxiosHeaders(),
+      data: requestData,
+    });
+
+    const processedConfig = response.config;
+
+    // Verify that bigint values were converted to strings
+    expect(processedConfig.data).toEqual({
+      wallet_id: "1234567890",
+      amount: "1000000000000000000",
+      gas: "21000",
+      nested: {
+        value: "500000000000000000",
+      },
+      array: ["1000000000000000000", "string", "2000000000000000000"],
+    });
+
+    // Verify that the converted data was passed to getAuthHeaders
+    expect(generateWalletJwt).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestMethod: "POST",
+        requestHost: "api.example.com",
+        requestPath: "/v2/evm/accounts",
+        requestData: {
+          wallet_id: "1234567890",
+          amount: "1000000000000000000",
+          gas: "21000",
+          nested: {
+            value: "500000000000000000",
+          },
+          array: ["1000000000000000000", "string", "2000000000000000000"],
+        },
+      }),
+    );
   });
 
   /**
@@ -285,6 +339,36 @@ describe("withAuth", () => {
           statusText: "Bad Request",
           data: { error: "Invalid request" },
           message: "Request failed with status code 400",
+        }),
+      );
+    });
+
+    it("should log converted bigint values in debug mode", async () => {
+      const instanceOptions = { ...options, debug: true };
+      withAuth(axiosInstance, instanceOptions);
+
+      const config = {
+        url: "/path",
+        method: "POST",
+        headers: new AxiosHeaders(),
+        data: {
+          amount: BigInt("1000000000000000000"),
+          gas: BigInt("21000"),
+        },
+      };
+
+      await requestInterceptor(config);
+
+      expect(global.console.log).toHaveBeenCalledWith(
+        "Request:",
+        expect.objectContaining({
+          method: "POST",
+          url: "https://api.example.com/path",
+          data: {
+            amount: "1000000000000000000",
+            gas: "21000",
+          },
+          headers: expect.any(Object),
         }),
       );
     });

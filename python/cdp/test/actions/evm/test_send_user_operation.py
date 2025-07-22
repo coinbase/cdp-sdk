@@ -1,9 +1,12 @@
-from pydantic import ValidationError
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
+from pydantic import ValidationError
+
+from cdp.actions.evm.send_user_operation import send_user_operation
 from cdp.evm_call_types import EncodedCall, FunctionCall
-from cdp.evm_smart_account import EvmSmartAccount
 from cdp.evm_server_account import EvmServerAccount
+from cdp.evm_smart_account import EvmSmartAccount
 from cdp.openapi_client.exceptions import ApiException
 from cdp.openapi_client.models.evm_call import EvmCall
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
@@ -13,8 +16,6 @@ from cdp.openapi_client.models.prepare_user_operation_request import (
 from cdp.openapi_client.models.send_user_operation_request import (
     SendUserOperationRequest,
 )
-
-from cdp.actions.evm.send_user_operation import send_user_operation
 
 
 @pytest.mark.asyncio
@@ -47,15 +48,11 @@ async def test_send_user_operation_function_call(
     mock_api_clients.evm_smart_accounts.prepare_user_operation = AsyncMock(
         return_value=mock_user_op
     )
-    mock_api_clients.evm_smart_accounts.send_user_operation = AsyncMock(
-        return_value=mock_user_op
-    )
+    mock_api_clients.evm_smart_accounts.send_user_operation = AsyncMock(return_value=mock_user_op)
 
     function_call = FunctionCall(
         to="0x2345678901234567890123456789012345678901",
-        abi=[
-            {"name": "transfer", "inputs": [{"type": "address"}, {"type": "uint256"}]}
-        ],
+        abi=[{"name": "transfer", "inputs": [{"type": "address"}, {"type": "uint256"}]}],
         function_name="transfer",
         args=["0x3456789012345678901234567890123456789012", 100],
         value=None,
@@ -63,16 +60,15 @@ async def test_send_user_operation_function_call(
 
     result = await send_user_operation(
         api_clients=mock_api_clients,
-        smart_account=mock_smart_account,
+        address=mock_smart_account.address,
+        owner=mock_smart_account.owners[0],
         calls=[function_call],
         network="base-sepolia",
         paymaster_url="https://paymaster.example.com",
     )
 
     assert result == mock_user_op
-    mock_contract.encode_abi.assert_called_once_with(
-        "transfer", args=function_call.args
-    )
+    mock_contract.encode_abi.assert_called_once_with("transfer", args=function_call.args)
     mock_web3_instance.eth.contract.assert_called_once_with(
         address=function_call.to, abi=function_call.abi
     )
@@ -95,9 +91,7 @@ async def test_send_user_operation_function_call(
     assert actual_request.calls[0].data == expected_prepare_request.calls[0].data
     assert actual_request.calls[0].value == expected_prepare_request.calls[0].value
 
-    mock_ensure_awaitable.assert_called_once_with(
-        mock_owner.unsafe_sign_hash, "0xuserhash123"
-    )
+    mock_ensure_awaitable.assert_called_once_with(mock_owner.unsafe_sign_hash, "0xuserhash123")
 
     expected_send_request = SendUserOperationRequest(signature="0xaabbcc")
     mock_api_clients.evm_smart_accounts.send_user_operation.assert_called_once()
@@ -132,9 +126,7 @@ async def test_send_user_operation_contract_call(
     mock_api_clients.evm_smart_accounts.prepare_user_operation = AsyncMock(
         return_value=mock_user_op
     )
-    mock_api_clients.evm_smart_accounts.send_user_operation = AsyncMock(
-        return_value=mock_user_op
-    )
+    mock_api_clients.evm_smart_accounts.send_user_operation = AsyncMock(return_value=mock_user_op)
 
     from cdp.evm_call_types import EncodedCall
 
@@ -144,7 +136,8 @@ async def test_send_user_operation_contract_call(
 
     result = await send_user_operation(
         api_clients=mock_api_clients,
-        smart_account=mock_smart_account,
+        address=mock_smart_account.address,
+        owner=mock_smart_account.owners[0],
         calls=[contract_call],
         network="base-sepolia",
         paymaster_url=None,
@@ -200,15 +193,11 @@ async def test_send_user_operation_multiple_calls(
     mock_api_clients.evm_smart_accounts.prepare_user_operation = AsyncMock(
         return_value=mock_user_op
     )
-    mock_api_clients.evm_smart_accounts.send_user_operation = AsyncMock(
-        return_value=mock_user_op
-    )
+    mock_api_clients.evm_smart_accounts.send_user_operation = AsyncMock(return_value=mock_user_op)
 
     function_call = FunctionCall(
         to="0x2345678901234567890123456789012345678901",
-        abi=[
-            {"name": "transfer", "inputs": [{"type": "address"}, {"type": "uint256"}]}
-        ],
+        abi=[{"name": "transfer", "inputs": [{"type": "address"}, {"type": "uint256"}]}],
         function_name="transfer",
         args=["0x3456789012345678901234567890123456789012", 100],
         value=200,
@@ -220,16 +209,15 @@ async def test_send_user_operation_multiple_calls(
 
     result = await send_user_operation(
         api_clients=mock_api_clients,
-        smart_account=mock_smart_account,
+        address=mock_smart_account.address,
+        owner=mock_smart_account.owners[0],
         calls=[function_call, contract_call],
         network="base-sepolia",
         paymaster_url="https://other-paymaster.example.com",
     )
 
     assert result == mock_user_op
-    mock_contract.encode_abi.assert_called_once_with(
-        "transfer", args=function_call.args
-    )
+    mock_contract.encode_abi.assert_called_once_with("transfer", args=function_call.args)
 
     mock_api_clients.evm_smart_accounts.prepare_user_operation.assert_called_once()
     actual_address, actual_request = (
@@ -258,7 +246,8 @@ async def test_send_user_operation_empty_calls(mock_api_clients):
     with pytest.raises(ValueError, match="Calls list cannot be empty"):
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[],
             network="base-sepolia",
             paymaster_url=None,
@@ -285,7 +274,8 @@ async def test_send_user_operation_no_owners(mock_api_clients):
     with pytest.raises(IndexError):
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[contract_call],
             network="base-sepolia",
             paymaster_url=None,
@@ -313,7 +303,8 @@ async def test_send_user_operation_create_api_error(mock_api_clients):
     with pytest.raises(ApiException) as exc_info:
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[contract_call],
             network="base-sepolia",
             paymaster_url=None,
@@ -326,9 +317,7 @@ async def test_send_user_operation_create_api_error(mock_api_clients):
 @pytest.mark.asyncio
 @patch("cdp.actions.evm.send_user_operation.ensure_awaitable")
 @patch("cdp.cdp_client.ApiClients")
-async def test_send_user_operation_signing_error(
-    mock_api_clients, mock_ensure_awaitable
-):
+async def test_send_user_operation_signing_error(mock_api_clients, mock_ensure_awaitable):
     """Test handling error during operation signing."""
     mock_smart_account = MagicMock(spec=EvmSmartAccount)
     mock_owner = MagicMock(spec=EvmServerAccount)
@@ -352,7 +341,8 @@ async def test_send_user_operation_signing_error(
     with pytest.raises(Exception, match="Signing failed"):
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[contract_call],
             network="base-sepolia",
             paymaster_url=None,
@@ -362,9 +352,7 @@ async def test_send_user_operation_signing_error(
 @pytest.mark.asyncio
 @patch("cdp.actions.evm.send_user_operation.ensure_awaitable")
 @patch("cdp.cdp_client.ApiClients")
-async def test_send_user_operation_broadcast_api_error(
-    mock_api_clients, mock_ensure_awaitable
-):
+async def test_send_user_operation_broadcast_api_error(mock_api_clients, mock_ensure_awaitable):
     """Test handling API error during user operation broadcast."""
     mock_smart_account = MagicMock(spec=EvmSmartAccount)
     mock_owner = MagicMock(spec=EvmServerAccount)
@@ -393,7 +381,8 @@ async def test_send_user_operation_broadcast_api_error(
     with pytest.raises(ApiException) as exc_info:
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[contract_call],
             network="base-sepolia",
             paymaster_url=None,
@@ -406,9 +395,7 @@ async def test_send_user_operation_broadcast_api_error(
 @pytest.mark.asyncio
 @patch("cdp.actions.evm.send_user_operation.Web3")
 @patch("cdp.cdp_client.ApiClients")
-async def test_send_user_operation_function_call_encoding_error(
-    mock_api_clients, mock_web3
-):
+async def test_send_user_operation_function_call_encoding_error(mock_api_clients, mock_web3):
     """Test handling error during function call encoding."""
     mock_smart_account = MagicMock(spec=EvmSmartAccount)
     mock_owner = MagicMock(spec=EvmServerAccount)
@@ -424,9 +411,7 @@ async def test_send_user_operation_function_call_encoding_error(
 
     function_call = FunctionCall(
         to="0x2345678901234567890123456789012345678901",
-        abi=[
-            {"name": "transfer", "inputs": [{"type": "address"}, {"type": "uint256"}]}
-        ],
+        abi=[{"name": "transfer", "inputs": [{"type": "address"}, {"type": "uint256"}]}],
         function_name="transfer",
         args=["invalid-address", "not-a-number"],
         value=None,
@@ -435,15 +420,14 @@ async def test_send_user_operation_function_call_encoding_error(
     with pytest.raises(ValueError, match="Invalid argument type"):
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[function_call],
             network="base-sepolia",
             paymaster_url=None,
         )
 
-    mock_contract.encode_abi.assert_called_once_with(
-        "transfer", args=function_call.args
-    )
+    mock_contract.encode_abi.assert_called_once_with("transfer", args=function_call.args)
 
 
 @pytest.mark.asyncio
@@ -466,7 +450,8 @@ async def test_send_user_operation_invalid_network(mock_api_clients):
     with pytest.raises(ValidationError):
         await send_user_operation(
             api_clients=mock_api_clients,
-            smart_account=mock_smart_account,
+            address=mock_smart_account.address,
+            owner=mock_smart_account.owners[0],
             calls=[contract_call],
             network="invalid-network",
             paymaster_url=None,

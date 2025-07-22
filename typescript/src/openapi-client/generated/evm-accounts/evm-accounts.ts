@@ -7,76 +7,147 @@
  */
 import type {
   CreateEvmAccountBody,
+  EIP712Message,
   EvmAccount,
+  ExportEvmAccount200,
+  ExportEvmAccountBody,
+  ExportEvmAccountByName200,
+  ExportEvmAccountByNameBody,
+  ImportEvmAccountBody,
   ListEvmAccounts200,
   ListEvmAccountsParams,
+  SendEvmTransaction200,
+  SendEvmTransactionBody,
   SignEvmHash200,
   SignEvmHashBody,
   SignEvmMessage200,
   SignEvmMessageBody,
   SignEvmTransaction200,
-  SignEvmTransactionBody
-} from '../coinbaseDeveloperPlatformAPIs.schemas';
+  SignEvmTransactionBody,
+  SignEvmTypedData200,
+  UpdateEvmAccountBody,
+} from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
-import { cdpApiClient } from '../../cdpApiClient';
-
+import { cdpApiClient } from "../../cdpApiClient.js";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
-
-  /**
+/**
  * Lists the EVM accounts belonging to the developer's CDP Project.
 The response is paginated, and by default, returns 20 accounts per page.
  * @summary List EVM accounts
  */
 export const listEvmAccounts = (
-    params?: ListEvmAccountsParams,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<ListEvmAccounts200>(
-      {url: `/v2/evm/accounts`, method: 'GET',
-        params
-    },
-      options);
-    }
-  /**
+  params?: ListEvmAccountsParams,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ListEvmAccounts200>(
+    { url: `/v2/evm/accounts`, method: "GET", params },
+    options,
+  );
+};
+/**
  * Creates a new EVM account.
  * @summary Create an EVM account
  */
 export const createEvmAccount = (
-    createEvmAccountBody?: CreateEvmAccountBody,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<EvmAccount>(
-      {url: `/v2/evm/accounts`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: createEvmAccountBody
+  createEvmAccountBody?: CreateEvmAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmAccount>(
+    {
+      url: `/v2/evm/accounts`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createEvmAccountBody,
     },
-      options);
-    }
-  /**
+    options,
+  );
+};
+/**
  * Gets an EVM account by its address.
  * @summary Get an EVM account by address
  */
-export const getEvmAccount = (
-    address: string,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<EvmAccount>(
-      {url: `/v2/evm/accounts/${address}`, method: 'GET'
+export const getEvmAccount = (address: string, options?: SecondParameter<typeof cdpApiClient>) => {
+  return cdpApiClient<EvmAccount>({ url: `/v2/evm/accounts/${address}`, method: "GET" }, options);
+};
+/**
+ * Updates an existing EVM account. Use this to update the account's name or account-level policy.
+ * @summary Update an EVM account
+ */
+export const updateEvmAccount = (
+  address: string,
+  updateEvmAccountBody: UpdateEvmAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmAccount>(
+    {
+      url: `/v2/evm/accounts/${address}`,
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      data: updateEvmAccountBody,
     },
-      options);
-    }
-  /**
+    options,
+  );
+};
+/**
  * Gets an EVM account by its name.
  * @summary Get an EVM account by name
  */
 export const getEvmAccountByName = (
-    name: string,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<EvmAccount>(
-      {url: `/v2/evm/accounts/by-name/${name}`, method: 'GET'
+  name: string,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmAccount>(
+    { url: `/v2/evm/accounts/by-name/${name}`, method: "GET" },
+    options,
+  );
+};
+/**
+ * Signs a transaction with the given EVM account and sends it to the indicated supported network. This API handles nonce management and gas estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction. The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
+
+The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md).
+
+
+**Transaction fields and API behavior**
+
+- `to` *(Required)*: The address of the contract or account to send the transaction to.
+- `chainId` *(Ignored)*: The value of the `chainId` field in the transaction is ignored.
+  The transaction will be sent to the network indicated by the `network` field in the request body.
+
+- `nonce` *(Optional)*: The nonce to use for the transaction. If not provided, the API will assign
+   a nonce to the transaction based on the current state of the account.
+
+- `maxPriorityFeePerGas` *(Optional)*: The maximum priority fee per gas to use for the transaction.
+   If not provided, the API will estimate a value based on current network conditions.
+
+- `maxFeePerGas` *(Optional)*: The maximum fee per gas to use for the transaction.
+   If not provided, the API will estimate a value based on current network conditions.
+
+- `gasLimit` *(Optional)*: The gas limit to use for the transaction. If not provided, the API will estimate a value
+  based on the `to` and `data` fields of the transaction.
+
+- `value` *(Optional)*: The amount of ETH, in wei, to send with the transaction.
+- `data` *(Optional)*: The data to send with the transaction; only used for contract calls.
+- `accessList` *(Optional)*: The access list to use for the transaction.
+ * @summary Send a transaction
+ */
+export const sendEvmTransaction = (
+  address: string,
+  sendEvmTransactionBody: SendEvmTransactionBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SendEvmTransaction200>(
+    {
+      url: `/v2/evm/accounts/${address}/send/transaction`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: sendEvmTransactionBody,
     },
-      options);
-    }
-  /**
+    options,
+  );
+};
+/**
  * Signs a transaction with the given EVM account.
 The transaction should be serialized as a hex string using [RLP](https://ethereum.org/en/developers/docs/data-structures-and-encoding/rlp/).
 
@@ -84,55 +155,149 @@ The transaction must be an [EIP-1559 dynamic fee transaction](https://github.com
  * @summary Sign a transaction
  */
 export const signEvmTransaction = (
-    address: string,
-    signEvmTransactionBody: SignEvmTransactionBody,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<SignEvmTransaction200>(
-      {url: `/v2/evm/accounts/${address}/sign/transaction`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: signEvmTransactionBody
+  address: string,
+  signEvmTransactionBody: SignEvmTransactionBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SignEvmTransaction200>(
+    {
+      url: `/v2/evm/accounts/${address}/sign/transaction`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: signEvmTransactionBody,
     },
-      options);
-    }
-  /**
+    options,
+  );
+};
+/**
  * Signs an arbitrary 32 byte hash with the given EVM account.
-
-
-**WARNING: This API will likely be deprecated in the future.** It is recommended not to depend on it. Never sign a hash that you didn't generate, as it can be an arbitrary transaction. For example, it might send all of your funds to an attacker.
  * @summary Sign a hash
  */
 export const signEvmHash = (
-    address: string,
-    signEvmHashBody: SignEvmHashBody,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<SignEvmHash200>(
-      {url: `/v2/evm/accounts/${address}/sign`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: signEvmHashBody
+  address: string,
+  signEvmHashBody: SignEvmHashBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SignEvmHash200>(
+    {
+      url: `/v2/evm/accounts/${address}/sign`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: signEvmHashBody,
     },
-      options);
-    }
-  /**
+    options,
+  );
+};
+/**
  * Signs an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message with the given EVM account.
 
 Per the specification, the message in the request body is prepended with `0x19 <0x45 (E)> <thereum Signed Message:\n" + len(message)>` before being signed.
  * @summary Sign an EIP-191 message
  */
 export const signEvmMessage = (
-    address: string,
-    signEvmMessageBody: SignEvmMessageBody,
- options?: SecondParameter<typeof cdpApiClient>,) => {
-      return cdpApiClient<SignEvmMessage200>(
-      {url: `/v2/evm/accounts/${address}/sign/message`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: signEvmMessageBody
+  address: string,
+  signEvmMessageBody: SignEvmMessageBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SignEvmMessage200>(
+    {
+      url: `/v2/evm/accounts/${address}/sign/message`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: signEvmMessageBody,
     },
-      options);
-    }
-  export type ListEvmAccountsResult = NonNullable<Awaited<ReturnType<typeof listEvmAccounts>>>
-export type CreateEvmAccountResult = NonNullable<Awaited<ReturnType<typeof createEvmAccount>>>
-export type GetEvmAccountResult = NonNullable<Awaited<ReturnType<typeof getEvmAccount>>>
-export type GetEvmAccountByNameResult = NonNullable<Awaited<ReturnType<typeof getEvmAccountByName>>>
-export type SignEvmTransactionResult = NonNullable<Awaited<ReturnType<typeof signEvmTransaction>>>
-export type SignEvmHashResult = NonNullable<Awaited<ReturnType<typeof signEvmHash>>>
-export type SignEvmMessageResult = NonNullable<Awaited<ReturnType<typeof signEvmMessage>>>
+    options,
+  );
+};
+/**
+ * Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data with the given EVM account.
+ * @summary Sign EIP-712 typed data
+ */
+export const signEvmTypedData = (
+  address: string,
+  eIP712Message: EIP712Message,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<SignEvmTypedData200>(
+    {
+      url: `/v2/evm/accounts/${address}/sign/typed-data`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: eIP712Message,
+    },
+    options,
+  );
+};
+/**
+ * Import an existing EVM account into the developer's CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
+ * @summary Import an EVM account
+ */
+export const importEvmAccount = (
+  importEvmAccountBody: ImportEvmAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmAccount>(
+    {
+      url: `/v2/evm/accounts/import`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: importEvmAccountBody,
+    },
+    options,
+  );
+};
+/**
+ * Export an existing EVM account's private key. It is important to store the private key in a secure place after it's exported.
+ * @summary Export an EVM account
+ */
+export const exportEvmAccount = (
+  address: string,
+  exportEvmAccountBody: ExportEvmAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ExportEvmAccount200>(
+    {
+      url: `/v2/evm/accounts/${address}/export`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: exportEvmAccountBody,
+    },
+    options,
+  );
+};
+/**
+ * Export an existing EVM account's private key by its name. It is important to store the private key in a secure place after it's exported.
+ * @summary Export an EVM account by name
+ */
+export const exportEvmAccountByName = (
+  name: string,
+  exportEvmAccountByNameBody: ExportEvmAccountByNameBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ExportEvmAccountByName200>(
+    {
+      url: `/v2/evm/accounts/export/by-name/${name}`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: exportEvmAccountByNameBody,
+    },
+    options,
+  );
+};
+export type ListEvmAccountsResult = NonNullable<Awaited<ReturnType<typeof listEvmAccounts>>>;
+export type CreateEvmAccountResult = NonNullable<Awaited<ReturnType<typeof createEvmAccount>>>;
+export type GetEvmAccountResult = NonNullable<Awaited<ReturnType<typeof getEvmAccount>>>;
+export type UpdateEvmAccountResult = NonNullable<Awaited<ReturnType<typeof updateEvmAccount>>>;
+export type GetEvmAccountByNameResult = NonNullable<
+  Awaited<ReturnType<typeof getEvmAccountByName>>
+>;
+export type SendEvmTransactionResult = NonNullable<Awaited<ReturnType<typeof sendEvmTransaction>>>;
+export type SignEvmTransactionResult = NonNullable<Awaited<ReturnType<typeof signEvmTransaction>>>;
+export type SignEvmHashResult = NonNullable<Awaited<ReturnType<typeof signEvmHash>>>;
+export type SignEvmMessageResult = NonNullable<Awaited<ReturnType<typeof signEvmMessage>>>;
+export type SignEvmTypedDataResult = NonNullable<Awaited<ReturnType<typeof signEvmTypedData>>>;
+export type ImportEvmAccountResult = NonNullable<Awaited<ReturnType<typeof importEvmAccount>>>;
+export type ExportEvmAccountResult = NonNullable<Awaited<ReturnType<typeof exportEvmAccount>>>;
+export type ExportEvmAccountByNameResult = NonNullable<
+  Awaited<ReturnType<typeof exportEvmAccountByName>>
+>;

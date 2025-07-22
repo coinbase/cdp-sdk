@@ -1,9 +1,15 @@
-import type { EvmSmartAccount } from "../../accounts/types";
-import { EvmUserOperationNetwork, EvmUserOperationStatus } from "../../openapi-client";
-import type { Address, Hex } from "../../types/misc";
-import type { Calls } from "../../types/calls";
 import { encodeFunctionData } from "viem";
-import { CdpOpenApiClientType } from "../../openapi-client";
+
+import { getBaseNodeRpcUrl } from "../../accounts/evm/getBaseNodeRpcUrl.js";
+import {
+  EvmUserOperationNetwork,
+  EvmUserOperationStatus,
+  CdpOpenApiClientType,
+} from "../../openapi-client/index.js";
+
+import type { EvmSmartAccount } from "../../accounts/evm/types.js";
+import type { Calls } from "../../types/calls.js";
+import type { Address, Hex } from "../../types/misc.js";
 
 /**
  * Options for sending a user operation.
@@ -11,6 +17,8 @@ import { CdpOpenApiClientType } from "../../openapi-client";
  * @template T - Array type for the calls parameter.
  */
 export type SendUserOperationOptions<T extends readonly unknown[]> = {
+  /** The smart account. */
+  smartAccount: EvmSmartAccount;
   /**
    * Array of contract calls to execute in the user operation.
    * Each call can either be:
@@ -92,16 +100,21 @@ export type SendUserOperationReturnType = {
  * ```
  *
  * @param {CdpOpenApiClientType} client - The client to use to send the user operation.
- * @param {EvmSmartAccount} smartAccount - The smart account to send the user operation from.
  * @param {SendUserOperationOptions<T>} options - The options for the user operation.
  * @returns {Promise<SendUserOperationReturnType>} The result of the user operation.
  */
 export async function sendUserOperation<T extends readonly unknown[]>(
   client: CdpOpenApiClientType,
-  smartAccount: EvmSmartAccount,
   options: SendUserOperationOptions<T>,
 ): Promise<SendUserOperationReturnType> {
-  const { calls, network, paymasterUrl } = options;
+  const { calls, network, paymasterUrl: _paymasterUrl } = options;
+
+  const paymasterUrl = await (async () => {
+    if (!_paymasterUrl && network === "base") {
+      return getBaseNodeRpcUrl("base");
+    }
+    return _paymasterUrl;
+  })();
 
   if (calls.length === 0) {
     throw new Error("Calls array is empty");
@@ -129,20 +142,20 @@ export async function sendUserOperation<T extends readonly unknown[]>(
     };
   });
 
-  const createOpResponse = await client.prepareUserOperation(smartAccount.address, {
+  const createOpResponse = await client.prepareUserOperation(options.smartAccount.address, {
     network,
     calls: encodedCalls,
     paymasterUrl,
   });
 
-  const owner = smartAccount.owners[0];
+  const owner = options.smartAccount.owners[0];
 
   const signature = await owner.sign({
     hash: createOpResponse.userOpHash as Hex,
   });
 
   const broadcastResponse = await client.sendUserOperation(
-    smartAccount.address,
+    options.smartAccount.address,
     createOpResponse.userOpHash as Hex,
     {
       signature,
@@ -151,7 +164,7 @@ export async function sendUserOperation<T extends readonly unknown[]>(
   );
 
   return {
-    smartAccountAddress: smartAccount.address,
+    smartAccountAddress: options.smartAccount.address,
     status: broadcastResponse.status,
     userOpHash: createOpResponse.userOpHash,
   } as SendUserOperationReturnType;

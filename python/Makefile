@@ -6,15 +6,19 @@ build:
 
 .PHONY: format
 format:
-	uv run ruff format --exclude "cdp/openapi_client/api/*" --exclude "cdp/openapi_client/models/*" --exclude "cdp/openapi_client/api_client.py" --exclude "cdp/openapi_client/configuration.py" . || (echo "Error: Failed to format code" && exit 1)
+	uv run ruff format --exclude "cdp/openapi_client/api/*" --exclude "cdp/openapi_client/models/*" --exclude "cdp/openapi_client/test/*" --exclude "cdp/openapi_client/api_client.py" --exclude "cdp/openapi_client/configuration.py" . || (echo "Error: Failed to format code" && exit 1)
+
+.PHONY: format-check
+format-check:
+	uv run ruff format --check --exclude "cdp/openapi_client/api/*" --exclude "cdp/openapi_client/models/*" --exclude "cdp/openapi_client/test/*" --exclude "cdp/openapi_client/api_client.py" --exclude "cdp/openapi_client/configuration.py" . || (echo "Error: Failed to format code" && exit 1)
 
 .PHONY: lint
 lint:
-	uv run ruff check --exclude "cdp/openapi_client/api/*" --exclude "cdp/openapi_client/models/*" --exclude "cdp/openapi_client/api_client.py" --exclude "cdp/openapi_client/configuration.py" . || (echo "Error: Linting failed" && exit 1)
+	uv run ruff check --exclude "cdp/openapi_client/api/*" --exclude "cdp/openapi_client/models/*" --exclude "cdp/openapi_client/test/*" --exclude "cdp/openapi_client/api_client.py" --exclude "cdp/openapi_client/configuration.py" . || (echo "Error: Linting failed" && exit 1)
 
 .PHONY: lint-fix
 lint-fix:
-	uv run ruff check --exclude "cdp/openapi_client/api/*" --exclude "cdp/openapi_client/models/*" --exclude "cdp/openapi_client/api_client.py" --exclude "cdp/openapi_client/configuration.py" --fix . || (echo "Error: Auto-fix failed" && exit 1)
+	uv run ruff check --exclude "cdp/openapi_client/api/*" --exclude "cdp/openapi_client/models/*" --exclude "cdp/openapi_client/test/*" --exclude "cdp/openapi_client/api_client.py" --exclude "cdp/openapi_client/configuration.py" --fix . || (echo "Error: Auto-fix failed" && exit 1)
 
 .PHONY: docs
 docs:
@@ -33,13 +37,18 @@ install:
 	fi
 	uv pip install -e ".[dev]" || (echo "Error: Failed to install dependencies" && exit 1)
 
+# Python 3.10 has some mocking bugs in pytests, so we skip those tests
+.PHONY: test-3.10
+test-3.10:
+	uv pip install ".[dev]" && DISABLE_CDP_ERROR_REPORTING=true uv run pytest -k "not test_e2e.py and not test_wait_for_fund_operation_receipt.py" || (echo "Error: Tests failed" && exit 1)
+
 .PHONY: test
 test:
-	uv pip install ".[dev]" && uv run pytest -k "not test_e2e.py" || (echo "Error: Tests failed" && exit 1)
+	uv pip install ".[dev]" && DISABLE_CDP_ERROR_REPORTING=true uv run pytest -k "not test_e2e.py" || (echo "Error: Tests failed" && exit 1)
 
 .PHONY: e2e
 e2e:
-	uv pip install ".[dev]" && uv run pytest cdp/test/test_e2e.py -v || (echo "Error: E2E Tests failed" && exit 1)
+	uv pip install ".[dev]" && DISABLE_CDP_ERROR_REPORTING=true uv run pytest cdp/test/test_e2e.py -v || (echo "Error: E2E Tests failed" && exit 1)
 
 .PHONY: setup
 setup:
@@ -71,8 +80,9 @@ python-client: check-openapi preprocess-openapi
 	@ echo "Cleaning old API and model files..."
 	@ rm -rf cdp/openapi_client/api
 	@ rm -rf cdp/openapi_client/models
+	@ rm -rf cdp/openapi_client/test
 	@ echo "Generating new client..."
-	@ openapi-generator generate -i ../openapi_preprocessed.yaml -g python -o cdp/openapi_client -c client_config.yaml -t templates
+	@ openapi-generator generate -i ../openapi_preprocessed.yaml -g python -o cdp/openapi_client -c client_config.yaml -t templates --legacy-discriminator-behavior
 	@ if [ -d "cdp/openapi_client/cdp/openapi_client" ]; then cp -R cdp/openapi_client/cdp/openapi_client/* cdp/openapi_client/ && rm -rf cdp/openapi_client/cdp; fi
 	@ rm -rf cdp/openapi_client/docs
 	@ echo "OpenAPI client generation completed"
