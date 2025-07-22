@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from solana.constants import LAMPORTS_PER_SOL
 from solana.rpc.api import Client as SolanaClient
 from solders.pubkey import Pubkey as PublicKey
+from solders.signature import Signature
 
 load_dotenv()
 
@@ -52,7 +53,7 @@ async def main():
         # Create or get sender account
         sender = await cdp.solana.get_or_create_account(name="Sender")
 
-        amount = 0.0001 * LAMPORTS_PER_SOL
+        amount = 0.000001 * LAMPORTS_PER_SOL
 
         # Ensure account has funds
         await faucet_if_needed(cdp, sender.address, amount)
@@ -72,7 +73,7 @@ async def main():
         last_valid_block_height = connection.get_latest_blockhash()
 
         confirmation = connection.confirm_transaction(
-            tx_sig=signature,
+            tx_sig=Signature.from_string(signature),
             last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
             commitment="confirmed",
         )
