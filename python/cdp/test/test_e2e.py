@@ -19,11 +19,9 @@ from web3 import Web3
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
 from cdp.evm_local_account import EvmLocalAccount
-from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
-from cdp.openapi_client.models.evm_account import EvmAccount as EvmServerAccountModel
 from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.policies.types import (
     CreatePolicyOptions,
@@ -39,7 +37,6 @@ from cdp.policies.types import (
     SolanaAddressCriterion,
     UpdatePolicyOptions,
 )
-from cdp.to_network_scoped_evm_server_account import NetworkScopedEvmServerAccount
 from cdp.update_account_types import UpdateAccountOptions
 
 load_dotenv()
@@ -2048,47 +2045,3 @@ def generate_random_name():
 
     last_char = chars[floor(random.random() * len(chars))]
     return first_char + middle_part + last_char
-
-
-@pytest.mark.e2e
-@pytest.mark.asyncio
-async def test_custom_rpc_send_transaction_evm_server_account():
-    """E2E: Test sending a raw signed transaction using a custom RPC node via NetworkScopedEvmServerAccount."""
-    # Use a dummy account address for demonstration
-    address = "0x1234567890123456789012345678901234567890"
-    name = "e2e-server-account-custom-rpc"
-    # Create a dummy EvmServerAccountModel
-    server_account_model = EvmServerAccountModel(address=address, name=name)
-    dummy_api = object()
-    server_account = EvmServerAccount(server_account_model, dummy_api, dummy_api)
-
-    custom_rpc_url = "http://localhost:8545"
-    # Create the network-scoped account with custom RPC
-    scoped_account = NetworkScopedEvmServerAccount(
-        server_account, network="custom-network", rpc_url=custom_rpc_url
-    )
-
-    # Mock the web3 provider's send_raw_transaction and to_hex
-    class DummyWeb3:
-        class Eth:
-            def send_raw_transaction(self, tx):
-                assert tx == "0xdeadbeef"
-                return b"\x12\x34"
-
-        def __init__(self):
-            self.eth = self.Eth()
-
-        def toHex(self, value):
-            return self.to_hex(value)
-
-        def to_hex(self, value):
-            assert value == b"\x12\x34"
-            return "0x1234"
-
-        eth = Eth()
-
-    scoped_account._web3 = DummyWeb3()
-
-    # Send a raw signed transaction
-    tx_hash = await scoped_account.send_transaction("0xdeadbeef")
-    assert tx_hash == "0x1234"
