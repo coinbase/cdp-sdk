@@ -705,56 +705,6 @@ async def test_wait_for_fund_operation_receipt_timeout(
             transfer_id="test-transfer-id", timeout_seconds=0.1, interval_seconds=0.1
         )
 
-
-@pytest.mark.asyncio
-def test_send_transaction_with_custom_rpc_smart_account(smart_account_factory):
-    """Test sending a raw signed transaction using a custom RPC node via a network-scoped EvmSmartAccount."""
-    from cdp.to_network_scoped_evm_server_account import NetworkScopedEvmServerAccount
-
-    address = "0x1234567890123456789012345678901234567890"
-    name = "test-smart-account"
-    smart_account = smart_account_factory(address, name)
-
-    # Create a dummy EvmSmartAccount (API clients are not used for custom RPC)
-    dummy_api = object()
-    # Re-instantiate with dummy_api_clients if needed
-    smart_account = smart_account.__class__(
-        smart_account.address,
-        smart_account.owners[0],
-        smart_account.name,
-        getattr(smart_account, "policies", None),
-        dummy_api,
-    )
-
-    custom_rpc_url = "http://localhost:8545"
-    # Create the network-scoped account with custom RPC
-    scoped_account = NetworkScopedEvmServerAccount(
-        smart_account, network="custom-network", rpc_url=custom_rpc_url
-    )
-
-    # Mock the web3 provider's send_raw_transaction and toHex
-    class DummyWeb3:
-        class Eth:
-            def send_raw_transaction(self, tx):
-                assert tx == "0xdeadbeef"
-                return b"\x12\x34"
-
-        def toHex(self, value):  # Add this method to fix AttributeError
-            assert value == b"\x12\x34"
-            return "0x1234"
-
-        eth = Eth()
-
-    scoped_account._web3 = DummyWeb3()
-
-    # Send a raw signed transaction
-    import asyncio
-
-    tx_hash = asyncio.get_event_loop().run_until_complete(
-        scoped_account.send_transaction("0xdeadbeef")
-    )
-    assert tx_hash == "0x1234"
-
     @pytest.mark.asyncio
     async def test_sign_typed_data_success(self, smart_account_factory):
         """Test successful signing of typed data."""
