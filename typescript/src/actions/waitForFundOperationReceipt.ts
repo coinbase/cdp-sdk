@@ -1,5 +1,5 @@
-import { CdpOpenApiClientType, Transfer, TransferStatus } from "../../../openapi-client/index.js";
-import { wait, WaitOptions } from "../../../utils/wait.js";
+import { CdpOpenApiClientType, Transfer, TransferStatus } from "../openapi-client/index.js";
+import { wait, WaitOptions } from "../utils/wait.js";
 
 /**
  * Options for waiting for a fund operation.

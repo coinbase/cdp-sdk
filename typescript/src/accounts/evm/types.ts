@@ -7,14 +7,8 @@ import {
   QuoteSwapNetworks,
   SwapNetworks,
 } from "./networkCapabilities.js";
-import { FundOptions } from "../../actions/evm/fund/fund.js";
-import { Quote } from "../../actions/evm/fund/Quote.js";
-import { QuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
-import { FundOperationResult } from "../../actions/evm/fund/types.js";
-import {
-  WaitForFundOperationOptions,
-  WaitForFundOperationResult,
-} from "../../actions/evm/fund/waitForFundOperationReceipt.js";
+import { EvmFundOptions } from "../../actions/evm/fund/fund.js";
+import { EvmQuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
 import {
   ListTokenBalancesOptions,
   ListTokenBalancesResult,
@@ -39,6 +33,11 @@ import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
+import { FundOperationResult } from "../../actions/types.js";
+import {
+  WaitForFundOperationOptions,
+  WaitForFundOperationResult,
+} from "../../actions/waitForFundOperationReceipt.js";
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 
 import type {
@@ -46,6 +45,7 @@ import type {
   TransferOptions,
 } from "../../actions/evm/transfer/types.js";
 import type { AccountActions, SmartAccountActions } from "../../actions/evm/types.js";
+import type { EvmQuote } from "../../actions/Quote.js";
 import type { Address, Hash, Hex } from "../../types/misc.js";
 import type { Prettify } from "../../types/utils.js";
 import type {
@@ -211,13 +211,17 @@ export type NetworkSpecificSmartAccountActions<Network extends string> = Prettif
     // Conditionally include quoteFund
     (Network extends QuoteFundNetworks
       ? {
-          quoteFund: (options: Omit<QuoteFundOptions, "address" | "network">) => Promise<Quote>;
+          quoteFund: (
+            options: Omit<EvmQuoteFundOptions, "address" | "network">,
+          ) => Promise<EvmQuote>;
         }
       : EmptyObject) &
     // Conditionally include fund
     (Network extends FundNetworks
       ? {
-          fund: (options: Omit<FundOptions, "address" | "network">) => Promise<FundOperationResult>;
+          fund: (
+            options: Omit<EvmFundOptions, "address" | "network">,
+          ) => Promise<FundOperationResult>;
           waitForFundOperationReceipt: (
             options: Omit<WaitForFundOperationOptions, "network">,
           ) => Promise<WaitForFundOperationResult>;
@@ -289,13 +293,13 @@ export type NetworkSpecificAccountActions<Network extends string> = Prettify<
     // Conditionally include quoteFund
     (Network extends QuoteFundNetworks
       ? {
-          quoteFund: (options: Omit<QuoteFundOptions, "address">) => Promise<Quote>;
+          quoteFund: (options: Omit<EvmQuoteFundOptions, "address">) => Promise<EvmQuote>;
         }
       : EmptyObject) &
     // Conditionally include fund
     (Network extends FundNetworks
       ? {
-          fund: (options: Omit<FundOptions, "address">) => Promise<FundOperationResult>;
+          fund: (options: Omit<EvmFundOptions, "address">) => Promise<FundOperationResult>;
           waitForFundOperationReceipt: (
             options: WaitForFundOperationOptions,
           ) => Promise<WaitForFundOperationResult>;
