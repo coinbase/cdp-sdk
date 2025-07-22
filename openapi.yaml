@@ -13,6 +13,8 @@ info:
 servers:
   - url: https://api.cdp.coinbase.com/platform
     description: The production server of the CDP APIs.
+security:
+  - apiKeyAuth: []
 tags:
   - name: EVM Accounts
     x-audience: public
@@ -35,15 +37,18 @@ tags:
         to `POST` and `DELETE` endpoints in the EVM and Solana Account APIs.
 
 
-      To learn more about creating and using using these keys, visit our [Authentication docs](https://docs.cdp.coinbase.com/api-v2/docs/authentication).
+      To learn more about creating and using these keys, visit our [Authentication docs](https://docs.cdp.coinbase.com/api-reference/v2/authentication).
 
-      :::tip Use our SDK
+      <Tip>
+
+
+      **Use our SDK**
 
 
       The [CDP SDK](https://github.com/coinbase/cdp-sdk) automatically authenticates requests using your CDP Secret API Key and Wallet Secret. Use the CDP SDK for a more convenient access to our APIs.
 
 
-      :::
+      </Tip>
   - name: EVM Smart Accounts
     x-audience: public
     description: |-
@@ -99,7 +104,7 @@ tags:
       - `POST /v2/payments/transfers/{transferId}/execute`: Execute a transfer quote.
       - `GET  /v2/payments/transfers/{transferId}`: Get a transfer by transferId.
       ### Payment Rails
-      Payment rails are the the source or the target of a transfer.
+      Payment rails are the source or the target of a transfer.
       We support the following payment rails:
       - Crypto rails: Onchain currency and networks to send and receive crypto (e.g. Currency: USDC, Network: Ethereum, Solana, Bitcoin, Polygon, Avalanche).
       - Payment methods: Payment methods that are previously added in your account (e.g Debit Card).
@@ -132,6 +137,8 @@ tags:
             - `sendEvmTransaction` for signing a transaction, and sending it to a supported network
             - `signEvmHash` for signing an arbitrary 32 byte hash.
             - `signEvmMessage` for signing an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message.
+            - `prepareUserOperation` for preparing user operations on a smart account.
+            - `sendUserOperation` for sending user operations using a smart account.
       - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected. Only `signEvmTransaction` and `signSolTransaction` operations are currently supported.
       ## Policy Scope
       Policies can be applied at the project and/or account level:
@@ -231,6 +238,22 @@ tags:
       A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
       #### evmNetwork
       A criterion based on the intended network of the transaction. The `network` field in the `sendEvmTransaction` request body is compared to the criterion's `networks` field using the `operator` field.
+      #### evmData
+      A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
+      ### SendUserOperation Criteria
+      #### ethValue
+      A criterion based on the value of the user operation. The operation's `value` fields are compared to the criterion's `ethValue` field using the `operator` field.
+      #### evmAddress
+      A criterion based on the recipient address of the operation. The operation's `to` fields are compared to the criterion's `addresses` field using the `operator` field.
+      #### evmData
+      A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
+      ### PrepareUserOperation Criteria
+      #### ethValue
+      A criterion based on the value of the user operation. The operation's `value` fields are compared to the criterion's `ethValue` field using the `operator` field.
+      #### evmAddress
+      A criterion based on the recipient address of the user operation. The operation's `to` fields are compared to the criterion's `addresses` field using the `operator` field.
+      #### evmNetwork
+      A criterion based on the intended network of the user operation. The `network` field in the `prepareUserOperation` request body is compared to the criterion's `networks` field using the `operator` field.
       #### evmData
       A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
       ### SignEvmHash Criteria
@@ -335,15 +358,29 @@ tags:
         to `POST` and `DELETE` endpoints in the EVM and Solana Account APIs.
 
 
-      To learn more about creating and using using these keys, visit our [Authentication docs](https://docs.cdp.coinbase.com/api-v2/docs/authentication).
+      To learn more about creating and using these keys, visit our [Authentication docs](https://docs.cdp.coinbase.com/api-reference/v2/authentication).
 
-      :::tip Use our SDK
+      <Tip>
+
+
+      **Use our SDK**
 
 
       The [CDP SDK](https://github.com/coinbase/cdp-sdk) automatically authenticates requests using your CDP Secret API Key and Wallet Secret. Use the CDP SDK for a more convenient access to our APIs.
 
 
-      :::
+      </Tip>
+  - name: Solana Token Balances
+    x-audience: public
+    description: |-
+      The Solana Token Balances APIs enable you to retrieve the balances of Solana addresses.
+      This includes SPL tokens and the native SOL token of the network.
+      ## Denomination
+      - 'amount' is denominated in the smallest indivisible unit of the token. For SOL, the smallest indivisible unit is lamports (10^-9 SOL). For SPL tokens, the smallest unit is defined by the token's decimals configuration.
+      - 'decimals' is the exponential value N that satisfies the equation `amount * 10^-N = standard_denomination`. The standard denomination is the most commonly used denomination for the token.
+
+        - For native SOL, `decimals` is 9 (1 SOL = 10^9 lamports).
+        - For SPL tokens, `decimals` is defined in the token's mint configuration.
   - name: x402 Facilitator
     x-audience: public
     description: |-
@@ -363,6 +400,8 @@ paths:
       operationId: listEvmAccounts
       tags:
         - EVM Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: pageSize
           description: The number of accounts to return per page.
@@ -409,6 +448,8 @@ paths:
       operationId: createEvmAccount
       tags:
         - EVM Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -491,6 +532,8 @@ paths:
       operationId: getEvmAccount
       tags:
         - EVM Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: address
           description: The 0x-prefixed address of the EVM account. The address does not need to be checksummed.
@@ -542,6 +585,8 @@ paths:
       operationId: updateEvmAccount
       tags:
         - EVM Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
         - name: address
@@ -619,6 +664,8 @@ paths:
       operationId: getEvmAccountByName
       tags:
         - EVM Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: name
           description: The name of the EVM account.
@@ -696,6 +743,8 @@ paths:
       operationId: sendEvmTransaction
       tags:
         - EVM Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -811,6 +860,8 @@ paths:
       operationId: signEvmTransaction
       tags:
         - EVM Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -912,6 +963,8 @@ paths:
       operationId: signEvmHash
       tags:
         - EVM Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -994,6 +1047,8 @@ paths:
       operationId: signEvmMessage
       tags:
         - EVM Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -1073,6 +1128,8 @@ paths:
       operationId: signEvmTypedData
       tags:
         - EVM Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -1155,6 +1212,8 @@ paths:
       operationId: listEvmSmartAccounts
       tags:
         - EVM Smart Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: pageSize
           description: The number of accounts to return per page.
@@ -1209,8 +1268,12 @@ paths:
       summary: Create a Smart Account
       description: Creates a new Smart Account.
       operationId: createEvmSmartAccount
+      security:
+        - apiKeyAuth: []
       tags:
         - EVM Smart Accounts
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         content:
           application/json:
@@ -1267,6 +1330,8 @@ paths:
       summary: Get a Smart Account by name
       description: Gets a Smart Account by its name.
       operationId: getEvmSmartAccountByName
+      security:
+        - apiKeyAuth: []
       tags:
         - EVM Smart Accounts
       parameters:
@@ -1320,6 +1385,8 @@ paths:
       operationId: importEvmAccount
       tags:
         - EVM Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -1407,6 +1474,8 @@ paths:
       operationId: exportEvmAccount
       tags:
         - EVM Accounts
+      security:
+        - apiKeyAuth: []
       x-required-api-auth-scopes:
         - accounts#export
       parameters:
@@ -1497,6 +1566,8 @@ paths:
       operationId: exportEvmAccountByName
       tags:
         - EVM Accounts
+      security:
+        - apiKeyAuth: []
       x-required-api-auth-scopes:
         - accounts#export
       parameters:
@@ -1583,6 +1654,8 @@ paths:
       summary: Get a Smart Account by address
       description: Gets a Smart Account by its address.
       operationId: getEvmSmartAccount
+      security:
+        - apiKeyAuth: []
       tags:
         - EVM Smart Accounts
       parameters:
@@ -1629,6 +1702,77 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+    put:
+      x-audience: public
+      summary: Update an EVM Smart Account
+      description: Updates an existing EVM smart account. Use this to update the smart account's name.
+      operationId: updateEvmSmartAccount
+      tags:
+        - EVM Smart Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: address
+          description: The 0x-prefixed address of the EVM smart account. The address does not need to be checksummed.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: |-
+                    An optional name for the smart account.
+                    Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+                    Account names must be unique across all EVM smart accounts in the developer's CDP Project.
+                  example: my-smart-account
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+      responses:
+        '200':
+          description: Successfully updated EVM smart account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmSmartAccount'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: 'request body has an error: doesn''t match schema: Error at "/name": string doesn''t match the regular expression  "^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"'
+        '404':
+          description: EVM account not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: EVM smart account with the given address not found.
+        '409':
+          $ref: '#/components/responses/AlreadyExistsError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/smart-accounts/{address}/user-operations:
     post:
       summary: Prepare a user operation
@@ -1636,6 +1780,8 @@ paths:
       operationId: prepareUserOperation
       tags:
         - EVM Smart Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: address
           description: The address of the Smart Account to create the user operation on.
@@ -1652,12 +1798,7 @@ paths:
               type: object
               properties:
                 network:
-                  type: string
-                  description: The network to prepare the user operation for.
-                  enum:
-                    - base-sepolia
-                    - base
-                  example: base-sepolia
+                  $ref: '#/components/schemas/EvmUserOperationNetwork'
                 calls:
                   type: array
                   description: The list of calls to make from the Smart Account.
@@ -1688,6 +1829,17 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Field "network" is required.
+        '403':
+          description: Access to resource forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Unable to sign transaction for this address.
         '404':
           description: Not found.
           content:
@@ -1712,6 +1864,8 @@ paths:
       operationId: getUserOperation
       tags:
         - EVM Smart Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: address
           description: The address of the Smart Account the user operation belongs to.
@@ -1775,6 +1929,8 @@ paths:
       operationId: sendUserOperation
       tags:
         - EVM Smart Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: address
           description: The address of the Smart Account to send the user operation from.
@@ -1824,6 +1980,17 @@ paths:
                     errorMessage: Invalid signature.
         '402':
           $ref: '#/components/responses/PaymentMethodRequiredError'
+        '403':
+          description: Access to resource forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Unable to sign transaction for this address.
         '404':
           description: Not found.
           content:
@@ -1860,6 +2027,8 @@ paths:
       operationId: getEvmSwapPrice
       tags:
         - EVM Swaps
+      security:
+        - apiKeyAuth: []
       parameters:
         - in: query
           name: network
@@ -1977,6 +2146,8 @@ paths:
       operationId: createEvmSwapQuote
       tags:
         - EVM Swaps
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -2151,6 +2322,8 @@ paths:
       operationId: listEvmTokenBalances
       tags:
         - EVM Token Balances
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: address
           description: The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed.
@@ -2266,6 +2439,8 @@ paths:
       operationId: requestEvmFaucet
       tags:
         - Faucets
+      security:
+        - apiKeyAuth: []
       requestBody:
         content:
           application/json:
@@ -2363,6 +2538,8 @@ paths:
       operationId: listPolicies
       tags:
         - Policy Engine
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: pageSize
           description: The number of policies to return per page.
@@ -2419,6 +2596,8 @@ paths:
       operationId: createPolicy
       tags:
         - Policy Engine
+      security:
+        - apiKeyAuth: []
       x-required-api-auth-scopes:
         - policies#manage
       parameters:
@@ -2488,6 +2667,8 @@ paths:
       operationId: getPolicyById
       tags:
         - Policy Engine
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: policyId
           description: The ID of the policy to get.
@@ -2528,6 +2709,8 @@ paths:
       operationId: deletePolicy
       tags:
         - Policy Engine
+      security:
+        - apiKeyAuth: []
       x-required-api-auth-scopes:
         - policies#manage
       parameters:
@@ -2582,6 +2765,8 @@ paths:
       operationId: updatePolicy
       tags:
         - Policy Engine
+      security:
+        - apiKeyAuth: []
       x-required-api-auth-scopes:
         - policies#manage
       parameters:
@@ -2666,6 +2851,8 @@ paths:
       operationId: listSolanaAccounts
       tags:
         - Solana Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: pageSize
           description: The number of accounts to return per page.
@@ -2712,6 +2899,8 @@ paths:
       operationId: createSolanaAccount
       tags:
         - Solana Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -2794,6 +2983,8 @@ paths:
       operationId: getSolanaAccount
       tags:
         - Solana Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: address
           description: The base58 encoded address of the Solana account.
@@ -2845,6 +3036,8 @@ paths:
       operationId: updateSolanaAccount
       tags:
         - Solana Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
         - name: address
@@ -2921,6 +3114,8 @@ paths:
       operationId: getSolanaAccountByName
       tags:
         - Solana Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: name
           description: The name of the Solana account.
@@ -2964,6 +3159,89 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/solana/accounts/import:
+    post:
+      x-audience: public
+      summary: Import a Solana account
+      description: Import an existing Solana account into the developer's CDP Project. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
+      operationId: importSolanaAccount
+      tags:
+        - Solana Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                encryptedPrivateKey:
+                  type: string
+                  description: The base64-encoded, encrypted 32-byte private key of the Solana account. The private key must be encrypted using the CDP SDK's encryption scheme.
+                  example: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+                name:
+                  type: string
+                  description: |-
+                    An optional name for the account.
+                    Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+                    Account names must be unique across all EVM accounts in the developer's CDP Project.
+                  example: my-solana-wallet
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+              required:
+                - encryptedPrivateKey
+      responses:
+        '201':
+          description: Successfully imported Solana account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolanaAccount'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: The encrypted private key is invalid.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '409':
+          description: Resource already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                already_exists:
+                  value:
+                    errorType: already_exists
+                    errorMessage: Solana account with the given address already exists.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/solana/accounts/{address}/export:
     post:
       x-audience: public
@@ -2972,6 +3250,8 @@ paths:
       operationId: exportSolanaAccount
       tags:
         - Solana Accounts
+      security:
+        - apiKeyAuth: []
       x-required-api-auth-scopes:
         - accounts#export
       parameters:
@@ -3062,6 +3342,8 @@ paths:
       operationId: exportSolanaAccountByName
       tags:
         - Solana Accounts
+      security:
+        - apiKeyAuth: []
       x-required-api-auth-scopes:
         - accounts#export
       parameters:
@@ -3161,6 +3443,8 @@ paths:
       operationId: signSolanaTransaction
       tags:
         - Solana Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -3265,6 +3549,8 @@ paths:
       operationId: signSolanaMessage
       tags:
         - Solana Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/XWalletAuth'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -3347,6 +3633,128 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/solana/accounts/send/transaction:
+    post:
+      x-audience: public
+      summary: Send a Solana transaction
+      description: |-
+        Signs and sends a single Solana transaction using multiple Solana accounts. The transaction may contain contain several instructions, each of which may require signatures from different account keys.
+
+        The transaction should be serialized into a byte array and base64 encoded. The API handles recent blockhash management and fee estimation, leaving the developer to provide only the minimal set of fields necessary to send the transaction.
+
+        **Transaction types**
+
+        The following transaction types are supported:
+        * [Legacy transactions](https://solana.com/developers/guides/advanced/versions#current-transaction-versions)
+        * [Versioned transactions](https://solana.com/developers/guides/advanced/versions)
+
+        **Instruction Batching**
+
+        To batch multiple operations, include multiple instructions within a single transaction. All instructions within a transaction are executed atomically - if any instruction fails, the entire transaction fails and is rolled back.
+
+        **Network Support**
+
+        The following Solana networks are supported:
+        * `solana` - Solana Mainnet
+        * `solana-devnet` - Solana Devnet
+
+        The developer is responsible for ensuring that the unsigned transaction is valid, as the API will not validate the transaction.
+      operationId: sendSolanaTransaction
+      tags:
+        - Solana Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                network:
+                  type: string
+                  description: The Solana network to send the transaction to.
+                  enum:
+                    - solana
+                    - solana-devnet
+                  example: solana-devnet
+                transaction:
+                  type: string
+                  description: The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching.
+                  example: AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA=
+              required:
+                - network
+                - transaction
+      responses:
+        '200':
+          description: Successfully signed and sent transaction.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionSignature:
+                    type: string
+                    description: The base58 encoded transaction signature.
+                    example: 5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW
+                required:
+                  - transactionSignature
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                malformed_transaction:
+                  value:
+                    errorType: malformed_transaction
+                    errorMessage: Malformed unsigned transaction.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '403':
+          description: Access to resource forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Unable to sign transaction for this address
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Solana account with the given address not found.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/solana/faucet:
     post:
       x-audience: public
@@ -3367,6 +3775,8 @@ paths:
       operationId: requestSolanaFaucet
       tags:
         - Faucets
+      security:
+        - apiKeyAuth: []
       requestBody:
         content:
           application/json:
@@ -3445,6 +3855,110 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/solana/token-balances/{network}/{address}:
+    get:
+      summary: List Solana token balances
+      x-audience: public
+      description: |-
+        Lists the token balances of a Solana address on a given network. The balances include SPL tokens and the native SOL token. The response is paginated, and by default, returns 20 balances per page.
+
+        **Note:** This endpoint is still under development and does not yet provide strong availability or freshness guarantees. Freshness and availability of new token balances will improve over the coming weeks.
+      operationId: listSolanaTokenBalances
+      tags:
+        - Solana Token Balances
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: address
+          description: The base58 encoded Solana address to get balances for.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+          example: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+        - name: network
+          description: The human-readable network name to get the balances for.
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/ListSolanaTokenBalancesNetwork'
+          example: solana
+        - name: pageSize
+          description: The number of balances to return per page.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          example: 10
+        - name: pageToken
+          description: The token for the next page of balances. Will be empty if there are no more balances to fetch.
+          in: query
+          required: false
+          schema:
+            type: string
+          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+      responses:
+        '200':
+          description: Successfully listed token balances.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - balances
+                    properties:
+                      balances:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SolanaTokenBalance'
+                        description: The list of Solana token balances.
+                        example:
+                          - amount:
+                              amount: '1250000000'
+                              decimals: 9
+                            token:
+                              symbol: SOL
+                              name: Solana
+                              mintAddress: So11111111111111111111111111111111111111111
+                          - amount:
+                              amount: '123456000'
+                              decimals: 6
+                            token:
+                              symbol: USDC
+                              name: USD Coin
+                              mintAddress: 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU
+                  - $ref: '#/components/schemas/ListResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: string doesn't match the regular expression "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Address not found, or no balances found for the given address on this chain.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/payments/rails/payment-methods:
     get:
       summary: Get the fiat payment methods
@@ -3452,6 +3966,8 @@ paths:
       operationId: getPaymentMethods
       tags:
         - Payments (Alpha)
+      security:
+        - apiKeyAuth: []
       responses:
         '200':
           description: Successfully retrieved the payment methods.
@@ -3499,6 +4015,8 @@ paths:
       operationId: getCryptoRails
       tags:
         - Payments (Alpha)
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: networks
           description: Comma separated list of networks to filter the rails by.
@@ -3540,6 +4058,8 @@ paths:
       operationId: createPaymentTransferQuote
       tags:
         - Payments (Alpha)
+      security:
+        - apiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -3632,6 +4152,8 @@ paths:
       operationId: executePaymentTransferQuote
       tags:
         - Payments (Alpha)
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: transferId
           description: The ID of the transfer.
@@ -3705,6 +4227,8 @@ paths:
       operationId: getPaymentTransfer
       tags:
         - Payments (Alpha)
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: transferId
           description: The ID of the transfer.
@@ -3766,7 +4290,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: A JWT signed using your CDP API Key Secret, encoded in base64. Refer to the [Generate Bearer Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-bearer-token) section of our Authentication docs for information on how to generate your Bearer Token.
+      description: A JWT signed using your CDP API Key Secret, encoded in base64. Refer to the [Generate Bearer Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-bearer-token) section of our Authentication docs for information on how to generate your Bearer Token.
   schemas:
     EvmAccount:
       type: object
@@ -3836,6 +4360,12 @@ components:
         - policy_violation
         - policy_in_use
         - account_limit_exceeded
+        - network_not_tradable
+        - guest_permission_denied
+        - guest_region_forbidden
+        - guest_transaction_limit
+        - guest_transaction_count
+        - guest_phone_number_verification_expired
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -3862,7 +4392,7 @@ components:
           1. Wait for the time window to reset
           2. Use funds more efficiently in your testing
 
-          For more information on faucet limits, please visit the [EVM Faucet endpoint](../reference/requestEvmFaucet) or the [Solana Faucet endpoint](../reference/requestSolanaFaucet).
+          For more information on faucet limits, please visit the [EVM Faucet endpoint](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/faucets/request-funds-on-evm-test-networks) or the [Solana Faucet endpoint](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/faucets/request-funds-on-solana-devnet).
         forbidden: |-
           This error occurs when you don't have permission to access the resource.
 
@@ -3878,7 +4408,7 @@ components:
           3. Track used keys within your application
 
           **Example idempotency key implementation:**
-          ```typescript
+          ```typescript lines wrap
           import { v4 as uuidv4 } from 'uuid';
 
           function createIdempotencyKey() {
@@ -3939,7 +4469,7 @@ components:
              - **Solana**: Validate base64 encoding
           2. Ensure all required transaction fields are present
           3. Validate transaction parameters are within acceptable ranges
-          4. Check that the transaction type is supported on the target network (see our [Supported Networks](https://docs.cdp.coinbase.com/cdp-apis/docs/networks) page for more details)
+          4. Check that the transaction type is supported on the target network (see our [Supported Networks](https://docs.cdp.coinbase.com/get-started/supported-networks) page for more details)
 
           **Common causes:**
           - Invalid hex encoding for EVM transactions
@@ -3979,7 +4509,7 @@ components:
           3. Wait for rate limit window to reset
 
           **Best practices:**
-          ```typescript
+          ```typescript lines wrap
           async function withRetry(fn: () => Promise<any>) {
             let delay = 1000;
             while (true) {
@@ -4006,7 +4536,7 @@ components:
           4. Implement request tracking to identify premature cancellations
 
           **Best practices:**
-          ```typescript
+          ```typescript lines wrap
           async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
             const timeout = new Promise((_, reject) => {
               setTimeout(() => {
@@ -4042,7 +4572,7 @@ components:
           3. Use streaming endpoints for large data sets
 
           **Example retry implementation:**
-          ```typescript
+          ```typescript lines wrap
           async function withRetryAndTimeout<T>(
             operation: () => Promise<T>,
             maxRetries = 3,
@@ -4091,6 +4621,42 @@ components:
           **Steps to resolve:**
           1. Update project or accounts to remove references to the Policy in question.
           2. Retry your delete request.
+        network_not_tradable: |-
+          This error occurs when the selected asset cannot be purchased on the selected network in the user's location.
+
+          **Steps to resolve:**
+          1. Verify the asset is tradable on the selected network
+          2. Check the user's location to ensure it is allowed to purchase the asset on the selected network
+
+          **Common causes:**
+          - Users in NY are not allowed to purchase USDC on any network other than Ethereum
+        guest_permission_denied: |-
+          This error occurs when the user is not allowed to complete onramp transactions as a guest.
+
+          **Steps to resolve:**
+          1. Redirect the user to create a Coinbase account to buy and send crypto.
+        guest_region_forbidden: |-
+          This error occurs when guest onramp transactions are not allowed in the user's region.
+
+          **Steps to resolve:**
+          1. Redirect the user to create a Coinbase account to buy and send crypto.
+        guest_transaction_limit: |-
+          This error occurs when the user has reached the weekly guest onramp transaction limit.
+
+          **Steps to resolve:**
+          1. Inform the user they have reached their weekly limit and will have to wait until next week.
+        guest_transaction_count: |-
+          This error occurs when the user has reached the lifetime guest onramp transaction count limit.
+
+          **Steps to resolve:**
+          1. Redirect the user to create a Coinbase account to buy and send crypto.
+        guest_phone_number_verification_expired: |-
+          This error occurs when the user's phone number verification has expired. Use of guest Onramp requires the user's
+          phone number to be verified every 60 days.
+
+          **Steps to resolve:**
+          1. Re-verify the user's phone number via OTP.
+          2. Retry the request with the phoneNumberVerifiedAt field set to new verification timestamp.
     Error:
       description: An error response including the code for the type of error and a human-readable message describing the error.
       type: object
@@ -4108,7 +4674,7 @@ components:
         errorLink:
           description: A link to the corresponding error documentation.
           type: string
-          example: https://docs.cdp.coinbase.com/api-v2/docs/errors#invalid_request
+          example: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid_request
       required:
         - errorType
         - errorMessage
@@ -4116,7 +4682,7 @@ components:
         errorType: invalid_request
         errorMessage: Invalid request.
         correlationId: 41deb8d59a9dc9a7-IAD
-        errorLink: https://docs.cdp.coinbase.com/api-v2/docs/errors#invalid_request
+        errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid_request
     EIP712Domain:
       type: object
       description: The domain of the EIP-712 typed data.
@@ -4261,6 +4827,15 @@ components:
             Account names are guaranteed to be unique across all Smart Accounts in the developer's CDP Project.
           example: my-smart-account
           pattern: ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+        policies:
+          type: array
+          x-audience: public
+          description: The list of policy IDs that apply to the smart account. This will include both the project-level policy and the account-level policy, if one exists.
+          items:
+            type: string
+            pattern: ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          example:
+            - 123e4567-e89b-12d3-a456-426614174000
         createdAt:
           type: string
           description: The UTC ISO 8601 timestamp at which the account was created.
@@ -4274,6 +4849,21 @@ components:
       required:
         - address
         - owners
+    EvmUserOperationNetwork:
+      type: string
+      description: The network the user operation is for.
+      enum:
+        - base-sepolia
+        - base
+        - arbitrum
+        - optimism
+        - zora
+        - polygon
+        - bnb
+        - avalanche
+        - ethereum
+        - ethereum-sepolia
+      example: base
     EvmCall:
       type: object
       properties:
@@ -4299,12 +4889,7 @@ components:
       type: object
       properties:
         network:
-          type: string
-          description: The network the user operation is for.
-          enum:
-            - base-sepolia
-            - base
-          example: base-sepolia
+          $ref: '#/components/schemas/EvmUserOperationNetwork'
         userOpHash:
           type: string
           pattern: ^0x[0-9a-fA-F]{64}$
@@ -4793,7 +5378,7 @@ components:
             - evmAddress
         addresses:
           type: array
-          description: A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 100 addresses per criterion.
+          description: A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 300 addresses per criterion.
           items:
             type: string
             pattern: ^0x[0-9a-fA-F]{40}$
@@ -5282,6 +5867,249 @@ components:
         - action
         - operation
         - criteria
+    EvmTypedAddressCondition:
+      type: object
+      x-audience: public
+      description: A schema for specifying criterion for an address field of an EVM typed message. The address can be deeply nested within the typed data's message.
+      properties:
+        addresses:
+          type: array
+          description: A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 300 addresses per criterion.
+          items:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+            description: The 0x-prefixed EVM address that the value located at the message's path should be compared to.
+          example:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            - '0x1234567890123456789012345678901234567890'
+        operator:
+          type: string
+          description: The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+        path:
+          type: string
+          description: The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected.
+          example: targets[0].address
+      required:
+        - addresses
+        - operator
+        - path
+    EvmTypedNumericalCondition:
+      type: object
+      x-audience: public
+      description: A schema for specifying criterion for a numerical field of an EVM typed message. The value can be deeply nested within the typed data's message.
+      properties:
+        value:
+          type: string
+          pattern: ^[0-9]+$
+          description: The amount that the value located at the message's path should be compared to.
+          example: '1000000000000000000'
+        operator:
+          type: string
+          description: The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+          enum:
+            - '>'
+            - '>='
+            - <
+            - <=
+            - '=='
+          example: <=
+        path:
+          type: string
+          description: The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected.
+          example: targets[0].amount
+      required:
+        - value
+        - operator
+        - path
+    EvmTypedStringCondition:
+      type: object
+      x-audience: public
+      description: A schema for specifying criterion for a string field of an EVM typed message. The value can be deeply nested within the typed data's message.
+      properties:
+        match:
+          type: string
+          description: A regular expression the field is matched against.
+          example: ^hello ([a-z]+)$
+        path:
+          type: string
+          description: The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected.
+          example: targets[0].message
+      required:
+        - match
+        - path
+    SignEvmTypedDataFieldCriterion:
+      x-audience: public
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `evmTypedDataField`.
+          example: evmTypedDataField
+          enum:
+            - evmTypedDataField
+        types:
+          type: object
+          description: An object containing EIP-712 type definitions, as well as a primary type for the root message object.
+          example:
+            primaryType: Mail
+            types:
+              Person:
+                - name: name
+                  type: string
+                - name: wallet
+                  type: address
+                - name: score
+                  type: uint256
+              Mail:
+                - name: from
+                  type: Person
+                - name: to
+                  type: Person
+                - name: contents
+                  type: string
+          properties:
+            types:
+              type: object
+              description: EIP-712 compliant map of model names to model definitions.
+              additionalProperties:
+                type: array
+                description: Object containing names and types for fields within structured data.
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: The name of a key within an EIP-712 data structure.
+                    type:
+                      type: string
+                      description: The Solidity type of a value within an EIP-712 data structure.
+            primaryType:
+              type: string
+              description: The name of the root EIP-712 type. This value must be included in the `types` object.
+          required:
+            - types
+            - primaryType
+        conditions:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/EvmTypedAddressCondition'
+              - $ref: '#/components/schemas/EvmTypedNumericalCondition'
+              - $ref: '#/components/schemas/EvmTypedStringCondition'
+          description: A list of conditions to check against the data being signed. Each condition must be met for the rule to take effect.
+          example:
+            - addresses:
+                - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+              operator: in
+              path: to.wallet
+            - value: '50'
+              operator: '>='
+              path: to.score
+            - match: ^hello ([a-z]+)$
+              path: contents
+      required:
+        - type
+        - types
+        - conditions
+    SignEvmTypedDataVerifyingContractCriterion:
+      type: object
+      x-audience: public
+      description: A schema for specifying criterion for a domain's verifying contract.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `evmTypedDataVerifyingContract`.
+          example: evmTypedDataVerifyingContract
+          enum:
+            - evmTypedDataVerifyingContract
+        addresses:
+          type: array
+          description: A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 300 addresses per criterion.
+          items:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+            description: The 0x-prefixed EVM address that the domain's verifying contract should be compared to.
+          example:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            - '0x1234567890123456789012345678901234567890'
+        operator:
+          type: string
+          description: The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+      required:
+        - type
+        - addresses
+        - operator
+    SignEvmTypedDataCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the SignEvmTypedData operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/SignEvmTypedDataFieldCriterion'
+          - $ref: '#/components/schemas/SignEvmTypedDataVerifyingContractCriterion'
+      example:
+        - type: evmTypedDataField
+          types:
+            types:
+              Person:
+                - name: name
+                  type: string
+                - name: wallet
+                  type: address
+                - name: score
+                  type: uint256
+              Mail:
+                - name: from
+                  type: Person
+                - name: to
+                  type: Person
+                - name: contents
+                  type: string
+            primaryType: Mail
+          conditions:
+            - addresses:
+                - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+              operator: in
+              path: to.wallet
+            - value: '50'
+              operator: '>='
+              path: to.score
+            - match: ^hello ([a-z]+)$
+              path: contents
+        - type: evmTypedDataVerifyingContract
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+    SignEvmTypedDataRule:
+      x-audience: public
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: signEvmTypedData
+          enum:
+            - signEvmTypedData
+        criteria:
+          $ref: '#/components/schemas/SignEvmTypedDataCriteria'
+      required:
+        - action
+        - operation
+        - criteria
     SolAddressCriterion:
       type: object
       description: The criterion for the recipient addresses of a Solana transaction.
@@ -5364,6 +6192,85 @@ components:
       required:
         - action
         - operation
+    PrepareUserOperationCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the PrepareUserOperation operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EthValueCriterion'
+          - $ref: '#/components/schemas/EvmAddressCriterion'
+          - $ref: '#/components/schemas/EvmNetworkCriterion'
+          - $ref: '#/components/schemas/EvmDataCriterion'
+      example:
+        - type: ethValue
+          ethValue: '1000000'
+          operator: '>='
+        - type: evmAddress
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+    PrepareUserOperationRule:
+      x-audience: public
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: prepareUserOperation
+          enum:
+            - prepareUserOperation
+        criteria:
+          $ref: '#/components/schemas/PrepareUserOperationCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    SendUserOperationCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the SendUserOperation operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EthValueCriterion'
+          - $ref: '#/components/schemas/EvmAddressCriterion'
+          - $ref: '#/components/schemas/EvmDataCriterion'
+      example:
+        - type: ethValue
+          ethValue: '1000000'
+          operator: '>='
+        - type: evmAddress
+          addresses:
+            - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          operator: in
+    SendUserOperationRule:
+      x-audience: public
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: sendUserOperation
+          enum:
+            - sendUserOperation
+        criteria:
+          $ref: '#/components/schemas/SendUserOperationCriteria'
+      required:
+        - action
+        - operation
+        - criteria
     Rule:
       type: object
       description: A rule that limits the behavior of an account.
@@ -5371,8 +6278,11 @@ components:
         - $ref: '#/components/schemas/SignEvmTransactionRule'
         - $ref: '#/components/schemas/SendEvmTransactionRule'
         - $ref: '#/components/schemas/SignEvmMessageRule'
+        - $ref: '#/components/schemas/SignEvmTypedDataRule'
         - $ref: '#/components/schemas/SignSolTransactionRule'
         - $ref: '#/components/schemas/SignEvmHashRule'
+        - $ref: '#/components/schemas/PrepareUserOperationRule'
+        - $ref: '#/components/schemas/SendUserOperationRule'
       example:
         action: accept
         operation: signEvmTransaction
@@ -5481,6 +6391,78 @@ components:
           format: date-time
       required:
         - address
+    ListSolanaTokenBalancesNetwork:
+      type: string
+      enum:
+        - solana
+        - solana-devnet
+      description: The name of the supported Solana networks in human-readable format.
+      example: solana
+    SolanaTokenAmount:
+      type: object
+      description: Amount of a given Solana token.
+      example:
+        amount: '1250000000'
+        decimals: 9
+      properties:
+        amount:
+          type: string
+          pattern: ^[0-9]+$
+          description: The amount is denominated in the smallest indivisible unit of the token. For SOL, the smallest indivisible unit is lamports (10^-9 SOL). For SPL tokens, the smallest unit is defined by the token's decimals configuration.
+          example: '1250000000'
+        decimals:
+          type: integer
+          format: int64
+          description: |-
+            'decimals' is the exponential value N that satisfies the equation `amount * 10^-N = standard_denomination`. The standard denomination is the most commonly used denomination for the token.
+            - For native SOL, `decimals` is 9 (1 SOL = 10^9 lamports). - For SPL tokens, `decimals` is defined in the token's mint configuration.
+          example: 9
+      required:
+        - amount
+        - decimals
+    SolanaToken:
+      type: object
+      description: General information about a Solana token. Includes the mint address, and other identifying information.
+      example:
+        symbol: SOL
+        name: Solana
+        mintAddress: So11111111111111111111111111111111111111111
+      properties:
+        symbol:
+          type: string
+          description: |-
+            The symbol of this token (ex: SOL, USDC, RAY).
+            The token symbol is not unique. It is possible for two different tokens to have the same symbol.
+            For the native SOL token, this symbol is "SOL". For SPL tokens, this symbol is defined in the token's metadata.
+            Not all tokens have a symbol. This field will only be populated when the token has metadata available.
+          example: SOL
+        name:
+          type: string
+          description: |-
+            The name of this token (ex: "Solana", "USD Coin", "Raydium").
+            The token name is not unique. It is possible for two different tokens to have the same name.
+            For the native SOL token, this name is "Solana". For SPL tokens, this name is defined in the token's metadata.
+            Not all tokens have a name. This field will only be populated when the token has metadata available.
+          example: Solana
+        mintAddress:
+          type: string
+          pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+          description: |-
+            The mint address of the token.
+            For native SOL, the mint address is `So11111111111111111111111111111111111111111`. For SPL tokens, this is the mint address where the token is defined.
+          example: So11111111111111111111111111111111111111111
+      required:
+        - mintAddress
+    SolanaTokenBalance:
+      type: object
+      properties:
+        amount:
+          $ref: '#/components/schemas/SolanaTokenAmount'
+        token:
+          $ref: '#/components/schemas/SolanaToken'
+      required:
+        - amount
+        - token
     PaymentRailAction:
       description: The action of the payment method.
       type: string
@@ -5913,7 +6895,7 @@ components:
       required: true
       description: |
         A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-        [Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token)
+        [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
         section of our Authentication docs for more details on how to generate your Wallet Token.
       schema:
         type: string
@@ -5925,7 +6907,7 @@ components:
       description: |
         An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
         When included, duplicate requests with the same key will return identical responses. 
-        Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
+        Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
       schema:
         type: string
         maxLength: 36

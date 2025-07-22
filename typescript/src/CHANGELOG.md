@@ -1,5 +1,105 @@
 # CDP SDK Changelog
 
+## 1.28.0
+
+### Minor Changes
+
+- [#304](https://github.com/coinbase/cdp-sdk/pull/304) [`d6363f6`](https://github.com/coinbase/cdp-sdk/commit/d6363f667457e172474c3aadcfb7cbdaadb536f2) Thanks [@sammccord](https://github.com/sammccord)! - Increased address criterion validation to 300 from 100
+
+### Patch Changes
+
+- [#309](https://github.com/coinbase/cdp-sdk/pull/309) [`ee7601c`](https://github.com/coinbase/cdp-sdk/commit/ee7601ce9700272162684435721f42bc9e0af3b5) Thanks [@sddioulde](https://github.com/sddioulde)! - Updated transfer to use SendSolanaTransaction
+
+- [#299](https://github.com/coinbase/cdp-sdk/pull/299) [`d5e6e20`](https://github.com/coinbase/cdp-sdk/commit/d5e6e206d760e2b72d46ea9676d3a0b9306877b3) Thanks [@0xRAG](https://github.com/0xRAG)! - Fixed managed methods not being available when using custom RPC URLs with EVM server accounts
+
+## 1.27.0
+
+### Minor Changes
+
+- [#291](https://github.com/coinbase/cdp-sdk/pull/291) [`2f91319`](https://github.com/coinbase/cdp-sdk/commit/2f91319c3e74a4d5a437222e16b4b891cda74a97) Thanks [@marcin-cb](https://github.com/marcin-cb)! - Added SendTransaction method to the Solana client
+
+- [#293](https://github.com/coinbase/cdp-sdk/pull/293) [`da89fd1`](https://github.com/coinbase/cdp-sdk/commit/da89fd120f37788d9f917d0cc0969396fba98d78) Thanks [@0xRAG](https://github.com/0xRAG)! - Improved network error handling
+
+## 1.26.0
+
+### Minor Changes
+
+- [#284](https://github.com/coinbase/cdp-sdk/pull/284) [`8f62c03`](https://github.com/coinbase/cdp-sdk/commit/8f62c039acebdee3bc2d40abe9fcb02f301d4b8d) Thanks [@0xRAG](https://github.com/0xRAG)! - Added signTypedData on EvmSmartAccount
+
+### Patch Changes
+
+- [#282](https://github.com/coinbase/cdp-sdk/pull/282) [`d125258`](https://github.com/coinbase/cdp-sdk/commit/d125258c2dcf3fe6104cf9df0290d9904c2019fb) Thanks [@sddioulde](https://github.com/sddioulde)! - Made solana mainnet default network for listTokenBalances
+
+- [#281](https://github.com/coinbase/cdp-sdk/pull/281) [`8a8d687`](https://github.com/coinbase/cdp-sdk/commit/8a8d687e4410abe277f932afd19f0e19cc5a5bf6) Thanks [@0xRAG](https://github.com/0xRAG)! - Fixed network scoped server account transfer
+
+## 1.25.0
+
+### Minor Changes
+
+- [#275](https://github.com/coinbase/cdp-sdk/pull/275) [`64073d0`](https://github.com/coinbase/cdp-sdk/commit/64073d09dc620117b25a3a981f7d52fa3b0db755) Thanks [@sddioulde](https://github.com/sddioulde)! - Added listTokenBalances to retrieve SOL and SPL token balances for a Solana account
+
+## 1.24.0
+
+### Minor Changes
+
+- [#267](https://github.com/coinbase/cdp-sdk/pull/267) [`a0030c7`](https://github.com/coinbase/cdp-sdk/commit/a0030c7753611457082b13d953f09358ac1b3f29) Thanks [@superadi04](https://github.com/superadi04)! - Added updateSmartAccount to EvmClient
+
+- [#270](https://github.com/coinbase/cdp-sdk/pull/270) [`dc7ee1a`](https://github.com/coinbase/cdp-sdk/commit/dc7ee1a07862f79f3db8541e6327b3f0fffb34fe) Thanks [@sammccord](https://github.com/sammccord)! - Added support for sendUserOperation, prepareUserOperation policy rules, and added policies to EVM Smart Account models
+
+### Patch Changes
+
+- [#271](https://github.com/coinbase/cdp-sdk/pull/271) [`ce4771c`](https://github.com/coinbase/cdp-sdk/commit/ce4771c95f52e11c1ab0911d9c49a52fbe3bac69) Thanks [@0xRAG](https://github.com/0xRAG)! - Added ability to pass address in getUserOperation on EvmClient
+
+## 1.23.0
+
+### Minor Changes
+
+- [#264](https://github.com/coinbase/cdp-sdk/pull/264) [`09ce300`](https://github.com/coinbase/cdp-sdk/commit/09ce300a773d1b9b63c97677ee1a5e4e4ee27c60) Thanks [@0xRAG](https://github.com/0xRAG)! - Added support for policy creation on signTypedData operations
+
+### Patch Changes
+
+- [#262](https://github.com/coinbase/cdp-sdk/pull/262) [`d4039e9`](https://github.com/coinbase/cdp-sdk/commit/d4039e9d5b0910c601e649f60506559c9b6205b3) Thanks [@0xRAG](https://github.com/0xRAG)! - Update smartAccount#transfer type to include optional paymasterUrl
+
+## 1.22.0
+
+### Minor Changes
+
+- [#250](https://github.com/coinbase/cdp-sdk/pull/250) [`a11ecd2`](https://github.com/coinbase/cdp-sdk/commit/a11ecd2ebb59a4a9d475323322cb40d9c40911f1) Thanks [@0xRAG](https://github.com/0xRAG)! - Swapped built-in crypto library for uncrypto in auth subpackage to allow it to work in Next.js Edge runtime
+
+- [#251](https://github.com/coinbase/cdp-sdk/pull/251) [`57aa371`](https://github.com/coinbase/cdp-sdk/commit/57aa3717a9356f89031c1cf20c83f8b0f310dad7) Thanks [@suryatejamandadi-cb](https://github.com/suryatejamandadi-cb)! - Added ethereum mainnet support for the wallet fund and quoteFund operations for server/smart accounts
+
+### Patch Changes
+
+- [#194](https://github.com/coinbase/cdp-sdk/pull/194) [`b65c416`](https://github.com/coinbase/cdp-sdk/commit/b65c41678f717c1d25162cb8e2f1fb1f205b8051) Thanks [@0xRAG](https://github.com/0xRAG)! - Added check to ensure minimum required Node.js version
+
+## 1.21.0
+
+### Minor Changes
+
+- [#242](https://github.com/coinbase/cdp-sdk/pull/242) [`bcc21c1`](https://github.com/coinbase/cdp-sdk/commit/bcc21c1cb6880b7a31ec6731d3e8f434e1fff324) Thanks [@0xRAG](https://github.com/0xRAG)! - Automatically set paymasterUrl to Base Node URL on Smart Accounts scoped to Base
+
+- [#241](https://github.com/coinbase/cdp-sdk/pull/241) [`938233f`](https://github.com/coinbase/cdp-sdk/commit/938233f7e5db52f249fe15bdde1e22ff89a776fa) Thanks [@0xRAG](https://github.com/0xRAG)! - Added type-safe network hoisted methods to EvmSmartAccount
+
+- [#245](https://github.com/coinbase/cdp-sdk/pull/245) [`babe262`](https://github.com/coinbase/cdp-sdk/commit/babe262bac81249393133a77b8b4c7985bf2b537) Thanks [@0xRAG](https://github.com/0xRAG)! - Added automatic paymasterUrl when sending user operations
+
+  This will work with scoped and un-scoped smart accounts, as long as the network is `base`.
+
+- [#233](https://github.com/coinbase/cdp-sdk/pull/233) [`9d02af8`](https://github.com/coinbase/cdp-sdk/commit/9d02af82ce02ca541a3c05fbe7666dc6da42c31f) Thanks [@0xRAG](https://github.com/0xRAG)! - Added all methods to network-hoisted EvmServerAccount
+
+- [#239](https://github.com/coinbase/cdp-sdk/pull/239) [`cd87b8a`](https://github.com/coinbase/cdp-sdk/commit/cd87b8a87a720124d22fed567dbb8c3134849023) Thanks [@milan-cb](https://github.com/milan-cb)! - Added a importAccount method to the Solana client
+
+### Patch Changes
+
+- [#247](https://github.com/coinbase/cdp-sdk/pull/247) [`111b95b`](https://github.com/coinbase/cdp-sdk/commit/111b95b3529b376517242f54a63bec47922bfa8e) Thanks [@milan-cb](https://github.com/milan-cb)! - Fixed a bug that breaks dev E2E tests due to using wrong RSA public key
+
+## 1.20.0
+
+### Minor Changes
+
+- [#234](https://github.com/coinbase/cdp-sdk/pull/234) [`f66893d`](https://github.com/coinbase/cdp-sdk/commit/f66893d173fa35e58d97ece8d9db04b918873cc4) Thanks [@github-actions](https://github.com/apps/github-actions)! - Added ethereum & ethereum-sepolia to SendEvmTransaction
+
+- [#232](https://github.com/coinbase/cdp-sdk/pull/232) [`7193c6f`](https://github.com/coinbase/cdp-sdk/commit/7193c6fe15b072523cb2fd6fea3744001fb99235) Thanks [@superadi04](https://github.com/superadi04)! - Added transfer function to managed EvmServerAccount
+
 ## 1.19.0
 
 ### Minor Changes

@@ -6,7 +6,7 @@ import "dotenv/config";
 async function main() {
   const cdp = new CdpClient();
 
-  const account = await cdp.evm.getOrCreateAccount({ name: "account" });
+  const account = await cdp.evm.createAccount();
   const smartAccount = await cdp.evm.createSmartAccount({ owner: account });
 
   const fundOperation = await smartAccount.fund({
@@ -14,7 +14,6 @@ async function main() {
     token: "usdc",
     amount: 1000000n, // 1 USDC
   });
-
 
   const completedTransfer = await smartAccount.waitForFundOperationReceipt({
     transferId: fundOperation.id,

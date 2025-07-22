@@ -18,9 +18,10 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from cdp.openapi_client.models.evm_call import EvmCall
+from cdp.openapi_client.models.evm_user_operation_network import EvmUserOperationNetwork
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,17 +29,10 @@ class PrepareUserOperationRequest(BaseModel):
     """
     PrepareUserOperationRequest
     """ # noqa: E501
-    network: StrictStr = Field(description="The network to prepare the user operation for.")
+    network: EvmUserOperationNetwork
     calls: List[EvmCall] = Field(description="The list of calls to make from the Smart Account.")
     paymaster_url: Optional[StrictStr] = Field(default=None, description="The URL of the paymaster to use for the user operation.", alias="paymasterUrl")
     __properties: ClassVar[List[str]] = ["network", "calls", "paymasterUrl"]
-
-    @field_validator('network')
-    def network_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['base-sepolia', 'base']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'base')")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

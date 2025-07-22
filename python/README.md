@@ -21,6 +21,7 @@
 - [Policy Management](#policy-management)
 - [Authentication Tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
+- [Usage Tracking](#usage-tracking)
 - [License](#license)
 - [Support](#support)
 - [Security](#security)
@@ -164,6 +165,21 @@ from cdp import CdpClient
 async def main():
     async with CdpClient() as cdp:
         account = await cdp.solana.create_account()
+
+asyncio.run(main())
+```
+
+#### Import a Solana account as follows:
+```python
+import asyncio
+from cdp import CdpClient
+
+async def main():
+    async with CdpClient() as cdp:
+        account = await cdp.solana.import_account(
+            private_key="3MLZ...Uko8zz",
+            name="MyAccount",
+        )
 
 asyncio.run(main())
 ```
@@ -550,7 +566,54 @@ asyncio.run(main())
 
 #### Solana
 
-For Solana, we recommend using the `solana` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/examples/python/solana/send_transaction.py).
+You can use CDP SDK to send transactions on Solana.
+
+For complete examples, check out [send_transaction.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/solana/send_transaction.py), [send_batch_transaction.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/solana/send_batch_transaction.py), and [send_many_batch_transactions.py](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/solana/send_many_batch_transactions.py).
+
+```python
+import asyncio
+import base64
+from cdp import CdpClient
+from solana.rpc.api import Client as SolanaClient
+from solders.message import Message
+from solders.pubkey import Pubkey as PublicKey
+from solders.system_program import TransferParams, transfer
+from dotenv import load_dotenv
+
+load_dotenv()
+
+async def main():
+    async with CdpClient() as cdp:
+        sender = await cdp.solana.create_account()
+        await cdp.solana.request_faucet(address=sender.address, token="sol")
+
+        connection = SolanaClient("https://api.devnet.solana.com")
+        
+        source_pubkey = PublicKey.from_string(sender.address)
+        dest_pubkey = PublicKey.from_string("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE")
+        blockhash = connection.get_latest_blockhash().value.blockhash
+        
+        transfer_instruction = transfer(TransferParams(
+            from_pubkey=source_pubkey,
+            to_pubkey=dest_pubkey,
+            lamports=1000
+        ))
+        
+        message = Message.new_with_blockhash([transfer_instruction], source_pubkey, blockhash)
+        tx_bytes = bytes([1]) + bytes([0] * 64) + bytes(message)
+        serialized_tx = base64.b64encode(tx_bytes).decode("utf-8")
+        
+        response = await cdp.solana.send_transaction(
+            network="solana-devnet",
+            transaction=serialized_tx
+        )
+        
+        print(f"Transaction sent: {response.transaction_signature}")
+        print(f"Explorer: https://explorer.solana.com/tx/{response.transaction_signature}?cluster=devnet")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
 
 ### Transferring tokens
 
@@ -724,7 +787,7 @@ from cdp.actions.evm.swap import AccountSwapOptions
 async with CdpClient() as cdp:
     # Retrieve an existing EVM account with funds already in it
     account = await cdp.evm.get_or_create_account(name="MyExistingFundedAccount")
-    
+
     # Execute a swap directly on an EVM account in one line
     result = await account.swap(
         AccountSwapOptions(
@@ -747,7 +810,7 @@ async with CdpClient() as cdp:
     # Create or retrieve a smart account with funds already in it
     owner = await cdp.evm.get_or_create_account(name="MyOwnerAccount")
     smart_account = await cdp.evm.get_or_create_smart_account(name="MyExistingFundedSmartAccount", owner=owner)
-    
+
     # Execute a swap directly on a smart account in one line
     result = await smart_account.swap(
         SmartAccountSwapOptions(
@@ -760,7 +823,7 @@ async with CdpClient() as cdp:
         )
     )
     print(f"User operation hash: {result.user_op_hash}")
-    
+
     # Wait for the user operation to complete
     receipt = await smart_account.wait_for_user_operation(user_op_hash=result.user_op_hash)
     print(f"Status: {receipt.status}")
@@ -841,7 +904,7 @@ else:
     # Step 3: Execute using the quote
     result = await swap_quote.execute()
     print(f"User operation hash: {result.user_op_hash}")
-    
+
     # Wait for the user operation to complete
     receipt = await smart_account.wait_for_user_operation(user_op_hash=result.user_op_hash)
     print(f"Status: {receipt.status}")
@@ -1142,10 +1205,18 @@ This SDK also contains simple tools for authenticating REST API requests to the 
 
 ## Error Reporting
 
-This SDK contains error reporting functionality that sends error events to the CDP. If you would like to disable this behavior, you can set the `DISABLE_CDP_ERROR_REPORTING` environment variable to `true`.
+This SDK contains error reporting functionality that sends error events to CDP. If you would like to disable this behavior, you can set the `DISABLE_CDP_ERROR_REPORTING` environment variable to `true`.
 
 ```bash
 DISABLE_CDP_ERROR_REPORTING=true
+```
+
+## Usage Tracking
+
+This SDK contains usage tracking functionality that sends usage events to CDP. If you would like to disable this behavior, you can set the `DISABLE_CDP_USAGE_TRACKING` environment variable to `true`.
+
+```bash
+DISABLE_CDP_USAGE_TRACKING=true
 ```
 
 ## License
@@ -1164,5 +1235,3 @@ For feature requests, feedback, or questions, please reach out to us in the
 ## Security
 
 If you discover a security vulnerability within this SDK, please see our [Security Policy](https://github.com/coinbase/cdp-sdk/tree/main/SECURITY.md) for disclosure information.
-
-

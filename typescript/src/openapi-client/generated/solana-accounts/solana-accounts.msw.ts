@@ -13,6 +13,7 @@ import type {
   ExportSolanaAccount200,
   ExportSolanaAccountByName200,
   ListSolanaAccounts200,
+  SendSolanaTransaction200,
   SignSolanaMessage200,
   SignSolanaTransaction200,
   SolanaAccount,
@@ -157,6 +158,33 @@ export const getGetSolanaAccountByNameResponseMock = (
   ...overrideResponse,
 });
 
+export const getImportSolanaAccountResponseMock = (
+  overrideResponse: Partial<SolanaAccount> = {},
+): SolanaAccount => ({
+  address: faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  policies: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.fromRegExp(
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      ),
+    ),
+    undefined,
+  ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  ...overrideResponse,
+});
+
 export const getExportSolanaAccountResponseMock = (
   overrideResponse: Partial<ExportSolanaAccount200> = {},
 ): ExportSolanaAccount200 => ({ encryptedPrivateKey: faker.string.alpha(20), ...overrideResponse });
@@ -175,6 +203,13 @@ export const getSignSolanaTransactionResponseMock = (
 export const getSignSolanaMessageResponseMock = (
   overrideResponse: Partial<SignSolanaMessage200> = {},
 ): SignSolanaMessage200 => ({ signature: faker.string.alpha(20), ...overrideResponse });
+
+export const getSendSolanaTransactionResponseMock = (
+  overrideResponse: Partial<SendSolanaTransaction200> = {},
+): SendSolanaTransaction200 => ({
+  transactionSignature: faker.string.alpha(20),
+  ...overrideResponse,
+});
 
 export const getListSolanaAccountsMockHandler = (
   overrideResponse?:
@@ -291,6 +326,29 @@ export const getGetSolanaAccountByNameMockHandler = (
   });
 };
 
+export const getImportSolanaAccountMockHandler = (
+  overrideResponse?:
+    | SolanaAccount
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<SolanaAccount> | SolanaAccount),
+) => {
+  return http.post("*/v2/solana/accounts/import", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getImportSolanaAccountResponseMock(),
+      ),
+      { status: 201, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
 export const getExportSolanaAccountMockHandler = (
   overrideResponse?:
     | ExportSolanaAccount200
@@ -382,14 +440,39 @@ export const getSignSolanaMessageMockHandler = (
     );
   });
 };
+
+export const getSendSolanaTransactionMockHandler = (
+  overrideResponse?:
+    | SendSolanaTransaction200
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<SendSolanaTransaction200> | SendSolanaTransaction200),
+) => {
+  return http.post("*/v2/solana/accounts/send/transaction", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getSendSolanaTransactionResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 export const getSolanaAccountsMock = () => [
   getListSolanaAccountsMockHandler(),
   getCreateSolanaAccountMockHandler(),
   getGetSolanaAccountMockHandler(),
   getUpdateSolanaAccountMockHandler(),
   getGetSolanaAccountByNameMockHandler(),
+  getImportSolanaAccountMockHandler(),
   getExportSolanaAccountMockHandler(),
   getExportSolanaAccountByNameMockHandler(),
   getSignSolanaTransactionMockHandler(),
   getSignSolanaMessageMockHandler(),
+  getSendSolanaTransactionMockHandler(),
 ];

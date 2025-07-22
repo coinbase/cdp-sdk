@@ -22,7 +22,8 @@ import type {
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
-  UpdateEvmAccountBody,
+  UpdateEvmAccountBody as UpdateEvmAccount,
+  UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
 } from "../../openapi-client/index.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";
@@ -61,6 +62,7 @@ export type EvmClientInterface = Omit<
   | "updateEvmAccount" // mapped to updateAccount
   | "exportEvmAccount"
   | "exportEvmAccountByName"
+  | "updateEvmSmartAccount" // 🚧 Coming soon
 > & {
   createAccount: (options: CreateServerAccountOptions) => Promise<ServerAccount>;
   createSmartAccount: (options: CreateSmartAccountOptions) => Promise<SmartAccount>;
@@ -77,6 +79,7 @@ export type EvmClientInterface = Omit<
   getOrCreateAccount: (options: GetOrCreateServerAccountOptions) => Promise<ServerAccount>;
   getUserOperation: (options: GetUserOperationOptions) => Promise<UserOperation>;
   updateAccount: (options: UpdateEvmAccountOptions) => Promise<ServerAccount>;
+  updateSmartAccount: (options: UpdateEvmSmartAccountOptions) => Promise<SmartAccount>;
   listAccounts: (options: ListServerAccountsOptions) => Promise<ListServerAccountResult>;
   listSmartAccounts: (options: ListSmartAccountsOptions) => Promise<ListSmartAccountResult>;
   listTokenBalances: (options: ListTokenBalancesOptions) => Promise<ListTokenBalancesResult>;
@@ -258,7 +261,7 @@ export interface CreateSwapQuoteResult {
  */
 export interface GetUserOperationOptions {
   /** The smart account. */
-  smartAccount: SmartAccount;
+  smartAccount: SmartAccount | ReadonlySmartAccount | Address;
   /** The user operation hash. */
   userOpHash: Hex;
 }
@@ -405,7 +408,7 @@ export interface ListServerAccountsOptions {
  * A smart account that only contains the owner address.
  */
 export interface ReadonlySmartAccount
-  extends Omit<SmartAccount, "owners" | keyof SmartAccountActions | "__experimental_useNetwork"> {
+  extends Omit<SmartAccount, "owners" | keyof SmartAccountActions | "useNetwork"> {
   /** The owners of the smart account. */
   owners: Address[];
 }
@@ -415,11 +418,25 @@ export interface ReadonlySmartAccount
  */
 export interface UpdateEvmAccountOptions {
   /** The address of the account. */
-  address: string;
+  address: Address;
   /** The updates to apply to the account */
-  update: UpdateEvmAccountBody;
+  update: UpdateEvmAccount;
   /** The idempotency key. */
   idempotencyKey?: string;
+}
+
+/**
+ * Options for updating an EVM smart account.
+ */
+export interface UpdateEvmSmartAccountOptions {
+  /** The address of the account. */
+  address: Address;
+  /** The updates to apply to the account */
+  update: UpdateEvmSmartAccount;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+  /** The owner of the account. */
+  owner: Account;
 }
 
 /**

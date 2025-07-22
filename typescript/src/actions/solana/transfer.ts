@@ -7,14 +7,13 @@ import {
 } from "@solana/spl-token";
 import {
   Connection,
-  MessageV0,
   PublicKey,
   SystemProgram,
-  TransactionInstruction,
-  TransactionMessage,
-  VersionedTransaction,
+  SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+  Transaction,
 } from "@solana/web3.js";
 
+import { sendTransaction } from "./sendTransaction.js";
 import {
   getConnectedNetwork,
   getOrCreateConnection,
@@ -61,11 +60,11 @@ export async function transfer(
   options: TransferOptions,
 ): Promise<SignatureResult> {
   const connection = getOrCreateConnection({ networkOrConnection: options.network });
+  const connectedNetwork = await getConnectedNetwork(connection);
 
   const tx =
     options.token === "sol"
       ? await getNativeTransfer({
-          connection,
           from: options.from,
           to: options.to,
           amount: options.amount,
@@ -75,41 +74,29 @@ export async function transfer(
           from: options.from,
           to: options.to,
           mintAddress:
-            options.token === "usdc"
-              ? getUsdcMintAddress(await getConnectedNetwork(connection))
-              : options.token,
+            options.token === "usdc" ? getUsdcMintAddress(connectedNetwork) : options.token,
           amount: options.amount,
         });
 
-  const serializedTx = Buffer.from(tx.serialize()).toString("base64");
+  const serializedTx = Buffer.from(tx.serialize({ requireAllSignatures: false })).toString(
+    "base64",
+  );
 
-  const signedTxResponse = await apiClient.signSolanaTransaction(options.from, {
+  const signature = await sendTransaction(apiClient, {
+    network: connectedNetwork === "mainnet" ? "solana" : "solana-devnet",
     transaction: serializedTx,
   });
 
-  const decodedSignedTx = Buffer.from(signedTxResponse.signedTransaction, "base64");
-
-  const signature = await connection.sendRawTransaction(decodedSignedTx, {
-    skipPreflight: false,
-    maxRetries: 3,
-  });
-
-  return { signature };
+  return signature;
 }
 
-type GetNativeTransferOptions = Omit<TransferOptions, "token" | "network"> & {
-  /**
-   * The connection to the Solana network
-   */
-  connection: Connection;
-};
+type GetNativeTransferOptions = Omit<TransferOptions, "token" | "network">;
 
 /**
- * Gets the instructions for a native SOL transfer
+ * Gets the transaction for a native SOL transfer
  *
  * @param options - The options for the native SOL transfer
  *
- * @param options.connection - The Solana connection
  * @param options.from - The source address
  * @param options.to - The destination address
  * @param options.amount - The amount to transfer
@@ -117,39 +104,37 @@ type GetNativeTransferOptions = Omit<TransferOptions, "token" | "network"> & {
  * @returns The native SOL transfer transaction
  */
 async function getNativeTransfer({
-  connection,
   from,
   to,
   amount,
-}: GetNativeTransferOptions): Promise<VersionedTransaction> {
-  const { blockhash } = await connection.getLatestBlockhash();
-
-  const instructions = [
+}: GetNativeTransferOptions): Promise<Transaction> {
+  const transaction = new Transaction();
+  transaction.add(
     SystemProgram.transfer({
       fromPubkey: new PublicKey(from),
       toPubkey: new PublicKey(to),
       lamports: amount,
     }),
-  ];
+  );
+  transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
+  transaction.feePayer = new PublicKey(from);
 
-  const messageV0 = new TransactionMessage({
-    payerKey: new PublicKey(from),
-    recentBlockhash: blockhash,
-    instructions,
-  }).compileToV0Message();
-
-  return new VersionedTransaction(messageV0);
+  return transaction;
 }
 
-type GetSplTransferOptions = GetNativeTransferOptions & {
+type GetSplTransferOptions = Omit<TransferOptions, "token" | "network"> & {
   /**
    * The mint address of the token
    */
   mintAddress: string;
+  /**
+   * The connection to the Solana network.
+   */
+  connection: Connection;
 };
 
 /**
- * Gets the instructions for a SPL token transfer
+ * Gets the transaction for a SPL token transfer
  *
  * @param options - The options for the SPL token transfer
  *
@@ -167,7 +152,7 @@ async function getSplTransfer({
   to,
   mintAddress,
   amount,
-}: GetSplTransferOptions): Promise<VersionedTransaction> {
+}: GetSplTransferOptions): Promise<Transaction> {
   const fromPubkey = new PublicKey(from);
   const toPubkey = new PublicKey(to);
   const mintPubkey = new PublicKey(mintAddress);
@@ -182,7 +167,7 @@ async function getSplTransfer({
   const sourceAta = await getAssociatedTokenAddress(mintPubkey, fromPubkey);
   const destinationAta = await getAssociatedTokenAddress(mintPubkey, toPubkey);
 
-  const instructions: TransactionInstruction[] = [];
+  const transaction = new Transaction();
 
   const sourceAccount = await getAccount(connection, sourceAta);
   if (sourceAccount.amount < amount) {
@@ -193,12 +178,12 @@ async function getSplTransfer({
   try {
     await getAccount(connection, destinationAta);
   } catch {
-    instructions.push(
+    transaction.add(
       createAssociatedTokenAccountInstruction(fromPubkey, destinationAta, toPubkey, mintPubkey),
     );
   }
 
-  instructions.push(
+  transaction.add(
     createTransferCheckedInstruction(
       sourceAta,
       mintPubkey,
@@ -208,12 +193,8 @@ async function getSplTransfer({
       mintInfo.decimals,
     ),
   );
+  transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
+  transaction.feePayer = new PublicKey(from);
 
-  return new VersionedTransaction(
-    MessageV0.compile({
-      payerKey: fromPubkey,
-      instructions: instructions,
-      recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
-    }),
-  );
+  return transaction;
 }

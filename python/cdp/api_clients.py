@@ -6,6 +6,7 @@ from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
+from cdp.openapi_client.api.solana_token_balances_api import SolanaTokenBalancesApi
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 
 
@@ -23,6 +24,7 @@ class ApiClients:
         _evm_token_balances (Optional[EVMTokenBalancesApi]): The EVMTokenBalancesApi client instance.
         _faucets (Optional[FaucetsApi]): The FaucetsApi client instance.
         _solana_accounts (Optional[SolanaAccountsApi]): The SolanaAccountsApi client instance.
+        _solana_token_balances (Optional[SolanaTokenBalancesApi]): The SolanaTokenBalancesApi client instance.
 
     """
 
@@ -41,8 +43,34 @@ class ApiClients:
         self._evm_token_balances: EVMTokenBalancesApi | None = None
         self._faucets: FaucetsApi | None = None
         self._solana_accounts: SolanaAccountsApi | None = None
+        self._solana_token_balances: SolanaTokenBalancesApi | None = None
         self._policies: PolicyEngineApi | None = None
         self._payments: PaymentsAlphaApi | None = None
+        self._closed = False
+
+    def _check_closed(self) -> None:
+        """Check if the client has been closed and raise an appropriate error."""
+        if self._closed:
+            raise RuntimeError(
+                "Cannot use a closed CDP client. Please create a new client instance. "
+                "This error occurs when trying to use a client after calling close()."
+            )
+
+    @property
+    def solana_token_balances(self) -> SolanaTokenBalancesApi:
+        """Get the SolanaTokenBalancesApi client instance.
+
+        Returns:
+            SolanaTokenBalancesApi: The SolanaTokenBalancesApi client instance.
+
+        Note:
+            This property lazily initializes the SolanaTokenBalancesApi client on first access.
+
+        """
+        self._check_closed()
+        if self._solana_token_balances is None:
+            self._solana_token_balances = SolanaTokenBalancesApi(api_client=self._cdp_client)
+        return self._solana_token_balances
 
     @property
     def evm_accounts(self) -> EVMAccountsApi:
@@ -55,6 +83,7 @@ class ApiClients:
             This property lazily initializes the EVMAccountsApi client on first access.
 
         """
+        self._check_closed()
         if self._evm_accounts is None:
             self._evm_accounts = EVMAccountsApi(api_client=self._cdp_client)
         return self._evm_accounts
@@ -70,6 +99,7 @@ class ApiClients:
             This property lazily initializes the EVMSmartAccountsApi client on first access.
 
         """
+        self._check_closed()
         if self._evm_smart_accounts is None:
             self._evm_smart_accounts = EVMSmartAccountsApi(api_client=self._cdp_client)
         return self._evm_smart_accounts
@@ -85,6 +115,7 @@ class ApiClients:
             This property lazily initializes the EVMSwapsApi client on first access.
 
         """
+        self._check_closed()
         if self._evm_swaps is None:
             self._evm_swaps = EVMSwapsApi(api_client=self._cdp_client)
         return self._evm_swaps
@@ -100,6 +131,7 @@ class ApiClients:
             This property lazily initializes the EVMTokenBalancesApi client on first access.
 
         """
+        self._check_closed()
         if self._evm_token_balances is None:
             self._evm_token_balances = EVMTokenBalancesApi(api_client=self._cdp_client)
         return self._evm_token_balances
@@ -115,6 +147,7 @@ class ApiClients:
             This property lazily initializes the FaucetsApi client on first access.
 
         """
+        self._check_closed()
         if self._faucets is None:
             self._faucets = FaucetsApi(api_client=self._cdp_client)
         return self._faucets
@@ -130,6 +163,7 @@ class ApiClients:
             This property lazily initializes the SolanaAccountsApi client on first access.
 
         """
+        self._check_closed()
         if self._solana_accounts is None:
             self._solana_accounts = SolanaAccountsApi(api_client=self._cdp_client)
         return self._solana_accounts
@@ -145,6 +179,7 @@ class ApiClients:
             This property lazily initializes the PolicyEngineApi client on first access.
 
         """
+        self._check_closed()
         if self._policies is None:
             self._policies = PolicyEngineApi(api_client=self._cdp_client)
         return self._policies
@@ -160,6 +195,7 @@ class ApiClients:
             This property lazily initializes the PaymentsAlphaApi client on first access.
 
         """
+        self._check_closed()
         if self._payments is None:
             self._payments = PaymentsAlphaApi(api_client=self._cdp_client)
         return self._payments
@@ -167,3 +203,4 @@ class ApiClients:
     async def close(self):
         """Close the CDP client asynchronously."""
         await self._cdp_client.close()
+        self._closed = True

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toEvmSmartAccount } from "./toEvmSmartAccount.js";
 import { EvmAccount } from "./types.js";
-import { Address } from "../../types/misc.js";
+import { Address, Hex } from "../../types/misc.js";
 import {
   CdpOpenApiClientType,
   EvmSmartAccount as EvmSmartAccountModel,
@@ -13,10 +13,15 @@ import type { TransferOptions } from "../../actions/evm/transfer/types.js";
 import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
 import { UserOperation } from "../../client/evm/evm.types.js";
 import { parseUnits } from "viem";
+import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
 
 vi.mock("../../actions/evm/transfer/transfer.js", () => ({
   ...vi.importActual("../../actions/evm/transfer/transfer.js"),
   transfer: vi.fn().mockResolvedValue({ transactionHash: "0xmocktransactionhash" }),
+}));
+
+vi.mock("../../actions/evm/signAndWrapTypedDataForSmartAccount.js", () => ({
+  signAndWrapTypedDataForSmartAccount: vi.fn(),
 }));
 
 describe("toEvmSmartAccount", () => {
@@ -27,6 +32,7 @@ describe("toEvmSmartAccount", () => {
   let mockUserOp: UserOperation;
   let mockPaymentMethods: PaymentMethod[];
   let mockTransfer: Transfer;
+  const mockProjectPolicy = crypto.randomUUID();
   beforeEach(() => {
     mockUserOp = {
       userOpHash: "0xuserophash",
@@ -55,7 +61,7 @@ describe("toEvmSmartAccount", () => {
       target: {
         network: "base",
         address: mockAddress,
-        symbol: "usdc",
+        currency: "usdc",
       },
       sourceAmount: "0.000001",
       sourceCurrency: "usd",
@@ -89,17 +95,18 @@ describe("toEvmSmartAccount", () => {
       address: mockAddress,
       owners: [],
       name: "Test Account",
+      policies: [mockProjectPolicy],
     };
   });
 
-  describe("__experimental_useNetwork", () => {
+  describe("useNetwork", () => {
     it("should return a NetworkScopedEvmSmartAccount", async () => {
       const smartAccount = toEvmSmartAccount(mockApiClient, {
         smartAccount: mockSmartAccount,
         owner: mockOwner,
       });
 
-      const result = await smartAccount.__experimental_useNetwork("base-sepolia");
+      const result = await smartAccount.useNetwork("base-sepolia");
 
       expect(result.network).toBe("base-sepolia");
     });
@@ -116,6 +123,7 @@ describe("toEvmSmartAccount", () => {
       owners: [mockOwner],
       name: "Test Account",
       type: "evm-smart",
+      policies: [mockProjectPolicy],
       transfer: expect.any(Function),
       listTokenBalances: expect.any(Function),
       sendUserOperation: expect.any(Function),
@@ -127,7 +135,8 @@ describe("toEvmSmartAccount", () => {
       quoteFund: expect.any(Function),
       quoteSwap: expect.any(Function),
       swap: expect.any(Function),
-      __experimental_useNetwork: expect.any(Function),
+      signTypedData: expect.any(Function),
+      useNetwork: expect.any(Function),
     });
   });
 
@@ -279,5 +288,143 @@ describe("toEvmSmartAccount", () => {
     });
 
     expect(mockApiClient.getPaymentTransfer).toHaveBeenCalledWith("0xmocktransferid");
+  });
+
+  describe("signTypedData", () => {
+    const mockSignature = "0xabcdef1234567890" as Hex;
+    let mockTypedData;
+
+    beforeEach(() => {
+      vi.clearAllMocks();
+      vi.mocked(signAndWrapTypedDataForSmartAccount).mockResolvedValue({
+        signature: mockSignature,
+      });
+
+      mockTypedData = {
+        domain: {
+          name: "Test Domain",
+          version: "1",
+          chainId: 8453,
+          verifyingContract: "0x1234567890abcdef" as Address,
+        },
+        types: {
+          TestMessage: [
+            { name: "from", type: "address" },
+            { name: "to", type: "address" },
+            { name: "value", type: "uint256" },
+          ],
+        },
+        primaryType: "TestMessage",
+        message: {
+          from: mockOwner.address,
+          to: mockAddress,
+          value: "1000000",
+        },
+      };
+    });
+
+    it("should sign typed data for base network", async () => {
+      const smartAccount = toEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        owner: mockOwner,
+      });
+
+      const result = await smartAccount.signTypedData({
+        ...mockTypedData,
+        network: "base",
+      });
+
+      expect(result).toBe(mockSignature);
+      expect(signAndWrapTypedDataForSmartAccount).toHaveBeenCalledWith(mockApiClient, {
+        chainId: 8453n, // Base mainnet chain ID
+        smartAccount,
+        typedData: {
+          ...mockTypedData,
+          network: "base",
+        },
+      });
+    });
+
+    it("should sign typed data for base-sepolia network", async () => {
+      const smartAccount = toEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        owner: mockOwner,
+      });
+
+      const result = await smartAccount.signTypedData({
+        ...mockTypedData,
+        network: "base-sepolia",
+      });
+
+      expect(result).toBe(mockSignature);
+      expect(signAndWrapTypedDataForSmartAccount).toHaveBeenCalledWith(mockApiClient, {
+        chainId: 84532n, // Base Sepolia chain ID
+        smartAccount,
+        typedData: {
+          ...mockTypedData,
+          network: "base-sepolia",
+        },
+      });
+    });
+
+    it("should pass through the typed data structure correctly", async () => {
+      const smartAccount = toEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        owner: mockOwner,
+      });
+
+      const customTypedData = {
+        domain: {
+          name: "Custom Domain",
+          version: "2",
+          chainId: 8453,
+          verifyingContract: "0xCustomContract" as Address,
+          salt: "0xabcdef1234567890" as Hex,
+        },
+        types: {
+          CustomType: [
+            { name: "field1", type: "string" },
+            { name: "field2", type: "uint256" },
+          ],
+        },
+        primaryType: "CustomType",
+        message: {
+          field1: "test value",
+          field2: "42",
+        },
+      };
+
+      await smartAccount.signTypedData({
+        ...customTypedData,
+        network: "base",
+      });
+
+      expect(signAndWrapTypedDataForSmartAccount).toHaveBeenLastCalledWith(
+        mockApiClient,
+        expect.objectContaining({
+          typedData: {
+            ...customTypedData,
+            network: "base",
+          },
+        }),
+      );
+    });
+
+    it("should handle sign typed data errors", async () => {
+      const errorMessage = "Failed to sign typed data";
+      vi.mocked(signAndWrapTypedDataForSmartAccount).mockRejectedValueOnce(new Error(errorMessage));
+
+      const smartAccount = toEvmSmartAccount(mockApiClient, {
+        smartAccount: mockSmartAccount,
+        owner: mockOwner,
+      });
+
+      await expect(
+        smartAccount.signTypedData({
+          ...mockTypedData,
+          network: "base",
+        }),
+      ).rejects.toThrow(errorMessage);
+    });
   });
 });

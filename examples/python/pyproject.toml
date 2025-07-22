@@ -6,8 +6,9 @@ dependencies = [
     "cdp-sdk",
     "solana>=0.36.6",
     "web3>=7.6.0",
-    "dotenv",
     "base58>=2.1.1",
+    "pydantic==2.11.3",
+    "dotenv>=0.9.9",
 ]
 
 [tool.uv]

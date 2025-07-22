@@ -4,12 +4,16 @@ import (
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"math/big"
+	"sort"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -129,8 +133,20 @@ func GenerateWalletJWT(options WalletJwtOptions) (string, error) {
 		},
 	}
 
+	// Hash the request data if present
 	if len(options.RequestData) > 0 {
-		claims.Req = options.RequestData
+		// Sort the request data keys
+		sortedData := sortKeys(options.RequestData)
+
+		// Convert to JSON with sorted keys
+		jsonBytes, err := json.Marshal(sortedData)
+		if err != nil {
+			return "", fmt.Errorf("failed to marshal request data: %w", err)
+		}
+
+		// Hash the JSON using SHA-256
+		hash := sha256.Sum256(jsonBytes)
+		claims.ReqHash = hex.EncodeToString(hash[:])
 	}
 
 	// Create the token
@@ -225,4 +241,51 @@ func buildEdwardsJWT(options JwtOptions, claims jwt.MapClaims, nonce []byte) (st
 	}
 
 	return signedToken, nil
+}
+
+// sortKeys recursively sorts all keys in a map or slice of maps.
+// It also handles special numeric types like *big.Int and *big.Float by converting them to strings.
+func sortKeys(data interface{}) interface{} {
+	switch v := data.(type) {
+	case map[string]interface{}:
+		// Create a new map with sorted keys
+		sortedMap := make(map[string]interface{})
+		keys := make([]string, 0, len(v))
+		for k := range v {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+
+		// Recursively sort nested structures
+		for _, k := range keys {
+			sortedMap[k] = sortKeys(v[k])
+		}
+		return sortedMap
+
+	case []interface{}:
+		// Recursively sort elements in the slice
+		sortedSlice := make([]interface{}, len(v))
+		for i, elem := range v {
+			sortedSlice[i] = sortKeys(elem)
+		}
+		return sortedSlice
+
+	case *big.Int:
+		// Convert *big.Int to string to ensure consistent JSON marshaling
+		if v == nil {
+			return nil
+		}
+		return v.String()
+
+	case *big.Float:
+		// Convert *big.Float to string to ensure consistent JSON marshaling
+		if v == nil {
+			return nil
+		}
+		return v.String()
+
+	default:
+		// Return primitive types as-is
+		return data
+	}
 }

@@ -11,9 +11,10 @@ import base64
 import time
 
 from solana.rpc.api import Client as SolanaClient
-from solana.rpc.types import TxOpts
 from solders.message import Message
 from solders.pubkey import Pubkey as PublicKey
+from solders.signature import Signature
+from solders.hash import Hash
 from solders.system_program import TransferParams, transfer
 
 from cdp import CdpClient
@@ -87,9 +88,6 @@ async def send_transaction(
         f"Preparing to send {amount} lamports each to {len(destination_addresses)} addresses from {sender_address}"
     )
 
-    blockhash_resp = connection.get_latest_blockhash()
-    blockhash = blockhash_resp.value.blockhash
-
     transfer_param_list = [
         TransferParams(
             from_pubkey=source_pubkey, to_pubkey=dest_pubkey, lamports=amount
@@ -100,10 +98,11 @@ async def send_transaction(
         transfer(transfer_param) for transfer_param in transfer_param_list
     ]
 
+    # A more recent blockhash is set in the backend by CDP
     message = Message.new_with_blockhash(
         transfer_instr_list,
         source_pubkey,
-        blockhash,
+        Hash.from_string("SysvarRecentB1ockHashes11111111111111111111"),
     )
 
     # Create a transaction envelope with signature space
@@ -117,33 +116,18 @@ async def send_transaction(
     # Encode to base64 used by CDP API
     serialized_tx = base64.b64encode(tx_bytes).decode("utf-8")
 
-    print("Signing transaction...")
-
-    try:
-        response = await cdp.solana.sign_transaction(
-            sender_address, transaction=serialized_tx
-        )
-        signed_tx = response.signed_transaction
-        print("Transaction signed successfully")
-    except Exception as e:
-        print(f"Error signing transaction: {e}")
-        if hasattr(e, "body"):
-            print(f"Error body: {e.body}")
-        raise
-
-    # Decode the signed transaction from base64
-    decoded_signed_tx = base64.b64decode(signed_tx)
-
     print("Sending transaction to network...")
-    tx_resp = connection.send_raw_transaction(
-        decoded_signed_tx,
-        opts=TxOpts(skip_preflight=False, preflight_commitment="processed"),
+    tx_resp = await cdp.solana.send_transaction(
+        network="solana-devnet",
+        transaction=serialized_tx,
     )
-    signature = tx_resp.value
+    signature = tx_resp.transaction_signature
     print(f"Solana transaction hash: {signature}")
 
     print("Confirming transaction...")
-    confirmation = connection.confirm_transaction(signature, commitment="processed")
+    confirmation = connection.confirm_transaction(
+        Signature.from_string(signature), commitment="processed"
+    )
 
     if hasattr(confirmation, "err") and confirmation.err:
         raise ValueError(f"Transaction failed: {confirmation.err}")

@@ -4,6 +4,10 @@ import asyncio
 
 from cdp import CdpClient
 from cdp.evm_message_types import EIP712Domain
+import dotenv
+
+dotenv.load_dotenv()
+
 
 async def main():
     async with CdpClient() as cdp:

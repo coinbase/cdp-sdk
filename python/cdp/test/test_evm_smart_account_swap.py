@@ -99,6 +99,7 @@ class TestEvmSmartAccountSwap:
             address="0x1234567890123456789012345678901234567890",
             owner=mock_owner,
             name="TestSmartAccount",
+            policies=None,
             api_clients=mock_api_clients,
         )
 

@@ -57,6 +57,12 @@ export const ErrorType = {
   policy_violation: "policy_violation",
   policy_in_use: "policy_in_use",
   account_limit_exceeded: "account_limit_exceeded",
+  network_not_tradable: "network_not_tradable",
+  guest_permission_denied: "guest_permission_denied",
+  guest_region_forbidden: "guest_region_forbidden",
+  guest_transaction_limit: "guest_transaction_limit",
+  guest_transaction_count: "guest_transaction_count",
+  guest_phone_number_verification_expired: "guest_phone_number_verification_expired",
 } as const;
 
 /**
@@ -135,11 +141,33 @@ Account names are guaranteed to be unique across all Smart Accounts in the devel
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /** The list of policy IDs that apply to the smart account. This will include both the project-level policy and the account-level policy, if one exists. */
+  policies?: string[];
   /** The UTC ISO 8601 timestamp at which the account was created. */
   createdAt?: string;
   /** The UTC ISO 8601 timestamp at which the account was last updated. */
   updatedAt?: string;
 }
+
+/**
+ * The network the user operation is for.
+ */
+export type EvmUserOperationNetwork =
+  (typeof EvmUserOperationNetwork)[keyof typeof EvmUserOperationNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmUserOperationNetwork = {
+  "base-sepolia": "base-sepolia",
+  base: "base",
+  arbitrum: "arbitrum",
+  optimism: "optimism",
+  zora: "zora",
+  polygon: "polygon",
+  bnb: "bnb",
+  avalanche: "avalanche",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+} as const;
 
 export interface EvmCall {
   /**
@@ -155,18 +183,6 @@ export interface EvmCall {
    */
   data: string;
 }
-
-/**
- * The network the user operation is for.
- */
-export type EvmUserOperationNetwork =
-  (typeof EvmUserOperationNetwork)[keyof typeof EvmUserOperationNetwork];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const EvmUserOperationNetwork = {
-  "base-sepolia": "base-sepolia",
-  base: "base",
-} as const;
 
 /**
  * The status of the user operation.
@@ -185,7 +201,6 @@ export const EvmUserOperationStatus = {
 } as const;
 
 export interface EvmUserOperation {
-  /** The network the user operation is for. */
   network: EvmUserOperationNetwork;
   /**
    * The hash of the user operation. This is not the transaction hash, as a transaction consists of multiple user operations. The user operation hash is the hash of this particular user operation which gets signed by the owner of the Smart Account.
@@ -607,7 +622,7 @@ export const EvmAddressCriterionOperator = {
 export interface EvmAddressCriterion {
   /** The type of criterion to use. This should be `evmAddress`. */
   type: EvmAddressCriterionType;
-  /** A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 100 addresses per criterion. */
+  /** A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 300 addresses per criterion. */
   addresses: string[];
   /** The operator to use for the comparison. The transaction's `to` field will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
   operator: EvmAddressCriterionOperator;
@@ -992,6 +1007,194 @@ export interface SignEvmMessageRule {
 }
 
 /**
+ * The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+ */
+export type EvmTypedAddressConditionOperator =
+  (typeof EvmTypedAddressConditionOperator)[keyof typeof EvmTypedAddressConditionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmTypedAddressConditionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * A schema for specifying criterion for an address field of an EVM typed message. The address can be deeply nested within the typed data's message.
+ */
+export interface EvmTypedAddressCondition {
+  /** A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 300 addresses per criterion. */
+  addresses: string[];
+  /** The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
+  operator: EvmTypedAddressConditionOperator;
+  /** The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected. */
+  path: string;
+}
+
+/**
+ * The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+ */
+export type EvmTypedNumericalConditionOperator =
+  (typeof EvmTypedNumericalConditionOperator)[keyof typeof EvmTypedNumericalConditionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmTypedNumericalConditionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * A schema for specifying criterion for a numerical field of an EVM typed message. The value can be deeply nested within the typed data's message.
+ */
+export interface EvmTypedNumericalCondition {
+  /**
+   * The amount that the value located at the message's path should be compared to.
+   * @pattern ^[0-9]+$
+   */
+  value: string;
+  /** The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `value` field will be on the right-hand side. */
+  operator: EvmTypedNumericalConditionOperator;
+  /** The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected. */
+  path: string;
+}
+
+/**
+ * A schema for specifying criterion for a string field of an EVM typed message. The value can be deeply nested within the typed data's message.
+ */
+export interface EvmTypedStringCondition {
+  /** A regular expression the field is matched against. */
+  match: string;
+  /** The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected. */
+  path: string;
+}
+
+/**
+ * The type of criterion to use. This should be `evmTypedDataField`.
+ */
+export type SignEvmTypedDataFieldCriterionType =
+  (typeof SignEvmTypedDataFieldCriterionType)[keyof typeof SignEvmTypedDataFieldCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataFieldCriterionType = {
+  evmTypedDataField: "evmTypedDataField",
+} as const;
+
+export type SignEvmTypedDataFieldCriterionTypesTypesItem = {
+  /** The name of a key within an EIP-712 data structure. */
+  name?: string;
+  /** The Solidity type of a value within an EIP-712 data structure. */
+  type?: string;
+};
+
+/**
+ * EIP-712 compliant map of model names to model definitions.
+ */
+export type SignEvmTypedDataFieldCriterionTypesTypes = {
+  [key: string]: SignEvmTypedDataFieldCriterionTypesTypesItem[];
+};
+
+/**
+ * An object containing EIP-712 type definitions, as well as a primary type for the root message object.
+ */
+export type SignEvmTypedDataFieldCriterionTypes = {
+  /** EIP-712 compliant map of model names to model definitions. */
+  types: SignEvmTypedDataFieldCriterionTypesTypes;
+  /** The name of the root EIP-712 type. This value must be included in the `types` object. */
+  primaryType: string;
+};
+
+export type SignEvmTypedDataFieldCriterionConditionsItem =
+  | EvmTypedAddressCondition
+  | EvmTypedNumericalCondition
+  | EvmTypedStringCondition;
+
+export interface SignEvmTypedDataFieldCriterion {
+  /** The type of criterion to use. This should be `evmTypedDataField`. */
+  type: SignEvmTypedDataFieldCriterionType;
+  /** An object containing EIP-712 type definitions, as well as a primary type for the root message object. */
+  types: SignEvmTypedDataFieldCriterionTypes;
+  /** A list of conditions to check against the data being signed. Each condition must be met for the rule to take effect. */
+  conditions: SignEvmTypedDataFieldCriterionConditionsItem[];
+}
+
+/**
+ * The type of criterion to use. This should be `evmTypedDataVerifyingContract`.
+ */
+export type SignEvmTypedDataVerifyingContractCriterionType =
+  (typeof SignEvmTypedDataVerifyingContractCriterionType)[keyof typeof SignEvmTypedDataVerifyingContractCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataVerifyingContractCriterionType = {
+  evmTypedDataVerifyingContract: "evmTypedDataVerifyingContract",
+} as const;
+
+/**
+ * The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+ */
+export type SignEvmTypedDataVerifyingContractCriterionOperator =
+  (typeof SignEvmTypedDataVerifyingContractCriterionOperator)[keyof typeof SignEvmTypedDataVerifyingContractCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataVerifyingContractCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * A schema for specifying criterion for a domain's verifying contract.
+ */
+export interface SignEvmTypedDataVerifyingContractCriterion {
+  /** The type of criterion to use. This should be `evmTypedDataVerifyingContract`. */
+  type: SignEvmTypedDataVerifyingContractCriterionType;
+  /** A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 300 addresses per criterion. */
+  addresses: string[];
+  /** The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
+  operator: SignEvmTypedDataVerifyingContractCriterionOperator;
+}
+
+export type SignEvmTypedDataCriteriaItem =
+  | SignEvmTypedDataFieldCriterion
+  | SignEvmTypedDataVerifyingContractCriterion;
+
+/**
+ * A schema for specifying criteria for the SignEvmTypedData operation.
+ */
+export type SignEvmTypedDataCriteria = SignEvmTypedDataCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SignEvmTypedDataRuleAction =
+  (typeof SignEvmTypedDataRuleAction)[keyof typeof SignEvmTypedDataRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SignEvmTypedDataRuleOperation =
+  (typeof SignEvmTypedDataRuleOperation)[keyof typeof SignEvmTypedDataRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataRuleOperation = {
+  signEvmTypedData: "signEvmTypedData",
+} as const;
+
+export interface SignEvmTypedDataRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SignEvmTypedDataRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SignEvmTypedDataRuleOperation;
+  criteria: SignEvmTypedDataCriteria;
+}
+
+/**
  * The type of criterion to use. This should be `solAddress`.
  */
 export type SolAddressCriterionType =
@@ -1092,6 +1295,89 @@ export interface SignEvmHashRule {
   operation: SignEvmHashRuleOperation;
 }
 
+export type PrepareUserOperationCriteriaItem =
+  | EthValueCriterion
+  | EvmAddressCriterion
+  | EvmNetworkCriterion
+  | EvmDataCriterion;
+
+/**
+ * A schema for specifying criteria for the PrepareUserOperation operation.
+ */
+export type PrepareUserOperationCriteria = PrepareUserOperationCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type PrepareUserOperationRuleAction =
+  (typeof PrepareUserOperationRuleAction)[keyof typeof PrepareUserOperationRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PrepareUserOperationRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type PrepareUserOperationRuleOperation =
+  (typeof PrepareUserOperationRuleOperation)[keyof typeof PrepareUserOperationRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PrepareUserOperationRuleOperation = {
+  prepareUserOperation: "prepareUserOperation",
+} as const;
+
+export interface PrepareUserOperationRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: PrepareUserOperationRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: PrepareUserOperationRuleOperation;
+  criteria: PrepareUserOperationCriteria;
+}
+
+export type SendUserOperationCriteriaItem =
+  | EthValueCriterion
+  | EvmAddressCriterion
+  | EvmDataCriterion;
+
+/**
+ * A schema for specifying criteria for the SendUserOperation operation.
+ */
+export type SendUserOperationCriteria = SendUserOperationCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SendUserOperationRuleAction =
+  (typeof SendUserOperationRuleAction)[keyof typeof SendUserOperationRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendUserOperationRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SendUserOperationRuleOperation =
+  (typeof SendUserOperationRuleOperation)[keyof typeof SendUserOperationRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendUserOperationRuleOperation = {
+  sendUserOperation: "sendUserOperation",
+} as const;
+
+export interface SendUserOperationRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SendUserOperationRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SendUserOperationRuleOperation;
+  criteria: SendUserOperationCriteria;
+}
+
 /**
  * A rule that limits the behavior of an account.
  */
@@ -1099,8 +1385,11 @@ export type Rule =
   | SignEvmTransactionRule
   | SendEvmTransactionRule
   | SignEvmMessageRule
+  | SignEvmTypedDataRule
   | SignSolTransactionRule
-  | SignEvmHashRule;
+  | SignEvmHashRule
+  | PrepareUserOperationRule
+  | SendUserOperationRule;
 
 /**
  * The scope of the policy. Only one project-level policy can exist at any time.
@@ -1154,6 +1443,59 @@ Account names are guaranteed to be unique across all Solana accounts in the deve
   createdAt?: string;
   /** The ISO 8601 UTC timestamp at which the account was last updated. */
   updatedAt?: string;
+}
+
+/**
+ * The name of the supported Solana networks in human-readable format.
+ */
+export type ListSolanaTokenBalancesNetwork =
+  (typeof ListSolanaTokenBalancesNetwork)[keyof typeof ListSolanaTokenBalancesNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ListSolanaTokenBalancesNetwork = {
+  solana: "solana",
+  "solana-devnet": "solana-devnet",
+} as const;
+
+/**
+ * Amount of a given Solana token.
+ */
+export interface SolanaTokenAmount {
+  /**
+   * The amount is denominated in the smallest indivisible unit of the token. For SOL, the smallest indivisible unit is lamports (10^-9 SOL). For SPL tokens, the smallest unit is defined by the token's decimals configuration.
+   * @pattern ^[0-9]+$
+   */
+  amount: string;
+  /** 'decimals' is the exponential value N that satisfies the equation `amount * 10^-N = standard_denomination`. The standard denomination is the most commonly used denomination for the token.
+- For native SOL, `decimals` is 9 (1 SOL = 10^9 lamports). - For SPL tokens, `decimals` is defined in the token's mint configuration. */
+  decimals: number;
+}
+
+/**
+ * General information about a Solana token. Includes the mint address, and other identifying information.
+ */
+export interface SolanaToken {
+  /** The symbol of this token (ex: SOL, USDC, RAY).
+The token symbol is not unique. It is possible for two different tokens to have the same symbol.
+For the native SOL token, this symbol is "SOL". For SPL tokens, this symbol is defined in the token's metadata.
+Not all tokens have a symbol. This field will only be populated when the token has metadata available. */
+  symbol?: string;
+  /** The name of this token (ex: "Solana", "USD Coin", "Raydium").
+The token name is not unique. It is possible for two different tokens to have the same name.
+For the native SOL token, this name is "Solana". For SPL tokens, this name is defined in the token's metadata.
+Not all tokens have a name. This field will only be populated when the token has metadata available. */
+  name?: string;
+  /**
+   * The mint address of the token.
+For native SOL, the mint address is `So11111111111111111111111111111111111111111`. For SPL tokens, this is the mint address where the token is defined.
+   * @pattern ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+   */
+  mintAddress: string;
+}
+
+export interface SolanaTokenBalance {
+  amount: SolanaTokenAmount;
+  token: SolanaToken;
 }
 
 /**
@@ -1418,7 +1760,7 @@ export type AlreadyExistsErrorResponse = Error;
 
 /**
  * A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-[Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token)
+[Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
 section of our Authentication docs for more details on how to generate your Wallet Token.
 
  */
@@ -1427,7 +1769,7 @@ export type XWalletAuthParameter = string;
 /**
  * An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
 When included, duplicate requests with the same key will return identical responses. 
-Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
+Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
  */
 export type IdempotencyKeyParameter = string;
@@ -1608,21 +1950,18 @@ export type ExportEvmAccountByName200 = {
   encryptedPrivateKey: string;
 };
 
-/**
- * The network to prepare the user operation for.
- */
-export type PrepareUserOperationBodyNetwork =
-  (typeof PrepareUserOperationBodyNetwork)[keyof typeof PrepareUserOperationBodyNetwork];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const PrepareUserOperationBodyNetwork = {
-  "base-sepolia": "base-sepolia",
-  base: "base",
-} as const;
+export type UpdateEvmSmartAccountBody = {
+  /**
+   * An optional name for the smart account.
+Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names must be unique across all EVM smart accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
+};
 
 export type PrepareUserOperationBody = {
-  /** The network to prepare the user operation for. */
-  network: PrepareUserOperationBodyNetwork;
+  network: EvmUserOperationNetwork;
   /** The list of calls to make from the Smart Account. */
   calls: EvmCall[];
   /** The URL of the paymaster to use for the user operation. */
@@ -1861,6 +2200,18 @@ Account names must be unique across all Solana accounts in the developer's CDP P
   accountPolicy?: string;
 };
 
+export type ImportSolanaAccountBody = {
+  /** The base64-encoded, encrypted 32-byte private key of the Solana account. The private key must be encrypted using the CDP SDK's encryption scheme. */
+  encryptedPrivateKey: string;
+  /**
+   * An optional name for the account.
+Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names must be unique across all EVM accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
+};
+
 export type ExportSolanaAccountBody = {
   /** The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key. */
   exportEncryptionKey: string;
@@ -1902,6 +2253,30 @@ export type SignSolanaMessage200 = {
 };
 
 /**
+ * The Solana network to send the transaction to.
+ */
+export type SendSolanaTransactionBodyNetwork =
+  (typeof SendSolanaTransactionBodyNetwork)[keyof typeof SendSolanaTransactionBodyNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendSolanaTransactionBodyNetwork = {
+  solana: "solana",
+  "solana-devnet": "solana-devnet",
+} as const;
+
+export type SendSolanaTransactionBody = {
+  /** The Solana network to send the transaction to. */
+  network: SendSolanaTransactionBodyNetwork;
+  /** The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching. */
+  transaction: string;
+};
+
+export type SendSolanaTransaction200 = {
+  /** The base58 encoded transaction signature. */
+  transactionSignature: string;
+};
+
+/**
  * The token to request funds for.
  */
 export type RequestSolanaFaucetBodyToken =
@@ -1927,6 +2302,24 @@ export type RequestSolanaFaucet200 = {
   /** The signature identifying the transaction that requested the funds. */
   transactionSignature: string;
 };
+
+export type ListSolanaTokenBalancesParams = {
+  /**
+   * The number of balances to return per page.
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of balances. Will be empty if there are no more balances to fetch.
+   */
+  pageToken?: string;
+};
+
+export type ListSolanaTokenBalances200AllOf = {
+  /** The list of Solana token balances. */
+  balances: SolanaTokenBalance[];
+};
+
+export type ListSolanaTokenBalances200 = ListSolanaTokenBalances200AllOf & ListResponse;
 
 export type GetCryptoRailsParams = {
   /**

@@ -1,23 +1,35 @@
+import { constants, publicEncrypt } from "crypto";
+
+import bs58 from "bs58";
+
 import {
   CreateAccountOptions,
   ExportAccountOptions,
   GetAccountOptions,
   GetOrCreateAccountOptions,
+  ImportAccountOptions,
   ListAccountsOptions,
   ListAccountsResult,
+  ListTokenBalancesOptions,
+  ListTokenBalancesResult,
   RequestFaucetOptions,
+  SendTransactionOptions,
   SignatureResult,
   SignMessageOptions,
   SignTransactionOptions,
   SolanaClientInterface,
+  TransactionResult,
   UpdateSolanaAccountOptions,
 } from "./solana.types.js";
 import { toSolanaAccount } from "../../accounts/solana/toSolanaAccount.js";
 import { SolanaAccount } from "../../accounts/solana/types.js";
 import { requestFaucet } from "../../actions/solana/requestFaucet.js";
+import { sendTransaction } from "../../actions/solana/sendTransaction.js";
 import { signMessage } from "../../actions/solana/signMessage.js";
 import { signTransaction } from "../../actions/solana/signTransaction.js";
 import { Analytics } from "../../analytics.js";
+import { ImportAccountPublicRSAKey } from "../../constants.js";
+import { UserInputValidationError } from "../../errors.js";
 import { APIError } from "../../openapi-client/errors.js";
 import { CdpOpenApiClient } from "../../openapi-client/index.js";
 import {
@@ -61,6 +73,11 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async createAccount(options: CreateAccountOptions = {}): Promise<SolanaAccount> {
+    Analytics.trackAction({
+      action: "create_account",
+      accountType: "solana",
+    });
+
     const openApiAccount = await CdpOpenApiClient.createSolanaAccount(
       {
         name: options.name,
@@ -103,6 +120,11 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async exportAccount(options: ExportAccountOptions): Promise<string> {
+    Analytics.trackAction({
+      action: "export_account",
+      accountType: "solana",
+    });
+
     const { publicKey, privateKey } = await generateExportEncryptionKeyPair();
 
     const { encryptedPrivateKey } = await (async () => {
@@ -126,11 +148,99 @@ export class SolanaClient implements SolanaClientInterface {
         );
       }
 
-      throw new Error("Either address or name must be provided");
+      throw new UserInputValidationError("Either address or name must be provided");
     })();
 
     const decryptedPrivateKey = decryptWithPrivateKey(privateKey, encryptedPrivateKey);
     return formatSolanaPrivateKey(decryptedPrivateKey);
+  }
+
+  /**
+   * Imports a Solana account using a private key.
+   * The private key will be encrypted before being stored securely.
+   *
+   * @param {ImportAccountOptions} options - Parameters for importing the Solana account.
+   * @param {string} options.privateKey - The private key to import (32 or 64 bytes). Can be a base58 encoded string or raw bytes.
+   * @param {string} [options.name] - The name of the account.
+   * @param {string} [options.encryptionPublicKey] - The RSA public key for encrypting the private key.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
+   * @returns A promise that resolves to the imported account.
+   *
+   * @example **Import with private key only**
+   *          ```ts
+   *          const account = await cdp.solana.importAccount({
+   *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
+   *          });
+   *          ```
+   *
+   * @example **Import with name**
+   *          ```ts
+   *          const account = await cdp.solana.importAccount({
+   *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
+   *            name: "ImportedAccount",
+   *          });
+   *          ```
+   *
+   * @example **Import with idempotency key**
+   *          ```ts
+   *          const idempotencyKey = uuidv4();
+   *
+   *          const account = await cdp.solana.importAccount({
+   *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
+   *            name: "ImportedAccount",
+   *            idempotencyKey,
+   *          });
+   *          ```
+   */
+  async importAccount(options: ImportAccountOptions): Promise<SolanaAccount> {
+    Analytics.trackAction({
+      action: "import_account",
+      accountType: "solana",
+    });
+
+    let privateKeyBytes: Uint8Array = new Uint8Array();
+
+    if (typeof options.privateKey === "string") {
+      privateKeyBytes = bs58.decode(options.privateKey);
+    } else {
+      privateKeyBytes = options.privateKey;
+    }
+
+    if (privateKeyBytes.length !== 32 && privateKeyBytes.length !== 64) {
+      throw new UserInputValidationError("Invalid private key length");
+    }
+
+    if (privateKeyBytes.length === 64) {
+      privateKeyBytes = privateKeyBytes.subarray(0, 32);
+    }
+
+    const encryptionPublicKey = options.encryptionPublicKey || ImportAccountPublicRSAKey;
+
+    const encryptedPrivateKey = publicEncrypt(
+      {
+        key: encryptionPublicKey,
+        padding: constants.RSA_PKCS1_OAEP_PADDING,
+        oaepHash: "sha256",
+      },
+      privateKeyBytes,
+    );
+
+    const openApiAccount = await CdpOpenApiClient.importSolanaAccount(
+      {
+        encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
+        name: options.name,
+      },
+      options.idempotencyKey,
+    );
+
+    const account = toSolanaAccount(CdpOpenApiClient, {
+      account: openApiAccount,
+    });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
   }
 
   /**
@@ -159,6 +269,11 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async getAccount(options: GetAccountOptions): Promise<SolanaAccount> {
+    Analytics.trackAction({
+      action: "get_account",
+      accountType: "solana",
+    });
+
     const openApiAccount = await (() => {
       if (options.address) {
         return CdpOpenApiClient.getSolanaAccount(options.address);
@@ -168,7 +283,7 @@ export class SolanaClient implements SolanaClientInterface {
         return CdpOpenApiClient.getSolanaAccountByName(options.name);
       }
 
-      throw new Error("Either address or name must be provided");
+      throw new UserInputValidationError("Either address or name must be provided");
     })();
 
     const account = toSolanaAccount(CdpOpenApiClient, {
@@ -196,6 +311,11 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async getOrCreateAccount(options: GetOrCreateAccountOptions): Promise<SolanaAccount> {
+    Analytics.trackAction({
+      action: "get_or_create_account",
+      accountType: "solana",
+    });
+
     try {
       const account = await this.getAccount(options);
       return account;
@@ -250,6 +370,11 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async listAccounts(options: ListAccountsOptions = {}): Promise<ListAccountsResult> {
+    Analytics.trackAction({
+      action: "list_accounts",
+      accountType: "solana",
+    });
+
     const solAccounts = await CdpOpenApiClient.listSolanaAccounts({
       pageSize: options.pageSize,
       pageToken: options.pageToken,
@@ -288,6 +413,11 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async requestFaucet(options: RequestFaucetOptions): Promise<SignatureResult> {
+    Analytics.trackAction({
+      action: "request_faucet",
+      accountType: "solana",
+    });
+
     return requestFaucet(CdpOpenApiClient, options);
   }
 
@@ -314,6 +444,11 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async signMessage(options: SignMessageOptions): Promise<SignatureResult> {
+    Analytics.trackAction({
+      action: "sign_message",
+      accountType: "solana",
+    });
+
     return signMessage(CdpOpenApiClient, options);
   }
 
@@ -351,6 +486,11 @@ export class SolanaClient implements SolanaClientInterface {
    * ```
    */
   async signTransaction(options: SignTransactionOptions): Promise<SignatureResult> {
+    Analytics.trackAction({
+      action: "sign_transaction",
+      accountType: "solana",
+    });
+
     return signTransaction(CdpOpenApiClient, options);
   }
 
@@ -396,6 +536,11 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    */
   async updateAccount(options: UpdateSolanaAccountOptions): Promise<SolanaAccount> {
+    Analytics.trackAction({
+      action: "update_account",
+      accountType: "solana",
+    });
+
     const openApiAccount = await CdpOpenApiClient.updateSolanaAccount(
       options.address,
       options.update,
@@ -409,5 +554,88 @@ export class SolanaClient implements SolanaClientInterface {
     Analytics.wrapObjectMethodsWithErrorTracking(account);
 
     return account;
+  }
+
+  /**
+   * Sends a Solana transaction using the Coinbase API.
+   *
+   * @param {SendTransactionOptions} options - Parameters for sending the Solana transaction.
+   * @param {string} options.network - The network to send the transaction to.
+   * @param {string} options.transaction - The base64 encoded transaction to send.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
+   * @returns A promise that resolves to the transaction result.
+   *
+   * @example
+   * ```ts
+   * const signature = await cdp.solana.sendTransaction({
+   *   network: "solana-devnet",
+   *   transaction: "...",
+   * });
+   * ```
+   */
+  async sendTransaction(options: SendTransactionOptions): Promise<TransactionResult> {
+    Analytics.trackAction({
+      action: "send_transaction",
+      accountType: "solana",
+      properties: {
+        network: options.network,
+      },
+    });
+
+    return sendTransaction(CdpOpenApiClient, options);
+  }
+
+  /**
+   * Lists the token balances for a Solana account.
+   *
+   * @param {ListTokenBalancesOptions} options - Parameters for listing the Solana token balances.
+   * @param {string} options.address - The address of the account to list token balances for.
+   * @param {string} [options.network] - The network to list token balances for. Defaults to "solana".
+   * @param {number} [options.pageSize] - The number of token balances to return.
+   * @param {string} [options.pageToken] - The page token to begin listing from.
+   * This is obtained by previous calls to this method.
+   *
+   * @returns A promise that resolves to an array of Solana token balance instances.
+   *
+   * @example
+   * ```ts
+   * const balances = await cdp.solana.listTokenBalances({ address: "...", network: "solana-devnet" });
+   * ```
+   */
+  async listTokenBalances(options: ListTokenBalancesOptions): Promise<ListTokenBalancesResult> {
+    Analytics.trackAction({
+      action: "list_token_balances",
+      accountType: "solana",
+      properties: {
+        network: options.network,
+      },
+    });
+
+    const tokenBalances = await CdpOpenApiClient.listSolanaTokenBalances(
+      options.network || "solana",
+      options.address,
+      {
+        pageSize: options.pageSize,
+        pageToken: options.pageToken,
+      },
+    );
+
+    return {
+      balances: tokenBalances.balances.map(balance => {
+        return {
+          amount: {
+            amount: BigInt(balance.amount.amount),
+            decimals: balance.amount.decimals,
+          },
+          token: {
+            mintAddress: balance.token.mintAddress,
+            name: balance.token.name,
+            symbol: balance.token.symbol,
+          },
+        };
+      }),
+      nextPageToken: tokenBalances.nextPageToken,
+    };
   }
 }

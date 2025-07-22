@@ -34,6 +34,7 @@ from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.actions.evm.swap import AccountSwapOptions
 from cdp.actions.evm.swap.types import AccountSwapResult, QuoteSwapResult
+from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
@@ -97,11 +98,11 @@ class EvmServerAccount(BaseAccount, BaseModel):
         return self.__name
 
     @property
-    def policies(self) -> list[str]:
+    def policies(self) -> list[str] | None:
         """Gets the list of policies the apply to this account.
 
         Returns:
-            str: The list of Policy IDs.
+            list[str] | None: The list of Policy IDs.
 
         """
         return self.__policies
@@ -122,6 +123,8 @@ class EvmServerAccount(BaseAccount, BaseModel):
             AttributeError: If the signature response is missing required fields
 
         """
+        track_action(action="sign_message", account_type="evm_server")
+
         message_body = signable_message.body
         message_hex = (
             message_body.hex() if isinstance(message_body, bytes) else HexBytes(message_body).hex()
@@ -166,6 +169,8 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ValueError: If the signature response is missing required fields
 
         """
+        track_action(action="sign", account_type="evm_server")
+
         hash_hex = HexBytes(message_hash).hex()
         sign_evm_hash_request = SignEvmHashRequest(hash=hash_hex)
         signature_response = await self.__evm_accounts_api.sign_evm_hash(
@@ -201,6 +206,8 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ValueError: If the signature response is missing required fields
 
         """
+        track_action(action="sign_transaction", account_type="evm_server")
+
         typed_tx = TypedTransaction.from_dict(transaction_dict)
         typed_tx.transaction.dictionary["v"] = 0
         typed_tx.transaction.dictionary["r"] = 0
@@ -278,6 +285,14 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ... })
 
         """
+        track_action(
+            action="transfer",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
         from cdp.actions.evm.transfer import account_transfer_strategy, transfer
 
         return await transfer(
@@ -300,6 +315,16 @@ class EvmServerAccount(BaseAccount, BaseModel):
             AccountSwapResult: The result containing the transaction hash
 
         """
+        track_action(
+            action="swap",
+            account_type="evm_server",
+            properties={
+                "network": swap_options.network
+                if hasattr(swap_options, "network") and swap_options.network
+                else None,
+            },
+        )
+
         from cdp.actions.evm.swap.send_swap_transaction import send_swap_transaction
         from cdp.actions.evm.swap.types import (
             InlineSendSwapTransactionOptions,
@@ -374,6 +399,11 @@ class EvmServerAccount(BaseAccount, BaseModel):
             >>> result = await account.swap(AccountSwapOptions(swap_quote=quote))
 
         """
+        track_action(
+            action="create_swap_quote",
+            properties={"network": network},
+        )
+
         from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
 
         # Call create_swap_quote directly with the account address as taker
@@ -404,6 +434,14 @@ class EvmServerAccount(BaseAccount, BaseModel):
             str: The transaction hash of the faucet request.
 
         """
+        track_action(
+            action="request_faucet",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
         return await request_faucet(
             self.__api_clients.faucets,
             self.address,
@@ -432,6 +470,8 @@ class EvmServerAccount(BaseAccount, BaseModel):
             str: The signature.
 
         """
+        track_action(action="sign_typed_data", account_type="evm_server")
+
         eip712_message = EIP712Message(
             domain=domain,
             types=types,
@@ -462,6 +502,14 @@ class EvmServerAccount(BaseAccount, BaseModel):
             [ListTokenBalancesResult]: The token balances for the account on the network.
 
         """
+        track_action(
+            action="list_token_balances",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
         return await list_token_balances(
             self.__api_clients.evm_token_balances,
             self.address,
@@ -508,6 +556,14 @@ class EvmServerAccount(BaseAccount, BaseModel):
             str: The transaction hash.
 
         """
+        track_action(
+            action="send_transaction",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
         return await send_transaction(
             evm_accounts=self.__evm_accounts_api,
             address=self.address,
@@ -518,7 +574,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
     async def quote_fund(
         self,
-        network: Literal["base"],
+        network: Literal["base", "ethereum"],
         amount: int,
         token: Literal["eth", "usdc"],
     ) -> Quote:
@@ -540,6 +596,14 @@ class EvmServerAccount(BaseAccount, BaseModel):
                 - fees: List of fees associated with the quote
 
         """
+        track_action(
+            action="quote_fund",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
         fund_options = QuoteFundOptions(
             network=network,
             amount=amount,
@@ -554,7 +618,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
     async def fund(
         self,
-        network: Literal["base"],
+        network: Literal["base", "ethereum"],
         amount: int,
         token: Literal["eth", "usdc"],
     ) -> FundOperationResult:
@@ -576,7 +640,26 @@ class EvmServerAccount(BaseAccount, BaseModel):
                     - target_currency: The target currency
                     - fees: List of fees associated with the transfer
 
+        Examples:
+            >>> # Fund an account with USDC
+            >>> account = await cdp.evm.get_account("account-id")
+            >>> fund_result = await account.fund(
+            ...     network="base",
+            ...     amount=1000000,  # 1 USDC (USDC has 6 decimals)
+            ...     token="usdc"
+            ... )
+            >>> # Wait for fund operation to complete
+            >>> result = await account.wait_for_fund_operation_receipt(fund_result.transfer.id)
+
         """
+        track_action(
+            action="fund",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
         fund_options = FundOptions(
             network=network,
             amount=amount,
@@ -616,6 +699,11 @@ class EvmServerAccount(BaseAccount, BaseModel):
             TimeoutError: If the transfer does not complete within the timeout period.
 
         """
+        track_action(
+            action="wait_for_fund_operation_receipt",
+            account_type="evm_server",
+        )
+
         return await wait_for_fund_operation_receipt(
             api_clients=self.__api_clients,
             transfer_id=transfer_id,

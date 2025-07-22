@@ -76,3 +76,30 @@ async def test_close(mock_close):
 
     mock_close.assert_called_once()
     assert result is None
+
+
+@pytest.mark.asyncio
+@patch("cdp.api_clients.ApiClients.close")
+async def test_use_after_close_raises_error(mock_close):
+    """Test that using a closed client raises a clear error."""
+    mock_close.return_value = None
+
+    client = CdpClient("api_key_id", "api_key_secret", "wallet_secret")
+    await client.close()
+
+    # Test that accessing properties after close raises RuntimeError
+    with pytest.raises(RuntimeError) as exc_info:
+        _ = client.evm
+
+    assert "Cannot use a closed CDP client" in str(exc_info.value)
+    assert "create a new client instance" in str(exc_info.value)
+
+    with pytest.raises(RuntimeError) as exc_info:
+        _ = client.solana
+
+    assert "Cannot use a closed CDP client" in str(exc_info.value)
+
+    with pytest.raises(RuntimeError) as exc_info:
+        _ = client.policies
+
+    assert "Cannot use a closed CDP client" in str(exc_info.value)

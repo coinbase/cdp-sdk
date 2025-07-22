@@ -1,0 +1,26 @@
+---
+globs: go/**
+alwaysApply: false
+---
+
+## Development Commands
+
+```bash
+# Clean and prepare
+make clean
+
+# Run tests
+make test
+
+# Lint code
+make lint
+
+# Fix linting issues
+make lint-fix
+
+# Generate OpenAPI client
+make client
+
+# Generate docs
+make docs
+```

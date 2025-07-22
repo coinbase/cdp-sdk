@@ -1,6 +1,6 @@
 [project]
 name = "cdp-sdk"
-version = "1.16.0"
+version = "1.24.0"
 description = "CDP SDK"
 license = {text = "MIT"}
 readme = "README.md"
@@ -8,7 +8,7 @@ requires-python = ">=3.10"
 
 dependencies = [
     "cryptography>=42.0.0",
-    "pydantic>=2.10.3,<=2.10.4",
+    "pydantic>=2.10.3",
     "PyJWT>=2.10.1",
     "python-dateutil==2.9.0.post0",
     "urllib3>=2.2.3,<=2.3.0",

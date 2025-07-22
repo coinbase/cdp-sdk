@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -10,6 +10,9 @@ from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccoun
 from cdp.openapi_client.models.export_solana_account200_response import (
     ExportSolanaAccount200Response,
 )
+from cdp.openapi_client.models.import_solana_account_request import (
+    ImportSolanaAccountRequest,
+)
 from cdp.openapi_client.models.list_solana_accounts200_response import (
     ListSolanaAccounts200Response as ListSolanaAccountsResponse,
 )
@@ -18,6 +21,12 @@ from cdp.openapi_client.models.request_solana_faucet200_response import (
 )
 from cdp.openapi_client.models.request_solana_faucet_request import (
     RequestSolanaFaucetRequest,
+)
+from cdp.openapi_client.models.send_solana_transaction200_response import (
+    SendSolanaTransaction200Response as SendSolanaTransactionResponse,
+)
+from cdp.openapi_client.models.send_solana_transaction_request import (
+    SendSolanaTransactionRequest,
 )
 from cdp.openapi_client.models.sign_solana_message200_response import (
     SignSolanaMessage200Response as SignSolanaMessageResponse,
@@ -326,6 +335,60 @@ async def test_list_accounts():
 
 
 @pytest.mark.asyncio
+async def test_list_token_balances(solana_token_balances_model_factory):
+    """Test listing Solana token balances."""
+    mock_solana_token_balances_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.solana_token_balances = mock_solana_token_balances_api
+
+    mock_token_balances = solana_token_balances_model_factory()
+    mock_solana_token_balances_api.list_solana_token_balances = AsyncMock(
+        return_value=mock_token_balances
+    )
+
+    client = SolanaClient(api_clients=mock_api_clients)
+
+    result = await client.list_token_balances(address="test_sol_address", network="solana-devnet")
+
+    mock_solana_token_balances_api.list_solana_token_balances.assert_called_once_with(
+        address="test_sol_address", network="solana-devnet", page_size=None, page_token=None
+    )
+
+    assert len(result.balances) == 1
+    assert result.balances[0].token.mint_address == "So11111111111111111111111111111111111111111"
+    assert result.balances[0].amount.amount == 1000000000
+    assert result.balances[0].amount.decimals == 9
+
+
+@pytest.mark.asyncio
+async def test_list_token_balances_with_solana_network_if_not_provided(
+    solana_token_balances_model_factory,
+):
+    """Test listing Solana token balances."""
+    mock_solana_token_balances_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.solana_token_balances = mock_solana_token_balances_api
+
+    mock_token_balances = solana_token_balances_model_factory()
+    mock_solana_token_balances_api.list_solana_token_balances = AsyncMock(
+        return_value=mock_token_balances
+    )
+
+    client = SolanaClient(api_clients=mock_api_clients)
+
+    result = await client.list_token_balances(address="test_sol_address")
+
+    mock_solana_token_balances_api.list_solana_token_balances.assert_called_with(
+        address="test_sol_address", network="solana", page_size=None, page_token=None
+    )
+
+    assert len(result.balances) == 1
+    assert result.balances[0].token.mint_address == "So11111111111111111111111111111111111111111"
+    assert result.balances[0].amount.amount == 1000000000
+    assert result.balances[0].amount.decimals == 9
+
+
+@pytest.mark.asyncio
 async def test_sign_message():
     """Test signing a Solana message."""
     mock_solana_accounts_api = AsyncMock()
@@ -379,6 +442,40 @@ async def test_sign_transaction():
     mock_solana_accounts_api.sign_solana_transaction.assert_called_once_with(
         address=test_address,
         sign_solana_transaction_request=SignSolanaTransactionRequest(transaction=test_transaction),
+        x_idempotency_key=test_idempotency_key,
+    )
+
+    assert result == mock_response
+
+
+@pytest.mark.asyncio
+async def test_send_transaction():
+    """Test sending a Solana transaction."""
+    mock_solana_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.solana_accounts = mock_solana_accounts_api
+
+    mock_response = SendSolanaTransactionResponse(
+        transaction_signature="test_transaction_signature"
+    )
+    mock_solana_accounts_api.send_solana_transaction = AsyncMock(return_value=mock_response)
+
+    client = SolanaClient(api_clients=mock_api_clients)
+
+    test_network = "solana-devnet"
+    test_transaction = "test_transaction"
+    test_idempotency_key = "test-idempotency-key"
+
+    result = await client.send_transaction(
+        network=test_network,
+        transaction=test_transaction,
+        idempotency_key=test_idempotency_key,
+    )
+
+    mock_solana_accounts_api.send_solana_transaction.assert_called_once_with(
+        send_solana_transaction_request=SendSolanaTransactionRequest(
+            network=test_network, transaction=test_transaction
+        ),
         x_idempotency_key=test_idempotency_key,
     )
 
@@ -449,3 +546,131 @@ async def test_update_account(server_account_model_factory):
         ),
         x_idempotency_key=test_idempotency_key,
     )
+
+
+@pytest.mark.asyncio
+@patch("cdp.solana_client.base64.b64encode")
+@patch("cdp.solana_client.load_pem_public_key")
+@patch("cdp.solana_client.base58.b58decode")
+async def test_import_account(
+    mock_b58decode,
+    mock_load_pem_public_key,
+    mock_b64encode,
+):
+    """Test importing a Solana account."""
+    mock_solana_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.solana_accounts = mock_solana_accounts_api
+
+    mock_sol_account = AsyncMock()
+    mock_sol_account.address = "test_sol_address"
+    mock_sol_account.name = "test-imported-account"
+    mock_solana_accounts_api.import_solana_account = AsyncMock(return_value=mock_sol_account)
+
+    client = SolanaClient(api_clients=mock_api_clients)
+
+    test_private_key = "test_base58_private_key"
+    test_name = "test-imported-account"
+    test_idempotency_key = "test-idempotency-key"
+
+    # Mock base58 decode to return valid 32-byte private key
+    mock_b58decode.return_value = b"a" * 32
+
+    # Mock RSA public key - use MagicMock not AsyncMock since encrypt is synchronous
+    mock_public_key = MagicMock()
+    mock_public_key.encrypt.return_value = b"encrypted_data"
+    mock_load_pem_public_key.return_value = mock_public_key
+
+    # Mock base64 encode
+    mock_b64encode.return_value.decode.return_value = "encrypted_private_key_b64"
+
+    result = await client.import_account(
+        private_key=test_private_key,
+        name=test_name,
+        idempotency_key=test_idempotency_key,
+    )
+
+    mock_b58decode.assert_called_once_with(test_private_key)
+    mock_load_pem_public_key.assert_called_once()
+    mock_public_key.encrypt.assert_called_once()
+    mock_b64encode.assert_called_once_with(b"encrypted_data")
+    mock_solana_accounts_api.import_solana_account.assert_called_once_with(
+        import_solana_account_request=ImportSolanaAccountRequest(
+            encrypted_private_key="encrypted_private_key_b64",
+            name=test_name,
+        ),
+        x_idempotency_key=test_idempotency_key,
+    )
+
+    assert result.address == mock_sol_account.address
+    assert result.name == mock_sol_account.name
+
+
+@pytest.mark.asyncio
+@patch("cdp.solana_client.base64.b64encode")
+@patch("cdp.solana_client.load_pem_public_key")
+@patch("cdp.solana_client.base58.b58decode")
+async def test_import_account_with_64_byte_key(
+    mock_b58decode,
+    mock_load_pem_public_key,
+    mock_b64encode,
+):
+    """Test importing a Solana account with a 64-byte private key."""
+    mock_solana_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.solana_accounts = mock_solana_accounts_api
+
+    mock_sol_account = AsyncMock()
+    mock_sol_account.address = "test_sol_address"
+    mock_sol_account.name = "test-imported-account"
+    mock_solana_accounts_api.import_solana_account = AsyncMock(return_value=mock_sol_account)
+
+    client = SolanaClient(api_clients=mock_api_clients)
+
+    test_private_key = "test_base58_private_key"
+    test_name = "test-imported-account"
+
+    # Mock base58 decode to return valid 64-byte private key (should be truncated to 32)
+    mock_b58decode.return_value = b"a" * 64
+
+    # Mock RSA public key - use MagicMock not AsyncMock since encrypt is synchronous
+    mock_public_key = MagicMock()
+    mock_public_key.encrypt.return_value = b"encrypted_data"
+    mock_load_pem_public_key.return_value = mock_public_key
+
+    # Mock base64 encode
+    mock_b64encode.return_value.decode.return_value = "encrypted_private_key_b64"
+
+    result = await client.import_account(
+        private_key=test_private_key,
+        name=test_name,
+    )
+
+    mock_b58decode.assert_called_once_with(test_private_key)
+    # Verify that the encryption was called with the first 32 bytes
+    mock_public_key.encrypt.assert_called_once()
+    encrypted_data = mock_public_key.encrypt.call_args[0][0]
+    assert len(encrypted_data) == 32
+
+    assert result.address == mock_sol_account.address
+    assert result.name == mock_sol_account.name
+
+
+@pytest.mark.asyncio
+@patch("cdp.solana_client.base58.b58decode")
+async def test_import_account_invalid_private_key(mock_b58decode):
+    """Test importing a Solana account with invalid private key."""
+    mock_api_clients = AsyncMock()
+    client = SolanaClient(api_clients=mock_api_clients)
+
+    # Test with invalid base58 string
+    mock_b58decode.side_effect = Exception("Invalid base58")
+    with pytest.raises(ValueError, match="Private key must be a valid base58 encoded string"):
+        await client.import_account(private_key="invalid_base58")
+
+    # Test with valid base58 but wrong length
+    mock_b58decode.side_effect = None
+    mock_b58decode.return_value = b"a" * 16  # Invalid length
+
+    with pytest.raises(ValueError, match="Private key must be 32 or 64 bytes"):
+        await client.import_account(private_key="test_key")

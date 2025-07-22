@@ -9,4 +9,5 @@ from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
+from cdp.openapi_client.api.solana_token_balances_api import SolanaTokenBalancesApi
 

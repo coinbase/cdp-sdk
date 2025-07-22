@@ -76,6 +76,13 @@ class TestEVMSmartAccountsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_update_evm_smart_account(self) -> None:
+        """Test case for update_evm_smart_account
+
+        Update an EVM Smart Account
+        """
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()

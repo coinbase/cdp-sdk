@@ -6,7 +6,7 @@ from eth_account.typed_transactions import DynamicFeeTransaction
 from web3 import Web3
 
 from cdp.api_clients import ApiClients
-from cdp.constants import ImportEvmAccountPublicRSAKey
+from cdp.constants import ImportAccountPublicRSAKey
 from cdp.evm_client import EvmClient
 from cdp.evm_token_balances import (
     EvmToken,
@@ -36,7 +36,9 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
 )
 from cdp.openapi_client.models.sign_evm_typed_data200_response import SignEvmTypedData200Response
 from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
+from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
+from cdp.update_smart_account_types import UpdateSmartAccountOptions
 
 
 def test_init():
@@ -163,7 +165,7 @@ async def test_import_account(
     )
 
     # Verify the encryption was called with correct parameters
-    mock_load_pem_public_key.assert_called_once_with(ImportEvmAccountPublicRSAKey.encode())
+    mock_load_pem_public_key.assert_called_once_with(ImportAccountPublicRSAKey.encode())
     mock_public_key.encrypt.assert_called_once_with(
         test_private_key_bytes,
         mock_oaep,
@@ -236,7 +238,7 @@ async def test_import_account_without_0x_prefix(
     )
 
     # Verify the encryption was called with correct parameters
-    mock_load_pem_public_key.assert_called_once_with(ImportEvmAccountPublicRSAKey.encode())
+    mock_load_pem_public_key.assert_called_once_with(ImportAccountPublicRSAKey.encode())
     mock_public_key.encrypt.assert_called_once_with(
         test_private_key_bytes,
         mock_oaep,
@@ -512,7 +514,9 @@ async def test_create_smart_account(smart_account_model_factory):
     result = await client.create_smart_account(evm_smart_account_model)
 
     mock_evm_smart_accounts_api.create_evm_smart_account.assert_called_once_with(
-        CreateEvmSmartAccountRequest(owners=[evm_smart_account_model.address])
+        create_evm_smart_account_request=CreateEvmSmartAccountRequest(
+            owners=[evm_smart_account_model.address]
+        )
     )
 
     assert result.address == evm_smart_account_model.address
@@ -545,7 +549,9 @@ async def test_get_or_create_smart_account(smart_account_model_factory, local_ac
 
     assert mock_evm_smart_accounts_api.get_evm_smart_account_by_name.call_count == 2
     mock_evm_smart_accounts_api.create_evm_smart_account.assert_called_once_with(
-        CreateEvmSmartAccountRequest(owners=[owner.address], name=test_name)
+        create_evm_smart_account_request=CreateEvmSmartAccountRequest(
+            owners=[owner.address], name=test_name
+        )
     )
 
     assert result.address == smart_account_model.address
@@ -935,6 +941,44 @@ async def test_update_account(server_account_model_factory):
         ),
         x_idempotency_key=test_idempotency_key,
     )
+
+
+@pytest.mark.asyncio
+async def test_update_smart_account(smart_account_model_factory):
+    """Test updating an EVM smart account."""
+    mock_evm_smart_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
+
+    evm_smart_account_model = smart_account_model_factory()
+
+    mock_evm_smart_accounts_api.update_evm_smart_account = AsyncMock(
+        return_value=evm_smart_account_model
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    test_address = "0x1234567890123456789012345678901234567890"
+    test_name = "updated-smart-account-name"
+    test_idempotency_key = "test-idempotency-key"
+    update_options = UpdateSmartAccountOptions(name=test_name)
+    mock_owner = AsyncMock()
+    mock_owner.address = "0x0987654321098765432109876543210987654321"
+
+    result = await client.update_smart_account(
+        address=test_address,
+        update=update_options,
+        idempotency_key=test_idempotency_key,
+        owner=mock_owner,
+    )
+
+    mock_evm_smart_accounts_api.update_evm_smart_account.assert_called_once_with(
+        address=test_address,
+        update_evm_smart_account_request=UpdateEvmSmartAccountRequest(name=test_name),
+    )
+
+    assert result.address == evm_smart_account_model.address
+    assert result.name == evm_smart_account_model.name
 
 
 @pytest.mark.asyncio

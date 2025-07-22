@@ -1,6 +1,22 @@
 from typing import Any
 
 
+# HTTP Error Types
+class HttpErrorType:
+    """HTTP error type constants."""
+    UNEXPECTED_ERROR = "unexpected_error"
+    UNAUTHORIZED = "unauthorized"
+    NOT_FOUND = "not_found"
+    BAD_GATEWAY = "bad_gateway"
+    SERVICE_UNAVAILABLE = "service_unavailable"
+    UNKNOWN = "unknown"
+    # Network-specific error types
+    NETWORK_TIMEOUT = "network_timeout"
+    NETWORK_CONNECTION_FAILED = "network_connection_failed"
+    NETWORK_IP_BLOCKED = "network_ip_blocked"
+    NETWORK_DNS_FAILURE = "network_dns_failure"
+
+
 class ApiError(Exception):
     """A wrapper for API exceptions to provide more context."""
 
@@ -87,6 +103,61 @@ class ApiError(Exception):
             fields.append(f"error_link={self.error_link}")
 
         return f"ApiError({', '.join(fields)})"
+
+
+class NetworkError(ApiError):
+    """Error thrown when a network-level failure occurs before reaching the CDP service.
+    
+    This includes gateway errors, IP blocklist rejections, DNS failures, etc.
+    """
+
+    def __init__(
+        self,
+        error_type: str,
+        error_message: str,
+        network_details: dict[str, Any] | None = None,
+        error_link: str | None = None,
+    ) -> None:
+        """Initialize a NetworkError.
+
+        Args:
+            error_type: The type of network error
+            error_message: The error message
+            network_details: Additional network error details (code, message, retryable)
+            error_link: URL to documentation about this error
+
+        """
+        super().__init__(
+            http_code=0,  # Status code 0 indicates no response was received
+            error_type=error_type,
+            error_message=error_message,
+            error_link=error_link,
+        )
+        self._network_details = network_details or {}
+
+    @property
+    def network_details(self) -> dict[str, Any]:
+        """Get network error details.
+
+        Returns:
+            dict: Network error details including code, message, and retryable flag
+
+        """
+        return self._network_details
+
+    def __str__(self) -> str:
+        """Get a string representation of the NetworkError.
+
+        Returns:
+            str: The string representation of the NetworkError.
+
+        """
+        base_str = super().__str__().replace("ApiError", "NetworkError")
+        if self._network_details:
+            # Add network details to the string representation
+            details_str = ", ".join(f"{k}={v}" for k, v in self._network_details.items())
+            return base_str[:-1] + f", network_details={{{details_str}}})"
+        return base_str
 
 
 def is_openapi_error(obj: Any) -> bool:

@@ -6,9 +6,12 @@ import { serializeEIP1559Transaction } from "../../../utils/serializeTransaction
 import type { TransferExecutionStrategy } from "./types.js";
 import type { EvmAccount } from "../../../accounts/evm/types.js";
 import type { TransactionResult } from "../sendTransaction.js";
+import {SendEvmTransactionBodyNetwork} from "../../../openapi-client/index.js";
 
 export const accountTransferStrategy: TransferExecutionStrategy<EvmAccount> = {
   executeTransfer: async ({ apiClient, from, to, value, token, network }) => {
+    network = network as SendEvmTransactionBodyNetwork;
+
     if (token === "eth") {
       return apiClient.sendEvmTransaction(from.address, {
         transaction: serializeEIP1559Transaction({

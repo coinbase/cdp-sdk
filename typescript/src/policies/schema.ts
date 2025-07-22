@@ -66,9 +66,9 @@ export const EvmAddressCriterionSchema = z.object({
   /**
    * Array of EVM addresses to compare against.
    * Each address must be a 0x-prefixed 40-character hexadecimal string.
-   * Limited to a maximum of 100 addresses per criterion.
+   * Limited to a maximum of 300 addresses per criterion.
    */
-  addresses: z.array(Address).max(100),
+  addresses: z.array(Address).max(300),
   /**
    * The operator to use for evaluating transaction addresses.
    * "in" checks if an address is in the provided list.
@@ -120,6 +120,152 @@ export const EvmMessageCriterionSchema = z.object({
   match: z.string().min(1),
 });
 export type EvmMessageCriterion = z.infer<typeof EvmMessageCriterionSchema>;
+
+/**
+ * Schema for EVM typed address conditions
+ */
+export const EvmTypedAddressConditionSchema = z.object({
+  /**
+   * Array of EVM addresses to compare against.
+   * Each address must be a 0x-prefixed 40-character hexadecimal string.
+   * Limited to a maximum of 300 addresses per condition.
+   */
+  addresses: z.array(Address).max(300),
+  /**
+   * The operator to use for evaluating addresses.
+   * "in" checks if an address is in the provided list.
+   * "not in" checks if an address is not in the provided list.
+   */
+  operator: EvmAddressOperatorEnum,
+  /**
+   * The path to the field to compare against this criterion.
+   * To reference deeply nested fields, use dot notation (e.g., "order.buyer").
+   */
+  path: z.string().min(1),
+});
+export type EvmTypedAddressCondition = z.infer<typeof EvmTypedAddressConditionSchema>;
+
+/**
+ * Schema for EVM typed numerical conditions
+ */
+export const EvmTypedNumericalConditionSchema = z.object({
+  /**
+   * The numerical value to compare against, as a string.
+   * Must contain only digits.
+   */
+  value: z.string().regex(/^[0-9]+$/),
+  /**
+   * The comparison operator to use.
+   */
+  operator: EthValueOperatorEnum,
+  /**
+   * The path to the field to compare against this criterion.
+   * To reference deeply nested fields, use dot notation (e.g., "order.price").
+   */
+  path: z.string().min(1),
+});
+export type EvmTypedNumericalCondition = z.infer<typeof EvmTypedNumericalConditionSchema>;
+
+/**
+ * Schema for EVM typed string conditions
+ */
+export const EvmTypedStringConditionSchema = z.object({
+  /**
+   * A regular expression the string field is matched against.
+   * Accepts valid regular expression syntax described by [RE2](https://github.com/google/re2/wiki/Syntax).
+   */
+  match: z.string().min(1),
+  /**
+   * The path to the field to compare against this criterion.
+   * To reference deeply nested fields, use dot notation (e.g., "metadata.description").
+   */
+  path: z.string().min(1),
+});
+export type EvmTypedStringCondition = z.infer<typeof EvmTypedStringConditionSchema>;
+
+/**
+ * Schema for SignEvmTypedData field criterion
+ */
+export const SignEvmTypedDataFieldCriterionSchema = z.object({
+  /** The type of criterion, must be "evmTypedDataField" for typed data field-based rules. */
+  type: z.literal("evmTypedDataField"),
+  /**
+   * The EIP-712 type definitions for the typed data.
+   * Must include at minimum the primary type being signed.
+   */
+  types: z.object({
+    /**
+     * EIP-712 compliant map of model names to model definitions.
+     */
+    types: z.record(
+      z.array(
+        z.object({
+          name: z.string(),
+          type: z.string(),
+        }),
+      ),
+    ),
+    /**
+     * The name of the root EIP-712 type. This value must be included in the `types` object.
+     */
+    primaryType: z.string(),
+  }),
+  /**
+   * Array of conditions to apply against typed data fields.
+   * Each condition specifies how to validate a specific field within the typed data.
+   */
+  conditions: z
+    .array(
+      z.union([
+        EvmTypedAddressConditionSchema,
+        EvmTypedNumericalConditionSchema,
+        EvmTypedStringConditionSchema,
+      ]),
+    )
+    .min(1),
+});
+export type SignEvmTypedDataFieldCriterion = z.infer<typeof SignEvmTypedDataFieldCriterionSchema>;
+
+/**
+ * Schema for SignEvmTypedData verifying contract criterion
+ */
+export const SignEvmTypedDataVerifyingContractCriterionSchema = z.object({
+  /** The type of criterion, must be "evmTypedDataVerifyingContract" for verifying contract-based rules. */
+  type: z.literal("evmTypedDataVerifyingContract"),
+  /**
+   * Array of EVM addresses allowed or disallowed as verifying contracts.
+   * Each address must be a 0x-prefixed 40-character hexadecimal string.
+   * Limited to a maximum of 300 addresses per criterion.
+   */
+  addresses: z.array(Address).max(300),
+  /**
+   * The operator to use for evaluating verifying contract addresses.
+   * "in" checks if the verifying contract is in the provided list.
+   * "not in" checks if the verifying contract is not in the provided list.
+   */
+  operator: EvmAddressOperatorEnum,
+});
+export type SignEvmTypedDataVerifyingContractCriterion = z.infer<
+  typeof SignEvmTypedDataVerifyingContractCriterionSchema
+>;
+
+/**
+ * Schema for criteria used in SignEvmTypedData operations
+ */
+export const SignEvmTypedDataCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      SignEvmTypedDataFieldCriterionSchema,
+      SignEvmTypedDataVerifyingContractCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the signEvmTypedData operation.
+ * Can contain up to 10 individual criterion objects for typed data field or verifying contract checks.
+ */
+export type SignEvmTypedDataCriteria = z.infer<typeof SignEvmTypedDataCriteriaSchema>;
 
 /**
  * A list of comparables to apply against encoded arguments in the transaction's `data` field.
@@ -289,6 +435,45 @@ export const SignSolTransactionCriteriaSchema = z
 export type SignSolTransactionCriteria = z.infer<typeof SignSolTransactionCriteriaSchema>;
 
 /**
+ * Schema for criteria used in PrepareUserOperation operations
+ */
+export const PrepareUserOperationCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      EthValueCriterionSchema,
+      EvmAddressCriterionSchema,
+      EvmNetworkCriterionSchema,
+      EvmDataCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the prepareUserOperation operation.
+ * Can contain up to 10 individual criterion objects of ETH value, EVM address, EVM network, or EVM data types.
+ */
+export type PrepareUserOperationCriteria = z.infer<typeof PrepareUserOperationCriteriaSchema>;
+
+/**
+ * Schema for criteria used in SendUserOperation operations
+ */
+export const SendUserOperationCriteriaSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      EthValueCriterionSchema,
+      EvmAddressCriterionSchema,
+      EvmDataCriterionSchema,
+    ]),
+  )
+  .max(10)
+  .min(1);
+/**
+ * Type representing a set of criteria for the sendUserOperation operation.
+ * Can contain up to 10 individual criterion objects of ETH value, EVM address, or EVM data types.
+ */
+export type SendUserOperationCriteria = z.infer<typeof SendUserOperationCriteriaSchema>;
+
+/**
  * Enum for Solana Operation types
  */
 export const SolOperationEnum = z.enum(["signSolTransaction"]);
@@ -383,6 +568,29 @@ export const SignEvmMessageRuleSchema = z.object({
 export type SignEvmMessageRule = z.infer<typeof SignEvmMessageRuleSchema>;
 
 /**
+ * Type representing a 'signEvmTypedData' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SignEvmTypedDataRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the signing, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "signEvmTypedData".
+   */
+  operation: z.literal("signEvmTypedData"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SignEvmTypedDataCriteriaSchema,
+});
+export type SignEvmTypedDataRule = z.infer<typeof SignEvmTypedDataRuleSchema>;
+
+/**
  * Type representing a 'sendEvmTransaction' policy rule that can accept or reject specific operations
  * based on a set of criteria.
  */
@@ -429,14 +637,63 @@ export const SignSolTransactionRuleSchema = z.object({
 export type SignSolTransactionRule = z.infer<typeof SignSolTransactionRuleSchema>;
 
 /**
+ * Type representing a 'prepareUserOperation' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const PrepareUserOperationRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the operation, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "prepareUserOperation".
+   */
+  operation: z.literal("prepareUserOperation"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: PrepareUserOperationCriteriaSchema,
+});
+export type PrepareUserOperationRule = z.infer<typeof PrepareUserOperationRuleSchema>;
+
+/**
+ * Type representing a 'sendUserOperation' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SendUserOperationRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the operation, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "sendUserOperation".
+   */
+  operation: z.literal("sendUserOperation"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SendUserOperationCriteriaSchema,
+});
+export type SendUserOperationRule = z.infer<typeof SendUserOperationRuleSchema>;
+
+/**
  * Schema for policy rules
  */
 export const RuleSchema = z.discriminatedUnion("operation", [
   SignEvmTransactionRuleSchema,
   SignEvmHashRuleSchema,
   SignEvmMessageRuleSchema,
+  SignEvmTypedDataRuleSchema,
   SendEvmTransactionRuleSchema,
   SignSolTransactionRuleSchema,
+  PrepareUserOperationRuleSchema,
+  SendUserOperationRuleSchema,
 ]);
 
 /**

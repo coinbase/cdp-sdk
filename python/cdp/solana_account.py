@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from cdp.actions.solana.request_faucet import request_faucet
 from cdp.actions.solana.sign_message import sign_message
 from cdp.actions.solana.sign_transaction import sign_transaction
+from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.request_solana_faucet200_response import (
     RequestSolanaFaucet200Response as RequestSolanaFaucetResponse,
@@ -100,6 +101,8 @@ class SolanaAccount(BaseModel):
             RequestSolanaFaucetResponse: The response from the faucet.
 
         """
+        track_action(action="request_faucet", account_type="solana")
+
         return await request_faucet(
             self.__api_clients.faucets,
             self.__address,
@@ -119,6 +122,8 @@ class SolanaAccount(BaseModel):
             SignSolanaMessageResponse: The signature of the message.
 
         """
+        track_action(action="sign_message", account_type="solana")
+
         return await sign_message(
             self.__api_clients.solana_accounts,
             self.__address,
@@ -139,6 +144,8 @@ class SolanaAccount(BaseModel):
             SignSolanaTransactionResponse: The signature of the transaction.
 
         """
+        track_action(action="sign_transaction", account_type="solana")
+
         return await sign_transaction(
             self.__api_clients.solana_accounts,
             self.__address,
@@ -165,6 +172,14 @@ class SolanaAccount(BaseModel):
             str: The signature of the transaction.
 
         """
+        track_action(
+            action="transfer",
+            account_type="solana",
+            properties={
+                "network": network,
+            },
+        )
+
         from cdp.actions.solana.transfer import TransferOptions, transfer
 
         transfer_args = TransferOptions(

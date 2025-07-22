@@ -1,6 +1,7 @@
 import md5 from "md5";
 
-import { APIError, HttpErrorType } from "./openapi-client/errors.js";
+import { UserInputValidationError } from "./errors.js";
+import { APIError, NetworkError } from "./openapi-client/errors.js";
 import { version } from "./version.js";
 
 /**
@@ -25,7 +26,29 @@ type ErrorEventData = {
   name: "error";
 };
 
-type EventData = ErrorEventData;
+/**
+ * The data in an action event
+ */
+type ActionEventData = {
+  /**
+   * The operation being performed, e.g. "transfer", "swap", "fund", "requestFaucet"
+   */
+  action: string;
+  /**
+   * The account type, e.g. "evm-server", "evm-smart", "solana"
+   */
+  accountType?: "evm_server" | "evm_smart" | "solana";
+  /**
+   * Additional properties specific to the action
+   */
+  properties?: Record<string, unknown>;
+  /**
+   * The name of the event
+   */
+  name: "action";
+};
+
+type EventData = ErrorEventData | ActionEventData;
 
 // This is a public client id for the analytics service
 const publicClientId = "54f2ee2fb3d2b901a829940d70fbfc13";
@@ -35,6 +58,7 @@ export const Analytics = {
   wrapClassWithErrorTracking,
   wrapObjectMethodsWithErrorTracking,
   sendEvent,
+  trackAction,
 };
 
 /**
@@ -44,7 +68,11 @@ export const Analytics = {
  * @returns Promise that resolves when the event is sent
  */
 async function sendEvent(event: EventData): Promise<void> {
-  if (process.env.DISABLE_CDP_ERROR_REPORTING === "true") {
+  if (event.name === "error" && process.env.DISABLE_CDP_ERROR_REPORTING === "true") {
+    return;
+  }
+
+  if (event.name !== "error" && process.env.DISABLE_CDP_USAGE_TRACKING === "true") {
     return;
   }
 
@@ -86,6 +114,39 @@ async function sendEvent(event: EventData): Promise<void> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(analyticsServiceData),
+  });
+}
+
+/**
+ * Track an action being performed
+ *
+ * @param params - The parameters for tracking an action
+ * @param params.action - The action being performed
+ * @param params.accountType - The type of account
+ * @param params.properties - Additional properties
+ */
+function trackAction(params: {
+  action: string;
+  accountType?: "evm_server" | "evm_smart" | "solana";
+  properties?: Record<string, unknown>;
+}): void {
+  if (
+    params.properties?.network &&
+    typeof params.properties.network === "string" &&
+    params.properties.network.startsWith("http")
+  ) {
+    const url = new URL(params.properties.network);
+    params.properties.customRpcHost = url.hostname;
+    params.properties.network = "custom";
+  }
+
+  sendEvent({
+    action: params.action,
+    accountType: params.accountType,
+    properties: params.properties,
+    name: "action",
+  }).catch(() => {
+    // ignore error
   });
 }
 
@@ -184,7 +245,15 @@ function shouldTrackError(error: unknown): boolean {
     return false;
   }
 
-  if (error instanceof APIError && error.errorType !== HttpErrorType.unexpected_error) {
+  if (error instanceof UserInputValidationError) {
+    return false;
+  }
+
+  if (error instanceof NetworkError) {
+    return true;
+  }
+
+  if (error instanceof APIError && error.errorType !== "unexpected_error") {
     return false;
   }
 

@@ -4,6 +4,7 @@ export * from "./generated/evm-smart-accounts/evm-smart-accounts.js";
 export * from "./generated/evm-swaps/evm-swaps.js";
 export * from "./generated/evm-token-balances/evm-token-balances.js";
 export * from "./generated/solana-accounts/solana-accounts.js";
+export * from "./generated/solana-token-balances/solana-token-balances.js";
 export * from "./generated/faucets/faucets.js";
 export * from "./generated/policy-engine/policy-engine.js";
 export * from "./generated/payments-alpha/payments-alpha.js";
@@ -17,6 +18,7 @@ import * as faucets from "./generated/faucets/faucets.js";
 import * as payments from "./generated/payments-alpha/payments-alpha.js";
 import * as policies from "./generated/policy-engine/policy-engine.js";
 import * as solana from "./generated/solana-accounts/solana-accounts.js";
+import * as solanaTokenBalances from "./generated/solana-token-balances/solana-token-balances.js";
 
 export const CdpOpenApiClient = {
   ...evm,
@@ -24,6 +26,7 @@ export const CdpOpenApiClient = {
   ...evmSwaps,
   ...evmTokenBalances,
   ...solana,
+  ...solanaTokenBalances,
   ...faucets,
   ...policies,
   ...payments,

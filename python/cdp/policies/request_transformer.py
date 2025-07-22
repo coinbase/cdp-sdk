@@ -2,6 +2,9 @@ from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
 from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
 from cdp.openapi_client.models.evm_message_criterion import EvmMessageCriterion
 from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
+from cdp.openapi_client.models.evm_typed_address_condition import EvmTypedAddressCondition
+from cdp.openapi_client.models.evm_typed_numerical_condition import EvmTypedNumericalCondition
+from cdp.openapi_client.models.evm_typed_string_condition import EvmTypedStringCondition
 from cdp.openapi_client.models.rule import Rule
 from cdp.openapi_client.models.send_evm_transaction_criteria_inner import (
     SendEvmTransactionCriteriaInner,
@@ -14,6 +17,22 @@ from cdp.openapi_client.models.sign_evm_transaction_criteria_inner import (
     SignEvmTransactionCriteriaInner,
 )
 from cdp.openapi_client.models.sign_evm_transaction_rule import SignEvmTransactionRule
+from cdp.openapi_client.models.sign_evm_typed_data_criteria_inner import (
+    SignEvmTypedDataCriteriaInner,
+)
+from cdp.openapi_client.models.sign_evm_typed_data_field_criterion import (
+    SignEvmTypedDataFieldCriterion,
+)
+from cdp.openapi_client.models.sign_evm_typed_data_field_criterion_conditions_inner import (
+    SignEvmTypedDataFieldCriterionConditionsInner,
+)
+from cdp.openapi_client.models.sign_evm_typed_data_field_criterion_types import (
+    SignEvmTypedDataFieldCriterionTypes,
+)
+from cdp.openapi_client.models.sign_evm_typed_data_rule import SignEvmTypedDataRule
+from cdp.openapi_client.models.sign_evm_typed_data_verifying_contract_criterion import (
+    SignEvmTypedDataVerifyingContractCriterion,
+)
 from cdp.openapi_client.models.sign_sol_transaction_criteria_inner import (
     SignSolTransactionCriteriaInner,
 )
@@ -71,6 +90,47 @@ openapi_criterion_mapping = {
             )
         ),
     },
+    "signEvmTypedData": {
+        "evmTypedDataField": lambda c: SignEvmTypedDataCriteriaInner(
+            actual_instance=SignEvmTypedDataFieldCriterion(
+                type="evmTypedDataField",
+                types=SignEvmTypedDataFieldCriterionTypes(
+                    types=c.types.types,
+                    primary_type=c.types.primaryType,
+                ),
+                conditions=[
+                    SignEvmTypedDataFieldCriterionConditionsInner(
+                        actual_instance=(
+                            EvmTypedAddressCondition(
+                                addresses=cond.addresses,
+                                operator=cond.operator,
+                                path=cond.path,
+                            )
+                            if hasattr(cond, "addresses")
+                            else EvmTypedNumericalCondition(
+                                value=cond.value,
+                                operator=cond.operator,
+                                path=cond.path,
+                            )
+                            if hasattr(cond, "value")
+                            else EvmTypedStringCondition(
+                                match=cond.match,
+                                path=cond.path,
+                            )
+                        )
+                    )
+                    for cond in c.conditions
+                ],
+            )
+        ),
+        "evmTypedDataVerifyingContract": lambda c: SignEvmTypedDataCriteriaInner(
+            actual_instance=SignEvmTypedDataVerifyingContractCriterion(
+                type="evmTypedDataVerifyingContract",
+                addresses=c.addresses,
+                operator=c.operator,
+            )
+        ),
+    },
     "signSolTransaction": {
         "solAddress": lambda c: SignSolTransactionCriteriaInner(
             actual_instance=SolAddressCriterion(
@@ -88,6 +148,7 @@ openapi_rule_mapping = {
     "signEvmTransaction": SignEvmTransactionRule,
     "signEvmHash": SignEvmHashRule,
     "signEvmMessage": SignEvmMessageRule,
+    "signEvmTypedData": SignEvmTypedDataRule,
     "signSolTransaction": SignSolTransactionRule,
 }
 

@@ -58,7 +58,7 @@ type WalletJwtOptions struct {
 
 // WalletAuthClaims represents the JWT claims structure for wallet authentication.
 type WalletAuthClaims struct {
-	URIs []string               `json:"uris"`
-	Req  map[string]interface{} `json:"req,omitempty"`
+	URIs    []string `json:"uris"`
+	ReqHash string   `json:"reqHash,omitempty"`
 	jwt.RegisteredClaims
 }

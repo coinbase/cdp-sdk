@@ -2,6 +2,82 @@
 
 <!-- towncrier release notes start -->
 
+## [1.24.0] - 2025-07-18
+
+### Features
+
+- Added sendTransaction function for Solana accounts ([#291](https://github.com/coinbase/cdp-sdk/pull/291))
+- Improved network error handling ([#293](https://github.com/coinbase/cdp-sdk/pull/293))
+
+### Bugfixes
+
+- Gracefully handle closed client connections ([#298](https://github.com/coinbase/cdp-sdk/pull/298))
+
+
+## [1.23.0] - 2025-07-16
+
+### Features
+
+- Added signTypedData on EvmSmartAccount ([#284](https://github.com/coinbase/cdp-sdk/pull/284))
+
+### Bugfixes
+
+- Made solana mainnet default network for listTokenBalances ([#282](https://github.com/coinbase/cdp-sdk/pull/282))
+
+
+## [1.22.0] - 2025-07-10
+
+### Features
+
+- Added list_token_balances on Solana to get SOL and SPL token balances ([#277](https://github.com/coinbase/cdp-sdk/pull/277))
+
+
+## [1.21.0] - 2025-07-09
+
+### Features
+
+- Added updateSmartAccount to EvmClient ([#267](https://github.com/coinbase/cdp-sdk/pull/267))
+- Added sendUserOperation, prepareUserOperation policy rules and EVM Smart Account policies ([#270](https://github.com/coinbase/cdp-sdk/pull/270))
+
+
+## [1.20.0] - 2025-07-08
+
+### Features
+
+- Added support for policy creation on signTypedData operations ([#264](https://github.com/coinbase/cdp-sdk/pull/264))
+
+
+## [1.19.0] - 2025-07-01
+
+### Features
+
+- Added ethereum mainnet support for wallet fund and quote_fund operations ([#251](https://github.com/coinbase/cdp-sdk/pull/251))
+
+
+## [1.18.0] - 2025-06-27
+
+### Features
+
+- Added importAccount method for Solana client ([#244](https://github.com/coinbase/cdp-sdk/pull/244))
+
+### Bugfixes
+
+- Fixed EvmLocalAccount sign typed data compatibility with eth-account.
+
+  - Convert bytes32 to hex string to make it serializable
+  - Include EIP712 domain if missing from types
+  - Return SignedMessage
+
+  ([#246](https://github.com/coinbase/cdp-sdk/pull/246))
+
+
+## [1.17.0] - 2025-06-26
+
+### Features
+
+- Added ethereum & ethereum-sepolia to SendEvmTransaction ([#234](https://github.com/coinbase/cdp-sdk/pull/234))
+
+
 ## [1.16.0] - 2025-06-25
 
 ### Features

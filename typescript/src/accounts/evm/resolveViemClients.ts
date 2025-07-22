@@ -11,26 +11,11 @@ import {
 import { toAccount } from "viem/accounts";
 import * as chains from "viem/chains";
 
-import { generateJwt } from "../../auth/utils/jwt.js";
-import { config } from "../../openapi-client/cdpApiClient.js";
+import { getBaseNodeRpcUrl } from "./getBaseNodeRpcUrl.js";
+import { NETWORK_TO_CHAIN_MAP, resolveNetworkToChain } from "./networkToChainResolver.js";
+import { UserInputValidationError } from "../../errors.js";
 
 import type { EvmAccount } from "./types.js";
-
-/**
- * Network identifier to viem chain mapping
- */
-const NETWORK_TO_CHAIN_MAP: Record<string, Chain> = {
-  base: chains.base,
-  "base-sepolia": chains.baseSepolia,
-  ethereum: chains.mainnet,
-  "ethereum-sepolia": chains.sepolia,
-  polygon: chains.polygon,
-  "polygon-mumbai": chains.polygonMumbai,
-  arbitrum: chains.arbitrum,
-  "arbitrum-sepolia": chains.arbitrumSepolia,
-  optimism: chains.optimism,
-  "optimism-sepolia": chains.optimismSepolia,
-};
 
 /**
  * Get a chain from the viem chains object
@@ -57,20 +42,6 @@ function isNetworkIdentifier(input: string): boolean {
 }
 
 /**
- * Resolves a network identifier to a viem chain
- *
- * @param network - The network identifier to resolve
- * @returns The resolved viem chain
- */
-function resolveNetworkToChain(network: string): Chain {
-  const chain = NETWORK_TO_CHAIN_MAP[network.toLowerCase()];
-  if (!chain) {
-    throw new Error(`Unsupported network identifier: ${network}`);
-  }
-  return chain;
-}
-
-/**
  * Resolves a Node URL to a viem chain by making a getChainId call
  *
  * @param nodeUrl - The Node URL to resolve
@@ -79,7 +50,7 @@ function resolveNetworkToChain(network: string): Chain {
 async function resolveNodeUrlToChain(nodeUrl: string): Promise<Chain> {
   // First validate that it's a proper URL
   if (!isValidUrl(nodeUrl)) {
-    throw new Error(`Invalid URL format: ${nodeUrl}`);
+    throw new UserInputValidationError(`Invalid URL format: ${nodeUrl}`);
   }
 
   // Create a temporary public client to get the chain ID
@@ -134,42 +105,6 @@ export type ResolvedViemClients = {
   /** The wallet client for sending transactions */
   walletClient: WalletClient<Transport, Chain, Account>;
 };
-
-/**
- * Get the base node RPC URL for a given network
- *
- * @param network - The network identifier
- * @returns The base node RPC URL or undefined if the network is not supported
- */
-async function getBaseNodeRpcUrl(network: "base" | "base-sepolia"): Promise<string | undefined> {
-  if (!config) {
-    return;
-  }
-
-  try {
-    const basePath = config.basePath?.replace("/platform", "");
-
-    const jwt = await generateJwt({
-      apiKeyId: config.apiKeyId,
-      apiKeySecret: config.apiKeySecret,
-      requestMethod: "GET",
-      requestHost: basePath.replace("https://", ""),
-      requestPath: "/apikeys/v1/tokens/active",
-    });
-
-    const response = await fetch(`${basePath}/apikeys/v1/tokens/active`, {
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    const json = await response.json();
-    return `${basePath}/rpc/v1/${network}/${json.id}`;
-  } catch {
-    return;
-  }
-}
 
 /**
  * Resolves viem clients based on a network identifier or Node URL.
@@ -254,6 +189,8 @@ export async function resolveViemClients(
     }
 
     // Otherwise, throw a generic error about unsupported input
-    throw new Error(`Unsupported network identifier or invalid Node URL: ${networkOrNodeUrl}`);
+    throw new UserInputValidationError(
+      `Unsupported network identifier or invalid Node URL: ${networkOrNodeUrl}`,
+    );
   }
 }

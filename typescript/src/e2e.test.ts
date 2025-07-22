@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, vi, afterEach, afterAll } from "vitest";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import dotenv from "dotenv";
 import {
@@ -21,6 +21,7 @@ import type {
   ImportServerAccountOptions,
   SmartAccount,
 } from "./client/evm/evm.types.js";
+import type { ImportAccountOptions } from "./client/solana/solana.types.js";
 import {
   Keypair,
   PublicKey,
@@ -38,6 +39,7 @@ import { SignEvmTransactionRule } from "./policies/schema.js";
 import bs58 from "bs58";
 import { Abi } from "abitype";
 import kitchenSinkAbi from "../fixtures/kitchenSinkAbi.js";
+import { APIError, HttpErrorType } from "./openapi-client/errors.js";
 
 dotenv.config();
 
@@ -47,6 +49,16 @@ const logger = {
   log: (...args: any[]) => {
     if (process.env.E2E_LOGGING) {
       console.log(...args);
+    }
+  },
+  warn: (...args: any[]) => {
+    if (process.env.E2E_LOGGING) {
+      console.warn(...args);
+    }
+  },
+  error: (...args: any[]) => {
+    if (process.env.E2E_LOGGING) {
+      console.error(...args);
     }
   },
 };
@@ -93,11 +105,14 @@ async function ensureSufficientSolBalance(cdp: CdpClient, account: SolanaAccount
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  const connection = new Connection("https://api.devnet.solana.com");
+  const connection = new Connection(
+    process.env.CDP_E2E_SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+  );
   let balance = await connection.getBalance(new PublicKey(account.address));
 
   // 1250000 is the amount the faucet gives, and is plenty to cover gas
-  if (balance >= 1250000) {
+  // Increase to 12500000 to give us more buffer for testing transfers via sendTransaction.
+  if (balance >= 12500000) {
     return;
   }
 
@@ -162,6 +177,10 @@ describe("CDP Client E2E Tests", () => {
       }
     })();
     testSolanaAccount = await cdp.solana.getOrCreateAccount({ name: testAccountName });
+
+    if (testAccount.policies?.length || 0 > 0) {
+      await cdp.evm.updateAccount({ address: testAccount.address, update: { accountPolicy: "" } });
+    }
   });
 
   beforeEach(async () => {
@@ -223,6 +242,83 @@ describe("CDP Client E2E Tests", () => {
       hash: ("0x" + "1".repeat(64)) as Hex,
     });
     expect(signedHash).toBeDefined();
+  });
+
+  it("should import a solana account from a private key", async () => {
+    // Test 1: Import from base58 encoded private key
+    const keypair = Keypair.generate();
+    const privateKey = bs58.encode(keypair.secretKey); // secretKey is 64 bytes
+    const randomName = generateRandomName();
+
+    const importAccountOptions: ImportAccountOptions = {
+      privateKey,
+      name: randomName,
+    };
+
+    if (process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY) {
+      importAccountOptions.encryptionPublicKey = process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY;
+    }
+
+    logger.log("Importing solana account with base58 private key");
+    const importedAccount = await cdp.solana.importAccount(importAccountOptions);
+
+    expect(importedAccount).toBeDefined();
+    expect(importedAccount.address).toBeDefined();
+    expect(importedAccount.name).toBe(randomName);
+    logger.log(`Imported solana account with address: ${importedAccount.address}`);
+
+    const accountByAddress = await cdp.solana.getAccount({ address: importedAccount.address });
+    expect(accountByAddress).toBeDefined();
+    expect(accountByAddress.address).toBe(importedAccount.address);
+
+    const accountByName = await cdp.solana.getAccount({ name: randomName });
+    expect(accountByName).toBeDefined();
+    expect(accountByName.address).toBe(importedAccount.address);
+    expect(accountByName.name).toBe(randomName);
+
+    // Test signing with the imported account
+    const { signature } = await importedAccount.signMessage({
+      message: "Hello, imported Solana account!",
+    });
+    expect(signature).toBeDefined();
+
+    // Test 2: Import from raw bytes directly
+    const keypair2 = Keypair.generate();
+    const privateKeyBytes = keypair2.secretKey; // This is already a Uint8Array
+    const randomName2 = generateRandomName();
+
+    const importAccountOptions2: ImportAccountOptions = {
+      privateKey: privateKeyBytes,
+      name: randomName2,
+    };
+
+    if (process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY) {
+      importAccountOptions2.encryptionPublicKey = process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY;
+    }
+
+    logger.log("Importing solana account with raw bytes private key");
+    const importedAccount2 = await cdp.solana.importAccount(importAccountOptions2);
+
+    expect(importedAccount2).toBeDefined();
+    expect(importedAccount2.address).toBeDefined();
+    expect(importedAccount2.name).toBe(randomName2);
+    logger.log(`Imported solana account from bytes with address: ${importedAccount2.address}`);
+
+    // Verify we can retrieve the account imported from bytes
+    const accountByAddress2 = await cdp.solana.getAccount({ address: importedAccount2.address });
+    expect(accountByAddress2).toBeDefined();
+    expect(accountByAddress2.address).toBe(importedAccount2.address);
+
+    const accountByName2 = await cdp.solana.getAccount({ name: randomName2 });
+    expect(accountByName2).toBeDefined();
+    expect(accountByName2.address).toBe(importedAccount2.address);
+    expect(accountByName2.name).toBe(randomName2);
+
+    // Test signing with the account imported from bytes
+    const { signature: signature2 } = await importedAccount2.signMessage({
+      message: "Hello, imported Solana account from bytes!",
+    });
+    expect(signature2).toBeDefined();
   });
 
   it("should export an evm server account", async () => {
@@ -430,7 +526,7 @@ describe("CDP Client E2E Tests", () => {
       type: "eip1559",
       maxFeePerGas: BigInt(20000000000),
       maxPriorityFeePerGas: BigInt(1000000000),
-      gasLimit: BigInt(21000),
+      gas: BigInt(21000),
       nonce: 0,
     });
 
@@ -446,7 +542,7 @@ describe("CDP Client E2E Tests", () => {
     const owner = privateKeyToAccount(privateKey);
 
     const smartAccount = await cdp.evm.createSmartAccount({
-      owner: owner,
+      owner,
     });
     expect(smartAccount).toBeDefined();
 
@@ -456,9 +552,47 @@ describe("CDP Client E2E Tests", () => {
 
     const retrievedSmartAccount = await cdp.evm.getSmartAccount({
       address: smartAccount.address,
-      owner: owner,
+      owner,
     });
     expect(retrievedSmartAccount).toBeDefined();
+  });
+
+  it("should update an EVM smart account", async () => {
+    // Create a new smart account to update
+    const privateKey = generatePrivateKey();
+    const owner = privateKeyToAccount(privateKey);
+    const originalName = generateRandomName();
+
+    const smartAccountToUpdate = await cdp.evm.createSmartAccount({
+      owner,
+      name: originalName,
+    });
+    expect(smartAccountToUpdate).toBeDefined();
+    expect(smartAccountToUpdate.name).toBe(originalName);
+
+    // Update the smart account with a new name
+    const updatedName = generateRandomName();
+    const updatedSmartAccount = await cdp.evm.updateSmartAccount({
+      address: smartAccountToUpdate.address,
+      owner,
+      update: {
+        name: updatedName,
+      },
+    });
+
+    // Verify the update was successful
+    expect(updatedSmartAccount).toBeDefined();
+    expect(updatedSmartAccount.address).toBe(smartAccountToUpdate.address);
+    expect(updatedSmartAccount.name).toBe(updatedName);
+
+    // Verify we can get the updated smart account by its new name
+    const retrievedSmartAccount = await cdp.evm.getSmartAccount({
+      name: updatedName,
+      owner,
+    });
+    expect(retrievedSmartAccount).toBeDefined();
+    expect(retrievedSmartAccount.address).toBe(smartAccountToUpdate.address);
+    expect(retrievedSmartAccount.name).toBe(updatedName);
   });
 
   it("should prepare user operation", async () => {
@@ -686,6 +820,41 @@ describe("CDP Client E2E Tests", () => {
     expect(secondPage.balances[0].token).toBeDefined();
     expect(secondPage.balances[0].token.contractAddress).toBeDefined();
     expect(secondPage.balances[0].token.network).toEqual("base-sepolia");
+    expect(secondPage.balances[0].amount).toBeDefined();
+    expect(secondPage.balances[0].amount.amount).toBeDefined();
+    expect(secondPage.balances[0].amount.decimals).toBeDefined();
+  });
+
+  it("should list solana token balances", async () => {
+    const address = "4PkiqJkUvxr9P8C1UsMqGN8NJsUcep9GahDRLfmeu8UK";
+
+    const firstPage = await cdp.solana.listTokenBalances({
+      address,
+      network: "solana-devnet",
+      pageSize: 1,
+    });
+
+    expect(firstPage).toBeDefined();
+    expect(firstPage.balances.length).toEqual(1);
+    expect(firstPage.balances[0].token).toBeDefined();
+    expect(firstPage.balances[0].token.mintAddress).toBeDefined();
+    expect(firstPage.balances[0].token.name).toBeDefined();
+    expect(firstPage.balances[0].token.symbol).toBeDefined();
+    expect(firstPage.balances[0].amount).toBeDefined();
+    expect(firstPage.balances[0].amount.amount).toBeDefined();
+    expect(firstPage.balances[0].amount.decimals).toBeDefined();
+
+    const secondPage = await cdp.solana.listTokenBalances({
+      address,
+      network: "solana-devnet",
+      pageSize: 1,
+      pageToken: firstPage.nextPageToken,
+    });
+
+    expect(secondPage).toBeDefined();
+    expect(secondPage.balances.length).toEqual(1);
+    expect(secondPage.balances[0].token).toBeDefined();
+    expect(secondPage.balances[0].token.mintAddress).toBeDefined();
     expect(secondPage.balances[0].amount).toBeDefined();
     expect(secondPage.balances[0].amount.amount).toBeDefined();
     expect(secondPage.balances[0].amount.decimals).toBeDefined();
@@ -1019,8 +1188,42 @@ describe("CDP Client E2E Tests", () => {
       });
     });
 
+    describe("send transaction", () => {
+      it("should send a transaction", async () => {
+        const connection = new Connection(
+          process.env.CDP_E2E_SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+        );
+
+        const { signature } = await cdp.solana.sendTransaction({
+          network: "solana-devnet",
+          transaction: createAndEncodeTransaction(
+            testSolanaAccount.address,
+            "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+            10,
+          ),
+        });
+
+        expect(signature).toBeDefined();
+
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+        const confirmation = await connection.confirmTransaction(
+          {
+            signature,
+            blockhash,
+            lastValidBlockHeight,
+          },
+          "confirmed",
+        );
+
+        expect(confirmation.value.err).toBeNull();
+      });
+    });
+
     describe("transfer", () => {
-      const connection = new Connection("https://api.devnet.solana.com");
+      const connection = new Connection(
+        process.env.CDP_E2E_SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+      );
 
       it("should transfer native SOL and wait for confirmation", async () => {
         const { signature } = await testSolanaAccount.transfer({
@@ -1359,7 +1562,1051 @@ describe("CDP Client E2E Tests", () => {
     });
   });
 
+  describe("Policy Evaluation", () => {
+    const policyViolation = {
+      statusCode: 403,
+      errorType: "policy_violation",
+    };
+    let policy: Policy;
+
+    beforeAll(async () => {
+      await ensureSufficientEthBalance(cdp, testAccount);
+      policy = await cdp.policies.createPolicy({
+        policy: {
+          description: Date.now().toString(),
+          scope: "account",
+          rules: [
+            {
+              action: "accept",
+              operation: "signEvmMessage",
+              criteria: [{ match: "^$", type: "evmMessage" }],
+            },
+          ],
+        },
+      });
+    });
+
+    async function cleanup() {
+      await cdp.evm.updateAccount({
+        address: testAccount.address,
+        update: {
+          accountPolicy: "",
+        },
+      });
+      if (policy) {
+        await cdp.policies.deletePolicy({
+          id: policy.id,
+        });
+      } else {
+        logger.warn("unable to delete policy, upstream likely unreliable");
+      }
+    }
+
+    afterAll(cleanup);
+
+    describe("signEvmTransaction", () => {
+      describe("ethValue", () => {
+        it(">=", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmTransaction",
+                  action: "reject",
+                  criteria: [
+                    { type: "ethValue", operator: ">=", ethValue: "10000000000000000000" },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.signTransaction({
+              address: testAccount.address,
+              transaction: serializeTransaction({
+                chainId: baseSepolia.id,
+                to: "0x0000000000000000000000000000000000000000",
+                value: parseEther("11"),
+                type: "eip1559",
+                maxFeePerGas: BigInt(20000000000),
+                maxPriorityFeePerGas: BigInt(1000000000),
+                gas: BigInt(21000),
+                nonce: 0,
+              }),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("<=", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmTransaction",
+                  action: "reject",
+                  criteria: [{ type: "ethValue", operator: "<=", ethValue: "1000000000000000000" }],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.signTransaction({
+              address: testAccount.address,
+              transaction: serializeTransaction({
+                chainId: baseSepolia.id,
+                to: "0x0000000000000000000000000000000000000000",
+                value: parseEther("0.5"),
+                type: "eip1559",
+                maxFeePerGas: BigInt(20000000000),
+                maxPriorityFeePerGas: BigInt(1000000000),
+                gas: BigInt(21000),
+                nonce: 0,
+              }),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it(">", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmTransaction",
+                  action: "reject",
+                  criteria: [{ type: "ethValue", operator: ">", ethValue: "500000000000000000" }],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.signTransaction({
+              address: testAccount.address,
+              transaction: serializeTransaction({
+                chainId: baseSepolia.id,
+                to: "0x0000000000000000000000000000000000000000",
+                value: parseEther("1"),
+                type: "eip1559",
+                maxFeePerGas: BigInt(20000000000),
+                maxPriorityFeePerGas: BigInt(1000000000),
+                gas: BigInt(21000),
+                nonce: 0,
+              }),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("<", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmTransaction",
+                  action: "reject",
+                  criteria: [{ type: "ethValue", operator: "<", ethValue: "2000000000000000000" }],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.signTransaction({
+              address: testAccount.address,
+              transaction: serializeTransaction({
+                chainId: baseSepolia.id,
+                to: "0x0000000000000000000000000000000000000000",
+                value: parseEther("1"),
+                type: "eip1559",
+                maxFeePerGas: BigInt(20000000000),
+                maxPriorityFeePerGas: BigInt(1000000000),
+                gas: BigInt(21000),
+                nonce: 0,
+              }),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("==", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmTransaction",
+                  action: "reject",
+                  criteria: [{ type: "ethValue", operator: "==", ethValue: "1000000000000000000" }],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.signTransaction({
+              address: testAccount.address,
+              transaction: serializeTransaction({
+                chainId: baseSepolia.id,
+                to: "0x0000000000000000000000000000000000000000",
+                value: parseEther("1"),
+                type: "eip1559",
+                maxFeePerGas: BigInt(20000000000),
+                maxPriorityFeePerGas: BigInt(1000000000),
+                gas: BigInt(21000),
+                nonce: 0,
+              }),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+
+      describe("evmAddress", () => {
+        it("in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmTransaction",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "evmAddress",
+                      operator: "in",
+                      addresses: ["0x0000000000000000000000000000000000000000"],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.signTransaction({
+              address: testAccount.address,
+              transaction: serializeTransaction({
+                chainId: baseSepolia.id,
+                to: "0x0000000000000000000000000000000000000000",
+                value: parseEther("0.1"),
+                type: "eip1559",
+                maxFeePerGas: BigInt(20000000000),
+                maxPriorityFeePerGas: BigInt(1000000000),
+                gas: BigInt(21000),
+                nonce: 0,
+              }),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("not in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmTransaction",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "evmAddress",
+                      operator: "not in",
+                      addresses: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.signTransaction({
+              address: testAccount.address,
+              transaction: serializeTransaction({
+                chainId: baseSepolia.id,
+                to: "0x0000000000000000000000000000000000000000",
+                value: parseEther("0.1"),
+                type: "eip1559",
+                maxFeePerGas: BigInt(20000000000),
+                maxPriorityFeePerGas: BigInt(1000000000),
+                gas: BigInt(21000),
+                nonce: 0,
+              }),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+
+      describe("evmData", () => {
+        it("erc20 transfer value constraint", async () => {
+          const erc20Abi = [
+            {
+              type: "function",
+              name: "transfer",
+              inputs: [
+                {
+                  name: "to",
+                  type: "address",
+                  internalType: "address",
+                },
+                {
+                  name: "value",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+              ],
+              outputs: [
+                {
+                  name: "",
+                  type: "bool",
+                  internalType: "bool",
+                },
+              ],
+              stateMutability: "nonpayable",
+            },
+          ] as const;
+
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmTransaction",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "evmData",
+                      abi: erc20Abi,
+                      conditions: [
+                        {
+                          function: "transfer",
+                          params: [{ name: "value", operator: ">", value: "1000000" }],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          const transferData =
+            "0xa9059cbb000000000000000000000000742d35cc6634c0532925a3b844bc454e4438f44e0000000000000000000000000000000000000000000000000000000000200000"; // transfer to address with 2M tokens
+
+          await expect(() =>
+            cdp.evm.signTransaction({
+              address: testAccount.address,
+              transaction: serializeTransaction({
+                chainId: baseSepolia.id,
+                to: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", // UNI token contract
+                data: transferData,
+                type: "eip1559",
+                maxFeePerGas: BigInt(20000000000),
+                maxPriorityFeePerGas: BigInt(1000000000),
+                gas: BigInt(100000),
+                nonce: 0,
+              }),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+    });
+
+    describe("sendEvmTransaction", () => {
+      describe("ethValue", () => {
+        it("<=", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendEvmTransaction",
+                  action: "reject",
+                  criteria: [{ type: "ethValue", operator: "==", ethValue: "0" }],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.sendTransaction({
+              network: "base-sepolia",
+              address: testAccount.address,
+              transaction: serializeTransaction({
+                chainId: baseSepolia.id,
+                to: "0x0000000000000000000000000000000000000000",
+                value: BigInt(0),
+                type: "eip1559",
+                maxFeePerGas: BigInt(20000000000),
+                maxPriorityFeePerGas: BigInt(1000000000),
+                gas: BigInt(21000),
+                nonce: 0,
+              }),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+
+      describe("evmAddress", () => {
+        it("in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendEvmTransaction",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "evmAddress",
+                      operator: "in",
+                      addresses: ["0x0000000000000000000000000000000000000000"],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.sendTransaction({
+              address: testAccount.address,
+              network: "base-sepolia",
+              transaction: serializeTransaction({
+                chainId: baseSepolia.id,
+                to: "0x0000000000000000000000000000000000000000",
+                value: parseEther("0.1"),
+                type: "eip1559",
+                maxFeePerGas: BigInt(20000000000),
+                maxPriorityFeePerGas: BigInt(1000000000),
+                // Explicitly specify gas so that we don't fail on insufficient balance
+                // when estimating gas.
+                gas: BigInt(21000),
+                nonce: 0,
+              }),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+
+      describe("evmNetwork", () => {
+        it("in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendEvmTransaction",
+                  action: "reject",
+                  criteria: [{ type: "evmNetwork", operator: "in", networks: ["base-sepolia"] }],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.sendTransaction({
+              address: testAccount.address,
+              network: "base-sepolia",
+              transaction: serializeTransaction({
+                chainId: baseSepolia.id,
+                to: "0x0000000000000000000000000000000000000000",
+                value: parseEther("0.1"),
+                type: "eip1559",
+                maxFeePerGas: BigInt(20000000000),
+                maxPriorityFeePerGas: BigInt(1000000000),
+                // Explicitly specify gas so that we don't fail on insufficient balance
+                // when estimating gas.
+                gas: BigInt(21000),
+                nonce: 0,
+              }),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("not in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendEvmTransaction",
+                  action: "reject",
+                  criteria: [{ type: "evmNetwork", operator: "not in", networks: ["base"] }],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.sendTransaction({
+              address: testAccount.address,
+              network: "base-sepolia",
+              transaction: serializeTransaction({
+                chainId: baseSepolia.id,
+                to: "0x0000000000000000000000000000000000000000",
+                value: parseEther("0.1"),
+                type: "eip1559",
+                maxFeePerGas: BigInt(20000000000),
+                maxPriorityFeePerGas: BigInt(1000000000),
+                // Explicitly specify gas so that we don't fail on insufficient balance
+                // when estimating gas.
+                gas: BigInt(21000),
+                nonce: 0,
+              }),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+
+      describe("evmData", () => {
+        it("erc20 transfer value constraint", async () => {
+          const erc20Abi = [
+            {
+              type: "function",
+              name: "transfer",
+              inputs: [
+                {
+                  name: "to",
+                  type: "address",
+                  internalType: "address",
+                },
+                {
+                  name: "value",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+              ],
+              outputs: [
+                {
+                  name: "",
+                  type: "bool",
+                  internalType: "bool",
+                },
+              ],
+              stateMutability: "nonpayable",
+            },
+          ] as const;
+
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendEvmTransaction",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "evmData",
+                      abi: erc20Abi,
+                      conditions: [
+                        {
+                          function: "transfer",
+                          params: [{ name: "value", operator: ">", value: "1000000" }],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          const transferData =
+            "0xa9059cbb000000000000000000000000742d35cc6634c0532925a3b844bc454e4438f44e0000000000000000000000000000000000000000000000000000000000200000"; // transfer to address with 2M tokens
+
+          await expect(() =>
+            cdp.evm.sendTransaction({
+              network: "base-sepolia",
+              address: testAccount.address,
+              transaction: serializeTransaction({
+                chainId: baseSepolia.id,
+                to: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", // UNI token contract
+                data: transferData,
+                type: "eip1559",
+                maxFeePerGas: BigInt(20000000000),
+                maxPriorityFeePerGas: BigInt(1000000000),
+                gas: BigInt(100000),
+                nonce: 0,
+              }),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+    });
+
+    describe("signEvmMessage", () => {
+      describe("evmMessage", () => {
+        it("regex match", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmMessage",
+                  action: "reject",
+                  criteria: [{ type: "evmMessage", match: "^forbidden" }],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.signMessage({
+              address: testAccount.address,
+              message: "forbidden message content",
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("complex regex pattern", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmMessage",
+                  action: "reject",
+                  criteria: [{ type: "evmMessage", match: "transfer\\s+[0-9]+\\s+tokens" }],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.signMessage({
+              address: testAccount.address,
+              message: "I want to transfer 1000 tokens to my friend",
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+    });
+
+    describe("signEvmHash", () => {
+      it("should handle operations without criteria", async () => {
+        await cdp.policies.updatePolicy({
+          id: policy.id,
+          policy: {
+            rules: [{ operation: "signEvmHash", action: "reject" }],
+          },
+        });
+        await cdp.evm.updateAccount({
+          address: testAccount.address,
+          update: { accountPolicy: policy.id },
+        });
+        await expect(() =>
+          cdp.evm.signHash({
+            address: testAccount.address,
+            hash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          }),
+        ).rejects.toThrowError(
+          expect.objectContaining({ statusCode: 403, errorType: "policy_violation" }),
+        );
+      });
+    });
+
+    describe("signEvmTypedData", () => {
+      describe("evmTypedDataField", () => {
+        it("numerical field constraint", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmTypedData",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "evmTypedDataField",
+                      types: {
+                        primaryType: "Permit",
+                        types: {
+                          Permit: [
+                            { name: "owner", type: "address" },
+                            { name: "spender", type: "address" },
+                            { name: "value", type: "uint256" },
+                            { name: "nonce", type: "uint256" },
+                            { name: "deadline", type: "uint256" },
+                          ],
+                        },
+                      },
+                      conditions: [
+                        {
+                          path: "value",
+                          operator: ">",
+                          value: "1000000000000000000000",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.signTypedData({
+              address: testAccount.address,
+              types: {
+                Permit: [
+                  { name: "owner", type: "address" },
+                  { name: "spender", type: "address" },
+                  { name: "value", type: "uint256" },
+                  { name: "nonce", type: "uint256" },
+                  { name: "deadline", type: "uint256" },
+                ],
+              },
+              primaryType: "Permit",
+              domain: {
+                name: "Test Token",
+                version: "1",
+                chainId: baseSepolia.id,
+                verifyingContract: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+              },
+              message: {
+                owner: testAccount.address,
+                spender: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+                value: "2000000000000000000000", // 2000 tokens - exceeds limit
+                nonce: 0,
+                deadline: Math.floor(Date.now() / 1000) + 3600,
+              },
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("address field constraint", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmTypedData",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "evmTypedDataField",
+                      types: {
+                        primaryType: "Permit",
+                        types: {
+                          Permit: [
+                            { name: "owner", type: "address" },
+                            { name: "spender", type: "address" },
+                            { name: "value", type: "uint256" },
+                            { name: "nonce", type: "uint256" },
+                            { name: "deadline", type: "uint256" },
+                          ],
+                        },
+                      },
+                      conditions: [
+                        {
+                          path: "spender",
+                          operator: "in",
+                          addresses: ["0x0000000000000000000000000000000000000000"],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.signTypedData({
+              address: testAccount.address,
+              types: {
+                Permit: [
+                  { name: "owner", type: "address" },
+                  { name: "spender", type: "address" },
+                  { name: "value", type: "uint256" },
+                  { name: "nonce", type: "uint256" },
+                  { name: "deadline", type: "uint256" },
+                ],
+              },
+              primaryType: "Permit",
+              domain: {
+                name: "Test Token",
+                version: "1",
+                chainId: baseSepolia.id,
+                verifyingContract: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+              },
+              message: {
+                owner: testAccount.address,
+                spender: "0x0000000000000000000000000000000000000000", // Forbidden spender
+                value: "1000000000000000000",
+                nonce: 0,
+                deadline: Math.floor(Date.now() / 1000) + 3600,
+              },
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+
+      describe("evmTypedDataVerifyingContract", () => {
+        it("in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmTypedData",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "evmTypedDataVerifyingContract",
+                      operator: "in",
+                      addresses: ["0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.signTypedData({
+              address: testAccount.address,
+              types: {
+                Permit: [
+                  { name: "owner", type: "address" },
+                  { name: "spender", type: "address" },
+                  { name: "value", type: "uint256" },
+                  { name: "nonce", type: "uint256" },
+                  { name: "deadline", type: "uint256" },
+                ],
+              },
+              primaryType: "Permit",
+              domain: {
+                name: "Test Token",
+                version: "1",
+                chainId: baseSepolia.id,
+                verifyingContract: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", // This is in the forbidden list
+              },
+              message: {
+                owner: testAccount.address,
+                spender: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+                value: "1000000000000000000",
+                nonce: 0,
+                deadline: Math.floor(Date.now() / 1000) + 3600,
+              },
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("not in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signEvmTypedData",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "evmTypedDataVerifyingContract",
+                      operator: "not in",
+                      addresses: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.evm.updateAccount({
+            address: testAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.evm.signTypedData({
+              address: testAccount.address,
+              types: {
+                Permit: [
+                  { name: "owner", type: "address" },
+                  { name: "spender", type: "address" },
+                  { name: "value", type: "uint256" },
+                  { name: "nonce", type: "uint256" },
+                  { name: "deadline", type: "uint256" },
+                ],
+              },
+              primaryType: "Permit",
+              domain: {
+                name: "Test Token",
+                version: "1",
+                chainId: baseSepolia.id,
+                verifyingContract: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", // This is not in the allowed list
+              },
+              message: {
+                owner: testAccount.address,
+                spender: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+                value: "1000000000000000000",
+                nonce: 0,
+                deadline: Math.floor(Date.now() / 1000) + 3600,
+              },
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+    });
+  });
+
   describe("network-scoped evm server accounts", () => {
+    describe("transfer", () => {
+      it("should use the provided RPC URL when sending a transaction on a non-CDP supported network", async () => {
+        // Spy on global fetch to capture HTTP calls
+        const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+        try {
+          const account = await cdp.evm.getOrCreateAccount({ name: testAccountName });
+
+          const opAccount = await account.useNetwork("https://sepolia.optimism.io");
+
+          await expect(
+            opAccount.transfer({
+              amount: parseEther("0"),
+              to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+              token: "eth",
+            }),
+          ).rejects.toThrow(); // expected error because sending tx on op without funds
+
+          // Find the RPC calls made during the transaction
+          const rpcCalls = fetchSpy.mock.calls.filter(call => {
+            const url = call[0] as string;
+            const body = call[1]?.body;
+            return (
+              url.includes("https://sepolia.optimism.io") &&
+              body &&
+              body.toString().includes("eth_sendTransaction")
+            );
+          });
+
+          expect(rpcCalls.length).toBeGreaterThan(0);
+
+          const rpcUrl = rpcCalls[0][0] as string;
+          expect(rpcUrl).toMatch(/https:\/\/sepolia\.optimism\.io/);
+
+          logger.log(`Optimism RPC URL used: ${rpcUrl}`);
+        } finally {
+          fetchSpy.mockRestore();
+        }
+      });
+
+      it("should use the CDP RPC URL when sending a transaction on a CDP supported network", async () => {
+        if (!process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL) {
+          logger.log("BASE_SEPOLIA_RPC_URL is not set, skipping test");
+          return;
+        }
+
+        // Spy on global fetch to capture HTTP calls
+        const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+        try {
+          const account = await cdp.evm.getOrCreateAccount({ name: testAccountName });
+
+          const baseAccount = await account.useNetwork(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL);
+
+          const transfer = await baseAccount.transfer({
+            amount: parseEther("0"),
+            to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+            token: "eth",
+          });
+
+          await baseAccount.waitForTransactionReceipt(transfer);
+
+          const sendTransactionCalls = fetchSpy.mock.calls.filter(call => {
+            const url = call[0] as string;
+            const body = call[1]?.body;
+            return (
+              url.includes(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL!) &&
+              body &&
+              body.toString().includes("eth_sendTransaction")
+            );
+          });
+
+          // Find the RPC calls made during the transaction
+          const getTransactionReceiptCalls = fetchSpy.mock.calls.filter(call => {
+            const url = call[0] as string;
+            const body = call[1]?.body;
+            return (
+              url.includes(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL!) &&
+              body &&
+              body.toString().includes("eth_getTransactionReceipt")
+            );
+          });
+
+          // This should be 0 because the transfer should use the CDP API
+          expect(sendTransactionCalls.length).toBe(0);
+
+          // This should be 1 because the wait should use the provided RPC URL
+          expect(getTransactionReceiptCalls.length).toBe(1);
+
+          const rpcUrl = getTransactionReceiptCalls[0][0] as string;
+          expect(rpcUrl).toMatch(process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL!);
+
+          logger.log(`Base Sepolia RPC URL used: ${rpcUrl}`);
+        } finally {
+          fetchSpy.mockRestore();
+        }
+      });
+    });
+
     it("should use provided node when waiting for transaction receipt", async () => {
       if (!process.env.CDP_E2E_BASE_SEPOLIA_RPC_URL) {
         logger.log("BASE_SEPOLIA_RPC_URL is not set, skipping test");
@@ -1516,10 +2763,11 @@ function timeout(ms: number) {
 function generateRandomName(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const charsWithHyphen = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-";
+  const minLength = 5;
 
   const firstChar = chars.charAt(Math.floor(Math.random() * chars.length));
 
-  const middleLength = Math.floor(Math.random() * 34);
+  const middleLength = Math.max(Math.floor(Math.random() * 34), minLength);
   let middlePart = "";
   for (let i = 0; i < middleLength; i++) {
     middlePart += charsWithHyphen.charAt(Math.floor(Math.random() * charsWithHyphen.length));
@@ -1530,13 +2778,13 @@ function generateRandomName(): string {
 }
 
 // Helper function to create and encode a Solana transaction
-function createAndEncodeTransaction(address: string) {
-  const recipientKeypair = Keypair.generate();
-  const recipientAddress = recipientKeypair.publicKey;
+function createAndEncodeTransaction(address: string, to?: string, amount?: number) {
+  const recipientAddress = to ? new PublicKey(to) : Keypair.generate().publicKey;
 
   const fromPubkey = new PublicKey(address);
 
-  const transferAmount = 0.01 * LAMPORTS_PER_SOL;
+  // Covers the minimum amount of rent for a system account (0.00089088 SOL)
+  const transferAmount = amount !== undefined ? amount : 0.001 * LAMPORTS_PER_SOL;
 
   const transaction = new Transaction().add(
     SystemProgram.transfer({
