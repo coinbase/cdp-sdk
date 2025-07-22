@@ -1,3 +1,4 @@
+import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -68,6 +69,30 @@ def test_repr_representation(mock_api, server_account_model_factory):
     assert repr(server_account) == expected
 
 
+def test_use_network(server_account_model_factory):
+    """Test creating a network-scoped account using the use_network method."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    policies = ["policy-1", "policy-2"]
+    network = "base"
+
+    # Create the original account
+    server_account_model = server_account_model_factory(address, name)
+    # Patch policies directly for test
+    server_account_model.policies = policies
+    from cdp.evm_server_account import EvmServerAccount
+
+    dummy_api = object()
+    account = EvmServerAccount(server_account_model, dummy_api, dummy_api)
+
+    # Test the use_network method
+    network_account = asyncio.get_event_loop().run_until_complete(account.use_network(network))
+
+    assert network_account.address == address
+    assert network_account.network == network
+    assert network_account.rpc_url is None
+
+
 @pytest.mark.asyncio
 @patch("cdp.evm_server_account.EVMAccountsApi")
 async def test_sign_message_with_bytes(mock_api, server_account_model_factory):
@@ -79,16 +104,19 @@ async def test_sign_message_with_bytes(mock_api, server_account_model_factory):
     # Create a real mock instance, not just the class
     mock_api_instance = mock_api.return_value
     server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
+    server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
 
     message = b"Test message"
     signable_message = encode_defunct(message)
 
+    signature_response = AsyncMock()
     signature_response = AsyncMock()
     # Create a real bytes-like object for the signature that's 65 bytes long
     # (32 bytes for r, 32 bytes for s, 1 byte for v). 1b = 27 in hex
     mock_signature = bytes.fromhex("1234" * 32 + "5678" * 32 + "1b")
 
     signature_response.signature = mock_signature
+    mock_api_instance.sign_evm_message = AsyncMock(return_value=signature_response)
     mock_api_instance.sign_evm_message = AsyncMock(return_value=signature_response)
 
     result = await server_account.sign_message(signable_message)
@@ -460,6 +488,72 @@ async def test_list_token_balances(server_account_model_factory, evm_token_balan
     )
 
     assert result == expected_result
+
+
+@pytest.mark.asyncio
+async def test_transfer_eth(server_account_model_factory):
+    """Test transfer method for sending ETH to another address."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    server_account_model = server_account_model_factory(address, name)
+
+    mock_api_clients = AsyncMock()
+    to_address = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd"
+    amount = 1000000000000000000  # 1 ETH in wei
+    token = "eth"
+    network = "base-sepolia"
+
+    server_account = EvmServerAccount(server_account_model, mock_api_clients, mock_api_clients)
+
+    with patch(
+        "cdp.actions.evm.transfer.account_transfer_strategy.AccountTransferStrategy.execute_transfer",
+        new_callable=AsyncMock,
+    ) as mock_execute_transfer:
+        mock_execute_transfer.return_value = "0xtransferhash"
+        tx_hash = await server_account.transfer(
+            to=to_address, amount=amount, token=token, network=network
+        )
+        mock_execute_transfer.assert_called_once()
+        assert tx_hash == "0xtransferhash"
+
+
+@pytest.mark.asyncio
+async def test_send_transaction_with_custom_rpc(server_account_model_factory):
+    """Test sending a raw signed transaction using a custom RPC node via NetworkScopedEvmServerAccount."""
+    from cdp.to_network_scoped_evm_server_account import NetworkScopedEvmServerAccount
+
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    server_account_model = server_account_model_factory(address, name)
+
+    # Create a dummy EvmServerAccount (API clients are not used for custom RPC)
+    dummy_api = object()
+    server_account = EvmServerAccount(server_account_model, dummy_api, dummy_api)
+
+    custom_rpc_url = "http://localhost:8545"
+    # Create the network-scoped account with custom RPC
+    scoped_account = NetworkScopedEvmServerAccount(
+        server_account, network="custom-network", rpc_url=custom_rpc_url
+    )
+
+    # Mock the web3 provider's send_raw_transaction and toHex
+    class DummyWeb3:
+        class Eth:
+            def send_raw_transaction(self, tx):
+                assert tx == "0xdeadbeef"
+                return b"\x12\x34"
+
+        def to_hex(self, value):
+            assert value == b"\x12\x34"
+            return "0x1234"
+
+        eth = Eth()
+
+    scoped_account._web3 = DummyWeb3()
+
+    # Send a raw signed transaction
+    tx_hash = await scoped_account.send_transaction("0xdeadbeef")
+    assert tx_hash == "0x1234"
 
 
 @pytest.mark.asyncio
