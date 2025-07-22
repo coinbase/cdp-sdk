@@ -2075,6 +2075,12 @@ async def test_custom_rpc_send_transaction_evm_server_account():
                 assert tx == "0xdeadbeef"
                 return b"\x12\x34"
 
+        def __init__(self):
+            self.eth = self.Eth()
+
+        def toHex(self, value):
+            return self.to_hex(value)
+
         def to_hex(self, value):
             assert value == b"\x12\x34"
             return "0x1234"

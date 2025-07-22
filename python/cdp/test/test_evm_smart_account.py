@@ -719,7 +719,7 @@ async def test_wait_for_fund_operation_receipt_timeout(
     name = "test-account"
     smart_account = smart_account_factory(address, name)
 
-    mock_payments_api = AsyncMock()
+    mock_payments_api = AsyncMock() 
     mock_api_clients = AsyncMock(spec=ApiClients)
     mock_api_clients.payments = mock_payments_api
 
@@ -767,7 +767,7 @@ def test_send_transaction_with_custom_rpc_smart_account(smart_account_factory):
                 assert tx == "0xdeadbeef"
                 return b"\x12\x34"
 
-        def to_hex(self, value):
+        def toHex(self, value):  # Add this method to fix AttributeError
             assert value == b"\x12\x34"
             return "0x1234"
 
