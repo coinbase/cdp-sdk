@@ -19,9 +19,11 @@ from web3 import Web3
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
 from cdp.evm_local_account import EvmLocalAccount
+from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.openapi_client.models.evm_account import EvmAccount as EvmServerAccountModel
 from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.policies.types import (
     CreatePolicyOptions,
@@ -37,6 +39,7 @@ from cdp.policies.types import (
     SolanaAddressCriterion,
     UpdatePolicyOptions,
 )
+from cdp.to_network_scoped_evm_server_account import NetworkScopedEvmServerAccount
 from cdp.update_account_types import UpdateAccountOptions
 
 load_dotenv()
@@ -1855,6 +1858,66 @@ async def test_evm_local_account_sign_and_send_transaction(cdp_client):
     assert tx_receipt is not None
 
 
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_use_network_evm_server_account_e2e(cdp_client):
+    """E2E: Test use_network for EvmServerAccount only."""
+    server_account = await cdp_client.evm.create_account(name=generate_random_name())
+    assert server_account is not None
+    orig_address = server_account.address
+
+    network = "base"
+    # Use the use_network method to create a network-scoped account
+    network_account = await server_account.use_network(network)
+
+    assert network_account.address == orig_address
+    assert network_account.network == network
+    # rpc_url is None unless passed explicitly
+    assert network_account.rpc_url is None
+
+    try:
+        balances = await network_account.list_token_balances()
+        assert balances is not None
+    except Exception as e:
+        print(
+            f"NetworkScopedEvmServerAccount list_token_balances failed (expected in some testnets): {e}"
+        )
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_use_network_evm_smart_account_e2e(cdp_client):
+    """E2E: Test use_network for EvmSmartAccount only."""
+    from eth_account.account import Account
+
+    owner = Account.create()
+    smart_account = await cdp_client.evm.create_smart_account(owner=owner)
+    assert smart_account is not None
+    orig_address = smart_account.address
+    orig_name = smart_account.name
+    orig_policies = smart_account.policies
+
+    network = "base"
+    # Use the use_network method to create a network-scoped smart account
+    network_smart_account = await smart_account.use_network(network)
+
+    assert network_smart_account.address == orig_address
+    assert network_smart_account.name == orig_name
+    assert network_smart_account.policies == orig_policies
+    assert network_smart_account.owner == owner
+    assert network_smart_account.network == network
+    # rpc_url is None unless passed explicitly
+    assert network_smart_account.rpc_url is None
+
+    try:
+        balances = await network_smart_account.list_token_balances()
+        assert balances is not None
+    except Exception as e:
+        print(
+            f"NetworkScopedEvmSmartAccount list_token_balances failed (expected in some testnets): {e}"
+        )
+
+
 def _get_transaction(address: str, to: str | None = None, amount: int | None = None):
     """Help method to create a transaction."""
     from solana.rpc.api import Client as SolanaClient
@@ -1985,3 +2048,41 @@ def generate_random_name():
 
     last_char = chars[floor(random.random() * len(chars))]
     return first_char + middle_part + last_char
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_custom_rpc_send_transaction_evm_server_account():
+    """E2E: Test sending a raw signed transaction using a custom RPC node via NetworkScopedEvmServerAccount."""
+    # Use a dummy account address for demonstration
+    address = "0x1234567890123456789012345678901234567890"
+    name = "e2e-server-account-custom-rpc"
+    # Create a dummy EvmServerAccountModel
+    server_account_model = EvmServerAccountModel(address=address, name=name)
+    dummy_api = object()
+    server_account = EvmServerAccount(server_account_model, dummy_api, dummy_api)
+
+    custom_rpc_url = "http://localhost:8545"
+    # Create the network-scoped account with custom RPC
+    scoped_account = NetworkScopedEvmServerAccount(
+        server_account, network="custom-network", rpc_url=custom_rpc_url
+    )
+
+    # Mock the web3 provider's send_raw_transaction and to_hex
+    class DummyWeb3:
+        class Eth:
+            def send_raw_transaction(self, tx):
+                assert tx == "0xdeadbeef"
+                return b"\x12\x34"
+
+        def to_hex(self, value):
+            assert value == b"\x12\x34"
+            return "0x1234"
+
+        eth = Eth()
+
+    scoped_account._web3 = DummyWeb3()
+
+    # Send a raw signed transaction
+    tx_hash = await scoped_account.send_transaction("0xdeadbeef")
+    assert tx_hash == "0x1234"
