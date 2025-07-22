@@ -46,6 +46,12 @@ class ErrorType(str, Enum):
     POLICY_VIOLATION = 'policy_violation'
     POLICY_IN_USE = 'policy_in_use'
     ACCOUNT_LIMIT_EXCEEDED = 'account_limit_exceeded'
+    NETWORK_NOT_TRADABLE = 'network_not_tradable'
+    GUEST_PERMISSION_DENIED = 'guest_permission_denied'
+    GUEST_REGION_FORBIDDEN = 'guest_region_forbidden'
+    GUEST_TRANSACTION_LIMIT = 'guest_transaction_limit'
+    GUEST_TRANSACTION_COUNT = 'guest_transaction_count'
+    GUEST_PHONE_NUMBER_VERIFICATION_EXPIRED = 'guest_phone_number_verification_expired'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

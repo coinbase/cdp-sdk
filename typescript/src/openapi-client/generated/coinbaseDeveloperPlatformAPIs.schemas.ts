@@ -57,6 +57,12 @@ export const ErrorType = {
   policy_violation: "policy_violation",
   policy_in_use: "policy_in_use",
   account_limit_exceeded: "account_limit_exceeded",
+  network_not_tradable: "network_not_tradable",
+  guest_permission_denied: "guest_permission_denied",
+  guest_region_forbidden: "guest_region_forbidden",
+  guest_transaction_limit: "guest_transaction_limit",
+  guest_transaction_count: "guest_transaction_count",
+  guest_phone_number_verification_expired: "guest_phone_number_verification_expired",
 } as const;
 
 /**
@@ -609,7 +615,7 @@ export const EvmAddressCriterionOperator = {
 export interface EvmAddressCriterion {
   /** The type of criterion to use. This should be `evmAddress`. */
   type: EvmAddressCriterionType;
-  /** A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 100 addresses per criterion. */
+  /** A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 300 addresses per criterion. */
   addresses: string[];
   /** The operator to use for the comparison. The transaction's `to` field will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
   operator: EvmAddressCriterionOperator;
@@ -1009,7 +1015,7 @@ export const EvmTypedAddressConditionOperator = {
  * A schema for specifying criterion for an address field of an EVM typed message. The address can be deeply nested within the typed data's message.
  */
 export interface EvmTypedAddressCondition {
-  /** A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 100 addresses per criterion. */
+  /** A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 300 addresses per criterion. */
   addresses: string[];
   /** The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
   operator: EvmTypedAddressConditionOperator;
@@ -1135,7 +1141,7 @@ export const SignEvmTypedDataVerifyingContractCriterionOperator = {
 export interface SignEvmTypedDataVerifyingContractCriterion {
   /** The type of criterion to use. This should be `evmTypedDataVerifyingContract`. */
   type: SignEvmTypedDataVerifyingContractCriterionType;
-  /** A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 100 addresses per criterion. */
+  /** A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 300 addresses per criterion. */
   addresses: string[];
   /** The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
   operator: SignEvmTypedDataVerifyingContractCriterionOperator;

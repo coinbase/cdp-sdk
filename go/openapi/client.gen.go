@@ -55,25 +55,31 @@ const (
 
 // Defines values for ErrorType.
 const (
-	ErrorTypeAccountLimitExceeded  ErrorType = "account_limit_exceeded"
-	ErrorTypeAlreadyExists         ErrorType = "already_exists"
-	ErrorTypeBadGateway            ErrorType = "bad_gateway"
-	ErrorTypeFaucetLimitExceeded   ErrorType = "faucet_limit_exceeded"
-	ErrorTypeForbidden             ErrorType = "forbidden"
-	ErrorTypeIdempotencyError      ErrorType = "idempotency_error"
-	ErrorTypeInternalServerError   ErrorType = "internal_server_error"
-	ErrorTypeInvalidRequest        ErrorType = "invalid_request"
-	ErrorTypeInvalidSignature      ErrorType = "invalid_signature"
-	ErrorTypeMalformedTransaction  ErrorType = "malformed_transaction"
-	ErrorTypeNotFound              ErrorType = "not_found"
-	ErrorTypePaymentMethodRequired ErrorType = "payment_method_required"
-	ErrorTypePolicyInUse           ErrorType = "policy_in_use"
-	ErrorTypePolicyViolation       ErrorType = "policy_violation"
-	ErrorTypeRateLimitExceeded     ErrorType = "rate_limit_exceeded"
-	ErrorTypeRequestCanceled       ErrorType = "request_canceled"
-	ErrorTypeServiceUnavailable    ErrorType = "service_unavailable"
-	ErrorTypeTimedOut              ErrorType = "timed_out"
-	ErrorTypeUnauthorized          ErrorType = "unauthorized"
+	ErrorTypeAccountLimitExceeded                ErrorType = "account_limit_exceeded"
+	ErrorTypeAlreadyExists                       ErrorType = "already_exists"
+	ErrorTypeBadGateway                          ErrorType = "bad_gateway"
+	ErrorTypeFaucetLimitExceeded                 ErrorType = "faucet_limit_exceeded"
+	ErrorTypeForbidden                           ErrorType = "forbidden"
+	ErrorTypeGuestPermissionDenied               ErrorType = "guest_permission_denied"
+	ErrorTypeGuestPhoneNumberVerificationExpired ErrorType = "guest_phone_number_verification_expired"
+	ErrorTypeGuestRegionForbidden                ErrorType = "guest_region_forbidden"
+	ErrorTypeGuestTransactionCount               ErrorType = "guest_transaction_count"
+	ErrorTypeGuestTransactionLimit               ErrorType = "guest_transaction_limit"
+	ErrorTypeIdempotencyError                    ErrorType = "idempotency_error"
+	ErrorTypeInternalServerError                 ErrorType = "internal_server_error"
+	ErrorTypeInvalidRequest                      ErrorType = "invalid_request"
+	ErrorTypeInvalidSignature                    ErrorType = "invalid_signature"
+	ErrorTypeMalformedTransaction                ErrorType = "malformed_transaction"
+	ErrorTypeNetworkNotTradable                  ErrorType = "network_not_tradable"
+	ErrorTypeNotFound                            ErrorType = "not_found"
+	ErrorTypePaymentMethodRequired               ErrorType = "payment_method_required"
+	ErrorTypePolicyInUse                         ErrorType = "policy_in_use"
+	ErrorTypePolicyViolation                     ErrorType = "policy_violation"
+	ErrorTypeRateLimitExceeded                   ErrorType = "rate_limit_exceeded"
+	ErrorTypeRequestCanceled                     ErrorType = "request_canceled"
+	ErrorTypeServiceUnavailable                  ErrorType = "service_unavailable"
+	ErrorTypeTimedOut                            ErrorType = "timed_out"
+	ErrorTypeUnauthorized                        ErrorType = "unauthorized"
 )
 
 // Defines values for EthValueCriterionOperator.
@@ -789,7 +795,7 @@ type EvmAccount struct {
 
 // EvmAddressCriterion A schema for specifying a criterion for the `to` field of an EVM transaction.
 type EvmAddressCriterion struct {
-	// Addresses A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 100 addresses per criterion.
+	// Addresses A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 300 addresses per criterion.
 	Addresses []string `json:"addresses"`
 
 	// Operator The operator to use for the comparison. The transaction's `to` field will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
@@ -942,7 +948,7 @@ type EvmSwapsNetwork string
 
 // EvmTypedAddressCondition A schema for specifying criterion for an address field of an EVM typed message. The address can be deeply nested within the typed data's message.
 type EvmTypedAddressCondition struct {
-	// Addresses A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 100 addresses per criterion.
+	// Addresses A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 300 addresses per criterion.
 	Addresses []string `json:"addresses"`
 
 	// Operator The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
@@ -1396,7 +1402,7 @@ type SignEvmTypedDataRuleOperation string
 
 // SignEvmTypedDataVerifyingContractCriterion A schema for specifying criterion for a domain's verifying contract.
 type SignEvmTypedDataVerifyingContractCriterion struct {
-	// Addresses A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 100 addresses per criterion.
+	// Addresses A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 300 addresses per criterion.
 	Addresses []string `json:"addresses"`
 
 	// Operator The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
