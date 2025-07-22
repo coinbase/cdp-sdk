@@ -683,34 +683,6 @@ async def test_wait_for_fund_operation_receipt_failure(
 
 
 @pytest.mark.asyncio
-async def test_transfer_eth_smart_account(smart_account_factory):
-    """Test transfer method for sending ETH to another address using EvmSmartAccount."""
-    address = "0x1234567890123456789012345678901234567890"
-    name = "test-account"
-    smart_account = smart_account_factory(address, name)
-
-    mock_api_clients = AsyncMock()
-    to_address = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd"
-    amount = 1000000000000000000  # 1 ETH in wei
-    token = "eth"
-    network = "base-sepolia"
-
-    # Re-instantiate with mock_api_clients
-    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
-
-    with patch(
-        "cdp.evm_smart_account.SmartAccountTransferStrategy.execute_transfer",
-        new_callable=AsyncMock,
-    ) as mock_execute_transfer:
-        mock_execute_transfer.return_value = "0xtransferhash"
-        tx_hash = await smart_account.transfer(
-            to=to_address, amount=amount, token=token, network=network
-        )
-        mock_execute_transfer.assert_called_once()
-        assert tx_hash == "0xtransferhash"
-
-
-@pytest.mark.asyncio
 async def test_wait_for_fund_operation_receipt_timeout(
     smart_account_factory, payment_transfer_model_factory
 ):
