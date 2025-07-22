@@ -55,13 +55,19 @@ class EvmSmartAccount(BaseModel):
             name (str | None): The name of the smart account.
             policies (list[str] | None): A list of policy ID's that apply to the account.
             api_clients (ApiClients | None): The API client.
+            policies (list[str] | None): A list of policy ID's that apply to the account.
+            api_clients (ApiClients | None): The API client.
 
         """
+        super().__init__()
+
         super().__init__()
 
         self.__address = address
         self.__owners = [owner]
         self.__name = name
+        self.__policies = policies
+        self.__api_clients = api_clients
         self.__policies = policies
         self.__api_clients = api_clients
 
@@ -665,14 +671,6 @@ class EvmSmartAccount(BaseModel):
             str: The signature of the typed data.
 
         """
-        track_action(
-            action="sign_typed_data",
-            account_type="evm_smart",
-            properties={
-                "network": network,
-            },
-        )
-
         from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
             sign_and_wrap_typed_data_for_smart_account,
         )
@@ -692,6 +690,30 @@ class EvmSmartAccount(BaseModel):
                 owner_index=0,  # Only one owner for now
             ),
         )
+
+    async def use_network(self, network: str):
+        """Create a network-scoped version of this smart account.
+
+        Args:
+            network: The network to scope the smart account to
+
+        Returns:
+            A NetworkScopedEvmSmartAccount instance ready for network-specific operations
+
+        Example:
+            ```python
+            # Create a network-scoped smart account
+            base_smart_account = await smart_account.use_network("base")
+
+            # Now you can use network-specific methods
+            await base_smart_account.list_token_balances()
+            await base_smart_account.quote_fund(amount=1000000, token="usdc")
+            ```
+
+        """
+        from cdp.to_network_scoped_evm_smart_account import NetworkScopedEvmSmartAccount
+
+        return NetworkScopedEvmSmartAccount(self, network)
 
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.

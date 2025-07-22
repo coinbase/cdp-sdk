@@ -68,13 +68,19 @@ class EvmServerAccount(BaseAccount, BaseModel):
             evm_accounts_api (EVMAccountsApi): The EVM accounts API.
             api_clients (ApiClients): The API client.
 
+            api_clients (ApiClients): The API client.
+
         """
+        super().__init__()
+
         super().__init__()
 
         self.__address = evm_server_account_model.address
         self.__name = evm_server_account_model.name
         self.__policies = evm_server_account_model.policies
+        self.__policies = evm_server_account_model.policies
         self.__evm_accounts_api = evm_accounts_api
+        self.__api_clients = api_clients
         self.__api_clients = api_clients
 
     @property
@@ -122,7 +128,10 @@ class EvmServerAccount(BaseAccount, BaseModel):
         Raises:
             AttributeError: If the signature response is missing required fields
 
+
         """
+        track_action(action="sign_message", account_type="evm_server")
+
         track_action(action="sign_message", account_type="evm_server")
 
         message_body = signable_message.body
@@ -168,6 +177,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
         Raises:
             ValueError: If the signature response is missing required fields
 
+
         """
         track_action(action="sign", account_type="evm_server")
 
@@ -204,6 +214,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             The signed transaction
         Raises:
             ValueError: If the signature response is missing required fields
+
 
         """
         track_action(action="sign_transaction", account_type="evm_server")
@@ -710,6 +721,30 @@ class EvmServerAccount(BaseAccount, BaseModel):
             timeout_seconds=timeout_seconds,
             interval_seconds=interval_seconds,
         )
+
+    async def use_network(self, network: str):
+        """Create a network-scoped version of this account.
+
+        Args:
+            network: The network to scope the account to
+
+        Returns:
+            A NetworkScopedEvmServerAccount instance ready for network-specific operations
+
+        Example:
+            ```python
+            # Create a network-scoped account
+            base_account = await account.use_network("base")
+
+            # Now you can use network-specific methods
+            await base_account.list_token_balances()
+            await base_account.quote_fund(amount=1000000, token="usdc")
+            ```
+
+        """
+        from cdp.to_network_scoped_evm_server_account import NetworkScopedEvmServerAccount
+
+        return NetworkScopedEvmServerAccount(self, network)
 
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.
