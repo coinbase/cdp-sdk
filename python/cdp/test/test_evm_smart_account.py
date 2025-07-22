@@ -683,6 +683,34 @@ async def test_wait_for_fund_operation_receipt_failure(
 
 
 @pytest.mark.asyncio
+async def test_transfer_eth_smart_account(smart_account_factory):
+    """Test transfer method for sending ETH to another address using EvmSmartAccount."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    smart_account = smart_account_factory(address, name)
+
+    mock_api_clients = AsyncMock()
+    to_address = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd"
+    amount = 1000000000000000000  # 1 ETH in wei
+    token = "eth"
+    network = "base-sepolia"
+
+    # Re-instantiate with mock_api_clients
+    smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
+
+    with patch(
+        "cdp.actions.evm.transfer.smart_account_transfer_strategy.SmartAccountTransferStrategy.execute_transfer",
+        new_callable=AsyncMock,
+    ) as mock_execute_transfer:
+        mock_execute_transfer.return_value = "0xtransferhash"
+        tx_hash = await smart_account.transfer(
+            to=to_address, amount=amount, token=token, network=network
+        )
+        mock_execute_transfer.assert_called_once()
+        assert tx_hash == "0xtransferhash"
+
+
+@pytest.mark.asyncio
 async def test_wait_for_fund_operation_receipt_timeout(
     smart_account_factory, payment_transfer_model_factory
 ):
@@ -704,6 +732,56 @@ async def test_wait_for_fund_operation_receipt_timeout(
         await smart_account.wait_for_fund_operation_receipt(
             transfer_id="test-transfer-id", timeout_seconds=0.1, interval_seconds=0.1
         )
+
+
+@pytest.mark.asyncio
+def test_send_transaction_with_custom_rpc_smart_account(smart_account_factory):
+    """Test sending a raw signed transaction using a custom RPC node via a network-scoped EvmSmartAccount."""
+    from cdp.to_network_scoped_evm_server_account import NetworkScopedEvmServerAccount
+
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-smart-account"
+    smart_account = smart_account_factory(address, name)
+
+    # Create a dummy EvmSmartAccount (API clients are not used for custom RPC)
+    dummy_api = object()
+    # Re-instantiate with dummy_api_clients if needed
+    smart_account = smart_account.__class__(
+        smart_account.address,
+        smart_account.owners[0],
+        smart_account.name,
+        getattr(smart_account, "policies", None),
+        dummy_api,
+    )
+
+    custom_rpc_url = "http://localhost:8545"
+    # Create the network-scoped account with custom RPC
+    scoped_account = NetworkScopedEvmServerAccount(
+        smart_account, network="custom-network", rpc_url=custom_rpc_url
+    )
+
+    # Mock the web3 provider's send_raw_transaction and toHex
+    class DummyWeb3:
+        class Eth:
+            def send_raw_transaction(self, tx):
+                assert tx == "0xdeadbeef"
+                return b"\x12\x34"
+
+        def to_hex(self, value):
+            assert value == b"\x12\x34"
+            return "0x1234"
+
+        eth = Eth()
+
+    scoped_account._web3 = DummyWeb3()
+
+    # Send a raw signed transaction
+    import asyncio
+
+    tx_hash = asyncio.get_event_loop().run_until_complete(
+        scoped_account.send_transaction("0xdeadbeef")
+    )
+    assert tx_hash == "0x1234"
 
     @pytest.mark.asyncio
     async def test_sign_typed_data_success(self, smart_account_factory):
