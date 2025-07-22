@@ -293,4 +293,3 @@ async def to_network_scoped_evm_server_account(
         evm_server_account=options.account,
         network=options.network,
     )
-

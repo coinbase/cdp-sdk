@@ -313,4 +313,3 @@ async def to_network_scoped_evm_smart_account(
         network=options.network,
         owner=options.owner,
     )
-
