@@ -52,7 +52,6 @@ async def main():
     async with CdpClient() as cdp:
         # Create or get sender account
         sender = await cdp.solana.get_or_create_account(name="Sender")
-        print(f"ZAL Sender address: {sender.address}")
 
         amount = 0.000001 * LAMPORTS_PER_SOL
 
