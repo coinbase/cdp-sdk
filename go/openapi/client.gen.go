@@ -55,25 +55,31 @@ const (
 
 // Defines values for ErrorType.
 const (
-	ErrorTypeAccountLimitExceeded  ErrorType = "account_limit_exceeded"
-	ErrorTypeAlreadyExists         ErrorType = "already_exists"
-	ErrorTypeBadGateway            ErrorType = "bad_gateway"
-	ErrorTypeFaucetLimitExceeded   ErrorType = "faucet_limit_exceeded"
-	ErrorTypeForbidden             ErrorType = "forbidden"
-	ErrorTypeIdempotencyError      ErrorType = "idempotency_error"
-	ErrorTypeInternalServerError   ErrorType = "internal_server_error"
-	ErrorTypeInvalidRequest        ErrorType = "invalid_request"
-	ErrorTypeInvalidSignature      ErrorType = "invalid_signature"
-	ErrorTypeMalformedTransaction  ErrorType = "malformed_transaction"
-	ErrorTypeNotFound              ErrorType = "not_found"
-	ErrorTypePaymentMethodRequired ErrorType = "payment_method_required"
-	ErrorTypePolicyInUse           ErrorType = "policy_in_use"
-	ErrorTypePolicyViolation       ErrorType = "policy_violation"
-	ErrorTypeRateLimitExceeded     ErrorType = "rate_limit_exceeded"
-	ErrorTypeRequestCanceled       ErrorType = "request_canceled"
-	ErrorTypeServiceUnavailable    ErrorType = "service_unavailable"
-	ErrorTypeTimedOut              ErrorType = "timed_out"
-	ErrorTypeUnauthorized          ErrorType = "unauthorized"
+	ErrorTypeAccountLimitExceeded                ErrorType = "account_limit_exceeded"
+	ErrorTypeAlreadyExists                       ErrorType = "already_exists"
+	ErrorTypeBadGateway                          ErrorType = "bad_gateway"
+	ErrorTypeFaucetLimitExceeded                 ErrorType = "faucet_limit_exceeded"
+	ErrorTypeForbidden                           ErrorType = "forbidden"
+	ErrorTypeGuestPermissionDenied               ErrorType = "guest_permission_denied"
+	ErrorTypeGuestPhoneNumberVerificationExpired ErrorType = "guest_phone_number_verification_expired"
+	ErrorTypeGuestRegionForbidden                ErrorType = "guest_region_forbidden"
+	ErrorTypeGuestTransactionCount               ErrorType = "guest_transaction_count"
+	ErrorTypeGuestTransactionLimit               ErrorType = "guest_transaction_limit"
+	ErrorTypeIdempotencyError                    ErrorType = "idempotency_error"
+	ErrorTypeInternalServerError                 ErrorType = "internal_server_error"
+	ErrorTypeInvalidRequest                      ErrorType = "invalid_request"
+	ErrorTypeInvalidSignature                    ErrorType = "invalid_signature"
+	ErrorTypeMalformedTransaction                ErrorType = "malformed_transaction"
+	ErrorTypeNetworkNotTradable                  ErrorType = "network_not_tradable"
+	ErrorTypeNotFound                            ErrorType = "not_found"
+	ErrorTypePaymentMethodRequired               ErrorType = "payment_method_required"
+	ErrorTypePolicyInUse                         ErrorType = "policy_in_use"
+	ErrorTypePolicyViolation                     ErrorType = "policy_violation"
+	ErrorTypeRateLimitExceeded                   ErrorType = "rate_limit_exceeded"
+	ErrorTypeRequestCanceled                     ErrorType = "request_canceled"
+	ErrorTypeServiceUnavailable                  ErrorType = "service_unavailable"
+	ErrorTypeTimedOut                            ErrorType = "timed_out"
+	ErrorTypeUnauthorized                        ErrorType = "unauthorized"
 )
 
 // Defines values for EthValueCriterionOperator.
@@ -164,12 +170,6 @@ const (
 	N3         EvmTypedNumericalConditionOperator = "<="
 )
 
-// Defines values for EvmUserOperationNetwork.
-const (
-	EvmUserOperationNetworkBase        EvmUserOperationNetwork = "base"
-	EvmUserOperationNetworkBaseSepolia EvmUserOperationNetwork = "base-sepolia"
-)
-
 // Defines values for EvmUserOperationStatus.
 const (
 	EvmUserOperationStatusBroadcast EvmUserOperationStatus = "broadcast"
@@ -178,6 +178,20 @@ const (
 	EvmUserOperationStatusFailed    EvmUserOperationStatus = "failed"
 	EvmUserOperationStatusPending   EvmUserOperationStatus = "pending"
 	EvmUserOperationStatusSigned    EvmUserOperationStatus = "signed"
+)
+
+// Defines values for EvmUserOperationNetwork.
+const (
+	EvmUserOperationNetworkArbitrum        EvmUserOperationNetwork = "arbitrum"
+	EvmUserOperationNetworkAvalanche       EvmUserOperationNetwork = "avalanche"
+	EvmUserOperationNetworkBase            EvmUserOperationNetwork = "base"
+	EvmUserOperationNetworkBaseSepolia     EvmUserOperationNetwork = "base-sepolia"
+	EvmUserOperationNetworkBnb             EvmUserOperationNetwork = "bnb"
+	EvmUserOperationNetworkEthereum        EvmUserOperationNetwork = "ethereum"
+	EvmUserOperationNetworkEthereumSepolia EvmUserOperationNetwork = "ethereum-sepolia"
+	EvmUserOperationNetworkOptimism        EvmUserOperationNetwork = "optimism"
+	EvmUserOperationNetworkPolygon         EvmUserOperationNetwork = "polygon"
+	EvmUserOperationNetworkZora            EvmUserOperationNetwork = "zora"
 )
 
 // Defines values for FeeType.
@@ -389,12 +403,6 @@ const (
 	RequestEvmFaucetJSONBodyTokenEth   RequestEvmFaucetJSONBodyToken = "eth"
 	RequestEvmFaucetJSONBodyTokenEurc  RequestEvmFaucetJSONBodyToken = "eurc"
 	RequestEvmFaucetJSONBodyTokenUsdc  RequestEvmFaucetJSONBodyToken = "usdc"
-)
-
-// Defines values for PrepareUserOperationJSONBodyNetwork.
-const (
-	Base        PrepareUserOperationJSONBodyNetwork = "base"
-	BaseSepolia PrepareUserOperationJSONBodyNetwork = "base-sepolia"
 )
 
 // Defines values for CreatePaymentTransferQuoteJSONBodySourceType.
@@ -789,7 +797,7 @@ type EvmAccount struct {
 
 // EvmAddressCriterion A schema for specifying a criterion for the `to` field of an EVM transaction.
 type EvmAddressCriterion struct {
-	// Addresses A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 100 addresses per criterion.
+	// Addresses A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 300 addresses per criterion.
 	Addresses []string `json:"addresses"`
 
 	// Operator The operator to use for the comparison. The transaction's `to` field will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
@@ -942,7 +950,7 @@ type EvmSwapsNetwork string
 
 // EvmTypedAddressCondition A schema for specifying criterion for an address field of an EVM typed message. The address can be deeply nested within the typed data's message.
 type EvmTypedAddressCondition struct {
-	// Addresses A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 100 addresses per criterion.
+	// Addresses A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 300 addresses per criterion.
 	Addresses []string `json:"addresses"`
 
 	// Operator The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
@@ -997,11 +1005,11 @@ type EvmUserOperation struct {
 	UserOpHash string `json:"userOpHash"`
 }
 
-// EvmUserOperationNetwork The network the user operation is for.
-type EvmUserOperationNetwork string
-
 // EvmUserOperationStatus The status of the user operation.
 type EvmUserOperationStatus string
+
+// EvmUserOperationNetwork The network the user operation is for.
+type EvmUserOperationNetwork string
 
 // Fee The fee for the transfer.
 type Fee struct {
@@ -1396,7 +1404,7 @@ type SignEvmTypedDataRuleOperation string
 
 // SignEvmTypedDataVerifyingContractCriterion A schema for specifying criterion for a domain's verifying contract.
 type SignEvmTypedDataVerifyingContractCriterion struct {
-	// Addresses A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 100 addresses per criterion.
+	// Addresses A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 300 addresses per criterion.
 	Addresses []string `json:"addresses"`
 
 	// Operator The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
@@ -1973,15 +1981,12 @@ type PrepareUserOperationJSONBody struct {
 	// Calls The list of calls to make from the Smart Account.
 	Calls []EvmCall `json:"calls"`
 
-	// Network The network to prepare the user operation for.
-	Network PrepareUserOperationJSONBodyNetwork `json:"network"`
+	// Network The network the user operation is for.
+	Network EvmUserOperationNetwork `json:"network"`
 
 	// PaymasterUrl The URL of the paymaster to use for the user operation.
 	PaymasterUrl *string `json:"paymasterUrl,omitempty"`
 }
-
-// PrepareUserOperationJSONBodyNetwork defines parameters for PrepareUserOperation.
-type PrepareUserOperationJSONBodyNetwork string
 
 // SendUserOperationJSONBody defines parameters for SendUserOperation.
 type SendUserOperationJSONBody struct {

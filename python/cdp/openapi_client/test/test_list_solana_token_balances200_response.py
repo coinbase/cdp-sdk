@@ -37,11 +37,11 @@ class TestListSolanaTokenBalances200Response(unittest.TestCase):
         if include_optional:
             return ListSolanaTokenBalances200Response(
                 next_page_token = 'eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==',
-                balances = [{"amount":{"amount":"1250000000","decimals":9},"token":{"network":"solana","symbol":"SOL","name":"Solana","mintAddress":"So11111111111111111111111111111111111111111"}},{"amount":{"amount":"123456000","decimals":6},"token":{"network":"solana","symbol":"USDC","name":"USD Coin","mintAddress":"4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"}}]
+                balances = [{"amount":{"amount":"1250000000","decimals":9},"token":{"symbol":"SOL","name":"Solana","mintAddress":"So11111111111111111111111111111111111111111"}},{"amount":{"amount":"123456000","decimals":6},"token":{"symbol":"USDC","name":"USD Coin","mintAddress":"4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"}}]
             )
         else:
             return ListSolanaTokenBalances200Response(
-                balances = [{"amount":{"amount":"1250000000","decimals":9},"token":{"network":"solana","symbol":"SOL","name":"Solana","mintAddress":"So11111111111111111111111111111111111111111"}},{"amount":{"amount":"123456000","decimals":6},"token":{"network":"solana","symbol":"USDC","name":"USD Coin","mintAddress":"4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"}}],
+                balances = [{"amount":{"amount":"1250000000","decimals":9},"token":{"symbol":"SOL","name":"Solana","mintAddress":"So11111111111111111111111111111111111111111"}},{"amount":{"amount":"123456000","decimals":6},"token":{"symbol":"USDC","name":"USD Coin","mintAddress":"4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"}}],
         )
         """
 

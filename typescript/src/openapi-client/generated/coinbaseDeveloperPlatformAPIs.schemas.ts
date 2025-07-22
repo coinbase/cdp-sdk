@@ -57,6 +57,12 @@ export const ErrorType = {
   policy_violation: "policy_violation",
   policy_in_use: "policy_in_use",
   account_limit_exceeded: "account_limit_exceeded",
+  network_not_tradable: "network_not_tradable",
+  guest_permission_denied: "guest_permission_denied",
+  guest_region_forbidden: "guest_region_forbidden",
+  guest_transaction_limit: "guest_transaction_limit",
+  guest_transaction_count: "guest_transaction_count",
+  guest_phone_number_verification_expired: "guest_phone_number_verification_expired",
 } as const;
 
 /**
@@ -143,6 +149,26 @@ Account names are guaranteed to be unique across all Smart Accounts in the devel
   updatedAt?: string;
 }
 
+/**
+ * The network the user operation is for.
+ */
+export type EvmUserOperationNetwork =
+  (typeof EvmUserOperationNetwork)[keyof typeof EvmUserOperationNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmUserOperationNetwork = {
+  "base-sepolia": "base-sepolia",
+  base: "base",
+  arbitrum: "arbitrum",
+  optimism: "optimism",
+  zora: "zora",
+  polygon: "polygon",
+  bnb: "bnb",
+  avalanche: "avalanche",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+} as const;
+
 export interface EvmCall {
   /**
    * The address the call is directed to.
@@ -157,18 +183,6 @@ export interface EvmCall {
    */
   data: string;
 }
-
-/**
- * The network the user operation is for.
- */
-export type EvmUserOperationNetwork =
-  (typeof EvmUserOperationNetwork)[keyof typeof EvmUserOperationNetwork];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const EvmUserOperationNetwork = {
-  "base-sepolia": "base-sepolia",
-  base: "base",
-} as const;
 
 /**
  * The status of the user operation.
@@ -187,7 +201,6 @@ export const EvmUserOperationStatus = {
 } as const;
 
 export interface EvmUserOperation {
-  /** The network the user operation is for. */
   network: EvmUserOperationNetwork;
   /**
    * The hash of the user operation. This is not the transaction hash, as a transaction consists of multiple user operations. The user operation hash is the hash of this particular user operation which gets signed by the owner of the Smart Account.
@@ -609,7 +622,7 @@ export const EvmAddressCriterionOperator = {
 export interface EvmAddressCriterion {
   /** The type of criterion to use. This should be `evmAddress`. */
   type: EvmAddressCriterionType;
-  /** A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 100 addresses per criterion. */
+  /** A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 300 addresses per criterion. */
   addresses: string[];
   /** The operator to use for the comparison. The transaction's `to` field will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
   operator: EvmAddressCriterionOperator;
@@ -1009,7 +1022,7 @@ export const EvmTypedAddressConditionOperator = {
  * A schema for specifying criterion for an address field of an EVM typed message. The address can be deeply nested within the typed data's message.
  */
 export interface EvmTypedAddressCondition {
-  /** A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 100 addresses per criterion. */
+  /** A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 300 addresses per criterion. */
   addresses: string[];
   /** The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
   operator: EvmTypedAddressConditionOperator;
@@ -1135,7 +1148,7 @@ export const SignEvmTypedDataVerifyingContractCriterionOperator = {
 export interface SignEvmTypedDataVerifyingContractCriterion {
   /** The type of criterion to use. This should be `evmTypedDataVerifyingContract`. */
   type: SignEvmTypedDataVerifyingContractCriterionType;
-  /** A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 100 addresses per criterion. */
+  /** A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 300 addresses per criterion. */
   addresses: string[];
   /** The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
   operator: SignEvmTypedDataVerifyingContractCriterionOperator;
@@ -1947,21 +1960,8 @@ Account names must be unique across all EVM smart accounts in the developer's CD
   name?: string;
 };
 
-/**
- * The network to prepare the user operation for.
- */
-export type PrepareUserOperationBodyNetwork =
-  (typeof PrepareUserOperationBodyNetwork)[keyof typeof PrepareUserOperationBodyNetwork];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const PrepareUserOperationBodyNetwork = {
-  "base-sepolia": "base-sepolia",
-  base: "base",
-} as const;
-
 export type PrepareUserOperationBody = {
-  /** The network to prepare the user operation for. */
-  network: PrepareUserOperationBodyNetwork;
+  network: EvmUserOperationNetwork;
   /** The list of calls to make from the Smart Account. */
   calls: EvmCall[];
   /** The URL of the paymaster to use for the user operation. */
