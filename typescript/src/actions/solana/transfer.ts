@@ -43,7 +43,6 @@ export interface TransferOptions {
   token: "sol" | "usdc" | string;
   /**
    * The network to use which will be used to create a Connection, otherwise a Connection can be provided.
-   * This is used to get the mint address for an SPL token.
    */
   network: Network | Connection;
 }
