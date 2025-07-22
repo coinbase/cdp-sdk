@@ -506,7 +506,7 @@ async def test_transfer_eth(server_account_model_factory):
     server_account = EvmServerAccount(server_account_model, mock_api_clients, mock_api_clients)
 
     with patch(
-        "cdp.actions.evm.transfer.account_transfer_strategy.AccountTransferStrategy.execute_transfer",
+        "cdp.evm_server_account.AccountTransferStrategy.execute_transfer",
         new_callable=AsyncMock,
     ) as mock_execute_transfer:
         mock_execute_transfer.return_value = "0xtransferhash"

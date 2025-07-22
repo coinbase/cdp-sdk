@@ -699,7 +699,7 @@ async def test_transfer_eth_smart_account(smart_account_factory):
     smart_account = EvmSmartAccount(address, smart_account.owners[0], name, None, mock_api_clients)
 
     with patch(
-        "cdp.actions.evm.transfer.smart_account_transfer_strategy.SmartAccountTransferStrategy.execute_transfer",
+        "cdp.evm_smart_account.SmartAccountTransferStrategy.execute_transfer",
         new_callable=AsyncMock,
     ) as mock_execute_transfer:
         mock_execute_transfer.return_value = "0xtransferhash"
