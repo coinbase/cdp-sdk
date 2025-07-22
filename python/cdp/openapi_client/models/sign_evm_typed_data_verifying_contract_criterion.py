@@ -29,7 +29,7 @@ class SignEvmTypedDataVerifyingContractCriterion(BaseModel):
     A schema for specifying criterion for a domain's verifying contract.
     """ # noqa: E501
     type: StrictStr = Field(description="The type of criterion to use. This should be `evmTypedDataVerifyingContract`.")
-    addresses: List[Annotated[str, Field(strict=True)]] = Field(description="A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 100 addresses per criterion.")
+    addresses: List[Annotated[str, Field(strict=True)]] = Field(description="A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 300 addresses per criterion.")
     operator: StrictStr = Field(description="The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.")
     __properties: ClassVar[List[str]] = ["type", "addresses", "operator"]
 
