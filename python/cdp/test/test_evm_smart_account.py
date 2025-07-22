@@ -719,7 +719,7 @@ async def test_wait_for_fund_operation_receipt_timeout(
     name = "test-account"
     smart_account = smart_account_factory(address, name)
 
-    mock_payments_api = AsyncMock() 
+    mock_payments_api = AsyncMock()
     mock_api_clients = AsyncMock(spec=ApiClients)
     mock_api_clients.payments = mock_payments_api
 

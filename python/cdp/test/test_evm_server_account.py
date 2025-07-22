@@ -536,15 +536,12 @@ async def test_send_transaction_with_custom_rpc(server_account_model_factory):
         server_account, network="custom-network", rpc_url=custom_rpc_url
     )
 
-    # Mock the web3 provider's send_raw_transaction and toHex
+    # Mock the web3 provider's send_raw_transaction and to_hex
     class DummyWeb3:
         class Eth:
             def send_raw_transaction(self, tx):
                 assert tx == "0xdeadbeef"
                 return b"\x12\x34"
-
-        def __init__(self):
-            self.eth = self.Eth()
 
         def to_hex(self, value):
             assert value == b"\x12\x34"
@@ -552,6 +549,8 @@ async def test_send_transaction_with_custom_rpc(server_account_model_factory):
 
         def toHex(self, value):
             return self.to_hex(value)
+
+        eth = Eth()
 
     scoped_account._web3 = DummyWeb3()
 
