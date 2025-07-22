@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from cdp.actions.types import FundOperationResult
+from cdp.actions.quote import SolanaQuote
 from cdp.actions.util import format_units
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_payment_transfer_quote_request import (
@@ -14,25 +14,22 @@ from cdp.openapi_client.models.transfer_source import TransferSource
 from cdp.openapi_client.models.transfer_target import TransferTarget
 
 
-class EvmFundOptions(BaseModel):
-    """The options for funding an EVM account."""
-
-    # The network to fund the account on
-    network: Literal["base", "ethereum"]
+class SolanaQuoteFundOptions(BaseModel):
+    """The options for getting a quote to fund a Solana account."""
 
     # The amount of the token to fund
     amount: int
 
     # The token to fund
-    token: Literal["eth", "usdc"]
+    token: Literal["sol", "usdc"]
 
 
-async def fund(
+async def quote_fund(
     api_clients: ApiClients,
     address: str,
-    fund_options: EvmFundOptions,
-) -> FundOperationResult:
-    """Fund an EVM account."""
+    quote_fund_options: SolanaQuoteFundOptions,
+) -> SolanaQuote:
+    """Get a quote to fund a Solana account."""
     payment_methods = await api_clients.payments.get_payment_methods()
 
     card_payment_method = next(
@@ -47,32 +44,36 @@ async def fund(
     if not card_payment_method:
         raise ValueError("No card found to fund account")
 
-    decimals = 18 if fund_options.token == "eth" else 6
-    amount = format_units(fund_options.amount, decimals)
+    decimals = 9 if quote_fund_options.token == "sol" else 6
+    amount = format_units(quote_fund_options.amount, decimals)
 
-    create_payment_transfer_request = CreatePaymentTransferQuoteRequest(
+    create_payment_transfer_quote_request = CreatePaymentTransferQuoteRequest(
         source_type="payment_method",
         source=TransferSource(PaymentMethodRequest(id=card_payment_method.id)),
         target_type="crypto_rail",
         target=TransferTarget(
             CryptoRailAddress(
-                currency=fund_options.token, network=fund_options.network, address=address
+                currency=quote_fund_options.token,
+                network="solana",
+                address=address,
             )
         ),
         amount=amount,
-        currency=fund_options.token,
-        execute=True,
+        currency=quote_fund_options.token,
     )
 
     response = await api_clients.payments.create_payment_transfer_quote(
-        create_payment_transfer_quote_request=create_payment_transfer_request,
+        create_payment_transfer_quote_request=create_payment_transfer_quote_request,
     )
+    transfer = response.transfer
 
-    return FundOperationResult(
-        id=response.transfer.id,
-        network=response.transfer.target.actual_instance.network,
-        target_amount=response.transfer.target_amount,
-        target_currency=response.transfer.target_currency,
-        status=response.transfer.status,
-        transaction_hash=response.transfer.transaction_hash,
+    return SolanaQuote(
+        api_clients=api_clients,
+        quote_id=transfer.id,
+        network="solana",
+        fiat_amount=transfer.source_amount,
+        fiat_currency=transfer.source_currency,
+        token_amount=transfer.target_amount,
+        token=transfer.target_currency,
+        fees=transfer.fees,
     )

@@ -9,32 +9,30 @@ import {
 import { BaseFundOptions, FundOperationResult } from "../../types.js";
 
 /**
- * Options for funding an EVM account.
+ * Options for funding a Solana account.
  */
-export interface EvmFundOptions extends BaseFundOptions {
-  /** The network to request funds from. */
-  network: "base" | "ethereum";
+export interface SolanaFundOptions extends BaseFundOptions {
   /** The token to request funds for. */
-  token: "eth" | "usdc";
+  token: "sol" | "usdc";
 }
 
 /**
- * Funds an EVM account.
+ * Funds a Solana account.
  *
  * @param apiClient - The API client.
- * @param options - The options for funding an EVM account.
+ * @param options - The options for funding a Solana account.
  *
  * @returns A promise that resolves to the fund operation result.
  */
 export async function fund(
   apiClient: CdpOpenApiClientType,
-  options: EvmFundOptions,
+  options: SolanaFundOptions,
 ): Promise<FundOperationResult> {
-  if (options.token !== "eth" && options.token !== "usdc") {
-    throw new UserInputValidationError("Invalid token, must be eth or usdc");
+  if (options.token !== "sol" && options.token !== "usdc") {
+    throw new UserInputValidationError("Invalid token, must be sol or usdc");
   }
 
-  const decimals = options.token === "eth" ? 18 : 6;
+  const decimals = options.token === "sol" ? 9 : 6;
   const amount = formatUnits(options.amount, decimals);
 
   const paymentMethods = await apiClient.getPaymentMethods();
@@ -54,7 +52,7 @@ export async function fund(
     targetType: CreatePaymentTransferQuoteBodyTargetType.crypto_rail,
     target: {
       currency: options.token,
-      network: options.network,
+      network: "solana",
       address: options.address,
     },
     amount,
