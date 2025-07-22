@@ -2043,14 +2043,8 @@ describe("CDP Client E2E Tests", () => {
               address: testAccount.address,
               network: "base-sepolia",
               transaction: serializeTransaction({
-                chainId: baseSepolia.id,
                 to: "0x0000000000000000000000000000000000000000",
-                value: parseEther("0.1"),
-                type: "eip1559",
-                maxFeePerGas: BigInt(20000000000),
-                maxPriorityFeePerGas: BigInt(1000000000),
-                gasLimit: BigInt(21000),
-                nonce: 0,
+                value: parseEther("0"),
               }),
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
@@ -2078,14 +2072,8 @@ describe("CDP Client E2E Tests", () => {
               address: testAccount.address,
               network: "base-sepolia",
               transaction: serializeTransaction({
-                chainId: baseSepolia.id,
                 to: "0x0000000000000000000000000000000000000000",
-                value: parseEther("0.1"),
-                type: "eip1559",
-                maxFeePerGas: BigInt(20000000000),
-                maxPriorityFeePerGas: BigInt(1000000000),
-                gasLimit: BigInt(21000),
-                nonce: 0,
+                value: parseEther("0"),
               }),
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
@@ -2156,14 +2144,9 @@ describe("CDP Client E2E Tests", () => {
               network: "base-sepolia",
               address: testAccount.address,
               transaction: serializeTransaction({
-                chainId: baseSepolia.id,
-                to: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", // UNI token contract
+                to: "0x0000000000000000000000000000000000000000",
+                value: parseEther("0"),
                 data: transferData,
-                type: "eip1559",
-                maxFeePerGas: BigInt(20000000000),
-                maxPriorityFeePerGas: BigInt(1000000000),
-                gasLimit: BigInt(100000),
-                nonce: 0,
               }),
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
