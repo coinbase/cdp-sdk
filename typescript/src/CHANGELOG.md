@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.29.0
+
+### Minor Changes
+
+- [#292](https://github.com/coinbase/cdp-sdk/pull/292) [`9db681c`](https://github.com/coinbase/cdp-sdk/commit/9db681c54e60231588b7ebfab260d605c4c09187) Thanks [@sddioulde](https://github.com/sddioulde)! - Added Solana onramp
+
 ## 1.28.0
 
 ### Minor Changes
