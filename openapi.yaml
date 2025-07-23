@@ -1798,12 +1798,7 @@ paths:
               type: object
               properties:
                 network:
-                  type: string
-                  description: The network to prepare the user operation for.
-                  enum:
-                    - base-sepolia
-                    - base
-                  example: base-sepolia
+                  $ref: '#/components/schemas/EvmUserOperationNetwork'
                 calls:
                   type: array
                   description: The list of calls to make from the Smart Account.
@@ -3925,7 +3920,6 @@ paths:
                               amount: '1250000000'
                               decimals: 9
                             token:
-                              network: solana
                               symbol: SOL
                               name: Solana
                               mintAddress: So11111111111111111111111111111111111111111
@@ -3933,7 +3927,6 @@ paths:
                               amount: '123456000'
                               decimals: 6
                             token:
-                              network: solana
                               symbol: USDC
                               name: USD Coin
                               mintAddress: 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU
@@ -4367,6 +4360,12 @@ components:
         - policy_violation
         - policy_in_use
         - account_limit_exceeded
+        - network_not_tradable
+        - guest_permission_denied
+        - guest_region_forbidden
+        - guest_transaction_limit
+        - guest_transaction_count
+        - guest_phone_number_verification_expired
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -4622,6 +4621,42 @@ components:
           **Steps to resolve:**
           1. Update project or accounts to remove references to the Policy in question.
           2. Retry your delete request.
+        network_not_tradable: |-
+          This error occurs when the selected asset cannot be purchased on the selected network in the user's location.
+
+          **Steps to resolve:**
+          1. Verify the asset is tradable on the selected network
+          2. Check the user's location to ensure it is allowed to purchase the asset on the selected network
+
+          **Common causes:**
+          - Users in NY are not allowed to purchase USDC on any network other than Ethereum
+        guest_permission_denied: |-
+          This error occurs when the user is not allowed to complete onramp transactions as a guest.
+
+          **Steps to resolve:**
+          1. Redirect the user to create a Coinbase account to buy and send crypto.
+        guest_region_forbidden: |-
+          This error occurs when guest onramp transactions are not allowed in the user's region.
+
+          **Steps to resolve:**
+          1. Redirect the user to create a Coinbase account to buy and send crypto.
+        guest_transaction_limit: |-
+          This error occurs when the user has reached the weekly guest onramp transaction limit.
+
+          **Steps to resolve:**
+          1. Inform the user they have reached their weekly limit and will have to wait until next week.
+        guest_transaction_count: |-
+          This error occurs when the user has reached the lifetime guest onramp transaction count limit.
+
+          **Steps to resolve:**
+          1. Redirect the user to create a Coinbase account to buy and send crypto.
+        guest_phone_number_verification_expired: |-
+          This error occurs when the user's phone number verification has expired. Use of guest Onramp requires the user's
+          phone number to be verified every 60 days.
+
+          **Steps to resolve:**
+          1. Re-verify the user's phone number via OTP.
+          2. Retry the request with the phoneNumberVerifiedAt field set to new verification timestamp.
     Error:
       description: An error response including the code for the type of error and a human-readable message describing the error.
       type: object
@@ -4814,6 +4849,21 @@ components:
       required:
         - address
         - owners
+    EvmUserOperationNetwork:
+      type: string
+      description: The network the user operation is for.
+      enum:
+        - base-sepolia
+        - base
+        - arbitrum
+        - optimism
+        - zora
+        - polygon
+        - bnb
+        - avalanche
+        - ethereum
+        - ethereum-sepolia
+      example: base
     EvmCall:
       type: object
       properties:
@@ -4839,12 +4889,7 @@ components:
       type: object
       properties:
         network:
-          type: string
-          description: The network the user operation is for.
-          enum:
-            - base-sepolia
-            - base
-          example: base-sepolia
+          $ref: '#/components/schemas/EvmUserOperationNetwork'
         userOpHash:
           type: string
           pattern: ^0x[0-9a-fA-F]{64}$
@@ -5333,7 +5378,7 @@ components:
             - evmAddress
         addresses:
           type: array
-          description: A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 100 addresses per criterion.
+          description: A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 300 addresses per criterion.
           items:
             type: string
             pattern: ^0x[0-9a-fA-F]{40}$
@@ -5829,7 +5874,7 @@ components:
       properties:
         addresses:
           type: array
-          description: A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 100 addresses per criterion.
+          description: A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 300 addresses per criterion.
           items:
             type: string
             pattern: ^0x[0-9a-fA-F]{40}$
@@ -5983,7 +6028,7 @@ components:
             - evmTypedDataVerifyingContract
         addresses:
           type: array
-          description: A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 100 addresses per criterion.
+          description: A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 300 addresses per criterion.
           items:
             type: string
             pattern: ^0x[0-9a-fA-F]{40}$

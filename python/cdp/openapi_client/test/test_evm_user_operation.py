@@ -36,7 +36,7 @@ class TestEvmUserOperation(unittest.TestCase):
         model = EvmUserOperation()
         if include_optional:
             return EvmUserOperation(
-                network = 'base-sepolia',
+                network = 'base',
                 user_op_hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
                 calls = [{"to":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","value":"0","data":"0xa9059cbb000000000000000000000000fc807d1be4997e5c7b33e4d8d57e60c5b0f02b1a0000000000000000000000000000000000000000000000000000000000000064"},{"to":"0xdac17f958d2ee523a2206206994597c13d831ec7","value":"1000000000000000","data":"0x"}],
                 status = 'pending',
@@ -44,7 +44,7 @@ class TestEvmUserOperation(unittest.TestCase):
             )
         else:
             return EvmUserOperation(
-                network = 'base-sepolia',
+                network = 'base',
                 user_op_hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
                 calls = [{"to":"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","value":"0","data":"0xa9059cbb000000000000000000000000fc807d1be4997e5c7b33e4d8d57e60c5b0f02b1a0000000000000000000000000000000000000000000000000000000000000064"},{"to":"0xdac17f958d2ee523a2206206994597c13d831ec7","value":"1000000000000000","data":"0x"}],
                 status = 'pending',

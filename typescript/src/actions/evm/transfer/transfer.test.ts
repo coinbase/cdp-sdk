@@ -191,17 +191,4 @@ describe("transfer", () => {
 
     expect(result).toEqual("0xhash");
   });
-
-  it("should reject invalid network for smart account", async () => {
-    const transferArgs: SmartAccountTransferOptions = {
-      to: "0x1234567890123456789012345678901234567890" as Address,
-      amount: parseEther("0.1"),
-      token: "eth",
-      network: "ethereum",
-    };
-
-    await expect(
-      transfer(mockApiClient, mockSmartAccount, transferArgs, mockTransferStrategy),
-    ).rejects.toThrow('Network "ethereum" is not supported for the given account type.');
-  });
 });
