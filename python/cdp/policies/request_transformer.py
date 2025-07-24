@@ -1,5 +1,12 @@
 from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
 from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
+from cdp.openapi_client.models.evm_data_condition import EvmDataCondition as OpenAPIEvmDataCondition
+from cdp.openapi_client.models.evm_data_condition_params_inner import EvmDataConditionParamsInner
+from cdp.openapi_client.models.evm_data_criterion import EvmDataCriterion
+from cdp.openapi_client.models.evm_data_parameter_condition import EvmDataParameterCondition
+from cdp.openapi_client.models.evm_data_parameter_condition_list import (
+    EvmDataParameterConditionList,
+)
 from cdp.openapi_client.models.evm_message_criterion import EvmMessageCriterion
 from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from cdp.openapi_client.models.evm_typed_address_condition import EvmTypedAddressCondition
@@ -64,6 +71,38 @@ openapi_criterion_mapping = {
                 type="evmNetwork",
             )
         ),
+        "evmData": lambda c: SendEvmTransactionCriteriaInner(
+            actual_instance=EvmDataCriterion(
+                type="evmData",
+                abi=c.abi,
+                conditions=[
+                    OpenAPIEvmDataCondition(
+                        function=cond.function,
+                        params=[
+                            EvmDataConditionParamsInner(
+                                actual_instance=(
+                                    EvmDataParameterConditionList(
+                                        name=param.name,
+                                        operator=param.operator,
+                                        values=param.values,
+                                    )
+                                    if hasattr(param, "values")
+                                    else EvmDataParameterCondition(
+                                        name=param.name,
+                                        operator=param.operator,
+                                        value=param.value,
+                                    )
+                                )
+                            )
+                            for param in cond.params
+                        ]
+                        if cond.params
+                        else None,
+                    )
+                    for cond in c.conditions
+                ],
+            )
+        ),
     },
     "signEvmTransaction": {
         "ethValue": lambda c: SignEvmTransactionCriteriaInner(
@@ -78,6 +117,38 @@ openapi_criterion_mapping = {
                 addresses=c.addresses,
                 operator=c.operator,
                 type="evmAddress",
+            )
+        ),
+        "evmData": lambda c: SignEvmTransactionCriteriaInner(
+            actual_instance=EvmDataCriterion(
+                type="evmData",
+                abi=c.abi,
+                conditions=[
+                    OpenAPIEvmDataCondition(
+                        function=cond.function,
+                        params=[
+                            EvmDataConditionParamsInner(
+                                actual_instance=(
+                                    EvmDataParameterConditionList(
+                                        name=param.name,
+                                        operator=param.operator,
+                                        values=param.values,
+                                    )
+                                    if hasattr(param, "values")
+                                    else EvmDataParameterCondition(
+                                        name=param.name,
+                                        operator=param.operator,
+                                        value=param.value,
+                                    )
+                                )
+                            )
+                            for param in cond.params
+                        ]
+                        if cond.params
+                        else None,
+                    )
+                    for cond in c.conditions
+                ],
             )
         ),
     },
