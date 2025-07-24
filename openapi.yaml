@@ -4365,7 +4365,7 @@ components:
         - guest_region_forbidden
         - guest_transaction_limit
         - guest_transaction_count
-        - guest_phone_number_verification_expired
+        - phone_number_verification_expired
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -4650,7 +4650,7 @@ components:
 
           **Steps to resolve:**
           1. Redirect the user to create a Coinbase account to buy and send crypto.
-        guest_phone_number_verification_expired: |-
+        phone_number_verification_expired: |-
           This error occurs when the user's phone number verification has expired. Use of guest Onramp requires the user's
           phone number to be verified every 60 days.
 
@@ -4885,6 +4885,35 @@ components:
         - to
         - value
         - data
+    UserOperationReceiptRevert:
+      type: object
+      description: The revert data if the user operation has reverted.
+      properties:
+        data:
+          type: string
+          pattern: ^0x[0-9a-fA-F]*$
+          description: The 0x-prefixed raw hex string.
+          example: '0x123'
+        message:
+          type: string
+          description: Human-readable revert reason if able to decode.
+          example: reason for failure
+      required:
+        - data
+        - message
+      example:
+        data: '0x123'
+        message: reason for failure
+    UserOperationReceipt:
+      type: object
+      description: The receipt that contains information about the execution of user operation.
+      properties:
+        revert:
+          $ref: '#/components/schemas/UserOperationReceiptRevert'
+      example:
+        revert:
+          data: '0x123'
+          message: reason for failure
     EvmUserOperation:
       type: object
       properties:
@@ -4923,6 +4952,15 @@ components:
           pattern: ^0x[0-9a-fA-F]{64}$|^$
           description: The hash of the transaction that included this particular user operation. This gets set after the user operation is broadcasted and the transaction is included in a block.
           example: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+        receipts:
+          type: array
+          description: The list of receipts associated with the user operation.
+          items:
+            $ref: '#/components/schemas/UserOperationReceipt'
+          example:
+            - revert:
+                data: '0x123'
+                message: reason for failure
       required:
         - network
         - userOpHash

@@ -144,3 +144,5 @@ from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccoun
 from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
+from cdp.openapi_client.models.user_operation_receipt import UserOperationReceipt
+from cdp.openapi_client.models.user_operation_receipt_revert import UserOperationReceiptRevert
