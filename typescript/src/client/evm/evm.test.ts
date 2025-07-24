@@ -562,7 +562,7 @@ describe("EvmClient", () => {
       };
       const userOpHash = "0xhash";
       const transactionHash = "0xtransactionhash" as Hex;
-      const receipts = [{"revert": {"data": "0x", "message": "reverted"}}]
+      const receipts = [{ revert: { data: "0x", message: "reverted" } }];
 
       const openApiUserOp: OpenApiUserOperation = {
         calls: [],
