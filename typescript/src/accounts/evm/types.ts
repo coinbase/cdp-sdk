@@ -19,6 +19,7 @@ import {
   SendUserOperationOptions,
   SendUserOperationReturnType,
 } from "../../actions/evm/sendUserOperation.js";
+import { UseSpendPermissionOptions } from "../../actions/evm/spend-permissions/types.js";
 import {
   AccountQuoteSwapOptions,
   AccountQuoteSwapResult,
@@ -39,6 +40,7 @@ import {
   WaitForFundOperationResult,
 } from "../../actions/waitForFundOperationReceipt.js";
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
+import { SpendPermissionNetworks } from "../../spend-permissions/types.js";
 
 import type {
   SmartAccountTransferOptions,
@@ -242,6 +244,14 @@ export type NetworkSpecificSmartAccountActions<Network extends string> = Prettif
             options: DistributedOmit<SmartAccountSwapOptions, "network">,
           ) => Promise<SmartAccountSwapResult>;
         }
+      : EmptyObject) &
+    // Conditionally include useSpendPermission
+    (Network extends SpendPermissionNetworks
+      ? {
+          useSpendPermission: (
+            options: Omit<UseSpendPermissionOptions, "network">,
+          ) => Promise<SendUserOperationReturnType>;
+        }
       : EmptyObject)
 >;
 
@@ -321,6 +331,14 @@ export type NetworkSpecificAccountActions<Network extends string> = Prettify<
     (Network extends SwapNetworks
       ? {
           swap: (options: AccountSwapOptions) => Promise<AccountSwapResult>;
+        }
+      : EmptyObject) &
+    // Conditionally include useSpendPermission
+    (Network extends SpendPermissionNetworks
+      ? {
+          useSpendPermission: (
+            options: Omit<UseSpendPermissionOptions, "network">,
+          ) => Promise<TransactionResult>;
         }
       : EmptyObject)
 >;

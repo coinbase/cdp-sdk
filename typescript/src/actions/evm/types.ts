@@ -14,6 +14,7 @@ import {
 } from "../../client/evm/evm.types.js";
 import { Hex } from "../../types/misc.js";
 import { EvmQuote } from "../Quote.js";
+import { UseSpendPermissionOptions } from "./spend-permissions/types.js";
 
 import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTokenBalances.js";
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
@@ -353,6 +354,42 @@ export type AccountActions = Actions & {
    * ```
    */
   swap: (options: AccountSwapOptions) => Promise<AccountSwapResult>;
+
+  /**
+   * Uses a spend permission to execute a transaction.
+   * This allows the account to spend tokens that have been approved via a spend permission.
+   *
+   * @param {UseSpendPermissionOptions} options - Configuration options for using the spend permission.
+   * @param {SpendPermission} options.spendPermission - The spend permission object containing authorization details.
+   * @param {bigint} options.value - The amount to spend (must not exceed the permission's allowance).
+   * @param {KnownEvmNetworks} options.network - The network to execute the transaction on.
+   *
+   * @returns A promise that resolves to the transaction result.
+   *
+   * @throws {Error} If the network doesn't support spend permissions via CDP API.
+   *
+   * @example
+   * ```typescript
+   * const spendPermission = {
+   *   account: "0x1234...", // Smart account that owns the tokens
+   *   spender: account.address, // This account that can spend
+   *   token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // ETH
+   *   allowance: parseEther("0.01"),
+   *   period: 86400, // 1 day
+   *   start: 0,
+   *   end: 281474976710655,
+   *   salt: 0n,
+   *   extraData: "0x",
+   * };
+   *
+   * const result = await account.useSpendPermission({
+   *   spendPermission,
+   *   value: parseEther("0.001"), // Spend 0.001 ETH
+   *   network: "base-sepolia",
+   * });
+   * ```
+   */
+  useSpendPermission: (options: UseSpendPermissionOptions) => Promise<TransactionResult>;
 };
 
 export type SmartAccountActions = Actions & {
@@ -640,4 +677,40 @@ export type SmartAccountActions = Actions & {
   signTypedData: (
     options: Omit<SignTypedDataOptions, "address"> & { network: KnownEvmNetworks },
   ) => Promise<Hex>;
+
+  /**
+   * Uses a spend permission to execute a transaction via user operation.
+   * This allows the smart account to spend tokens that have been approved via a spend permission.
+   *
+   * @param {UseSpendPermissionOptions} options - Configuration options for using the spend permission.
+   * @param {SpendPermission} options.spendPermission - The spend permission object containing authorization details.
+   * @param {bigint} options.value - The amount to spend (must not exceed the permission's allowance).
+   * @param {KnownEvmNetworks} options.network - The network to execute the transaction on.
+   *
+   * @returns A promise that resolves to the user operation result.
+   *
+   * @throws {Error} If the network doesn't support spend permissions via CDP API.
+   *
+   * @example
+   * ```typescript
+   * const spendPermission = {
+   *   account: "0x1234...", // Smart account that owns the tokens
+   *   spender: smartAccount.address, // This smart account that can spend
+   *   token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // ETH
+   *   allowance: parseEther("0.01"),
+   *   period: 86400, // 1 day
+   *   start: 0,
+   *   end: 281474976710655,
+   *   salt: 0n,
+   *   extraData: "0x",
+   * };
+   *
+   * const result = await smartAccount.useSpendPermission({
+   *   spendPermission,
+   *   value: parseEther("0.001"), // Spend 0.001 ETH
+   *   network: "base-sepolia",
+   * });
+   * ```
+   */
+  useSpendPermission: (options: UseSpendPermissionOptions) => Promise<SendUserOperationReturnType>;
 };

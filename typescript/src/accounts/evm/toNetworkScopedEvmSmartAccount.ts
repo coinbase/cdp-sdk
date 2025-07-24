@@ -6,6 +6,7 @@ import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import { listTokenBalances } from "../../actions/evm/listTokenBalances.js";
 import { requestFaucet } from "../../actions/evm/requestFaucet.js";
 import { sendUserOperation } from "../../actions/evm/sendUserOperation.js";
+import { UseSpendPermissionOptions } from "../../actions/evm/spend-permissions/types.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { sendSwapOperation } from "../../actions/evm/swap/sendSwapOperation.js";
 import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
@@ -39,6 +40,7 @@ import type {
   EvmUserOperationNetwork,
   ListEvmTokenBalancesNetwork,
 } from "../../openapi-client/index.js";
+import type { SpendPermissionNetworks } from "../../spend-permissions/types.js";
 
 /**
  * Options for converting a pre-existing EvmSmartAccount and owner to a NetworkScopedEvmSmartAccount
@@ -274,6 +276,19 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
           signerAddress: options.owner.address,
           network: options.network as SmartAccountSwapNetwork,
           paymasterUrl: swapOptions.paymasterUrl ?? paymasterUrl,
+        });
+      },
+    });
+  }
+
+  if (isMethodSupportedOnNetwork("useSpendPermission", options.network)) {
+    Object.assign(account, {
+      useSpendPermission: async (
+        spendPermissionOptions: Omit<UseSpendPermissionOptions, "network">,
+      ) => {
+        return options.smartAccount.useSpendPermission({
+          ...spendPermissionOptions,
+          network: options.network as SpendPermissionNetworks,
         });
       },
     });

@@ -21,6 +21,8 @@ import {
   type RequestFaucetResult,
 } from "../../actions/evm/requestFaucet.js";
 import { sendTransaction } from "../../actions/evm/sendTransaction.js";
+import { useSpendPermission } from "../../actions/evm/spend-permissions/account.use.js";
+import { UseSpendPermissionOptions } from "../../actions/evm/spend-permissions/types.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { sendSwapTransaction } from "../../actions/evm/swap/sendSwapTransaction.js";
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
@@ -255,6 +257,17 @@ export function toEvmServerAccount(
         address: this.address,
         taker: this.address, // Always use account's address as taker
       });
+    },
+    async useSpendPermission(options: UseSpendPermissionOptions): Promise<TransactionResult> {
+      Analytics.trackAction({
+        action: "use_spend_permission",
+        accountType: "evm_server",
+        properties: {
+          network: options.network,
+        },
+      });
+
+      return useSpendPermission(apiClient, this.address, options);
     },
     name: options.account.name,
     type: "evm-server",
