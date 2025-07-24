@@ -2,6 +2,8 @@ import { constants, publicEncrypt } from "crypto";
 
 import { type Address, getTypesForEIP712Domain } from "viem";
 
+import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
+
 import {
   CreateServerAccountOptions,
   CreateSmartAccountOptions,
@@ -341,9 +343,15 @@ export class EvmClient implements EvmClientInterface {
       accountType: "evm_smart",
     });
 
+    const owners = [options.owner.address];
+
+    if (options.enableSpendPermission) {
+      owners.push(SPEND_PERMISSION_MANAGER_ADDRESS);
+    }
+
     const openApiSmartAccount = await CdpOpenApiClient.createEvmSmartAccount(
       {
-        owners: [options.owner.address],
+        owners: owners,
         name: options.name,
       },
       options.idempotencyKey,

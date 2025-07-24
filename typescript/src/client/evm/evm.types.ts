@@ -487,6 +487,8 @@ export interface CreateSmartAccountOptions {
   idempotencyKey?: string;
   /** The name of the account. */
   name?: string;
+  /** The flag to enable spend permission. */
+  enableSpendPermission?: boolean;
 }
 
 /**
