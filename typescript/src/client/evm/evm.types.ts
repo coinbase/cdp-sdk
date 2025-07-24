@@ -23,7 +23,7 @@ import type {
   EvmUserOperationStatus,
   OpenApiEvmMethods,
   UpdateEvmAccountBody as UpdateEvmAccount,
-  UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
+  UpdateEvmSmartAccountBody as UpdateEvmSmartAccount, UserOperationReceipt,
 } from "../../openapi-client/index.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";
@@ -314,6 +314,10 @@ export interface UserOperation {
    * The hash of the transaction that included this particular user operation. This gets set after the user operation is broadcasted and the transaction is included in a block.
    */
   transactionHash?: Hex;
+  /**
+   * The receipts associated with the broadcasted user operation.
+   */
+  receipts?: UserOperationReceipt[];
 }
 
 /**
