@@ -38,6 +38,7 @@ import {
 import { APIError } from "../../openapi-client/errors.js";
 import { ImportAccountPublicRSAKey } from "../../constants.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
+import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
 
 vi.mock("../../openapi-client", () => {
   return {
@@ -270,6 +271,66 @@ describe("EvmClient", () => {
       expect(CdpOpenApiClient.createEvmSmartAccount).toHaveBeenCalledWith(
         {
           owners: [owner.address],
+          name,
+        },
+        undefined,
+      );
+      expect(toEvmSmartAccount).toHaveBeenCalledWith(CdpOpenApiClient, {
+        smartAccount: openApiEvmSmartAccount,
+        owner,
+      });
+      expect(result).toBe(smartAccount);
+    });
+
+    it("should create a smart account with spend permission", async () => {
+      const owner: EvmAccount = {
+        address: "0x789",
+        sign: vi.fn().mockResolvedValue("0xsignature"),
+        signMessage: vi.fn().mockResolvedValue("0xsignature"),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature"),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+      };
+
+      const name = "test-smart-account";
+      const createOptions = {
+        owner,
+        name,
+        __experimental_enableSpendPermission: true,
+      };
+
+      const openApiEvmSmartAccount: OpenApiEvmSmartAccount = {
+        address: "0xabc",
+        owners: [owner.address, SPEND_PERMISSION_MANAGER_ADDRESS],
+      };
+      const smartAccount: EvmSmartAccount = {
+        address: "0xabc" as Hex,
+        owners: [owner],
+        type: "evm-smart",
+        name,
+        transfer: vi.fn(),
+        listTokenBalances: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+      };
+
+      const createEvmSmartAccountMock = CdpOpenApiClient.createEvmSmartAccount as MockedFunction<
+        typeof CdpOpenApiClient.createEvmSmartAccount
+      >;
+      createEvmSmartAccountMock.mockResolvedValue(openApiEvmSmartAccount);
+
+      const toEvmSmartAccountMock = toEvmSmartAccount as MockedFunction<typeof toEvmSmartAccount>;
+      toEvmSmartAccountMock.mockReturnValue(smartAccount);
+
+      const result = await client.createSmartAccount(createOptions);
+
+      expect(CdpOpenApiClient.createEvmSmartAccount).toHaveBeenCalledWith(
+        {
+          owners: [owner.address, SPEND_PERMISSION_MANAGER_ADDRESS],
           name,
         },
         undefined,
