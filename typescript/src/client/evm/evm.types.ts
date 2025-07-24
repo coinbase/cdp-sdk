@@ -52,6 +52,8 @@ export type EvmClientInterface = Omit<
   | "prepareUserOperation"
   | "requestEvmFaucet" // mapped to requestFaucet
   | "sendUserOperation"
+  | "createSpendPermission"
+  | "sendSpendPermission"
   | "signEvmHash" // mapped to signHash
   | "signEvmMessage" // mapped to signMessage
   | "signEvmTransaction" // mapped to signTransaction
@@ -81,6 +83,7 @@ export type EvmClientInterface = Omit<
   listSmartAccounts: (options: ListSmartAccountsOptions) => Promise<ListSmartAccountResult>;
   listTokenBalances: (options: ListTokenBalancesOptions) => Promise<ListTokenBalancesResult>;
   prepareUserOperation: (options: PrepareUserOperationOptions) => Promise<UserOperation>;
+  createSpendPermission: (options: CreateSpendPermissionOptions) => Promise<UserOperation>;
   requestFaucet: (options: RequestFaucetOptions) => Promise<RequestFaucetResult>;
   sendTransaction: (options: SendTransactionOptions) => Promise<TransactionResult>;
   sendUserOperation: (
@@ -277,6 +280,31 @@ export interface PrepareUserOperationOptions {
   paymasterUrl?: string;
 }
 
+export interface CreateSpendPermissionOptions {
+  /** The smart account. */
+  account: string;
+  /** The network. */
+  network: string;
+  /** The spender. */
+  spender: string;
+  /** The token. */
+  token: string;
+  /** The allowance. */
+  allowance: string;
+  /** The period. */
+  period: string;
+  /** The start. */
+  start: string;
+  /** The end. */
+  end: string;
+  /** The salt. */
+  salt: string;
+  /** The extra data. */
+  extraData: string;
+  /** The paymaster URL. */
+  paymasterUrl: string;
+}
+
 /**
  * A call to be executed in a user operation.
  */
@@ -470,6 +498,8 @@ export interface CreateSmartAccountOptions {
   idempotencyKey?: string;
   /** The name of the account. */
   name?: string;
+  /** The flag to enable spend permission. */
+  enableSpendPermission?: boolean;
 }
 
 /**

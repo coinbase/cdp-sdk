@@ -33,6 +33,7 @@ import {
   UpdateEvmAccountOptions,
   UserOperation,
   WaitForUserOperationOptions,
+  CreateSpendPermissionOptions,
 } from "./evm.types.js";
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
@@ -319,9 +320,16 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    */
   async createSmartAccount(options: CreateSmartAccountOptions): Promise<SmartAccount> {
+    const owners = [options.owner.address];
+    const SPEND_PERMISSION_MANAGER_ADDRESS = "0xf85210B21cC50302F477BA56686d2019dC9b67Ad";
+
+    if (options.enableSpendPermission) {
+      owners.push(SPEND_PERMISSION_MANAGER_ADDRESS);
+    }
+
     const openApiSmartAccount = await CdpOpenApiClient.createEvmSmartAccount(
       {
-        owners: [options.owner.address],
+        owners: owners,
         name: options.name,
       },
       options.idempotencyKey,
@@ -744,6 +752,32 @@ export class EvmClient implements EvmClientInterface {
       userOpHash: userOp.userOpHash as Hex,
       status: userOp.status,
       calls: userOp.calls.map(call => ({
+        to: call.to as Address,
+        value: BigInt(call.value),
+        data: call.data as Hex,
+      })),
+    };
+  }
+
+  async createSpendPermission(options: CreateSpendPermissionOptions): Promise<UserOperation> {
+    const userOperation = await CdpOpenApiClient.createSpendPermission(options.account, {
+      account: options.account,
+      network: options.network,
+      spender: options.spender,
+      token: options.token,
+      allowance: options.allowance,
+      period: options.period,
+      start: options.start,
+      end: options.end,
+      salt: options.salt,
+      extraData: options.extraData,
+    });
+
+    return {
+      network: userOperation.network,
+      userOpHash: userOperation.userOpHash as Hex,
+      status: userOperation.status,
+      calls: userOperation.calls.map(call => ({
         to: call.to as Address,
         value: BigInt(call.value),
         data: call.data as Hex,

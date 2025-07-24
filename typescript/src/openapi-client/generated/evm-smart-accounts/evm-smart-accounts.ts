@@ -13,6 +13,7 @@ import type {
   ListEvmSmartAccountsParams,
   PrepareUserOperationBody,
   SendUserOperationBody,
+  CreateSpendPermissionBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -77,6 +78,27 @@ export const getEvmSmartAccount = (
     options,
   );
 };
+
+/**
+ * Creates a spend permission for a Smart Account.
+ * @summary Create a spend permission
+ */
+export const createSpendPermission = (
+  address: string,
+  createSpendPermissionBody: CreateSpendPermissionBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/evm/smart-accounts/${address}/spend-permissions`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createSpendPermissionBody,
+    },
+    options,
+  );
+};
+
 /**
  * Prepares a new user operation on a Smart Account for a specific network.
  * @summary Prepare a user operation
