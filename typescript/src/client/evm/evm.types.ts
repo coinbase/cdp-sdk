@@ -23,7 +23,8 @@ import type {
   EvmUserOperationStatus,
   OpenApiEvmMethods,
   UpdateEvmAccountBody as UpdateEvmAccount,
-  UpdateEvmSmartAccountBody as UpdateEvmSmartAccount, UserOperationReceipt,
+  UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
+  UserOperationReceipt,
 } from "../../openapi-client/index.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";

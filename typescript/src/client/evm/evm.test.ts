@@ -562,6 +562,7 @@ describe("EvmClient", () => {
       };
       const userOpHash = "0xhash";
       const transactionHash = "0xtransactionhash" as Hex;
+      const receipts = [{"revert": {"data": "0x", "message": "reverted"}}]
 
       const openApiUserOp: OpenApiUserOperation = {
         calls: [],
@@ -569,6 +570,7 @@ describe("EvmClient", () => {
         status: "broadcast",
         transactionHash,
         userOpHash,
+        receipts: receipts,
       };
       const userOp: UserOperation = {
         calls: [],
@@ -576,6 +578,7 @@ describe("EvmClient", () => {
         status: "broadcast",
         transactionHash,
         userOpHash,
+        receipts: receipts,
       };
 
       const getUserOperationMock = CdpOpenApiClient.getUserOperation as MockedFunction<
