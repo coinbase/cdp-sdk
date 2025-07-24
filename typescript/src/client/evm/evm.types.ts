@@ -17,6 +17,7 @@ import type {
   SendUserOperationReturnType,
 } from "../../actions/evm/sendUserOperation.js";
 import type { SmartAccountActions } from "../../actions/evm/types.js";
+import { SpendPermission } from "../../index.js";
 import type {
   EvmSwapsNetwork,
   EvmUserOperationNetwork,
@@ -45,6 +46,7 @@ export type EvmClientInterface = Omit<
   | "getEvmSmartAccountByName" // mapped to getSmartAccount
   | "getEvmSwapPrice" // mapped to getSwapPrice
   | "createEvmSwapQuote" // mapped to createSwapQuote
+  | "createSpendPermission" // mapped to createSpendPermission
   | "getUserOperation"
   | "updateEvmAccount" // mapped to updateAccount
   | "listEvmAccounts" // mapped to listAccounts
@@ -79,11 +81,11 @@ export type EvmClientInterface = Omit<
   getOrCreateAccount: (options: GetOrCreateServerAccountOptions) => Promise<ServerAccount>;
   getUserOperation: (options: GetUserOperationOptions) => Promise<UserOperation>;
   updateAccount: (options: UpdateEvmAccountOptions) => Promise<ServerAccount>;
-  updateSmartAccount: (options: UpdateEvmSmartAccountOptions) => Promise<SmartAccount>;
   listAccounts: (options: ListServerAccountsOptions) => Promise<ListServerAccountResult>;
   listSmartAccounts: (options: ListSmartAccountsOptions) => Promise<ListSmartAccountResult>;
   listTokenBalances: (options: ListTokenBalancesOptions) => Promise<ListTokenBalancesResult>;
   prepareUserOperation: (options: PrepareUserOperationOptions) => Promise<UserOperation>;
+  createSpendPermission: (options: CreateSpendPermissionOptions) => Promise<UserOperation>;
   requestFaucet: (options: RequestFaucetOptions) => Promise<RequestFaucetResult>;
   sendTransaction: (options: SendTransactionOptions) => Promise<TransactionResult>;
   sendUserOperation: (
@@ -278,6 +280,17 @@ export interface PrepareUserOperationOptions {
   calls: Calls<EvmCall[]>;
   /** The paymaster URL. */
   paymasterUrl?: string;
+}
+
+export interface CreateSpendPermissionOptions {
+  /** The spend permission. */
+  spendPermission: SpendPermission;
+  /** The network. */
+  network: EvmUserOperationNetwork;
+  /** The paymaster URL. */
+  paymasterUrl?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**
