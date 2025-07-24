@@ -1913,6 +1913,20 @@ Account names must be unique across all EVM accounts in the developer's CDP Proj
   name?: string;
 };
 
+export type CreateSpendPermissionBody = {
+  account: string;
+  spender: string;
+  network: string;
+  token: string;
+  allowance: string;
+  period: string;
+  start: string;
+  end: string;
+  salt: string;
+  extraData: string;
+  paymasterUrl?: string;
+};
+
 export type ImportEvmAccountBody = {
   /** The base64-encoded, encrypted private key of the EVM account. The private key must be encrypted using the CDP SDK's encryption scheme. */
   encryptedPrivateKey: string;

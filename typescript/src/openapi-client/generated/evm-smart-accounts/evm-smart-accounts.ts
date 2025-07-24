@@ -7,6 +7,7 @@
  */
 import type {
   CreateEvmSmartAccountBody,
+  CreateSpendPermissionBody,
   EvmSmartAccount,
   EvmUserOperation,
   ListEvmSmartAccounts200,
@@ -52,6 +53,26 @@ export const createEvmSmartAccount = (
     options,
   );
 };
+/**
+ * Creates a spend permission for a Smart Account.
+ * @summary Create a spend permission
+ */
+export const createSpendPermission = (
+  address: string,
+  createSpendPermissionBody: CreateSpendPermissionBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/evm/smart-accounts/${address}/spend-permissions`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createSpendPermissionBody,
+    },
+    options,
+  );
+};
+
 /**
  * Gets a Smart Account by its name.
  * @summary Get a Smart Account by name
