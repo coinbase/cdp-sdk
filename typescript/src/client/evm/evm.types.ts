@@ -492,6 +492,34 @@ export interface CreateSmartAccountOptions {
 }
 
 /**
+ * Options for creating a spend permission.
+ */
+export interface CreateSpendPermissionOptions {
+  /** The smart account. */
+  account: string;
+  /** The network. */
+  network: string;
+  /** The spender. */
+  spender: string;
+  /** The token. */
+  token: string;
+  /** The allowance. */
+  allowance: string;
+  /** The period. */
+  period: string;
+  /** The start. */
+  start: string;
+  /** The end. */
+  end: string;
+  /** The salt. */
+  salt: string;
+  /** The extra data. */
+  extraData: string;
+  /** The paymaster URL. */
+  paymasterUrl: string;
+}
+
+/**
  * Options for signing an EVM hash.
  */
 export interface SignHashOptions {

@@ -5,6 +5,7 @@ import { type Address, getTypesForEIP712Domain } from "viem";
 import {
   CreateServerAccountOptions,
   CreateSmartAccountOptions,
+  CreateSpendPermissionOptions,
   CreateSwapQuoteOptions,
   CreateSwapQuoteResult,
   EvmClientInterface,
@@ -364,6 +365,17 @@ export class EvmClient implements EvmClientInterface {
     Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
 
     return smartAccount;
+  }
+
+  /**
+   * Creates a spend permission for a smart account.
+   *
+   * @param {CreateSpendPermissionOptions} options - Parameters for creating the spend permission.
+   * @param {string} options.account - The address of the account to create the spend permission for.
+   * @param {string} options.network - The network to create the spend permission for.
+   */
+  async createSpendPermission(options: CreateSpendPermissionOptions): Promise<UserOperation> {
+    
   }
 
   /**
