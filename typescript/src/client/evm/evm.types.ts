@@ -488,7 +488,7 @@ export interface CreateSmartAccountOptions {
   /** The name of the account. */
   name?: string;
   /** The flag to enable spend permission. */
-  enableSpendPermission?: boolean;
+  __experimental_enableSpendPermission?: boolean;
 }
 
 /**

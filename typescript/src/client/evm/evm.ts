@@ -2,8 +2,6 @@ import { constants, publicEncrypt } from "crypto";
 
 import { type Address, getTypesForEIP712Domain } from "viem";
 
-import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
-
 import {
   CreateServerAccountOptions,
   CreateSmartAccountOptions,
@@ -70,6 +68,7 @@ import {
   CdpOpenApiClient,
   EIP712Message as OpenAPIEIP712Message,
 } from "../../openapi-client/index.js";
+import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
 import { Hex } from "../../types/misc.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
@@ -345,7 +344,7 @@ export class EvmClient implements EvmClientInterface {
 
     const owners = [options.owner.address];
 
-    if (options.enableSpendPermission) {
+    if (options.__experimental_enableSpendPermission) {
       owners.push(SPEND_PERMISSION_MANAGER_ADDRESS);
     }
 
