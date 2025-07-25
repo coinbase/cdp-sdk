@@ -36,8 +36,8 @@ const { userOpHash } = await cdp.evm.createSpendPermission({
   network: "base-sepolia",
 });
 
-const userOperationResult = await cdp.evm.getUserOperation({
-  smartAccount,
+const userOperationResult = await cdp.evm.waitForUserOperation({
+  smartAccountAddress: smartAccount.address,
   userOpHash,
 });
 
