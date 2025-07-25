@@ -51,3 +51,5 @@ export const OpenApiPoliciesMethods = {
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
+export * from "./generated/x402-facilitator/x402-facilitator";
+export * from "./generated/onramp/onramp";
