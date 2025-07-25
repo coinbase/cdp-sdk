@@ -1439,9 +1439,9 @@ async def test_list_policies(cdp_client):
     assert len(first_page_policies.policies) == 1
 
     # Check if we have more policies
-    if result.next_page_token:
+    if first_page_policies.next_page_token:
         result = await cdp_client.policies.list_policies(
-            page_size=1, page_token=result.next_page_token
+            page_size=1, page_token=first_page_policies.next_page_token
         )
         assert result is not None
         assert result.policies is not None
