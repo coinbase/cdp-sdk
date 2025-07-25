@@ -8,6 +8,8 @@ export * from "./generated/solana-token-balances/solana-token-balances.js";
 export * from "./generated/faucets/faucets.js";
 export * from "./generated/policy-engine/policy-engine.js";
 export * from "./generated/payments-alpha/payments-alpha.js";
+export * from "./generated/x402-facilitator/x402-facilitator.js";
+export * from "./generated/onramp/onramp.js";
 
 import { configure } from "./cdpApiClient.js";
 import * as evm from "./generated/evm-accounts/evm-accounts.js";
