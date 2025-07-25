@@ -252,7 +252,7 @@ class EvmClient:
         network: str,
         paymaster_url: str | None = None,
     ) -> EvmUserOperationModel:
-        """Create a spend permission for a smart account. """
+        """Create a spend permission for a smart account."""
         pass
 
     async def get_account(
