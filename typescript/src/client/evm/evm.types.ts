@@ -1,3 +1,5 @@
+import { SpendPermission } from "../../spend-permissions/types.js";
+
 import type {
   EvmAccount as Account,
   EvmServerAccount as ServerAccount,
@@ -37,6 +39,7 @@ export type EvmClientInterface = Omit<
   typeof OpenApiEvmMethods,
   | "createEvmAccount" // mapped to createAccount
   | "createEvmSmartAccount" // mapped to createSmartAccount
+  | "createSpendPermission" // mapped to createSpendPermission
   | "importEvmAccount" // mapped to importAccount
   | "exportEvmAccount" // mapped to exportAccount
   | "exportEvmAccountByName" // mapped to exportAccount
@@ -255,6 +258,17 @@ export interface CreateSwapQuoteResult {
    * @returns {Promise<ExecuteSwapQuoteResult>} A promise that resolves to the swap execution result.
    */
   execute: (options?: ExecuteSwapQuoteOptions) => Promise<ExecuteSwapQuoteResult>;
+}
+
+export interface CreateSpendPermissionOptions {
+  /** The spend permission. */
+  spendPermission: SpendPermission;
+  /** The network. */
+  network: EvmUserOperationNetwork;
+  /** The paymaster URL. */
+  paymasterUrl?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**

@@ -7,6 +7,7 @@
  */
 import type {
   CreateEvmSmartAccountBody,
+  CreateSpendPermissionRequest,
   EvmSmartAccount,
   EvmUserOperation,
   ListEvmSmartAccounts200,
@@ -153,6 +154,25 @@ export const sendUserOperation = (
     options,
   );
 };
+/**
+ * Creates a spend permission for the given smart account address.
+ * @summary Create a spend permission
+ */
+export const createSpendPermission = (
+  address: string,
+  createSpendPermissionRequest: CreateSpendPermissionRequest,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/evm/smart-accounts/${address}/spend-permissions`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createSpendPermissionRequest,
+    },
+    options,
+  );
+};
 export type ListEvmSmartAccountsResult = NonNullable<
   Awaited<ReturnType<typeof listEvmSmartAccounts>>
 >;
@@ -171,3 +191,6 @@ export type PrepareUserOperationResult = NonNullable<
 >;
 export type GetUserOperationResult = NonNullable<Awaited<ReturnType<typeof getUserOperation>>>;
 export type SendUserOperationResult = NonNullable<Awaited<ReturnType<typeof sendUserOperation>>>;
+export type CreateSpendPermissionResult = NonNullable<
+  Awaited<ReturnType<typeof createSpendPermission>>
+>;

@@ -34,6 +34,13 @@ class TestEVMSmartAccountsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_create_spend_permission(self) -> None:
+        """Test case for create_spend_permission
+
+        Create a spend permission
+        """
+        pass
+
     async def test_get_evm_smart_account(self) -> None:
         """Test case for get_evm_smart_account
 
