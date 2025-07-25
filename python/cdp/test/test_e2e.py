@@ -1871,7 +1871,7 @@ async def test_use_network_evm_smart_account_e2e(cdp_client):
 
     network = "base"
     # Use the use_network method to create a network-scoped smart account
-    network_smart_account = await smart_account._EvmSmartAccount__experimental_use_network__(network)
+    network_smart_account = await smart_account.__experimental_use_network__(network)
 
     assert network_smart_account.address == orig_address
     assert network_smart_account.name == orig_name
