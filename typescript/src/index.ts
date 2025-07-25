@@ -9,5 +9,9 @@ export {
 } from "./policies/schema.js";
 export { NetworkError } from "./openapi-client/errors.js";
 export type { SpendPermission } from "./spend-permissions/types.js";
+export {
+  SPEND_PERMISSION_MANAGER_ABI as spendPermissionManagerAbi,
+  SPEND_PERMISSION_MANAGER_ADDRESS as spendPermissionManagerAddress,
+} from "./spend-permissions/constants.js";
 
 export { parseEther, parseUnits } from "viem";

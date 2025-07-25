@@ -19,6 +19,8 @@ import {
   sendUserOperation,
 } from "../../actions/evm/sendUserOperation.js";
 import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
+import { useSpendPermission } from "../../actions/evm/spend-permissions/smartAccount.use.js";
+import { UseSpendPermissionOptions } from "../../actions/evm/spend-permissions/types.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { sendSwapOperation } from "../../actions/evm/swap/sendSwapOperation.js";
 import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
@@ -41,6 +43,10 @@ import {
   SignTypedDataOptions,
   UserOperation,
 } from "../../client/evm/evm.types.js";
+import {
+  type CdpOpenApiClientType,
+  type EvmSmartAccount as EvmSmartAccountModel,
+} from "../../openapi-client/index.js";
 
 import type { EvmAccount, EvmSmartAccount, KnownEvmNetworks } from "./types.js";
 import type {
@@ -49,10 +55,6 @@ import type {
   SmartAccountSwapOptions,
   SmartAccountSwapResult,
 } from "../../actions/evm/swap/types.js";
-import type {
-  CdpOpenApiClientType,
-  EvmSmartAccount as EvmSmartAccountModel,
-} from "../../openapi-client/index.js";
 import type { Address, Hex } from "../../types/misc.js";
 
 /**
@@ -257,6 +259,19 @@ export function toEvmSmartAccount(
         typedData: options,
       });
       return result.signature;
+    },
+    async __experimental_useSpendPermission(
+      options: UseSpendPermissionOptions,
+    ): Promise<SendUserOperationReturnType> {
+      Analytics.trackAction({
+        action: "use_spend_permission",
+        accountType: "evm_smart",
+        properties: {
+          network: options.network,
+        },
+      });
+
+      return useSpendPermission(apiClient, account, options);
     },
 
     name: options.smartAccount.name,
