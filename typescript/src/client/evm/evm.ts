@@ -7,7 +7,6 @@ import {
   CreateSmartAccountOptions,
   CreateSwapQuoteOptions,
   CreateSwapQuoteResult,
-  CreateSpendPermissionOptions,
   EvmClientInterface,
   ExportServerAccountOptions,
   GetOrCreateServerAccountOptions,
