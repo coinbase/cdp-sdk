@@ -551,12 +551,10 @@ export class SolanaClient implements SolanaClientInterface {
       options.update,
       options.idempotencyKey,
     );
-    console.log(openApiAccount);
 
     const account = toSolanaAccount(CdpOpenApiClient, {
       account: openApiAccount,
     });
-    console.log(account);
 
     Analytics.wrapObjectMethodsWithErrorTracking(account);
 
