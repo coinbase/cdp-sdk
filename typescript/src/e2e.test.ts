@@ -1159,18 +1159,22 @@ describe("CDP Client E2E Tests", () => {
     describe("create spend permission", () => {
       it("should create a spend permission", async () => {
         const owner = await cdp.evm.getOrCreateAccount({
-          name: "Spend Permission Owner",
+          name: "Spend-Permission-Owner",
         });
 
         const smartAccount = await cdp.evm.getOrCreateSmartAccount({
-          name: "Spend Permission Smart Account",
+          name: "Spend-Permission-Smart-Account",
           owner,
           __experimental_enableSpendPermission: true,
         });
 
+        const spender = await cdp.evm.getOrCreateAccount({
+          name: "Spend-Permission-Spender",
+        });
+
         const spendPermission: SpendPermission = {
           account: smartAccount.address,
-          spender: testAccount.address,
+          spender: spender.address,
           token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
           allowance: parseEther("0.00001"),
           period: 86400,
@@ -1181,16 +1185,17 @@ describe("CDP Client E2E Tests", () => {
         };
 
         const { userOpHash } = await cdp.evm.createSpendPermission({
-          network: "base-sepolia",
           spendPermission,
+          network: "base-sepolia",
         });
 
-        const userOpResult = await smartAccount.waitForUserOperation({
+        const userOperationResult = await cdp.evm.waitForUserOperation({
+          smartAccountAddress: smartAccount.address,
           userOpHash,
         });
 
-        expect(userOpResult).toBeDefined();
-        expect(userOpResult.status).toBe("complete");
+        expect(userOperationResult).toBeDefined();
+        expect(userOperationResult.status).toBe("complete");
       });
     });
   });
