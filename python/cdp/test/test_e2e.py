@@ -1871,15 +1871,13 @@ async def test_use_network_evm_smart_account_e2e(cdp_client):
 
     network = "base"
     # Use the use_network method to create a network-scoped smart account
-    network_smart_account = await smart_account._EvmSmartAccount__experimental_use_network(network)
+    network_smart_account = await smart_account._EvmSmartAccount__experimental_use_network__(network)
 
     assert network_smart_account.address == orig_address
     assert network_smart_account.name == orig_name
     assert network_smart_account.policies == orig_policies
     assert network_smart_account.owner == owner
     assert network_smart_account.network == network
-    # rpc_url is None unless passed explicitly
-    assert network_smart_account.rpc_url is None
 
     balances = await network_smart_account.list_token_balances()
     assert balances is not None

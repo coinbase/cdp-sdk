@@ -191,13 +191,30 @@ class NetworkScopedEvmSmartAccount:
                     raise TimeoutError("Timeout waiting for transaction receipt via custom RPC.")
                 await asyncio.sleep(interval_seconds)
         else:
-            return await self._evm_smart_account.wait_for_transaction_receipt(
-                transaction_hash=transaction_hash,
-                network=self._network,
-                timeout_seconds=timeout_seconds,
-                interval_seconds=interval_seconds,
-                rpc_url=rpc_url or self._rpc_url,
-            )
+            # For managed networks, use web3.py with the network's RPC URL
+            import asyncio
+            from time import time
+            from web3 import Web3
+            
+            # Map network names to RPC URLs
+            network_rpc_urls = {
+                "base-sepolia": "https://sepolia.base.org",
+                "base": "https://mainnet.base.org",
+            }
+            
+            rpc_url = rpc_url or network_rpc_urls.get(self._network)
+            if not rpc_url:
+                raise ValueError(f"No RPC URL available for network: {self._network}")
+            
+            w3 = Web3(Web3.HTTPProvider(rpc_url))
+            start = time()
+            while True:
+                receipt = w3.eth.get_transaction_receipt(transaction_hash)
+                if receipt:
+                    return dict(receipt)
+                if time() - start > timeout_seconds:
+                    raise TimeoutError(f"Timeout waiting for transaction receipt on {self._network}.")
+                await asyncio.sleep(interval_seconds)
 
     async def _network_scoped_list_token_balances(
         self,
@@ -279,37 +296,3 @@ class NetworkScopedEvmSmartAccount:
         if not hasattr(options, "network") or getattr(options, "network", None) is None:
             options.network = self._network
         return await self._evm_smart_account.swap(options)
-
-
-async def to_network_scoped_evm_smart_account(
-    options: ToNetworkScopedEvmSmartAccountOptions,
-) -> NetworkScopedEvmSmartAccount:
-    """Create a Network-scoped Smart Account instance from an existing EvmSmartAccount.
-
-    Use this to interact with previously deployed EvmSmartAccounts on a specific network.
-
-    Args:
-        options: Configuration options containing the smart account, network, and owner
-    Returns:
-        A configured NetworkScopedEvmSmartAccount instance ready for network-specific operations
-    Example:
-        ```python
-        # Create a network-scoped smart account
-        network_smart_account = await to_network_scoped_evm_smart_account(
-            ToNetworkScopedEvmSmartAccountOptions(
-                smart_account=existing_smart_account,
-                network="base",
-                owner=owner_account
-            )
-        )
-        # Now you can use network-specific methods
-        await network_smart_account.list_token_balances()
-        await network_smart_account.quote_fund(amount=1000000, token="usdc")
-        ```
-
-    """
-    return NetworkScopedEvmSmartAccount(
-        evm_smart_account=options.smart_account,
-        network=options.network,
-        owner=options.owner,
-    )

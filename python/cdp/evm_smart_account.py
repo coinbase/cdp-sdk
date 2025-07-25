@@ -693,7 +693,7 @@ class EvmSmartAccount(BaseModel):
             ),
         )
 
-    async def __experimental_use_network(self, network: str):
+    async def __experimental_use_network__(self, network: str):
         """Create a network-scoped version of this smart account.
 
         Args:

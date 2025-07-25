@@ -711,7 +711,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             interval_seconds=interval_seconds,
         )
 
-    async def __experimental_use_network(
+    async def __experimental_use_network__(
         self, network: str | None = None, rpc_url: str | None = None
     ):
         """Create a network-scoped version of this account.

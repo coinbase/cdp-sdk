@@ -228,13 +228,30 @@ class NetworkScopedEvmServerAccount:
                     raise TimeoutError("Timeout waiting for transaction receipt via custom RPC.")
                 await asyncio.sleep(interval_seconds)
         else:
-            return await self._evm_server_account.wait_for_transaction_receipt(
-                transaction_hash=transaction_hash,
-                network=self._network,
-                timeout_seconds=timeout_seconds,
-                interval_seconds=interval_seconds,
-                rpc_url=rpc_url or self._rpc_url,
-            )
+            # For managed networks, use web3.py with the network's RPC URL
+            import asyncio
+            from time import time
+            from web3 import Web3
+            
+            # Map network names to RPC URLs
+            network_rpc_urls = {
+                "base-sepolia": "https://sepolia.base.org",
+                "base": "https://mainnet.base.org",
+            }
+            
+            rpc_url = rpc_url or network_rpc_urls.get(self._network)
+            if not rpc_url:
+                raise ValueError(f"No RPC URL available for network: {self._network}")
+            
+            w3 = Web3(Web3.HTTPProvider(rpc_url))
+            start = time()
+            while True:
+                receipt = w3.eth.get_transaction_receipt(transaction_hash)
+                if receipt:
+                    return dict(receipt)
+                if time() - start > timeout_seconds:
+                    raise TimeoutError(f"Timeout waiting for transaction receipt on {self._network}.")
+                await asyncio.sleep(interval_seconds)
 
     async def _network_scoped_list_token_balances(
         self,
@@ -316,42 +333,6 @@ class NetworkScopedEvmServerAccount:
         if hasattr(swap_options, "network"):
             swap_options.network = self._network
         return await self._evm_server_account.swap(swap_options)
-
-
-async def to_network_scoped_evm_server_account(
-    options: ToNetworkScopedEvmServerAccountOptions,
-) -> NetworkScopedEvmServerAccount:
-    """Create a Network-scoped Server-managed EvmAccount instance from an existing EvmAccount.
-
-    Use this to interact with previously deployed EvmAccounts on a specific network.
-
-    Args:
-        options: Configuration options containing the account and network
-
-    Returns:
-        A configured NetworkScopedEvmServerAccount instance ready for network-specific operations
-
-    Example:
-        ```python
-        # Create a network-scoped account
-        network_account = await to_network_scoped_evm_server_account(
-            ToNetworkScopedEvmServerAccountOptions(
-                account=existing_account,
-                network="base"
-            )
-        )
-
-        # Now you can use network-specific methods
-        await network_account.list_token_balances()
-        await network_account.quote_fund(amount=1000000, token="usdc")
-        ```
-
-    """
-    return NetworkScopedEvmServerAccount(
-        evm_server_account=options.account,
-        network=options.network,
-    )
-
 
 # Helper: Map known ERC20 tokens to contract addresses per network
 _ERC20_ADDRESS_MAP = {
