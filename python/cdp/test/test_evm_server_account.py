@@ -1,3 +1,8 @@
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+from eth_account.messages import _hash_eip191_message, encode_defunct
+from eth_account.typed_transactions import DynamicFeeTransaction
 from eth_typing import Hash32
 from hexbytes import HexBytes
 from web3 import Web3
@@ -63,7 +68,8 @@ def test_repr_representation(mock_api, server_account_model_factory):
     assert repr(server_account) == expected
 
 
-def test_use_network(server_account_model_factory):
+@pytest.mark.asyncio
+async def test_use_network(server_account_model_factory):
     """Test creating a network-scoped account using the use_network method."""
     address = "0x1234567890123456789012345678901234567890"
     name = "test-account"
@@ -80,9 +86,7 @@ def test_use_network(server_account_model_factory):
     account = EvmServerAccount(server_account_model, dummy_api, dummy_api)
 
     # Test the use_network method
-    network_account = asyncio.get_event_loop().run_until_complete(
-        account.__experimental_use_network__(network)
-    )
+    network_account = await account.__experimental_use_network__(network)
 
     assert network_account.address == address
     assert network_account.network == network
@@ -99,18 +103,18 @@ async def test_sign_message_with_bytes(mock_api, server_account_model_factory):
 
     # Create a real mock instance, not just the class
     mock_api_instance = mock_api.return_value
-    server_account = EvmServerAccount(server_account_model, mock_api_instance)
+    server_account = EvmServerAccount(server_account_model, mock_api_instance, mock_api_instance)
 
     message = b"Test message"
     signable_message = encode_defunct(message)
 
-    signature_response = MagicMock()
+    signature_response = AsyncMock()
     # Create a real bytes-like object for the signature that's 65 bytes long
     # (32 bytes for r, 32 bytes for s, 1 byte for v). 1b = 27 in hex
     mock_signature = bytes.fromhex("1234" * 32 + "5678" * 32 + "1b")
 
     signature_response.signature = mock_signature
-    mock_api_instance.sign_evm_message.return_value = signature_response
+    mock_api_instance.sign_evm_message = AsyncMock(return_value=signature_response)
 
     result = await server_account.sign_message(signable_message)
 

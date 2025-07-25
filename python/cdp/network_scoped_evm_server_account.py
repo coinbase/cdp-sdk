@@ -359,6 +359,7 @@ class NetworkScopedEvmServerAccount:
             swap_options.network = self._network
         return await self._evm_server_account.swap(swap_options)
 
+
 # Helper: Map known ERC20 tokens to contract addresses per network
 _ERC20_ADDRESS_MAP = {
     "base": {"usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"},

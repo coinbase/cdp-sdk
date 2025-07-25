@@ -734,7 +734,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ```
 
         """
-        from cdp.to_network_scoped_evm_server_account import NetworkScopedEvmServerAccount
+        from cdp.network_scoped_evm_server_account import NetworkScopedEvmServerAccount
 
         return NetworkScopedEvmServerAccount(self, network, rpc_url)
 

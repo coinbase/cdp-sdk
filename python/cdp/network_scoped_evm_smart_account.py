@@ -194,18 +194,19 @@ class NetworkScopedEvmSmartAccount:
             # For managed networks, use web3.py with the network's RPC URL
             import asyncio
             from time import time
+
             from web3 import Web3
-            
+
             # Map network names to RPC URLs
             network_rpc_urls = {
                 "base-sepolia": "https://sepolia.base.org",
                 "base": "https://mainnet.base.org",
             }
-            
+
             rpc_url = rpc_url or network_rpc_urls.get(self._network)
             if not rpc_url:
                 raise ValueError(f"No RPC URL available for network: {self._network}")
-            
+
             w3 = Web3(Web3.HTTPProvider(rpc_url))
             start = time()
             while True:
@@ -213,7 +214,9 @@ class NetworkScopedEvmSmartAccount:
                 if receipt:
                     return dict(receipt)
                 if time() - start > timeout_seconds:
-                    raise TimeoutError(f"Timeout waiting for transaction receipt on {self._network}.")
+                    raise TimeoutError(
+                        f"Timeout waiting for transaction receipt on {self._network}."
+                    )
                 await asyncio.sleep(interval_seconds)
 
     async def _network_scoped_list_token_balances(
