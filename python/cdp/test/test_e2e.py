@@ -1358,7 +1358,6 @@ async def test_get_policy_by_id(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="Skipping due to flakiness")
 async def test_list_policies(cdp_client):
     """Test listing policies."""
     # Create a new policy

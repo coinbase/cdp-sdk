@@ -59,7 +59,7 @@ class EvmAddressCriterion(BaseModel):
     def validate_addresses_length(cls, v):
         """Validate the number of addresses."""
         if len(v) > 300:
-            raise UserInputValidationError("Maximum of 100 addresses allowed")
+            raise UserInputValidationError("Maximum of 300 addresses allowed")
         return v
 
     @field_validator("addresses")
@@ -253,7 +253,7 @@ class EvmTypedAddressCondition(BaseModel):
     def validate_addresses_length(cls, v):
         """Validate the number of addresses."""
         if len(v) > 300:
-            raise UserInputValidationError("Maximum of 100 addresses allowed")
+            raise UserInputValidationError("Maximum of 300 addresses allowed")
         return v
 
     @field_validator("addresses")
@@ -356,7 +356,7 @@ class SignEvmTypedDataVerifyingContractCriterion(BaseModel):
     def validate_addresses_length(cls, v):
         """Validate the number of addresses."""
         if len(v) > 300:
-            raise UserInputValidationError("Maximum of 100 addresses allowed")
+            raise UserInputValidationError("Maximum of 300 addresses allowed")
         return v
 
     @field_validator("addresses")
