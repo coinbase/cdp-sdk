@@ -10,7 +10,7 @@ console.log("Created account: ", account.address);
 const updatedAccount = await cdp.evm.updateAccount({
   address: account.address,
   update: {
-    name: "New Name"
+    name: "New-Account"
   }
 });
 console.log("Updated account:", JSON.stringify(updatedAccount, null, 2));

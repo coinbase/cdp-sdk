@@ -15,6 +15,9 @@ from solana.rpc.api import Client as SolanaClient
 from solders.pubkey import Pubkey as PublicKey
 from solders.signature import Signature
 from web3 import Web3
+import httpx  # Add this import for patching
+from unittest.mock import patch
+import requests
 
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
@@ -1854,33 +1857,6 @@ async def test_evm_local_account_sign_and_send_transaction(cdp_client):
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     assert tx_receipt is not None
 
-
-@pytest.mark.e2e
-@pytest.mark.asyncio
-async def test_use_network_evm_server_account_e2e(cdp_client):
-    """E2E: Test use_network for EvmServerAccount only."""
-    server_account = await cdp_client.evm.create_account(name=generate_random_name())
-    assert server_account is not None
-    orig_address = server_account.address
-
-    network = "base"
-    # Use the use_network method to create a network-scoped account
-    network_account = await server_account.use_network(network)
-
-    assert network_account.address == orig_address
-    assert network_account.network == network
-    # rpc_url is None unless passed explicitly
-    assert network_account.rpc_url is None
-
-    try:
-        balances = await network_account.list_token_balances()
-        assert balances is not None
-    except Exception as e:
-        print(
-            f"NetworkScopedEvmServerAccount list_token_balances failed (expected in some testnets): {e}"
-        )
-
-
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_use_network_evm_smart_account_e2e(cdp_client):
@@ -1896,7 +1872,7 @@ async def test_use_network_evm_smart_account_e2e(cdp_client):
 
     network = "base"
     # Use the use_network method to create a network-scoped smart account
-    network_smart_account = await smart_account.use_network(network)
+    network_smart_account = await smart_account._EvmSmartAccount__experimental_use_network(network)
 
     assert network_smart_account.address == orig_address
     assert network_smart_account.name == orig_name
@@ -1906,13 +1882,8 @@ async def test_use_network_evm_smart_account_e2e(cdp_client):
     # rpc_url is None unless passed explicitly
     assert network_smart_account.rpc_url is None
 
-    try:
-        balances = await network_smart_account.list_token_balances()
-        assert balances is not None
-    except Exception as e:
-        print(
-            f"NetworkScopedEvmSmartAccount list_token_balances failed (expected in some testnets): {e}"
-        )
+    balances = await network_smart_account.list_token_balances()
+    assert balances is not None
 
 
 def _get_transaction(address: str, to: str | None = None, amount: int | None = None):
@@ -2045,3 +2016,31 @@ def generate_random_name():
 
     last_char = chars[floor(random.random() * len(chars))]
     return first_char + middle_part + last_char
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+def test_use_provided_rpc_url_for_non_cdp_network():
+    async def run():
+        from cdp import CdpClient
+        cdp_client = CdpClient(**client_args)
+        try:
+            with patch("requests.Session.send", wraps=requests.Session.send) as send_mock:
+                account = await cdp_client.evm.get_or_create_account(name=test_account_name)
+                op_account = await account._EvmServerAccount__experimental_use_network("https://sepolia.optimism.io")
+                with pytest.raises(Exception):
+                    await op_account.transfer(
+                        to="0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+                        amount=0,
+                        token="eth",
+                    )
+                rpc_calls = [
+                    c for c in send_mock.call_args_list
+                    if "https://sepolia.optimism.io" in c[0][0].url
+                    and b"eth_sendTransaction" in c[0][0].body
+                ]
+                assert len(rpc_calls) > 0, "No RPC calls made to the custom RPC URL"
+                print("Detected RPC call to:", rpc_calls[0][0][0].url)
+        finally:
+            await cdp_client.close()
+    asyncio.run(run())

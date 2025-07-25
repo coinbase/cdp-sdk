@@ -86,7 +86,7 @@ def test_use_network(server_account_model_factory):
     account = EvmServerAccount(server_account_model, dummy_api, dummy_api)
 
     # Test the use_network method
-    network_account = asyncio.get_event_loop().run_until_complete(account.use_network(network))
+    network_account = asyncio.get_event_loop().run_until_complete(account._EvmServerAccount__experimental_use_network(network))
 
     assert network_account.address == address
     assert network_account.network == network

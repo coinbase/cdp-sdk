@@ -67,20 +67,12 @@ class EvmServerAccount(BaseAccount, BaseModel):
             evm_server_account_model (EvmServerAccountModel): The EVM server account model.
             evm_accounts_api (EVMAccountsApi): The EVM accounts API.
             api_clients (ApiClients): The API client.
-
-            api_clients (ApiClients): The API client.
-
         """
         super().__init__()
-
-        super().__init__()
-
         self.__address = evm_server_account_model.address
         self.__name = evm_server_account_model.name
         self.__policies = evm_server_account_model.policies
-        self.__policies = evm_server_account_model.policies
         self.__evm_accounts_api = evm_accounts_api
-        self.__api_clients = api_clients
         self.__api_clients = api_clients
 
     @property
@@ -127,11 +119,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
         Raises:
             AttributeError: If the signature response is missing required fields
-
-
         """
-        track_action(action="sign_message", account_type="evm_server")
-
         track_action(action="sign_message", account_type="evm_server")
 
         message_body = signable_message.body
@@ -214,8 +202,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
             The signed transaction
         Raises:
             ValueError: If the signature response is missing required fields
-
-
         """
         track_action(action="sign_transaction", account_type="evm_server")
 
@@ -294,7 +280,6 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ...     "token": "usdc",
             ...     "network": "base-sepolia",
             ... })
-
         """
         track_action(
             action="transfer",
@@ -722,7 +707,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             interval_seconds=interval_seconds,
         )
 
-    async def use_network(self, network: str):
+    async def __experimental_use_network(self, network: str | None = None, rpc_url: str | None = None):
         """Create a network-scoped version of this account.
 
         Args:
@@ -744,7 +729,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
         """
         from cdp.to_network_scoped_evm_server_account import NetworkScopedEvmServerAccount
 
-        return NetworkScopedEvmServerAccount(self, network)
+        return NetworkScopedEvmServerAccount(self, network, rpc_url)
 
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.

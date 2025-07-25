@@ -11,15 +11,17 @@ from cdp.network_capabilities import is_method_supported_on_network
 
 
 class ToNetworkScopedEvmServerAccountOptions:
-    """Options for converting a pre-existing EvmAccount to a NetworkScopedEvmServerAccount."""
+    """Options for converting a pre-existing EvmAccount to a NetworkScopedEvmServerAccount.
+
+    Now accepts either a network name or an RPC URL for the 'network' parameter, similar to the TypeScript SDK.
+    """
 
     def __init__(self, account: EvmServerAccount, network: str):
         """Initialize the options.
 
         Args:
             account: The EvmServerAccount that was previously created.
-            network: The network to scope the account to.
-
+            network: The network to scope the account to, or an RPC URL.
         """
         self.account = account
         self.network = network
@@ -29,26 +31,35 @@ class NetworkScopedEvmServerAccount:
     """A network-scoped EVM server account that only exposes methods supported by the network.
 
     Uses dynamic attribute access to match the TypeScript approach.
+    Accepts either a network name or an RPC URL for the 'network' parameter. If an RPC URL is provided, it is used as the custom endpoint and network is set to 'custom'.
     """
 
     def __init__(
         self,
         evm_server_account: EvmServerAccount,
-        network: str,
+        network: str | None = None,
         rpc_url: str | None = None,
     ):
+        # If network looks like an RPC URL, treat it as such
+        if network and isinstance(network, str) and network.strip().lower().startswith("http"):
+            self._rpc_url = network
+            self._network = "custom"
+        else:
+            self._network = network
+            self._rpc_url = rpc_url
         self._evm_server_account = evm_server_account
-        self._network = network
-        self._rpc_url = rpc_url
-        self._should_use_api_for_sends = network in [
+        self._should_use_api_for_sends = self._network in [
             "base",
             "base-sepolia",
             "ethereum",
             "ethereum-sepolia",
         ]
         self._web3 = None
-        if rpc_url and not self._should_use_api_for_sends:
-            self._web3 = Web3(Web3.HTTPProvider(rpc_url))
+        print(f"network: {self._network}")
+        print(f"rpc_url: {self._rpc_url}")
+        if self._rpc_url and not self._should_use_api_for_sends:
+            self._web3 = Web3(Web3.HTTPProvider(self._rpc_url))
+            print("IM HERE")
         self._supported_methods: dict[str, Callable] = {}
         self._init_supported_methods()
 
@@ -60,20 +71,20 @@ class NetworkScopedEvmServerAccount:
             self._network_scoped_wait_for_transaction_receipt
         )
         # Conditionally add network-specific methods
-        if is_method_supported_on_network("listTokenBalances", self._network):
+        if is_method_supported_on_network("list_token_balances", self._network):
             self._supported_methods["list_token_balances"] = (
                 self._network_scoped_list_token_balances
             )
-        if is_method_supported_on_network("requestFaucet", self._network):
+        if is_method_supported_on_network("request_faucet", self._network):
             self._supported_methods["request_faucet"] = self._network_scoped_request_faucet
-        if is_method_supported_on_network("quoteFund", self._network):
+        if is_method_supported_on_network("quote_fund", self._network):
             self._supported_methods["quote_fund"] = self._network_scoped_quote_fund
         if is_method_supported_on_network("fund", self._network):
             self._supported_methods["fund"] = self._network_scoped_fund
             self._supported_methods["wait_for_fund_operation_receipt"] = (
                 self._network_scoped_wait_for_fund_operation_receipt
             )
-        if is_method_supported_on_network("quoteSwap", self._network):
+        if is_method_supported_on_network("quote_swap", self._network):
             self._supported_methods["quote_swap"] = self._network_scoped_quote_swap
         if is_method_supported_on_network("swap", self._network):
             self._supported_methods["swap"] = self._network_scoped_swap
@@ -137,11 +148,53 @@ class NetworkScopedEvmServerAccount:
         amount: int,
         token: str,
     ) -> str:
-        """Transfer using the API for managed networks. Direct transfer via custom RPC is not supported without private key handling."""
+        """Transfer using the API for managed networks, or via web3.py for custom RPC."""
         if self._web3:
-            raise NotImplementedError(
-                "Direct transfer via custom RPC is not supported. Use send_transaction with a signed transaction."
-            )
+            # Ensure the account is unlocked in web3.py
+            from_address = self._evm_server_account.address
+            w3 = self._web3
+            print("NOW I AM OVER HERE")
+            if token.lower() == "eth":
+                tx = {
+                    "from": from_address,
+                    "to": to,
+                    "value": amount,
+                    "gas": 21000,
+                    "nonce": w3.eth.get_transaction_count(from_address),
+                }
+                try:
+                    tx_hash = w3.eth.send_transaction(tx)
+                except ValueError as e:
+                    raise Exception(f"Failed to send ETH transfer: {e}")
+                return w3.toHex(tx_hash)
+            else:
+                # ERC20 transfer: approve and transfer
+                erc20_address = _get_erc20_address(token, self._network)
+                contract = w3.eth.contract(address=erc20_address, abi=_ERC20_ABI)
+                nonce = w3.eth.get_transaction_count(from_address)
+                # Approve
+                try:
+                    approve_tx = contract.functions.approve(to, amount).build_transaction({
+                        "from": from_address,
+                        "nonce": nonce,
+                        "gas": 100000,
+                    })
+                    approve_hash = w3.eth.send_transaction(approve_tx)
+                    w3.eth.wait_for_transaction_receipt(approve_hash)
+                except Exception as e:
+                    raise Exception(f"Failed to approve ERC20 transfer: {e}")
+                # Transfer
+                try:
+                    transfer_tx = contract.functions.transfer(to, amount).build_transaction({
+                        "from": from_address,
+                        "nonce": nonce + 1,
+                        "gas": 100000,
+                    })
+                    transfer_hash = w3.eth.send_transaction(transfer_tx)
+                except Exception as e:
+                    raise Exception(f"Failed to send ERC20 transfer: {e}")
+                return w3.toHex(transfer_hash)
+        # Default: managed network (API)
         return await self._evm_server_account.transfer(
             to=to,
             amount=amount,
@@ -293,3 +346,40 @@ async def to_network_scoped_evm_server_account(
         evm_server_account=options.account,
         network=options.network,
     )
+
+# Helper: Map known ERC20 tokens to contract addresses per network
+_ERC20_ADDRESS_MAP = {
+    "base": {"usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"},
+    "base-sepolia": {"usdc": "0x036CbD53842c5426634e7929541eC2318f3dCF7e"},
+    # Add more networks/tokens as needed
+}
+
+# Minimal ERC20 ABI for approve/transfer
+_ERC20_ABI = [
+    {
+        "constant": False,
+        "inputs": [
+            {"name": "_spender", "type": "address"},
+            {"name": "_value", "type": "uint256"},
+        ],
+        "name": "approve",
+        "outputs": [{"name": "", "type": "bool"}],
+        "type": "function",
+    },
+    {
+        "constant": False,
+        "inputs": [
+            {"name": "_to", "type": "address"},
+            {"name": "_value", "type": "uint256"},
+        ],
+        "name": "transfer",
+        "outputs": [{"name": "", "type": "bool"}],
+        "type": "function",
+    },
+]
+
+def _get_erc20_address(token: str, network: str) -> str:
+    # If token is a contract address, return as is
+    if token.startswith("0x") and len(token) == 42:
+        return token
+    return _ERC20_ADDRESS_MAP.get(network, {}).get(token, token)

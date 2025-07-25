@@ -68,20 +68,20 @@ class NetworkScopedEvmSmartAccount:
         )
         if is_method_supported_on_network("transfer", self._network):
             self._supported_methods["transfer"] = self._network_scoped_transfer
-        if is_method_supported_on_network("listTokenBalances", self._network):
+        if is_method_supported_on_network("list_token_balances", self._network):
             self._supported_methods["list_token_balances"] = (
                 self._network_scoped_list_token_balances
             )
-        if is_method_supported_on_network("requestFaucet", self._network):
+        if is_method_supported_on_network("request_faucet", self._network):
             self._supported_methods["request_faucet"] = self._network_scoped_request_faucet
-        if is_method_supported_on_network("quoteFund", self._network):
+        if is_method_supported_on_network("quote_fund", self._network):
             self._supported_methods["quote_fund"] = self._network_scoped_quote_fund
         if is_method_supported_on_network("fund", self._network):
             self._supported_methods["fund"] = self._network_scoped_fund
             self._supported_methods["wait_for_fund_operation_receipt"] = (
                 self._network_scoped_wait_for_fund_operation_receipt
             )
-        if is_method_supported_on_network("quoteSwap", self._network):
+        if is_method_supported_on_network("quote_swap", self._network):
             self._supported_methods["quote_swap"] = self._network_scoped_quote_swap
         if is_method_supported_on_network("swap", self._network):
             self._supported_methods["swap"] = self._network_scoped_swap
