@@ -26,6 +26,7 @@ import type {
   UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
   UserOperationReceipt,
 } from "../../openapi-client/index.js";
+import { SpendPermission } from "../../spend-permissions/types.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";
 import type { WaitOptions } from "../../utils/wait.js";
@@ -37,6 +38,7 @@ export type EvmClientInterface = Omit<
   typeof OpenApiEvmMethods,
   | "createEvmAccount" // mapped to createAccount
   | "createEvmSmartAccount" // mapped to createSmartAccount
+  | "createSpendPermission" // mapped to createSpendPermission
   | "importEvmAccount" // mapped to importAccount
   | "exportEvmAccount" // mapped to exportAccount
   | "exportEvmAccountByName" // mapped to exportAccount
@@ -94,6 +96,7 @@ export type EvmClientInterface = Omit<
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
   signTypedData: (options: SignTypedDataOptions) => Promise<SignatureResult>;
   signTransaction: (options: SignTransactionOptions) => Promise<SignatureResult>;
+  createSpendPermission: (options: CreateSpendPermissionOptions) => Promise<UserOperation>;
 };
 
 export type { ServerAccount, SmartAccount };
@@ -255,6 +258,17 @@ export interface CreateSwapQuoteResult {
    * @returns {Promise<ExecuteSwapQuoteResult>} A promise that resolves to the swap execution result.
    */
   execute: (options?: ExecuteSwapQuoteOptions) => Promise<ExecuteSwapQuoteResult>;
+}
+
+export interface CreateSpendPermissionOptions {
+  /** The spend permission. */
+  spendPermission: SpendPermission;
+  /** The network. */
+  network: EvmUserOperationNetwork;
+  /** The paymaster URL. */
+  paymasterUrl?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**
