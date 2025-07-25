@@ -4,7 +4,6 @@ from cdp.openapi_client.models.evm_data_condition import EvmDataCondition as Ope
 from cdp.openapi_client.models.evm_data_condition_params_inner import EvmDataConditionParamsInner
 from cdp.openapi_client.models.evm_data_criterion import EvmDataCriterion
 from cdp.openapi_client.models.evm_data_criterion_abi import EvmDataCriterionAbi
-from cdp.openapi_client.models.known_abi_type import KnownAbiType
 from cdp.openapi_client.models.evm_data_parameter_condition import EvmDataParameterCondition
 from cdp.openapi_client.models.evm_data_parameter_condition_list import (
     EvmDataParameterConditionList,
@@ -14,6 +13,7 @@ from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from cdp.openapi_client.models.evm_typed_address_condition import EvmTypedAddressCondition
 from cdp.openapi_client.models.evm_typed_numerical_condition import EvmTypedNumericalCondition
 from cdp.openapi_client.models.evm_typed_string_condition import EvmTypedStringCondition
+from cdp.openapi_client.models.known_abi_type import KnownAbiType
 from cdp.openapi_client.models.rule import Rule
 from cdp.openapi_client.models.send_evm_transaction_criteria_inner import (
     SendEvmTransactionCriteriaInner,
@@ -77,11 +77,7 @@ openapi_criterion_mapping = {
             actual_instance=EvmDataCriterion(
                 type="evmData",
                 abi=EvmDataCriterionAbi(
-                    actual_instance=(
-                        KnownAbiType(c.abi) 
-                        if isinstance(c.abi, str) 
-                        else c.abi
-                    )
+                    actual_instance=(KnownAbiType(c.abi) if isinstance(c.abi, str) else c.abi)
                 ),
                 conditions=[
                     OpenAPIEvmDataCondition(
@@ -131,11 +127,7 @@ openapi_criterion_mapping = {
             actual_instance=EvmDataCriterion(
                 type="evmData",
                 abi=EvmDataCriterionAbi(
-                    actual_instance=(
-                        KnownAbiType(c.abi) 
-                        if isinstance(c.abi, str) 
-                        else c.abi
-                    )
+                    actual_instance=(KnownAbiType(c.abi) if isinstance(c.abi, str) else c.abi)
                 ),
                 conditions=[
                     OpenAPIEvmDataCondition(
