@@ -9,6 +9,8 @@ from typing import Literal
 from pydantic import BaseModel, Field, field_validator
 
 from cdp.errors import UserInputValidationError
+from cdp.openapi_client.models.abi_inner import AbiInner
+from cdp.openapi_client.models.known_abi_type import KnownAbiType
 
 """Type representing the action of a policy rule.
 Determines whether matching the rule will cause a request to be rejected or accepted."""
@@ -160,11 +162,10 @@ class EvmDataCriterion(BaseModel):
         "evmData",
         description="The type of criterion, must be 'evmData' for EVM transaction data rules.",
     )
-    abi: Literal["erc20", "erc721", "erc1155"] | list[dict[str, str]] = Field(
+    abi: KnownAbiType | AbiInner = Field(
         ...,
         description="The ABI of the smart contract being called. This can be a partial structure with only specific functions.",
     )
-
     conditions: list[EvmDataCondition] = Field(
         ...,
         description="A list of conditions to apply against the function and encoded arguments in the transaction's `data` field. Each condition must be met in order for this policy to be accepted or rejected.",
