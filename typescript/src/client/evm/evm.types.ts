@@ -397,7 +397,11 @@ export interface GetOrCreateSmartAccountOptions {
   name: string;
   /** The owner of the account. */
   owner: Account;
-  /** The flag to enable spend permission. */
+  /**
+   * @deprecated Experimental! This method name will change, and is subject to other breaking changes.
+   *
+   * The flag to enable spend permission.
+   */
   __experimental_enableSpendPermission?: boolean;
 }
 
@@ -494,7 +498,11 @@ export interface CreateSmartAccountOptions {
   idempotencyKey?: string;
   /** The name of the account. */
   name?: string;
-  /** The flag to enable spend permission. */
+  /**
+   * @deprecated Experimental! This method name will change, and is subject to other breaking changes.
+   *
+   * The flag to enable spend permission.
+   */
   __experimental_enableSpendPermission?: boolean;
 }
 

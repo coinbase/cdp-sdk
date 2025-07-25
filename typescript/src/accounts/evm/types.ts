@@ -248,7 +248,7 @@ export type NetworkSpecificSmartAccountActions<Network extends string> = Prettif
     // Conditionally include useSpendPermission
     (Network extends SpendPermissionNetworks
       ? {
-          useSpendPermission: (
+          __experimental_useSpendPermission: (
             options: Omit<UseSpendPermissionOptions, "network">,
           ) => Promise<SendUserOperationReturnType>;
         }
@@ -336,7 +336,7 @@ export type NetworkSpecificAccountActions<Network extends string> = Prettify<
     // Conditionally include useSpendPermission
     (Network extends SpendPermissionNetworks
       ? {
-          useSpendPermission: (
+          __experimental_useSpendPermission: (
             options: Omit<UseSpendPermissionOptions, "network">,
           ) => Promise<TransactionResult>;
         }

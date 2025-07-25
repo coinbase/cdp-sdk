@@ -283,10 +283,10 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
 
   if (isMethodSupportedOnNetwork("useSpendPermission", options.network)) {
     Object.assign(account, {
-      useSpendPermission: async (
+      __experimental_useSpendPermission: async (
         spendPermissionOptions: Omit<UseSpendPermissionOptions, "network">,
       ) => {
-        return options.smartAccount.useSpendPermission({
+        return options.smartAccount.__experimental_useSpendPermission({
           ...spendPermissionOptions,
           network: options.network as SpendPermissionNetworks,
         });

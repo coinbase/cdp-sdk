@@ -142,7 +142,7 @@ describe("toEvmSmartAccount", () => {
       swap: expect.any(Function),
       signTypedData: expect.any(Function),
       useNetwork: expect.any(Function),
-      useSpendPermission: expect.any(Function),
+      __experimental_useSpendPermission: expect.any(Function),
     });
   });
 
@@ -302,7 +302,7 @@ describe("toEvmSmartAccount", () => {
       owner: mockOwner,
     });
 
-    await smartAccount.useSpendPermission({
+    await smartAccount.__experimental_useSpendPermission({
       spendPermission: {
         account: mockAddress,
         spender: mockAddress,

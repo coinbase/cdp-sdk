@@ -177,7 +177,7 @@ describe("toEvmServerAccount", () => {
       type: "evm-server",
       waitForFundOperationReceipt: expect.any(Function),
       useNetwork: expect.any(Function),
-      useSpendPermission: expect.any(Function),
+      __experimental_useSpendPermission: expect.any(Function),
     });
   });
 
@@ -490,7 +490,7 @@ describe("toEvmServerAccount", () => {
   });
 
   it("should call useSpendPermission action when useSpendPermission is called", async () => {
-    await serverAccount.useSpendPermission({
+    await serverAccount.__experimental_useSpendPermission({
       spendPermission: {
         account: mockAddress,
         spender: mockAddress,
