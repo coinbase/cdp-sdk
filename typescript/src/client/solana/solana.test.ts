@@ -25,6 +25,8 @@ vi.mock("../../openapi-client/index.js", () => {
       exportSolanaAccount: vi.fn(),
       exportSolanaAccountByName: vi.fn(),
       listSolanaTokenBalances: vi.fn(),
+      createPaymentTransferQuote: vi.fn(),
+      getPaymentMethods: vi.fn(),
     },
   };
 });
@@ -58,7 +60,11 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
+        quoteFund: expect.any(Function),
+        fund: expect.any(Function),
+        waitForFundOperationReceipt: expect.any(Function),
       });
     });
 
@@ -80,8 +86,12 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
+        quoteFund: expect.any(Function),
+        fund: expect.any(Function),
         policies: [policyId],
+        waitForFundOperationReceipt: expect.any(Function),
       });
       expect(createSolanaAccountMock).toHaveBeenCalledWith(
         {
@@ -282,7 +292,11 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
+        quoteFund: expect.any(Function),
+        fund: expect.any(Function),
+        waitForFundOperationReceipt: expect.any(Function),
       });
     });
 
@@ -300,7 +314,11 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
+        quoteFund: expect.any(Function),
+        fund: expect.any(Function),
+        waitForFundOperationReceipt: expect.any(Function),
       });
     });
 
@@ -336,14 +354,22 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
+        quoteFund: expect.any(Function),
+        fund: expect.any(Function),
+        waitForFundOperationReceipt: expect.any(Function),
       });
       expect(result2).toEqual({
         address: "cdpSolanaAccount",
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
+        quoteFund: expect.any(Function),
+        fund: expect.any(Function),
+        waitForFundOperationReceipt: expect.any(Function),
       });
       expect(getSolanaAccountByNameMock).toHaveBeenCalledTimes(2);
       expect(createSolanaAccountMock).toHaveBeenCalledTimes(1);
@@ -367,7 +393,11 @@ describe("SolanaClient", () => {
             requestFaucet: expect.any(Function),
             signMessage: expect.any(Function),
             signTransaction: expect.any(Function),
+            sendTransaction: expect.any(Function),
             transfer: expect.any(Function),
+            quoteFund: expect.any(Function),
+            fund: expect.any(Function),
+            waitForFundOperationReceipt: expect.any(Function),
           },
         ],
       });
@@ -423,7 +453,10 @@ describe("SolanaClient", () => {
         address: "cdpSolanaAccount",
         transaction: "someTransaction",
       });
-      expect(result).toEqual({ signature: "someSignature" });
+      expect(result).toEqual({
+        signature: "someSignature",
+        signedTransaction: "someSignature",
+      });
     });
   });
 
@@ -440,7 +473,10 @@ describe("SolanaClient", () => {
         network: "solana-devnet",
         transaction: "someTransaction",
       });
-      expect(result).toEqual({ signature: "someTransactionSignature" });
+      expect(result).toEqual({
+        transactionSignature: "someTransactionSignature",
+        signature: "someTransactionSignature",
+      });
     });
   });
 
@@ -489,7 +525,10 @@ describe("SolanaClient", () => {
         address: "cdpSolanaAccount",
         transaction: "someTransaction",
       });
-      expect(result).toEqual({ signature: "someSignature" });
+      expect(result).toEqual({
+        signature: "someSignature",
+        signedTransaction: "someSignature",
+      });
     });
   });
 
@@ -521,7 +560,11 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
+        quoteFund: expect.any(Function),
+        fund: expect.any(Function),
+        waitForFundOperationReceipt: expect.any(Function),
       });
     });
 
@@ -552,8 +595,12 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
         policies: [policyId],
+        quoteFund: expect.any(Function),
+        fund: expect.any(Function),
+        waitForFundOperationReceipt: expect.any(Function),
       });
     });
 
@@ -585,7 +632,11 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
+        quoteFund: expect.any(Function),
+        fund: expect.any(Function),
+        waitForFundOperationReceipt: expect.any(Function),
       });
     });
   });

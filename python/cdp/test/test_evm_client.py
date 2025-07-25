@@ -1115,6 +1115,7 @@ async def test_get_user_operation():
     mock_user_operation.network = "ethereum"
     mock_user_operation.calls = [AsyncMock(), AsyncMock()]
     mock_user_operation.status = "pending"
+    mock_user_operation.receipts = [{"revert": {"data": "0x", "message": "reverted"}}]
 
     mock_evm_smart_accounts_api.get_user_operation = AsyncMock(return_value=mock_user_operation)
 

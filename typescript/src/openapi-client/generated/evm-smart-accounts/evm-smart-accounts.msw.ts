@@ -9,6 +9,7 @@ import { faker } from "@faker-js/faker";
 
 import { HttpResponse, delay, http } from "msw";
 
+import { EvmUserOperationNetwork } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 import type {
   EvmSmartAccount,
   EvmUserOperation,
@@ -172,7 +173,7 @@ export const getUpdateEvmSmartAccountResponseMock = (
 export const getPrepareUserOperationResponseMock = (
   overrideResponse: Partial<EvmUserOperation> = {},
 ): EvmUserOperation => ({
-  network: faker.helpers.arrayElement(["base-sepolia", "base"] as const),
+  network: faker.helpers.arrayElement(Object.values(EvmUserOperationNetwork)),
   userOpHash: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$"),
   calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
     to: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
@@ -189,6 +190,15 @@ export const getPrepareUserOperationResponseMock = (
   ] as const),
   transactionHash: faker.helpers.arrayElement([
     faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+    })),
     undefined,
   ]),
   ...overrideResponse,
@@ -197,7 +207,7 @@ export const getPrepareUserOperationResponseMock = (
 export const getGetUserOperationResponseMock = (
   overrideResponse: Partial<EvmUserOperation> = {},
 ): EvmUserOperation => ({
-  network: faker.helpers.arrayElement(["base-sepolia", "base"] as const),
+  network: faker.helpers.arrayElement(Object.values(EvmUserOperationNetwork)),
   userOpHash: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$"),
   calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
     to: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
@@ -216,13 +226,22 @@ export const getGetUserOperationResponseMock = (
     faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
     undefined,
   ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+    })),
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
 export const getSendUserOperationResponseMock = (
   overrideResponse: Partial<EvmUserOperation> = {},
 ): EvmUserOperation => ({
-  network: faker.helpers.arrayElement(["base-sepolia", "base"] as const),
+  network: faker.helpers.arrayElement(Object.values(EvmUserOperationNetwork)),
   userOpHash: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$"),
   calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
     to: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
@@ -239,6 +258,15 @@ export const getSendUserOperationResponseMock = (
   ] as const),
   transactionHash: faker.helpers.arrayElement([
     faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+    })),
     undefined,
   ]),
   ...overrideResponse,

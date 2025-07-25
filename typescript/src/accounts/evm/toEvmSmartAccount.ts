@@ -1,14 +1,7 @@
 import { resolveNetworkToChain } from "./networkToChainResolver.js";
 import { toNetworkScopedEvmSmartAccount } from "./toNetworkScopedEvmSmartAccount.js";
-import { fund, FundOptions } from "../../actions/evm/fund/fund.js";
-import { Quote } from "../../actions/evm/fund/Quote.js";
-import { quoteFund, QuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
-import { FundOperationResult } from "../../actions/evm/fund/types.js";
-import {
-  WaitForFundOperationResult,
-  waitForFundOperationReceipt,
-  WaitForFundOperationOptions,
-} from "../../actions/evm/fund/waitForFundOperationReceipt.js";
+import { fund, EvmFundOptions } from "../../actions/evm/fund/fund.js";
+import { quoteFund, EvmQuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import {
   listTokenBalances,
@@ -26,6 +19,8 @@ import {
   sendUserOperation,
 } from "../../actions/evm/sendUserOperation.js";
 import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
+import { useSpendPermission } from "../../actions/evm/spend-permissions/smartAccount.use.js";
+import { UseSpendPermissionOptions } from "../../actions/evm/spend-permissions/types.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { sendSwapOperation } from "../../actions/evm/swap/sendSwapOperation.js";
 import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
@@ -35,12 +30,23 @@ import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
+import { EvmQuote } from "../../actions/Quote.js";
+import { FundOperationResult } from "../../actions/types.js";
+import {
+  WaitForFundOperationResult,
+  waitForFundOperationReceipt,
+  WaitForFundOperationOptions,
+} from "../../actions/waitForFundOperationReceipt.js";
 import { Analytics } from "../../analytics.js";
 import {
   GetUserOperationOptions,
   SignTypedDataOptions,
   UserOperation,
 } from "../../client/evm/evm.types.js";
+import {
+  type CdpOpenApiClientType,
+  type EvmSmartAccount as EvmSmartAccountModel,
+} from "../../openapi-client/index.js";
 
 import type { EvmAccount, EvmSmartAccount, KnownEvmNetworks } from "./types.js";
 import type {
@@ -49,10 +55,6 @@ import type {
   SmartAccountSwapOptions,
   SmartAccountSwapResult,
 } from "../../actions/evm/swap/types.js";
-import type {
-  CdpOpenApiClientType,
-  EvmSmartAccount as EvmSmartAccountModel,
-} from "../../openapi-client/index.js";
 import type { Address, Hex } from "../../types/misc.js";
 
 /**
@@ -170,7 +172,7 @@ export function toEvmSmartAccount(
         address: account.address,
       });
     },
-    async quoteFund(options: Omit<QuoteFundOptions, "address">): Promise<Quote> {
+    async quoteFund(options: Omit<EvmQuoteFundOptions, "address">): Promise<EvmQuote> {
       Analytics.trackAction({
         action: "quote_fund",
         accountType: "evm_smart",
@@ -184,7 +186,7 @@ export function toEvmSmartAccount(
         address: this.address,
       });
     },
-    async fund(options: Omit<FundOptions, "address">): Promise<FundOperationResult> {
+    async fund(options: Omit<EvmFundOptions, "address">): Promise<FundOperationResult> {
       Analytics.trackAction({
         action: "fund",
         accountType: "evm_smart",
@@ -257,6 +259,19 @@ export function toEvmSmartAccount(
         typedData: options,
       });
       return result.signature;
+    },
+    async __experimental_useSpendPermission(
+      options: UseSpendPermissionOptions,
+    ): Promise<SendUserOperationReturnType> {
+      Analytics.trackAction({
+        action: "use_spend_permission",
+        accountType: "evm_smart",
+        properties: {
+          network: options.network,
+        },
+      });
+
+      return useSpendPermission(apiClient, account, options);
     },
 
     name: options.smartAccount.name,

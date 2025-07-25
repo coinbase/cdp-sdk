@@ -8,21 +8,23 @@ import { transferWithViem } from "../../actions/evm/transfer/transferWithViem.js
 import { Analytics } from "../../analytics.js";
 
 import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js";
-import type { FundOptions } from "../../actions/evm/fund/fund.js";
-import type { QuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
-import type { WaitForFundOperationOptions } from "../../actions/evm/fund/waitForFundOperationReceipt.js";
+import type { EvmFundOptions } from "../../actions/evm/fund/fund.js";
+import type { EvmQuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
 import type { ListTokenBalancesOptions } from "../../actions/evm/listTokenBalances.js";
 import type { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
 import type {
   SendTransactionOptions,
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
+import type { UseSpendPermissionOptions } from "../../actions/evm/spend-permissions/types.js";
 import type { AccountQuoteSwapOptions, AccountSwapOptions } from "../../actions/evm/swap/types.js";
 import type { TransferOptions } from "../../actions/evm/transfer/types.js";
+import type { WaitForFundOperationOptions } from "../../actions/waitForFundOperationReceipt.js";
 import type {
   ListEvmTokenBalancesNetwork,
   SendEvmTransactionBodyNetwork,
 } from "../../openapi-client/index.js";
+import type { SpendPermissionNetworks } from "../../spend-permissions/types.js";
 import type { Address, TransactionRequestEIP1559 } from "../../types/misc.js";
 
 /**
@@ -156,7 +158,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
 
   if (isMethodSupportedOnNetwork("quoteFund", resolvedNetworkName)) {
     Object.assign(account, {
-      quoteFund: async (quoteFundOptions: Omit<QuoteFundOptions, "address">) => {
+      quoteFund: async (quoteFundOptions: Omit<EvmQuoteFundOptions, "address">) => {
         return options.account.quoteFund({
           ...quoteFundOptions,
         });
@@ -166,7 +168,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
 
   if (isMethodSupportedOnNetwork("fund", resolvedNetworkName)) {
     Object.assign(account, {
-      fund: async (fundOptions: Omit<FundOptions, "address">) => {
+      fund: async (fundOptions: Omit<EvmFundOptions, "address">) => {
         return options.account.fund({
           ...fundOptions,
         });
@@ -189,6 +191,19 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
     Object.assign(account, {
       swap: async (swapOptions: AccountSwapOptions) => {
         return options.account.swap(swapOptions);
+      },
+    });
+  }
+
+  if (isMethodSupportedOnNetwork("useSpendPermission", resolvedNetworkName)) {
+    Object.assign(account, {
+      __experimental_useSpendPermission: async (
+        spendPermissionOptions: Omit<UseSpendPermissionOptions, "network">,
+      ) => {
+        return options.account.__experimental_useSpendPermission({
+          ...spendPermissionOptions,
+          network: options.network as SpendPermissionNetworks,
+        });
       },
     });
   }

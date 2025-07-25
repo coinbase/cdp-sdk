@@ -61,6 +61,7 @@ from cdp.openapi_client.models.evm_typed_address_condition import EvmTypedAddres
 from cdp.openapi_client.models.evm_typed_numerical_condition import EvmTypedNumericalCondition
 from cdp.openapi_client.models.evm_typed_string_condition import EvmTypedStringCondition
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
+from cdp.openapi_client.models.evm_user_operation_network import EvmUserOperationNetwork
 from cdp.openapi_client.models.export_evm_account200_response import ExportEvmAccount200Response
 from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.export_solana_account200_response import ExportSolanaAccount200Response
@@ -143,3 +144,5 @@ from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccoun
 from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
+from cdp.openapi_client.models.user_operation_receipt import UserOperationReceipt
+from cdp.openapi_client.models.user_operation_receipt_revert import UserOperationReceiptRevert

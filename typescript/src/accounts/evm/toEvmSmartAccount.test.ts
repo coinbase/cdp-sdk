@@ -14,6 +14,7 @@ import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAc
 import { UserOperation } from "../../client/evm/evm.types.js";
 import { parseUnits } from "viem";
 import { signAndWrapTypedDataForSmartAccount } from "../../actions/evm/signAndWrapTypedDataForSmartAccount.js";
+import { useSpendPermission } from "../../actions/evm/spend-permissions/smartAccount.use.js";
 
 vi.mock("../../actions/evm/transfer/transfer.js", () => ({
   ...vi.importActual("../../actions/evm/transfer/transfer.js"),
@@ -22,6 +23,10 @@ vi.mock("../../actions/evm/transfer/transfer.js", () => ({
 
 vi.mock("../../actions/evm/signAndWrapTypedDataForSmartAccount.js", () => ({
   signAndWrapTypedDataForSmartAccount: vi.fn(),
+}));
+
+vi.mock("../../actions/evm/spend-permissions/smartAccount.use.js", () => ({
+  useSpendPermission: vi.fn().mockResolvedValue({ transactionHash: "0xmocktransactionhash" }),
 }));
 
 describe("toEvmSmartAccount", () => {
@@ -137,6 +142,7 @@ describe("toEvmSmartAccount", () => {
       swap: expect.any(Function),
       signTypedData: expect.any(Function),
       useNetwork: expect.any(Function),
+      __experimental_useSpendPermission: expect.any(Function),
     });
   });
 
@@ -288,6 +294,45 @@ describe("toEvmSmartAccount", () => {
     });
 
     expect(mockApiClient.getPaymentTransfer).toHaveBeenCalledWith("0xmocktransferid");
+  });
+
+  it("should call useSpendPermission action when calling useSpendPermission", async () => {
+    const smartAccount = toEvmSmartAccount(mockApiClient, {
+      smartAccount: mockSmartAccount,
+      owner: mockOwner,
+    });
+
+    await smartAccount.__experimental_useSpendPermission({
+      spendPermission: {
+        account: mockAddress,
+        spender: mockAddress,
+        token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        allowance: parseUnits("0.000001", 6),
+        period: 1000,
+        start: 0,
+        end: 1000,
+        salt: 0n,
+        extraData: "0x",
+      },
+      value: parseUnits("0.000001", 6),
+      network: "base-sepolia",
+    });
+
+    expect(useSpendPermission).toHaveBeenCalledWith(mockApiClient, smartAccount, {
+      spendPermission: {
+        account: mockAddress,
+        spender: mockAddress,
+        token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        allowance: parseUnits("0.000001", 6),
+        period: 1000,
+        start: 0,
+        end: 1000,
+        salt: 0n,
+        extraData: "0x",
+      },
+      value: parseUnits("0.000001", 6),
+      network: "base-sepolia",
+    });
   });
 
   describe("signTypedData", () => {

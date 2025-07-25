@@ -29,7 +29,7 @@ class EvmAddressCriterion(BaseModel):
     A schema for specifying a criterion for the `to` field of an EVM transaction.
     """ # noqa: E501
     type: StrictStr = Field(description="The type of criterion to use. This should be `evmAddress`.")
-    addresses: List[Annotated[str, Field(strict=True)]] = Field(description="A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 100 addresses per criterion.")
+    addresses: List[Annotated[str, Field(strict=True)]] = Field(description="A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 300 addresses per criterion.")
     operator: StrictStr = Field(description="The operator to use for the comparison. The transaction's `to` field will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.")
     __properties: ClassVar[List[str]] = ["type", "addresses", "operator"]
 

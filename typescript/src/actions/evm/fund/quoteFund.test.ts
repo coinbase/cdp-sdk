@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CdpOpenApiClientType } from "../../../openapi-client/index.js";
 import { Address } from "../../../types/misc.js";
 import { parseEther } from "viem";
-import { quoteFund, QuoteFundOptions } from "./quoteFund.js";
+import { quoteFund, EvmQuoteFundOptions } from "./quoteFund.js";
 
 describe("quoteFund", () => {
   const address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" as Address;
@@ -80,7 +80,7 @@ describe("quoteFund", () => {
       createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockEthTransfer }),
     } as unknown as CdpOpenApiClientType;
 
-    const quoteFundArgs: QuoteFundOptions = {
+    const quoteFundArgs: EvmQuoteFundOptions = {
       address: address,
       amount: parseEther("1"),
       token: "eth",
@@ -123,7 +123,7 @@ describe("quoteFund", () => {
       createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockEthTransfer }),
     } as unknown as CdpOpenApiClientType;
 
-    const quoteFundArgs: QuoteFundOptions = {
+    const quoteFundArgs: EvmQuoteFundOptions = {
       address: address,
       amount: parseEther("1"),
       token: "eth",
@@ -166,7 +166,7 @@ describe("quoteFund", () => {
       createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockBaseTransfer }),
     } as unknown as CdpOpenApiClientType;
 
-    const quoteFundArgs: QuoteFundOptions = {
+    const quoteFundArgs: EvmQuoteFundOptions = {
       address: address,
       amount: 1000000n, // 1 USDC
       token: "usdc",
@@ -207,7 +207,7 @@ describe("quoteFund", () => {
       createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockBaseTransfer }),
     } as unknown as CdpOpenApiClientType;
 
-    const quoteFundArgs: QuoteFundOptions = {
+    const quoteFundArgs: EvmQuoteFundOptions = {
       address: address,
       amount: 1000000n, // 1 USDC
       token: "usdc",
@@ -248,7 +248,7 @@ describe("quoteFund", () => {
       createPaymentTransferQuote: vi.fn(),
     } as unknown as CdpOpenApiClientType;
 
-    const quoteFundArgs: QuoteFundOptions = {
+    const quoteFundArgs: EvmQuoteFundOptions = {
       address: address,
       amount: 1000000000000000000n, // 1 ETH
       token: "eth",

@@ -21,19 +21,19 @@ from pydantic import BaseModel, ConfigDict, Field
 from web3 import Web3
 
 from cdp.actions.evm.fund import (
-    FundOptions,
-    QuoteFundOptions,
+    EvmFundOptions,
+    EvmQuoteFundOptions,
     fund,
     quote_fund,
-    wait_for_fund_operation_receipt,
 )
-from cdp.actions.evm.fund.quote import Quote
-from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
 from cdp.actions.evm.swap import AccountSwapOptions
 from cdp.actions.evm.swap.types import AccountSwapResult, QuoteSwapResult
+from cdp.actions.quote import EvmQuote
+from cdp.actions.types import FundOperationResult
+from cdp.actions.wait_for_fund_operation_receipt import wait_for_fund_operation_receipt
 from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
 from cdp.evm_token_balances import ListTokenBalancesResult
@@ -577,7 +577,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
         network: Literal["base", "ethereum"],
         amount: int,
         token: Literal["eth", "usdc"],
-    ) -> Quote:
+    ) -> EvmQuote:
         """Quote a fund operation.
 
         Args:
@@ -586,7 +586,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             token: The token to fund.
 
         Returns:
-            Quote: A quote object containing:
+            EvmQuote: A quote object containing:
                 - quote_id: The ID of the quote
                 - network: The network the quote is for
                 - fiat_amount: The amount in fiat currency
@@ -604,7 +604,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             },
         )
 
-        fund_options = QuoteFundOptions(
+        fund_options = EvmQuoteFundOptions(
             network=network,
             amount=amount,
             token=token,
@@ -660,7 +660,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             },
         )
 
-        fund_options = FundOptions(
+        fund_options = EvmFundOptions(
             network=network,
             amount=amount,
             token=token,

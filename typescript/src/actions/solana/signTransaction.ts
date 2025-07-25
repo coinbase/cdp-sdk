@@ -1,5 +1,12 @@
-import { SignTransactionOptions, SignatureResult } from "../../client/solana/solana.types.js";
+import { SignTransactionOptions } from "../../client/solana/solana.types.js";
 import { CdpOpenApiClientType } from "../../openapi-client/index.js";
+
+export interface SignTransactionResult {
+  /** The signature of the transaction base58 encoded. */
+  signedTransaction: string;
+  /** @deprecated Use signedTransaction instead. */
+  signature: string;
+}
 
 /**
  * Signs a transaction.
@@ -38,7 +45,7 @@ import { CdpOpenApiClientType } from "../../openapi-client/index.js";
 export async function signTransaction(
   apiClient: CdpOpenApiClientType,
   options: SignTransactionOptions,
-): Promise<SignatureResult> {
+): Promise<SignTransactionResult> {
   const signature = await apiClient.signSolanaTransaction(
     options.address,
     {
@@ -48,6 +55,7 @@ export async function signTransaction(
   );
 
   return {
+    signedTransaction: signature.signedTransaction,
     signature: signature.signedTransaction,
   };
 }

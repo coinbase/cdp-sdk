@@ -28,7 +28,7 @@ class EvmTypedAddressCondition(BaseModel):
     """
     A schema for specifying criterion for an address field of an EVM typed message. The address can be deeply nested within the typed data's message.
     """ # noqa: E501
-    addresses: List[Annotated[str, Field(strict=True)]] = Field(description="A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 100 addresses per criterion.")
+    addresses: List[Annotated[str, Field(strict=True)]] = Field(description="A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 300 addresses per criterion.")
     operator: StrictStr = Field(description="The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.")
     path: StrictStr = Field(description="The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected.")
     __properties: ClassVar[List[str]] = ["addresses", "operator", "path"]

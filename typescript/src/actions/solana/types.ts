@@ -1,10 +1,22 @@
 import { TransferOptions } from "./transfer.js";
 import {
   RequestFaucetOptions,
+  SendTransactionOptions,
   SignatureResult,
   SignMessageOptions,
   SignTransactionOptions,
 } from "../../client/solana/solana.types.js";
+import { SolanaQuote } from "../Quote.js";
+import { FundOperationResult } from "../types.js";
+import {
+  WaitForFundOperationOptions,
+  WaitForFundOperationResult,
+} from "../waitForFundOperationReceipt.js";
+import { SolanaFundOptions } from "./fund/fund.js";
+import { SolanaQuoteFundOptions } from "./fund/quoteFund.js";
+import { SendTransactionResult } from "./sendTransaction.js";
+
+import type { SignTransactionResult } from "./signTransaction.js";
 
 export type AccountActions = {
   /**
@@ -79,12 +91,50 @@ export type AccountActions = {
    * const transaction = Buffer.from(serializedTransaction).toString("base64");
    *
    * // When you want to sign a transaction, you can do so by address and base64 encoded transaction
-   * const { signature } = await account.signTransaction({
+   * const { signedTransaction } = await account.signTransaction({
    *   transaction,
    * });
    * ```
    */
-  signTransaction: (options: Omit<SignTransactionOptions, "address">) => Promise<SignatureResult>;
+  signTransaction: (
+    options: Omit<SignTransactionOptions, "address">,
+  ) => Promise<SignTransactionResult>;
+
+  /**
+   * Sends a transaction.
+   *
+   * @param {SendTransactionOptions} options - Parameters for sending the transaction.
+   * @param {string} options.address - The address to send the transaction for.
+   * @param {string} options.transaction - The transaction to send.
+   * @param {string} [options.idempotencyKey] - An idempotency key.
+   *
+   * @returns A promise that resolves to the transaction signature.
+   *
+   * @example
+   * ```ts
+   * // Create a Solana account
+   * const account = await cdp.solana.createAccount();
+   *
+   * // Add your transaction instructions here
+   * const transaction = new Transaction()
+   *
+   * // Make sure to set requireAllSignatures to false, since signing will be done through the API
+   * const serializedTransaction = transaction.serialize({
+   *   requireAllSignatures: false,
+   * });
+   *
+   * // Base64 encode the serialized transaction
+   * const transaction = Buffer.from(serializedTransaction).toString("base64");
+   *
+   * // When you want to sign a transaction, you can do so by address and base64 encoded transaction
+   * const { transactionSignature } = await account.sendTransaction({
+   *   transaction,
+   * });
+   * ```
+   */
+  sendTransaction: (
+    options: Omit<SendTransactionOptions, "address">,
+  ) => Promise<SendTransactionResult>;
 
   /**
    * Transfers SOL or SPL tokens between accounts
@@ -112,4 +162,65 @@ export type AccountActions = {
    * ```
    */
   transfer: (options: Omit<TransferOptions, "from">) => Promise<SignatureResult>;
+
+  /**
+   * Gets a quote to fund a Solana account.
+   *
+   * @param options - The options for the quote fund.
+   * @param options.token - The token to fund the account with.
+   * @param options.amount - The amount of the token to fund represented as an atomic unit.
+   * It's common to use `parseUnits` utils from viem to convert to atomic units.
+   * Otherwise, you can pass atomic units directly.
+   *
+   * @returns A promise that resolves to a Quote object containing details about the funding operation.
+   *
+   * @example
+   * ```ts
+   * const quote = await account.quoteFund({
+   *   token: "usdc",
+   *   amount: 1000000n,
+   * });
+   * ```
+   */
+  quoteFund: (options: Omit<SolanaQuoteFundOptions, "address">) => Promise<SolanaQuote>;
+
+  /**
+   * Funds a Solana account with the specified token amount.
+   *
+   * @param options - The options for the fund operation.
+   * @param options.token - The token to fund the account with (e.g., 'usdc').
+   * @param options.amount - The amount of the token to fund represented as an atomic unit.
+   * It's common to use `parseUnits` utils from viem to convert to atomic units.
+   * Otherwise, you can pass atomic units directly.
+   *
+   * @returns A promise that resolves to the fund operation result containing the transfer details.
+   *
+   * @example
+   * ```ts
+   * const fundOperation = await account.fund({
+   *   token: "usdc",
+   *   amount: 1000000n,
+   * });
+   * ```
+   */
+  fund: (options: Omit<SolanaFundOptions, "address">) => Promise<FundOperationResult>;
+
+  /**
+   * Waits for a fund operation to complete and returns the transfer receipt.
+   *
+   * @param options - The options for the wait for fund operation.
+   * @param options.transferId - The ID of the transfer to wait for.
+   *
+   * @returns A promise that resolves to the completed transfer receipt containing details about the funding operation.
+   *
+   * @example
+   * ```ts
+   * const completedTransfer = await account.waitForFundOperationReceipt({
+   *   transferId: "transfer_123",
+   * });
+   * ```
+   */
+  waitForFundOperationReceipt(
+    options: WaitForFundOperationOptions,
+  ): Promise<WaitForFundOperationResult>;
 };

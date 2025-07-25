@@ -8,7 +8,7 @@ from eth_typing import Hash32
 from hexbytes import HexBytes
 from web3 import Web3
 
-from cdp.actions.evm.fund.quote import Quote
+from cdp.actions.quote import EvmQuote
 from cdp.api_clients import ApiClients
 from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_token_balances import (
@@ -527,7 +527,7 @@ async def test_quote_fund_transfer_usdc_on_base(
     assert call_args["create_payment_transfer_quote_request"].amount == "1"
     assert call_args["create_payment_transfer_quote_request"].currency == "usdc"
 
-    assert isinstance(result, Quote)
+    assert isinstance(result, EvmQuote)
     assert result.quote_id == payment_transfer.id
     assert result.network == "base"
     assert result.token == "usdc"
@@ -577,7 +577,7 @@ async def test_quote_fund_transfer_eth_on_base(
     assert call_args["create_payment_transfer_quote_request"].amount == "1.1"
     assert call_args["create_payment_transfer_quote_request"].currency == "eth"
 
-    assert isinstance(result, Quote)
+    assert isinstance(result, EvmQuote)
     assert result.quote_id == payment_transfer.id
     assert result.network == "base"
     assert result.token == "eth"
@@ -623,7 +623,7 @@ async def test_quote_fund_transfer_usdc_on_ethereum(
     assert call_args["create_payment_transfer_quote_request"].amount == "1"
     assert call_args["create_payment_transfer_quote_request"].currency == "usdc"
 
-    assert isinstance(result, Quote)
+    assert isinstance(result, EvmQuote)
     assert result.quote_id == payment_transfer.id
     assert result.network == "ethereum"
     assert result.token == "usdc"
@@ -673,7 +673,7 @@ async def test_quote_fund_transfer_eth_on_ethereum(
     assert call_args["create_payment_transfer_quote_request"].amount == "1.1"
     assert call_args["create_payment_transfer_quote_request"].currency == "eth"
 
-    assert isinstance(result, Quote)
+    assert isinstance(result, EvmQuote)
     assert result.quote_id == payment_transfer.id
     assert result.network == "ethereum"
     assert result.token == "eth"

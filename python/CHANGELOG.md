@@ -2,6 +2,17 @@
 
 <!-- towncrier release notes start -->
 
+## [1.25.0] - 2025-07-23
+
+### Features
+
+- Added Solana onramp ([#294](https://github.com/coinbase/cdp-sdk/pull/294))
+
+### Bugfixes
+
+- Updated transfer to use SendSolanaTransaction ([#309](https://github.com/coinbase/cdp-sdk/pull/309))
+
+
 ## [1.24.0] - 2025-07-18
 
 ### Features

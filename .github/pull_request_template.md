@@ -51,6 +51,7 @@ A couple of things to include in your PR for completeness:
 - [ ] Updated the [typescript README](https://github.com/coinbase/cdp-sdk/blob/main/typescript/src/README.md) if relevant
 - [ ] Updated the [python README](https://github.com/coinbase/cdp-sdk/blob/main/python/README.md) if relevant
 - [ ] Added a changelog entry
+- [ ] Added e2e tests if introducing new functionality
 
 <!--
 For instructions on adding changelog entries:

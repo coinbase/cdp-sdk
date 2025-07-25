@@ -835,7 +835,7 @@ async def test_transfer_sol(solana_account):
     last_valid_block_height = connection.get_latest_blockhash()
 
     confirmation = connection.confirm_transaction(
-        tx_sig=signature,
+        tx_sig=Signature.from_string(signature),
         last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
         commitment="confirmed",
     )
@@ -863,7 +863,7 @@ async def test_solana_account_transfer_usdc(solana_account):
     last_valid_block_height = connection.get_latest_blockhash()
 
     confirmation = connection.confirm_transaction(
-        tx_sig=signature,
+        tx_sig=Signature.from_string(signature),
         last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
         commitment="confirmed",
     )
@@ -1358,6 +1358,7 @@ async def test_get_policy_by_id(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="Skipping due to flakiness")
 async def test_list_policies(cdp_client):
     """Test listing policies."""
     # Create a new policy

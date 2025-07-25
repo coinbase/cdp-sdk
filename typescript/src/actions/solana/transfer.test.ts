@@ -11,6 +11,7 @@ import {
 import { transfer } from "./transfer.js";
 import { CdpOpenApiClientType } from "../../openapi-client/index.js";
 import { getOrCreateConnection, getConnectedNetwork } from "./utils.js";
+import { sendTransaction } from "./sendTransaction.js";
 
 const mockSerializedTransaction = "MOCK_SERIALIZED_TX_DATA";
 
@@ -31,19 +32,12 @@ vi.mock("@solana/web3.js", async () => {
         data: Buffer.from([]),
       }),
     },
-    TransactionMessage: vi.fn().mockImplementation(() => ({
-      compileToV0Message: vi.fn().mockReturnValue({
-        serialize: vi.fn().mockReturnValue(Buffer.from("mockMessageData")),
-      }),
-    })),
-    VersionedTransaction: vi.fn().mockImplementation(() => ({
+    Transaction: vi.fn().mockImplementation(() => ({
+      add: vi.fn(),
       serialize: vi.fn().mockReturnValue(Buffer.from(mockSerializedTransaction)),
+      recentBlockhash: "",
+      feePayer: null,
     })),
-    MessageV0: {
-      compile: vi.fn().mockReturnValue({
-        serialize: vi.fn().mockReturnValue(Buffer.from("mockMessageData")),
-      }),
-    },
   };
 });
 
@@ -81,6 +75,10 @@ vi.mock("./utils.js", async importActual => ({
   getConnectedNetwork: vi.fn(),
 }));
 
+vi.mock("./sendTransaction.js", () => ({
+  sendTransaction: vi.fn(),
+}));
+
 describe("transfer", () => {
   let mockApiClient: CdpOpenApiClientType;
   let connection: Connection;
@@ -99,10 +97,12 @@ describe("transfer", () => {
     (getConnectedNetwork as any).mockResolvedValue("devnet");
 
     mockApiClient = {
-      signSolanaTransaction: vi.fn().mockResolvedValue({
-        signedTransaction: mockSerializedTransaction,
+      sendSolanaTransaction: vi.fn().mockResolvedValue({
+        transactionSignature: "mockSignature123",
       }),
     } as unknown as CdpOpenApiClientType;
+
+    (sendTransaction as any).mockResolvedValue({ signature: "mockSignature123" });
 
     connection = new Connection("https://api.devnet.solana.com");
   });
@@ -118,19 +118,12 @@ describe("transfer", () => {
       });
 
       expect(result).toEqual({ signature: "mockSignature123" });
-      expect(mockApiClient.signSolanaTransaction).toHaveBeenCalledTimes(1);
-      expect(mockApiClient.signSolanaTransaction).toHaveBeenCalledWith(
-        testFromAddress,
+      expect(sendTransaction).toHaveBeenCalledTimes(1);
+      expect(sendTransaction).toHaveBeenCalledWith(
+        mockApiClient,
         expect.objectContaining({
+          network: "solana-devnet",
           transaction: expect.any(String),
-        }),
-      );
-      expect(connection.sendRawTransaction).toHaveBeenCalledTimes(1);
-      expect(connection.sendRawTransaction).toHaveBeenCalledWith(
-        expect.any(Uint8Array),
-        expect.objectContaining({
-          skipPreflight: false,
-          maxRetries: 3,
         }),
       );
     });
@@ -170,13 +163,12 @@ describe("transfer", () => {
       expect(getAssociatedTokenAddress).toHaveBeenCalledTimes(2);
       expect(getAccount).toHaveBeenCalledTimes(2);
       expect(createTransferCheckedInstruction).toHaveBeenCalledTimes(1);
-      expect(mockApiClient.signSolanaTransaction).toHaveBeenCalledTimes(1);
-      expect(connection.sendRawTransaction).toHaveBeenCalledTimes(1);
-      expect(connection.sendRawTransaction).toHaveBeenCalledWith(
-        expect.any(Uint8Array),
+      expect(sendTransaction).toHaveBeenCalledTimes(1);
+      expect(sendTransaction).toHaveBeenCalledWith(
+        mockApiClient,
         expect.objectContaining({
-          skipPreflight: false,
-          maxRetries: 3,
+          network: "solana-devnet",
+          transaction: expect.any(String),
         }),
       );
     });
@@ -199,6 +191,13 @@ describe("transfer", () => {
         connection,
         new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"), // Mainnet USDC
       );
+      expect(sendTransaction).toHaveBeenCalledWith(
+        mockApiClient,
+        expect.objectContaining({
+          network: "solana",
+          transaction: expect.any(String),
+        }),
+      );
     });
 
     it("should transfer custom SPL token successfully", async () => {
@@ -215,6 +214,13 @@ describe("transfer", () => {
 
       expect(result).toEqual({ signature: "mockSignature123" });
       expect(getMint).toHaveBeenCalledWith(connection, new PublicKey(customMintAddress));
+      expect(sendTransaction).toHaveBeenCalledWith(
+        mockApiClient,
+        expect.objectContaining({
+          network: "solana-devnet",
+          transaction: expect.any(String),
+        }),
+      );
     });
 
     it("should create destination ATA if it doesn't exist", async () => {
@@ -235,6 +241,13 @@ describe("transfer", () => {
       expect(result).toEqual({ signature: "mockSignature123" });
       expect(getAccount).toHaveBeenCalledTimes(2); // Should be called twice now
       expect(createAssociatedTokenAccountInstruction).toHaveBeenCalledTimes(1);
+      expect(sendTransaction).toHaveBeenCalledWith(
+        mockApiClient,
+        expect.objectContaining({
+          network: "solana-devnet",
+          transaction: expect.any(String),
+        }),
+      );
     });
 
     it("should throw error if source account has insufficient balance", async () => {
