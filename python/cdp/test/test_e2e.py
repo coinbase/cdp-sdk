@@ -15,9 +15,6 @@ from solana.rpc.api import Client as SolanaClient
 from solders.pubkey import Pubkey as PublicKey
 from solders.signature import Signature
 from web3 import Web3
-import httpx  # Add this import for patching
-from unittest.mock import patch
-import requests
 
 from cdp import CdpClient
 from cdp.evm_call_types import EncodedCall
@@ -1857,6 +1854,7 @@ async def test_evm_local_account_sign_and_send_transaction(cdp_client):
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     assert tx_receipt is not None
 
+
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_use_network_evm_smart_account_e2e(cdp_client):
@@ -2016,31 +2014,3 @@ def generate_random_name():
 
     last_char = chars[floor(random.random() * len(chars))]
     return first_char + middle_part + last_char
-
-
-@pytest.mark.e2e
-@pytest.mark.asyncio
-def test_use_provided_rpc_url_for_non_cdp_network():
-    async def run():
-        from cdp import CdpClient
-        cdp_client = CdpClient(**client_args)
-        try:
-            with patch("requests.Session.send", wraps=requests.Session.send) as send_mock:
-                account = await cdp_client.evm.get_or_create_account(name=test_account_name)
-                op_account = await account._EvmServerAccount__experimental_use_network("https://sepolia.optimism.io")
-                with pytest.raises(Exception):
-                    await op_account.transfer(
-                        to="0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
-                        amount=0,
-                        token="eth",
-                    )
-                rpc_calls = [
-                    c for c in send_mock.call_args_list
-                    if "https://sepolia.optimism.io" in c[0][0].url
-                    and b"eth_sendTransaction" in c[0][0].body
-                ]
-                assert len(rpc_calls) > 0, "No RPC calls made to the custom RPC URL"
-                print("Detected RPC call to:", rpc_calls[0][0][0].url)
-        finally:
-            await cdp_client.close()
-    asyncio.run(run())

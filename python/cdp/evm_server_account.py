@@ -67,6 +67,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             evm_server_account_model (EvmServerAccountModel): The EVM server account model.
             evm_accounts_api (EVMAccountsApi): The EVM accounts API.
             api_clients (ApiClients): The API client.
+
         """
         super().__init__()
         self.__address = evm_server_account_model.address
@@ -119,6 +120,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
         Raises:
             AttributeError: If the signature response is missing required fields
+
         """
         track_action(action="sign_message", account_type="evm_server")
 
@@ -202,6 +204,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             The signed transaction
         Raises:
             ValueError: If the signature response is missing required fields
+
         """
         track_action(action="sign_transaction", account_type="evm_server")
 
@@ -280,6 +283,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ...     "token": "usdc",
             ...     "network": "base-sepolia",
             ... })
+
         """
         track_action(
             action="transfer",
@@ -707,11 +711,14 @@ class EvmServerAccount(BaseAccount, BaseModel):
             interval_seconds=interval_seconds,
         )
 
-    async def __experimental_use_network(self, network: str | None = None, rpc_url: str | None = None):
+    async def __experimental_use_network(
+        self, network: str | None = None, rpc_url: str | None = None
+    ):
         """Create a network-scoped version of this account.
 
         Args:
-            network: The network to scope the account to
+            network: The network to scope the account to. If None, the account will be scoped to the network it was created on.
+            rpc_url: The RPC URL to use for the account.
 
         Returns:
             A NetworkScopedEvmServerAccount instance ready for network-specific operations

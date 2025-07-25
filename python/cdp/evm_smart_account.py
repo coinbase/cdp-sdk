@@ -55,6 +55,7 @@ class EvmSmartAccount(BaseModel):
             name (str | None): The name of the smart account.
             policies (list[str] | None): A list of policy ID's that apply to the account.
             api_clients (ApiClients | None): The API client.
+
         """
         super().__init__()
 
@@ -671,7 +672,7 @@ class EvmSmartAccount(BaseModel):
                 "network": network,
             },
         )
-        
+
         from cdp.actions.evm.sign_and_wrap_typed_data_for_smart_account import (
             sign_and_wrap_typed_data_for_smart_account,
         )

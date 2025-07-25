@@ -22,6 +22,7 @@ class ToNetworkScopedEvmServerAccountOptions:
         Args:
             account: The EvmServerAccount that was previously created.
             network: The network to scope the account to, or an RPC URL.
+
         """
         self.account = account
         self.network = network
@@ -165,7 +166,7 @@ class NetworkScopedEvmServerAccount:
                 try:
                     tx_hash = w3.eth.send_transaction(tx)
                 except ValueError as e:
-                    raise Exception(f"Failed to send ETH transfer: {e}")
+                    raise Exception(f"Failed to send ETH transfer: {e}") from e
                 return w3.toHex(tx_hash)
             else:
                 # ERC20 transfer: approve and transfer
@@ -174,25 +175,29 @@ class NetworkScopedEvmServerAccount:
                 nonce = w3.eth.get_transaction_count(from_address)
                 # Approve
                 try:
-                    approve_tx = contract.functions.approve(to, amount).build_transaction({
-                        "from": from_address,
-                        "nonce": nonce,
-                        "gas": 100000,
-                    })
+                    approve_tx = contract.functions.approve(to, amount).build_transaction(
+                        {
+                            "from": from_address,
+                            "nonce": nonce,
+                            "gas": 100000,
+                        }
+                    )
                     approve_hash = w3.eth.send_transaction(approve_tx)
                     w3.eth.wait_for_transaction_receipt(approve_hash)
                 except Exception as e:
-                    raise Exception(f"Failed to approve ERC20 transfer: {e}")
+                    raise Exception(f"Failed to approve ERC20 transfer: {e}") from e
                 # Transfer
                 try:
-                    transfer_tx = contract.functions.transfer(to, amount).build_transaction({
-                        "from": from_address,
-                        "nonce": nonce + 1,
-                        "gas": 100000,
-                    })
+                    transfer_tx = contract.functions.transfer(to, amount).build_transaction(
+                        {
+                            "from": from_address,
+                            "nonce": nonce + 1,
+                            "gas": 100000,
+                        }
+                    )
                     transfer_hash = w3.eth.send_transaction(transfer_tx)
                 except Exception as e:
-                    raise Exception(f"Failed to send ERC20 transfer: {e}")
+                    raise Exception(f"Failed to send ERC20 transfer: {e}") from e
                 return w3.toHex(transfer_hash)
         # Default: managed network (API)
         return await self._evm_server_account.transfer(
@@ -347,6 +352,7 @@ async def to_network_scoped_evm_server_account(
         network=options.network,
     )
 
+
 # Helper: Map known ERC20 tokens to contract addresses per network
 _ERC20_ADDRESS_MAP = {
     "base": {"usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"},
@@ -377,6 +383,7 @@ _ERC20_ABI = [
         "type": "function",
     },
 ]
+
 
 def _get_erc20_address(token: str, network: str) -> str:
     # If token is a contract address, return as is
