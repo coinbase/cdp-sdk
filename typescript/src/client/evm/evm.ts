@@ -77,7 +77,6 @@ import type {
   SendTransactionOptions,
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
-import { SpendPermission } from "../../spend-permissions/types.js";
 
 /**
  * The namespace containing all EVM methods.
@@ -366,31 +365,6 @@ export class EvmClient implements EvmClientInterface {
     Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
 
     return smartAccount;
-  }
-
-  /**
-   * Creates a spend permission for a smart account.
-   *
-   * @param {CreateSpendPermissionOptions} options - Parameters for creating the spend permission.
-   * @param {SpendPermission} options.spendPermission - The spend permission to create.
-   * @param {string} [options.idempotencyKey] - The idempotency key to use for the spend permission.
-   *
-   * @returns A promise that resolves to the spend permission.
-   *
-   * @example
-   * ```ts
-   * const spendPermission = await cdp.evm.createSpendPermission({
-   *   spendPermission,
-   *   network: "base-sepolia",
-   * });
-   * ```
-   */
-  async createSpendPermission(options: CreateSpendPermissionOptions): Promise<UserOperation> {
-    Analytics.trackAction({
-      action: "create_spend_permission",
-    });
-
-    return Promise.resolve(null as any);
   }
 
   /**

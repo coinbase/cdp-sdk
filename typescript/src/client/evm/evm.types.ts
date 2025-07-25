@@ -1,3 +1,5 @@
+import { SpendPermission } from "../../spend-permissions/types.js";
+
 import type {
   EvmAccount as Account,
   EvmServerAccount as ServerAccount,
@@ -26,7 +28,6 @@ import type {
   UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
   UserOperationReceipt,
 } from "../../openapi-client/index.js";
-import { SpendPermission } from "../../spend-permissions/types.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";
 import type { WaitOptions } from "../../utils/wait.js";
@@ -96,7 +97,6 @@ export type EvmClientInterface = Omit<
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
   signTypedData: (options: SignTypedDataOptions) => Promise<SignatureResult>;
   signTransaction: (options: SignTransactionOptions) => Promise<SignatureResult>;
-  createSpendPermission: (options: CreateSpendPermissionOptions) => Promise<UserOperation>;
 };
 
 export type { ServerAccount, SmartAccount };

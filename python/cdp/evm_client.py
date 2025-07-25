@@ -246,6 +246,15 @@ class EvmClient:
                     raise e
             raise e
 
+    async def create_spend_permission(
+        self,
+        spend_permission,
+        network: str,
+        paymaster_url: str | None = None,
+    ) -> EvmUserOperationModel:
+        """Create a spend permission for a smart account. """
+        pass
+
     async def get_account(
         self, address: str | None = None, name: str | None = None
     ) -> EvmServerAccount:
