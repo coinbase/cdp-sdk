@@ -713,7 +713,7 @@ class EvmSmartAccount(BaseModel):
             ```
 
         """
-        from cdp.to_network_scoped_evm_smart_account import NetworkScopedEvmSmartAccount
+        from cdp.network_scoped_evm_smart_account import NetworkScopedEvmSmartAccount
 
         return NetworkScopedEvmSmartAccount(self, network)
 
