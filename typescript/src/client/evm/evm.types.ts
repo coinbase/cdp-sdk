@@ -397,6 +397,8 @@ export interface GetOrCreateSmartAccountOptions {
   name: string;
   /** The owner of the account. */
   owner: Account;
+  /** The flag to enable spend permission. */
+  __experimental_enableSpendPermission?: boolean;
 }
 
 /**
