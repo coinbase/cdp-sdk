@@ -8,5 +8,6 @@ export {
   type UpdatePolicyBody,
 } from "./policies/schema.js";
 export { NetworkError } from "./openapi-client/errors.js";
+export type { SpendPermission } from "./spend-permissions/types.js";
 
-export { parseEther } from "viem";
+export { parseEther, parseUnits } from "viem";

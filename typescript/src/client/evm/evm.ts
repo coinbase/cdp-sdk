@@ -68,6 +68,7 @@ import {
   CdpOpenApiClient,
   EIP712Message as OpenAPIEIP712Message,
 } from "../../openapi-client/index.js";
+import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
 import { Hex } from "../../types/misc.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
@@ -341,9 +342,15 @@ export class EvmClient implements EvmClientInterface {
       accountType: "evm_smart",
     });
 
+    const owners = [options.owner.address];
+
+    if (options.__experimental_enableSpendPermission) {
+      owners.push(SPEND_PERMISSION_MANAGER_ADDRESS);
+    }
+
     const openApiSmartAccount = await CdpOpenApiClient.createEvmSmartAccount(
       {
-        owners: [options.owner.address],
+        owners: owners,
         name: options.name,
       },
       options.idempotencyKey,
