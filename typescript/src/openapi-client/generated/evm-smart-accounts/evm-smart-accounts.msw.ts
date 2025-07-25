@@ -192,6 +192,15 @@ export const getPrepareUserOperationResponseMock = (
     faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
     undefined,
   ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+    })),
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -217,6 +226,15 @@ export const getGetUserOperationResponseMock = (
     faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
     undefined,
   ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+    })),
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -240,6 +258,15 @@ export const getSendUserOperationResponseMock = (
   ] as const),
   transactionHash: faker.helpers.arrayElement([
     faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+    })),
     undefined,
   ]),
   ...overrideResponse,

@@ -51,7 +51,7 @@ class ErrorType(str, Enum):
     GUEST_REGION_FORBIDDEN = 'guest_region_forbidden'
     GUEST_TRANSACTION_LIMIT = 'guest_transaction_limit'
     GUEST_TRANSACTION_COUNT = 'guest_transaction_count'
-    GUEST_PHONE_NUMBER_VERIFICATION_EXPIRED = 'guest_phone_number_verification_expired'
+    PHONE_NUMBER_VERIFICATION_EXPIRED = 'phone_number_verification_expired'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

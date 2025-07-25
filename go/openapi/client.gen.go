@@ -55,31 +55,31 @@ const (
 
 // Defines values for ErrorType.
 const (
-	ErrorTypeAccountLimitExceeded                ErrorType = "account_limit_exceeded"
-	ErrorTypeAlreadyExists                       ErrorType = "already_exists"
-	ErrorTypeBadGateway                          ErrorType = "bad_gateway"
-	ErrorTypeFaucetLimitExceeded                 ErrorType = "faucet_limit_exceeded"
-	ErrorTypeForbidden                           ErrorType = "forbidden"
-	ErrorTypeGuestPermissionDenied               ErrorType = "guest_permission_denied"
-	ErrorTypeGuestPhoneNumberVerificationExpired ErrorType = "guest_phone_number_verification_expired"
-	ErrorTypeGuestRegionForbidden                ErrorType = "guest_region_forbidden"
-	ErrorTypeGuestTransactionCount               ErrorType = "guest_transaction_count"
-	ErrorTypeGuestTransactionLimit               ErrorType = "guest_transaction_limit"
-	ErrorTypeIdempotencyError                    ErrorType = "idempotency_error"
-	ErrorTypeInternalServerError                 ErrorType = "internal_server_error"
-	ErrorTypeInvalidRequest                      ErrorType = "invalid_request"
-	ErrorTypeInvalidSignature                    ErrorType = "invalid_signature"
-	ErrorTypeMalformedTransaction                ErrorType = "malformed_transaction"
-	ErrorTypeNetworkNotTradable                  ErrorType = "network_not_tradable"
-	ErrorTypeNotFound                            ErrorType = "not_found"
-	ErrorTypePaymentMethodRequired               ErrorType = "payment_method_required"
-	ErrorTypePolicyInUse                         ErrorType = "policy_in_use"
-	ErrorTypePolicyViolation                     ErrorType = "policy_violation"
-	ErrorTypeRateLimitExceeded                   ErrorType = "rate_limit_exceeded"
-	ErrorTypeRequestCanceled                     ErrorType = "request_canceled"
-	ErrorTypeServiceUnavailable                  ErrorType = "service_unavailable"
-	ErrorTypeTimedOut                            ErrorType = "timed_out"
-	ErrorTypeUnauthorized                        ErrorType = "unauthorized"
+	ErrorTypeAccountLimitExceeded           ErrorType = "account_limit_exceeded"
+	ErrorTypeAlreadyExists                  ErrorType = "already_exists"
+	ErrorTypeBadGateway                     ErrorType = "bad_gateway"
+	ErrorTypeFaucetLimitExceeded            ErrorType = "faucet_limit_exceeded"
+	ErrorTypeForbidden                      ErrorType = "forbidden"
+	ErrorTypeGuestPermissionDenied          ErrorType = "guest_permission_denied"
+	ErrorTypeGuestRegionForbidden           ErrorType = "guest_region_forbidden"
+	ErrorTypeGuestTransactionCount          ErrorType = "guest_transaction_count"
+	ErrorTypeGuestTransactionLimit          ErrorType = "guest_transaction_limit"
+	ErrorTypeIdempotencyError               ErrorType = "idempotency_error"
+	ErrorTypeInternalServerError            ErrorType = "internal_server_error"
+	ErrorTypeInvalidRequest                 ErrorType = "invalid_request"
+	ErrorTypeInvalidSignature               ErrorType = "invalid_signature"
+	ErrorTypeMalformedTransaction           ErrorType = "malformed_transaction"
+	ErrorTypeNetworkNotTradable             ErrorType = "network_not_tradable"
+	ErrorTypeNotFound                       ErrorType = "not_found"
+	ErrorTypePaymentMethodRequired          ErrorType = "payment_method_required"
+	ErrorTypePhoneNumberVerificationExpired ErrorType = "phone_number_verification_expired"
+	ErrorTypePolicyInUse                    ErrorType = "policy_in_use"
+	ErrorTypePolicyViolation                ErrorType = "policy_violation"
+	ErrorTypeRateLimitExceeded              ErrorType = "rate_limit_exceeded"
+	ErrorTypeRequestCanceled                ErrorType = "request_canceled"
+	ErrorTypeServiceUnavailable             ErrorType = "service_unavailable"
+	ErrorTypeTimedOut                       ErrorType = "timed_out"
+	ErrorTypeUnauthorized                   ErrorType = "unauthorized"
 )
 
 // Defines values for EthValueCriterionOperator.
@@ -995,6 +995,9 @@ type EvmUserOperation struct {
 	// Network The network the user operation is for.
 	Network EvmUserOperationNetwork `json:"network"`
 
+	// Receipts The list of receipts associated with the user operation.
+	Receipts *[]UserOperationReceipt `json:"receipts,omitempty"`
+
 	// Status The status of the user operation.
 	Status EvmUserOperationStatus `json:"status"`
 
@@ -1663,6 +1666,21 @@ type TransferSource struct {
 // TransferTarget The target of the transfer.
 type TransferTarget struct {
 	union json.RawMessage
+}
+
+// UserOperationReceipt The receipt that contains information about the execution of user operation.
+type UserOperationReceipt struct {
+	// Revert The revert data if the user operation has reverted.
+	Revert *UserOperationReceiptRevert `json:"revert,omitempty"`
+}
+
+// UserOperationReceiptRevert The revert data if the user operation has reverted.
+type UserOperationReceiptRevert struct {
+	// Data The 0x-prefixed raw hex string.
+	Data string `json:"data"`
+
+	// Message Human-readable revert reason if able to decode.
+	Message string `json:"message"`
 }
 
 // FromAmount The amount of the `fromToken` to send in atomic units of the token. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.

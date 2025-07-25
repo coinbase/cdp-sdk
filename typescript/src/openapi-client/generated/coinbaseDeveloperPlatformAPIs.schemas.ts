@@ -62,7 +62,7 @@ export const ErrorType = {
   guest_region_forbidden: "guest_region_forbidden",
   guest_transaction_limit: "guest_transaction_limit",
   guest_transaction_count: "guest_transaction_count",
-  guest_phone_number_verification_expired: "guest_phone_number_verification_expired",
+  phone_number_verification_expired: "phone_number_verification_expired",
 } as const;
 
 /**
@@ -185,6 +185,26 @@ export interface EvmCall {
 }
 
 /**
+ * The revert data if the user operation has reverted.
+ */
+export interface UserOperationReceiptRevert {
+  /**
+   * The 0x-prefixed raw hex string.
+   * @pattern ^0x[0-9a-fA-F]*$
+   */
+  data: string;
+  /** Human-readable revert reason if able to decode. */
+  message: string;
+}
+
+/**
+ * The receipt that contains information about the execution of user operation.
+ */
+export interface UserOperationReceipt {
+  revert?: UserOperationReceiptRevert;
+}
+
+/**
  * The status of the user operation.
  */
 export type EvmUserOperationStatus =
@@ -216,6 +236,8 @@ export interface EvmUserOperation {
    * @pattern ^0x[0-9a-fA-F]{64}$|^$
    */
   transactionHash?: string;
+  /** The list of receipts associated with the user operation. */
+  receipts?: UserOperationReceipt[];
 }
 
 /**
