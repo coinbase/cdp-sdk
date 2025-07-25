@@ -18,15 +18,20 @@ import {
   SignMessageOptions,
   SignTransactionOptions,
   SolanaClientInterface,
-  TransactionResult,
   UpdateSolanaAccountOptions,
 } from "./solana.types.js";
 import { toSolanaAccount } from "../../accounts/solana/toSolanaAccount.js";
 import { SolanaAccount } from "../../accounts/solana/types.js";
 import { requestFaucet } from "../../actions/solana/requestFaucet.js";
-import { sendTransaction } from "../../actions/solana/sendTransaction.js";
+import {
+  sendTransaction,
+  type SendTransactionResult,
+} from "../../actions/solana/sendTransaction.js";
 import { signMessage } from "../../actions/solana/signMessage.js";
-import { signTransaction } from "../../actions/solana/signTransaction.js";
+import {
+  signTransaction,
+  type SignTransactionResult,
+} from "../../actions/solana/signTransaction.js";
 import { Analytics } from "../../analytics.js";
 import { ImportAccountPublicRSAKey } from "../../constants.js";
 import { UserInputValidationError } from "../../errors.js";
@@ -485,7 +490,7 @@ export class SolanaClient implements SolanaClientInterface {
    * });
    * ```
    */
-  async signTransaction(options: SignTransactionOptions): Promise<SignatureResult> {
+  async signTransaction(options: SignTransactionOptions): Promise<SignTransactionResult> {
     Analytics.trackAction({
       action: "sign_transaction",
       accountType: "solana",
@@ -546,10 +551,12 @@ export class SolanaClient implements SolanaClientInterface {
       options.update,
       options.idempotencyKey,
     );
+    console.log(openApiAccount);
 
     const account = toSolanaAccount(CdpOpenApiClient, {
       account: openApiAccount,
     });
+    console.log(account);
 
     Analytics.wrapObjectMethodsWithErrorTracking(account);
 
@@ -574,7 +581,7 @@ export class SolanaClient implements SolanaClientInterface {
    * });
    * ```
    */
-  async sendTransaction(options: SendTransactionOptions): Promise<TransactionResult> {
+  async sendTransaction(options: SendTransactionOptions): Promise<SendTransactionResult> {
     Analytics.trackAction({
       action: "send_transaction",
       accountType: "solana",
