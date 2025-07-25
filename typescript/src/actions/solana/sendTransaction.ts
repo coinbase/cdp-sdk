@@ -1,5 +1,12 @@
-import { SendTransactionOptions, TransactionResult } from "../../client/solana/solana.types.js";
+import { SendTransactionOptions } from "../../client/solana/solana.types.js";
 import { CdpOpenApiClientType } from "../../openapi-client/index.js";
+
+export interface SendTransactionResult {
+  /** The signature of the transaction base58 encoded. */
+  transactionSignature: string;
+  /** @deprecated Use transactionSignature instead. */
+  signature: string;
+}
 
 /**
  * Sends a Solana transaction using the Coinbase API.
@@ -23,7 +30,7 @@ import { CdpOpenApiClientType } from "../../openapi-client/index.js";
 export async function sendTransaction(
   apiClient: CdpOpenApiClientType,
   options: SendTransactionOptions,
-): Promise<TransactionResult> {
+): Promise<SendTransactionResult> {
   const signature = await apiClient.sendSolanaTransaction(
     {
       network: options.network,
@@ -33,6 +40,7 @@ export async function sendTransaction(
   );
 
   return {
+    transactionSignature: signature.transactionSignature,
     signature: signature.transactionSignature,
   };
 }

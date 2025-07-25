@@ -60,6 +60,7 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
         quoteFund: expect.any(Function),
         fund: expect.any(Function),
@@ -85,6 +86,7 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
         quoteFund: expect.any(Function),
         fund: expect.any(Function),
@@ -290,6 +292,7 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
         quoteFund: expect.any(Function),
         fund: expect.any(Function),
@@ -311,6 +314,7 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
         quoteFund: expect.any(Function),
         fund: expect.any(Function),
@@ -350,6 +354,7 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
         quoteFund: expect.any(Function),
         fund: expect.any(Function),
@@ -360,6 +365,7 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
         quoteFund: expect.any(Function),
         fund: expect.any(Function),
@@ -387,6 +393,7 @@ describe("SolanaClient", () => {
             requestFaucet: expect.any(Function),
             signMessage: expect.any(Function),
             signTransaction: expect.any(Function),
+            sendTransaction: expect.any(Function),
             transfer: expect.any(Function),
             quoteFund: expect.any(Function),
             fund: expect.any(Function),
@@ -446,7 +453,10 @@ describe("SolanaClient", () => {
         address: "cdpSolanaAccount",
         transaction: "someTransaction",
       });
-      expect(result).toEqual({ signature: "someSignature" });
+      expect(result).toEqual({
+        signature: "someSignature",
+        signedTransaction: "someSignature",
+      });
     });
   });
 
@@ -463,7 +473,10 @@ describe("SolanaClient", () => {
         network: "solana-devnet",
         transaction: "someTransaction",
       });
-      expect(result).toEqual({ signature: "someTransactionSignature" });
+      expect(result).toEqual({
+        transactionSignature: "someTransactionSignature",
+        signature: "someTransactionSignature",
+      });
     });
   });
 
@@ -512,7 +525,10 @@ describe("SolanaClient", () => {
         address: "cdpSolanaAccount",
         transaction: "someTransaction",
       });
-      expect(result).toEqual({ signature: "someSignature" });
+      expect(result).toEqual({
+        signature: "someSignature",
+        signedTransaction: "someSignature",
+      });
     });
   });
 
@@ -544,6 +560,7 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
         quoteFund: expect.any(Function),
         fund: expect.any(Function),
@@ -578,6 +595,7 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
         policies: [policyId],
         quoteFund: expect.any(Function),
@@ -614,6 +632,7 @@ describe("SolanaClient", () => {
         requestFaucet: expect.any(Function),
         signMessage: expect.any(Function),
         signTransaction: expect.any(Function),
+        sendTransaction: expect.any(Function),
         transfer: expect.any(Function),
         quoteFund: expect.any(Function),
         fund: expect.any(Function),
