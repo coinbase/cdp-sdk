@@ -1158,8 +1158,13 @@ describe("CDP Client E2E Tests", () => {
     });
     describe("create spend permission", () => {
       it("should create a spend permission", async () => {
-        const smartAccount = await cdp.evm.createSmartAccount({
-          owner: testAccount,
+        const owner = await cdp.evm.getOrCreateAccount({
+          name: "Spend Permission Owner",
+        });
+
+        const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+          name: "Spend Permission Smart Account",
+          owner,
           __experimental_enableSpendPermission: true,
         });
 
