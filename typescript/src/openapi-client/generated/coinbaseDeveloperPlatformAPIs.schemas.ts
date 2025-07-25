@@ -1751,6 +1751,110 @@ export interface Transfer {
 }
 
 /**
+ * The type of payment method to be used to complete the order.
+ */
+export type OnrampPaymentMethodTypeId =
+  (typeof OnrampPaymentMethodTypeId)[keyof typeof OnrampPaymentMethodTypeId];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampPaymentMethodTypeId = {
+  GUEST_CHECKOUT_APPLE_PAY: "GUEST_CHECKOUT_APPLE_PAY",
+} as const;
+
+/**
+ * The type of fee.
+ */
+export type OnrampOrderFeeType = (typeof OnrampOrderFeeType)[keyof typeof OnrampOrderFeeType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampOrderFeeType = {
+  FEE_TYPE_NETWORK: "FEE_TYPE_NETWORK",
+  FEE_TYPE_EXCHANGE: "FEE_TYPE_EXCHANGE",
+} as const;
+
+/**
+ * A fee associated with an order.
+ */
+export interface OnrampOrderFee {
+  /** The type of fee. */
+  type: OnrampOrderFeeType;
+  /** The amount of the fee. */
+  amount: string;
+  /** The currency of the fee. */
+  currency: string;
+}
+
+/**
+ * The status of an onramp order.
+ */
+export type OnrampOrderStatus = (typeof OnrampOrderStatus)[keyof typeof OnrampOrderStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampOrderStatus = {
+  ONRAMP_ORDER_STATUS_PENDING_AUTH: "ONRAMP_ORDER_STATUS_PENDING_AUTH",
+  ONRAMP_ORDER_STATUS_PENDING_PAYMENT: "ONRAMP_ORDER_STATUS_PENDING_PAYMENT",
+  ONRAMP_ORDER_STATUS_PROCESSING: "ONRAMP_ORDER_STATUS_PROCESSING",
+  ONRAMP_ORDER_STATUS_COMPLETED: "ONRAMP_ORDER_STATUS_COMPLETED",
+  ONRAMP_ORDER_STATUS_FAILED: "ONRAMP_ORDER_STATUS_FAILED",
+} as const;
+
+/**
+ * An Onramp order.
+ */
+export interface OnrampOrder {
+  /** The ID of the onramp order. */
+  orderId: string;
+  /** The total amount of fiat to be paid. */
+  paymentTotal: string;
+  /** The amount of fiat to be converted to crypto. */
+  paymentSubtotal: unknown;
+  /** The fiat currency to be converted to crypto. */
+  paymentCurrency: string;
+  paymentMethod: OnrampPaymentMethodTypeId;
+  /** The amount of crypto to be purchased. */
+  purchaseAmount: string;
+  /** The crypto currency to be purchased. */
+  purchaseCurrency: string;
+  /** The fees associated with the order. */
+  fees: OnrampOrderFee[];
+  /** The exchange rate used to convert fiat to crypto. */
+  exchangeRate: string;
+  /** The destination address to send the crypto to. */
+  destinationAddress: string;
+  /** The network to send the crypto on. */
+  destinationNetwork: string;
+  status: OnrampOrderStatus;
+  /** The transaction hash of the order (only available once crypto has been sent). */
+  txHash?: string;
+  /** The date and time the order was created. */
+  createdAt: string;
+  /** The date and time the order was last updated. */
+  updatedAt: string;
+}
+
+/**
+ * The type of payment link.
+ */
+export type OnrampPaymentLinkType =
+  (typeof OnrampPaymentLinkType)[keyof typeof OnrampPaymentLinkType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampPaymentLinkType = {
+  PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON: "PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON",
+} as const;
+
+/**
+ * A payment link to pay for an order.
+
+Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
+ */
+export interface OnrampPaymentLink {
+  /** The URL to the hosted widget the user should be redirected to, append your own redirect_url query parameter to  this URL to ensure the user is redirected back to your app after the widget completes. */
+  url: string;
+  paymentLinkType: OnrampPaymentLinkType;
+}
+
+/**
  * Internal server error.
  */
 export type InternalServerErrorResponse = Error;
@@ -1779,6 +1883,16 @@ export type IdempotencyErrorResponse = Error;
  * The resource already exists.
  */
 export type AlreadyExistsErrorResponse = Error;
+
+/**
+ * Unauthorized.
+ */
+export type UnauthorizedErrorResponse = Error;
+
+/**
+ * Rate limit exceeded.
+ */
+export type RateLimitExceededResponse = Error;
 
 /**
  * A JWT signed using your Wallet Secret, encoded in base64. Refer to the
@@ -2389,4 +2503,51 @@ export type CreatePaymentTransferQuoteBody = {
 
 export type CreatePaymentTransferQuote201 = {
   transfer: Transfer;
+};
+
+export type CreateOnrampOrderBody = {
+  /** The timestamp of the time the user acknowledged they are accepting the Coinbase service agreement  (https://www.coinbase.com/legal/guest-checkout/us) by using Coinbase Onramp. */
+  agreementAcceptedAt: string;
+  /** The address the purchased crypto will be sent to. */
+  destinationAddress: string;
+  /** The name of the crypto network the purchased currency will be sent on.
+
+Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location. */
+  destinationNetwork: string;
+  /** The email address of the user requesting the onramp transaction. */
+  email: string;
+  /** If true, this API will return a quote without creating any transaction. */
+  isQuote?: boolean;
+  /** Optional partner order reference ID. */
+  partnerOrderRef?: string;
+  /** A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  to perform a sandbox transaction which will allow you to test your integration without any real transfer  of funds.
+
+This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user. */
+  partnerUserRef: string;
+  /** A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount  of the payment currency. */
+  paymentAmount?: string;
+  /** The fiat currency to be converted to crypto. */
+  paymentCurrency: string;
+  paymentMethod: OnrampPaymentMethodTypeId;
+  /** The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
+
+Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for more details on phone number verification requirements and best practices. */
+  phoneNumber: string;
+  /** Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned. */
+  phoneNumberVerifiedAt: string;
+  /** A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter the returned quote will be exclusive of fees i.e. the user will receive this exact  amount of the purchase currency. */
+  purchaseAmount?: string;
+  /** The ticker (e.g. `BTC`, `USDC`) or the UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`) of crypto  asset to be purchased.
+
+Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location. */
+  purchaseCurrency: string;
+};
+
+export type CreateOnrampOrder201 = {
+  order: OnrampOrder;
+  paymentLink?: OnrampPaymentLink;
+};
+
+export type GetOnrampOrderById200 = {
+  order: OnrampOrder;
 };

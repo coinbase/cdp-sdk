@@ -23,6 +23,7 @@ from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
 from cdp.openapi_client.api.evm_swaps_api import EVMSwapsApi
 from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
+from cdp.openapi_client.api.onramp_api import OnrampApi
 from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
@@ -54,6 +55,8 @@ from cdp.openapi_client.models.common_swap_response_issues_balance import Common
 from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccountRequest
 from cdp.openapi_client.models.create_evm_smart_account_request import CreateEvmSmartAccountRequest
 from cdp.openapi_client.models.create_evm_swap_quote_request import CreateEvmSwapQuoteRequest
+from cdp.openapi_client.models.create_onramp_order201_response import CreateOnrampOrder201Response
+from cdp.openapi_client.models.create_onramp_order_request import CreateOnrampOrderRequest
 from cdp.openapi_client.models.create_payment_transfer_quote201_response import CreatePaymentTransferQuote201Response
 from cdp.openapi_client.models.create_payment_transfer_quote_request import CreatePaymentTransferQuoteRequest
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
@@ -92,6 +95,7 @@ from cdp.openapi_client.models.export_evm_account200_response import ExportEvmAc
 from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.export_solana_account200_response import ExportSolanaAccount200Response
 from cdp.openapi_client.models.fee import Fee
+from cdp.openapi_client.models.get_onramp_order_by_id200_response import GetOnrampOrderById200Response
 from cdp.openapi_client.models.get_swap_price_response import GetSwapPriceResponse
 from cdp.openapi_client.models.get_swap_price_response_wrapper import GetSwapPriceResponseWrapper
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
@@ -106,6 +110,12 @@ from cdp.openapi_client.models.list_response import ListResponse
 from cdp.openapi_client.models.list_solana_accounts200_response import ListSolanaAccounts200Response
 from cdp.openapi_client.models.list_solana_token_balances200_response import ListSolanaTokenBalances200Response
 from cdp.openapi_client.models.list_solana_token_balances_network import ListSolanaTokenBalancesNetwork
+from cdp.openapi_client.models.onramp_order import OnrampOrder
+from cdp.openapi_client.models.onramp_order_fee import OnrampOrderFee
+from cdp.openapi_client.models.onramp_order_status import OnrampOrderStatus
+from cdp.openapi_client.models.onramp_payment_link import OnrampPaymentLink
+from cdp.openapi_client.models.onramp_payment_link_type import OnrampPaymentLinkType
+from cdp.openapi_client.models.onramp_payment_method_type_id import OnrampPaymentMethodTypeId
 from cdp.openapi_client.models.payment_method import PaymentMethod
 from cdp.openapi_client.models.payment_method_limits import PaymentMethodLimits
 from cdp.openapi_client.models.payment_method_limits_source_limit import PaymentMethodLimitsSourceLimit

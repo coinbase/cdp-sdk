@@ -92,6 +92,20 @@ tags:
   - name: Faucets
     x-audience: public
     description: The Faucet APIs enable you to request funds on supported test networks. Faucets are for testing purposes and make development easier by providing a source of funds.
+  - name: Onramp
+    x-audience: public
+    description: |-
+      <Note>Currently the v2 Onramp APIs are in private beta and only available to approved partners.</Note>
+
+      The v2 Onramp APIs are an evolution of our existing [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/),  designed to make integrating with Coinbase Onramp simpler and more API driven. These APIs make it possible to build   native feeling onramp experiences in your applications by reducing the reliance on Coinbase UIs as much as possible and keeping users focused on your app.
+
+      The v2 Onramp APIs only cover a subset of onramp use cases decsribed below, for all other use cases please refer to our  [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/).
+
+      ## Supported Use Cases
+
+      #### Apple Pay Onramp API (native iOS apps only)
+
+      This use case allows you to offer a low KYC Apple Pay onramp experience in your app for users that don't have a Coinbase account. Our API returns a URL that renders an Apple Pay button that you can embed in a webview in your app, making the onramp experience feel completely native.
   - name: Payments (Alpha)
     x-audience: public
     description: |-
@@ -4284,6 +4298,206 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/onramp/orders:
+    post:
+      summary: Create an onramp order
+      description: |-
+        Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.
+
+        This API currently only supports the payment method `GUEST_CHECKOUT_APPLE_PAY`, and the payment link returned will only work in native apps. We do not support web integration via iFrames.
+
+        Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for  detailed integration instructions.
+      operationId: createOnrampOrder
+      tags:
+        - Onramp
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                agreementAcceptedAt:
+                  description: The timestamp of the time the user acknowledged they are accepting the Coinbase service agreement  (https://www.coinbase.com/legal/guest-checkout/us) by using Coinbase Onramp.
+                  format: date-time
+                  type: string
+                  example: '2025-04-24T00:00:00Z'
+                destinationAddress:
+                  description: The address the purchased crypto will be sent to.
+                  type: string
+                  example: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
+                destinationNetwork:
+                  description: |-
+                    The name of the crypto network the purchased currency will be sent on.
+
+                    Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
+                  type: string
+                  example: base
+                email:
+                  description: The email address of the user requesting the onramp transaction.
+                  type: string
+                  example: test@example.com
+                isQuote:
+                  description: If true, this API will return a quote without creating any transaction.
+                  type: boolean
+                  default: false
+                partnerOrderRef:
+                  description: Optional partner order reference ID.
+                  type: string
+                  example: order-1234
+                partnerUserRef:
+                  description: |-
+                    A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  to perform a sandbox transaction which will allow you to test your integration without any real transfer  of funds.
+
+                    This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
+                  type: string
+                  example: user-1234
+                paymentAmount:
+                  description: A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount  of the payment currency.
+                  type: string
+                  example: '100.00'
+                paymentCurrency:
+                  description: The fiat currency to be converted to crypto.
+                  type: string
+                  example: USD
+                paymentMethod:
+                  $ref: '#/components/schemas/OnrampPaymentMethodTypeId'
+                phoneNumber:
+                  description: |-
+                    The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
+
+                    Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for more details on phone number verification requirements and best practices.
+                  type: string
+                  example: '+12055555555'
+                phoneNumberVerifiedAt:
+                  description: Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned.
+                  format: date-time
+                  type: string
+                  example: '2025-04-24T00:00:00Z'
+                purchaseAmount:
+                  description: A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter the returned quote will be exclusive of fees i.e. the user will receive this exact  amount of the purchase currency.
+                  type: string
+                  example: '10.000000'
+                purchaseCurrency:
+                  description: |-
+                    The ticker (e.g. `BTC`, `USDC`) or the UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`) of crypto  asset to be purchased.
+
+                    Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
+                  type: string
+                  example: USDC
+              required:
+                - paymentCurrency
+                - purchaseCurrency
+                - paymentMethod
+                - destinationAddress
+                - destinationNetwork
+                - phoneNumber
+                - email
+                - agreementAcceptedAt
+                - phoneNumberVerifiedAt
+                - partnerUserRef
+      responses:
+        '201':
+          description: Successfully created an onramp order.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order:
+                    $ref: '#/components/schemas/OnrampOrder'
+                  paymentLink:
+                    $ref: '#/components/schemas/OnrampPaymentLink'
+                required:
+                  - order
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Missing required params.
+                network_not_tradable:
+                  value:
+                    errorType: network_not_tradable
+                    errorMessage: The selected asset cannot be purchased on the selected network in the user's location.
+                guest_permission_denied:
+                  value:
+                    errorType: guest_permission_denied
+                    errorMessage: The user is not allowed to complete onramp transactions as a guest.
+                guest_region_forbidden:
+                  value:
+                    errorType: guest_region_forbidden
+                    errorMessage: Guest onramp transactions are not allowed in the user's region.
+                guest_transaction_limit:
+                  value:
+                    errorType: guest_transaction_limit
+                    errorMessage: This transaction would exceed the user's weekly guest onramp transaction limit.
+                guest_transaction_count:
+                  value:
+                    errorType: guest_transaction_count
+                    errorMessage: The user has reached the lifetime guest onramp transaction count limit (15).
+                phone_number_verification_expired:
+                  value:
+                    errorType: phone_number_verification_expired
+                    errorMessage: The user's phone number verification has expired. Please re-verify the user's phone number
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v2/onramp/orders/{orderId}:
+    get:
+      summary: Get an onramp order by ID
+      description: Get an onramp order by ID.
+      operationId: getOnrampOrderById
+      tags:
+        - Onramp
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: The ID of the onramp order to retrieve.
+          schema:
+            type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: Successfully retrieved an onramp order.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order:
+                    $ref: '#/components/schemas/OnrampOrder'
+                required:
+                  - order
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Order not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Order with the given ID does not exist.
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     apiKeyAuth:
@@ -6859,6 +7073,149 @@ components:
         createdAt: '2021-01-01T00:00:00Z'
         updatedAt: '2021-01-01T00:00:00Z'
         transactionHash: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+    OnrampPaymentMethodTypeId:
+      type: string
+      description: The type of payment method to be used to complete the order.
+      enum:
+        - GUEST_CHECKOUT_APPLE_PAY
+      example: GUEST_CHECKOUT_APPLE_PAY
+    OnrampOrderFee:
+      type: object
+      description: A fee associated with an order.
+      properties:
+        type:
+          type: string
+          enum:
+            - FEE_TYPE_NETWORK
+            - FEE_TYPE_EXCHANGE
+          description: The type of fee.
+          example: FEE_TYPE_NETWORK
+        amount:
+          type: string
+          description: The amount of the fee.
+          example: '0.95'
+        currency:
+          type: string
+          description: The currency of the fee.
+          example: USDC
+      required:
+        - type
+        - amount
+        - currency
+    OnrampOrderStatus:
+      type: string
+      description: The status of an onramp order.
+      enum:
+        - ONRAMP_ORDER_STATUS_PENDING_AUTH
+        - ONRAMP_ORDER_STATUS_PENDING_PAYMENT
+        - ONRAMP_ORDER_STATUS_PROCESSING
+        - ONRAMP_ORDER_STATUS_COMPLETED
+        - ONRAMP_ORDER_STATUS_FAILED
+      example: ONRAMP_ORDER_STATUS_COMPLETED
+    OnrampOrder:
+      type: object
+      description: An Onramp order.
+      properties:
+        orderId:
+          type: string
+          description: The ID of the onramp order.
+          example: 123e4567-e89b-12d3-a456-426614174000
+        paymentTotal:
+          type: string
+          description: The total amount of fiat to be paid.
+          example: '100'
+        paymentSubtotal:
+          description: The amount of fiat to be converted to crypto.
+          example: '98'
+        paymentCurrency:
+          type: string
+          description: The fiat currency to be converted to crypto.
+          example: USD
+        paymentMethod:
+          $ref: '#/components/schemas/OnrampPaymentMethodTypeId'
+        purchaseAmount:
+          type: string
+          description: The amount of crypto to be purchased.
+          example: '100.000000'
+        purchaseCurrency:
+          type: string
+          description: The crypto currency to be purchased.
+          example: USDC
+        fees:
+          type: array
+          description: The fees associated with the order.
+          items:
+            $ref: '#/components/schemas/OnrampOrderFee'
+          example:
+            - type: FEE_TYPE_EXCHANGE
+              amount: '0.5'
+              currency: USD
+            - type: FEE_TYPE_NETWORK
+              amount: '0.25'
+              currency: USD
+        exchangeRate:
+          type: string
+          description: The exchange rate used to convert fiat to crypto.
+          example: '1'
+        destinationAddress:
+          type: string
+          description: The destination address to send the crypto to.
+          example: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
+        destinationNetwork:
+          type: string
+          description: The network to send the crypto on.
+          example: base
+        status:
+          $ref: '#/components/schemas/OnrampOrderStatus'
+        txHash:
+          type: string
+          description: The transaction hash of the order (only available once crypto has been sent).
+          example: '0x363cd3b3d4f49497cf5076150cd709307b90e9fc897fdd623546ea7b9313cecb'
+        createdAt:
+          type: string
+          description: The date and time the order was created.
+          example: '2025-04-24T00:00:00Z'
+        updatedAt:
+          type: string
+          description: The date and time the order was last updated.
+          example: '2025-04-24T00:00:00Z'
+      required:
+        - orderId
+        - paymentTotal
+        - paymentSubtotal
+        - paymentCurrency
+        - paymentMethod
+        - purchaseAmount
+        - purchaseCurrency
+        - fees
+        - exchangeRate
+        - destinationAddress
+        - destinationNetwork
+        - status
+        - createdAt
+        - updatedAt
+    OnrampPaymentLinkType:
+      type: string
+      description: The type of payment link.
+      enum:
+        - PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON
+      example: PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON
+    OnrampPaymentLink:
+      type: object
+      description: |-
+        A payment link to pay for an order.
+
+        Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
+      properties:
+        url:
+          type: string
+          description: The URL to the hosted widget the user should be redirected to, append your own redirect_url query parameter to  this URL to ensure the user is redirected back to your app after the widget completes.
+          example: https://pay.coinbase.com/v2/api-onramp/apple-pay?sessionToken=MWYwNWQwODktZTZlYy02OTdlLTgzZTYtMTI3NzcyOWJhNjM3
+        paymentLinkType:
+          $ref: '#/components/schemas/OnrampPaymentLinkType'
+      required:
+        - url
+        - paymentLinkType
   responses:
     InternalServerError:
       description: Internal server error.
@@ -6926,6 +7283,28 @@ components:
               value:
                 errorType: already_exists
                 errorMessage: Another request with the same idempotency key is currently processing.
+    UnauthorizedError:
+      description: Unauthorized.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            unauthorized:
+              value:
+                errorType: unauthorized
+                errorMessage: The request is not properly authenticated.
+    RateLimitExceeded:
+      description: Rate limit exceeded.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            rate_limit_exceeded:
+              value:
+                errorType: rate_limit_exceeded
+                errorMessage: Rate limit exceeded.
   parameters:
     XWalletAuth:
       name: X-Wallet-Auth

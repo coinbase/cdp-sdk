@@ -225,6 +225,31 @@ const (
 	ListSolanaTokenBalancesNetworkSolanaDevnet ListSolanaTokenBalancesNetwork = "solana-devnet"
 )
 
+// Defines values for OnrampOrderFeeType.
+const (
+	FEETYPEEXCHANGE OnrampOrderFeeType = "FEE_TYPE_EXCHANGE"
+	FEETYPENETWORK  OnrampOrderFeeType = "FEE_TYPE_NETWORK"
+)
+
+// Defines values for OnrampOrderStatus.
+const (
+	ONRAMPORDERSTATUSCOMPLETED      OnrampOrderStatus = "ONRAMP_ORDER_STATUS_COMPLETED"
+	ONRAMPORDERSTATUSFAILED         OnrampOrderStatus = "ONRAMP_ORDER_STATUS_FAILED"
+	ONRAMPORDERSTATUSPENDINGAUTH    OnrampOrderStatus = "ONRAMP_ORDER_STATUS_PENDING_AUTH"
+	ONRAMPORDERSTATUSPENDINGPAYMENT OnrampOrderStatus = "ONRAMP_ORDER_STATUS_PENDING_PAYMENT"
+	ONRAMPORDERSTATUSPROCESSING     OnrampOrderStatus = "ONRAMP_ORDER_STATUS_PROCESSING"
+)
+
+// Defines values for OnrampPaymentLinkType.
+const (
+	PAYMENTLINKTYPEAPPLEPAYBUTTON OnrampPaymentLinkType = "PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON"
+)
+
+// Defines values for OnrampPaymentMethodTypeId.
+const (
+	GUESTCHECKOUTAPPLEPAY OnrampPaymentMethodTypeId = "GUEST_CHECKOUT_APPLE_PAY"
+)
+
 // Defines values for PaymentMethodType.
 const (
 	Card        PaymentMethodType = "card"
@@ -1124,6 +1149,89 @@ type ListResponse struct {
 // ListSolanaTokenBalancesNetwork The name of the supported Solana networks in human-readable format.
 type ListSolanaTokenBalancesNetwork string
 
+// OnrampOrder An Onramp order.
+type OnrampOrder struct {
+	// CreatedAt The date and time the order was created.
+	CreatedAt string `json:"createdAt"`
+
+	// DestinationAddress The destination address to send the crypto to.
+	DestinationAddress string `json:"destinationAddress"`
+
+	// DestinationNetwork The network to send the crypto on.
+	DestinationNetwork string `json:"destinationNetwork"`
+
+	// ExchangeRate The exchange rate used to convert fiat to crypto.
+	ExchangeRate string `json:"exchangeRate"`
+
+	// Fees The fees associated with the order.
+	Fees []OnrampOrderFee `json:"fees"`
+
+	// OrderId The ID of the onramp order.
+	OrderId string `json:"orderId"`
+
+	// PaymentCurrency The fiat currency to be converted to crypto.
+	PaymentCurrency string `json:"paymentCurrency"`
+
+	// PaymentMethod The type of payment method to be used to complete the order.
+	PaymentMethod OnrampPaymentMethodTypeId `json:"paymentMethod"`
+
+	// PaymentSubtotal The amount of fiat to be converted to crypto.
+	PaymentSubtotal interface{} `json:"paymentSubtotal"`
+
+	// PaymentTotal The total amount of fiat to be paid.
+	PaymentTotal string `json:"paymentTotal"`
+
+	// PurchaseAmount The amount of crypto to be purchased.
+	PurchaseAmount string `json:"purchaseAmount"`
+
+	// PurchaseCurrency The crypto currency to be purchased.
+	PurchaseCurrency string `json:"purchaseCurrency"`
+
+	// Status The status of an onramp order.
+	Status OnrampOrderStatus `json:"status"`
+
+	// TxHash The transaction hash of the order (only available once crypto has been sent).
+	TxHash *string `json:"txHash,omitempty"`
+
+	// UpdatedAt The date and time the order was last updated.
+	UpdatedAt string `json:"updatedAt"`
+}
+
+// OnrampOrderFee A fee associated with an order.
+type OnrampOrderFee struct {
+	// Amount The amount of the fee.
+	Amount string `json:"amount"`
+
+	// Currency The currency of the fee.
+	Currency string `json:"currency"`
+
+	// Type The type of fee.
+	Type OnrampOrderFeeType `json:"type"`
+}
+
+// OnrampOrderFeeType The type of fee.
+type OnrampOrderFeeType string
+
+// OnrampOrderStatus The status of an onramp order.
+type OnrampOrderStatus string
+
+// OnrampPaymentLink A payment link to pay for an order.
+//
+// Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
+type OnrampPaymentLink struct {
+	// PaymentLinkType The type of payment link.
+	PaymentLinkType OnrampPaymentLinkType `json:"paymentLinkType"`
+
+	// Url The URL to the hosted widget the user should be redirected to, append your own redirect_url query parameter to  this URL to ensure the user is redirected back to your app after the widget completes.
+	Url string `json:"url"`
+}
+
+// OnrampPaymentLinkType The type of payment link.
+type OnrampPaymentLinkType string
+
+// OnrampPaymentMethodTypeId The type of payment method to be used to complete the order.
+type OnrampPaymentMethodTypeId string
+
 // PaymentMethod The fiat payment method object.
 type PaymentMethod struct {
 	// Actions The actions for the payment method.
@@ -1725,8 +1833,14 @@ type InternalServerError = Error
 // PaymentMethodRequiredError An error response including the code for the type of error and a human-readable message describing the error.
 type PaymentMethodRequiredError = Error
 
+// RateLimitExceeded An error response including the code for the type of error and a human-readable message describing the error.
+type RateLimitExceeded = Error
+
 // ServiceUnavailableError An error response including the code for the type of error and a human-readable message describing the error.
 type ServiceUnavailableError = Error
+
+// UnauthorizedError An error response including the code for the type of error and a human-readable message describing the error.
+type UnauthorizedError = Error
 
 // ListEvmAccountsParams defines parameters for ListEvmAccounts.
 type ListEvmAccountsParams struct {
@@ -2066,6 +2180,59 @@ type ListEvmTokenBalancesParams struct {
 
 	// PageToken The token for the next page of balances. Will be empty if there are no more balances to fetch.
 	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// CreateOnrampOrderJSONBody defines parameters for CreateOnrampOrder.
+type CreateOnrampOrderJSONBody struct {
+	// AgreementAcceptedAt The timestamp of the time the user acknowledged they are accepting the Coinbase service agreement  (https://www.coinbase.com/legal/guest-checkout/us) by using Coinbase Onramp.
+	AgreementAcceptedAt time.Time `json:"agreementAcceptedAt"`
+
+	// DestinationAddress The address the purchased crypto will be sent to.
+	DestinationAddress string `json:"destinationAddress"`
+
+	// DestinationNetwork The name of the crypto network the purchased currency will be sent on.
+	//
+	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
+	DestinationNetwork string `json:"destinationNetwork"`
+
+	// Email The email address of the user requesting the onramp transaction.
+	Email string `json:"email"`
+
+	// IsQuote If true, this API will return a quote without creating any transaction.
+	IsQuote *bool `json:"isQuote,omitempty"`
+
+	// PartnerOrderRef Optional partner order reference ID.
+	PartnerOrderRef *string `json:"partnerOrderRef,omitempty"`
+
+	// PartnerUserRef A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  to perform a sandbox transaction which will allow you to test your integration without any real transfer  of funds.
+	//
+	// This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
+	PartnerUserRef string `json:"partnerUserRef"`
+
+	// PaymentAmount A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount  of the payment currency.
+	PaymentAmount *string `json:"paymentAmount,omitempty"`
+
+	// PaymentCurrency The fiat currency to be converted to crypto.
+	PaymentCurrency string `json:"paymentCurrency"`
+
+	// PaymentMethod The type of payment method to be used to complete the order.
+	PaymentMethod OnrampPaymentMethodTypeId `json:"paymentMethod"`
+
+	// PhoneNumber The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
+	//
+	// Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for more details on phone number verification requirements and best practices.
+	PhoneNumber string `json:"phoneNumber"`
+
+	// PhoneNumberVerifiedAt Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned.
+	PhoneNumberVerifiedAt time.Time `json:"phoneNumberVerifiedAt"`
+
+	// PurchaseAmount A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter the returned quote will be exclusive of fees i.e. the user will receive this exact  amount of the purchase currency.
+	PurchaseAmount *string `json:"purchaseAmount,omitempty"`
+
+	// PurchaseCurrency The ticker (e.g. `BTC`, `USDC`) or the UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`) of crypto  asset to be purchased.
+	//
+	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
+	PurchaseCurrency string `json:"purchaseCurrency"`
 }
 
 // GetCryptoRailsParams defines parameters for GetCryptoRails.
@@ -2413,6 +2580,9 @@ type SendUserOperationJSONRequestBody SendUserOperationJSONBody
 
 // CreateEvmSwapQuoteJSONRequestBody defines body for CreateEvmSwapQuote for application/json ContentType.
 type CreateEvmSwapQuoteJSONRequestBody CreateEvmSwapQuoteJSONBody
+
+// CreateOnrampOrderJSONRequestBody defines body for CreateOnrampOrder for application/json ContentType.
+type CreateOnrampOrderJSONRequestBody CreateOnrampOrderJSONBody
 
 // CreatePaymentTransferQuoteJSONRequestBody defines body for CreatePaymentTransferQuote for application/json ContentType.
 type CreatePaymentTransferQuoteJSONRequestBody CreatePaymentTransferQuoteJSONBody
@@ -3928,6 +4098,14 @@ type ClientInterface interface {
 	// ListEvmTokenBalances request
 	ListEvmTokenBalances(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CreateOnrampOrderWithBody request with any body
+	CreateOnrampOrderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateOnrampOrder(ctx context.Context, body CreateOnrampOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetOnrampOrderById request
+	GetOnrampOrderById(ctx context.Context, orderId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetCryptoRails request
 	GetCryptoRails(ctx context.Context, params *GetCryptoRailsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -4504,6 +4682,42 @@ func (c *CDPClient) GetEvmSwapPrice(ctx context.Context, params *GetEvmSwapPrice
 
 func (c *CDPClient) ListEvmTokenBalances(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListEvmTokenBalancesRequest(c.Server, network, address, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateOnrampOrderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOnrampOrderRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateOnrampOrder(ctx context.Context, body CreateOnrampOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOnrampOrderRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetOnrampOrderById(ctx context.Context, orderId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetOnrampOrderByIdRequest(c.Server, orderId)
 	if err != nil {
 		return nil, err
 	}
@@ -6464,6 +6678,80 @@ func NewListEvmTokenBalancesRequest(server string, network ListEvmTokenBalancesN
 	return req, nil
 }
 
+// NewCreateOnrampOrderRequest calls the generic CreateOnrampOrder builder with application/json body
+func NewCreateOnrampOrderRequest(server string, body CreateOnrampOrderJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateOnrampOrderRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateOnrampOrderRequestWithBody generates requests for CreateOnrampOrder with any type of body
+func NewCreateOnrampOrderRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/onramp/orders")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetOnrampOrderByIdRequest generates requests for GetOnrampOrderById
+func NewGetOnrampOrderByIdRequest(server string, orderId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "orderId", runtime.ParamLocationPath, orderId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/onramp/orders/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewGetCryptoRailsRequest generates requests for GetCryptoRails
 func NewGetCryptoRailsRequest(server string, params *GetCryptoRailsParams) (*http.Request, error) {
 	var err error
@@ -7883,6 +8171,14 @@ type ClientWithResponsesInterface interface {
 	// ListEvmTokenBalancesWithResponse request
 	ListEvmTokenBalancesWithResponse(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListEvmTokenBalancesResponse, error)
 
+	// CreateOnrampOrderWithBodyWithResponse request with any body
+	CreateOnrampOrderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error)
+
+	CreateOnrampOrderWithResponse(ctx context.Context, body CreateOnrampOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error)
+
+	// GetOnrampOrderByIdWithResponse request
+	GetOnrampOrderByIdWithResponse(ctx context.Context, orderId string, reqEditors ...RequestEditorFn) (*GetOnrampOrderByIdResponse, error)
+
 	// GetCryptoRailsWithResponse request
 	GetCryptoRailsWithResponse(ctx context.Context, params *GetCryptoRailsParams, reqEditors ...RequestEditorFn) (*GetCryptoRailsResponse, error)
 
@@ -8726,6 +9022,69 @@ func (r ListEvmTokenBalancesResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ListEvmTokenBalancesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateOnrampOrderResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *struct {
+		// Order An Onramp order.
+		Order OnrampOrder `json:"order"`
+
+		// PaymentLink A payment link to pay for an order.
+		//
+		// Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
+		PaymentLink *OnrampPaymentLink `json:"paymentLink,omitempty"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON429 *RateLimitExceeded
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateOnrampOrderResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateOnrampOrderResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetOnrampOrderByIdResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Order An Onramp order.
+		Order OnrampOrder `json:"order"`
+	}
+	JSON401 *UnauthorizedError
+	JSON404 *Error
+	JSON429 *RateLimitExceeded
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetOnrampOrderByIdResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetOnrampOrderByIdResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -9770,6 +10129,32 @@ func (c *ClientWithResponses) ListEvmTokenBalancesWithResponse(ctx context.Conte
 		return nil, err
 	}
 	return ParseListEvmTokenBalancesResponse(rsp)
+}
+
+// CreateOnrampOrderWithBodyWithResponse request with arbitrary body returning *CreateOnrampOrderResponse
+func (c *ClientWithResponses) CreateOnrampOrderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error) {
+	rsp, err := c.CreateOnrampOrderWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateOnrampOrderResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateOnrampOrderWithResponse(ctx context.Context, body CreateOnrampOrderJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error) {
+	rsp, err := c.CreateOnrampOrder(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateOnrampOrderResponse(rsp)
+}
+
+// GetOnrampOrderByIdWithResponse request returning *GetOnrampOrderByIdResponse
+func (c *ClientWithResponses) GetOnrampOrderByIdWithResponse(ctx context.Context, orderId string, reqEditors ...RequestEditorFn) (*GetOnrampOrderByIdResponse, error) {
+	rsp, err := c.GetOnrampOrderById(ctx, orderId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetOnrampOrderByIdResponse(rsp)
 }
 
 // GetCryptoRailsWithResponse request returning *GetCryptoRailsResponse
@@ -11896,6 +12281,125 @@ func ParseListEvmTokenBalancesResponse(rsp *http.Response) (*ListEvmTokenBalance
 			return nil, err
 		}
 		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateOnrampOrderResponse parses an HTTP response from a CreateOnrampOrderWithResponse call
+func ParseCreateOnrampOrderResponse(rsp *http.Response) (*CreateOnrampOrderResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateOnrampOrderResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			// Order An Onramp order.
+			Order OnrampOrder `json:"order"`
+
+			// PaymentLink A payment link to pay for an order.
+			//
+			// Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
+			PaymentLink *OnrampPaymentLink `json:"paymentLink,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest RateLimitExceeded
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetOnrampOrderByIdResponse parses an HTTP response from a GetOnrampOrderByIdWithResponse call
+func ParseGetOnrampOrderByIdResponse(rsp *http.Response) (*GetOnrampOrderByIdResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetOnrampOrderByIdResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Order An Onramp order.
+			Order OnrampOrder `json:"order"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest RateLimitExceeded
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
 
 	}
 
