@@ -33,7 +33,7 @@ response_criterion_mapping = {
         ),
         "evmNetwork": lambda c: EvmNetworkCriterionModel(networks=c.networks, operator=c.operator),
         "evmData": lambda c: EvmDataCriterionModel(
-            abi=c.abi,
+            abi=c.abi.actual_instance,
             conditions=[
                 EvmDataConditionModel(
                     function=cond.function,
@@ -68,7 +68,7 @@ response_criterion_mapping = {
             addresses=c.addresses, operator=c.operator
         ),
         "evmData": lambda c: EvmDataCriterionModel(
-            abi=c.abi,
+            abi=c.abi.actual_instance,
             conditions=[
                 EvmDataConditionModel(
                     function=cond.function,

@@ -3,6 +3,8 @@ from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
 from cdp.openapi_client.models.evm_data_condition import EvmDataCondition as OpenAPIEvmDataCondition
 from cdp.openapi_client.models.evm_data_condition_params_inner import EvmDataConditionParamsInner
 from cdp.openapi_client.models.evm_data_criterion import EvmDataCriterion
+from cdp.openapi_client.models.evm_data_criterion_abi import EvmDataCriterionAbi
+from cdp.openapi_client.models.known_abi_type import KnownAbiType
 from cdp.openapi_client.models.evm_data_parameter_condition import EvmDataParameterCondition
 from cdp.openapi_client.models.evm_data_parameter_condition_list import (
     EvmDataParameterConditionList,
@@ -74,7 +76,13 @@ openapi_criterion_mapping = {
         "evmData": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=EvmDataCriterion(
                 type="evmData",
-                abi=c.abi,
+                abi=EvmDataCriterionAbi(
+                    actual_instance=(
+                        KnownAbiType(c.abi) 
+                        if isinstance(c.abi, str) 
+                        else c.abi
+                    )
+                ),
                 conditions=[
                     OpenAPIEvmDataCondition(
                         function=cond.function,
@@ -122,7 +130,13 @@ openapi_criterion_mapping = {
         "evmData": lambda c: SignEvmTransactionCriteriaInner(
             actual_instance=EvmDataCriterion(
                 type="evmData",
-                abi=c.abi,
+                abi=EvmDataCriterionAbi(
+                    actual_instance=(
+                        KnownAbiType(c.abi) 
+                        if isinstance(c.abi, str) 
+                        else c.abi
+                    )
+                ),
                 conditions=[
                     OpenAPIEvmDataCondition(
                         function=cond.function,
