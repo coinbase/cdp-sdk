@@ -5,6 +5,8 @@ from cdp.evm_local_account import EvmLocalAccount
 from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_smart_account import EvmSmartAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
+from cdp.network_scoped_evm_server_account import NetworkScopedEvmServerAccount
+from cdp.network_scoped_evm_smart_account import NetworkScopedEvmSmartAccount
 from cdp.openapi_client.errors import HttpErrorType, NetworkError
 from cdp.update_account_types import UpdateAccountOptions
 from cdp.utils import parse_units
@@ -19,6 +21,8 @@ __all__ = [
     "FunctionCall",
     "HttpErrorType",
     "NetworkError",
+    "NetworkScopedEvmServerAccount",
+    "NetworkScopedEvmSmartAccount",
     "TransactionRequestEIP1559",
     "UpdateAccountOptions",
     "__version__",

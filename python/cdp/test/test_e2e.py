@@ -1856,6 +1856,33 @@ async def test_evm_local_account_sign_and_send_transaction(cdp_client):
     assert tx_receipt is not None
 
 
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_use_network_evm_smart_account_e2e(cdp_client):
+    """E2E: Test use_network for EvmSmartAccount only."""
+    from eth_account.account import Account
+
+    owner = Account.create()
+    smart_account = await cdp_client.evm.create_smart_account(owner=owner)
+    assert smart_account is not None
+    orig_address = smart_account.address
+    orig_name = smart_account.name
+    orig_policies = smart_account.policies
+
+    network = "base"
+    # Use the use_network method to create a network-scoped smart account
+    network_smart_account = await smart_account.__experimental_use_network__(network)
+
+    assert network_smart_account.address == orig_address
+    assert network_smart_account.name == orig_name
+    assert network_smart_account.policies == orig_policies
+    assert network_smart_account.owner == owner
+    assert network_smart_account.network == network
+
+    balances = await network_smart_account.list_token_balances()
+    assert balances is not None
+
+
 def _get_transaction(address: str, to: str | None = None, amount: int | None = None):
     """Help method to create a transaction."""
     from solana.rpc.api import Client as SolanaClient
