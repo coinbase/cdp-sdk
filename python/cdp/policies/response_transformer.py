@@ -2,6 +2,10 @@ from cdp.openapi_client.models.rule import Rule
 from cdp.policies.types import (
     EthValueCriterion as EthValueCriterionModel,
     EvmAddressCriterion as EvmAddressCriterionModel,
+    EvmDataCondition as EvmDataConditionModel,
+    EvmDataCriterion as EvmDataCriterionModel,
+    EvmDataParameterCondition as EvmDataParameterConditionModel,
+    EvmDataParameterConditionList as EvmDataParameterConditionListModel,
     EvmMessageCriterion as EvmMessageCriterionModel,
     EvmNetworkCriterion as EvmNetworkCriterionModel,
     EvmTypedAddressCondition as EvmTypedAddressConditionModel,
@@ -28,11 +32,69 @@ response_criterion_mapping = {
             addresses=c.addresses, operator=c.operator
         ),
         "evmNetwork": lambda c: EvmNetworkCriterionModel(networks=c.networks, operator=c.operator),
+        "evmData": lambda c: EvmDataCriterionModel(
+            abi=c.abi.actual_instance,
+            conditions=[
+                EvmDataConditionModel(
+                    function=cond.function,
+                    params=(
+                        [
+                            (
+                                EvmDataParameterConditionListModel(
+                                    name=param.actual_instance.name,
+                                    operator=param.actual_instance.operator,
+                                    values=param.actual_instance.values,
+                                )
+                                if hasattr(param.actual_instance, "values")
+                                else EvmDataParameterConditionModel(
+                                    name=param.actual_instance.name,
+                                    operator=param.actual_instance.operator,
+                                    value=param.actual_instance.value,
+                                )
+                            )
+                            for param in cond.params
+                        ]
+                        if cond.params
+                        else None
+                    ),
+                )
+                for cond in c.conditions
+            ],
+        ),
     },
     "signEvmTransaction": {
         "ethValue": lambda c: EthValueCriterionModel(ethValue=c.eth_value, operator=c.operator),
         "evmAddress": lambda c: EvmAddressCriterionModel(
             addresses=c.addresses, operator=c.operator
+        ),
+        "evmData": lambda c: EvmDataCriterionModel(
+            abi=c.abi.actual_instance,
+            conditions=[
+                EvmDataConditionModel(
+                    function=cond.function,
+                    params=(
+                        [
+                            (
+                                EvmDataParameterConditionListModel(
+                                    name=param.actual_instance.name,
+                                    operator=param.actual_instance.operator,
+                                    values=param.actual_instance.values,
+                                )
+                                if hasattr(param.actual_instance, "values")
+                                else EvmDataParameterConditionModel(
+                                    name=param.actual_instance.name,
+                                    operator=param.actual_instance.operator,
+                                    value=param.actual_instance.value,
+                                )
+                            )
+                            for param in cond.params
+                        ]
+                        if cond.params
+                        else None
+                    ),
+                )
+                for cond in c.conditions
+            ],
         ),
     },
     "signEvmHash": {},
