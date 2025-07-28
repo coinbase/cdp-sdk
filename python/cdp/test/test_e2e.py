@@ -895,7 +895,6 @@ async def test_evm_get_or_create_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.focus
 async def test_evm_get_or_create_smart_account(cdp_client):
     """Test getting or creating an EVM account."""
     random_name = "".join(
@@ -1890,7 +1889,7 @@ async def test_evm_smart_account_use_spend_permission(cdp_client):
         period=86400,  # 1 day in seconds
         start=0,  # Start immediately
         end=int(time.time()) + 24 * 60 * 60,  # 24 hours from now
-        salt=0,
+        salt=random.randint(0, 2**256 - 1),
         extra_data="0x",
     )
 
@@ -1912,7 +1911,7 @@ async def test_evm_smart_account_use_spend_permission(cdp_client):
     # Use the spend permission
     spend_result = await spender.__experimental_use_spend_permission__(
         spend_permission=spend_permission,
-        value=Web3.to_wei(0.000001, "ether"),  # 0.01 USDC
+        value=Web3.to_wei(0.000001, "ether"),
         network="base-sepolia",
     )
 
@@ -1952,7 +1951,7 @@ async def test_evm_account_use_spend_permission(cdp_client):
         period=86400,  # 1 day in seconds
         start=0,  # Start immediately
         end=int(time.time()) + 24 * 60 * 60,  # 24 hours from now
-        salt=0,
+        salt=random.randint(0, 2**256 - 1),
         extra_data="0x",
     )
 
