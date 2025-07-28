@@ -68,7 +68,8 @@ def test_get_auth_headers_missing_wallet_auth(mock_jwt, auth_options_factory):
     [
         ("POST", "/accounts", True),
         ("POST", "/any/123", False),
-        ("PUT", "/accounts/123", False),
+        ("PUT", "/accounts/123", True),
+        ("PUT", "/spend-permissions", True),
         ("PUT", "/any/123", False),
         ("DELETE", "/accounts/123", True),
         ("DELETE", "/any/123", False),

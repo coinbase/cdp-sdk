@@ -53,6 +53,7 @@ from cdp.update_smart_account_types import UpdateSmartAccountOptions
 
 if TYPE_CHECKING:
     from cdp.actions.evm.swap.types import QuoteSwapResult, SwapPriceResult, SwapUnavailableResult
+    from cdp.spend_permissions import SpendPermission
 
 
 class EvmClient:
@@ -191,13 +192,19 @@ class EvmClient:
         raise UserInputValidationError("Either address or name must be provided")
 
     async def create_smart_account(
-        self, owner: BaseAccount, name: str | None = None
+        self,
+        owner: BaseAccount,
+        name: str | None = None,
+        __experimental_enable_spend_permission__: bool = False,
     ) -> EvmSmartAccount:
         """Create an EVM smart account.
 
         Args:
             owner (BaseAccount): The owner of the smart account.
             name (str, optional): The name of the smart account.
+            __experimental_enable_spend_permission (bool, optional):
+                Experimental! This method name will change, and is subject to other breaking changes.
+                The flag to enable spend permission. Defaults to False.
 
         Returns:
             EvmSmartAccount: The EVM smart account.
@@ -205,10 +212,15 @@ class EvmClient:
         """
         track_action(action="create_smart_account", account_type="evm_smart")
 
+        owners = [owner.address]
+
+        if __experimental_enable_spend_permission__:
+            from cdp.spend_permissions import SPEND_PERMISSION_MANAGER_ADDRESS
+
+            owners.append(SPEND_PERMISSION_MANAGER_ADDRESS)
+
         evm_smart_account = await self.api_clients.evm_smart_accounts.create_evm_smart_account(
-            create_evm_smart_account_request=CreateEvmSmartAccountRequest(
-                owners=[owner.address], name=name
-            ),
+            create_evm_smart_account_request=CreateEvmSmartAccountRequest(owners=owners, name=name),
         )
         return EvmSmartAccount(
             evm_smart_account.address,
@@ -218,12 +230,17 @@ class EvmClient:
             self.api_clients,
         )
 
-    async def get_or_create_smart_account(self, owner: BaseAccount, name: str) -> EvmSmartAccount:
+    async def get_or_create_smart_account(
+        self, owner: BaseAccount, name: str, __experimental_enable_spend_permission__: bool = False
+    ) -> EvmSmartAccount:
         """Get an EVM smart account, or create one if it doesn't exist.
 
         Args:
             owner (BaseAccount): The owner of the smart account.
             name (str): The name of the smart account.
+            __experimental_enable_spend_permission (bool, optional):
+                Experimental! This method name will change, and is subject to other breaking changes.
+                The flag to enable spend permission. Defaults to False.
 
         Returns:
             EvmSmartAccount: The EVM smart account.
@@ -237,7 +254,11 @@ class EvmClient:
         except ApiError as e:
             if e.http_code == 404:
                 try:
-                    account = await self.create_smart_account(name=name, owner=owner)
+                    account = await self.create_smart_account(
+                        name=name,
+                        owner=owner,
+                        __experimental_enable_spend_permission__=__experimental_enable_spend_permission__,
+                    )
                     return account
                 except ApiError as e:
                     if e.http_code == 409:
@@ -248,12 +269,66 @@ class EvmClient:
 
     async def create_spend_permission(
         self,
-        spend_permission,
+        spend_permission: "SpendPermission",
         network: str,
         paymaster_url: str | None = None,
+        idempotency_key: str | None = None,
     ) -> EvmUserOperationModel:
-        """Create a spend permission for a smart account."""
-        pass
+        """Create a spend permission for a smart account.
+
+        Args:
+            spend_permission (SpendPermission): The spend permission to create.
+            network (str): The network of the spend permission.
+            paymaster_url (str | None): Optional paymaster URL for gas sponsorship.
+            idempotency_key (str | None): Optional idempotency key.
+
+        Returns:
+            EvmUserOperationModel: The user operation to approve the spend permission.
+
+        Examples:
+            >>> from cdp.spend_permissions import SpendPermission
+            >>>
+            >>> spend_permission = SpendPermission(
+            ...     account=smart_account.address,
+            ...     spender=spender.address,
+            ...     token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            ...     allowance=10**18,  # 1 ETH
+            ...     period=86400,  # 1 day
+            ...     start=0,
+            ...     end=281474976710655,
+            ...     salt=0,
+            ...     extra_data="0x",
+            ... )
+            >>>
+            >>> user_operation = await cdp.evm.create_spend_permission(
+            ...     spend_permission=spend_permission,
+            ...     network="base-sepolia",
+            ... )
+
+        """
+        from cdp.openapi_client.models.create_spend_permission_request import (
+            CreateSpendPermissionRequest,
+        )
+
+        track_action(action="create_spend_permission")
+
+        return await self.api_clients.evm_smart_accounts.create_spend_permission(
+            address=spend_permission.account,
+            create_spend_permission_request=CreateSpendPermissionRequest(
+                account=spend_permission.account,
+                spender=spend_permission.spender,
+                token=spend_permission.token,
+                allowance=str(spend_permission.allowance),
+                period=str(spend_permission.period),
+                start=str(spend_permission.start),
+                end=str(spend_permission.end),
+                salt=str(spend_permission.salt),
+                extra_data=spend_permission.extra_data,
+                network=network,
+                paymaster_url=paymaster_url,
+            ),
+            x_idempotency_key=idempotency_key,
+        )
 
     async def get_account(
         self, address: str | None = None, name: str | None = None

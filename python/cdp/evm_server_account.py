@@ -48,6 +48,7 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
 from cdp.openapi_client.models.transfer import Transfer
+from cdp.spend_permissions import SpendPermission
 
 
 class EvmServerAccount(BaseAccount, BaseModel):
@@ -709,6 +710,70 @@ class EvmServerAccount(BaseAccount, BaseModel):
             transfer_id=transfer_id,
             timeout_seconds=timeout_seconds,
             interval_seconds=interval_seconds,
+        )
+
+    async def __experimental_use_spend_permission__(
+        self,
+        spend_permission: "SpendPermission",
+        value: int,
+        network: str,
+    ) -> str:
+        """Use a spend permission to spend tokens.
+
+        Experimental! This method name will change, and is subject to other breaking changes.
+
+        This allows the account to spend tokens that have been approved via a spend permission.
+
+        Args:
+            spend_permission (SpendPermission): The spend permission object containing authorization details.
+            value (int): The amount to spend (must not exceed the permission's allowance).
+            network (str): The network to execute the transaction on.
+
+        Returns:
+            str: The transaction hash.
+
+        Raises:
+            Exception: If the network doesn't support spend permissions via CDP API.
+
+        Examples:
+            >>> from cdp.spend_permissions import SpendPermission
+            >>>
+            >>> spend_permission = SpendPermission(
+            ...     account="0x1234...",  # Smart account that owns the tokens
+            ...     spender=account.address,  # This account that can spend
+            ...     token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+            ...     allowance=10**18,  # 1 ETH
+            ...     period=86400,  # 1 day
+            ...     start=0,
+            ...     end=281474976710655,
+            ...     salt=0,
+            ...     extra_data="0x",
+            ... )
+            >>>
+            >>> tx_hash = await account.__experimental_use_spend_permission(
+            ...     spend_permission=spend_permission,
+            ...     value=10**17,  # Spend 0.1 ETH
+            ...     network="base-sepolia",
+            ... )
+
+        """
+        from cdp.actions.evm.spend_permissions import account_use_spend_permission
+        from cdp.analytics import track_action
+
+        track_action(
+            action="use_spend_permission",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
+        return await account_use_spend_permission(
+            api_clients=self.__api_clients,
+            address=self.address,
+            spend_permission=spend_permission,
+            value=value,
+            network=network,
         )
 
     def __str__(self) -> str:

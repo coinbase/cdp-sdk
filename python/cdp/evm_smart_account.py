@@ -1,4 +1,4 @@
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, ConfigDict, Field
@@ -32,6 +32,10 @@ from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount as EvmSmartAccountModel
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
 from cdp.openapi_client.models.transfer import Transfer
+
+# Avoid circular imports
+if TYPE_CHECKING:
+    from cdp.spend_permissions import SpendPermission
 
 
 class EvmSmartAccount(BaseModel):
@@ -691,6 +695,73 @@ class EvmSmartAccount(BaseModel):
                 },
                 owner_index=0,  # Only one owner for now
             ),
+        )
+
+    async def __experimental_use_spend_permission__(
+        self,
+        spend_permission: "SpendPermission",
+        value: int,
+        network: str,
+        paymaster_url: str | None = None,
+    ) -> EvmUserOperationModel:
+        """Use a spend permission to spend tokens via user operation.
+
+        Experimental! This method name will change, and is subject to other breaking changes.
+
+        This allows the smart account to spend tokens that have been approved via a spend permission.
+
+        Args:
+            spend_permission (SpendPermission): The spend permission object containing authorization details.
+            value (int): The amount to spend (must not exceed the permission's allowance).
+            network (str): The network to execute the transaction on.
+            paymaster_url (str | None): Optional paymaster URL for gas sponsorship.
+
+        Returns:
+            EvmUserOperation: The user operation result.
+
+        Raises:
+            Exception: If the network doesn't support spend permissions via CDP API.
+
+        Examples:
+            >>> from cdp.spend_permissions import SpendPermission
+            >>>
+            >>> spend_permission = SpendPermission(
+            ...     account="0x1234...",  # Smart account that owns the tokens
+            ...     spender=smart_account.address,  # This smart account that can spend
+            ...     token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
+            ...     allowance=10**18,  # 1 ETH
+            ...     period=86400,  # 1 day
+            ...     start=0,
+            ...     end=281474976710655,
+            ...     salt=0,
+            ...     extra_data="0x",
+            ... )
+            >>>
+            >>> result = await smart_account.__experimental_use_spend_permission(
+            ...     spend_permission=spend_permission,
+            ...     value=10**17,  # Spend 0.1 ETH
+            ...     network="base-sepolia",
+            ... )
+
+        """
+        from cdp.actions.evm.spend_permissions import smart_account_use_spend_permission
+        from cdp.analytics import track_action
+
+        track_action(
+            action="use_spend_permission",
+            account_type="evm_smart",
+            properties={
+                "network": network,
+            },
+        )
+
+        return await smart_account_use_spend_permission(
+            api_clients=self.__api_clients,
+            smart_account=self,
+            spend_permission=spend_permission,
+            value=value,
+            network=network,
+            paymaster_url=paymaster_url,
         )
 
     def __str__(self) -> str:
