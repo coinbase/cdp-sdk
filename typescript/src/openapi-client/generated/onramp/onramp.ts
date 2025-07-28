@@ -20,7 +20,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 This API currently only supports the payment method `GUEST_CHECKOUT_APPLE_PAY`, and the payment link returned will only work in native apps. We do not support web integration via iFrames.
 
-Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for  detailed integration instructions.
+Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for  detailed integration instructions.
  * @summary Create an onramp order
  */
 export const createOnrampOrder = (

@@ -1555,147 +1555,6 @@ export interface SolanaTokenBalance {
 }
 
 /**
- * The version of the x402 protocol.
- */
-export type X402Version = (typeof X402Version)[keyof typeof X402Version];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402Version = {
-  NUMBER_1: 1,
-} as const;
-
-/**
- * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
- */
-export type X402PaymentRequirementsScheme =
-  (typeof X402PaymentRequirementsScheme)[keyof typeof X402PaymentRequirementsScheme];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402PaymentRequirementsScheme = {
-  exact: "exact",
-} as const;
-
-/**
- * The network of the blockchain to send payment on.
- */
-export type X402PaymentRequirementsNetwork =
-  (typeof X402PaymentRequirementsNetwork)[keyof typeof X402PaymentRequirementsNetwork];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402PaymentRequirementsNetwork = {
-  "base-sepolia": "base-sepolia",
-  base: "base",
-} as const;
-
-/**
- * The optional JSON schema describing the resource output.
- */
-export type X402PaymentRequirementsOutputSchema = { [key: string]: unknown };
-
-/**
- * The optional additional scheme-specific payment info.
- */
-export type X402PaymentRequirementsExtra = { [key: string]: unknown };
-
-/**
- * The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
- */
-export interface X402PaymentRequirements {
-  /** The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`. */
-  scheme: X402PaymentRequirementsScheme;
-  /** The network of the blockchain to send payment on. */
-  network: X402PaymentRequirementsNetwork;
-  /** The maximum amount required to pay for the resource in atomic units of the payment asset. */
-  maxAmountRequired: string;
-  /** The URL of the resource to pay for. */
-  resource: string;
-  /** The description of the resource. */
-  description: string;
-  /** The MIME type of the resource response. */
-  mimeType: string;
-  /** The optional JSON schema describing the resource output. */
-  outputSchema?: X402PaymentRequirementsOutputSchema;
-  /**
-   * The destination to pay value to.
-
-For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
-
-For Solana-based networks, payTo will be a base58-encoded Solana address.
-   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
-   */
-  payTo: string;
-  /** The maximum time in seconds for the resource server to respond. */
-  maxTimeoutSeconds: number;
-  /**
-   * The asset to pay with.
-
-For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
-
-For Solana-based networks, the asset will be a base58-encoded Solana address.
-   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
-   */
-  asset: string;
-  /** The optional additional scheme-specific payment info. */
-  extra?: X402PaymentRequirementsExtra;
-}
-
-/**
- * Communication protocol (e.g., "http", "mcp").
- */
-export type X402DiscoveryResourceType =
-  (typeof X402DiscoveryResourceType)[keyof typeof X402DiscoveryResourceType];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402DiscoveryResourceType = {
-  http: "http",
-} as const;
-
-/**
- * Additional metadata as a JSON object.
- */
-export type X402DiscoveryResourceMetadata = { [key: string]: unknown };
-
-/**
- * A single discovered x402 resource.
- */
-export interface X402DiscoveryResource {
-  /** The normalized resource identifier. */
-  resource: string;
-  /** Communication protocol (e.g., "http", "mcp"). */
-  type: X402DiscoveryResourceType;
-  x402Version: X402Version;
-  /** Payment requirements as an array of JSON objects. */
-  accepts?: X402PaymentRequirements[];
-  /** Timestamp of the last update. */
-  lastUpdated: string;
-  /** Additional metadata as a JSON object. */
-  metadata?: X402DiscoveryResourceMetadata;
-}
-
-/**
- * Pagination information for the response.
- */
-export type X402DiscoveryResourcesResponsePagination = {
-  /** The number of discovered x402 resources to return per page. */
-  limit?: number;
-  /** The offset of the first discovered x402 resource to return. */
-  offset?: number;
-  /** The total number of discovered x402 resources. */
-  total?: number;
-};
-
-/**
- * Response containing discovered x402 resources.
- */
-export interface X402DiscoveryResourcesResponse {
-  x402Version: X402Version;
-  /** List of discovered x402 resources. */
-  items: X402DiscoveryResource[];
-  /** Pagination information for the response. */
-  pagination: X402DiscoveryResourcesResponsePagination;
-}
-
-/**
  * The action of the payment method.
  */
 export type PaymentRailAction = (typeof PaymentRailAction)[keyof typeof PaymentRailAction];
@@ -2632,22 +2491,6 @@ export type ListSolanaTokenBalances200AllOf = {
 
 export type ListSolanaTokenBalances200 = ListSolanaTokenBalances200AllOf & ListResponse;
 
-export type ListX402DiscoveryResourcesParams = {
-  /**
- * Filter by protocol type (e.g., "http", "mcp").
-Currently, the only supported protocol type is "http".
- */
-  type?: string;
-  /**
-   * The number of discovered x402 resources to return per page.
-   */
-  limit?: number;
-  /**
-   * The offset of the first discovered x402 resource to return.
-   */
-  offset?: number;
-};
-
 export type GetCryptoRailsParams = {
   /**
    * Comma separated list of networks to filter the rails by.
@@ -2722,11 +2565,11 @@ This value can be used with with [Onramp User Transactions API](https://docs.cdp
   paymentMethod: OnrampPaymentMethodTypeId;
   /** The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
 
-Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for more details on phone number verification requirements and best practices. */
+Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices. */
   phoneNumber: string;
   /** Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned. */
   phoneNumberVerifiedAt: string;
-  /** A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter the returned quote will be exclusive of fees i.e. the user will receive this exact  amount of the purchase currency. */
+  /** A string representing the amount of crypto the user wishes to purchase. When using this parameter the  returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase  currency. */
   purchaseAmount?: string;
   /** The ticker (e.g. `BTC`, `USDC`) or the UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`) of crypto  asset to be purchased.
 

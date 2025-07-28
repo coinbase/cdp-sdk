@@ -28,7 +28,6 @@ from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
 from cdp.openapi_client.api.solana_token_balances_api import SolanaTokenBalancesApi
-from cdp.openapi_client.api.x402_facilitator_api import X402FacilitatorApi
 
 # import ApiClient
 from cdp.openapi_client.api_response import ApiResponse
@@ -184,10 +183,5 @@ from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
 from cdp.openapi_client.models.user_operation_receipt import UserOperationReceipt
 from cdp.openapi_client.models.user_operation_receipt_revert import UserOperationReceiptRevert
-from cdp.openapi_client.models.x402_discovery_resource import X402DiscoveryResource
-from cdp.openapi_client.models.x402_discovery_resources_response import X402DiscoveryResourcesResponse
-from cdp.openapi_client.models.x402_discovery_resources_response_pagination import X402DiscoveryResourcesResponsePagination
-from cdp.openapi_client.models.x402_payment_requirements import X402PaymentRequirements
-from cdp.openapi_client.models.x402_version import X402Version
 
 
