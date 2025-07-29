@@ -764,6 +764,27 @@ class EvmSmartAccount(BaseModel):
             paymaster_url=paymaster_url,
         )
 
+    async def __experimental_use_network__(self, network: str):
+        """Create a network-scoped version of this smart account.
+
+        Args:
+            network: The network to scope the smart account to
+        Returns:
+            A NetworkScopedEvmSmartAccount instance ready for network-specific operations
+        Example:
+            ```python
+            # Create a network-scoped smart account
+            base_smart_account = await smart_account.use_network("base")
+            # Now you can use network-specific methods
+            await base_smart_account.list_token_balances()
+            await base_smart_account.quote_fund(amount=1000000, token="usdc")
+            ```
+
+        """
+        from cdp.network_scoped_evm_smart_account import NetworkScopedEvmSmartAccount
+
+        return NetworkScopedEvmSmartAccount(self, network)
+
     def __str__(self) -> str:
         """Return a string representation of the EthereumAccount object.
 

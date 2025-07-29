@@ -1,3 +1,4 @@
+import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -698,6 +699,33 @@ async def test_fund_transfer_eth_on_base(
     assert result.target_currency == payment_transfer.target_currency
     assert result.status == payment_transfer.status
     assert result.transaction_hash == payment_transfer.transaction_hash
+
+
+@pytest.mark.asyncio
+async def test_use_network(server_account_model_factory):
+    """Test creating a network-scoped account using the use_network method."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    policies = ["policy-1", "policy-2"]
+    network = "base"
+
+    # Create the original account
+    server_account_model = server_account_model_factory(address, name)
+    # Patch policies directly for test
+    server_account_model.policies = policies
+    from cdp.evm_server_account import EvmServerAccount
+
+    dummy_api = object()
+    account = EvmServerAccount(server_account_model, dummy_api, dummy_api)
+
+    # Test the use_network method
+    network_account = asyncio.get_event_loop().run_until_complete(
+        account.__experimental_use_network__(network)
+    )
+
+    assert network_account.address == address
+    assert network_account.network == network
+    assert network_account.rpc_url is None
 
 
 @pytest.mark.asyncio
