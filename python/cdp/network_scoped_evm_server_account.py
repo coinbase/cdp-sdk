@@ -12,6 +12,7 @@ from cdp.network_capabilities import is_method_supported_on_network
 
 class NetworkScopedEvmServerAccount:
     """A network-scoped EVM server account that only exposes methods supported by the network.
+
     Uses dynamic attribute access to match the TypeScript approach.
     Accepts either a network name or an RPC URL for the 'network' parameter. If an RPC URL is provided, it is used as the custom endpoint and network is set to 'custom'.
     """
@@ -102,6 +103,7 @@ class NetworkScopedEvmServerAccount:
         idempotency_key: str | None = None,
     ) -> str:
         """Send a transaction using the API for managed networks, or directly via web3.py for custom RPC on non-managed networks.
+
         Only support sending raw signed tx hex string for custom RPC. Do not handle private key signing here.
         """
         if self._web3:
@@ -253,7 +255,7 @@ class NetworkScopedEvmServerAccount:
                 if time() - start > timeout_seconds:
                     raise TimeoutError("Timeout waiting for transaction receipt.")
                 await asyncio.sleep(interval_seconds)
-            
+
     async def _network_scoped_list_token_balances(
         self,
         page_size: int | None = None,

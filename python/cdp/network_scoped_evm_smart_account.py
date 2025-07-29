@@ -13,6 +13,7 @@ from cdp.network_capabilities import is_method_supported_on_network
 
 class NetworkScopedEvmSmartAccount:
     """A network-scoped EVM smart account that only exposes methods supported by the network.
+
     Uses dynamic attribute access to match the TypeScript approach.
     """
 

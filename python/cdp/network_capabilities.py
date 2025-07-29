@@ -1,4 +1,5 @@
 """Centralized configuration for network capabilities.
+
 This defines which methods are available on which networks.
 """
 
@@ -161,10 +162,12 @@ NETWORK_CAPABILITIES = {
 
 def get_networks_supporting_method(method: MethodName) -> list[NetworkName]:
     """Get networks that support a specific method.
+
     Args:
         method: The method name to check support for
     Returns:
         An array of network names that support the method
+
     """
     return [
         network for network, config in NETWORK_CAPABILITIES.items() if config.get(method, False)
@@ -173,11 +176,13 @@ def get_networks_supporting_method(method: MethodName) -> list[NetworkName]:
 
 def is_method_supported_on_network(method: MethodName, network: str) -> bool:
     """Check if a network supports a method.
+
     Args:
         method: The method name to check
         network: The network name to check
     Returns:
         True if the network supports the method, False otherwise
+
     """
     network_config = NETWORK_CAPABILITIES.get(network)
     return network_config.get(method, False) if network_config else False

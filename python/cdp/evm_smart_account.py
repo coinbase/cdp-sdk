@@ -763,9 +763,10 @@ class EvmSmartAccount(BaseModel):
             network=network,
             paymaster_url=paymaster_url,
         )
-    
+
     async def __experimental_use_network__(self, network: str):
         """Create a network-scoped version of this smart account.
+
         Args:
             network: The network to scope the smart account to
         Returns:
@@ -778,6 +779,7 @@ class EvmSmartAccount(BaseModel):
             await base_smart_account.list_token_balances()
             await base_smart_account.quote_fund(amount=1000000, token="usdc")
             ```
+
         """
         from cdp.network_scoped_evm_smart_account import NetworkScopedEvmSmartAccount
 

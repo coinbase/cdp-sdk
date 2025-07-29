@@ -716,9 +716,11 @@ class EvmServerAccount(BaseAccount, BaseModel):
         self, network: str | None = None, rpc_url: str | None = None
     ):
         """Create a network-scoped version of this account.
+
         Args:
             network: The network to scope the account to. If None, the account will be scoped to the network it was created on.
             rpc_url: The RPC URL to use for the account.
+
         Returns:
             A NetworkScopedEvmServerAccount instance ready for network-specific operations
         Example:
@@ -729,6 +731,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             await base_account.list_token_balances()
             await base_account.quote_fund(amount=1000000, token="usdc")
             ```
+
         """
         from cdp.network_scoped_evm_server_account import NetworkScopedEvmServerAccount
 
