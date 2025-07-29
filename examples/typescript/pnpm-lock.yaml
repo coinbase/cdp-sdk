@@ -46,6 +46,9 @@ importers:
       axios:
         specifier: ^1.8.2
         version: 1.8.4
+      axios-retry:
+        specifier: ^4.5.0
+        version: 4.5.0(axios@1.8.4)
       jose:
         specifier: ^6.0.8
         version: 6.0.10
@@ -563,6 +566,14 @@ packages:
         integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==,
       }
 
+  axios-retry@4.5.0:
+    resolution:
+      {
+        integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==,
+      }
+    peerDependencies:
+      axios: 0.x || 1.x
+
   axios@1.8.4:
     resolution:
       {
@@ -901,6 +912,13 @@ packages:
       {
         integrity: sha512-NcdALwpXkTm5Zvvbk7owOUSvVvBKDgKP5/ewfXEznmQFfs4ZRmanOeKBTjRVjka3QFoN6XJ+9F3USqfHqTaU5w==,
       }
+
+  is-retry-allowed@2.2.0:
+    resolution:
+      {
+        integrity: sha512-XVm7LOeLpTW4jV19QSH38vkswxoLud8sQ57YwJVTPWdiaI9I8keEhGFpBlslyVsgdQy4Opg8QOLb8YRgsyZiQg==,
+      }
+    engines: { node: ">=10" }
 
   isomorphic-ws@4.0.1:
     resolution:
@@ -1469,6 +1487,11 @@ snapshots:
 
   asynckit@0.4.0: {}
 
+  axios-retry@4.5.0(axios@1.8.4):
+    dependencies:
+      axios: 1.8.4
+      is-retry-allowed: 2.2.0
+
   axios@1.8.4:
     dependencies:
       follow-redirects: 1.15.9
@@ -1668,6 +1691,8 @@ snapshots:
   ieee754@1.2.1: {}
 
   is-buffer@1.1.6: {}
+
+  is-retry-allowed@2.2.0: {}
 
   isomorphic-ws@4.0.1(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10)):
     dependencies:
