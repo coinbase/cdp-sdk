@@ -712,6 +712,28 @@ class EvmServerAccount(BaseAccount, BaseModel):
             interval_seconds=interval_seconds,
         )
 
+    async def __experimental_use_network__(
+        self, network: str | None = None, rpc_url: str | None = None
+    ):
+        """Create a network-scoped version of this account.
+        Args:
+            network: The network to scope the account to. If None, the account will be scoped to the network it was created on.
+            rpc_url: The RPC URL to use for the account.
+        Returns:
+            A NetworkScopedEvmServerAccount instance ready for network-specific operations
+        Example:
+            ```python
+            # Create a network-scoped account
+            base_account = await account.use_network("base")
+            # Now you can use network-specific methods
+            await base_account.list_token_balances()
+            await base_account.quote_fund(amount=1000000, token="usdc")
+            ```
+        """
+        from cdp.network_scoped_evm_server_account import NetworkScopedEvmServerAccount
+
+        return NetworkScopedEvmServerAccount(self, network, rpc_url)
+
     async def __experimental_use_spend_permission__(
         self,
         spend_permission: "SpendPermission",
