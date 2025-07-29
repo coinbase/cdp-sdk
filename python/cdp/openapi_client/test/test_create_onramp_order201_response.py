@@ -38,8 +38,8 @@ class TestCreateOnrampOrder201Response(unittest.TestCase):
             return CreateOnrampOrder201Response(
                 order = cdp.openapi_client.models.onramp_order.OnrampOrder(
                     order_id = '123e4567-e89b-12d3-a456-426614174000', 
-                    payment_total = '100', 
-                    payment_subtotal = 98, 
+                    payment_total = '100.75', 
+                    payment_subtotal = '100', 
                     payment_currency = 'USD', 
                     payment_method = 'GUEST_CHECKOUT_APPLE_PAY', 
                     purchase_amount = '100.000000', 
@@ -60,8 +60,8 @@ class TestCreateOnrampOrder201Response(unittest.TestCase):
             return CreateOnrampOrder201Response(
                 order = cdp.openapi_client.models.onramp_order.OnrampOrder(
                     order_id = '123e4567-e89b-12d3-a456-426614174000', 
-                    payment_total = '100', 
-                    payment_subtotal = 98, 
+                    payment_total = '100.75', 
+                    payment_subtotal = '100', 
                     payment_currency = 'USD', 
                     payment_method = 'GUEST_CHECKOUT_APPLE_PAY', 
                     purchase_amount = '100.000000', 
