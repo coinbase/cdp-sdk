@@ -54,8 +54,5 @@
     "patchedDependencies": {
       "@orval/core@7.6.0": "patches/@orval__core@7.6.0.patch"
     }
-  },
-  "dependencies": {
-    "axios-retry": "^4.5.0"
   }
 }

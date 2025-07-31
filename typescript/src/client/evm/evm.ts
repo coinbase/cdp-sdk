@@ -8,6 +8,7 @@ import {
   CreateSpendPermissionOptions,
   CreateSwapQuoteOptions,
   CreateSwapQuoteResult,
+  EvmClientInterface,
   ExportServerAccountOptions,
   GetOrCreateServerAccountOptions,
   GetOrCreateSmartAccountOptions,
@@ -80,7 +81,7 @@ import type {
 /**
  * The namespace containing all EVM methods.
  */
-export class EvmClient {
+export class EvmClient implements EvmClientInterface {
   /**
    * Creates a new CDP EVM account.
    *
