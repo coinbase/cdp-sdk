@@ -40,6 +40,8 @@ export type EvmClientInterface = Omit<
   | "createEvmAccount" // mapped to createAccount
   | "createEvmSmartAccount" // mapped to createSmartAccount
   | "createSpendPermission" // mapped to createSpendPermission
+  | "listSpendPermissions" // mapped to listSpendPermissions
+  | "revokeSpendPermission" // mapped to revokeSpendPermission
   | "importEvmAccount" // mapped to importAccount
   | "exportEvmAccount" // mapped to exportAccount
   | "exportEvmAccountByName" // mapped to exportAccount
@@ -263,6 +265,28 @@ export interface CreateSwapQuoteResult {
 export interface CreateSpendPermissionOptions {
   /** The spend permission. */
   spendPermission: SpendPermission;
+  /** The network. */
+  network: EvmUserOperationNetwork;
+  /** The paymaster URL. */
+  paymasterUrl?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+}
+
+export interface ListSpendPermissionsOptions {
+  /** The address of the smart account. */
+  address: Address;
+  /** The page size to paginate through the spend permissions. */
+  pageSize?: number;
+  /** The page token to paginate through the spend permissions. */
+  pageToken?: string;
+}
+
+export interface RevokeSpendPermissionOptions {
+  /** The address of the smart account. */
+  address: Address;
+  /** The hash of the spend permission to revoke. */
+  permissionHash: Hex;
   /** The network. */
   network: EvmUserOperationNetwork;
   /** The paymaster URL. */

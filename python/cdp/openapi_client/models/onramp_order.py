@@ -31,14 +31,14 @@ class OnrampOrder(BaseModel):
     An Onramp order.
     """ # noqa: E501
     order_id: StrictStr = Field(description="The ID of the onramp order.", alias="orderId")
-    payment_total: StrictStr = Field(description="The total amount of fiat to be paid.", alias="paymentTotal")
-    payment_subtotal: Optional[Any] = Field(description="The amount of fiat to be converted to crypto.", alias="paymentSubtotal")
+    payment_total: StrictStr = Field(description="The total amount of fiat to be paid, inclusive of any fees.", alias="paymentTotal")
+    payment_subtotal: StrictStr = Field(description="The amount of fiat to be converted to crypto.", alias="paymentSubtotal")
     payment_currency: StrictStr = Field(description="The fiat currency to be converted to crypto.", alias="paymentCurrency")
     payment_method: OnrampPaymentMethodTypeId = Field(alias="paymentMethod")
     purchase_amount: StrictStr = Field(description="The amount of crypto to be purchased.", alias="purchaseAmount")
     purchase_currency: StrictStr = Field(description="The crypto currency to be purchased.", alias="purchaseCurrency")
     fees: List[OnrampOrderFee] = Field(description="The fees associated with the order.")
-    exchange_rate: StrictStr = Field(description="The exchange rate used to convert fiat to crypto.", alias="exchangeRate")
+    exchange_rate: StrictStr = Field(description="The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat.", alias="exchangeRate")
     destination_address: StrictStr = Field(description="The destination address to send the crypto to.", alias="destinationAddress")
     destination_network: StrictStr = Field(description="The network to send the crypto on.", alias="destinationNetwork")
     status: OnrampOrderStatus
@@ -93,11 +93,6 @@ class OnrampOrder(BaseModel):
                 if _item_fees:
                     _items.append(_item_fees.to_dict())
             _dict['fees'] = _items
-        # set to None if payment_subtotal (nullable) is None
-        # and model_fields_set contains the field
-        if self.payment_subtotal is None and "payment_subtotal" in self.model_fields_set:
-            _dict['paymentSubtotal'] = None
-
         return _dict
 
     @classmethod

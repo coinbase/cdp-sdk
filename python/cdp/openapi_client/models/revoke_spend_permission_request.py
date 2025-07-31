@@ -18,22 +18,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.x402_discovery_resource import X402DiscoveryResource
-from cdp.openapi_client.models.x402_discovery_resources_response_pagination import X402DiscoveryResourcesResponsePagination
-from cdp.openapi_client.models.x402_version import X402Version
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
-class X402DiscoveryResourcesResponse(BaseModel):
+class RevokeSpendPermissionRequest(BaseModel):
     """
-    Response containing discovered x402 resources.
+    RevokeSpendPermissionRequest
     """ # noqa: E501
-    x402_version: X402Version = Field(alias="x402Version")
-    items: List[X402DiscoveryResource] = Field(description="List of discovered x402 resources.")
-    pagination: X402DiscoveryResourcesResponsePagination
-    __properties: ClassVar[List[str]] = ["x402Version", "items", "pagination"]
+    network: StrictStr = Field(description="The network of the spend permission.")
+    permission_hash: StrictStr = Field(description="The hash of the spend permission to revoke.", alias="permissionHash")
+    paymaster_url: Optional[StrictStr] = Field(default=None, description="The paymaster URL of the spend permission.", alias="paymasterUrl")
+    __properties: ClassVar[List[str]] = ["network", "permissionHash", "paymasterUrl"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -53,7 +50,7 @@ class X402DiscoveryResourcesResponse(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of X402DiscoveryResourcesResponse from a JSON string"""
+        """Create an instance of RevokeSpendPermissionRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -74,21 +71,11 @@ class X402DiscoveryResourcesResponse(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in items (list)
-        _items = []
-        if self.items:
-            for _item_items in self.items:
-                if _item_items:
-                    _items.append(_item_items.to_dict())
-            _dict['items'] = _items
-        # override the default output from pydantic by calling `to_dict()` of pagination
-        if self.pagination:
-            _dict['pagination'] = self.pagination.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of X402DiscoveryResourcesResponse from a dict"""
+        """Create an instance of RevokeSpendPermissionRequest from a dict"""
         if obj is None:
             return None
 
@@ -96,9 +83,9 @@ class X402DiscoveryResourcesResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "x402Version": obj.get("x402Version"),
-            "items": [X402DiscoveryResource.from_dict(_item) for _item in obj["items"]] if obj.get("items") is not None else None,
-            "pagination": X402DiscoveryResourcesResponsePagination.from_dict(obj["pagination"]) if obj.get("pagination") is not None else None
+            "network": obj.get("network"),
+            "permissionHash": obj.get("permissionHash"),
+            "paymasterUrl": obj.get("paymasterUrl")
         })
         return _obj
 
