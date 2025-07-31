@@ -330,6 +330,14 @@ class EvmClient:
             x_idempotency_key=idempotency_key,
         )
 
+    async def list_spend_permissions(self, address: str) -> ListEvmAccountsResponse:
+        """List spend permissions for a smart account."""
+        pass
+
+    async def revoke_spend_permission(self, address: str, permission_hash: str) -> EvmUserOperationModel:
+        """Revoke a spend permission for a smart account."""
+        pass
+
     async def get_account(
         self, address: str | None = None, name: str | None = None
     ) -> EvmServerAccount:

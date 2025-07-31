@@ -81,7 +81,7 @@ import type {
 /**
  * The namespace containing all EVM methods.
  */
-export class EvmClient implements EvmClientInterface {
+export class EvmClient {
   /**
    * Creates a new CDP EVM account.
    *
