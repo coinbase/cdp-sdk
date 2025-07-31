@@ -273,19 +273,6 @@ export interface CreateSpendPermissionOptions {
   idempotencyKey?: string;
 }
 
-export interface RevokeSpendPermissionOptions {
-  /** The address of the smart account. */
-  address: Address;
-  /** The hash of the spend permission to revoke. */
-  permissionHash: Hex;
-  /** The network. */
-  network: EvmUserOperationNetwork;
-  /** The paymaster URL. */
-  paymasterUrl?: string;
-  /** The idempotency key. */
-  idempotencyKey?: string;
-}
-
 export interface ListSpendPermissionsOptions {
   /** The address of the smart account. */
   address: Address;

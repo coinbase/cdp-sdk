@@ -335,10 +335,10 @@ class EvmClient:
         pass
 
     async def revoke_spend_permission(
-        self, 
-        address: str, 
-        permission_hash: str, 
-        network: str, 
+        self,
+        address: str,
+        permission_hash: str,
+        network: str,
         paymaster_url: str | None = None,
         idempotency_key: str | None = None,
     ) -> EvmUserOperationModel:
@@ -357,9 +357,9 @@ class EvmClient:
         from cdp.openapi_client.models.revoke_spend_permission_request import (
             RevokeSpendPermissionRequest,
         )
-        
+
         track_action(action="revoke_spend_permission")
-        
+
         return await self.api_clients.evm_smart_accounts.revoke_spend_permission(
             address=address,
             revoke_spend_permission_request=RevokeSpendPermissionRequest(
