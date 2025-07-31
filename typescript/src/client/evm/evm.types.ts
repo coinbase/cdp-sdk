@@ -271,6 +271,19 @@ export interface CreateSpendPermissionOptions {
   idempotencyKey?: string;
 }
 
+export interface RevokeSpendPermissionOptions {
+  /** The account to revoke the spend permission for. */
+  account: Hex;
+  /** The hash of the spend permission to revoke. */
+  permissionHash: Hex;
+  /** The network. */
+  network: EvmUserOperationNetwork;
+  /** The paymaster URL. */
+  paymasterUrl?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+}
+
 /**
  * Options for getting a user operation.
  */

@@ -46,7 +46,7 @@ import {
 /**
  * The namespace containing all Solana methods.
  */
-export class SolanaClient implements SolanaClientInterface {
+export class SolanaClient {
   /**
    * Creates a new Solana account.
    *

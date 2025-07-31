@@ -6,6 +6,7 @@ import {
   CreateServerAccountOptions,
   CreateSmartAccountOptions,
   CreateSpendPermissionOptions,
+  RevokeSpendPermissionOptions,
   CreateSwapQuoteOptions,
   CreateSwapQuoteResult,
   EvmClientInterface,
@@ -81,7 +82,7 @@ import type {
 /**
  * The namespace containing all EVM methods.
  */
-export class EvmClient implements EvmClientInterface {
+export class EvmClient {
   /**
    * Creates a new CDP EVM account.
    *
@@ -402,6 +403,29 @@ export class EvmClient implements EvmClientInterface {
         salt: options.spendPermission.salt.toString(),
         extraData: options.spendPermission.extraData,
         network: options.network,
+        paymasterUrl: options.paymasterUrl,
+      },
+      options.idempotencyKey,
+    );
+
+    return {
+      network: userOperation.network,
+      userOpHash: userOperation.userOpHash as Hex,
+      status: userOperation.status,
+      calls: userOperation.calls.map(call => ({
+        to: call.to as Address,
+        value: BigInt(call.value),
+        data: call.data as Hex,
+      })),
+    };
+  }
+
+  async revokeSpendPermission(options: RevokeSpendPermissionOptions): Promise<UserOperation> {
+    const userOperation = await CdpOpenApiClient.revokeSpendPermission(
+      options.account,
+      {
+        network: options.network,
+        permissionHash: options.permissionHash,
         paymasterUrl: options.paymasterUrl,
       },
       options.idempotencyKey,

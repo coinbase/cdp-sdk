@@ -11,37 +11,24 @@ const cdp = new CdpClient({
 });
 
 const owner = await cdp.evm.getOrCreateAccount({
-  name: "MyOwner",
-});
-
+    name: "MyOwner",
+  });
+  
 const smartAccount = await cdp.evm.getOrCreateSmartAccount({
-  name: "MySmartAccount",
-  owner,
-  __experimental_enableSpendPermission: true,
+    name: "MySmartAccount",
+    owner,
+    __experimental_enableSpendPermission: true,
 });
 
-const spender = await cdp.evm.createAccount();
-
-const spendPermission: SpendPermission = {
+const revokeUserOperationResult = await cdp.evm.revokeSpendPermission({
   account: smartAccount.address,
-  spender: spender.address,
-  token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-  allowance: parseEther("0.00001"),
-  period: 86400,
-  start: 0,
-  end: 281474976710655,
-  salt: BigInt(0),
-  extraData: "0x",
-};
-
-const { userOpHash } = await cdp.evm.createSpendPermission({
-  spendPermission,
+  permissionHash: "0xc681bd9cd0f65302746e1d16d1f1902ea08b5ef7f6f229702658b27e0991b089",
   network: "base-sepolia",
 });
 
-const userOperationResult = await cdp.evm.waitForUserOperation({
+const revokeUserOperationReceipt = await cdp.evm.waitForUserOperation({
   smartAccountAddress: smartAccount.address,
-  userOpHash,
+  userOpHash: revokeUserOperationResult.userOpHash,
 });
 
-console.log("User Operation:", userOperationResult);
+console.log("Revoke User Operation:", revokeUserOperationReceipt);
