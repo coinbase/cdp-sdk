@@ -5,6 +5,7 @@ import { type Address, getTypesForEIP712Domain } from "viem";
 import {
   CreateServerAccountOptions,
   CreateSmartAccountOptions,
+  CreateSpendPermissionOptions,
   CreateSwapQuoteOptions,
   CreateSwapQuoteResult,
   EvmClientInterface,
@@ -364,6 +365,58 @@ export class EvmClient implements EvmClientInterface {
     Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
 
     return smartAccount;
+  }
+
+  /**
+   * Creates a spend permission for a smart account.
+   *
+   * @param {CreateSpendPermissionOptions} options - Parameters for creating the spend permission.
+   * @param {SpendPermission} options.spendPermission - The spend permission to create.
+   * @param {string} [options.idempotencyKey] - The idempotency key to use for the spend permission.
+   *
+   * @returns A promise that resolves to the spend permission.
+   *
+   * @example
+   * ```ts
+   * const userOperation = await cdp.evm.createSpendPermission({
+   *   spendPermission,
+   *   network: "base-sepolia",
+   * });
+   * ```
+   */
+  async createSpendPermission(options: CreateSpendPermissionOptions): Promise<UserOperation> {
+    Analytics.trackAction({
+      action: "create_spend_permission",
+    });
+
+    const userOperation = await CdpOpenApiClient.createSpendPermission(
+      options.spendPermission.account,
+      {
+        account: options.spendPermission.account,
+        spender: options.spendPermission.spender,
+        token: options.spendPermission.token,
+        allowance: options.spendPermission.allowance.toString(),
+        period: options.spendPermission.period.toString(),
+        start: options.spendPermission.start.toString(),
+        end: options.spendPermission.end.toString(),
+        salt: options.spendPermission.salt.toString(),
+        extraData: options.spendPermission.extraData,
+        network: options.network,
+        paymasterUrl: options.paymasterUrl,
+      },
+      options.idempotencyKey,
+    );
+
+    return {
+      network: userOperation.network,
+      userOpHash: userOperation.userOpHash as Hex,
+      status: userOperation.status,
+      calls: userOperation.calls.map(call => ({
+        to: call.to as Address,
+        value: BigInt(call.value),
+        data: call.data as Hex,
+      })),
+    };
   }
 
   /**

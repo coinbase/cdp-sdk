@@ -1,5 +1,15 @@
 # CDP SDK Changelog
 
+## 1.30.0
+
+### Minor Changes
+
+- [#326](https://github.com/coinbase/cdp-sdk/pull/326) [`483beb3`](https://github.com/coinbase/cdp-sdk/commit/483beb391063293d4e8f6a0e6c3474aa596b00f9) Thanks [@0xRAG](https://github.com/0xRAG)! - Added sendTransaction method to SolanaAccount
+
+### Patch Changes
+
+- [#326](https://github.com/coinbase/cdp-sdk/pull/326) [`483beb3`](https://github.com/coinbase/cdp-sdk/commit/483beb391063293d4e8f6a0e6c3474aa596b00f9) Thanks [@0xRAG](https://github.com/0xRAG)! - Fixed solana signing methods return type to match the API
+
 ## 1.29.0
 
 ### Minor Changes

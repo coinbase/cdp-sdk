@@ -524,6 +524,36 @@ async def test_create_smart_account(smart_account_model_factory):
 
 
 @pytest.mark.asyncio
+async def test_create_smart_account_with_spend_permission(
+    smart_account_model_factory, local_account_factory
+):
+    """Test creating an EVM smart account with spend permissions enabled."""
+    from cdp.spend_permissions import SPEND_PERMISSION_MANAGER_ADDRESS
+
+    mock_evm_smart_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
+    evm_smart_account_model = smart_account_model_factory()
+    mock_evm_smart_accounts_api.create_evm_smart_account = AsyncMock(
+        return_value=evm_smart_account_model
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+    owner = local_account_factory()
+
+    result = await client.create_smart_account(owner, __experimental_enable_spend_permission__=True)
+
+    mock_evm_smart_accounts_api.create_evm_smart_account.assert_called_once_with(
+        create_evm_smart_account_request=CreateEvmSmartAccountRequest(
+            owners=[owner.address, SPEND_PERMISSION_MANAGER_ADDRESS]
+        )
+    )
+
+    assert result.address == evm_smart_account_model.address
+    assert result.name == evm_smart_account_model.name
+
+
+@pytest.mark.asyncio
 async def test_get_or_create_smart_account(smart_account_model_factory, local_account_factory):
     """Test getting or creating an EVM smart account."""
     mock_evm_smart_accounts_api = AsyncMock()
@@ -1115,6 +1145,7 @@ async def test_get_user_operation():
     mock_user_operation.network = "ethereum"
     mock_user_operation.calls = [AsyncMock(), AsyncMock()]
     mock_user_operation.status = "pending"
+    mock_user_operation.receipts = [{"revert": {"data": "0x", "message": "reverted"}}]
 
     mock_evm_smart_accounts_api.get_user_operation = AsyncMock(return_value=mock_user_operation)
 
@@ -1172,3 +1203,71 @@ async def test_list_token_balances(evm_token_balances_model_factory):
     )
 
     assert result == expected_result
+
+
+@pytest.mark.asyncio
+async def test_create_spend_permission():
+    """Test creating a spend permission."""
+    from cdp.openapi_client.models.create_spend_permission_request import (
+        CreateSpendPermissionRequest,
+    )
+    from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
+    from cdp.spend_permissions import SpendPermission
+
+    mock_evm_smart_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
+
+    # Create mock user operation result
+    mock_user_operation = EvmUserOperation(
+        network="base-sepolia",
+        user_op_hash="0x" + "0" * 64,  # Valid 64 hex character hash
+        status="broadcast",
+        calls=[],  # Empty calls list
+    )
+    mock_evm_smart_accounts_api.create_spend_permission = AsyncMock(
+        return_value=mock_user_operation
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    # Create spend permission
+    spend_permission = SpendPermission(
+        account="0x" + "a" * 40,  # Valid 40 hex character address
+        spender="0x" + "b" * 40,  # Valid 40 hex character address
+        token="0x" + "c" * 40,  # Valid 40 hex character address
+        allowance=1000000,
+        period=86400,
+        start=0,
+        end=1000000000,
+        salt=0,
+        extra_data="0x",
+    )
+
+    result = await client.create_spend_permission(
+        spend_permission=spend_permission,
+        network="base-sepolia",
+        paymaster_url="https://paymaster.example.com",
+        idempotency_key="test-key",
+    )
+
+    # Verify the API was called correctly
+    mock_evm_smart_accounts_api.create_spend_permission.assert_called_once_with(
+        address="0x" + "a" * 40,
+        create_spend_permission_request=CreateSpendPermissionRequest(
+            account="0x" + "a" * 40,
+            spender="0x" + "b" * 40,
+            token="0x" + "c" * 40,
+            allowance="1000000",
+            period="86400",
+            start="0",
+            end="1000000000",
+            salt="0",
+            extra_data="0x",
+            network="base-sepolia",
+            paymaster_url="https://paymaster.example.com",
+        ),
+        x_idempotency_key="test-key",
+    )
+
+    assert result == mock_user_operation

@@ -39,12 +39,15 @@ import { APIError } from "../../openapi-client/errors.js";
 import { ImportAccountPublicRSAKey } from "../../constants.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
+import { parseEther } from "viem";
+import { SpendPermission } from "../../spend-permissions/types.js";
 
 vi.mock("../../openapi-client", () => {
   return {
     CdpOpenApiClient: {
       createEvmAccount: vi.fn(),
       createEvmSmartAccount: vi.fn(),
+      createSpendPermission: vi.fn(),
       getEvmAccount: vi.fn(),
       getEvmAccountByName: vi.fn(),
       getEvmSmartAccount: vi.fn(),
@@ -343,6 +346,60 @@ describe("EvmClient", () => {
     });
   });
 
+  describe("createSpendPermission", () => {
+    it("should create a spend permission", async () => {
+      const spendPermission: SpendPermission = {
+        account: "0x4F49b4B249720Fa384D3510645418208248833a9",
+        spender: "0x75b1929d08f0d97BaaB6d1697408BCfd619Ae03d",
+        token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        allowance: parseEther("0.00001"),
+        period: 86400,
+        start: 0,
+        end: 281474976710655,
+        salt: BigInt(0),
+        extraData: "0x",
+      };
+
+      const openApiUserOperation: OpenApiUserOperation = {
+        network: "base-sepolia" as EvmUserOperationNetwork,
+        userOpHash: "0x123",
+        status: "broadcast",
+        calls: [
+          {
+            to: SPEND_PERMISSION_MANAGER_ADDRESS,
+            value: "0",
+            data: "0x",
+          },
+        ],
+      };
+
+      const userOperation: UserOperation = {
+        network: "base-sepolia" as EvmUserOperationNetwork,
+        userOpHash: "0x123",
+        status: "broadcast",
+        calls: [
+          {
+            to: SPEND_PERMISSION_MANAGER_ADDRESS,
+            value: 0n,
+            data: "0x",
+          },
+        ],
+      };
+
+      const createSpendPermissionMock = CdpOpenApiClient.createSpendPermission as MockedFunction<
+        typeof CdpOpenApiClient.createSpendPermission
+      >;
+      createSpendPermissionMock.mockResolvedValue(openApiUserOperation);
+
+      const result = await client.createSpendPermission({
+        spendPermission,
+        network: "base-sepolia",
+      });
+
+      expect(result).toStrictEqual(userOperation);
+    });
+  });
+
   describe("getAccount", () => {
     it("should return a server account", async () => {
       const account = { address: "0x123" };
@@ -623,6 +680,7 @@ describe("EvmClient", () => {
       };
       const userOpHash = "0xhash";
       const transactionHash = "0xtransactionhash" as Hex;
+      const receipts = [{ revert: { data: "0x", message: "reverted" } }];
 
       const openApiUserOp: OpenApiUserOperation = {
         calls: [],
@@ -630,6 +688,7 @@ describe("EvmClient", () => {
         status: "broadcast",
         transactionHash,
         userOpHash,
+        receipts: receipts,
       };
       const userOp: UserOperation = {
         calls: [],
@@ -637,6 +696,7 @@ describe("EvmClient", () => {
         status: "broadcast",
         transactionHash,
         userOpHash,
+        receipts: receipts,
       };
 
       const getUserOperationMock = CdpOpenApiClient.getUserOperation as MockedFunction<

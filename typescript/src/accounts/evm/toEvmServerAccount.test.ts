@@ -10,6 +10,7 @@ import { TransferOptions } from "../../actions/evm/transfer/types.js";
 import { sendSwapTransaction } from "../../actions/evm/swap/sendSwapTransaction.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { AccountSwapOptions } from "../../actions/evm/swap/types.js";
+import { useSpendPermission } from "../../actions/evm/spend-permissions/account.use.js";
 
 vi.mock("viem", async () => {
   const actual = await vi.importActual("viem");
@@ -58,6 +59,10 @@ vi.mock("../../actions/evm/swap/createSwapQuote.js", () => ({
     permit2: undefined,
     execute: vi.fn(),
   }),
+}));
+
+vi.mock("../../actions/evm/spend-permissions/account.use.js", () => ({
+  useSpendPermission: vi.fn().mockResolvedValue({ transactionHash: "0xmocktransactionhash" }),
 }));
 
 vi.mock("./resolveViemClients.js", () => ({
@@ -172,6 +177,7 @@ describe("toEvmServerAccount", () => {
       type: "evm-server",
       waitForFundOperationReceipt: expect.any(Function),
       useNetwork: expect.any(Function),
+      __experimental_useSpendPermission: expect.any(Function),
     });
   });
 
@@ -481,5 +487,39 @@ describe("toEvmServerAccount", () => {
     });
 
     expect(mockApiClient.getPaymentTransfer).toHaveBeenCalledWith("0xmocktransferid");
+  });
+
+  it("should call useSpendPermission action when useSpendPermission is called", async () => {
+    await serverAccount.__experimental_useSpendPermission({
+      spendPermission: {
+        account: mockAddress,
+        spender: mockAddress,
+        token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        allowance: parseUnits("0.000001", 6),
+        period: 1000,
+        start: 0,
+        end: 1000,
+        salt: 0n,
+        extraData: "0x",
+      },
+      value: parseUnits("0.000001", 6),
+      network: "base-sepolia",
+    });
+
+    expect(useSpendPermission).toHaveBeenCalledWith(mockApiClient, mockAddress, {
+      spendPermission: {
+        account: mockAddress,
+        spender: mockAddress,
+        token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        allowance: parseUnits("0.000001", 6),
+        period: 1000,
+        start: 0,
+        end: 1000,
+        salt: 0n,
+        extraData: "0x",
+      },
+      value: parseUnits("0.000001", 6),
+      network: "base-sepolia",
+    });
   });
 });

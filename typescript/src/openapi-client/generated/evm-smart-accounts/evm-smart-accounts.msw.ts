@@ -14,6 +14,7 @@ import type {
   EvmSmartAccount,
   EvmUserOperation,
   ListEvmSmartAccounts200,
+  ListSpendPermissions200,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 export const getListEvmSmartAccountsResponseMock = (): ListEvmSmartAccounts200 => ({
@@ -192,6 +193,15 @@ export const getPrepareUserOperationResponseMock = (
     faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
     undefined,
   ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+    })),
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -217,6 +227,15 @@ export const getGetUserOperationResponseMock = (
     faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
     undefined,
   ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+    })),
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -240,6 +259,118 @@ export const getSendUserOperationResponseMock = (
   ] as const),
   transactionHash: faker.helpers.arrayElement([
     faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+    })),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
+
+export const getCreateSpendPermissionResponseMock = (
+  overrideResponse: Partial<EvmUserOperation> = {},
+): EvmUserOperation => ({
+  network: faker.helpers.arrayElement(Object.values(EvmUserOperationNetwork)),
+  userOpHash: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$"),
+  calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+    to: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    value: faker.string.alpha(20),
+    data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"),
+  })),
+  status: faker.helpers.arrayElement([
+    "pending",
+    "signed",
+    "broadcast",
+    "complete",
+    "dropped",
+    "failed",
+  ] as const),
+  transactionHash: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+    })),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
+
+export const getListSpendPermissionsResponseMock = (): ListSpendPermissions200 => ({
+  ...{
+    spendPermissions: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      permission: faker.helpers.arrayElement([
+        {
+          account: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
+          spender: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
+          token: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
+          allowance: faker.string.alpha(20),
+          period: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+          start: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+          end: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+          salt: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+          extraData: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+        },
+        undefined,
+      ]),
+      permissionHash: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+      revoked: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
+      revokedAt: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        undefined,
+      ]),
+      createdAt: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        undefined,
+      ]),
+    })),
+  },
+  ...{ nextPageToken: faker.helpers.arrayElement([faker.string.alpha(20), undefined]) },
+});
+
+export const getRevokeSpendPermissionResponseMock = (
+  overrideResponse: Partial<EvmUserOperation> = {},
+): EvmUserOperation => ({
+  network: faker.helpers.arrayElement(Object.values(EvmUserOperationNetwork)),
+  userOpHash: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$"),
+  calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+    to: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    value: faker.string.alpha(20),
+    data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"),
+  })),
+  status: faker.helpers.arrayElement([
+    "pending",
+    "signed",
+    "broadcast",
+    "complete",
+    "dropped",
+    "failed",
+  ] as const),
+  transactionHash: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+    })),
     undefined,
   ]),
   ...overrideResponse,
@@ -431,6 +562,75 @@ export const getSendUserOperationMockHandler = (
     },
   );
 };
+
+export const getCreateSpendPermissionMockHandler = (
+  overrideResponse?:
+    | EvmUserOperation
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<EvmUserOperation> | EvmUserOperation),
+) => {
+  return http.post("*/v2/evm/smart-accounts/:address/spend-permissions", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getCreateSpendPermissionResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getListSpendPermissionsMockHandler = (
+  overrideResponse?:
+    | ListSpendPermissions200
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<ListSpendPermissions200> | ListSpendPermissions200),
+) => {
+  return http.get("*/v2/evm/smart-accounts/:address/spend-permissions/list", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getListSpendPermissionsResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getRevokeSpendPermissionMockHandler = (
+  overrideResponse?:
+    | EvmUserOperation
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<EvmUserOperation> | EvmUserOperation),
+) => {
+  return http.post("*/v2/evm/smart-accounts/:address/spend-permissions/revoke", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getRevokeSpendPermissionResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 export const getEvmSmartAccountsMock = () => [
   getListEvmSmartAccountsMockHandler(),
   getCreateEvmSmartAccountMockHandler(),
@@ -440,4 +640,7 @@ export const getEvmSmartAccountsMock = () => [
   getPrepareUserOperationMockHandler(),
   getGetUserOperationMockHandler(),
   getSendUserOperationMockHandler(),
+  getCreateSpendPermissionMockHandler(),
+  getListSpendPermissionsMockHandler(),
+  getRevokeSpendPermissionMockHandler(),
 ];

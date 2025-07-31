@@ -62,7 +62,7 @@ export const ErrorType = {
   guest_region_forbidden: "guest_region_forbidden",
   guest_transaction_limit: "guest_transaction_limit",
   guest_transaction_count: "guest_transaction_count",
-  guest_phone_number_verification_expired: "guest_phone_number_verification_expired",
+  phone_number_verification_expired: "phone_number_verification_expired",
 } as const;
 
 /**
@@ -185,6 +185,26 @@ export interface EvmCall {
 }
 
 /**
+ * The revert data if the user operation has reverted.
+ */
+export interface UserOperationReceiptRevert {
+  /**
+   * The 0x-prefixed raw hex string.
+   * @pattern ^0x[0-9a-fA-F]*$
+   */
+  data: string;
+  /** Human-readable revert reason if able to decode. */
+  message: string;
+}
+
+/**
+ * The receipt that contains information about the execution of user operation.
+ */
+export interface UserOperationReceipt {
+  revert?: UserOperationReceiptRevert;
+}
+
+/**
  * The status of the user operation.
  */
 export type EvmUserOperationStatus =
@@ -216,6 +236,96 @@ export interface EvmUserOperation {
    * @pattern ^0x[0-9a-fA-F]{64}$|^$
    */
   transactionHash?: string;
+  /** The list of receipts associated with the user operation. */
+  receipts?: UserOperationReceipt[];
+}
+
+export interface CreateSpendPermissionRequest {
+  /** The network of the spend permission. */
+  network: string;
+  /**
+   * Smart account this spend permission is valid for.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  account: string;
+  /**
+   * Entity that can spend account's tokens.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  spender: string;
+  /**
+   * Token address (ERC-7528 native token address or ERC-20 contract).
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  token: string;
+  /** Maximum allowed value to spend, in atomic units for the specified token, within each period. */
+  allowance: string;
+  /** Time duration for resetting used allowance on a recurring basis (seconds). */
+  period: string;
+  /** The start time for this spend permission, in Unix seconds. */
+  start: string;
+  /** The expiration time for this spend permission, in Unix seconds. */
+  end: string;
+  /** An arbitrary salt to differentiate unique spend permissions with otherwise identical data. */
+  salt?: string;
+  /** Arbitrary data to include in the permission. */
+  extraData?: string;
+  /** The paymaster URL of the spend permission. */
+  paymasterUrl?: string;
+}
+
+/**
+ * The core spend permission.
+ */
+export interface SpendPermission {
+  /**
+   * Smart account this spend permission is valid for.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  account: string;
+  /**
+   * Entity that can spend account's tokens.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  spender: string;
+  /**
+   * Token address (ERC-7528 native token address or ERC-20 contract).
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  token: string;
+  /** Maximum allowed value to spend, in atomic units for the specified token, within each period. */
+  allowance: string;
+  /** Time duration for resetting used allowance on a recurring basis (seconds). */
+  period?: string;
+  /** The start time for this spend permission, in Unix seconds. */
+  start?: string;
+  /** The expiration time for this spend permission, in Unix seconds. */
+  end?: string;
+  /** An arbitrary salt to differentiate unique spend permissions with otherwise identical data. */
+  salt?: string;
+  /** Arbitrary data to include in the permission. */
+  extraData?: string;
+}
+
+export interface SpendPermissionResponseObject {
+  permission?: SpendPermission;
+  /** Unique hash identifier for this permission. */
+  permissionHash?: string;
+  /** Whether this permission has been revoked. */
+  revoked?: boolean;
+  /** The UTC ISO 8601 timestamp when the permission was revoked (if applicable). */
+  revokedAt?: string;
+  /** The UTC ISO 8601 timestamp when the permission was created. */
+  createdAt?: string;
+}
+
+export interface RevokeSpendPermissionRequest {
+  /** The network of the spend permission. */
+  network: string;
+  /** The hash of the spend permission to revoke. */
+  permissionHash: string;
+  /** The paymaster URL of the spend permission. */
+  paymasterUrl?: string;
 }
 
 /**
@@ -227,6 +337,8 @@ export type EvmSwapsNetwork = (typeof EvmSwapsNetwork)[keyof typeof EvmSwapsNetw
 export const EvmSwapsNetwork = {
   base: "base",
   ethereum: "ethereum",
+  arbitrum: "arbitrum",
+  optimism: "optimism",
 } as const;
 
 /**
@@ -1206,7 +1318,7 @@ export const SolAddressCriterionType = {
 } as const;
 
 /**
- * The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side.
+ * The operator to use for the comparison. Each of the native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
  */
 export type SolAddressCriterionOperator =
   (typeof SolAddressCriterionOperator)[keyof typeof SolAddressCriterionOperator];
@@ -1218,14 +1330,14 @@ export const SolAddressCriterionOperator = {
 } as const;
 
 /**
- * The criterion for the recipient addresses of a Solana transaction.
+ * The criterion for the recipient addresses of a Solana transaction's native transfer instruction.
  */
 export interface SolAddressCriterion {
   /** The type of criterion to use. This should be `solAddress`. */
   type: SolAddressCriterionType;
-  /** The Solana addresses that are compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array. */
+  /** The Solana addresses that are compared to the list of native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array. */
   addresses: string[];
-  /** The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side. */
+  /** The operator to use for the comparison. Each of the native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
   operator: SolAddressCriterionOperator;
 }
 
@@ -1729,6 +1841,110 @@ export interface Transfer {
 }
 
 /**
+ * The type of payment method to be used to complete the order.
+ */
+export type OnrampPaymentMethodTypeId =
+  (typeof OnrampPaymentMethodTypeId)[keyof typeof OnrampPaymentMethodTypeId];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampPaymentMethodTypeId = {
+  GUEST_CHECKOUT_APPLE_PAY: "GUEST_CHECKOUT_APPLE_PAY",
+} as const;
+
+/**
+ * The type of fee.
+ */
+export type OnrampOrderFeeType = (typeof OnrampOrderFeeType)[keyof typeof OnrampOrderFeeType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampOrderFeeType = {
+  FEE_TYPE_NETWORK: "FEE_TYPE_NETWORK",
+  FEE_TYPE_EXCHANGE: "FEE_TYPE_EXCHANGE",
+} as const;
+
+/**
+ * A fee associated with an order.
+ */
+export interface OnrampOrderFee {
+  /** The type of fee. */
+  type: OnrampOrderFeeType;
+  /** The amount of the fee. */
+  amount: string;
+  /** The currency of the fee. */
+  currency: string;
+}
+
+/**
+ * The status of an onramp order.
+ */
+export type OnrampOrderStatus = (typeof OnrampOrderStatus)[keyof typeof OnrampOrderStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampOrderStatus = {
+  ONRAMP_ORDER_STATUS_PENDING_AUTH: "ONRAMP_ORDER_STATUS_PENDING_AUTH",
+  ONRAMP_ORDER_STATUS_PENDING_PAYMENT: "ONRAMP_ORDER_STATUS_PENDING_PAYMENT",
+  ONRAMP_ORDER_STATUS_PROCESSING: "ONRAMP_ORDER_STATUS_PROCESSING",
+  ONRAMP_ORDER_STATUS_COMPLETED: "ONRAMP_ORDER_STATUS_COMPLETED",
+  ONRAMP_ORDER_STATUS_FAILED: "ONRAMP_ORDER_STATUS_FAILED",
+} as const;
+
+/**
+ * An Onramp order.
+ */
+export interface OnrampOrder {
+  /** The ID of the onramp order. */
+  orderId: string;
+  /** The total amount of fiat to be paid, inclusive of any fees. */
+  paymentTotal: string;
+  /** The amount of fiat to be converted to crypto. */
+  paymentSubtotal: string;
+  /** The fiat currency to be converted to crypto. */
+  paymentCurrency: string;
+  paymentMethod: OnrampPaymentMethodTypeId;
+  /** The amount of crypto to be purchased. */
+  purchaseAmount: string;
+  /** The crypto currency to be purchased. */
+  purchaseCurrency: string;
+  /** The fees associated with the order. */
+  fees: OnrampOrderFee[];
+  /** The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat. */
+  exchangeRate: string;
+  /** The destination address to send the crypto to. */
+  destinationAddress: string;
+  /** The network to send the crypto on. */
+  destinationNetwork: string;
+  status: OnrampOrderStatus;
+  /** The transaction hash of the order (only available once crypto has been sent). */
+  txHash?: string;
+  /** The date and time the order was created. */
+  createdAt: string;
+  /** The date and time the order was last updated. */
+  updatedAt: string;
+}
+
+/**
+ * The type of payment link.
+ */
+export type OnrampPaymentLinkType =
+  (typeof OnrampPaymentLinkType)[keyof typeof OnrampPaymentLinkType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampPaymentLinkType = {
+  PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON: "PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON",
+} as const;
+
+/**
+ * A payment link to pay for an order.
+
+Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
+ */
+export interface OnrampPaymentLink {
+  /** The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your  own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes. */
+  url: string;
+  paymentLinkType: OnrampPaymentLinkType;
+}
+
+/**
  * Internal server error.
  */
 export type InternalServerErrorResponse = Error;
@@ -1757,6 +1973,16 @@ export type IdempotencyErrorResponse = Error;
  * The resource already exists.
  */
 export type AlreadyExistsErrorResponse = Error;
+
+/**
+ * Unauthorized.
+ */
+export type UnauthorizedErrorResponse = Error;
+
+/**
+ * Rate limit exceeded.
+ */
+export type RateLimitExceededResponse = Error;
 
 /**
  * A JWT signed using your Wallet Secret, encoded in base64. Refer to the
@@ -1834,6 +2060,10 @@ export const SendEvmTransactionBodyNetwork = {
   "base-sepolia": "base-sepolia",
   ethereum: "ethereum",
   "ethereum-sepolia": "ethereum-sepolia",
+  avalanche: "avalanche",
+  polygon: "polygon",
+  optimism: "optimism",
+  arbitrum: "arbitrum",
 } as const;
 
 export type SendEvmTransactionBody = {
@@ -1972,6 +2202,24 @@ export type SendUserOperationBody = {
   /** The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28. */
   signature: string;
 };
+
+export type ListSpendPermissionsParams = {
+  /**
+   * The number of spend permissions to return per page.
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of spend permissions. Will be empty if there are no more spend permissions to fetch.
+   */
+  pageToken?: string;
+};
+
+export type ListSpendPermissions200AllOf = {
+  /** The spend permissions for the smart account. */
+  spendPermissions: SpendPermissionResponseObject[];
+};
+
+export type ListSpendPermissions200 = ListSpendPermissions200AllOf & ListResponse;
 
 export type GetEvmSwapPriceParams = {
   network: EvmSwapsNetwork;
@@ -2367,4 +2615,51 @@ export type CreatePaymentTransferQuoteBody = {
 
 export type CreatePaymentTransferQuote201 = {
   transfer: Transfer;
+};
+
+export type CreateOnrampOrderBody = {
+  /** The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy). */
+  agreementAcceptedAt: string;
+  /** The address the purchased crypto will be sent to. */
+  destinationAddress: string;
+  /** The name of the crypto network the purchased currency will be sent on.
+
+Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location. */
+  destinationNetwork: string;
+  /** The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API. */
+  email: string;
+  /** If true, this API will return a quote without creating any transaction. */
+  isQuote?: boolean;
+  /** Optional partner order reference ID. */
+  partnerOrderRef?: string;
+  /** A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+
+This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user. */
+  partnerUserRef: string;
+  /** A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount  of the payment currency. */
+  paymentAmount?: string;
+  /** The fiat currency to be converted to crypto. */
+  paymentCurrency: string;
+  paymentMethod: OnrampPaymentMethodTypeId;
+  /** The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
+
+Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices. */
+  phoneNumber: string;
+  /** Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned. */
+  phoneNumberVerifiedAt: string;
+  /** A string representing the amount of crypto the user wishes to purchase. When using this parameter the  returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase  currency. */
+  purchaseAmount?: string;
+  /** The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
+
+Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location. */
+  purchaseCurrency: string;
+};
+
+export type CreateOnrampOrder201 = {
+  order: OnrampOrder;
+  paymentLink?: OnrampPaymentLink;
+};
+
+export type GetOnrampOrderById200 = {
+  order: OnrampOrder;
 };

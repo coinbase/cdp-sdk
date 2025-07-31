@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-named-as-default
 import Axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import axiosRetry, { exponentialDelay } from "axios-retry";
 
 import { withAuth } from "../auth/hooks/axios/index.js";
 import { ERROR_DOCS_PAGE_URL } from "../constants.js";
@@ -68,6 +69,10 @@ export const configure = (options: CdpOptions) => {
 
   axiosInstance = Axios.create({
     baseURL,
+  });
+
+  axiosRetry(axiosInstance, {
+    retryDelay: exponentialDelay,
   });
 
   axiosInstance = withAuth(axiosInstance, {

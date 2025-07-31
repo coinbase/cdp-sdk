@@ -18,6 +18,7 @@ export const NETWORK_CAPABILITIES = {
     sendTransaction: true,
     quoteSwap: true,
     swap: true,
+    useSpendPermission: true,
   },
   "base-sepolia": {
     listTokenBalances: true,
@@ -29,6 +30,7 @@ export const NETWORK_CAPABILITIES = {
     sendTransaction: true,
     quoteSwap: false,
     swap: false,
+    useSpendPermission: true,
   },
   ethereum: {
     listTokenBalances: true,
@@ -40,6 +42,7 @@ export const NETWORK_CAPABILITIES = {
     sendTransaction: true,
     quoteSwap: true,
     swap: true,
+    useSpendPermission: true,
   },
   "ethereum-sepolia": {
     listTokenBalances: false,
@@ -51,6 +54,7 @@ export const NETWORK_CAPABILITIES = {
     sendTransaction: true,
     quoteSwap: false,
     swap: false,
+    useSpendPermission: true,
   },
   "ethereum-hoodi": {
     listTokenBalances: false,
@@ -62,6 +66,103 @@ export const NETWORK_CAPABILITIES = {
     sendTransaction: true, // Always available (uses wallet client for non-base networks)
     quoteSwap: false,
     swap: false,
+    useSpendPermission: false,
+  },
+  optimism: {
+    listTokenBalances: false,
+    requestFaucet: false,
+    quoteFund: false,
+    fund: false,
+    waitForFundOperationReceipt: false,
+    transfer: false,
+    sendTransaction: true, // Always available (uses wallet client for non-base networks)
+    quoteSwap: false,
+    swap: false,
+    useSpendPermission: true,
+  },
+  "optimism-sepolia": {
+    listTokenBalances: false,
+    requestFaucet: true,
+    quoteFund: false,
+    fund: false,
+    waitForFundOperationReceipt: false,
+    transfer: false,
+    sendTransaction: true, // Always available (uses wallet client for non-base networks)
+    quoteSwap: false,
+    swap: false,
+    useSpendPermission: true,
+  },
+  arbitrum: {
+    listTokenBalances: false,
+    requestFaucet: true,
+    quoteFund: false,
+    fund: false,
+    waitForFundOperationReceipt: false,
+    transfer: false,
+    sendTransaction: true, // Always available (uses wallet client for non-base networks)
+    quoteSwap: false,
+    swap: false,
+    useSpendPermission: true,
+  },
+  "arbitrum-sepolia": {
+    listTokenBalances: false,
+    requestFaucet: true,
+    quoteFund: false,
+    fund: false,
+    waitForFundOperationReceipt: false,
+    transfer: false,
+    sendTransaction: true, // Always available (uses wallet client for non-base networks)
+    quoteSwap: false,
+    swap: false,
+    useSpendPermission: true,
+  },
+  avalanche: {
+    listTokenBalances: false,
+    requestFaucet: false,
+    quoteFund: false,
+    fund: false,
+    waitForFundOperationReceipt: false,
+    transfer: false,
+    sendTransaction: true, // Always available (uses wallet client for non-base networks)
+    quoteSwap: false,
+    swap: false,
+    useSpendPermission: true,
+  },
+  binance: {
+    listTokenBalances: false,
+    requestFaucet: false,
+    quoteFund: false,
+    fund: false,
+    waitForFundOperationReceipt: false,
+    transfer: false,
+    sendTransaction: true, // Always available (uses wallet client for non-base networks)
+    quoteSwap: false,
+    swap: false,
+    useSpendPermission: true,
+  },
+  polygon: {
+    listTokenBalances: false,
+    requestFaucet: false,
+    quoteFund: false,
+    fund: false,
+    waitForFundOperationReceipt: false,
+    transfer: false,
+    sendTransaction: true, // Always available (uses wallet client for non-base networks)
+    quoteSwap: false,
+    swap: false,
+    useSpendPermission: true,
+  },
+  zora: {
+    listTokenBalances: false,
+    requestFaucet: false,
+    quoteFund: false,
+    fund: false,
+    waitForFundOperationReceipt: false,
+    transfer: false,
+    sendTransaction: true, // Always available (uses wallet client for non-base networks)
+    quoteSwap: false,
+    swap: false,
+    useSpendPermission: true,
   },
 } as const;
 

@@ -7,11 +7,15 @@
  */
 import type {
   CreateEvmSmartAccountBody,
+  CreateSpendPermissionRequest,
   EvmSmartAccount,
   EvmUserOperation,
   ListEvmSmartAccounts200,
   ListEvmSmartAccountsParams,
+  ListSpendPermissions200,
+  ListSpendPermissionsParams,
   PrepareUserOperationBody,
+  RevokeSpendPermissionRequest,
   SendUserOperationBody,
   UpdateEvmSmartAccountBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
@@ -153,6 +157,58 @@ export const sendUserOperation = (
     options,
   );
 };
+/**
+ * Creates a spend permission for the given smart account address.
+ * @summary Create a spend permission
+ */
+export const createSpendPermission = (
+  address: string,
+  createSpendPermissionRequest: CreateSpendPermissionRequest,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/evm/smart-accounts/${address}/spend-permissions`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createSpendPermissionRequest,
+    },
+    options,
+  );
+};
+/**
+ * Lists spend permission for the given smart account address.
+ * @summary List spend permissions
+ */
+export const listSpendPermissions = (
+  address: string,
+  params?: ListSpendPermissionsParams,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ListSpendPermissions200>(
+    { url: `/v2/evm/smart-accounts/${address}/spend-permissions/list`, method: "GET", params },
+    options,
+  );
+};
+/**
+ * Revokes an existing spend permission.
+ * @summary Revoke a spend permission
+ */
+export const revokeSpendPermission = (
+  address: string,
+  revokeSpendPermissionRequest: RevokeSpendPermissionRequest,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/evm/smart-accounts/${address}/spend-permissions/revoke`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: revokeSpendPermissionRequest,
+    },
+    options,
+  );
+};
 export type ListEvmSmartAccountsResult = NonNullable<
   Awaited<ReturnType<typeof listEvmSmartAccounts>>
 >;
@@ -171,3 +227,12 @@ export type PrepareUserOperationResult = NonNullable<
 >;
 export type GetUserOperationResult = NonNullable<Awaited<ReturnType<typeof getUserOperation>>>;
 export type SendUserOperationResult = NonNullable<Awaited<ReturnType<typeof sendUserOperation>>>;
+export type CreateSpendPermissionResult = NonNullable<
+  Awaited<ReturnType<typeof createSpendPermission>>
+>;
+export type ListSpendPermissionsResult = NonNullable<
+  Awaited<ReturnType<typeof listSpendPermissions>>
+>;
+export type RevokeSpendPermissionResult = NonNullable<
+  Awaited<ReturnType<typeof revokeSpendPermission>>
+>;

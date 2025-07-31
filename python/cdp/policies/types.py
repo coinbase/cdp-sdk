@@ -9,6 +9,8 @@ from typing import Literal
 from pydantic import BaseModel, Field, field_validator
 
 from cdp.errors import UserInputValidationError
+from cdp.openapi_client.models.abi_inner import AbiInner
+from cdp.openapi_client.models.known_abi_type import KnownAbiType
 
 """Type representing the action of a policy rule.
 Determines whether matching the rule will cause a request to be rejected or accepted."""
@@ -58,8 +60,8 @@ class EvmAddressCriterion(BaseModel):
     @field_validator("addresses")
     def validate_addresses_length(cls, v):
         """Validate the number of addresses."""
-        if len(v) > 100:
-            raise UserInputValidationError("Maximum of 100 addresses allowed")
+        if len(v) > 300:
+            raise UserInputValidationError("Maximum of 300 addresses allowed")
         return v
 
     @field_validator("addresses")
@@ -90,6 +92,86 @@ class EvmNetworkCriterion(BaseModel):
     )
 
 
+class EvmDataParameterCondition(BaseModel):
+    """EVM data parameter condition."""
+
+    name: str = Field(
+        ...,
+        description="The name of the parameter to check against a transaction's calldata. If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter.",
+    )
+    operator: str = Field(
+        ...,
+        description="The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.",
+    )
+    value: str = Field(
+        ...,
+        description="A single value to compare the value resolved at `name` to. All values are encoded as strings. Refer to the table in the documentation for how values should be encoded, and which operators are supported for each type.",
+    )
+
+    @field_validator("operator")
+    def validate_operator_enum(cls, value):
+        """Validate the operator enum."""
+        if value not in {">", ">=", "<", "<=", "=="}:
+            raise UserInputValidationError(
+                "must be one of enum values ('>', '>=', '<', '<=', '==')"
+            )
+        return value
+
+
+class EvmDataParameterConditionList(BaseModel):
+    """EVM data parameter condition list."""
+
+    name: str = Field(
+        ...,
+        description="The name of the parameter to check against a transaction's calldata. If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter.",
+    )
+    operator: str = Field(
+        ...,
+        description="The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `values` field will be on the right-hand side.",
+    )
+    values: list[str] = Field(
+        ...,
+        description="Values to compare against the resolved `name` value. All values are encoded as strings. Refer to the table in the documentation for how values should be encoded, and which operators are supported for each type.",
+    )
+
+    @field_validator("operator")
+    def validate_operator_enum(cls, value):
+        """Validate the operator enum."""
+        if value not in {"in", "not in"}:
+            raise UserInputValidationError("must be one of enum values ('in', 'not in')")
+        return value
+
+
+class EvmDataCondition(BaseModel):
+    """A single condition to apply against the function and encoded arguments in the transaction's `data` field. Each `parameter` configuration must be successfully evaluated against the corresponding function argument in order for a policy to be accepted."""
+
+    function: str = Field(
+        ...,
+        description="The name of a smart contract function being called.",
+    )
+    params: None | list[EvmDataParameterCondition | EvmDataParameterConditionList] = Field(
+        default=None,
+        description="The path to the field to compare against this criterion. To reference deeply nested fields, use dot notation (e.g., 'order.buyer').",
+    )
+
+
+class EvmDataCriterion(BaseModel):
+    """Type representing a 'evmData' criterion that can be used to govern the behavior of projects and accounts."""
+
+    type: Literal["evmData"] = Field(
+        "evmData",
+        description="The type of criterion, must be 'evmData' for EVM transaction data rules.",
+    )
+    abi: KnownAbiType | AbiInner = Field(
+        ...,
+        description="The ABI of the smart contract being called. This can be a partial structure with only specific functions.",
+    )
+    conditions: list[EvmDataCondition] = Field(
+        ...,
+        description="A list of conditions to apply against the function and encoded arguments in the transaction's `data` field. Each condition must be met in order for this policy to be accepted or rejected.",
+    )
+
+
 class SendEvmTransactionRule(BaseModel):
     """Type representing a 'sendEvmTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
 
@@ -101,7 +183,9 @@ class SendEvmTransactionRule(BaseModel):
         "sendEvmTransaction",
         description="The operation to which this rule applies. Must be 'sendEvmTransaction'.",
     )
-    criteria: list[EthValueCriterion | EvmAddressCriterion | EvmNetworkCriterion] = Field(
+    criteria: list[
+        EthValueCriterion | EvmAddressCriterion | EvmNetworkCriterion | EvmDataCriterion
+    ] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
     )
@@ -169,8 +253,8 @@ class EvmTypedAddressCondition(BaseModel):
     @field_validator("addresses")
     def validate_addresses_length(cls, v):
         """Validate the number of addresses."""
-        if len(v) > 100:
-            raise UserInputValidationError("Maximum of 100 addresses allowed")
+        if len(v) > 300:
+            raise UserInputValidationError("Maximum of 300 addresses allowed")
         return v
 
     @field_validator("addresses")
@@ -272,8 +356,8 @@ class SignEvmTypedDataVerifyingContractCriterion(BaseModel):
     @field_validator("addresses")
     def validate_addresses_length(cls, v):
         """Validate the number of addresses."""
-        if len(v) > 100:
-            raise UserInputValidationError("Maximum of 100 addresses allowed")
+        if len(v) > 300:
+            raise UserInputValidationError("Maximum of 300 addresses allowed")
         return v
 
     @field_validator("addresses")
@@ -317,7 +401,7 @@ class SignEvmTransactionRule(BaseModel):
         "signEvmTransaction",
         description="The operation to which this rule applies. Must be 'signEvmTransaction'.",
     )
-    criteria: list[EthValueCriterion | EvmAddressCriterion] = Field(
+    criteria: list[EthValueCriterion | EvmAddressCriterion | EvmDataCriterion] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
     )

@@ -318,8 +318,8 @@ class CdpApiClient(ApiClient):
 
         """
         return Retry(
-            total=max_network_retries,  # Number of total retries
-            status_forcelist=[500, 502, 503, 504],  # Retry on HTTP status code 500
-            allowed_methods=["GET"],  # Retry only on GET requests
+            total=max_network_retries,
+            status_forcelist=[500, 502, 503, 504],
+            allowed_methods=["GET", "HEAD", "OPTIONS", "PUT", "DELETE"],
             backoff_factor=1,  # Exponential backoff factor
         )

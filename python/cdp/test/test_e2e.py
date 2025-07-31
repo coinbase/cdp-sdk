@@ -3,6 +3,7 @@ import base64
 import os
 import random
 import string
+import time
 from math import floor
 
 import base58
@@ -37,6 +38,7 @@ from cdp.policies.types import (
     SolanaAddressCriterion,
     UpdatePolicyOptions,
 )
+from cdp.spend_permissions.types import SpendPermission
 from cdp.update_account_types import UpdateAccountOptions
 
 load_dotenv()
@@ -893,7 +895,6 @@ async def test_evm_get_or_create_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.focus
 async def test_evm_get_or_create_smart_account(cdp_client):
     """Test getting or creating an EVM account."""
     random_name = "".join(
@@ -1440,9 +1441,9 @@ async def test_list_policies(cdp_client):
     assert len(first_page_policies.policies) == 1
 
     # Check if we have more policies
-    if result.next_page_token:
+    if first_page_policies.next_page_token:
         result = await cdp_client.policies.list_policies(
-            page_size=1, page_token=result.next_page_token
+            page_size=1, page_token=first_page_policies.next_page_token
         )
         assert result is not None
         assert result.policies is not None
@@ -1856,6 +1857,157 @@ async def test_evm_local_account_sign_and_send_transaction(cdp_client):
     assert tx_receipt is not None
 
 
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_use_network_evm_smart_account(cdp_client):
+    """E2E: Test use_network for EvmSmartAccount only."""
+    from eth_account.account import Account
+
+    owner = Account.create()
+    smart_account = await cdp_client.evm.create_smart_account(owner=owner)
+    assert smart_account is not None
+    orig_address = smart_account.address
+    orig_name = smart_account.name
+    orig_policies = smart_account.policies
+
+    network = "base"
+    # Use the use_network method to create a network-scoped smart account
+    network_smart_account = await smart_account.__experimental_use_network__(network)
+
+    assert network_smart_account.address == orig_address
+    assert network_smart_account.name == orig_name
+    assert network_smart_account.policies == orig_policies
+    assert network_smart_account.owner == owner
+    assert network_smart_account.network == network
+
+    balances = await network_smart_account.list_token_balances()
+    assert balances is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_smart_account_use_spend_permission(cdp_client):
+    """Test signing a transaction with an EVM local account and a spend permission."""
+    master_owner = await cdp_client.evm.get_or_create_account(
+        name="E2E-SpendPermissions-Master-Owner"
+    )
+    master = await cdp_client.evm.get_or_create_smart_account(
+        name="E2E-SpendPermissions-Master",
+        owner=master_owner,
+        __experimental_enable_spend_permission__=True,
+    )
+
+    spender_owner = await cdp_client.evm.get_or_create_account(
+        name="E2E-SpendPermissions-Spender-Owner"
+    )
+    spender = await cdp_client.evm.get_or_create_smart_account(
+        name="E2E-SpendPermissions-Spender",
+        owner=spender_owner,
+    )
+
+    await _ensure_sufficient_eth_balance(cdp_client, master)
+
+    # Create a spend permission
+    spend_permission = SpendPermission(
+        account=master.address,
+        spender=spender.address,
+        token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # native eth
+        allowance=Web3.to_wei(0.000001, "ether"),
+        period=86400,  # 1 day in seconds
+        start=0,  # Start immediately
+        end=int(time.time()) + 24 * 60 * 60,  # 24 hours from now
+        salt=random.randint(0, 2**256 - 1),
+        extra_data="0x",
+    )
+
+    # Create the spend permission on-chain
+    user_operation = await cdp_client.evm.create_spend_permission(
+        spend_permission=spend_permission,
+        network="base-sepolia",
+    )
+
+    # Wait for the user operation to complete
+    await cdp_client.evm.wait_for_user_operation(
+        smart_account_address=master.address,
+        user_op_hash=user_operation.user_op_hash,
+    )
+
+    # Sleep 2 seconds
+    await asyncio.sleep(2)
+
+    # Use the spend permission
+    spend_result = await spender.__experimental_use_spend_permission__(
+        spend_permission=spend_permission,
+        value=Web3.to_wei(0.000001, "ether"),
+        network="base-sepolia",
+    )
+
+    # Wait for spend to complete
+    spend_user_op = await spender.wait_for_user_operation(
+        user_op_hash=spend_result.user_op_hash,
+    )
+
+    assert spend_user_op.status == "complete"
+    assert spend_user_op.transaction_hash is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_account_use_spend_permission(cdp_client):
+    """Test signing a transaction with an EVM local account and a spend permission."""
+    master_owner = await cdp_client.evm.get_or_create_account(
+        name="E2E-SpendPermissions-Master-Owner"
+    )
+    master = await cdp_client.evm.get_or_create_smart_account(
+        name="E2E-SpendPermissions-Master",
+        owner=master_owner,
+        __experimental_enable_spend_permission__=True,
+    )
+
+    spender = await cdp_client.evm.get_or_create_account(name="E2E-SpendPermissions-EOA-Spender")
+
+    await _ensure_sufficient_eth_balance(cdp_client, master)
+    await _ensure_sufficient_eth_balance(cdp_client, spender)
+
+    # Create a spend permission
+    spend_permission = SpendPermission(
+        account=master.address,
+        spender=spender.address,
+        token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # native eth
+        allowance=Web3.to_wei(0.000001, "ether"),
+        period=86400,  # 1 day in seconds
+        start=0,  # Start immediately
+        end=int(time.time()) + 24 * 60 * 60,  # 24 hours from now
+        salt=random.randint(0, 2**256 - 1),
+        extra_data="0x",
+    )
+
+    # Create the spend permission on-chain
+    user_operation = await cdp_client.evm.create_spend_permission(
+        spend_permission=spend_permission,
+        network="base-sepolia",
+    )
+
+    # Wait for the user operation to complete
+    await cdp_client.evm.wait_for_user_operation(
+        smart_account_address=master.address,
+        user_op_hash=user_operation.user_op_hash,
+    )
+
+    # Sleep 2 seconds
+    await asyncio.sleep(2)
+
+    # Use the spend permission
+    spend_tx_hash = await spender.__experimental_use_spend_permission__(
+        spend_permission=spend_permission,
+        value=Web3.to_wei(0.000001, "ether"),  # 0.01 USDC
+        network="base-sepolia",
+    )
+
+    tx_receipt = w3.eth.wait_for_transaction_receipt(spend_tx_hash)
+    assert tx_receipt is not None
+
+
 def _get_transaction(address: str, to: str | None = None, amount: int | None = None):
     """Help method to create a transaction."""
     from solana.rpc.api import Client as SolanaClient
@@ -1922,7 +2074,7 @@ async def _ensure_sufficient_eth_balance(cdp_client, account):
         w3.eth.wait_for_transaction_receipt(faucet_hash)
 
         # Verify the balance is now sufficient
-        new_balance = w3.eth.get_balance(account.address)
+        new_balance = w3.eth.get_balance(account.address, "pending")
         assert (
             new_balance >= min_required_balance
         ), f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"

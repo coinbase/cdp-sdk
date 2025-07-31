@@ -6,6 +6,11 @@ from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_smart_account import EvmSmartAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.errors import HttpErrorType, NetworkError
+from cdp.spend_permissions import (
+    SPEND_PERMISSION_MANAGER_ABI,
+    SPEND_PERMISSION_MANAGER_ADDRESS,
+    SpendPermission,
+)
 from cdp.update_account_types import UpdateAccountOptions
 from cdp.utils import parse_units
 
@@ -19,6 +24,9 @@ __all__ = [
     "FunctionCall",
     "HttpErrorType",
     "NetworkError",
+    "SpendPermission",
+    "SPEND_PERMISSION_MANAGER_ADDRESS",
+    "SPEND_PERMISSION_MANAGER_ABI",
     "TransactionRequestEIP1559",
     "UpdateAccountOptions",
     "__version__",

@@ -26,11 +26,11 @@ from typing_extensions import Self
 
 class SolAddressCriterion(BaseModel):
     """
-    The criterion for the recipient addresses of a Solana transaction.
+    The criterion for the recipient addresses of a Solana transaction's native transfer instruction.
     """ # noqa: E501
     type: StrictStr = Field(description="The type of criterion to use. This should be `solAddress`.")
-    addresses: List[Annotated[str, Field(strict=True)]] = Field(description="The Solana addresses that are compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.")
-    operator: StrictStr = Field(description="The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side.")
+    addresses: List[Annotated[str, Field(strict=True)]] = Field(description="The Solana addresses that are compared to the list of native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.")
+    operator: StrictStr = Field(description="The operator to use for the comparison. Each of the native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.")
     __properties: ClassVar[List[str]] = ["type", "addresses", "operator"]
 
     @field_validator('type')

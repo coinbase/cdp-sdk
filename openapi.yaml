@@ -92,6 +92,20 @@ tags:
   - name: Faucets
     x-audience: public
     description: The Faucet APIs enable you to request funds on supported test networks. Faucets are for testing purposes and make development easier by providing a source of funds.
+  - name: Onramp
+    x-audience: public
+    description: |-
+      <Note>Currently the v2 Onramp APIs are in private beta and only available to approved partners. [Contact us](https://calendar.app.google/BLn6fzaz2aCZGvLu7)  to get early access.</Note>
+
+      The v2 Onramp APIs are an evolution of our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/),  designed to make the fiat-to-crypto experience feel native to your applications for higher conversion and less friction. These APIs only cover a subset of Coinbase Onramp functionality as described below, for all other use cases please refer to our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/).
+
+      ## Supported Use Cases
+
+      #### Apple Pay Onramp (iOS apps)
+
+      This use case allows you to offer an Apple Pay onramp experience with debit cards in your mobile app without users  needing to create or log into a Coinbase account. Our API returns a `paymentLink` URL that renders an Apple Pay  button for you to load in a webview in your app, making the onramp experience feel native to your application. 
+
+      Refer to our [detailed integration guide](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api)  for more information on the limitations and requirements of this use case. See our [onramp mobile demo app](https://github.com/coinbase/onramp-demo-mobile)  for a reference implementation.
   - name: Payments (Alpha)
     x-audience: public
     description: |-
@@ -133,13 +147,13 @@ tags:
         - An `action` can either `accept` or `reject` a transaction if the criteria in the rule are met.
         - `criteria` is an array of logical expressions. All parameters must evaluate to true for the action to be applied.
         - An `operation` corresponds to a CDP v2 API:
-            - `signEvmTransaction` or `signSolTransaction` for signing transactions (to set a transaction limit)
-            - `sendEvmTransaction` for signing a transaction, and sending it to a supported network
+            - `signEvmTransaction` or `signSolTransaction` for signing transactions (to set a transaction limit).
+            - `sendEvmTransaction` for signing a transaction, and sending it to a supported network.
             - `signEvmHash` for signing an arbitrary 32 byte hash.
             - `signEvmMessage` for signing an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message.
             - `prepareUserOperation` for preparing user operations on a smart account.
             - `sendUserOperation` for sending user operations using a smart account.
-      - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected. Only `signEvmTransaction` and `signSolTransaction` operations are currently supported.
+      - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected.
       ## Policy Scope
       Policies can be applied at the project and/or account level:
       - **Project-level policy**: A `project`-level policy applies to all accounts in a CDP Project. Only one project-level policy can be applied to accounts within a CDP Project at any given time.
@@ -264,6 +278,8 @@ tags:
       ### SignSolTransaction Criteria
       #### solAddress
       A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### solValue
+      A criterion based on the value of the transaction. The criterion's `solValue` field is compared to the transaction's `value`, which is the amount of SOL in lamports being transferred, using the `operator` field.
       ## Restricting Contract Interactions on Ethereum
       Smart contract function restrictions serve as a critical security and governance mechanism in decentralized applications, allowing developers and organizations to implement fine-grained access controls over their protocol interactions.
       One of the primary use cases for function restrictions is protecting high-risk operations from unauthorized access such as:
@@ -770,6 +786,10 @@ paths:
                     - base-sepolia
                     - ethereum
                     - ethereum-sepolia
+                    - avalanche
+                    - polygon
+                    - optimism
+                    - arbitrum
                   example: base-sepolia
                 transaction:
                   type: string
@@ -2019,6 +2039,209 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/smart-accounts/{address}/spend-permissions:
+    post:
+      x-audience: public
+      summary: Create a spend permission
+      description: Creates a spend permission for the given smart account address.
+      operationId: createSpendPermission
+      tags:
+        - EVM Smart Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: address
+          description: The address of the Smart Account to create the spend permission for.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSpendPermissionRequest'
+      responses:
+        '200':
+          description: Successfully created spend permission.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmUserOperation'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Smart account not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/smart-accounts/{address}/spend-permissions/list:
+    get:
+      x-audience: public
+      summary: List spend permissions
+      description: Lists spend permission for the given smart account address.
+      operationId: listSpendPermissions
+      tags:
+        - EVM Smart Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: address
+          description: The address of the Smart account to list spend permissions for.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - name: pageSize
+          description: The number of spend permissions to return per page.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          example: 10
+        - name: pageToken
+          description: The token for the next page of spend permissions. Will be empty if there are no more spend permissions to fetch.
+          in: query
+          required: false
+          schema:
+            type: string
+          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+      responses:
+        '200':
+          description: Successfully listed spend permissions.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - spendPermissions
+                    properties:
+                      spendPermissions:
+                        type: array
+                        description: The spend permissions for the smart account.
+                        items:
+                          $ref: '#/components/schemas/SpendPermissionResponseObject'
+                  - $ref: '#/components/schemas/ListResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Smart account not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/smart-accounts/{address}/spend-permissions/revoke:
+    post:
+      x-audience: public
+      summary: Revoke a spend permission
+      description: Revokes an existing spend permission.
+      operationId: revokeSpendPermission
+      tags:
+        - EVM Smart Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: address
+          description: The address of the Smart account this spend permission is valid for.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeSpendPermissionRequest'
+      responses:
+        '200':
+          description: Successfully revoked spend permission.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmUserOperation'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Smart account not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/swaps/quote:
     get:
       x-audience: public
@@ -2313,8 +2536,8 @@ paths:
           $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/token-balances/{network}/{address}:
     get:
-      summary: List EVM token balances
       x-audience: public
+      summary: List EVM token balances
       description: |-
         Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.
 
@@ -2530,8 +2753,8 @@ paths:
           $ref: '#/components/responses/ServiceUnavailableError'
   /v2/policy-engine/policies:
     get:
-      summary: List policies
       x-audience: public
+      summary: List policies
       description: |-
         Lists the policies belonging to the developer's CDP Project. Use the `scope` parameter to filter the policies by scope.
         The response is paginated, and by default, returns 20 policies per page.
@@ -2590,8 +2813,8 @@ paths:
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
     post:
-      summary: Create a policy
       x-audience: public
+      summary: Create a policy
       description: Create a policy that can be used to govern the behavior of accounts.
       operationId: createPolicy
       tags:
@@ -2661,8 +2884,8 @@ paths:
           $ref: '#/components/responses/ServiceUnavailableError'
   /v2/policy-engine/policies/{policyId}:
     get:
-      summary: Get a policy by ID
       x-audience: public
+      summary: Get a policy by ID
       description: Get a policy by its ID.
       operationId: getPolicyById
       tags:
@@ -2703,8 +2926,8 @@ paths:
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
     delete:
-      summary: Delete a policy
       x-audience: public
+      summary: Delete a policy
       description: Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
       operationId: deletePolicy
       tags:
@@ -2759,8 +2982,8 @@ paths:
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
     put:
-      summary: Update a policy
       x-audience: public
+      summary: Update a policy
       description: Updates a policy by its ID. This will have the effect of applying the updated policy to all accounts that are currently using it.
       operationId: updatePolicy
       tags:
@@ -3857,8 +4080,8 @@ paths:
           $ref: '#/components/responses/ServiceUnavailableError'
   /v2/solana/token-balances/{network}/{address}:
     get:
-      summary: List Solana token balances
       x-audience: public
+      summary: List Solana token balances
       description: |-
         Lists the token balances of a Solana address on a given network. The balances include SPL tokens and the native SOL token. The response is paginated, and by default, returns 20 balances per page.
 
@@ -4284,6 +4507,206 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/onramp/orders:
+    post:
+      summary: Create an onramp order
+      description: |-
+        Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.
+
+        This API currently only supports the payment method `GUEST_CHECKOUT_APPLE_PAY`, and the `paymentLink` returned will only work in iOS apps. We do not support web integration via iframes at this time.
+
+        For detailed integration instructions and to get access to this API, refer to the  [Apple Pay Onramp API docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api).
+      operationId: createOnrampOrder
+      tags:
+        - Onramp
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                agreementAcceptedAt:
+                  description: The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy).
+                  format: date-time
+                  type: string
+                  example: '2025-04-24T00:00:00Z'
+                destinationAddress:
+                  description: The address the purchased crypto will be sent to.
+                  type: string
+                  example: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
+                destinationNetwork:
+                  description: |-
+                    The name of the crypto network the purchased currency will be sent on.
+
+                    Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
+                  type: string
+                  example: base
+                email:
+                  description: The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API.
+                  type: string
+                  example: test@example.com
+                isQuote:
+                  description: If true, this API will return a quote without creating any transaction.
+                  type: boolean
+                  default: false
+                partnerOrderRef:
+                  description: Optional partner order reference ID.
+                  type: string
+                  example: order-1234
+                partnerUserRef:
+                  description: |-
+                    A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+
+                    This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
+                  type: string
+                  example: user-1234
+                paymentAmount:
+                  description: A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount  of the payment currency.
+                  type: string
+                  example: '100.00'
+                paymentCurrency:
+                  description: The fiat currency to be converted to crypto.
+                  type: string
+                  example: USD
+                paymentMethod:
+                  $ref: '#/components/schemas/OnrampPaymentMethodTypeId'
+                phoneNumber:
+                  description: |-
+                    The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
+
+                    Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices.
+                  type: string
+                  example: '+12055555555'
+                phoneNumberVerifiedAt:
+                  description: Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned.
+                  format: date-time
+                  type: string
+                  example: '2025-04-24T00:00:00Z'
+                purchaseAmount:
+                  description: A string representing the amount of crypto the user wishes to purchase. When using this parameter the  returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase  currency.
+                  type: string
+                  example: '10.000000'
+                purchaseCurrency:
+                  description: |-
+                    The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
+
+                    Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
+                  type: string
+                  example: USDC
+              required:
+                - paymentCurrency
+                - purchaseCurrency
+                - paymentMethod
+                - destinationAddress
+                - destinationNetwork
+                - phoneNumber
+                - email
+                - agreementAcceptedAt
+                - phoneNumberVerifiedAt
+                - partnerUserRef
+      responses:
+        '201':
+          description: Successfully created an onramp order.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order:
+                    $ref: '#/components/schemas/OnrampOrder'
+                  paymentLink:
+                    $ref: '#/components/schemas/OnrampPaymentLink'
+                required:
+                  - order
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Missing required params.
+                network_not_tradable:
+                  value:
+                    errorType: network_not_tradable
+                    errorMessage: The selected asset cannot be purchased on the selected network in the user's location.
+                guest_permission_denied:
+                  value:
+                    errorType: guest_permission_denied
+                    errorMessage: The user is not allowed to complete onramp transactions as a guest.
+                guest_region_forbidden:
+                  value:
+                    errorType: guest_region_forbidden
+                    errorMessage: Guest onramp transactions are not allowed in the user's region.
+                guest_transaction_limit:
+                  value:
+                    errorType: guest_transaction_limit
+                    errorMessage: This transaction would exceed the user's weekly guest onramp transaction limit.
+                guest_transaction_count:
+                  value:
+                    errorType: guest_transaction_count
+                    errorMessage: The user has reached the lifetime guest onramp transaction count limit (15).
+                phone_number_verification_expired:
+                  value:
+                    errorType: phone_number_verification_expired
+                    errorMessage: The user's phone number verification has expired. Please re-verify the user's phone number
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v2/onramp/orders/{orderId}:
+    get:
+      summary: Get an onramp order by ID
+      description: Get an onramp order by ID.
+      operationId: getOnrampOrderById
+      tags:
+        - Onramp
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: The ID of the onramp order to retrieve.
+          schema:
+            type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: Successfully retrieved an onramp order.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order:
+                    $ref: '#/components/schemas/OnrampOrder'
+                required:
+                  - order
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Order not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Order with the given ID does not exist.
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     apiKeyAuth:
@@ -4365,7 +4788,7 @@ components:
         - guest_region_forbidden
         - guest_transaction_limit
         - guest_transaction_count
-        - guest_phone_number_verification_expired
+        - phone_number_verification_expired
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -4650,7 +5073,7 @@ components:
 
           **Steps to resolve:**
           1. Redirect the user to create a Coinbase account to buy and send crypto.
-        guest_phone_number_verification_expired: |-
+        phone_number_verification_expired: |-
           This error occurs when the user's phone number verification has expired. Use of guest Onramp requires the user's
           phone number to be verified every 60 days.
 
@@ -4885,6 +5308,35 @@ components:
         - to
         - value
         - data
+    UserOperationReceiptRevert:
+      type: object
+      description: The revert data if the user operation has reverted.
+      properties:
+        data:
+          type: string
+          pattern: ^0x[0-9a-fA-F]*$
+          description: The 0x-prefixed raw hex string.
+          example: '0x123'
+        message:
+          type: string
+          description: Human-readable revert reason if able to decode.
+          example: reason for failure
+      required:
+        - data
+        - message
+      example:
+        data: '0x123'
+        message: reason for failure
+    UserOperationReceipt:
+      type: object
+      description: The receipt that contains information about the execution of user operation.
+      properties:
+        revert:
+          $ref: '#/components/schemas/UserOperationReceiptRevert'
+      example:
+        revert:
+          data: '0x123'
+          message: reason for failure
     EvmUserOperation:
       type: object
       properties:
@@ -4923,16 +5375,185 @@ components:
           pattern: ^0x[0-9a-fA-F]{64}$|^$
           description: The hash of the transaction that included this particular user operation. This gets set after the user operation is broadcasted and the transaction is included in a block.
           example: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+        receipts:
+          type: array
+          description: The list of receipts associated with the user operation.
+          items:
+            $ref: '#/components/schemas/UserOperationReceipt'
+          example:
+            - revert:
+                data: '0x123'
+                message: reason for failure
       required:
         - network
         - userOpHash
         - calls
         - status
+    CreateSpendPermissionRequest:
+      type: object
+      properties:
+        network:
+          type: string
+          description: The network of the spend permission.
+          example: base
+        account:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Smart account this spend permission is valid for.
+          example: '0xd53Ee96438383Bb1eff07958D110B81363E9Ab47'
+        spender:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Entity that can spend account's tokens.
+          example: '0x9Fb909eA400c2b8D99Be292DADf07e63B814527c'
+        token:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Token address (ERC-7528 native token address or ERC-20 contract).
+          example: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        allowance:
+          type: string
+          description: Maximum allowed value to spend, in atomic units for the specified token, within each period.
+          example: '1000000000000000000'
+        period:
+          type: string
+          description: Time duration for resetting used allowance on a recurring basis (seconds).
+          example: '86400'
+        start:
+          type: string
+          description: The start time for this spend permission, in Unix seconds.
+          example: '0'
+        end:
+          type: string
+          description: The expiration time for this spend permission, in Unix seconds.
+          example: '281474976710655'
+        salt:
+          type: string
+          description: An arbitrary salt to differentiate unique spend permissions with otherwise identical data.
+          example: '0'
+        extraData:
+          type: string
+          description: Arbitrary data to include in the permission.
+          example: 0x
+        paymasterUrl:
+          type: string
+          description: The paymaster URL of the spend permission.
+          example: https://paymaster.cdp.coinbase.com
+      required:
+        - network
+        - account
+        - spender
+        - token
+        - allowance
+        - period
+        - start
+        - end
+    SpendPermission:
+      type: object
+      description: The core spend permission.
+      example:
+        account: '0xd53Ee96438383Bb1eff07958D110B81363E9Ab47'
+        spender: '0x9Fb909eA400c2b8D99Be292DADf07e63B814527c'
+        token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        allowance: '1000000000000000000'
+        period: '86400'
+        start: '0'
+        end: '281474976710655'
+        salt: '0'
+        extraData: 0x
+      properties:
+        account:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Smart account this spend permission is valid for.
+          example: '0xd53Ee96438383Bb1eff07958D110B81363E9Ab47'
+        spender:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Entity that can spend account's tokens.
+          example: '0x9Fb909eA400c2b8D99Be292DADf07e63B814527c'
+        token:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Token address (ERC-7528 native token address or ERC-20 contract).
+          example: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        allowance:
+          type: string
+          description: Maximum allowed value to spend, in atomic units for the specified token, within each period.
+          example: '1000000000000000000'
+        period:
+          type: string
+          description: Time duration for resetting used allowance on a recurring basis (seconds).
+          example: '86400'
+        start:
+          type: string
+          description: The start time for this spend permission, in Unix seconds.
+          example: '0'
+        end:
+          type: string
+          description: The expiration time for this spend permission, in Unix seconds.
+          example: '281474976710655'
+        salt:
+          type: string
+          description: An arbitrary salt to differentiate unique spend permissions with otherwise identical data.
+          example: '0'
+        extraData:
+          type: string
+          description: Arbitrary data to include in the permission.
+          example: 0x
+      required:
+        - account
+        - spender
+        - token
+        - allowance
+    SpendPermissionResponseObject:
+      type: object
+      properties:
+        permission:
+          $ref: '#/components/schemas/SpendPermission'
+        permissionHash:
+          type: string
+          description: Unique hash identifier for this permission.
+          example: '0x62bc94756bb6221a7913beab6024171fc60d3380fdc06759bfac76e8ccb3f63d'
+        revoked:
+          type: boolean
+          description: Whether this permission has been revoked.
+          example: false
+        revokedAt:
+          type: string
+          description: The UTC ISO 8601 timestamp when the permission was revoked (if applicable).
+          example: '2025-03-25T12:00:00Z'
+          format: date-time
+        createdAt:
+          type: string
+          description: The UTC ISO 8601 timestamp when the permission was created.
+          example: '2025-03-25T12:00:00Z'
+          format: date-time
+    RevokeSpendPermissionRequest:
+      type: object
+      properties:
+        network:
+          type: string
+          description: The network of the spend permission.
+          example: base
+        permissionHash:
+          type: string
+          description: The hash of the spend permission to revoke.
+          example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+        paymasterUrl:
+          type: string
+          description: The paymaster URL of the spend permission.
+          example: https://paymaster.cdp.coinbase.com
+      required:
+        - network
+        - permissionHash
     EvmSwapsNetwork:
       type: string
       enum:
         - base
         - ethereum
+        - arbitrum
+        - optimism
       description: The network on which to perform the swap.
       example: base
     toToken:
@@ -6112,7 +6733,7 @@ components:
         - criteria
     SolAddressCriterion:
       type: object
-      description: The criterion for the recipient addresses of a Solana transaction.
+      description: The criterion for the recipient addresses of a Solana transaction's native transfer instruction.
       properties:
         type:
           type: string
@@ -6122,16 +6743,16 @@ components:
             - solAddress
         addresses:
           type: array
-          description: The Solana addresses that are compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+          description: The Solana addresses that are compared to the list of native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
           items:
             type: string
             pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
-            description: The Solana address that is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+            description: The Solana address that is compared to the list of native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
           example:
             - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
         operator:
           type: string
-          description: The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side.
+          description: The operator to use for the comparison. Each of the native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
           enum:
             - in
             - not in
@@ -6821,6 +7442,150 @@ components:
         createdAt: '2021-01-01T00:00:00Z'
         updatedAt: '2021-01-01T00:00:00Z'
         transactionHash: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+    OnrampPaymentMethodTypeId:
+      type: string
+      description: The type of payment method to be used to complete the order.
+      enum:
+        - GUEST_CHECKOUT_APPLE_PAY
+      example: GUEST_CHECKOUT_APPLE_PAY
+    OnrampOrderFee:
+      type: object
+      description: A fee associated with an order.
+      properties:
+        type:
+          type: string
+          enum:
+            - FEE_TYPE_NETWORK
+            - FEE_TYPE_EXCHANGE
+          description: The type of fee.
+          example: FEE_TYPE_NETWORK
+        amount:
+          type: string
+          description: The amount of the fee.
+          example: '0.95'
+        currency:
+          type: string
+          description: The currency of the fee.
+          example: USDC
+      required:
+        - type
+        - amount
+        - currency
+    OnrampOrderStatus:
+      type: string
+      description: The status of an onramp order.
+      enum:
+        - ONRAMP_ORDER_STATUS_PENDING_AUTH
+        - ONRAMP_ORDER_STATUS_PENDING_PAYMENT
+        - ONRAMP_ORDER_STATUS_PROCESSING
+        - ONRAMP_ORDER_STATUS_COMPLETED
+        - ONRAMP_ORDER_STATUS_FAILED
+      example: ONRAMP_ORDER_STATUS_COMPLETED
+    OnrampOrder:
+      type: object
+      description: An Onramp order.
+      properties:
+        orderId:
+          type: string
+          description: The ID of the onramp order.
+          example: 123e4567-e89b-12d3-a456-426614174000
+        paymentTotal:
+          type: string
+          description: The total amount of fiat to be paid, inclusive of any fees.
+          example: '100.75'
+        paymentSubtotal:
+          type: string
+          description: The amount of fiat to be converted to crypto.
+          example: '100'
+        paymentCurrency:
+          type: string
+          description: The fiat currency to be converted to crypto.
+          example: USD
+        paymentMethod:
+          $ref: '#/components/schemas/OnrampPaymentMethodTypeId'
+        purchaseAmount:
+          type: string
+          description: The amount of crypto to be purchased.
+          example: '100.000000'
+        purchaseCurrency:
+          type: string
+          description: The crypto currency to be purchased.
+          example: USDC
+        fees:
+          type: array
+          description: The fees associated with the order.
+          items:
+            $ref: '#/components/schemas/OnrampOrderFee'
+          example:
+            - type: FEE_TYPE_EXCHANGE
+              amount: '0.5'
+              currency: USD
+            - type: FEE_TYPE_NETWORK
+              amount: '0.25'
+              currency: USD
+        exchangeRate:
+          type: string
+          description: The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat.
+          example: '1'
+        destinationAddress:
+          type: string
+          description: The destination address to send the crypto to.
+          example: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
+        destinationNetwork:
+          type: string
+          description: The network to send the crypto on.
+          example: base
+        status:
+          $ref: '#/components/schemas/OnrampOrderStatus'
+        txHash:
+          type: string
+          description: The transaction hash of the order (only available once crypto has been sent).
+          example: '0x363cd3b3d4f49497cf5076150cd709307b90e9fc897fdd623546ea7b9313cecb'
+        createdAt:
+          type: string
+          description: The date and time the order was created.
+          example: '2025-04-24T00:00:00Z'
+        updatedAt:
+          type: string
+          description: The date and time the order was last updated.
+          example: '2025-04-24T00:00:00Z'
+      required:
+        - orderId
+        - paymentTotal
+        - paymentSubtotal
+        - paymentCurrency
+        - paymentMethod
+        - purchaseAmount
+        - purchaseCurrency
+        - fees
+        - exchangeRate
+        - destinationAddress
+        - destinationNetwork
+        - status
+        - createdAt
+        - updatedAt
+    OnrampPaymentLinkType:
+      type: string
+      description: The type of payment link.
+      enum:
+        - PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON
+      example: PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON
+    OnrampPaymentLink:
+      type: object
+      description: |-
+        A payment link to pay for an order.
+
+        Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
+      properties:
+        url:
+          type: string
+          description: The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your  own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes.
+          example: https://pay.coinbase.com/v2/api-onramp/apple-pay?sessionToken=MWYwNWQwODktZTZlYy02OTdlLTgzZTYtMTI3NzcyOWJhNjM3
+        paymentLinkType:
+          $ref: '#/components/schemas/OnrampPaymentLinkType'
+      required:
+        - url
+        - paymentLinkType
   responses:
     InternalServerError:
       description: Internal server error.
@@ -6888,6 +7653,28 @@ components:
               value:
                 errorType: already_exists
                 errorMessage: Another request with the same idempotency key is currently processing.
+    UnauthorizedError:
+      description: Unauthorized.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            unauthorized:
+              value:
+                errorType: unauthorized
+                errorMessage: The request is not properly authenticated.
+    RateLimitExceeded:
+      description: Rate limit exceeded.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            rate_limit_exceeded:
+              value:
+                errorType: rate_limit_exceeded
+                errorMessage: Rate limit exceeded.
   parameters:
     XWalletAuth:
       name: X-Wallet-Auth

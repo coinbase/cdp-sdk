@@ -5,6 +5,7 @@ import { withAuth } from "../auth/hooks/axios/index.js";
 import { ErrorType } from "./generated/coinbaseDeveloperPlatformAPIs.schemas.js";
 
 vi.mock("axios");
+vi.mock("axios-retry");
 vi.mock("../auth/hooks/axios");
 
 describe("cdpApiClient", () => {

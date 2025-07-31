@@ -1,3 +1,5 @@
+import { SpendPermission } from "../../spend-permissions/types.js";
+
 import type {
   EvmAccount as Account,
   EvmServerAccount as ServerAccount,
@@ -24,6 +26,7 @@ import type {
   OpenApiEvmMethods,
   UpdateEvmAccountBody as UpdateEvmAccount,
   UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
+  UserOperationReceipt,
 } from "../../openapi-client/index.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";
@@ -36,6 +39,9 @@ export type EvmClientInterface = Omit<
   typeof OpenApiEvmMethods,
   | "createEvmAccount" // mapped to createAccount
   | "createEvmSmartAccount" // mapped to createSmartAccount
+  | "createSpendPermission" // mapped to createSpendPermission
+  | "listSpendPermissions" // mapped to listSpendPermissions
+  | "revokeSpendPermission" // mapped to revokeSpendPermission
   | "importEvmAccount" // mapped to importAccount
   | "exportEvmAccount" // mapped to exportAccount
   | "exportEvmAccountByName" // mapped to exportAccount
@@ -256,6 +262,39 @@ export interface CreateSwapQuoteResult {
   execute: (options?: ExecuteSwapQuoteOptions) => Promise<ExecuteSwapQuoteResult>;
 }
 
+export interface CreateSpendPermissionOptions {
+  /** The spend permission. */
+  spendPermission: SpendPermission;
+  /** The network. */
+  network: EvmUserOperationNetwork;
+  /** The paymaster URL. */
+  paymasterUrl?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+}
+
+export interface ListSpendPermissionsOptions {
+  /** The address of the smart account. */
+  address: Address;
+  /** The page size to paginate through the spend permissions. */
+  pageSize?: number;
+  /** The page token to paginate through the spend permissions. */
+  pageToken?: string;
+}
+
+export interface RevokeSpendPermissionOptions {
+  /** The address of the smart account. */
+  address: Address;
+  /** The hash of the spend permission to revoke. */
+  permissionHash: Hex;
+  /** The network. */
+  network: EvmUserOperationNetwork;
+  /** The paymaster URL. */
+  paymasterUrl?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+}
+
 /**
  * Options for getting a user operation.
  */
@@ -314,6 +353,10 @@ export interface UserOperation {
    * The hash of the transaction that included this particular user operation. This gets set after the user operation is broadcasted and the transaction is included in a block.
    */
   transactionHash?: Hex;
+  /**
+   * The receipts associated with the broadcasted user operation.
+   */
+  receipts?: UserOperationReceipt[];
 }
 
 /**
@@ -392,6 +435,12 @@ export interface GetOrCreateSmartAccountOptions {
   name: string;
   /** The owner of the account. */
   owner: Account;
+  /**
+   * @deprecated Experimental! This method name will change, and is subject to other breaking changes.
+   *
+   * The flag to enable spend permission.
+   */
+  __experimental_enableSpendPermission?: boolean;
 }
 
 /**
@@ -487,7 +536,11 @@ export interface CreateSmartAccountOptions {
   idempotencyKey?: string;
   /** The name of the account. */
   name?: string;
-  /** The flag to enable spend permission. */
+  /**
+   * @deprecated Experimental! This method name will change, and is subject to other breaking changes.
+   *
+   * The flag to enable spend permission.
+   */
   __experimental_enableSpendPermission?: boolean;
 }
 

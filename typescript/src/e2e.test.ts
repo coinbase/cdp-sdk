@@ -40,6 +40,7 @@ import bs58 from "bs58";
 import { Abi } from "abitype";
 import kitchenSinkAbi from "../fixtures/kitchenSinkAbi.js";
 import { APIError, HttpErrorType } from "./openapi-client/errors.js";
+import { SpendPermission } from "./spend-permissions/types.js";
 
 dotenv.config();
 
@@ -1153,6 +1154,48 @@ describe("CDP Client E2E Tests", () => {
           console.log("Error: ", error);
           console.log("Ignoring for now...");
         }
+      });
+    });
+    describe("create spend permission", () => {
+      it("should create a spend permission", async () => {
+        const owner = await cdp.evm.getOrCreateAccount({
+          name: "Spend-Permission-Owner",
+        });
+
+        const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+          name: "Spend-Permission-Smart-Account",
+          owner,
+          __experimental_enableSpendPermission: true,
+        });
+
+        const spender = await cdp.evm.getOrCreateAccount({
+          name: "Spend-Permission-Spender",
+        });
+
+        const spendPermission: SpendPermission = {
+          account: smartAccount.address,
+          spender: spender.address,
+          token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+          allowance: parseEther("0.00001"),
+          period: 86400,
+          start: 0,
+          end: 281474976710655,
+          salt: BigInt(0),
+          extraData: "0x",
+        };
+
+        const { userOpHash } = await cdp.evm.createSpendPermission({
+          spendPermission,
+          network: "base-sepolia",
+        });
+
+        const userOperationResult = await cdp.evm.waitForUserOperation({
+          smartAccountAddress: smartAccount.address,
+          userOpHash,
+        });
+
+        expect(userOperationResult).toBeDefined();
+        expect(userOperationResult.status).toBe("complete");
       });
     });
   });
