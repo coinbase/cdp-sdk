@@ -334,7 +334,9 @@ class EvmClient:
         """List spend permissions for a smart account."""
         pass
 
-    async def revoke_spend_permission(self, address: str, permission_hash: str) -> EvmUserOperationModel:
+    async def revoke_spend_permission(
+        self, address: str, permission_hash: str
+    ) -> EvmUserOperationModel:
         """Revoke a spend permission for a smart account."""
         pass
 
