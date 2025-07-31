@@ -18,19 +18,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from cdp.openapi_client.models.spend_permission_response_object import SpendPermissionResponseObject
 from typing import Optional, Set
 from typing_extensions import Self
 
-class X402DiscoveryResourcesResponsePagination(BaseModel):
+class ListSpendPermissions200Response(BaseModel):
     """
-    Pagination information for the response.
+    ListSpendPermissions200Response
     """ # noqa: E501
-    limit: Optional[StrictInt] = Field(default=None, description="The number of discovered x402 resources to return per page.")
-    offset: Optional[StrictInt] = Field(default=None, description="The offset of the first discovered x402 resource to return.")
-    total: Optional[StrictInt] = Field(default=None, description="The total number of discovered x402 resources.")
-    __properties: ClassVar[List[str]] = ["limit", "offset", "total"]
+    next_page_token: Optional[StrictStr] = Field(default=None, description="The token for the next page of items, if any.", alias="nextPageToken")
+    spend_permissions: List[SpendPermissionResponseObject] = Field(description="The spend permissions for the smart account.", alias="spendPermissions")
+    __properties: ClassVar[List[str]] = ["nextPageToken", "spendPermissions"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -50,7 +50,7 @@ class X402DiscoveryResourcesResponsePagination(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of X402DiscoveryResourcesResponsePagination from a JSON string"""
+        """Create an instance of ListSpendPermissions200Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -71,11 +71,18 @@ class X402DiscoveryResourcesResponsePagination(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in spend_permissions (list)
+        _items = []
+        if self.spend_permissions:
+            for _item_spend_permissions in self.spend_permissions:
+                if _item_spend_permissions:
+                    _items.append(_item_spend_permissions.to_dict())
+            _dict['spendPermissions'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of X402DiscoveryResourcesResponsePagination from a dict"""
+        """Create an instance of ListSpendPermissions200Response from a dict"""
         if obj is None:
             return None
 
@@ -83,9 +90,8 @@ class X402DiscoveryResourcesResponsePagination(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "limit": obj.get("limit"),
-            "offset": obj.get("offset"),
-            "total": obj.get("total")
+            "nextPageToken": obj.get("nextPageToken"),
+            "spendPermissions": [SpendPermissionResponseObject.from_dict(_item) for _item in obj["spendPermissions"]] if obj.get("spendPermissions") is not None else None
         })
         return _obj
 

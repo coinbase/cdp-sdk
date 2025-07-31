@@ -151,8 +151,10 @@ const (
 
 // Defines values for EvmSwapsNetwork.
 const (
+	EvmSwapsNetworkArbitrum EvmSwapsNetwork = "arbitrum"
 	EvmSwapsNetworkBase     EvmSwapsNetwork = "base"
 	EvmSwapsNetworkEthereum EvmSwapsNetwork = "ethereum"
+	EvmSwapsNetworkOptimism EvmSwapsNetwork = "optimism"
 )
 
 // Defines values for EvmTypedAddressConditionOperator.
@@ -163,11 +165,11 @@ const (
 
 // Defines values for EvmTypedNumericalConditionOperator.
 const (
-	EvmTypedNumericalConditionOperatorEmpty      EvmTypedNumericalConditionOperator = ">"
-	EvmTypedNumericalConditionOperatorEqualEqual EvmTypedNumericalConditionOperator = "=="
-	EvmTypedNumericalConditionOperatorN1         EvmTypedNumericalConditionOperator = ">="
-	EvmTypedNumericalConditionOperatorN2         EvmTypedNumericalConditionOperator = "<"
-	EvmTypedNumericalConditionOperatorN3         EvmTypedNumericalConditionOperator = "<="
+	Empty      EvmTypedNumericalConditionOperator = ">"
+	EqualEqual EvmTypedNumericalConditionOperator = "=="
+	N1         EvmTypedNumericalConditionOperator = ">="
+	N2         EvmTypedNumericalConditionOperator = "<"
+	N3         EvmTypedNumericalConditionOperator = "<="
 )
 
 // Defines values for EvmUserOperationStatus.
@@ -407,40 +409,23 @@ const (
 	TransferTargetTypeCryptoRail TransferTargetType = "crypto_rail"
 )
 
-// Defines values for X402Version.
-const (
-	X402VersionN1 X402Version = 1
-)
-
-// Defines values for X402DiscoveryResourceType.
-const (
-	Http X402DiscoveryResourceType = "http"
-)
-
-// Defines values for X402PaymentRequirementsNetwork.
-const (
-	X402PaymentRequirementsNetworkBase        X402PaymentRequirementsNetwork = "base"
-	X402PaymentRequirementsNetworkBaseSepolia X402PaymentRequirementsNetwork = "base-sepolia"
-)
-
-// Defines values for X402PaymentRequirementsScheme.
-const (
-	Exact X402PaymentRequirementsScheme = "exact"
-)
-
 // Defines values for SendEvmTransactionJSONBodyNetwork.
 const (
+	SendEvmTransactionJSONBodyNetworkArbitrum        SendEvmTransactionJSONBodyNetwork = "arbitrum"
+	SendEvmTransactionJSONBodyNetworkAvalanche       SendEvmTransactionJSONBodyNetwork = "avalanche"
 	SendEvmTransactionJSONBodyNetworkBase            SendEvmTransactionJSONBodyNetwork = "base"
 	SendEvmTransactionJSONBodyNetworkBaseSepolia     SendEvmTransactionJSONBodyNetwork = "base-sepolia"
 	SendEvmTransactionJSONBodyNetworkEthereum        SendEvmTransactionJSONBodyNetwork = "ethereum"
 	SendEvmTransactionJSONBodyNetworkEthereumSepolia SendEvmTransactionJSONBodyNetwork = "ethereum-sepolia"
+	SendEvmTransactionJSONBodyNetworkOptimism        SendEvmTransactionJSONBodyNetwork = "optimism"
+	SendEvmTransactionJSONBodyNetworkPolygon         SendEvmTransactionJSONBodyNetwork = "polygon"
 )
 
 // Defines values for RequestEvmFaucetJSONBodyNetwork.
 const (
-	BaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
-	EthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
-	EthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
+	RequestEvmFaucetJSONBodyNetworkBaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
+	RequestEvmFaucetJSONBodyNetworkEthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
+	RequestEvmFaucetJSONBodyNetworkEthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
 )
 
 // Defines values for RequestEvmFaucetJSONBodyToken.
@@ -1217,7 +1202,7 @@ type OnrampOrder struct {
 	// DestinationNetwork The network to send the crypto on.
 	DestinationNetwork string `json:"destinationNetwork"`
 
-	// ExchangeRate The exchange rate used to convert fiat to crypto.
+	// ExchangeRate The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat.
 	ExchangeRate string `json:"exchangeRate"`
 
 	// Fees The fees associated with the order.
@@ -1233,9 +1218,9 @@ type OnrampOrder struct {
 	PaymentMethod OnrampPaymentMethodTypeId `json:"paymentMethod"`
 
 	// PaymentSubtotal The amount of fiat to be converted to crypto.
-	PaymentSubtotal interface{} `json:"paymentSubtotal"`
+	PaymentSubtotal string `json:"paymentSubtotal"`
 
-	// PaymentTotal The total amount of fiat to be paid.
+	// PaymentTotal The total amount of fiat to be paid, inclusive of any fees.
 	PaymentTotal string `json:"paymentTotal"`
 
 	// PurchaseAmount The amount of crypto to be purchased.
@@ -1279,7 +1264,7 @@ type OnrampPaymentLink struct {
 	// PaymentLinkType The type of payment link.
 	PaymentLinkType OnrampPaymentLinkType `json:"paymentLinkType"`
 
-	// Url The URL to the hosted widget the user should be redirected to, append your own redirect_url query parameter to  this URL to ensure the user is redirected back to your app after the widget completes.
+	// Url The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your  own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes.
 	Url string `json:"url"`
 }
 
@@ -1387,6 +1372,18 @@ type PrepareUserOperationRuleAction string
 
 // PrepareUserOperationRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type PrepareUserOperationRuleOperation string
+
+// RevokeSpendPermissionRequest defines model for RevokeSpendPermissionRequest.
+type RevokeSpendPermissionRequest struct {
+	// Network The network of the spend permission.
+	Network string `json:"network"`
+
+	// PaymasterUrl The paymaster URL of the spend permission.
+	PaymasterUrl *string `json:"paymasterUrl,omitempty"`
+
+	// PermissionHash The hash of the spend permission to revoke.
+	PermissionHash string `json:"permissionHash"`
+}
 
 // Rule A rule that limits the behavior of an account.
 type Rule struct {
@@ -1614,19 +1611,19 @@ type SignSolTransactionRuleAction string
 // SignSolTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SignSolTransactionRuleOperation string
 
-// SolAddressCriterion The criterion for the recipient addresses of a Solana transaction.
+// SolAddressCriterion The criterion for the recipient addresses of a Solana transaction's native transfer instruction.
 type SolAddressCriterion struct {
-	// Addresses The Solana addresses that are compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+	// Addresses The Solana addresses that are compared to the list of native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
 	Addresses []string `json:"addresses"`
 
-	// Operator The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side.
+	// Operator The operator to use for the comparison. Each of the native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
 	Operator SolAddressCriterionOperator `json:"operator"`
 
 	// Type The type of criterion to use. This should be `solAddress`.
 	Type SolAddressCriterionType `json:"type"`
 }
 
-// SolAddressCriterionOperator The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side.
+// SolAddressCriterionOperator The operator to use for the comparison. Each of the native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
 type SolAddressCriterionOperator string
 
 // SolAddressCriterionType The type of criterion to use. This should be `solAddress`.
@@ -1688,6 +1685,54 @@ type SolanaTokenBalance struct {
 
 	// Token General information about a Solana token. Includes the mint address, and other identifying information.
 	Token SolanaToken `json:"token"`
+}
+
+// SpendPermission The core spend permission.
+type SpendPermission struct {
+	// Account Smart account this spend permission is valid for.
+	Account string `json:"account"`
+
+	// Allowance Maximum allowed value to spend, in atomic units for the specified token, within each period.
+	Allowance string `json:"allowance"`
+
+	// End The expiration time for this spend permission, in Unix seconds.
+	End *string `json:"end,omitempty"`
+
+	// ExtraData Arbitrary data to include in the permission.
+	ExtraData *string `json:"extraData,omitempty"`
+
+	// Period Time duration for resetting used allowance on a recurring basis (seconds).
+	Period *string `json:"period,omitempty"`
+
+	// Salt An arbitrary salt to differentiate unique spend permissions with otherwise identical data.
+	Salt *string `json:"salt,omitempty"`
+
+	// Spender Entity that can spend account's tokens.
+	Spender string `json:"spender"`
+
+	// Start The start time for this spend permission, in Unix seconds.
+	Start *string `json:"start,omitempty"`
+
+	// Token Token address (ERC-7528 native token address or ERC-20 contract).
+	Token string `json:"token"`
+}
+
+// SpendPermissionResponseObject defines model for SpendPermissionResponseObject.
+type SpendPermissionResponseObject struct {
+	// CreatedAt The UTC ISO 8601 timestamp when the permission was created.
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
+
+	// Permission The core spend permission.
+	Permission *SpendPermission `json:"permission,omitempty"`
+
+	// PermissionHash Unique hash identifier for this permission.
+	PermissionHash *string `json:"permissionHash,omitempty"`
+
+	// Revoked Whether this permission has been revoked.
+	Revoked *bool `json:"revoked,omitempty"`
+
+	// RevokedAt The UTC ISO 8601 timestamp when the permission was revoked (if applicable).
+	RevokedAt *time.Time `json:"revokedAt,omitempty"`
 }
 
 // SwapUnavailableResponse defines model for SwapUnavailableResponse.
@@ -1848,9 +1893,6 @@ type UserOperationReceiptRevert struct {
 	Message string `json:"message"`
 }
 
-// X402Version The version of the x402 protocol.
-type X402Version int
-
 // FromAmount The amount of the `fromToken` to send in atomic units of the token. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
 type FromAmount = string
 
@@ -1871,101 +1913,6 @@ type Taker = string
 
 // ToToken The 0x-prefixed contract address of the token to receive.
 type ToToken = string
-
-// X402DiscoveryResource A single discovered x402 resource.
-type X402DiscoveryResource struct {
-	// Accepts Payment requirements as an array of JSON objects.
-	Accepts *[]X402PaymentRequirements `json:"accepts,omitempty"`
-
-	// LastUpdated Timestamp of the last update.
-	LastUpdated time.Time `json:"lastUpdated"`
-
-	// Metadata Additional metadata as a JSON object.
-	Metadata *map[string]interface{} `json:"metadata,omitempty"`
-
-	// Resource The normalized resource identifier.
-	Resource string `json:"resource"`
-
-	// Type Communication protocol (e.g., "http", "mcp").
-	Type X402DiscoveryResourceType `json:"type"`
-
-	// X402Version The version of the x402 protocol.
-	X402Version X402Version `json:"x402Version"`
-}
-
-// X402DiscoveryResourceType Communication protocol (e.g., "http", "mcp").
-type X402DiscoveryResourceType string
-
-// X402DiscoveryResourcesResponse Response containing discovered x402 resources.
-type X402DiscoveryResourcesResponse struct {
-	// Items List of discovered x402 resources.
-	Items []X402DiscoveryResource `json:"items"`
-
-	// Pagination Pagination information for the response.
-	Pagination struct {
-		// Limit The number of discovered x402 resources to return per page.
-		Limit *int `json:"limit,omitempty"`
-
-		// Offset The offset of the first discovered x402 resource to return.
-		Offset *int `json:"offset,omitempty"`
-
-		// Total The total number of discovered x402 resources.
-		Total *int `json:"total,omitempty"`
-	} `json:"pagination"`
-
-	// X402Version The version of the x402 protocol.
-	X402Version X402Version `json:"x402Version"`
-}
-
-// X402PaymentRequirements The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
-type X402PaymentRequirements struct {
-	// Asset The asset to pay with.
-	//
-	// For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
-	//
-	// For Solana-based networks, the asset will be a base58-encoded Solana address.
-	Asset string `json:"asset"`
-
-	// Description The description of the resource.
-	Description string `json:"description"`
-
-	// Extra The optional additional scheme-specific payment info.
-	Extra *map[string]interface{} `json:"extra,omitempty"`
-
-	// MaxAmountRequired The maximum amount required to pay for the resource in atomic units of the payment asset.
-	MaxAmountRequired string `json:"maxAmountRequired"`
-
-	// MaxTimeoutSeconds The maximum time in seconds for the resource server to respond.
-	MaxTimeoutSeconds int `json:"maxTimeoutSeconds"`
-
-	// MimeType The MIME type of the resource response.
-	MimeType string `json:"mimeType"`
-
-	// Network The network of the blockchain to send payment on.
-	Network X402PaymentRequirementsNetwork `json:"network"`
-
-	// OutputSchema The optional JSON schema describing the resource output.
-	OutputSchema *map[string]interface{} `json:"outputSchema,omitempty"`
-
-	// PayTo The destination to pay value to.
-	//
-	// For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
-	//
-	// For Solana-based networks, payTo will be a base58-encoded Solana address.
-	PayTo string `json:"payTo"`
-
-	// Resource The URL of the resource to pay for.
-	Resource string `json:"resource"`
-
-	// Scheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
-	Scheme X402PaymentRequirementsScheme `json:"scheme"`
-}
-
-// X402PaymentRequirementsNetwork The network of the blockchain to send payment on.
-type X402PaymentRequirementsNetwork string
-
-// X402PaymentRequirementsScheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
-type X402PaymentRequirementsScheme string
 
 // IdempotencyKey defines model for IdempotencyKey.
 type IdempotencyKey = string
@@ -2276,6 +2223,28 @@ type CreateSpendPermissionParams struct {
 	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
 }
 
+// ListSpendPermissionsParams defines parameters for ListSpendPermissions.
+type ListSpendPermissionsParams struct {
+	// PageSize The number of spend permissions to return per page.
+	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of spend permissions. Will be empty if there are no more spend permissions to fetch.
+	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// RevokeSpendPermissionParams defines parameters for RevokeSpendPermission.
+type RevokeSpendPermissionParams struct {
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
 // PrepareUserOperationJSONBody defines parameters for PrepareUserOperation.
 type PrepareUserOperationJSONBody struct {
 	// Calls The list of calls to make from the Smart Account.
@@ -2352,7 +2321,7 @@ type ListEvmTokenBalancesParams struct {
 
 // CreateOnrampOrderJSONBody defines parameters for CreateOnrampOrder.
 type CreateOnrampOrderJSONBody struct {
-	// AgreementAcceptedAt The timestamp of the time the user acknowledged they are accepting the Coinbase service agreement  (https://www.coinbase.com/legal/guest-checkout/us) by using Coinbase Onramp.
+	// AgreementAcceptedAt The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy).
 	AgreementAcceptedAt time.Time `json:"agreementAcceptedAt"`
 
 	// DestinationAddress The address the purchased crypto will be sent to.
@@ -2363,7 +2332,7 @@ type CreateOnrampOrderJSONBody struct {
 	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
 	DestinationNetwork string `json:"destinationNetwork"`
 
-	// Email The email address of the user requesting the onramp transaction.
+	// Email The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API.
 	Email string `json:"email"`
 
 	// IsQuote If true, this API will return a quote without creating any transaction.
@@ -2372,7 +2341,7 @@ type CreateOnrampOrderJSONBody struct {
 	// PartnerOrderRef Optional partner order reference ID.
 	PartnerOrderRef *string `json:"partnerOrderRef,omitempty"`
 
-	// PartnerUserRef A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  to perform a sandbox transaction which will allow you to test your integration without any real transfer  of funds.
+	// PartnerUserRef A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
 	//
 	// This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
 	PartnerUserRef string `json:"partnerUserRef"`
@@ -2388,16 +2357,16 @@ type CreateOnrampOrderJSONBody struct {
 
 	// PhoneNumber The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
 	//
-	// Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for more details on phone number verification requirements and best practices.
+	// Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices.
 	PhoneNumber string `json:"phoneNumber"`
 
 	// PhoneNumberVerifiedAt Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned.
 	PhoneNumberVerifiedAt time.Time `json:"phoneNumberVerifiedAt"`
 
-	// PurchaseAmount A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter the returned quote will be exclusive of fees i.e. the user will receive this exact  amount of the purchase currency.
+	// PurchaseAmount A string representing the amount of crypto the user wishes to purchase. When using this parameter the  returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase  currency.
 	PurchaseAmount *string `json:"purchaseAmount,omitempty"`
 
-	// PurchaseCurrency The ticker (e.g. `BTC`, `USDC`) or the UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`) of crypto  asset to be purchased.
+	// PurchaseCurrency The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
 	//
 	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
 	PurchaseCurrency string `json:"purchaseCurrency"`
@@ -2701,19 +2670,6 @@ type ListSolanaTokenBalancesParams struct {
 	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
-// ListX402DiscoveryResourcesParams defines parameters for ListX402DiscoveryResources.
-type ListX402DiscoveryResourcesParams struct {
-	// Type Filter by protocol type (e.g., "http", "mcp").
-	// Currently, the only supported protocol type is "http".
-	Type *string `form:"type,omitempty" json:"type,omitempty"`
-
-	// Limit The number of discovered x402 resources to return per page.
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
-
-	// Offset The offset of the first discovered x402 resource to return.
-	Offset *int `form:"offset,omitempty" json:"offset,omitempty"`
-}
-
 // CreateEvmAccountJSONRequestBody defines body for CreateEvmAccount for application/json ContentType.
 type CreateEvmAccountJSONRequestBody CreateEvmAccountJSONBody
 
@@ -2755,6 +2711,9 @@ type UpdateEvmSmartAccountJSONRequestBody UpdateEvmSmartAccountJSONBody
 
 // CreateSpendPermissionJSONRequestBody defines body for CreateSpendPermission for application/json ContentType.
 type CreateSpendPermissionJSONRequestBody = CreateSpendPermissionRequest
+
+// RevokeSpendPermissionJSONRequestBody defines body for RevokeSpendPermission for application/json ContentType.
+type RevokeSpendPermissionJSONRequestBody = RevokeSpendPermissionRequest
 
 // PrepareUserOperationJSONRequestBody defines body for PrepareUserOperation for application/json ContentType.
 type PrepareUserOperationJSONRequestBody PrepareUserOperationJSONBody
@@ -4263,6 +4222,14 @@ type ClientInterface interface {
 
 	CreateSpendPermission(ctx context.Context, address string, params *CreateSpendPermissionParams, body CreateSpendPermissionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListSpendPermissions request
+	ListSpendPermissions(ctx context.Context, address string, params *ListSpendPermissionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RevokeSpendPermissionWithBody request with any body
+	RevokeSpendPermissionWithBody(ctx context.Context, address string, params *RevokeSpendPermissionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RevokeSpendPermission(ctx context.Context, address string, params *RevokeSpendPermissionParams, body RevokeSpendPermissionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// PrepareUserOperationWithBody request with any body
 	PrepareUserOperationWithBody(ctx context.Context, address string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -4387,9 +4354,6 @@ type ClientInterface interface {
 
 	// ListSolanaTokenBalances request
 	ListSolanaTokenBalances(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ListX402DiscoveryResources request
-	ListX402DiscoveryResources(ctx context.Context, params *ListX402DiscoveryResourcesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *CDPClient) ListEvmAccounts(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -4790,6 +4754,42 @@ func (c *CDPClient) CreateSpendPermissionWithBody(ctx context.Context, address s
 
 func (c *CDPClient) CreateSpendPermission(ctx context.Context, address string, params *CreateSpendPermissionParams, body CreateSpendPermissionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateSpendPermissionRequest(c.Server, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListSpendPermissions(ctx context.Context, address string, params *ListSpendPermissionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListSpendPermissionsRequest(c.Server, address, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeSpendPermissionWithBody(ctx context.Context, address string, params *RevokeSpendPermissionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeSpendPermissionRequestWithBody(c.Server, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RevokeSpendPermission(ctx context.Context, address string, params *RevokeSpendPermissionParams, body RevokeSpendPermissionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRevokeSpendPermissionRequest(c.Server, address, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -5354,18 +5354,6 @@ func (c *CDPClient) RequestSolanaFaucet(ctx context.Context, body RequestSolanaF
 
 func (c *CDPClient) ListSolanaTokenBalances(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListSolanaTokenBalancesRequest(c.Server, network, address, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) ListX402DiscoveryResources(ctx context.Context, params *ListX402DiscoveryResourcesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewListX402DiscoveryResourcesRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -6517,6 +6505,151 @@ func NewCreateSpendPermissionRequestWithBody(server string, address string, para
 	}
 
 	operationPath := fmt.Sprintf("/v2/evm/smart-accounts/%s/spend-permissions", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
+// NewListSpendPermissionsRequest generates requests for ListSpendPermissions
+func NewListSpendPermissionsRequest(server string, address string, params *ListSpendPermissionsParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/evm/smart-accounts/%s/spend-permissions/list", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewRevokeSpendPermissionRequest calls the generic RevokeSpendPermission builder with application/json body
+func NewRevokeSpendPermissionRequest(server string, address string, params *RevokeSpendPermissionParams, body RevokeSpendPermissionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRevokeSpendPermissionRequestWithBody(server, address, params, "application/json", bodyReader)
+}
+
+// NewRevokeSpendPermissionRequestWithBody generates requests for RevokeSpendPermission with any type of body
+func NewRevokeSpendPermissionRequestWithBody(server string, address string, params *RevokeSpendPermissionParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/evm/smart-accounts/%s/spend-permissions/revoke", pathParam0)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -8322,87 +8455,6 @@ func NewListSolanaTokenBalancesRequest(server string, network ListSolanaTokenBal
 	return req, nil
 }
 
-// NewListX402DiscoveryResourcesRequest generates requests for ListX402DiscoveryResources
-func NewListX402DiscoveryResourcesRequest(server string, params *ListX402DiscoveryResourcesParams) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/x402/discovery/resources")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.Type != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "type", runtime.ParamLocationQuery, *params.Type); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		if params.Limit != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "limit", runtime.ParamLocationQuery, *params.Limit); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		if params.Offset != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "offset", runtime.ParamLocationQuery, *params.Offset); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
 func (c *CDPClient) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -8534,6 +8586,14 @@ type ClientWithResponsesInterface interface {
 
 	CreateSpendPermissionWithResponse(ctx context.Context, address string, params *CreateSpendPermissionParams, body CreateSpendPermissionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateSpendPermissionResponse, error)
 
+	// ListSpendPermissionsWithResponse request
+	ListSpendPermissionsWithResponse(ctx context.Context, address string, params *ListSpendPermissionsParams, reqEditors ...RequestEditorFn) (*ListSpendPermissionsResponse, error)
+
+	// RevokeSpendPermissionWithBodyWithResponse request with any body
+	RevokeSpendPermissionWithBodyWithResponse(ctx context.Context, address string, params *RevokeSpendPermissionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeSpendPermissionResponse, error)
+
+	RevokeSpendPermissionWithResponse(ctx context.Context, address string, params *RevokeSpendPermissionParams, body RevokeSpendPermissionJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeSpendPermissionResponse, error)
+
 	// PrepareUserOperationWithBodyWithResponse request with any body
 	PrepareUserOperationWithBodyWithResponse(ctx context.Context, address string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PrepareUserOperationResponse, error)
 
@@ -8658,9 +8718,6 @@ type ClientWithResponsesInterface interface {
 
 	// ListSolanaTokenBalancesWithResponse request
 	ListSolanaTokenBalancesWithResponse(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListSolanaTokenBalancesResponse, error)
-
-	// ListX402DiscoveryResourcesWithResponse request
-	ListX402DiscoveryResourcesWithResponse(ctx context.Context, params *ListX402DiscoveryResourcesParams, reqEditors ...RequestEditorFn) (*ListX402DiscoveryResourcesResponse, error)
 }
 
 type ListEvmAccountsResponse struct {
@@ -9267,6 +9324,66 @@ func (r CreateSpendPermissionResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateSpendPermissionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListSpendPermissionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+
+		// SpendPermissions The spend permissions for the smart account.
+		SpendPermissions []SpendPermissionResponseObject `json:"spendPermissions"`
+	}
+	JSON400 *Error
+	JSON404 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListSpendPermissionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListSpendPermissionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type RevokeSpendPermissionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EvmUserOperation
+	JSON400      *Error
+	JSON404      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r RevokeSpendPermissionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RevokeSpendPermissionResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -10195,32 +10312,6 @@ func (r ListSolanaTokenBalancesResponse) StatusCode() int {
 	return 0
 }
 
-type ListX402DiscoveryResourcesResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *X402DiscoveryResourcesResponse
-	JSON400      *Error
-	JSON500      *InternalServerError
-	JSON502      *BadGatewayError
-	JSON503      *ServiceUnavailableError
-}
-
-// Status returns HTTPResponse.Status
-func (r ListX402DiscoveryResourcesResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ListX402DiscoveryResourcesResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 // ListEvmAccountsWithResponse request returning *ListEvmAccountsResponse
 func (c *ClientWithResponses) ListEvmAccountsWithResponse(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*ListEvmAccountsResponse, error) {
 	rsp, err := c.ListEvmAccounts(ctx, params, reqEditors...)
@@ -10511,6 +10602,32 @@ func (c *ClientWithResponses) CreateSpendPermissionWithResponse(ctx context.Cont
 		return nil, err
 	}
 	return ParseCreateSpendPermissionResponse(rsp)
+}
+
+// ListSpendPermissionsWithResponse request returning *ListSpendPermissionsResponse
+func (c *ClientWithResponses) ListSpendPermissionsWithResponse(ctx context.Context, address string, params *ListSpendPermissionsParams, reqEditors ...RequestEditorFn) (*ListSpendPermissionsResponse, error) {
+	rsp, err := c.ListSpendPermissions(ctx, address, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListSpendPermissionsResponse(rsp)
+}
+
+// RevokeSpendPermissionWithBodyWithResponse request with arbitrary body returning *RevokeSpendPermissionResponse
+func (c *ClientWithResponses) RevokeSpendPermissionWithBodyWithResponse(ctx context.Context, address string, params *RevokeSpendPermissionParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RevokeSpendPermissionResponse, error) {
+	rsp, err := c.RevokeSpendPermissionWithBody(ctx, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeSpendPermissionResponse(rsp)
+}
+
+func (c *ClientWithResponses) RevokeSpendPermissionWithResponse(ctx context.Context, address string, params *RevokeSpendPermissionParams, body RevokeSpendPermissionJSONRequestBody, reqEditors ...RequestEditorFn) (*RevokeSpendPermissionResponse, error) {
+	rsp, err := c.RevokeSpendPermission(ctx, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRevokeSpendPermissionResponse(rsp)
 }
 
 // PrepareUserOperationWithBodyWithResponse request with arbitrary body returning *PrepareUserOperationResponse
@@ -10918,15 +11035,6 @@ func (c *ClientWithResponses) ListSolanaTokenBalancesWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseListSolanaTokenBalancesResponse(rsp)
-}
-
-// ListX402DiscoveryResourcesWithResponse request returning *ListX402DiscoveryResourcesResponse
-func (c *ClientWithResponses) ListX402DiscoveryResourcesWithResponse(ctx context.Context, params *ListX402DiscoveryResourcesParams, reqEditors ...RequestEditorFn) (*ListX402DiscoveryResourcesResponse, error) {
-	rsp, err := c.ListX402DiscoveryResources(ctx, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseListX402DiscoveryResourcesResponse(rsp)
 }
 
 // ParseListEvmAccountsResponse parses an HTTP response from a ListEvmAccountsWithResponse call
@@ -12365,6 +12473,134 @@ func ParseCreateSpendPermissionResponse(rsp *http.Response) (*CreateSpendPermiss
 	}
 
 	response := &CreateSpendPermissionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EvmUserOperation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListSpendPermissionsResponse parses an HTTP response from a ListSpendPermissionsWithResponse call
+func ParseListSpendPermissionsResponse(rsp *http.Response) (*ListSpendPermissionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListSpendPermissionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+
+			// SpendPermissions The spend permissions for the smart account.
+			SpendPermissions []SpendPermissionResponseObject `json:"spendPermissions"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRevokeSpendPermissionResponse parses an HTTP response from a RevokeSpendPermissionWithResponse call
+func ParseRevokeSpendPermissionResponse(rsp *http.Response) (*RevokeSpendPermissionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RevokeSpendPermissionResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
@@ -14540,60 +14776,6 @@ func ParseListSolanaTokenBalancesResponse(rsp *http.Response) (*ListSolanaTokenB
 			return nil, err
 		}
 		response.JSON404 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest InternalServerError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
-		var dest BadGatewayError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON502 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
-		var dest ServiceUnavailableError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON503 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseListX402DiscoveryResourcesResponse parses an HTTP response from a ListX402DiscoveryResourcesWithResponse call
-func ParseListX402DiscoveryResourcesResponse(rsp *http.Response) (*ListX402DiscoveryResourcesResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ListX402DiscoveryResourcesResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest X402DiscoveryResourcesResponse
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError

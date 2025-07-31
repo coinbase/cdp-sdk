@@ -95,17 +95,17 @@ tags:
   - name: Onramp
     x-audience: public
     description: |-
-      <Note>Currently the v2 Onramp APIs are in private beta and only available to approved partners.</Note>
+      <Note>Currently the v2 Onramp APIs are in private beta and only available to approved partners. [Contact us](https://calendar.app.google/BLn6fzaz2aCZGvLu7)  to get early access.</Note>
 
-      The v2 Onramp APIs are an evolution of our existing [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/),  designed to make integrating with Coinbase Onramp simpler and more API driven. These APIs make it possible to build   native feeling onramp experiences in your applications by reducing the reliance on Coinbase UIs as much as possible and keeping users focused on your app.
-
-      The v2 Onramp APIs only cover a subset of onramp use cases decsribed below, for all other use cases please refer to our  [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/).
+      The v2 Onramp APIs are an evolution of our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/),  designed to make the fiat-to-crypto experience feel native to your applications for higher conversion and less friction. These APIs only cover a subset of Coinbase Onramp functionality as described below, for all other use cases please refer to our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/).
 
       ## Supported Use Cases
 
-      #### Apple Pay Onramp API (native iOS apps only)
+      #### Apple Pay Onramp (iOS apps)
 
-      This use case allows you to offer a low KYC Apple Pay onramp experience in your app for users that don't have a Coinbase account. Our API returns a URL that renders an Apple Pay button that you can embed in a webview in your app, making the onramp experience feel completely native.
+      This use case allows you to offer an Apple Pay onramp experience with debit cards in your mobile app without users  needing to create or log into a Coinbase account. Our API returns a `paymentLink` URL that renders an Apple Pay  button for you to load in a webview in your app, making the onramp experience feel native to your application. 
+
+      Refer to our [detailed integration guide](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api)  for more information on the limitations and requirements of this use case. See our [onramp mobile demo app](https://github.com/coinbase/onramp-demo-mobile)  for a reference implementation.
   - name: Payments (Alpha)
     x-audience: public
     description: |-
@@ -147,13 +147,13 @@ tags:
         - An `action` can either `accept` or `reject` a transaction if the criteria in the rule are met.
         - `criteria` is an array of logical expressions. All parameters must evaluate to true for the action to be applied.
         - An `operation` corresponds to a CDP v2 API:
-            - `signEvmTransaction` or `signSolTransaction` for signing transactions (to set a transaction limit)
-            - `sendEvmTransaction` for signing a transaction, and sending it to a supported network
+            - `signEvmTransaction` or `signSolTransaction` for signing transactions (to set a transaction limit).
+            - `sendEvmTransaction` for signing a transaction, and sending it to a supported network.
             - `signEvmHash` for signing an arbitrary 32 byte hash.
             - `signEvmMessage` for signing an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) message.
             - `prepareUserOperation` for preparing user operations on a smart account.
             - `sendUserOperation` for sending user operations using a smart account.
-      - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected. Only `signEvmTransaction` and `signSolTransaction` operations are currently supported.
+      - A **rule** indicates how an operation should behave, specifying whether a request with defined criteria should be accepted or rejected.
       ## Policy Scope
       Policies can be applied at the project and/or account level:
       - **Project-level policy**: A `project`-level policy applies to all accounts in a CDP Project. Only one project-level policy can be applied to accounts within a CDP Project at any given time.
@@ -278,6 +278,8 @@ tags:
       ### SignSolTransaction Criteria
       #### solAddress
       A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### solValue
+      A criterion based on the value of the transaction. The criterion's `solValue` field is compared to the transaction's `value`, which is the amount of SOL in lamports being transferred, using the `operator` field.
       ## Restricting Contract Interactions on Ethereum
       Smart contract function restrictions serve as a critical security and governance mechanism in decentralized applications, allowing developers and organizations to implement fine-grained access controls over their protocol interactions.
       One of the primary use cases for function restrictions is protecting high-risk operations from unauthorized access such as:
@@ -784,6 +786,10 @@ paths:
                     - base-sepolia
                     - ethereum
                     - ethereum-sepolia
+                    - avalanche
+                    - polygon
+                    - optimism
+                    - arbitrum
                   example: base-sepolia
                 transaction:
                   type: string
@@ -2095,6 +2101,147 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/smart-accounts/{address}/spend-permissions/list:
+    get:
+      x-audience: public
+      summary: List spend permissions
+      description: Lists spend permission for the given smart account address.
+      operationId: listSpendPermissions
+      tags:
+        - EVM Smart Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: address
+          description: The address of the Smart account to list spend permissions for.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - name: pageSize
+          description: The number of spend permissions to return per page.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          example: 10
+        - name: pageToken
+          description: The token for the next page of spend permissions. Will be empty if there are no more spend permissions to fetch.
+          in: query
+          required: false
+          schema:
+            type: string
+          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+      responses:
+        '200':
+          description: Successfully listed spend permissions.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - spendPermissions
+                    properties:
+                      spendPermissions:
+                        type: array
+                        description: The spend permissions for the smart account.
+                        items:
+                          $ref: '#/components/schemas/SpendPermissionResponseObject'
+                  - $ref: '#/components/schemas/ListResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Smart account not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/smart-accounts/{address}/spend-permissions/revoke:
+    post:
+      x-audience: public
+      summary: Revoke a spend permission
+      description: Revokes an existing spend permission.
+      operationId: revokeSpendPermission
+      tags:
+        - EVM Smart Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: address
+          description: The address of the Smart account this spend permission is valid for.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeSpendPermissionRequest'
+      responses:
+        '200':
+          description: Successfully revoked spend permission.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmUserOperation'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid request. Please check the request body and parameters.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Smart account not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/swaps/quote:
     get:
       x-audience: public
@@ -2389,8 +2536,8 @@ paths:
           $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/token-balances/{network}/{address}:
     get:
-      summary: List EVM token balances
       x-audience: public
+      summary: List EVM token balances
       description: |-
         Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.
 
@@ -2606,8 +2753,8 @@ paths:
           $ref: '#/components/responses/ServiceUnavailableError'
   /v2/policy-engine/policies:
     get:
-      summary: List policies
       x-audience: public
+      summary: List policies
       description: |-
         Lists the policies belonging to the developer's CDP Project. Use the `scope` parameter to filter the policies by scope.
         The response is paginated, and by default, returns 20 policies per page.
@@ -2666,8 +2813,8 @@ paths:
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
     post:
-      summary: Create a policy
       x-audience: public
+      summary: Create a policy
       description: Create a policy that can be used to govern the behavior of accounts.
       operationId: createPolicy
       tags:
@@ -2737,8 +2884,8 @@ paths:
           $ref: '#/components/responses/ServiceUnavailableError'
   /v2/policy-engine/policies/{policyId}:
     get:
-      summary: Get a policy by ID
       x-audience: public
+      summary: Get a policy by ID
       description: Get a policy by its ID.
       operationId: getPolicyById
       tags:
@@ -2779,8 +2926,8 @@ paths:
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
     delete:
-      summary: Delete a policy
       x-audience: public
+      summary: Delete a policy
       description: Delete a policy by its ID. This will have the effect of removing the policy from all accounts that are currently using it.
       operationId: deletePolicy
       tags:
@@ -2835,8 +2982,8 @@ paths:
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
     put:
-      summary: Update a policy
       x-audience: public
+      summary: Update a policy
       description: Updates a policy by its ID. This will have the effect of applying the updated policy to all accounts that are currently using it.
       operationId: updatePolicy
       tags:
@@ -3933,8 +4080,8 @@ paths:
           $ref: '#/components/responses/ServiceUnavailableError'
   /v2/solana/token-balances/{network}/{address}:
     get:
-      summary: List Solana token balances
       x-audience: public
+      summary: List Solana token balances
       description: |-
         Lists the token balances of a Solana address on a given network. The balances include SPL tokens and the native SOL token. The response is paginated, and by default, returns 20 balances per page.
 
@@ -4029,69 +4176,6 @@ paths:
                   value:
                     errorType: not_found
                     errorMessage: Address not found, or no balances found for the given address on this chain.
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-        '502':
-          $ref: '#/components/responses/BadGatewayError'
-        '503':
-          $ref: '#/components/responses/ServiceUnavailableError'
-  /v2/x402/discovery/resources:
-    get:
-      x-audience: public
-      summary: List discovered x402 resources
-      description: |-
-        Lists all active discovered x402 resources.
-        This endpoint returns resources that have been discovered and cached by the x402 facilitator, including their payment requirements and metadata.
-        The response is paginated, and by default, returns 100 items per page.
-      operationId: listX402DiscoveryResources
-      tags:
-        - x402 Facilitator
-      security:
-        - apiKeyAuth: []
-      parameters:
-        - name: type
-          in: query
-          description: |-
-            Filter by protocol type (e.g., "http", "mcp").
-            Currently, the only supported protocol type is "http".
-          required: false
-          schema:
-            type: string
-            example: http
-        - name: limit
-          in: query
-          description: The number of discovered x402 resources to return per page.
-          required: false
-          schema:
-            type: integer
-            default: 100
-          example: 50
-        - name: offset
-          in: query
-          description: The offset of the first discovered x402 resource to return.
-          required: false
-          schema:
-            type: integer
-            default: 0
-          example: 0
-      responses:
-        '200':
-          description: Successfully retrieved discovery list.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/x402DiscoveryResourcesResponse'
-        '400':
-          description: Invalid request.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                invalid_request:
-                  value:
-                    errorType: invalid_request
-                    errorMessage: Invalid request. Please check the request parameters.
         '500':
           $ref: '#/components/responses/InternalServerError'
         '502':
@@ -4429,9 +4513,9 @@ paths:
       description: |-
         Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.
 
-        This API currently only supports the payment method `GUEST_CHECKOUT_APPLE_PAY`, and the payment link returned will only work in native apps. We do not support web integration via iFrames.
+        This API currently only supports the payment method `GUEST_CHECKOUT_APPLE_PAY`, and the `paymentLink` returned will only work in iOS apps. We do not support web integration via iframes at this time.
 
-        Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for  detailed integration instructions.
+        For detailed integration instructions and to get access to this API, refer to the  [Apple Pay Onramp API docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api).
       operationId: createOnrampOrder
       tags:
         - Onramp
@@ -4444,7 +4528,7 @@ paths:
               type: object
               properties:
                 agreementAcceptedAt:
-                  description: The timestamp of the time the user acknowledged they are accepting the Coinbase service agreement  (https://www.coinbase.com/legal/guest-checkout/us) by using Coinbase Onramp.
+                  description: The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy).
                   format: date-time
                   type: string
                   example: '2025-04-24T00:00:00Z'
@@ -4460,7 +4544,7 @@ paths:
                   type: string
                   example: base
                 email:
-                  description: The email address of the user requesting the onramp transaction.
+                  description: The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API.
                   type: string
                   example: test@example.com
                 isQuote:
@@ -4473,7 +4557,7 @@ paths:
                   example: order-1234
                 partnerUserRef:
                   description: |-
-                    A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  to perform a sandbox transaction which will allow you to test your integration without any real transfer  of funds.
+                    A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
 
                     This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
                   type: string
@@ -4492,7 +4576,7 @@ paths:
                   description: |-
                     The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
 
-                    Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for more details on phone number verification requirements and best practices.
+                    Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices.
                   type: string
                   example: '+12055555555'
                 phoneNumberVerifiedAt:
@@ -4501,12 +4585,12 @@ paths:
                   type: string
                   example: '2025-04-24T00:00:00Z'
                 purchaseAmount:
-                  description: A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter the returned quote will be exclusive of fees i.e. the user will receive this exact  amount of the purchase currency.
+                  description: A string representing the amount of crypto the user wishes to purchase. When using this parameter the  returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase  currency.
                   type: string
                   example: '10.000000'
                 purchaseCurrency:
                   description: |-
-                    The ticker (e.g. `BTC`, `USDC`) or the UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`) of crypto  asset to be purchased.
+                    The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
 
                     Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
                   type: string
@@ -5364,11 +5448,112 @@ components:
         - period
         - start
         - end
+    SpendPermission:
+      type: object
+      description: The core spend permission.
+      example:
+        account: '0xd53Ee96438383Bb1eff07958D110B81363E9Ab47'
+        spender: '0x9Fb909eA400c2b8D99Be292DADf07e63B814527c'
+        token: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        allowance: '1000000000000000000'
+        period: '86400'
+        start: '0'
+        end: '281474976710655'
+        salt: '0'
+        extraData: 0x
+      properties:
+        account:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Smart account this spend permission is valid for.
+          example: '0xd53Ee96438383Bb1eff07958D110B81363E9Ab47'
+        spender:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Entity that can spend account's tokens.
+          example: '0x9Fb909eA400c2b8D99Be292DADf07e63B814527c'
+        token:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{40}$
+          description: Token address (ERC-7528 native token address or ERC-20 contract).
+          example: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+        allowance:
+          type: string
+          description: Maximum allowed value to spend, in atomic units for the specified token, within each period.
+          example: '1000000000000000000'
+        period:
+          type: string
+          description: Time duration for resetting used allowance on a recurring basis (seconds).
+          example: '86400'
+        start:
+          type: string
+          description: The start time for this spend permission, in Unix seconds.
+          example: '0'
+        end:
+          type: string
+          description: The expiration time for this spend permission, in Unix seconds.
+          example: '281474976710655'
+        salt:
+          type: string
+          description: An arbitrary salt to differentiate unique spend permissions with otherwise identical data.
+          example: '0'
+        extraData:
+          type: string
+          description: Arbitrary data to include in the permission.
+          example: 0x
+      required:
+        - account
+        - spender
+        - token
+        - allowance
+    SpendPermissionResponseObject:
+      type: object
+      properties:
+        permission:
+          $ref: '#/components/schemas/SpendPermission'
+        permissionHash:
+          type: string
+          description: Unique hash identifier for this permission.
+          example: '0x62bc94756bb6221a7913beab6024171fc60d3380fdc06759bfac76e8ccb3f63d'
+        revoked:
+          type: boolean
+          description: Whether this permission has been revoked.
+          example: false
+        revokedAt:
+          type: string
+          description: The UTC ISO 8601 timestamp when the permission was revoked (if applicable).
+          example: '2025-03-25T12:00:00Z'
+          format: date-time
+        createdAt:
+          type: string
+          description: The UTC ISO 8601 timestamp when the permission was created.
+          example: '2025-03-25T12:00:00Z'
+          format: date-time
+    RevokeSpendPermissionRequest:
+      type: object
+      properties:
+        network:
+          type: string
+          description: The network of the spend permission.
+          example: base
+        permissionHash:
+          type: string
+          description: The hash of the spend permission to revoke.
+          example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+        paymasterUrl:
+          type: string
+          description: The paymaster URL of the spend permission.
+          example: https://paymaster.cdp.coinbase.com
+      required:
+        - network
+        - permissionHash
     EvmSwapsNetwork:
       type: string
       enum:
         - base
         - ethereum
+        - arbitrum
+        - optimism
       description: The network on which to perform the swap.
       example: base
     toToken:
@@ -6548,7 +6733,7 @@ components:
         - criteria
     SolAddressCriterion:
       type: object
-      description: The criterion for the recipient addresses of a Solana transaction.
+      description: The criterion for the recipient addresses of a Solana transaction's native transfer instruction.
       properties:
         type:
           type: string
@@ -6558,16 +6743,16 @@ components:
             - solAddress
         addresses:
           type: array
-          description: The Solana addresses that are compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+          description: The Solana addresses that are compared to the list of native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
           items:
             type: string
             pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
-            description: The Solana address that is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+            description: The Solana address that is compared to the list of native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
           example:
             - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
         operator:
           type: string
-          description: The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side.
+          description: The operator to use for the comparison. Each of the native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
           enum:
             - in
             - not in
@@ -6899,175 +7084,6 @@ components:
       required:
         - amount
         - token
-    X402Version:
-      type: integer
-      description: The version of the x402 protocol.
-      enum:
-        - 1
-      example: 1
-    x402PaymentRequirements:
-      type: object
-      description: The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
-      properties:
-        scheme:
-          type: string
-          description: The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
-          enum:
-            - exact
-          example: exact
-        network:
-          type: string
-          description: The network of the blockchain to send payment on.
-          enum:
-            - base-sepolia
-            - base
-          example: base
-        maxAmountRequired:
-          type: string
-          description: The maximum amount required to pay for the resource in atomic units of the payment asset.
-          example: '1000000'
-        resource:
-          type: string
-          description: The URL of the resource to pay for.
-          example: https://api.example.com/premium/resource/123
-        description:
-          type: string
-          description: The description of the resource.
-          example: Premium API access for data analysis
-        mimeType:
-          type: string
-          description: The MIME type of the resource response.
-          example: application/json
-        outputSchema:
-          type: object
-          description: The optional JSON schema describing the resource output.
-          additionalProperties: true
-          example:
-            data: string
-        payTo:
-          type: string
-          description: |-
-            The destination to pay value to.
-
-            For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
-
-            For Solana-based networks, payTo will be a base58-encoded Solana address.
-          pattern: ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
-          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-        maxTimeoutSeconds:
-          type: integer
-          description: The maximum time in seconds for the resource server to respond.
-          example: 10
-        asset:
-          type: string
-          description: |-
-            The asset to pay with.
-
-            For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
-
-            For Solana-based networks, the asset will be a base58-encoded Solana address.
-          pattern: ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
-          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-        extra:
-          type: object
-          description: The optional additional scheme-specific payment info.
-          additionalProperties: true
-          example:
-            gasLimit: '1000000'
-      required:
-        - scheme
-        - network
-        - maxAmountRequired
-        - resource
-        - description
-        - mimeType
-        - payTo
-        - asset
-        - maxTimeoutSeconds
-    x402DiscoveryResource:
-      type: object
-      description: A single discovered x402 resource.
-      properties:
-        resource:
-          type: string
-          description: The normalized resource identifier.
-          example: https://api.example.com/premium/data
-        type:
-          type: string
-          description: Communication protocol (e.g., "http", "mcp").
-          enum:
-            - http
-          example: http
-        x402Version:
-          $ref: '#/components/schemas/X402Version'
-        accepts:
-          type: array
-          description: Payment requirements as an array of JSON objects.
-          items:
-            $ref: '#/components/schemas/x402PaymentRequirements'
-          example:
-            - scheme: exact
-              network: base
-              maxAmountRequired: '1000000'
-              resource: https://api.example.com/premium/data
-              description: Premium API access for data analysis.
-              mimeType: application/json
-              payTo: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-              maxTimeoutSeconds: 10
-              asset: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-        lastUpdated:
-          type: string
-          format: date-time
-          description: Timestamp of the last update.
-          example: '2024-01-15T10:30:00Z'
-        metadata:
-          type: object
-          description: Additional metadata as a JSON object.
-          additionalProperties: true
-          example:
-            description: Premium data API.
-            mimeType: application/json
-      required:
-        - resource
-        - type
-        - x402Version
-        - lastUpdated
-    x402DiscoveryResourcesResponse:
-      type: object
-      description: Response containing discovered x402 resources.
-      properties:
-        x402Version:
-          $ref: '#/components/schemas/X402Version'
-        items:
-          type: array
-          description: List of discovered x402 resources.
-          items:
-            $ref: '#/components/schemas/x402DiscoveryResource'
-          example: []
-        pagination:
-          type: object
-          description: Pagination information for the response.
-          properties:
-            limit:
-              type: integer
-              description: The number of discovered x402 resources to return per page.
-              example: 100
-            offset:
-              type: integer
-              description: The offset of the first discovered x402 resource to return.
-              example: 0
-            total:
-              type: integer
-              description: The total number of discovered x402 resources.
-              example: 1000
-          example:
-            limit: 100
-            offset: 0
-            total: 1000
-      required:
-        - items
-        - x402Version
-        - pagination
     PaymentRailAction:
       description: The action of the payment method.
       type: string
@@ -7475,11 +7491,12 @@ components:
           example: 123e4567-e89b-12d3-a456-426614174000
         paymentTotal:
           type: string
-          description: The total amount of fiat to be paid.
-          example: '100'
+          description: The total amount of fiat to be paid, inclusive of any fees.
+          example: '100.75'
         paymentSubtotal:
+          type: string
           description: The amount of fiat to be converted to crypto.
-          example: '98'
+          example: '100'
         paymentCurrency:
           type: string
           description: The fiat currency to be converted to crypto.
@@ -7508,7 +7525,7 @@ components:
               currency: USD
         exchangeRate:
           type: string
-          description: The exchange rate used to convert fiat to crypto.
+          description: The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat.
           example: '1'
         destinationAddress:
           type: string
@@ -7562,7 +7579,7 @@ components:
       properties:
         url:
           type: string
-          description: The URL to the hosted widget the user should be redirected to, append your own redirect_url query parameter to  this URL to ensure the user is redirected back to your app after the widget completes.
+          description: The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your  own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes.
           example: https://pay.coinbase.com/v2/api-onramp/apple-pay?sessionToken=MWYwNWQwODktZTZlYy02OTdlLTgzZTYtMTI3NzcyOWJhNjM3
         paymentLinkType:
           $ref: '#/components/schemas/OnrampPaymentLinkType'

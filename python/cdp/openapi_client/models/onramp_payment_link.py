@@ -28,7 +28,7 @@ class OnrampPaymentLink(BaseModel):
     """
     A payment link to pay for an order.  Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
     """ # noqa: E501
-    url: StrictStr = Field(description="The URL to the hosted widget the user should be redirected to, append your own redirect_url query parameter to  this URL to ensure the user is redirected back to your app after the widget completes.")
+    url: StrictStr = Field(description="The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your  own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes.")
     payment_link_type: OnrampPaymentLinkType = Field(alias="paymentLinkType")
     __properties: ClassVar[List[str]] = ["url", "paymentLinkType"]
 

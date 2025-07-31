@@ -25,7 +25,7 @@ export const getCreateOnrampOrderResponseMock = (
   order: {
     orderId: faker.string.alpha(20),
     paymentTotal: faker.string.alpha(20),
-    paymentSubtotal: {},
+    paymentSubtotal: faker.string.alpha(20),
     paymentCurrency: faker.string.alpha(20),
     paymentMethod: faker.helpers.arrayElement(Object.values(OnrampPaymentMethodTypeId)),
     purchaseAmount: faker.string.alpha(20),
@@ -61,7 +61,7 @@ export const getGetOnrampOrderByIdResponseMock = (
   order: {
     orderId: faker.string.alpha(20),
     paymentTotal: faker.string.alpha(20),
-    paymentSubtotal: {},
+    paymentSubtotal: faker.string.alpha(20),
     paymentCurrency: faker.string.alpha(20),
     paymentMethod: faker.helpers.arrayElement(Object.values(OnrampPaymentMethodTypeId)),
     purchaseAmount: faker.string.alpha(20),

@@ -19,31 +19,22 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from cdp.openapi_client.models.x402_payment_requirements import X402PaymentRequirements
-from cdp.openapi_client.models.x402_version import X402Version
+from cdp.openapi_client.models.spend_permission import SpendPermission
 from typing import Optional, Set
 from typing_extensions import Self
 
-class X402DiscoveryResource(BaseModel):
+class SpendPermissionResponseObject(BaseModel):
     """
-    A single discovered x402 resource.
+    SpendPermissionResponseObject
     """ # noqa: E501
-    resource: StrictStr = Field(description="The normalized resource identifier.")
-    type: StrictStr = Field(description="Communication protocol (e.g., \"http\", \"mcp\").")
-    x402_version: X402Version = Field(alias="x402Version")
-    accepts: Optional[List[X402PaymentRequirements]] = Field(default=None, description="Payment requirements as an array of JSON objects.")
-    last_updated: datetime = Field(description="Timestamp of the last update.", alias="lastUpdated")
-    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Additional metadata as a JSON object.")
-    __properties: ClassVar[List[str]] = ["resource", "type", "x402Version", "accepts", "lastUpdated", "metadata"]
-
-    @field_validator('type')
-    def type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['http']):
-            raise ValueError("must be one of enum values ('http')")
-        return value
+    permission: Optional[SpendPermission] = None
+    permission_hash: Optional[StrictStr] = Field(default=None, description="Unique hash identifier for this permission.", alias="permissionHash")
+    revoked: Optional[StrictBool] = Field(default=None, description="Whether this permission has been revoked.")
+    revoked_at: Optional[datetime] = Field(default=None, description="The UTC ISO 8601 timestamp when the permission was revoked (if applicable).", alias="revokedAt")
+    created_at: Optional[datetime] = Field(default=None, description="The UTC ISO 8601 timestamp when the permission was created.", alias="createdAt")
+    __properties: ClassVar[List[str]] = ["permission", "permissionHash", "revoked", "revokedAt", "createdAt"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -63,7 +54,7 @@ class X402DiscoveryResource(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of X402DiscoveryResource from a JSON string"""
+        """Create an instance of SpendPermissionResponseObject from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -84,18 +75,14 @@ class X402DiscoveryResource(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in accepts (list)
-        _items = []
-        if self.accepts:
-            for _item_accepts in self.accepts:
-                if _item_accepts:
-                    _items.append(_item_accepts.to_dict())
-            _dict['accepts'] = _items
+        # override the default output from pydantic by calling `to_dict()` of permission
+        if self.permission:
+            _dict['permission'] = self.permission.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of X402DiscoveryResource from a dict"""
+        """Create an instance of SpendPermissionResponseObject from a dict"""
         if obj is None:
             return None
 
@@ -103,12 +90,11 @@ class X402DiscoveryResource(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "resource": obj.get("resource"),
-            "type": obj.get("type"),
-            "x402Version": obj.get("x402Version"),
-            "accepts": [X402PaymentRequirements.from_dict(_item) for _item in obj["accepts"]] if obj.get("accepts") is not None else None,
-            "lastUpdated": obj.get("lastUpdated"),
-            "metadata": obj.get("metadata")
+            "permission": SpendPermission.from_dict(obj["permission"]) if obj.get("permission") is not None else None,
+            "permissionHash": obj.get("permissionHash"),
+            "revoked": obj.get("revoked"),
+            "revokedAt": obj.get("revokedAt"),
+            "createdAt": obj.get("createdAt")
         })
         return _obj
 

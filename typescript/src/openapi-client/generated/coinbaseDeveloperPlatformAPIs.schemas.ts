@@ -275,6 +275,60 @@ export interface CreateSpendPermissionRequest {
 }
 
 /**
+ * The core spend permission.
+ */
+export interface SpendPermission {
+  /**
+   * Smart account this spend permission is valid for.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  account: string;
+  /**
+   * Entity that can spend account's tokens.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  spender: string;
+  /**
+   * Token address (ERC-7528 native token address or ERC-20 contract).
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  token: string;
+  /** Maximum allowed value to spend, in atomic units for the specified token, within each period. */
+  allowance: string;
+  /** Time duration for resetting used allowance on a recurring basis (seconds). */
+  period?: string;
+  /** The start time for this spend permission, in Unix seconds. */
+  start?: string;
+  /** The expiration time for this spend permission, in Unix seconds. */
+  end?: string;
+  /** An arbitrary salt to differentiate unique spend permissions with otherwise identical data. */
+  salt?: string;
+  /** Arbitrary data to include in the permission. */
+  extraData?: string;
+}
+
+export interface SpendPermissionResponseObject {
+  permission?: SpendPermission;
+  /** Unique hash identifier for this permission. */
+  permissionHash?: string;
+  /** Whether this permission has been revoked. */
+  revoked?: boolean;
+  /** The UTC ISO 8601 timestamp when the permission was revoked (if applicable). */
+  revokedAt?: string;
+  /** The UTC ISO 8601 timestamp when the permission was created. */
+  createdAt?: string;
+}
+
+export interface RevokeSpendPermissionRequest {
+  /** The network of the spend permission. */
+  network: string;
+  /** The hash of the spend permission to revoke. */
+  permissionHash: string;
+  /** The paymaster URL of the spend permission. */
+  paymasterUrl?: string;
+}
+
+/**
  * The network on which to perform the swap.
  */
 export type EvmSwapsNetwork = (typeof EvmSwapsNetwork)[keyof typeof EvmSwapsNetwork];
@@ -283,6 +337,8 @@ export type EvmSwapsNetwork = (typeof EvmSwapsNetwork)[keyof typeof EvmSwapsNetw
 export const EvmSwapsNetwork = {
   base: "base",
   ethereum: "ethereum",
+  arbitrum: "arbitrum",
+  optimism: "optimism",
 } as const;
 
 /**
@@ -1262,7 +1318,7 @@ export const SolAddressCriterionType = {
 } as const;
 
 /**
- * The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side.
+ * The operator to use for the comparison. Each of the native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
  */
 export type SolAddressCriterionOperator =
   (typeof SolAddressCriterionOperator)[keyof typeof SolAddressCriterionOperator];
@@ -1274,14 +1330,14 @@ export const SolAddressCriterionOperator = {
 } as const;
 
 /**
- * The criterion for the recipient addresses of a Solana transaction.
+ * The criterion for the recipient addresses of a Solana transaction's native transfer instruction.
  */
 export interface SolAddressCriterion {
   /** The type of criterion to use. This should be `solAddress`. */
   type: SolAddressCriterionType;
-  /** The Solana addresses that are compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array. */
+  /** The Solana addresses that are compared to the list of native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array. */
   addresses: string[];
-  /** The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side. */
+  /** The operator to use for the comparison. Each of the native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
   operator: SolAddressCriterionOperator;
 }
 
@@ -1552,147 +1608,6 @@ For native SOL, the mint address is `So11111111111111111111111111111111111111111
 export interface SolanaTokenBalance {
   amount: SolanaTokenAmount;
   token: SolanaToken;
-}
-
-/**
- * The version of the x402 protocol.
- */
-export type X402Version = (typeof X402Version)[keyof typeof X402Version];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402Version = {
-  NUMBER_1: 1,
-} as const;
-
-/**
- * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
- */
-export type X402PaymentRequirementsScheme =
-  (typeof X402PaymentRequirementsScheme)[keyof typeof X402PaymentRequirementsScheme];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402PaymentRequirementsScheme = {
-  exact: "exact",
-} as const;
-
-/**
- * The network of the blockchain to send payment on.
- */
-export type X402PaymentRequirementsNetwork =
-  (typeof X402PaymentRequirementsNetwork)[keyof typeof X402PaymentRequirementsNetwork];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402PaymentRequirementsNetwork = {
-  "base-sepolia": "base-sepolia",
-  base: "base",
-} as const;
-
-/**
- * The optional JSON schema describing the resource output.
- */
-export type X402PaymentRequirementsOutputSchema = { [key: string]: unknown };
-
-/**
- * The optional additional scheme-specific payment info.
- */
-export type X402PaymentRequirementsExtra = { [key: string]: unknown };
-
-/**
- * The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
- */
-export interface X402PaymentRequirements {
-  /** The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`. */
-  scheme: X402PaymentRequirementsScheme;
-  /** The network of the blockchain to send payment on. */
-  network: X402PaymentRequirementsNetwork;
-  /** The maximum amount required to pay for the resource in atomic units of the payment asset. */
-  maxAmountRequired: string;
-  /** The URL of the resource to pay for. */
-  resource: string;
-  /** The description of the resource. */
-  description: string;
-  /** The MIME type of the resource response. */
-  mimeType: string;
-  /** The optional JSON schema describing the resource output. */
-  outputSchema?: X402PaymentRequirementsOutputSchema;
-  /**
-   * The destination to pay value to.
-
-For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
-
-For Solana-based networks, payTo will be a base58-encoded Solana address.
-   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
-   */
-  payTo: string;
-  /** The maximum time in seconds for the resource server to respond. */
-  maxTimeoutSeconds: number;
-  /**
-   * The asset to pay with.
-
-For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
-
-For Solana-based networks, the asset will be a base58-encoded Solana address.
-   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
-   */
-  asset: string;
-  /** The optional additional scheme-specific payment info. */
-  extra?: X402PaymentRequirementsExtra;
-}
-
-/**
- * Communication protocol (e.g., "http", "mcp").
- */
-export type X402DiscoveryResourceType =
-  (typeof X402DiscoveryResourceType)[keyof typeof X402DiscoveryResourceType];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402DiscoveryResourceType = {
-  http: "http",
-} as const;
-
-/**
- * Additional metadata as a JSON object.
- */
-export type X402DiscoveryResourceMetadata = { [key: string]: unknown };
-
-/**
- * A single discovered x402 resource.
- */
-export interface X402DiscoveryResource {
-  /** The normalized resource identifier. */
-  resource: string;
-  /** Communication protocol (e.g., "http", "mcp"). */
-  type: X402DiscoveryResourceType;
-  x402Version: X402Version;
-  /** Payment requirements as an array of JSON objects. */
-  accepts?: X402PaymentRequirements[];
-  /** Timestamp of the last update. */
-  lastUpdated: string;
-  /** Additional metadata as a JSON object. */
-  metadata?: X402DiscoveryResourceMetadata;
-}
-
-/**
- * Pagination information for the response.
- */
-export type X402DiscoveryResourcesResponsePagination = {
-  /** The number of discovered x402 resources to return per page. */
-  limit?: number;
-  /** The offset of the first discovered x402 resource to return. */
-  offset?: number;
-  /** The total number of discovered x402 resources. */
-  total?: number;
-};
-
-/**
- * Response containing discovered x402 resources.
- */
-export interface X402DiscoveryResourcesResponse {
-  x402Version: X402Version;
-  /** List of discovered x402 resources. */
-  items: X402DiscoveryResource[];
-  /** Pagination information for the response. */
-  pagination: X402DiscoveryResourcesResponsePagination;
 }
 
 /**
@@ -1979,10 +1894,10 @@ export const OnrampOrderStatus = {
 export interface OnrampOrder {
   /** The ID of the onramp order. */
   orderId: string;
-  /** The total amount of fiat to be paid. */
+  /** The total amount of fiat to be paid, inclusive of any fees. */
   paymentTotal: string;
   /** The amount of fiat to be converted to crypto. */
-  paymentSubtotal: unknown;
+  paymentSubtotal: string;
   /** The fiat currency to be converted to crypto. */
   paymentCurrency: string;
   paymentMethod: OnrampPaymentMethodTypeId;
@@ -1992,7 +1907,7 @@ export interface OnrampOrder {
   purchaseCurrency: string;
   /** The fees associated with the order. */
   fees: OnrampOrderFee[];
-  /** The exchange rate used to convert fiat to crypto. */
+  /** The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat. */
   exchangeRate: string;
   /** The destination address to send the crypto to. */
   destinationAddress: string;
@@ -2024,7 +1939,7 @@ export const OnrampPaymentLinkType = {
 Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
  */
 export interface OnrampPaymentLink {
-  /** The URL to the hosted widget the user should be redirected to, append your own redirect_url query parameter to  this URL to ensure the user is redirected back to your app after the widget completes. */
+  /** The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your  own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes. */
   url: string;
   paymentLinkType: OnrampPaymentLinkType;
 }
@@ -2145,6 +2060,10 @@ export const SendEvmTransactionBodyNetwork = {
   "base-sepolia": "base-sepolia",
   ethereum: "ethereum",
   "ethereum-sepolia": "ethereum-sepolia",
+  avalanche: "avalanche",
+  polygon: "polygon",
+  optimism: "optimism",
+  arbitrum: "arbitrum",
 } as const;
 
 export type SendEvmTransactionBody = {
@@ -2283,6 +2202,24 @@ export type SendUserOperationBody = {
   /** The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28. */
   signature: string;
 };
+
+export type ListSpendPermissionsParams = {
+  /**
+   * The number of spend permissions to return per page.
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of spend permissions. Will be empty if there are no more spend permissions to fetch.
+   */
+  pageToken?: string;
+};
+
+export type ListSpendPermissions200AllOf = {
+  /** The spend permissions for the smart account. */
+  spendPermissions: SpendPermissionResponseObject[];
+};
+
+export type ListSpendPermissions200 = ListSpendPermissions200AllOf & ListResponse;
 
 export type GetEvmSwapPriceParams = {
   network: EvmSwapsNetwork;
@@ -2632,22 +2569,6 @@ export type ListSolanaTokenBalances200AllOf = {
 
 export type ListSolanaTokenBalances200 = ListSolanaTokenBalances200AllOf & ListResponse;
 
-export type ListX402DiscoveryResourcesParams = {
-  /**
- * Filter by protocol type (e.g., "http", "mcp").
-Currently, the only supported protocol type is "http".
- */
-  type?: string;
-  /**
-   * The number of discovered x402 resources to return per page.
-   */
-  limit?: number;
-  /**
-   * The offset of the first discovered x402 resource to return.
-   */
-  offset?: number;
-};
-
 export type GetCryptoRailsParams = {
   /**
    * Comma separated list of networks to filter the rails by.
@@ -2697,7 +2618,7 @@ export type CreatePaymentTransferQuote201 = {
 };
 
 export type CreateOnrampOrderBody = {
-  /** The timestamp of the time the user acknowledged they are accepting the Coinbase service agreement  (https://www.coinbase.com/legal/guest-checkout/us) by using Coinbase Onramp. */
+  /** The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy). */
   agreementAcceptedAt: string;
   /** The address the purchased crypto will be sent to. */
   destinationAddress: string;
@@ -2705,13 +2626,13 @@ export type CreateOnrampOrderBody = {
 
 Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location. */
   destinationNetwork: string;
-  /** The email address of the user requesting the onramp transaction. */
+  /** The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API. */
   email: string;
   /** If true, this API will return a quote without creating any transaction. */
   isQuote?: boolean;
   /** Optional partner order reference ID. */
   partnerOrderRef?: string;
-  /** A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  to perform a sandbox transaction which will allow you to test your integration without any real transfer  of funds.
+  /** A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
 
 This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user. */
   partnerUserRef: string;
@@ -2722,13 +2643,13 @@ This value can be used with with [Onramp User Transactions API](https://docs.cdp
   paymentMethod: OnrampPaymentMethodTypeId;
   /** The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
 
-Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for more details on phone number verification requirements and best practices. */
+Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices. */
   phoneNumber: string;
   /** Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned. */
   phoneNumberVerifiedAt: string;
-  /** A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter the returned quote will be exclusive of fees i.e. the user will receive this exact  amount of the purchase currency. */
+  /** A string representing the amount of crypto the user wishes to purchase. When using this parameter the  returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase  currency. */
   purchaseAmount?: string;
-  /** The ticker (e.g. `BTC`, `USDC`) or the UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`) of crypto  asset to be purchased.
+  /** The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
 
 Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location. */
   purchaseCurrency: string;
