@@ -330,6 +330,46 @@ class EvmClient:
             x_idempotency_key=idempotency_key,
         )
 
+    async def revoke_spend_permission(
+        self,
+        account: str,
+        permission_hash: str,
+        network: str,
+        paymaster_url: str | None = None,
+    ) -> EvmUserOperationModel:
+        """Revoke a spend permission for a smart account. 
+
+        Args:
+            account (str): The address of the smart account.
+            permission_hash (str): The hash of the spend permission to revoke.
+            network (str): The network of the spend permission.
+            paymaster_url (str, optional): The paymaster URL of the spend permission. Defaults to None.
+
+        Returns:
+            EvmUserOperationModel: The user operation to revoke the spend permission.
+
+        Examples:
+            >>> user_operation = await cdp.evm.revoke_spend_permission(
+            ...     account=smart_account.address,
+            ...     permission_hash="0x79d4c5708f46d7dbe51131e661997bd5de6d43e60b7163bc91e7ddfe57039b87",
+            ...     network="base-sepolia",
+            ... )
+        """
+        from cdp.openapi_client.models.revoke_spend_permission_request import (
+            RevokeSpendPermissionRequest,
+        )
+        
+        track_action(action="revoke_spend_permission")
+        
+        return await self.api_clients.evm_smart_accounts.revoke_spend_permission(
+            address=account,
+            revoke_spend_permission_request=RevokeSpendPermissionRequest(
+                permission_hash=permission_hash,
+                network=network,
+                paymaster_url=paymaster_url,
+            ),
+        )
+
     async def get_account(
         self, address: str | None = None, name: str | None = None
     ) -> EvmServerAccount:
