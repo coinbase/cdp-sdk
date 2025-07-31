@@ -6,6 +6,7 @@ import {
   CreateServerAccountOptions,
   CreateSmartAccountOptions,
   CreateSpendPermissionOptions,
+  RevokeSpendPermissionOptions,
   CreateSwapQuoteOptions,
   CreateSwapQuoteResult,
   EvmClientInterface,
@@ -402,6 +403,53 @@ export class EvmClient implements EvmClientInterface {
         salt: options.spendPermission.salt.toString(),
         extraData: options.spendPermission.extraData,
         network: options.network,
+        paymasterUrl: options.paymasterUrl,
+      },
+      options.idempotencyKey,
+    );
+
+    return {
+      network: userOperation.network,
+      userOpHash: userOperation.userOpHash as Hex,
+      status: userOperation.status,
+      calls: userOperation.calls.map(call => ({
+        to: call.to as Address,
+        value: BigInt(call.value),
+        data: call.data as Hex,
+      })),
+    };
+  }
+
+  /**
+   * Revokes a spend permission for a smart account.
+   *
+   * @param {RevokeSpendPermissionOptions} options - Parameters for revoking the spend permission.
+   * @param {string} options.address - The address of the smart account.
+   * @param {string} options.permissionHash - The hash of the spend permission to revoke.
+   * @param {string} options.network - The network of the spend permission.
+   * @param {string} [options.paymasterUrl] - The paymaster URL of the spend permission.
+   *
+   * @returns A promise that resolves to the user operation.
+   *
+   * @example
+   * ```ts
+   * const userOperation = await cdp.evm.revokeSpendPermission({
+   *   address: "0x1234567890123456789012345678901234567890",
+   *   permissionHash: "0x1234567890123456789012345678901234567890123456789012345678901234",
+   *   network: "base-sepolia",
+   * });
+   * ```
+   */
+  async revokeSpendPermission(options: RevokeSpendPermissionOptions): Promise<UserOperation> {
+    Analytics.trackAction({
+      action: "revoke_spend_permission",
+    });
+
+    const userOperation = await CdpOpenApiClient.revokeSpendPermission(
+      options.address,
+      {
+        network: options.network,
+        permissionHash: options.permissionHash,
         paymasterUrl: options.paymasterUrl,
       },
       options.idempotencyKey,
