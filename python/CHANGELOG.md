@@ -2,6 +2,17 @@
 
 <!-- towncrier release notes start -->
 
+## [1.26.0] - 2025-07-31
+
+### Features
+
+- SendEvmTransaction support for new EVM networks - arbitrum, polygon, optimism, avalanche ([#338](https://github.com/coinbase/cdp-sdk/pull/338))
+
+### Bugfixes
+
+- Fixed evmData in python request/response transformer ([#317](https://github.com/coinbase/cdp-sdk/pull/317))
+
+
 ## [1.25.0] - 2025-07-23
 
 ### Features
