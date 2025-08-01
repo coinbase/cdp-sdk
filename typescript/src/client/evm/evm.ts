@@ -22,6 +22,7 @@ import {
   ListServerAccountsOptions,
   ListSmartAccountResult,
   ListSmartAccountsOptions,
+  ListSpendPermissionsOptions,
   PrepareUserOperationOptions,
   ServerAccount,
   SignatureResult,
@@ -39,6 +40,7 @@ import {
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
+import { listSpendPermissions } from "../../actions/evm/listSpendPermissions.js";
 import {
   listTokenBalances,
   ListTokenBalancesOptions,
@@ -67,6 +69,7 @@ import { UserInputValidationError } from "../../errors.js";
 import { APIError } from "../../openapi-client/errors.js";
 import {
   CdpOpenApiClient,
+  ListSpendPermissionsResult,
   EIP712Message as OpenAPIEIP712Message,
 } from "../../openapi-client/index.js";
 import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
@@ -835,6 +838,26 @@ export class EvmClient implements EvmClientInterface {
       })),
       nextPageToken: smartAccounts.nextPageToken,
     };
+  }
+
+  /**
+   * Lists the spend permissions for a smart account.
+   *
+   * @param {ListSpendPermissionsOptions} options - Parameters for listing the spend permissions.
+   * @param {string} options.address - The address of the smart account.
+   * @param {number} [options.pageSize] - The number of spend permissions to return.
+   * @param {string} [options.pageToken] - The page token to return the next page of spend permissions.
+   *
+   * @returns A promise that resolves to the spend permissions.
+   */
+  async listSpendPermissions(
+    options: ListSpendPermissionsOptions,
+  ): Promise<ListSpendPermissionsResult> {
+    Analytics.trackAction({
+      action: "list_spend_permissions",
+    });
+
+    return listSpendPermissions(CdpOpenApiClient, options);
   }
 
   /**

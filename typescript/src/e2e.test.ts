@@ -13,6 +13,7 @@ import {
   type Address,
   formatEther,
   TransactionReceipt,
+  parseUnits,
 } from "viem";
 import { baseSepolia, optimismSepolia } from "viem/chains";
 import { CdpClient, CdpClientOptions } from "./client/cdp.js";
@@ -1196,6 +1197,24 @@ describe("CDP Client E2E Tests", () => {
 
         expect(userOperationResult).toBeDefined();
         expect(userOperationResult.status).toBe("complete");
+      });
+
+      it("should list spend permissions", async () => {
+        const owner = await cdp.evm.getOrCreateAccount({
+          name: "Spend-Permission-Owner",
+        });
+
+        const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+          name: "Spend-Permission-Smart-Account",
+          owner,
+          __experimental_enableSpendPermission: true,
+        });
+
+        const permissions = await cdp.evm.listSpendPermissions({
+          address: smartAccount.address,
+        });
+
+        expect(permissions.spendPermissions.length).toBeGreaterThan(0);
       });
     });
   });
