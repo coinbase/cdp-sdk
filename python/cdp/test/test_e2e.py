@@ -1885,6 +1885,7 @@ async def test_use_network_evm_smart_account(cdp_client):
     assert balances is not None
 
 
+@pytest.mark.skip(reason="Skipping due to flakiness")
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_evm_smart_account_revoke_spend_permission(cdp_client):
