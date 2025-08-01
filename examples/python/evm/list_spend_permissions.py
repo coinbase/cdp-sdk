@@ -1,4 +1,4 @@
-# Usage: uv run python evm/revoke_spend_permission.py
+# Usage: uv run python evm/list_spend_permissions.py
 
 import asyncio
 from web3 import Web3
@@ -14,7 +14,13 @@ load_dotenv()
 async def main():
     """Main function to demonstrate creating a spend permission."""
 
-    async with CdpClient() as cdp:
+    async with CdpClient(
+        api_key_id="557730ea-e613-4072-a111-7cd26bcd75a7",
+        api_key_secret="/b0ignBsNZ6UQshvmQXyG0SejTZ8+WCzQfaRzkSVi9NociYj2a/Ctr9bG7SpDL7nLN3yPHIRb9tW3qJmCd08ig==",
+        wallet_secret="MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgJeO0FLp3FJRFvPUflelGZL7m94gd7jTrua6pMTD/pq+hRANCAATtJxSQNIZUn6c95KK1dsqLWwhKuuv8PT/kHm6HUnli7AQC8V7dTaVYpQWCMY+mcHrjE0zkn1JBdMAOdkM3+Y2C",
+        base_path="https://cloud-api-dev.cbhq.net/platform",
+        debugging=True,
+    ) as cdp:
         # Create the owner account
         owner = await cdp.evm.create_account()
         print(f"Created owner account: {owner.address}")
@@ -61,19 +67,7 @@ async def main():
         # List the spend permissions
         permissions = await cdp.evm.list_spend_permissions(smart_account.address)
 
-        # Revoke the spend permission
-        revoke_user_operation = await cdp.evm.revoke_spend_permission(
-            address=smart_account.address,
-            permission_hash=permissions.spend_permissions[0].permission_hash,
-            network="base-sepolia",
-        )
-
-        # Wait for the revoke user operation to complete
-        revoke_result = await cdp.evm.wait_for_user_operation(
-            smart_account_address=smart_account.address,
-            user_op_hash=revoke_user_operation.user_op_hash,
-        )
-        print(f"Revoke user operation completed with status: {revoke_result.status}")
+        print(f"Spend permissions: {permissions}")
 
 if __name__ == "__main__":
     asyncio.run(main())
