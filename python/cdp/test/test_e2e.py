@@ -1883,6 +1883,68 @@ async def test_use_network_evm_smart_account(cdp_client):
     balances = await network_smart_account.list_token_balances()
     assert balances is not None
 
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_smart_account_revoke_spend_permission(cdp_client):
+    """Test revoking a spend permission with an EVM smart account."""
+    master_owner = await cdp_client.evm.get_or_create_account(
+        name="E2E-SpendPermissions-Master-Owner"
+    )
+    master = await cdp_client.evm.get_or_create_smart_account(
+        name="E2E-SpendPermissions-Master",
+        owner=master_owner,
+        __experimental_enable_spend_permission__=True,
+    )
+
+    spender = await cdp_client.evm.get_or_create_account(name="E2E-SpendPermissions-EOA-Spender")
+
+    # Create a spend permission
+    spend_permission = SpendPermission(
+        account=master.address,
+        spender=spender.address,
+        token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # native eth
+        allowance=Web3.to_wei(0.000001, "ether"),
+        period=86400,  # 1 day in seconds
+        start=0,  # Start immediately
+        end=int(time.time()) + 24 * 60 * 60,  # 24 hours from now
+        salt=random.randint(0, 2**256 - 1),
+        extra_data="0x",
+    )
+
+    # Create the spend permission on-chain
+    user_operation = await cdp_client.evm.create_spend_permission(
+        spend_permission=spend_permission,
+        network="base-sepolia",
+    )
+
+    # Wait for the user operation to complete
+    await cdp_client.evm.wait_for_user_operation(
+        smart_account_address=master.address,
+        user_op_hash=user_operation.user_op_hash,
+    )
+
+    # List the spend permissions
+    permissions = await cdp_client.evm.list_spend_permissions(master.address)
+    assert permissions is not None
+    assert len(permissions.spend_permissions) > 0
+
+    # Get the latest spend permission
+    latest_permission = permissions.spend_permissions[-1]
+
+    # Revoke the spend permission
+    revoke_user_operation = await cdp_client.evm.revoke_spend_permission(
+        address=master.address,
+        permission_hash=latest_permission.permission_hash,
+        network="base-sepolia",
+    )
+
+    # Wait for the revoke user operation to complete
+    revoke_result = await cdp_client.evm.wait_for_user_operation(
+        smart_account_address=master.address,
+        user_op_hash=revoke_user_operation.user_op_hash,
+    )
+
+    assert revoke_result.status == "complete"
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
