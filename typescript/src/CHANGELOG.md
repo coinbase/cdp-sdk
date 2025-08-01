@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.31.1
+
+### Patch Changes
+
+- [#347](https://github.com/coinbase/cdp-sdk/pull/347) [`ad9f725`](https://github.com/coinbase/cdp-sdk/commit/ad9f725f5f4ba4e1dd8879433de0f271a4893af3) Thanks [@sddioulde](https://github.com/sddioulde)! - Added token symbol and name to EVM token balances response in TypeScript
+
 ## 1.31.0
 
 ### Minor Changes
