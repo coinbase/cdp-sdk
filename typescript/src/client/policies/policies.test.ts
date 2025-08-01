@@ -333,6 +333,306 @@ describe("PoliciesClient", () => {
     });
   });
 
+  describe("createPolicy with Solana rules", () => {
+    it("should create a policy with signSolTransaction rule using solValue criterion", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      const solanaPolicy = {
+        ...mockPolicy,
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "signSolTransaction" as const,
+            criteria: [
+              {
+                type: "solValue" as const,
+                solValue: "1000000000",
+                operator: ">" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      createPolicyMock.mockResolvedValue(solanaPolicy);
+
+      const policyToCreate = {
+        scope: "account" as const,
+        description: "Limit SOL transactions to 1 SOL",
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "signSolTransaction" as const,
+            criteria: [
+              {
+                type: "solValue" as const,
+                solValue: "1000000000",
+                operator: ">" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = await client.createPolicy({
+        policy: policyToCreate,
+      });
+
+      expect(result).toEqual(solanaPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyToCreate, undefined);
+    });
+
+    it("should create a policy with signSolTransaction rule using splAddress criterion", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      const policyToCreate = {
+        scope: "account" as const,
+        description: "Block specific SPL token addresses",
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "signSolTransaction" as const,
+            criteria: [
+              {
+                type: "splAddress" as const,
+                addresses: ["9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"],
+                operator: "in" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      const expectedSolanaPolicy = {
+        id: "policy-sol-spl-addr",
+        ...policyToCreate,
+        createdAt: "2023-01-01T00:00:00Z",
+        updatedAt: "2023-01-01T00:00:00Z",
+      };
+
+      createPolicyMock.mockResolvedValue(expectedSolanaPolicy);
+
+      const result = await client.createPolicy({
+        policy: policyToCreate,
+      });
+
+      expect(result).toEqual(expectedSolanaPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyToCreate, undefined);
+    });
+
+    it("should create a policy with sendSolTransaction rule using mintAddress criterion", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      const policyToCreate = {
+        scope: "account" as const,
+        description: "Allow only USDC mint transactions",
+        rules: [
+          {
+            action: "accept" as const,
+            operation: "sendSolTransaction" as const,
+            criteria: [
+              {
+                type: "mintAddress" as const,
+                addresses: ["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"],
+                operator: "in" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      const expectedUsdcPolicy = {
+        id: "policy-usdc-mint",
+        ...policyToCreate,
+        createdAt: "2023-01-01T00:00:00Z",
+        updatedAt: "2023-01-01T00:00:00Z",
+      };
+
+      createPolicyMock.mockResolvedValue(expectedUsdcPolicy);
+
+      const result = await client.createPolicy({
+        policy: policyToCreate,
+      });
+
+      expect(result).toEqual(expectedUsdcPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyToCreate, undefined);
+    });
+
+    it("should create a policy with sendSolTransaction rule using splValue criterion", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      const policyToCreate = {
+        scope: "account" as const,
+        description: "Limit SPL token transfer amounts",
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "sendSolTransaction" as const,
+            criteria: [
+              {
+                type: "splValue" as const,
+                splValue: "1000000",
+                operator: ">=" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      const expectedSplValuePolicy = {
+        id: "policy-spl-value-limit",
+        ...policyToCreate,
+        createdAt: "2023-01-01T00:00:00Z",
+        updatedAt: "2023-01-01T00:00:00Z",
+      };
+
+      createPolicyMock.mockResolvedValue(expectedSplValuePolicy);
+
+      const result = await client.createPolicy({
+        policy: policyToCreate,
+      });
+
+      expect(result).toEqual(expectedSplValuePolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyToCreate, undefined);
+    });
+
+    it("should create a policy with signSolTransaction rule using multiple criteria", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+      const policyToCreate = {
+        scope: "account" as const,
+        description: "Complex Solana transaction policy",
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "signSolTransaction" as const,
+            criteria: [
+              {
+                type: "solAddress" as const,
+                addresses: ["9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"],
+                operator: "in" as const,
+              },
+              {
+                type: "solValue" as const,
+                solValue: "500000000",
+                operator: ">" as const,
+              },
+              {
+                type: "mintAddress" as const,
+                addresses: ["So11111111111111111111111111111111111111112"],
+                operator: "not in" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      const expectedComplexPolicy = {
+        id: "policy-complex-solana",
+        ...policyToCreate,
+        createdAt: "2023-01-01T00:00:00Z",
+        updatedAt: "2023-01-01T00:00:00Z",
+      };
+
+      createPolicyMock.mockResolvedValue(expectedComplexPolicy);
+
+      const result = await client.createPolicy({
+        policy: policyToCreate,
+      });
+
+      expect(result).toEqual(expectedComplexPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyToCreate, undefined);
+    });
+
+    it("should throw ZodError for invalid solValue format in signSolTransaction rule", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      const invalidPolicy = {
+        scope: "account" as const,
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "signSolTransaction" as const,
+            criteria: [
+              {
+                type: "solValue" as const,
+                solValue: "not-a-number", // Invalid solValue format
+                operator: ">" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      await expect(client.createPolicy({ policy: invalidPolicy })).rejects.toThrow(ZodError);
+      expect(createPolicyMock).not.toHaveBeenCalled();
+    });
+
+    it("should throw ZodError for invalid Solana address format in splAddress criterion", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      const invalidPolicy = {
+        scope: "account" as const,
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "sendSolTransaction" as const,
+            criteria: [
+              {
+                type: "splAddress" as const,
+                addresses: ["0x1234567890123456789012345678901234567890"], // Invalid Solana address (EVM format)
+                operator: "in" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      await expect(client.createPolicy({ policy: invalidPolicy })).rejects.toThrow(ZodError);
+      expect(createPolicyMock).not.toHaveBeenCalled();
+    });
+
+    it("should throw ZodError for unsupported criteria type in Solana operations", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      const invalidPolicy = {
+        scope: "account" as const,
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "signSolTransaction" as const,
+            criteria: [
+              {
+                type: "ethValue", // EVM criterion type not supported for Solana operations
+                ethValue: "1000000000000000000",
+                operator: ">",
+              },
+            ],
+          },
+        ],
+      };
+
+      // @ts-expect-error Intentionally using invalid criteria type for test
+      await expect(client.createPolicy({ policy: invalidPolicy })).rejects.toThrow(ZodError);
+      expect(createPolicyMock).not.toHaveBeenCalled();
+    });
+  });
+
   describe("getPolicyById", () => {
     it("should get a policy by ID", async () => {
       const getPolicyByIdMock = CdpOpenApiClient.getPolicyById as MockedFunction<
@@ -443,6 +743,52 @@ describe("PoliciesClient", () => {
 
       expect(result).toEqual(mockPolicy);
       expect(updatePolicyMock).toHaveBeenCalledWith("policy-123", policyUpdate, undefined);
+    });
+
+    it("should update a policy with Solana sendSolTransaction rules", async () => {
+      const updatePolicyMock = CdpOpenApiClient.updatePolicy as MockedFunction<
+        typeof CdpOpenApiClient.updatePolicy
+      >;
+
+      const solanaUpdate = {
+        description: "Updated Solana policy",
+        rules: [
+          {
+            action: "reject" as const,
+            operation: "sendSolTransaction" as const,
+            criteria: [
+              {
+                type: "splValue" as const,
+                splValue: "5000000",
+                operator: ">=" as const,
+              },
+              {
+                type: "mintAddress" as const,
+                addresses: ["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"],
+                operator: "in" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      const expectedUpdatedPolicy = {
+        id: "policy-123",
+        scope: "account" as const,
+        ...solanaUpdate,
+        createdAt: "2023-01-01T00:00:00Z",
+        updatedAt: "2023-01-01T01:00:00Z",
+      };
+
+      updatePolicyMock.mockResolvedValue(expectedUpdatedPolicy);
+
+      const result = await client.updatePolicy({
+        id: "policy-123",
+        policy: solanaUpdate,
+      });
+
+      expect(result).toEqual(expectedUpdatedPolicy);
+      expect(updatePolicyMock).toHaveBeenCalledWith("policy-123", solanaUpdate, undefined);
     });
 
     it("should throw a ZodError for invalid policy with invalid description format", async () => {

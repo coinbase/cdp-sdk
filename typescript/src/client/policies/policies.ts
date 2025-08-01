@@ -80,7 +80,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    * @returns {Promise<Policy>} The created policy
    * @throws {ZodError<typeof CreatePolicyBodySchema>} When the policy is invalid
    *
-   * @example **Creating a new policy**
+   * @example **Creating a new EVM policy**
    *          ```ts
    *          const policy = await cdp.policies.createPolicy({
    *            policy: {
@@ -95,6 +95,45 @@ export class PoliciesClient implements PoliciesClientInterface {
    *                      type: "ethValue",
    *                      ethValue: "1000000000000000000",
    *                      operator: ">",
+   *                    },
+   *                  ],
+   *                },
+   *              ],
+   *            }
+   *          });
+   *          ```
+   *
+   * @example **Creating a new Solana policy**
+   *          ```ts
+   *          const policy = await cdp.policies.createPolicy({
+   *            policy: {
+   *              scope: "account",
+   *              description: "Limits SOL transfers and SPL token operations",
+   *              rules: [
+   *                {
+   *                  action: "reject",
+   *                  operation: "signSolTransaction",
+   *                  criteria: [
+   *                    {
+   *                      type: "solValue",
+   *                      solValue: "1000000000", // 1 SOL in lamports
+   *                      operator: ">",
+   *                    },
+   *                    {
+   *                      type: "solAddress",
+   *                      addresses: ["9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"],
+   *                      operator: "in",
+   *                    },
+   *                  ],
+   *                },
+   *                {
+   *                  action: "accept",
+   *                  operation: "sendSolTransaction",
+   *                  criteria: [
+   *                    {
+   *                      type: "mintAddress",
+   *                      addresses: ["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"], // USDC mint
+   *                      operator: "in",
    *                    },
    *                  ],
    *                },
@@ -229,7 +268,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    * @returns {Promise<Policy>} The updated policy
    * @throws {ZodError<typeof UpdatePolicyBodySchema>} When the updated policy is invalid
    *
-   * @example **Updating a policy**
+   * @example **Updating an EVM policy**
    *          ```ts
    *          const updatedPolicy = await cdp.policies.updatePolicy({
    *            id: "__ID__",
@@ -244,6 +283,34 @@ export class PoliciesClient implements PoliciesClientInterface {
    *                      type: "ethValue",
    *                      ethValue: "1000000000",
    *                      operator: ">",
+   *                    },
+   *                  ],
+   *                },
+   *              ],
+   *            },
+   *          });
+   *          ```
+   *
+   * @example **Updating a Solana policy**
+   *          ```ts
+   *          const updatedPolicy = await cdp.policies.updatePolicy({
+   *            id: "__ID__",
+   *            policy: {
+   *              description: "Updated Solana transaction limits",
+   *              rules: [
+   *                {
+   *                  action: "reject",
+   *                  operation: "signSolTransaction",
+   *                  criteria: [
+   *                    {
+   *                      type: "splValue",
+   *                      splValue: "1000000", // SPL token amount
+   *                      operator: ">=",
+   *                    },
+   *                    {
+   *                      type: "mintAddress",
+   *                      addresses: ["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"], // USDC mint
+   *                      operator: "in",
    *                    },
    *                  ],
    *                },
