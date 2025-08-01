@@ -353,6 +353,7 @@ class EvmClient:
 
         Returns:
             EvmUserOperationModel: The user operation to revoke the spend permission.
+
         """
         from cdp.openapi_client.models.revoke_spend_permission_request import (
             RevokeSpendPermissionRequest,
