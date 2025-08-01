@@ -1261,7 +1261,9 @@ describe("CDP Client E2E Tests", () => {
           address: smartAccount.address,
         });
 
-        const permissionHash = permissions.spendPermissions[0].permissionHash;
+        const latestPermission = permissions.spendPermissions.length - 1;
+
+        const permissionHash = permissions.spendPermissions[latestPermission].permissionHash;
 
         const { userOpHash: revokeUserOpHash } = await cdp.evm.revokeSpendPermission({
           address: smartAccount.address,
