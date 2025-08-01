@@ -1198,6 +1198,24 @@ describe("CDP Client E2E Tests", () => {
         expect(userOperationResult).toBeDefined();
         expect(userOperationResult.status).toBe("complete");
       });
+
+      it("should list spend permissions", async () => {
+        const owner = await cdp.evm.getOrCreateAccount({
+          name: "Spend-Permission-Owner",
+        });
+
+        const smartAccount = await cdp.evm.getOrCreateSmartAccount({
+          name: "Spend-Permission-Smart-Account",
+          owner,
+          __experimental_enableSpendPermission: true,
+        });
+
+        const permissions = await cdp.evm.listSpendPermissions({
+          address: smartAccount.address,
+        });
+
+        expect(permissions.spendPermissions.length).toBeGreaterThan(0);
+      });
     });
   });
 
@@ -2796,38 +2814,6 @@ describe("CDP Client E2E Tests", () => {
     } finally {
       fetchSpy.mockRestore();
     }
-  });
-
-  describe("spend permissions", () => {
-    it("should list spend permissions", async () => {
-      let permissions = await cdp.evm.listSpendPermissions({
-        address: testSmartAccount.address,
-      });
-
-      if (permissions.spendPermissions.length === 0) {
-        logger.log("No spend permissions found, creating one");
-        await cdp.evm.createSpendPermission({
-          network: "base-sepolia",
-          spendPermission: {
-            account: testSmartAccount.address,
-            spender: testAccount.address,
-            token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
-            allowance: parseUnits("0.01", 6),
-            period: 60 * 60, // 1 hour
-            start: 0,
-            end: Date.now() + 24 * 60 * 60 * 1000, // in one day
-            salt: 0n,
-            extraData: "0x",
-          },
-        });
-      }
-
-      permissions = await cdp.evm.listSpendPermissions({
-        address: testSmartAccount.address,
-      });
-
-      expect(permissions.spendPermissions.length).toBeGreaterThan(0);
-    });
   });
 });
 
