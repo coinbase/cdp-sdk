@@ -43,6 +43,9 @@ const permissions = await cdp.evm.listSpendPermissions({
 
 const permissionHash = permissions.spendPermissions[0].permissionHash;
 
+// Sleep 2 seconds
+await new Promise(resolve => setTimeout(resolve, 2000));
+
 const { userOpHash: revokeUserOpHash } = await cdp.evm.revokeSpendPermission({
   address: smartAccount.address,
   permissionHash: permissionHash as `0x${string}`,

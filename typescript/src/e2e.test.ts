@@ -1265,6 +1265,9 @@ describe("CDP Client E2E Tests", () => {
 
         const permissionHash = permissions.spendPermissions[latestPermission].permissionHash;
 
+        // Sleep 2 seconds
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
         const { userOpHash: revokeUserOpHash } = await cdp.evm.revokeSpendPermission({
           address: smartAccount.address,
           permissionHash: permissionHash as `0x${string}`,
@@ -1279,8 +1282,8 @@ describe("CDP Client E2E Tests", () => {
         expect(revokeUserOperationResult).toBeDefined();
         expect(revokeUserOperationResult.status).toBe("complete");
 
-        // Sleep 2 seconds
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Sleep 5 seconds
+        await new Promise(resolve => setTimeout(resolve, 5000));
 
         const updatedPermissions = await cdp.evm.listSpendPermissions({
           address: smartAccount.address,

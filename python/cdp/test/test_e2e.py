@@ -1933,6 +1933,9 @@ async def test_evm_smart_account_revoke_spend_permission(cdp_client):
     # Get the latest spend permission
     latest_permission = permissions.spend_permissions[-1]
 
+    # Sleep 2 seconds
+    await asyncio.sleep(2)
+
     # Revoke the spend permission
     revoke_user_operation = await cdp_client.evm.revoke_spend_permission(
         address=master.address,
@@ -1948,8 +1951,8 @@ async def test_evm_smart_account_revoke_spend_permission(cdp_client):
 
     assert revoke_result.status == "complete"
 
-    # Sleep 2 seconds
-    await asyncio.sleep(2)
+    # Sleep 5 seconds
+    await asyncio.sleep(5)
 
     updated_permissions = await cdp_client.evm.list_spend_permissions(master.address)
     assert updated_permissions is not None

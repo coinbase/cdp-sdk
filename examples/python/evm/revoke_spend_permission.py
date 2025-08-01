@@ -61,6 +61,9 @@ async def main():
         # List the spend permissions
         permissions = await cdp.evm.list_spend_permissions(smart_account.address)
 
+        # Sleep 2 seconds
+        await asyncio.sleep(2)
+
         # Revoke the spend permission
         revoke_user_operation = await cdp.evm.revoke_spend_permission(
             address=smart_account.address,
