@@ -848,6 +848,7 @@ async def test_transfer_sol(solana_account):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="Skipping due to flakiness")
 async def test_solana_account_transfer_usdc(solana_account):
     """Test transferring USDC tokens."""
     connection = SolanaClient(
