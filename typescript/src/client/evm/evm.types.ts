@@ -23,6 +23,7 @@ import type {
   EvmSwapsNetwork,
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
+  ListSpendPermissionsResult,
   OpenApiEvmMethods,
   UpdateEvmAccountBody as UpdateEvmAccount,
   UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
@@ -88,6 +89,9 @@ export type EvmClientInterface = Omit<
   updateSmartAccount: (options: UpdateEvmSmartAccountOptions) => Promise<SmartAccount>;
   listAccounts: (options: ListServerAccountsOptions) => Promise<ListServerAccountResult>;
   listSmartAccounts: (options: ListSmartAccountsOptions) => Promise<ListSmartAccountResult>;
+  listSpendPermissions: (
+    options: ListSpendPermissionsOptions,
+  ) => Promise<ListSpendPermissionsResult>;
   listTokenBalances: (options: ListTokenBalancesOptions) => Promise<ListTokenBalancesResult>;
   prepareUserOperation: (options: PrepareUserOperationOptions) => Promise<UserOperation>;
   requestFaucet: (options: RequestFaucetOptions) => Promise<RequestFaucetResult>;
