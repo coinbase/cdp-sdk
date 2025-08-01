@@ -14,11 +14,13 @@ from cdp.openapi_client.models.evm_typed_address_condition import EvmTypedAddres
 from cdp.openapi_client.models.evm_typed_numerical_condition import EvmTypedNumericalCondition
 from cdp.openapi_client.models.evm_typed_string_condition import EvmTypedStringCondition
 from cdp.openapi_client.models.known_abi_type import KnownAbiType
+from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterion
 from cdp.openapi_client.models.rule import Rule
 from cdp.openapi_client.models.send_evm_transaction_criteria_inner import (
     SendEvmTransactionCriteriaInner,
 )
 from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransactionRule
+from cdp.openapi_client.models.send_sol_transaction_rule import SendSolTransactionRule
 from cdp.openapi_client.models.sign_evm_hash_rule import SignEvmHashRule
 from cdp.openapi_client.models.sign_evm_message_criteria_inner import SignEvmMessageCriteriaInner
 from cdp.openapi_client.models.sign_evm_message_rule import SignEvmMessageRule
@@ -47,6 +49,9 @@ from cdp.openapi_client.models.sign_sol_transaction_criteria_inner import (
 )
 from cdp.openapi_client.models.sign_sol_transaction_rule import SignSolTransactionRule
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
+from cdp.openapi_client.models.sol_value_criterion import SolValueCriterion
+from cdp.openapi_client.models.spl_address_criterion import SplAddressCriterion
+from cdp.openapi_client.models.spl_value_criterion import SplValueCriterion
 from cdp.policies.types import Rule as RuleType
 
 # OpenAPI criterion constructor mapping per operation
@@ -216,6 +221,71 @@ openapi_criterion_mapping = {
                 type="solAddress",
             )
         ),
+        "solValue": lambda c: SignSolTransactionCriteriaInner(
+            actual_instance=SolValueCriterion(
+                sol_value=c.solValue,
+                operator=c.operator,
+                type="solValue",
+            )
+        ),
+        "splAddress": lambda c: SignSolTransactionCriteriaInner(
+            actual_instance=SplAddressCriterion(
+                addresses=c.addresses,
+                operator=c.operator,
+                type="splAddress",
+            )
+        ),
+        "splValue": lambda c: SignSolTransactionCriteriaInner(
+            actual_instance=SplValueCriterion(
+                spl_value=c.splValue,
+                operator=c.operator,
+                type="splValue",
+            )
+        ),
+        "mintAddress": lambda c: SignSolTransactionCriteriaInner(
+            actual_instance=MintAddressCriterion(
+                addresses=c.addresses,
+                operator=c.operator,
+                type="mintAddress",
+            )
+        ),
+    },
+    "sendSolTransaction": {
+        "solAddress": lambda c: SignSolTransactionCriteriaInner(
+            actual_instance=SolAddressCriterion(
+                addresses=c.addresses,
+                operator=c.operator,
+                type="solAddress",
+            )
+        ),
+        "solValue": lambda c: SignSolTransactionCriteriaInner(
+            actual_instance=SolValueCriterion(
+                sol_value=c.solValue,
+                operator=c.operator,
+                type="solValue",
+            )
+        ),
+        "splAddress": lambda c: SignSolTransactionCriteriaInner(
+            actual_instance=SplAddressCriterion(
+                addresses=c.addresses,
+                operator=c.operator,
+                type="splAddress",
+            )
+        ),
+        "splValue": lambda c: SignSolTransactionCriteriaInner(
+            actual_instance=SplValueCriterion(
+                spl_value=c.splValue,
+                operator=c.operator,
+                type="splValue",
+            )
+        ),
+        "mintAddress": lambda c: SignSolTransactionCriteriaInner(
+            actual_instance=MintAddressCriterion(
+                addresses=c.addresses,
+                operator=c.operator,
+                type="mintAddress",
+            )
+        ),
     },
 }
 
@@ -227,6 +297,7 @@ openapi_rule_mapping = {
     "signEvmMessage": SignEvmMessageRule,
     "signEvmTypedData": SignEvmTypedDataRule,
     "signSolTransaction": SignSolTransactionRule,
+    "sendSolTransaction": SendSolTransactionRule,
 }
 
 

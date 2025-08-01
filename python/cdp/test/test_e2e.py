@@ -35,7 +35,7 @@ from cdp.policies.types import (
     SignEvmMessageRule,
     SignEvmTransactionRule,
     SignSolanaTransactionRule,
-    SolanaAddressCriterion,
+    SolAddressCriterion,
     UpdatePolicyOptions,
 )
 from cdp.spend_permissions.types import SpendPermission
@@ -1077,7 +1077,7 @@ async def test_create_account_policy(cdp_client):
                 SignSolanaTransactionRule(
                     action="accept",
                     criteria=[
-                        SolanaAddressCriterion(
+                        SolAddressCriterion(
                             addresses=["123456789abcdef123456789abcdef12"],
                             operator="in",
                         ),
@@ -1537,7 +1537,7 @@ async def test_create_solana_account_with_policy(cdp_client):
                 SignSolanaTransactionRule(
                     action="accept",
                     criteria=[
-                        SolanaAddressCriterion(
+                        SolAddressCriterion(
                             addresses=["123456789abcdef123456789abcdef12"],
                             operator="in",
                         ),
