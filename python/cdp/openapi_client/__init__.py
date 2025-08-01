@@ -112,6 +112,7 @@ from cdp.openapi_client.models.list_solana_accounts200_response import ListSolan
 from cdp.openapi_client.models.list_solana_token_balances200_response import ListSolanaTokenBalances200Response
 from cdp.openapi_client.models.list_solana_token_balances_network import ListSolanaTokenBalancesNetwork
 from cdp.openapi_client.models.list_spend_permissions200_response import ListSpendPermissions200Response
+from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterion
 from cdp.openapi_client.models.onramp_order import OnrampOrder
 from cdp.openapi_client.models.onramp_order_fee import OnrampOrderFee
 from cdp.openapi_client.models.onramp_order_status import OnrampOrderStatus
@@ -137,6 +138,7 @@ from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTr
 from cdp.openapi_client.models.send_evm_transaction_criteria_inner import SendEvmTransactionCriteriaInner
 from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
 from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransactionRule
+from cdp.openapi_client.models.send_sol_transaction_rule import SendSolTransactionRule
 from cdp.openapi_client.models.send_solana_transaction200_response import SendSolanaTransaction200Response
 from cdp.openapi_client.models.send_solana_transaction_request import SendSolanaTransactionRequest
 from cdp.openapi_client.models.send_user_operation_request import SendUserOperationRequest
@@ -167,12 +169,15 @@ from cdp.openapi_client.models.sign_solana_message_request import SignSolanaMess
 from cdp.openapi_client.models.sign_solana_transaction200_response import SignSolanaTransaction200Response
 from cdp.openapi_client.models.sign_solana_transaction_request import SignSolanaTransactionRequest
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
+from cdp.openapi_client.models.sol_value_criterion import SolValueCriterion
 from cdp.openapi_client.models.solana_account import SolanaAccount
 from cdp.openapi_client.models.solana_token import SolanaToken
 from cdp.openapi_client.models.solana_token_amount import SolanaTokenAmount
 from cdp.openapi_client.models.solana_token_balance import SolanaTokenBalance
 from cdp.openapi_client.models.spend_permission import SpendPermission
 from cdp.openapi_client.models.spend_permission_response_object import SpendPermissionResponseObject
+from cdp.openapi_client.models.spl_address_criterion import SplAddressCriterion
+from cdp.openapi_client.models.spl_value_criterion import SplValueCriterion
 from cdp.openapi_client.models.swap_unavailable_response import SwapUnavailableResponse
 from cdp.openapi_client.models.token import Token
 from cdp.openapi_client.models.token_amount import TokenAmount
