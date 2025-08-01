@@ -330,9 +330,20 @@ class EvmClient:
             x_idempotency_key=idempotency_key,
         )
 
-    async def list_spend_permissions(self, address: str, page_size: int | None = None, page_token: str | None = None) -> ListEvmAccountsResponse:
-        """List spend permissions for a smart account."""
+    async def list_spend_permissions(
+        self, address: str, page_size: int | None = None, page_token: str | None = None
+    ) -> ListEvmAccountsResponse:
+        """List spend permissions for a smart account.
 
+        Args:
+            address (str): The address of the smart account.
+            page_size (int, optional): The number of spend permissions to return per page. Defaults to None.
+            page_token (str, optional): The token for the next page of spend permissions, if any. Defaults to None.
+
+        Returns:
+            ListEvmAccountsResponse: The list of spend permissions.
+
+        """
         track_action(action="list_spend_permissions")
 
         return await self.api_clients.evm_smart_accounts.list_spend_permissions(

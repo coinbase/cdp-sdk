@@ -1883,6 +1883,7 @@ async def test_use_network_evm_smart_account(cdp_client):
     balances = await network_smart_account.list_token_balances()
     assert balances is not None
 
+
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_evm_smart_account_revoke_spend_permission(cdp_client):
@@ -1945,6 +1946,7 @@ async def test_evm_smart_account_revoke_spend_permission(cdp_client):
     )
 
     assert revoke_result.status == "complete"
+
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
