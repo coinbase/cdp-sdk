@@ -1278,6 +1278,20 @@ describe("CDP Client E2E Tests", () => {
 
         expect(revokeUserOperationResult).toBeDefined();
         expect(revokeUserOperationResult.status).toBe("complete");
+
+        // Sleep 2 seconds
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        const updatedPermissions = await cdp.evm.listSpendPermissions({
+          address: smartAccount.address,
+        });
+
+        const latestPermissionIndex = updatedPermissions.spendPermissions.length - 1;
+
+        const updatedPermission = updatedPermissions.spendPermissions[latestPermissionIndex];
+
+        expect(updatedPermission.revoked).toBe(true);
+        expect(updatedPermission.revokedAt).toBeDefined();
       });
     });
   });

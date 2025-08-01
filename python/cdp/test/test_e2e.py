@@ -1948,6 +1948,17 @@ async def test_evm_smart_account_revoke_spend_permission(cdp_client):
 
     assert revoke_result.status == "complete"
 
+    # Sleep 2 seconds
+    await asyncio.sleep(2)
+
+    updated_permissions = await cdp_client.evm.list_spend_permissions(master.address)
+    assert updated_permissions is not None
+    assert len(updated_permissions.spend_permissions) > 0
+
+    updated_permission = updated_permissions.spend_permissions[-1]
+    assert updated_permission.revoked is True
+    assert updated_permission.revoked_at is not None
+
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
