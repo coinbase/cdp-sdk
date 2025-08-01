@@ -280,6 +280,23 @@ tags:
       A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
       #### solValue
       A criterion based on the value of the transaction. The criterion's `solValue` field is compared to the transaction's `value`, which is the amount of SOL in lamports being transferred, using the `operator` field.
+      #### splAddress
+      A criterion based on the recipient addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### splValue
+      A criterion based on the SPL token value of SPL token transfer instructions in the transaction. The criterion's `splValue` field is compared to the transaction instruction's `value` field, which is the amount of the SPL token being transferred, using the `operator` field.
+      #### mintAddress
+      A criterion based on the token mint addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      ### SendSolTransaction Criteria
+      #### solAddress
+      A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### solValue
+      A criterion based on the value of the transaction. The criterion's `solValue` field is compared to the transaction's `value`, which is the amount of SOL in lamports being transferred, using the `operator` field.
+      #### splAddress
+      A criterion based on the recipient addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### splValue
+      A criterion based on the SPL token value of SPL token transfer instructions in the transaction. The criterion's `splValue` field is compared to the transaction instruction's `value` field, which is the amount of the SPL token being transferred, using the `operator` field.
+      #### mintAddress
+      A criterion based on the token mint addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
       ## Restricting Contract Interactions on Ethereum
       Smart contract function restrictions serve as a critical security and governance mechanism in decentralized applications, allowing developers and organizations to implement fine-grained access controls over their protocol interactions.
       One of the primary use cases for function restrictions is protecting high-risk operations from unauthorized access such as:
