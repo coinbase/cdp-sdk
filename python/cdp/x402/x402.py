@@ -7,7 +7,7 @@ from cdp.auth.utils.http import GetAuthHeadersOptions, get_auth_headers
 COINBASE_FACILITATOR_BASE_URL = "https://api.cdp.coinbase.com"
 COINBASE_FACILITATOR_V2_ROUTE = "/platform/v2/x402"
 
-X402_VERSION = "0.4.0"
+X402_VERSION = "0.4.3"
 
 
 class FacilitatorConfig(TypedDict, total=False):
@@ -72,9 +72,22 @@ def create_cdp_auth_headers(
             )
         )
 
+        list_auth_headers = get_auth_headers(
+            GetAuthHeadersOptions(
+                api_key_id=final_api_key_id,
+                api_key_secret=final_api_key_secret,
+                request_host=request_host,
+                request_path=f"{COINBASE_FACILITATOR_V2_ROUTE}/discovery/resources",
+                request_method="GET",
+                source="x402",
+                source_version=X402_VERSION,
+            )
+        )
+
         return {
             "verify": verify_auth_headers,
             "settle": settle_auth_headers,
+            "list": list_auth_headers,
         }
 
     return _create_headers
