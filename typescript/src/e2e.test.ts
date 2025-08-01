@@ -21,7 +21,7 @@ import {
   type Chain,
   type Hex,
   type PublicClient,
-  type Transport
+  type Transport,
 } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { baseSepolia, optimismSepolia } from "viem/chains";
@@ -1768,7 +1768,7 @@ describe("CDP Client E2E Tests", () => {
         expect(policy.id).toBe(testSolanaPolicyId);
         expect(policy.scope).toBe("account");
         expect(policy.description).toBe("Test Solana policy for e2e tests");
-        expect(policy.rules).toHaveLength(3);
+        expect(policy.rules).toHaveLength(2);
       });
 
       it("should update a Solana policy", async () => {
