@@ -37,7 +37,7 @@ import type {
 } from "./client/evm/evm.types.js";
 import type { ImportAccountOptions } from "./client/solana/solana.types.js";
 import { TimeoutError } from "./errors.js";
-import { SignEvmTransactionRule } from "./policies/schema.js";
+import { SignEvmTransactionRule } from "./policies/evmSchema.js";
 import type { Policy } from "./policies/types.js";
 import { SpendPermission } from "./spend-permissions/types.js";
 

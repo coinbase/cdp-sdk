@@ -13,8 +13,7 @@ import {
   CreatePolicyBody,
   UpdatePolicyBody,
 } from "../../openapi-client/index.js";
-import { CreatePolicyBodySchema, UpdatePolicyBodySchema } from "../../policies/schema.js";
-import { Policy } from "../../policies/types.js";
+import { Policy, CreatePolicyBodySchema, UpdatePolicyBodySchema } from "../../policies/types.js";
 
 /**
  * The namespace containing all Policy methods.
