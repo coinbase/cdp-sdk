@@ -11,6 +11,7 @@ from cdp.policies.types import (
     EvmTypedAddressCondition as EvmTypedAddressConditionModel,
     EvmTypedNumericalCondition as EvmTypedNumericalConditionModel,
     EvmTypedStringCondition as EvmTypedStringConditionModel,
+    NetUSDChangeCriterion as NetUSDChangeCriterionModel,
     Rule as RuleType,
     SendEvmTransactionRule as SendEvmTransactionRuleModel,
     SignEvmHashRule as SignEvmHashRuleModel,
@@ -32,6 +33,7 @@ response_criterion_mapping = {
             addresses=c.addresses, operator=c.operator
         ),
         "evmNetwork": lambda c: EvmNetworkCriterionModel(networks=c.networks, operator=c.operator),
+        "netUSDChange": lambda c: NetUSDChangeCriterionModel(changeCents=c.changeCents, operator=c.operator),
         "evmData": lambda c: EvmDataCriterionModel(
             abi=c.abi.actual_instance,
             conditions=[
@@ -67,6 +69,7 @@ response_criterion_mapping = {
         "evmAddress": lambda c: EvmAddressCriterionModel(
             addresses=c.addresses, operator=c.operator
         ),
+        "netUSDChange": lambda c: NetUSDChangeCriterionModel(changeCents=c.changeCents, operator=c.operator),
         "evmData": lambda c: EvmDataCriterionModel(
             abi=c.abi.actual_instance,
             conditions=[

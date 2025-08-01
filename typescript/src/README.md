@@ -1062,13 +1062,14 @@ try {
 
 We currently support the following policy rules:
 
-- `SendEvmTransactionRule`
-- `SignEvmHashRule`
-- `SignEvmMessageRule`
-- `SignEvmTransactionRule`
-- `SignSolanaTransactionRule`
-- `SendUserOperationRule`
-- `PrepareUserOperationRule`
+- [SendEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-policy#option-2)
+- [SignEvmHashRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-policy#option-6)
+- [SignEvmMessageRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-policy#option-3)
+- [SignEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-policy#option-1)
+- [SignSolanaTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-policy#option-5)
+- [SendUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-policy#option-8)
+- [PrepareUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-policy#option-7)
+- [SignEvmTypedDataRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-policy#option-4)
 
 ## Authentication tools
 

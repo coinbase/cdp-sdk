@@ -122,6 +122,23 @@ export const EvmMessageCriterionSchema = z.object({
 export type EvmMessageCriterion = z.infer<typeof EvmMessageCriterionSchema>;
 
 /**
+ * Schema for Net USD change criterion
+ */
+export const NetUSDChangeCriterionSchema = z.object({
+  /** The type of criterion, must be "netUSDChange" for USD denominated asset transfer rules. */
+  type: z.literal("netUSDChange"),
+  /**
+   * The amount of USD, in cents, that the total USD value of a transaction's asset transfer and exposure should be compared to.
+   */
+  changeCents: z.number().int().nonnegative(),
+  /**
+   * The operator to use for the comparison. The total value of a transaction's asset transfer and exposure in USD will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side.
+   */
+  operator: EthValueOperatorEnum,
+});
+export type NetUSDChangeCriterion = z.infer<typeof NetUSDChangeCriterionSchema>;
+
+/**
  * Schema for EVM typed address conditions
  */
 export const EvmTypedAddressConditionSchema = z.object({
@@ -380,6 +397,7 @@ export const SignEvmTransactionCriteriaSchema = z
       EthValueCriterionSchema,
       EvmAddressCriterionSchema,
       EvmDataCriterionSchema,
+      NetUSDChangeCriterionSchema,
     ]),
   )
   .max(10)
@@ -413,6 +431,7 @@ export const SendEvmTransactionCriteriaSchema = z
       EvmAddressCriterionSchema,
       EvmNetworkCriterionSchema,
       EvmDataCriterionSchema,
+      NetUSDChangeCriterionSchema,
     ]),
   )
   .max(10)

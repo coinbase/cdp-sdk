@@ -1,4 +1,5 @@
 from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
+from cdp.openapi_client.models.net_usd_change_criterion import NetUSDChangeCriterion
 from cdp.openapi_client.models.evm_address_criterion import EvmAddressCriterion
 from cdp.openapi_client.models.evm_data_condition import EvmDataCondition as OpenAPIEvmDataCondition
 from cdp.openapi_client.models.evm_data_condition_params_inner import EvmDataConditionParamsInner
@@ -73,6 +74,13 @@ openapi_criterion_mapping = {
                 type="evmNetwork",
             )
         ),
+        "netUSDChange": lambda c: SendEvmTransactionCriteriaInner(
+            actual_instance=NetUSDChangeCriterion(
+                change_cents=c.changeCents,
+                operator=c.operator,
+                type="netUSDChange",
+            )
+        ),
         "evmData": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=EvmDataCriterion(
                 type="evmData",
@@ -121,6 +129,13 @@ openapi_criterion_mapping = {
                 addresses=c.addresses,
                 operator=c.operator,
                 type="evmAddress",
+            )
+        ),
+        "netUSDChange": lambda c: SignEvmTransactionCriteriaInner(
+            actual_instance=NetUSDChangeCriterion(
+                change_cents=c.changeCents,
+                operator=c.operator,
+                type="netUSDChange",
             )
         ),
         "evmData": lambda c: SignEvmTransactionCriteriaInner(

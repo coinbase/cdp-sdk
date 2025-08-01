@@ -9,6 +9,7 @@ from cdp.openapi_client.models.sign_evm_transaction_criteria_inner import (
 from cdp.openapi_client.models.sign_evm_transaction_rule import SignEvmTransactionRule
 from cdp.policies.types import (
     EvmAddressCriterion as EvmAddressCriterionModel,
+    NetUSDChangeCriterion as NetUSDChangeCriterionModel,
     Policy as PolicyModel,
     SignEvmTransactionRule as SignEvmTransactionRuleModel,
 )
@@ -38,6 +39,12 @@ def openapi_policy_model_factory():
                                     type="evmAddress",
                                     addresses=["0x000000000000000000000000000000000000dEaD"],
                                     operator="in",
+                                ),
+                            ),
+                            SignEvmTransactionCriteriaInner(
+                                actual_instance=NetUSDChangeCriterionModel(
+                                    changeCents=100,
+                                    operator=">",
                                 ),
                             ),
                         ],
@@ -74,6 +81,10 @@ def policy_model_factory():
                     action="accept",
                     criteria=[
                         EvmAddressCriterionModel(
+                            addresses=["0x000000000000000000000000000000000000dEaD"],
+                            operator="in",
+                        ),
+                        NetUSDChangeCriterionModel(
                             addresses=["0x000000000000000000000000000000000000dEaD"],
                             operator="in",
                         ),
