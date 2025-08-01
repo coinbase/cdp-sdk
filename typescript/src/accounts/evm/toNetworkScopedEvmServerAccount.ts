@@ -88,6 +88,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
           accountType: "evm_server",
           properties: {
             network: options.network,
+            managed: true,
           },
         });
 
@@ -109,6 +110,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
           accountType: "evm_server",
           properties: {
             network: options.network,
+            managed: true,
           },
         });
 
@@ -121,6 +123,9 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
       Analytics.trackAction({
         action: "wait_for_transaction_receipt",
         accountType: "evm_server",
+        properties: {
+          managed: true,
+        },
       });
 
       if ("transactionHash" in waitOptions) {
@@ -137,6 +142,14 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
       listTokenBalances: async (
         listTokenBalancesOptions: Omit<ListTokenBalancesOptions, "address" | "network">,
       ) => {
+        Analytics.trackAction({
+          action: "list_token_balances",
+          accountType: "evm_server",
+          properties: {
+            managed: true,
+          },
+        });
+
         return options.account.listTokenBalances({
           ...listTokenBalancesOptions,
           network: options.network as ListEvmTokenBalancesNetwork,
@@ -148,6 +161,14 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
   if (isMethodSupportedOnNetwork("requestFaucet", resolvedNetworkName)) {
     Object.assign(account, {
       requestFaucet: async (faucetOptions: Omit<RequestFaucetOptions, "address" | "network">) => {
+        Analytics.trackAction({
+          action: "request_faucet",
+          accountType: "evm_server",
+          properties: {
+            managed: true,
+          },
+        });
+
         return options.account.requestFaucet({
           ...faucetOptions,
           network: chain.id === baseSepolia.id ? "base-sepolia" : "ethereum-sepolia",
@@ -159,6 +180,14 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
   if (isMethodSupportedOnNetwork("quoteFund", resolvedNetworkName)) {
     Object.assign(account, {
       quoteFund: async (quoteFundOptions: Omit<EvmQuoteFundOptions, "address">) => {
+        Analytics.trackAction({
+          action: "quote_fund",
+          accountType: "evm_server",
+          properties: {
+            managed: true,
+          },
+        });
+
         return options.account.quoteFund({
           ...quoteFundOptions,
         });
@@ -169,11 +198,27 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
   if (isMethodSupportedOnNetwork("fund", resolvedNetworkName)) {
     Object.assign(account, {
       fund: async (fundOptions: Omit<EvmFundOptions, "address">) => {
+        Analytics.trackAction({
+          action: "fund",
+          accountType: "evm_server",
+          properties: {
+            managed: true,
+          },
+        });
+
         return options.account.fund({
           ...fundOptions,
         });
       },
       waitForFundOperationReceipt: async (waitOptions: WaitForFundOperationOptions) => {
+        Analytics.trackAction({
+          action: "wait_for_fund_operation_receipt",
+          accountType: "evm_server",
+          properties: {
+            managed: true,
+          },
+        });
+
         return options.account.waitForFundOperationReceipt(waitOptions);
       },
     });
@@ -182,6 +227,14 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
   if (isMethodSupportedOnNetwork("quoteSwap", resolvedNetworkName)) {
     Object.assign(account, {
       quoteSwap: async (quoteSwapOptions: AccountQuoteSwapOptions) => {
+        Analytics.trackAction({
+          action: "quote_swap",
+          accountType: "evm_server",
+          properties: {
+            managed: true,
+          },
+        });
+
         return options.account.quoteSwap(quoteSwapOptions);
       },
     });
@@ -190,6 +243,14 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
   if (isMethodSupportedOnNetwork("swap", resolvedNetworkName)) {
     Object.assign(account, {
       swap: async (swapOptions: AccountSwapOptions) => {
+        Analytics.trackAction({
+          action: "swap",
+          accountType: "evm_server",
+          properties: {
+            managed: true,
+          },
+        });
+
         return options.account.swap(swapOptions);
       },
     });
@@ -200,6 +261,14 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
       __experimental_useSpendPermission: async (
         spendPermissionOptions: Omit<UseSpendPermissionOptions, "network">,
       ) => {
+        Analytics.trackAction({
+          action: "use_spend_permission",
+          accountType: "evm_server",
+          properties: {
+            managed: true,
+          },
+        });
+
         return options.account.__experimental_useSpendPermission({
           ...spendPermissionOptions,
           network: options.network as SpendPermissionNetworks,
