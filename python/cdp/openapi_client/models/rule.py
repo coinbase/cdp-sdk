@@ -20,6 +20,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, f
 from typing import Any, List, Optional
 from cdp.openapi_client.models.prepare_user_operation_rule import PrepareUserOperationRule
 from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransactionRule
+from cdp.openapi_client.models.send_sol_transaction_rule import SendSolTransactionRule
 from cdp.openapi_client.models.send_user_operation_rule import SendUserOperationRule
 from cdp.openapi_client.models.sign_evm_hash_rule import SignEvmHashRule
 from cdp.openapi_client.models.sign_evm_message_rule import SignEvmMessageRule
@@ -30,7 +31,7 @@ from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-RULE_ONE_OF_SCHEMAS = ["PrepareUserOperationRule", "SendEvmTransactionRule", "SendUserOperationRule", "SignEvmHashRule", "SignEvmMessageRule", "SignEvmTransactionRule", "SignEvmTypedDataRule", "SignSolTransactionRule"]
+RULE_ONE_OF_SCHEMAS = ["PrepareUserOperationRule", "SendEvmTransactionRule", "SendSolTransactionRule", "SendUserOperationRule", "SignEvmHashRule", "SignEvmMessageRule", "SignEvmTransactionRule", "SignEvmTypedDataRule", "SignSolTransactionRule"]
 
 class Rule(BaseModel):
     """
@@ -46,14 +47,16 @@ class Rule(BaseModel):
     oneof_schema_4_validator: Optional[SignEvmTypedDataRule] = None
     # data type: SignSolTransactionRule
     oneof_schema_5_validator: Optional[SignSolTransactionRule] = None
+    # data type: SendSolTransactionRule
+    oneof_schema_6_validator: Optional[SendSolTransactionRule] = None
     # data type: SignEvmHashRule
-    oneof_schema_6_validator: Optional[SignEvmHashRule] = None
+    oneof_schema_7_validator: Optional[SignEvmHashRule] = None
     # data type: PrepareUserOperationRule
-    oneof_schema_7_validator: Optional[PrepareUserOperationRule] = None
+    oneof_schema_8_validator: Optional[PrepareUserOperationRule] = None
     # data type: SendUserOperationRule
-    oneof_schema_8_validator: Optional[SendUserOperationRule] = None
-    actual_instance: Optional[Union[PrepareUserOperationRule, SendEvmTransactionRule, SendUserOperationRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolTransactionRule]] = None
-    one_of_schemas: Set[str] = { "PrepareUserOperationRule", "SendEvmTransactionRule", "SendUserOperationRule", "SignEvmHashRule", "SignEvmMessageRule", "SignEvmTransactionRule", "SignEvmTypedDataRule", "SignSolTransactionRule" }
+    oneof_schema_9_validator: Optional[SendUserOperationRule] = None
+    actual_instance: Optional[Union[PrepareUserOperationRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolTransactionRule]] = None
+    one_of_schemas: Set[str] = { "PrepareUserOperationRule", "SendEvmTransactionRule", "SendSolTransactionRule", "SendUserOperationRule", "SignEvmHashRule", "SignEvmMessageRule", "SignEvmTransactionRule", "SignEvmTypedDataRule", "SignSolTransactionRule" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -101,6 +104,11 @@ class Rule(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `SignSolTransactionRule`")
         else:
             match += 1
+        # validate data type: SendSolTransactionRule
+        if not isinstance(v, SendSolTransactionRule):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `SendSolTransactionRule`")
+        else:
+            match += 1
         # validate data type: SignEvmHashRule
         if not isinstance(v, SignEvmHashRule):
             error_messages.append(f"Error! Input type `{type(v)}` is not `SignEvmHashRule`")
@@ -118,10 +126,10 @@ class Rule(BaseModel):
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in Rule with oneOf schemas: PrepareUserOperationRule, SendEvmTransactionRule, SendUserOperationRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in Rule with oneOf schemas: PrepareUserOperationRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in Rule with oneOf schemas: PrepareUserOperationRule, SendEvmTransactionRule, SendUserOperationRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in Rule with oneOf schemas: PrepareUserOperationRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -166,6 +174,12 @@ class Rule(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into SendSolTransactionRule
+        try:
+            instance.actual_instance = SendSolTransactionRule.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
         # deserialize data into SignEvmHashRule
         try:
             instance.actual_instance = SignEvmHashRule.from_json(json_str)
@@ -187,10 +201,10 @@ class Rule(BaseModel):
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into Rule with oneOf schemas: PrepareUserOperationRule, SendEvmTransactionRule, SendUserOperationRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into Rule with oneOf schemas: PrepareUserOperationRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into Rule with oneOf schemas: PrepareUserOperationRule, SendEvmTransactionRule, SendUserOperationRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into Rule with oneOf schemas: PrepareUserOperationRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolTransactionRule. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -204,7 +218,7 @@ class Rule(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], PrepareUserOperationRule, SendEvmTransactionRule, SendUserOperationRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolTransactionRule]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], PrepareUserOperationRule, SendEvmTransactionRule, SendSolTransactionRule, SendUserOperationRule, SignEvmHashRule, SignEvmMessageRule, SignEvmTransactionRule, SignEvmTypedDataRule, SignSolTransactionRule]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None
