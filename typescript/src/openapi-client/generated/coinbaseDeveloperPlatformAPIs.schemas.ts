@@ -1342,9 +1342,162 @@ export interface SolAddressCriterion {
 }
 
 /**
+ * The type of criterion to use. This should be `solValue`.
+ */
+export type SolValueCriterionType =
+  (typeof SolValueCriterionType)[keyof typeof SolValueCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolValueCriterionType = {
+  solValue: "solValue",
+} as const;
+
+/**
+ * The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `solValue` field will be on the right-hand side.
+ */
+export type SolValueCriterionOperator =
+  (typeof SolValueCriterionOperator)[keyof typeof SolValueCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolValueCriterionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * The criterion for the SOL value in lamports of a native transfer instruction in a Solana transaction.
+ */
+export interface SolValueCriterion {
+  /** The type of criterion to use. This should be `solValue`. */
+  type: SolValueCriterionType;
+  /** The amount of SOL in lamports that the transaction instruction's `value` field should be compared to. */
+  solValue: string;
+  /** The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `solValue` field will be on the right-hand side. */
+  operator: SolValueCriterionOperator;
+}
+
+/**
+ * The type of criterion to use. This should be `splAddress`.
+ */
+export type SplAddressCriterionType =
+  (typeof SplAddressCriterionType)[keyof typeof SplAddressCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SplAddressCriterionType = {
+  splAddress: "splAddress",
+} as const;
+
+/**
+ * The operator to use for the comparison. Each of the SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+ */
+export type SplAddressCriterionOperator =
+  (typeof SplAddressCriterionOperator)[keyof typeof SplAddressCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SplAddressCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * The criterion for the recipient addresses of a Solana transaction's SPL token transfer instructions.
+ */
+export interface SplAddressCriterion {
+  /** The type of criterion to use. This should be `splAddress`. */
+  type: SplAddressCriterionType;
+  /** The Solana addresses that are compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array. */
+  addresses: string[];
+  /** The operator to use for the comparison. Each of the SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
+  operator: SplAddressCriterionOperator;
+}
+
+/**
+ * The type of criterion to use. This should be `splValue`.
+ */
+export type SplValueCriterionType =
+  (typeof SplValueCriterionType)[keyof typeof SplValueCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SplValueCriterionType = {
+  splValue: "splValue",
+} as const;
+
+/**
+ * The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `splValue` field will be on the right-hand side.
+ */
+export type SplValueCriterionOperator =
+  (typeof SplValueCriterionOperator)[keyof typeof SplValueCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SplValueCriterionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * The criterion for the SPL token value of a SPL token transfer instruction in a Solana transaction.
+ */
+export interface SplValueCriterion {
+  /** The type of criterion to use. This should be `splValue`. */
+  type: SplValueCriterionType;
+  /** The amount of the SPL token that the transaction instruction's `value` field should be compared to. */
+  splValue: string;
+  /** The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `splValue` field will be on the right-hand side. */
+  operator: SplValueCriterionOperator;
+}
+
+/**
+ * The type of criterion to use. This should be `mintAddress`.
+ */
+export type MintAddressCriterionType =
+  (typeof MintAddressCriterionType)[keyof typeof MintAddressCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MintAddressCriterionType = {
+  mintAddress: "mintAddress",
+} as const;
+
+/**
+ * The operator to use for the comparison. Each of the token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+ */
+export type MintAddressCriterionOperator =
+  (typeof MintAddressCriterionOperator)[keyof typeof MintAddressCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MintAddressCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
+ */
+export interface MintAddressCriterion {
+  /** The type of criterion to use. This should be `mintAddress`. */
+  type: MintAddressCriterionType;
+  /** The Solana addresses that are compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array. */
+  addresses: string[];
+  /** The operator to use for the comparison. Each of the token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
+  operator: MintAddressCriterionOperator;
+}
+
+export type SignSolTransactionCriteriaItem =
+  | SolAddressCriterion
+  | SolValueCriterion
+  | SplAddressCriterion
+  | SplValueCriterion
+  | MintAddressCriterion;
+
+/**
  * A schema for specifying criteria for the SignSolTransaction operation.
  */
-export type SignSolTransactionCriteria = SolAddressCriterion[];
+export type SignSolTransactionCriteria = SignSolTransactionCriteriaItem[];
 
 /**
  * Whether matching the rule will cause the request to be rejected or accepted.
@@ -1375,6 +1528,49 @@ export interface SignSolTransactionRule {
   /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
   operation: SignSolTransactionRuleOperation;
   criteria: SignSolTransactionCriteria;
+}
+
+export type SendSolTransactionCriteriaItem =
+  | SolAddressCriterion
+  | SolValueCriterion
+  | SplAddressCriterion
+  | SplValueCriterion
+  | MintAddressCriterion;
+
+/**
+ * A schema for specifying criteria for the SendSolTransaction operation.
+ */
+export type SendSolTransactionCriteria = SendSolTransactionCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SendSolTransactionRuleAction =
+  (typeof SendSolTransactionRuleAction)[keyof typeof SendSolTransactionRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendSolTransactionRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SendSolTransactionRuleOperation =
+  (typeof SendSolTransactionRuleOperation)[keyof typeof SendSolTransactionRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendSolTransactionRuleOperation = {
+  sendSolTransaction: "sendSolTransaction",
+} as const;
+
+export interface SendSolTransactionRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SendSolTransactionRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SendSolTransactionRuleOperation;
+  criteria: SendSolTransactionCriteria;
 }
 
 /**
@@ -1499,6 +1695,7 @@ export type Rule =
   | SignEvmMessageRule
   | SignEvmTypedDataRule
   | SignSolTransactionRule
+  | SendSolTransactionRule
   | SignEvmHashRule
   | PrepareUserOperationRule
   | SendUserOperationRule;

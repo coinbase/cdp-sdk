@@ -38,13 +38,17 @@ class TestSignSolTransactionCriteriaInner(unittest.TestCase):
             return SignSolTransactionCriteriaInner(
                 type = 'solAddress',
                 addresses = [HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT],
-                operator = 'in'
+                operator = 'in',
+                sol_value = '1000000000000000000',
+                spl_value = '1000000000000000000'
             )
         else:
             return SignSolTransactionCriteriaInner(
                 type = 'solAddress',
                 addresses = [HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT],
                 operator = 'in',
+                sol_value = '1000000000000000000',
+                spl_value = '1000000000000000000',
         )
         """
 

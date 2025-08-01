@@ -165,11 +165,11 @@ const (
 
 // Defines values for EvmTypedNumericalConditionOperator.
 const (
-	Empty      EvmTypedNumericalConditionOperator = ">"
-	EqualEqual EvmTypedNumericalConditionOperator = "=="
-	N1         EvmTypedNumericalConditionOperator = ">="
-	N2         EvmTypedNumericalConditionOperator = "<"
-	N3         EvmTypedNumericalConditionOperator = "<="
+	EvmTypedNumericalConditionOperatorEmpty      EvmTypedNumericalConditionOperator = ">"
+	EvmTypedNumericalConditionOperatorEqualEqual EvmTypedNumericalConditionOperator = "=="
+	EvmTypedNumericalConditionOperatorN1         EvmTypedNumericalConditionOperator = ">="
+	EvmTypedNumericalConditionOperatorN2         EvmTypedNumericalConditionOperator = "<"
+	EvmTypedNumericalConditionOperatorN3         EvmTypedNumericalConditionOperator = "<="
 )
 
 // Defines values for EvmUserOperationStatus.
@@ -225,6 +225,17 @@ const (
 const (
 	ListSolanaTokenBalancesNetworkSolana       ListSolanaTokenBalancesNetwork = "solana"
 	ListSolanaTokenBalancesNetworkSolanaDevnet ListSolanaTokenBalancesNetwork = "solana-devnet"
+)
+
+// Defines values for MintAddressCriterionOperator.
+const (
+	MintAddressCriterionOperatorIn    MintAddressCriterionOperator = "in"
+	MintAddressCriterionOperatorNotIn MintAddressCriterionOperator = "not in"
+)
+
+// Defines values for MintAddressCriterionType.
+const (
+	MintAddress MintAddressCriterionType = "mintAddress"
 )
 
 // Defines values for OnrampOrderFeeType.
@@ -290,6 +301,17 @@ const (
 // Defines values for SendEvmTransactionRuleOperation.
 const (
 	SendEvmTransaction SendEvmTransactionRuleOperation = "sendEvmTransaction"
+)
+
+// Defines values for SendSolTransactionRuleAction.
+const (
+	SendSolTransactionRuleActionAccept SendSolTransactionRuleAction = "accept"
+	SendSolTransactionRuleActionReject SendSolTransactionRuleAction = "reject"
+)
+
+// Defines values for SendSolTransactionRuleOperation.
+const (
+	SendSolTransaction SendSolTransactionRuleOperation = "sendSolTransaction"
 )
 
 // Defines values for SendUserOperationRuleAction.
@@ -365,8 +387,8 @@ const (
 
 // Defines values for SignSolTransactionRuleAction.
 const (
-	SignSolTransactionRuleActionAccept SignSolTransactionRuleAction = "accept"
-	SignSolTransactionRuleActionReject SignSolTransactionRuleAction = "reject"
+	Accept SignSolTransactionRuleAction = "accept"
+	Reject SignSolTransactionRuleAction = "reject"
 )
 
 // Defines values for SignSolTransactionRuleOperation.
@@ -383,6 +405,45 @@ const (
 // Defines values for SolAddressCriterionType.
 const (
 	SolAddress SolAddressCriterionType = "solAddress"
+)
+
+// Defines values for SolValueCriterionOperator.
+const (
+	SolValueCriterionOperatorEmpty      SolValueCriterionOperator = ">"
+	SolValueCriterionOperatorEqualEqual SolValueCriterionOperator = "=="
+	SolValueCriterionOperatorN1         SolValueCriterionOperator = ">="
+	SolValueCriterionOperatorN2         SolValueCriterionOperator = "<"
+	SolValueCriterionOperatorN3         SolValueCriterionOperator = "<="
+)
+
+// Defines values for SolValueCriterionType.
+const (
+	SolValue SolValueCriterionType = "solValue"
+)
+
+// Defines values for SplAddressCriterionOperator.
+const (
+	SplAddressCriterionOperatorIn    SplAddressCriterionOperator = "in"
+	SplAddressCriterionOperatorNotIn SplAddressCriterionOperator = "not in"
+)
+
+// Defines values for SplAddressCriterionType.
+const (
+	SplAddress SplAddressCriterionType = "splAddress"
+)
+
+// Defines values for SplValueCriterionOperator.
+const (
+	Empty      SplValueCriterionOperator = ">"
+	EqualEqual SplValueCriterionOperator = "=="
+	N1         SplValueCriterionOperator = ">="
+	N2         SplValueCriterionOperator = "<"
+	N3         SplValueCriterionOperator = "<="
+)
+
+// Defines values for SplValueCriterionType.
+const (
+	SplValue SplValueCriterionType = "splValue"
 )
 
 // Defines values for SwapUnavailableResponseLiquidityAvailable.
@@ -1191,6 +1252,24 @@ type ListResponse struct {
 // ListSolanaTokenBalancesNetwork The name of the supported Solana networks in human-readable format.
 type ListSolanaTokenBalancesNetwork string
 
+// MintAddressCriterion The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
+type MintAddressCriterion struct {
+	// Addresses The Solana addresses that are compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+	Addresses []string `json:"addresses"`
+
+	// Operator The operator to use for the comparison. Each of the token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+	Operator MintAddressCriterionOperator `json:"operator"`
+
+	// Type The type of criterion to use. This should be `mintAddress`.
+	Type MintAddressCriterionType `json:"type"`
+}
+
+// MintAddressCriterionOperator The operator to use for the comparison. Each of the token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+type MintAddressCriterionOperator string
+
+// MintAddressCriterionType The type of criterion to use. This should be `mintAddress`.
+type MintAddressCriterionType string
+
 // OnrampOrder An Onramp order.
 type OnrampOrder struct {
 	// CreatedAt The date and time the order was created.
@@ -1416,6 +1495,32 @@ type SendEvmTransactionRuleAction string
 // SendEvmTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SendEvmTransactionRuleOperation string
 
+// SendSolTransactionCriteria A schema for specifying criteria for the SendSolTransaction operation.
+type SendSolTransactionCriteria = []SendSolTransactionCriteria_Item
+
+// SendSolTransactionCriteria_Item defines model for SendSolTransactionCriteria.Item.
+type SendSolTransactionCriteria_Item struct {
+	union json.RawMessage
+}
+
+// SendSolTransactionRule defines model for SendSolTransactionRule.
+type SendSolTransactionRule struct {
+	// Action Whether matching the rule will cause the request to be rejected or accepted.
+	Action SendSolTransactionRuleAction `json:"action"`
+
+	// Criteria A schema for specifying criteria for the SendSolTransaction operation.
+	Criteria SendSolTransactionCriteria `json:"criteria"`
+
+	// Operation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+	Operation SendSolTransactionRuleOperation `json:"operation"`
+}
+
+// SendSolTransactionRuleAction Whether matching the rule will cause the request to be rejected or accepted.
+type SendSolTransactionRuleAction string
+
+// SendSolTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+type SendSolTransactionRuleOperation string
+
 // SendUserOperationCriteria A schema for specifying criteria for the SendUserOperation operation.
 type SendUserOperationCriteria = []SendUserOperationCriteria_Item
 
@@ -1629,6 +1734,24 @@ type SolAddressCriterionOperator string
 // SolAddressCriterionType The type of criterion to use. This should be `solAddress`.
 type SolAddressCriterionType string
 
+// SolValueCriterion The criterion for the SOL value in lamports of a native transfer instruction in a Solana transaction.
+type SolValueCriterion struct {
+	// Operator The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `solValue` field will be on the right-hand side.
+	Operator SolValueCriterionOperator `json:"operator"`
+
+	// SolValue The amount of SOL in lamports that the transaction instruction's `value` field should be compared to.
+	SolValue string `json:"solValue"`
+
+	// Type The type of criterion to use. This should be `solValue`.
+	Type SolValueCriterionType `json:"type"`
+}
+
+// SolValueCriterionOperator The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `solValue` field will be on the right-hand side.
+type SolValueCriterionOperator string
+
+// SolValueCriterionType The type of criterion to use. This should be `solValue`.
+type SolValueCriterionType string
+
 // SolanaAccount defines model for SolanaAccount.
 type SolanaAccount struct {
 	// Address The base58 encoded Solana address.
@@ -1734,6 +1857,42 @@ type SpendPermissionResponseObject struct {
 	// RevokedAt The UTC ISO 8601 timestamp when the permission was revoked (if applicable).
 	RevokedAt *time.Time `json:"revokedAt,omitempty"`
 }
+
+// SplAddressCriterion The criterion for the recipient addresses of a Solana transaction's SPL token transfer instructions.
+type SplAddressCriterion struct {
+	// Addresses The Solana addresses that are compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+	Addresses []string `json:"addresses"`
+
+	// Operator The operator to use for the comparison. Each of the SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+	Operator SplAddressCriterionOperator `json:"operator"`
+
+	// Type The type of criterion to use. This should be `splAddress`.
+	Type SplAddressCriterionType `json:"type"`
+}
+
+// SplAddressCriterionOperator The operator to use for the comparison. Each of the SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+type SplAddressCriterionOperator string
+
+// SplAddressCriterionType The type of criterion to use. This should be `splAddress`.
+type SplAddressCriterionType string
+
+// SplValueCriterion The criterion for the SPL token value of a SPL token transfer instruction in a Solana transaction.
+type SplValueCriterion struct {
+	// Operator The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `splValue` field will be on the right-hand side.
+	Operator SplValueCriterionOperator `json:"operator"`
+
+	// SplValue The amount of the SPL token that the transaction instruction's `value` field should be compared to.
+	SplValue string `json:"splValue"`
+
+	// Type The type of criterion to use. This should be `splValue`.
+	Type SplValueCriterionType `json:"type"`
+}
+
+// SplValueCriterionOperator The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `splValue` field will be on the right-hand side.
+type SplValueCriterionOperator string
+
+// SplValueCriterionType The type of criterion to use. This should be `splValue`.
+type SplValueCriterionType string
 
 // SwapUnavailableResponse defines model for SwapUnavailableResponse.
 type SwapUnavailableResponse struct {
@@ -3317,6 +3476,32 @@ func (t *Rule) MergeSignSolTransactionRule(v SignSolTransactionRule) error {
 	return err
 }
 
+// AsSendSolTransactionRule returns the union data inside the Rule as a SendSolTransactionRule
+func (t Rule) AsSendSolTransactionRule() (SendSolTransactionRule, error) {
+	var body SendSolTransactionRule
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSendSolTransactionRule overwrites any union data inside the Rule as the provided SendSolTransactionRule
+func (t *Rule) FromSendSolTransactionRule(v SendSolTransactionRule) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSendSolTransactionRule performs a merge with any union data inside the Rule, using the provided SendSolTransactionRule
+func (t *Rule) MergeSendSolTransactionRule(v SendSolTransactionRule) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 // AsSignEvmHashRule returns the union data inside the Rule as a SignEvmHashRule
 func (t Rule) AsSignEvmHashRule() (SignEvmHashRule, error) {
 	var body SignEvmHashRule
@@ -3515,6 +3700,146 @@ func (t SendEvmTransactionCriteria_Item) MarshalJSON() ([]byte, error) {
 }
 
 func (t *SendEvmTransactionCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsSolAddressCriterion returns the union data inside the SendSolTransactionCriteria_Item as a SolAddressCriterion
+func (t SendSolTransactionCriteria_Item) AsSolAddressCriterion() (SolAddressCriterion, error) {
+	var body SolAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolAddressCriterion overwrites any union data inside the SendSolTransactionCriteria_Item as the provided SolAddressCriterion
+func (t *SendSolTransactionCriteria_Item) FromSolAddressCriterion(v SolAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolAddressCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided SolAddressCriterion
+func (t *SendSolTransactionCriteria_Item) MergeSolAddressCriterion(v SolAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolValueCriterion returns the union data inside the SendSolTransactionCriteria_Item as a SolValueCriterion
+func (t SendSolTransactionCriteria_Item) AsSolValueCriterion() (SolValueCriterion, error) {
+	var body SolValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolValueCriterion overwrites any union data inside the SendSolTransactionCriteria_Item as the provided SolValueCriterion
+func (t *SendSolTransactionCriteria_Item) FromSolValueCriterion(v SolValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolValueCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided SolValueCriterion
+func (t *SendSolTransactionCriteria_Item) MergeSolValueCriterion(v SolValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplAddressCriterion returns the union data inside the SendSolTransactionCriteria_Item as a SplAddressCriterion
+func (t SendSolTransactionCriteria_Item) AsSplAddressCriterion() (SplAddressCriterion, error) {
+	var body SplAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplAddressCriterion overwrites any union data inside the SendSolTransactionCriteria_Item as the provided SplAddressCriterion
+func (t *SendSolTransactionCriteria_Item) FromSplAddressCriterion(v SplAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplAddressCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided SplAddressCriterion
+func (t *SendSolTransactionCriteria_Item) MergeSplAddressCriterion(v SplAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplValueCriterion returns the union data inside the SendSolTransactionCriteria_Item as a SplValueCriterion
+func (t SendSolTransactionCriteria_Item) AsSplValueCriterion() (SplValueCriterion, error) {
+	var body SplValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplValueCriterion overwrites any union data inside the SendSolTransactionCriteria_Item as the provided SplValueCriterion
+func (t *SendSolTransactionCriteria_Item) FromSplValueCriterion(v SplValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplValueCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided SplValueCriterion
+func (t *SendSolTransactionCriteria_Item) MergeSplValueCriterion(v SplValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMintAddressCriterion returns the union data inside the SendSolTransactionCriteria_Item as a MintAddressCriterion
+func (t SendSolTransactionCriteria_Item) AsMintAddressCriterion() (MintAddressCriterion, error) {
+	var body MintAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMintAddressCriterion overwrites any union data inside the SendSolTransactionCriteria_Item as the provided MintAddressCriterion
+func (t *SendSolTransactionCriteria_Item) FromMintAddressCriterion(v MintAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMintAddressCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided MintAddressCriterion
+func (t *SendSolTransactionCriteria_Item) MergeMintAddressCriterion(v MintAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SendSolTransactionCriteria_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SendSolTransactionCriteria_Item) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -3897,6 +4222,110 @@ func (t *SignSolTransactionCriteria_Item) FromSolAddressCriterion(v SolAddressCr
 
 // MergeSolAddressCriterion performs a merge with any union data inside the SignSolTransactionCriteria_Item, using the provided SolAddressCriterion
 func (t *SignSolTransactionCriteria_Item) MergeSolAddressCriterion(v SolAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolValueCriterion returns the union data inside the SignSolTransactionCriteria_Item as a SolValueCriterion
+func (t SignSolTransactionCriteria_Item) AsSolValueCriterion() (SolValueCriterion, error) {
+	var body SolValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolValueCriterion overwrites any union data inside the SignSolTransactionCriteria_Item as the provided SolValueCriterion
+func (t *SignSolTransactionCriteria_Item) FromSolValueCriterion(v SolValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolValueCriterion performs a merge with any union data inside the SignSolTransactionCriteria_Item, using the provided SolValueCriterion
+func (t *SignSolTransactionCriteria_Item) MergeSolValueCriterion(v SolValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplAddressCriterion returns the union data inside the SignSolTransactionCriteria_Item as a SplAddressCriterion
+func (t SignSolTransactionCriteria_Item) AsSplAddressCriterion() (SplAddressCriterion, error) {
+	var body SplAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplAddressCriterion overwrites any union data inside the SignSolTransactionCriteria_Item as the provided SplAddressCriterion
+func (t *SignSolTransactionCriteria_Item) FromSplAddressCriterion(v SplAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplAddressCriterion performs a merge with any union data inside the SignSolTransactionCriteria_Item, using the provided SplAddressCriterion
+func (t *SignSolTransactionCriteria_Item) MergeSplAddressCriterion(v SplAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplValueCriterion returns the union data inside the SignSolTransactionCriteria_Item as a SplValueCriterion
+func (t SignSolTransactionCriteria_Item) AsSplValueCriterion() (SplValueCriterion, error) {
+	var body SplValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplValueCriterion overwrites any union data inside the SignSolTransactionCriteria_Item as the provided SplValueCriterion
+func (t *SignSolTransactionCriteria_Item) FromSplValueCriterion(v SplValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplValueCriterion performs a merge with any union data inside the SignSolTransactionCriteria_Item, using the provided SplValueCriterion
+func (t *SignSolTransactionCriteria_Item) MergeSplValueCriterion(v SplValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMintAddressCriterion returns the union data inside the SignSolTransactionCriteria_Item as a MintAddressCriterion
+func (t SignSolTransactionCriteria_Item) AsMintAddressCriterion() (MintAddressCriterion, error) {
+	var body MintAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMintAddressCriterion overwrites any union data inside the SignSolTransactionCriteria_Item as the provided MintAddressCriterion
+func (t *SignSolTransactionCriteria_Item) FromMintAddressCriterion(v MintAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMintAddressCriterion performs a merge with any union data inside the SignSolTransactionCriteria_Item, using the provided MintAddressCriterion
+func (t *SignSolTransactionCriteria_Item) MergeMintAddressCriterion(v MintAddressCriterion) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
