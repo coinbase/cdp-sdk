@@ -407,7 +407,7 @@ class SignEvmTransactionRule(BaseModel):
     )
 
 
-class SolanaAddressCriterion(BaseModel):
+class SolAddressCriterion(BaseModel):
     """Type for Solana address criterions."""
 
     type: Literal["solAddress"] = Field(
@@ -433,6 +433,106 @@ class SolanaAddressCriterion(BaseModel):
         return v
 
 
+class SolValueCriterion(BaseModel):
+    """Type representing a 'solValue' criterion for SOL value-based rules."""
+
+    type: Literal["solValue"] = Field(
+        "solValue",
+        description="The type of criterion, must be 'solValue' for SOL value-based rules.",
+    )
+    solValue: str = Field(
+        ...,
+        description="The SOL value amount in lamports to compare against, as a string. Must contain only digits.",
+    )
+    operator: Literal[">", ">=", "<", "<=", "=="] = Field(
+        ...,
+        description="The comparison operator to use for evaluating transaction SOL values against the threshold.",
+    )
+
+    @field_validator("solValue")
+    def validate_sol_value(cls, v: str) -> str:
+        """Validate that solValue contains only digits."""
+        if not v.isdigit():
+            raise UserInputValidationError("solValue must contain only digits")
+        return v
+
+
+class SplAddressCriterion(BaseModel):
+    """Type representing a 'splAddress' criterion for SPL address-based rules."""
+
+    type: Literal["splAddress"] = Field(
+        "splAddress",
+        description="The type of criterion, must be 'splAddress' for SPL address-based rules.",
+    )
+    addresses: list[str] = Field(
+        ...,
+        description="Array of Solana addresses to compare against for SPL token transfer recipients. Each address must be a valid Base58-encoded Solana address (32-44 characters).",
+    )
+    operator: Literal["in", "not in"] = Field(
+        ...,
+        description="The operator to use for evaluating SPL token transfer recipient addresses. 'in' checks if an address is in the provided list. 'not in' checks if an address is not in the provided list.",
+    )
+
+    @field_validator("addresses")
+    def validate_address_format(cls, v):
+        """Validate the address format."""
+        sol_address_regex = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
+        for address in v:
+            if not sol_address_regex.match(address):
+                raise UserInputValidationError(f"Invalid address format: {address}")
+        return v
+
+
+class SplValueCriterion(BaseModel):
+    """Type representing a 'splValue' criterion for SPL token value-based rules."""
+
+    type: Literal["splValue"] = Field(
+        "splValue",
+        description="The type of criterion, must be 'splValue' for SPL token value-based rules.",
+    )
+    splValue: str = Field(
+        ...,
+        description="The SPL token value amount to compare against, as a string. Must contain only digits.",
+    )
+    operator: Literal[">", ">=", "<", "<=", "=="] = Field(
+        ...,
+        description="The comparison operator to use for evaluating SPL token values against the threshold.",
+    )
+
+    @field_validator("splValue")
+    def validate_spl_value(cls, v: str) -> str:
+        """Validate that splValue contains only digits."""
+        if not v.isdigit():
+            raise UserInputValidationError("splValue must contain only digits")
+        return v
+
+
+class MintAddressCriterion(BaseModel):
+    """Type representing a 'mintAddress' criterion for token mint address-based rules."""
+
+    type: Literal["mintAddress"] = Field(
+        "mintAddress",
+        description="The type of criterion, must be 'mintAddress' for token mint address-based rules.",
+    )
+    addresses: list[str] = Field(
+        ...,
+        description="Array of Solana addresses to compare against for token mint addresses. Each address must be a valid Base58-encoded Solana address (32-44 characters).",
+    )
+    operator: Literal["in", "not in"] = Field(
+        ...,
+        description="The operator to use for evaluating token mint addresses. 'in' checks if an address is in the provided list. 'not in' checks if an address is not in the provided list.",
+    )
+
+    @field_validator("addresses")
+    def validate_address_format(cls, v):
+        """Validate the address format."""
+        sol_address_regex = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
+        for address in v:
+            if not sol_address_regex.match(address):
+                raise UserInputValidationError(f"Invalid address format: {address}")
+        return v
+
+
 class SignSolanaTransactionRule(BaseModel):
     """Type representing a 'signSolTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
 
@@ -444,7 +544,36 @@ class SignSolanaTransactionRule(BaseModel):
         "signSolTransaction",
         description="The operation to which this rule applies. Must be 'signSolTransaction'.",
     )
-    criteria: list[SolanaAddressCriterion] = Field(
+    criteria: list[
+        SolAddressCriterion
+        | SolValueCriterion
+        | SplAddressCriterion
+        | SplValueCriterion
+        | MintAddressCriterion
+    ] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
+class SendSolanaTransactionRule(BaseModel):
+    """Type representing a 'sendSolTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the transaction, 'reject' will block it.",
+    )
+    operation: Literal["sendSolTransaction"] = Field(
+        "sendSolTransaction",
+        description="The operation to which this rule applies. Must be 'sendSolTransaction'.",
+    )
+    criteria: list[
+        SolAddressCriterion
+        | SolValueCriterion
+        | SplAddressCriterion
+        | SplValueCriterion
+        | MintAddressCriterion
+    ] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
     )
@@ -463,6 +592,7 @@ Rule = (
     | SignEvmMessageRule
     | SignEvmTypedDataRule
     | SignSolanaTransactionRule
+    | SendSolanaTransactionRule
 )
 
 
