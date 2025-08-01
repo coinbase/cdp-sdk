@@ -83,21 +83,7 @@ export class SolanaClient implements SolanaClientInterface {
       accountType: "solana",
     });
 
-    const openApiAccount = await CdpOpenApiClient.createSolanaAccount(
-      {
-        name: options.name,
-        accountPolicy: options.accountPolicy,
-      },
-      options.idempotencyKey,
-    );
-
-    const account = toSolanaAccount(CdpOpenApiClient, {
-      account: openApiAccount,
-    });
-
-    Analytics.wrapObjectMethodsWithErrorTracking(account);
-
-    return account;
+    return this._createAccountInternal(options);
   }
 
   /**
@@ -279,25 +265,7 @@ export class SolanaClient implements SolanaClientInterface {
       accountType: "solana",
     });
 
-    const openApiAccount = await (() => {
-      if (options.address) {
-        return CdpOpenApiClient.getSolanaAccount(options.address);
-      }
-
-      if (options.name) {
-        return CdpOpenApiClient.getSolanaAccountByName(options.name);
-      }
-
-      throw new UserInputValidationError("Either address or name must be provided");
-    })();
-
-    const account = toSolanaAccount(CdpOpenApiClient, {
-      account: openApiAccount,
-    });
-
-    Analytics.wrapObjectMethodsWithErrorTracking(account);
-
-    return account;
+    return this._getAccountInternal(options);
   }
 
   /**
@@ -322,20 +290,20 @@ export class SolanaClient implements SolanaClientInterface {
     });
 
     try {
-      const account = await this.getAccount(options);
+      const account = await this._getAccountInternal(options);
       return account;
     } catch (error) {
       // If it failed because the account doesn't exist, create it
       const doesAccountNotExist = error instanceof APIError && error.statusCode === 404;
       if (doesAccountNotExist) {
         try {
-          const account = await this.createAccount(options);
+          const account = await this._createAccountInternal(options);
           return account;
         } catch (error) {
-          // If it failed because the account already exists, throw an error
+          // If it failed because the account already exists, get the existing account
           const doesAccountAlreadyExist = error instanceof APIError && error.statusCode === 409;
           if (doesAccountAlreadyExist) {
-            const account = await this.getAccount(options);
+            const account = await this._getAccountInternal(options);
             return account;
           }
           throw error;
@@ -642,5 +610,59 @@ export class SolanaClient implements SolanaClientInterface {
       }),
       nextPageToken: tokenBalances.nextPageToken,
     };
+  }
+
+  /**
+   * Internal method to create a Solana account without tracking analytics.
+   * Used internally by composite operations to avoid double-counting.
+   *
+   * @param {CreateAccountOptions} options - Parameters for creating the account.
+   * @returns {Promise<SolanaAccount>} A promise that resolves to the newly created account.
+   */
+  private async _createAccountInternal(options: CreateAccountOptions = {}): Promise<SolanaAccount> {
+    const openApiAccount = await CdpOpenApiClient.createSolanaAccount(
+      {
+        name: options.name,
+        accountPolicy: options.accountPolicy,
+      },
+      options.idempotencyKey,
+    );
+
+    const account = toSolanaAccount(CdpOpenApiClient, {
+      account: openApiAccount,
+    });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
+  }
+
+  /**
+   * Internal method to get a Solana account without tracking analytics.
+   * Used internally by composite operations to avoid double-counting.
+   *
+   * @param {GetAccountOptions} options - Parameters for getting the account.
+   * @returns {Promise<SolanaAccount>} A promise that resolves to the account.
+   */
+  private async _getAccountInternal(options: GetAccountOptions): Promise<SolanaAccount> {
+    const openApiAccount = await (() => {
+      if (options.address) {
+        return CdpOpenApiClient.getSolanaAccount(options.address);
+      }
+
+      if (options.name) {
+        return CdpOpenApiClient.getSolanaAccountByName(options.name);
+      }
+
+      throw new UserInputValidationError("Either address or name must be provided");
+    })();
+
+    const account = toSolanaAccount(CdpOpenApiClient, {
+      account: openApiAccount,
+    });
+
+    Analytics.wrapObjectMethodsWithErrorTracking(account);
+
+    return account;
   }
 }
