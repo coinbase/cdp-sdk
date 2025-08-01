@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.31.0
+
+### Minor Changes
+
+- SendEvmTransaction support for new EVM networks - arbitrum, polygon, optimism, avalanche
+
 ## 1.30.0
 
 ### Minor Changes
