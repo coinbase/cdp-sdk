@@ -1158,14 +1158,20 @@ describe("EvmClient", () => {
     const token1 = {
       network: "base-sepolia" as ListEvmTokenBalancesNetwork,
       contractAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      symbol: "Token1",
+      name: "Token 1",
     };
     const token2 = {
       network: "base-sepolia" as ListEvmTokenBalancesNetwork,
       contractAddress: "0x081827b8c3aa05287b5aa2bc3051fbe638f33152",
+      symbol: "Token2",
+      name: "Token 2",
     };
     const token3 = {
       network: "base-sepolia" as ListEvmTokenBalancesNetwork,
       contractAddress: "0x061e3de6eae18bf86fccd22064e6613bc383c1c2",
+      symbol: "Token3",
+      name: "Token 3",
     };
 
     const serverAmount1 = { amount: "1000000000000000000", decimals: 18 };
