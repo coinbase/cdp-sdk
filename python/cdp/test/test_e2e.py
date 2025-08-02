@@ -1484,7 +1484,7 @@ async def test_create_solana_policy_with_combined_rules(cdp_client):
     assert policy.description == "E2E Solana Policy with Combined Rules"
     assert policy.rules is not None
     assert len(policy.rules) == 2
-    
+
     # Verify first rule - SignSolanaTransactionRule
     assert policy.rules[0].action == "accept"
     assert policy.rules[0].operation == "signSolTransaction"
@@ -1493,7 +1493,7 @@ async def test_create_solana_policy_with_combined_rules(cdp_client):
     assert policy.rules[0].criteria[0].type == "solAddress"
     assert policy.rules[0].criteria[0].addresses == ["HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH"]
     assert policy.rules[0].criteria[0].operator == "in"
-    
+
     # Verify second rule - SendSolanaTransactionRule
     assert policy.rules[1].action == "accept"
     assert policy.rules[1].operation == "sendSolTransaction"
@@ -1536,7 +1536,7 @@ async def test_solana_policy_crud_operations(cdp_client):
     )
     assert original_policy is not None
     assert original_policy.id is not None
-    
+
     # Test getting the policy by ID
     retrieved_policy = await cdp_client.policies.get_policy_by_id(id=original_policy.id)
     assert retrieved_policy is not None
@@ -1545,7 +1545,7 @@ async def test_solana_policy_crud_operations(cdp_client):
     assert retrieved_policy.description == "E2E Solana CRUD Test Policy"
     assert len(retrieved_policy.rules) == 1
     assert retrieved_policy.rules[0].operation == "signSolTransaction"
-    
+
     # Test updating the policy
     updated_policy = await cdp_client.policies.update_policy(
         id=original_policy.id,
@@ -1579,7 +1579,7 @@ async def test_solana_policy_crud_operations(cdp_client):
     assert len(updated_policy.rules) == 2
     assert updated_policy.rules[0].operation == "sendSolTransaction"
     assert updated_policy.rules[1].operation == "signSolTransaction"
-    
+
     # Test listing policies to verify our policy exists
     policies_result = await cdp_client.policies.list_policies(scope="account", page_size=100)
     found_policy = False
@@ -1587,24 +1587,22 @@ async def test_solana_policy_crud_operations(cdp_client):
         if policy.id == original_policy.id:
             found_policy = True
             break
-    
+
     # If not found in first page, check additional pages
     while not found_policy and policies_result.next_page_token:
         policies_result = await cdp_client.policies.list_policies(
-            scope="account", 
-            page_size=100, 
-            page_token=policies_result.next_page_token
+            scope="account", page_size=100, page_token=policies_result.next_page_token
         )
         for policy in policies_result.policies:
             if policy.id == original_policy.id:
                 found_policy = True
                 break
-    
+
     assert found_policy, f"Policy {original_policy.id} not found in policy list"
-    
+
     # Test deleting the policy
     await cdp_client.policies.delete_policy(id=original_policy.id)
-    
+
     # Verify the policy is deleted
     with pytest.raises(ApiError) as e:
         await cdp_client.policies.get_policy_by_id(id=original_policy.id)
