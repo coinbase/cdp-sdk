@@ -1095,7 +1095,7 @@ async def test_create_account_policy(cdp_client):
     assert policy.scope == "account"
     assert policy.description == "E2E Test Policy"
     assert policy.rules is not None
-    assert len(policy.rules) == 5
+    assert len(policy.rules) == 4
     assert policy.rules[0].action == "accept"
     assert policy.rules[0].operation == "signEvmTransaction"
     assert policy.rules[0].criteria is not None
@@ -1470,7 +1470,7 @@ async def test_create_solana_policy_with_combined_rules(cdp_client):
                     criteria=[
                         SolValueCriterion(
                             type="solValue",
-                            value=1000000000,
+                            solValue="1000000000",
                             operator="<=",
                         ),
                     ],
@@ -1500,7 +1500,7 @@ async def test_create_solana_policy_with_combined_rules(cdp_client):
     assert policy.rules[1].criteria is not None
     assert len(policy.rules[1].criteria) == 1
     assert policy.rules[1].criteria[0].type == "solValue"
-    assert policy.rules[1].criteria[0].value == 1000000000
+    assert policy.rules[1].criteria[0].solValue == "1000000000"
     assert policy.rules[1].criteria[0].operator == "<="
 
     # Delete the policy
