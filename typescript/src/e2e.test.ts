@@ -1,21 +1,34 @@
-import { describe, it, expect, beforeAll, beforeEach, vi, afterEach, afterAll } from "vitest";
-import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
+import {
+  Connection,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
+import { Abi } from "abitype";
+import bs58 from "bs58";
 import dotenv from "dotenv";
 import {
+  TransactionReceipt,
   createPublicClient,
+  formatEther,
   http,
   parseEther,
   serializeTransaction,
+  type Address,
+  type Chain,
   type Hex,
   type PublicClient,
   type Transport,
-  type Chain,
-  type Address,
-  formatEther,
-  TransactionReceipt,
-  parseUnits,
 } from "viem";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { baseSepolia, optimismSepolia } from "viem/chains";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import kitchenSinkAbi from "../fixtures/kitchenSinkAbi.js";
+import { SolanaAccount } from "./accounts/solana/types.js";
+import type { WaitForUserOperationReturnType } from "./actions/evm/waitForUserOperation.js";
 import { CdpClient, CdpClientOptions } from "./client/cdp.js";
 import type {
   ServerAccount as Account,
@@ -23,24 +36,9 @@ import type {
   SmartAccount,
 } from "./client/evm/evm.types.js";
 import type { ImportAccountOptions } from "./client/solana/solana.types.js";
-import {
-  Keypair,
-  PublicKey,
-  LAMPORTS_PER_SOL,
-  SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
-  SystemProgram,
-  Transaction,
-  Connection,
-} from "@solana/web3.js";
-import { SolanaAccount } from "./accounts/solana/types.js";
-import type { Policy } from "./policies/types.js";
-import type { WaitForUserOperationReturnType } from "./actions/evm/waitForUserOperation.js";
 import { TimeoutError } from "./errors.js";
-import { SignEvmTransactionRule } from "./policies/schema.js";
-import bs58 from "bs58";
-import { Abi } from "abitype";
-import kitchenSinkAbi from "../fixtures/kitchenSinkAbi.js";
-import { APIError, HttpErrorType } from "./openapi-client/errors.js";
+import { SignEvmTransactionRule } from "./policies/evmSchema.js";
+import type { Policy } from "./policies/types.js";
 import { SpendPermission } from "./spend-permissions/types.js";
 
 dotenv.config();
@@ -457,6 +455,17 @@ describe("CDP Client E2E Tests", () => {
                 type: "solAddress",
                 addresses: ["DtdSSG8ZJRZVv5Jx7K1MeWp7Zxcu19GD5wQRGRpQ9uMF"],
                 operator: "in",
+              },
+            ],
+          },
+          {
+            action: "accept",
+            operation: "sendSolTransaction",
+            criteria: [
+              {
+                type: "solValue",
+                solValue: "1000000000",
+                operator: "<=",
               },
             ],
           },
@@ -1401,289 +1410,418 @@ describe("CDP Client E2E Tests", () => {
   });
 
   describe("Policies API", () => {
-    let createdPolicy: Policy;
+    describe("EVM Policies", () => {
+      let createdPolicy: Policy;
 
-    it("should create a policy", async () => {
-      createdPolicy = await cdp.policies.createPolicy({
-        policy: {
-          scope: "account",
-          description: "Test policy for e2e tests",
-          rules: [
-            {
-              action: "reject",
-              operation: "signEvmTransaction",
-              criteria: [
-                {
-                  type: "ethValue",
-                  ethValue: "1000000000000000000", // 1 ETH
-                  operator: ">",
-                },
-                {
-                  type: "evmData",
-                  abi: "erc20",
-                  conditions: [
-                    { function: "balanceOf" },
-                    {
-                      function: "approve",
-                      params: [
-                        {
-                          name: "spender",
-                          operator: "in",
-                          values: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
-                        },
-                      ],
-                    },
-                    {
-                      function: "transfer",
-                      params: [{ name: "value", operator: "<=", value: "1000" }],
-                    },
-                  ],
-                },
-                {
-                  type: "evmData",
-                  abi: kitchenSinkAbi as Abi,
-                  conditions: [
-                    { function: "boolfn" },
-                    {
-                      function: "addressfn",
-                      params: [
-                        {
-                          name: "addr",
-                          operator: "in",
-                          values: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
-                        },
-                      ],
-                    },
-                    {
-                      function: "boolfn",
-                      params: [{ name: "boolean", operator: "==", value: "true" }],
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              action: "reject",
-              operation: "sendEvmTransaction",
-              criteria: [
-                {
-                  type: "evmNetwork",
-                  networks: ["base"],
-                  operator: "in",
-                },
-                {
-                  type: "evmData",
-                  abi: "erc20",
-                  conditions: [
-                    { function: "balanceOf" },
-                    {
-                      function: "approve",
-                      params: [
-                        {
-                          name: "spender",
-                          operator: "in",
-                          values: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
-                        },
-                      ],
-                    },
-                    {
-                      function: "transfer",
-                      params: [{ name: "value", operator: "<=", value: "1000" }],
-                    },
-                  ],
-                },
-                {
-                  type: "evmData",
-                  abi: kitchenSinkAbi as Abi,
-                  conditions: [
-                    { function: "boolfn" },
-                    {
-                      function: "addressfn",
-                      params: [
-                        {
-                          name: "addr",
-                          operator: "in",
-                          values: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
-                        },
-                      ],
-                    },
-                    {
-                      function: "boolfn",
-                      params: [{ name: "boolean", operator: "==", value: "true" }],
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              action: "accept",
-              operation: "signEvmHash",
-            },
-            {
-              action: "accept",
-              operation: "signEvmMessage",
-              criteria: [
-                {
-                  type: "evmMessage",
-                  match: ".*",
-                },
-              ],
-            },
-          ],
-        },
-      });
-
-      expect(createdPolicy).toBeDefined();
-      expect(createdPolicy.id).toBeDefined();
-      expect(createdPolicy.scope).toBe("account");
-      expect(createdPolicy.description).toBe("Test policy for e2e tests");
-      expect(createdPolicy.createdAt).toBeDefined();
-      expect(createdPolicy.updatedAt).toBeDefined();
-      expect(createdPolicy.rules).toHaveLength(4);
-      expect(createdPolicy.rules[0].action).toBe("reject");
-      expect(createdPolicy.rules[0].operation).toBe("signEvmTransaction");
-      expect(createdPolicy.rules[1].action).toBe("reject");
-      expect(createdPolicy.rules[1].operation).toBe("sendEvmTransaction");
-      expect(createdPolicy.rules[2].action).toBe("accept");
-      expect(createdPolicy.rules[2].operation).toBe("signEvmHash");
-      expect(createdPolicy.rules[3].action).toBe("accept");
-      expect(createdPolicy.rules[3].operation).toBe("signEvmMessage");
-
-      // Save the policy ID for other tests
-      testPolicyId = createdPolicy.id;
-    });
-
-    it("should get a policy by ID", async () => {
-      const policy = await cdp.policies.getPolicyById({
-        id: testPolicyId,
-      });
-
-      expect(policy).toBeDefined();
-      expect(policy.id).toBe(testPolicyId);
-      expect(policy.scope).toBe("account");
-      expect(policy.description).toBe("Test policy for e2e tests");
-      expect(policy.rules).toHaveLength(4);
-    });
-
-    it("should list policies", async () => {
-      const policies: Policy[] = [];
-      let result = await cdp.policies.listPolicies({
-        pageSize: 100,
-      });
-      policies.push(...result.policies);
-
-      // Paginate through all policies so that we can find our test policy.
-      // This will not be necessary once we consistently remove policies from the e2e project.
-      while (result.nextPageToken) {
-        result = await cdp.policies.listPolicies({
-          pageSize: 100,
-          pageToken: result.nextPageToken,
-        });
-        policies.push(...result.policies);
-      }
-
-      expect(result).toBeDefined();
-      expect(policies).toBeDefined();
-      expect(Array.isArray(policies)).toBe(true);
-
-      // Find our test policy
-      const testPolicy = policies.find(p => p.id === testPolicyId);
-      expect(testPolicy).toBeDefined();
-    });
-
-    it("should list policies with scope filter", async () => {
-      const result = await cdp.policies.listPolicies({
-        scope: "account",
-        pageSize: 100,
-      });
-
-      expect(result).toBeDefined();
-      expect(result.policies).toBeDefined();
-      expect(Array.isArray(result.policies)).toBe(true);
-
-      // All policies should have account scope
-      const allHaveAccountScope = result.policies.every(p => p.scope === "account");
-      expect(allHaveAccountScope).toBe(true);
-    });
-
-    it("should list policies with pagination", async () => {
-      const firstPage = await cdp.policies.listPolicies({
-        pageSize: 1,
-      });
-
-      expect(firstPage).toBeDefined();
-      expect(firstPage.policies).toBeDefined();
-      expect(Array.isArray(firstPage.policies)).toBe(true);
-      expect(firstPage.policies.length).toBeLessThanOrEqual(1);
-
-      // Check if we have more policies
-      if (firstPage.nextPageToken) {
-        const secondPage = await cdp.policies.listPolicies({
-          pageSize: 1,
-          pageToken: firstPage.nextPageToken,
+      it("should create a policy", async () => {
+        createdPolicy = await cdp.policies.createPolicy({
+          policy: {
+            scope: "account",
+            description: "Test policy for e2e tests",
+            rules: [
+              {
+                action: "reject",
+                operation: "signEvmTransaction",
+                criteria: [
+                  {
+                    type: "ethValue",
+                    ethValue: "1000000000000000000", // 1 ETH
+                    operator: ">",
+                  },
+                  {
+                    type: "evmData",
+                    abi: "erc20",
+                    conditions: [
+                      { function: "balanceOf" },
+                      {
+                        function: "approve",
+                        params: [
+                          {
+                            name: "spender",
+                            operator: "in",
+                            values: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                          },
+                        ],
+                      },
+                      {
+                        function: "transfer",
+                        params: [{ name: "value", operator: "<=", value: "1000" }],
+                      },
+                    ],
+                  },
+                  {
+                    type: "evmData",
+                    abi: kitchenSinkAbi as Abi,
+                    conditions: [
+                      { function: "boolfn" },
+                      {
+                        function: "addressfn",
+                        params: [
+                          {
+                            name: "addr",
+                            operator: "in",
+                            values: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                          },
+                        ],
+                      },
+                      {
+                        function: "boolfn",
+                        params: [{ name: "boolean", operator: "==", value: "true" }],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                action: "reject",
+                operation: "sendEvmTransaction",
+                criteria: [
+                  {
+                    type: "evmNetwork",
+                    networks: ["base"],
+                    operator: "in",
+                  },
+                  {
+                    type: "evmData",
+                    abi: "erc20",
+                    conditions: [
+                      { function: "balanceOf" },
+                      {
+                        function: "approve",
+                        params: [
+                          {
+                            name: "spender",
+                            operator: "in",
+                            values: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                          },
+                        ],
+                      },
+                      {
+                        function: "transfer",
+                        params: [{ name: "value", operator: "<=", value: "1000" }],
+                      },
+                    ],
+                  },
+                  {
+                    type: "evmData",
+                    abi: kitchenSinkAbi as Abi,
+                    conditions: [
+                      { function: "boolfn" },
+                      {
+                        function: "addressfn",
+                        params: [
+                          {
+                            name: "addr",
+                            operator: "in",
+                            values: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                          },
+                        ],
+                      },
+                      {
+                        function: "boolfn",
+                        params: [{ name: "boolean", operator: "==", value: "true" }],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                action: "accept",
+                operation: "signEvmHash",
+              },
+              {
+                action: "accept",
+                operation: "signEvmMessage",
+                criteria: [
+                  {
+                    type: "evmMessage",
+                    match: ".*",
+                  },
+                ],
+              },
+            ],
+          },
         });
 
-        expect(secondPage).toBeDefined();
-        expect(secondPage.policies).toBeDefined();
-        expect(Array.isArray(secondPage.policies)).toBe(true);
+        expect(createdPolicy).toBeDefined();
+        expect(createdPolicy.id).toBeDefined();
+        expect(createdPolicy.scope).toBe("account");
+        expect(createdPolicy.description).toBe("Test policy for e2e tests");
+        expect(createdPolicy.createdAt).toBeDefined();
+        expect(createdPolicy.updatedAt).toBeDefined();
+        expect(createdPolicy.rules).toHaveLength(4);
+        expect(createdPolicy.rules[0].action).toBe("reject");
+        expect(createdPolicy.rules[0].operation).toBe("signEvmTransaction");
+        expect(createdPolicy.rules[1].action).toBe("reject");
+        expect(createdPolicy.rules[1].operation).toBe("sendEvmTransaction");
+        expect(createdPolicy.rules[2].action).toBe("accept");
+        expect(createdPolicy.rules[2].operation).toBe("signEvmHash");
+        expect(createdPolicy.rules[3].action).toBe("accept");
+        expect(createdPolicy.rules[3].operation).toBe("signEvmMessage");
 
-        // Verify first and second page have different policies
-        if (secondPage.policies.length > 0 && firstPage.policies.length > 0) {
-          expect(secondPage.policies[0].id).not.toBe(firstPage.policies[0].id);
-        }
-      }
-    });
-
-    it("should update a policy", async () => {
-      const updatedPolicy = await cdp.policies.updatePolicy({
-        id: testPolicyId,
-        policy: {
-          description: "Updated test policy description",
-          rules: [
-            {
-              action: "reject",
-              operation: "signEvmTransaction",
-              criteria: [
-                {
-                  type: "ethValue",
-                  ethValue: "2000000000000000000", // 2 ETH
-                  operator: ">",
-                },
-                {
-                  type: "evmAddress",
-                  addresses: ["0x0000000000000000000000000000000000000000"],
-                  operator: "in",
-                },
-              ],
-            },
-          ],
-        },
+        // Save the policy ID for other tests
+        testPolicyId = createdPolicy.id;
       });
 
-      expect(updatedPolicy).toBeDefined();
-      expect(updatedPolicy.id).toBe(testPolicyId);
-      expect(updatedPolicy.description).toBe("Updated test policy description");
-      expect(updatedPolicy.rules).toHaveLength(1);
-      expect("criteria" in updatedPolicy.rules[0]).toBe(true);
-      expect((updatedPolicy.rules[0] as SignEvmTransactionRule).criteria).toHaveLength(2);
-    });
-
-    it("should delete a policy", async () => {
-      await cdp.policies.deletePolicy({
-        id: testPolicyId,
-      });
-
-      // Verify the policy was deleted by attempting to get it
-      try {
-        await cdp.policies.getPolicyById({
+      it("should get a policy by ID", async () => {
+        const policy = await cdp.policies.getPolicyById({
           id: testPolicyId,
         });
-        // If we get here, the policy wasn't deleted
-        expect(true).toBe(false);
-      } catch (error) {
-        // Expected error
-        expect(error).toBeDefined();
-      }
+
+        expect(policy).toBeDefined();
+        expect(policy.id).toBe(testPolicyId);
+        expect(policy.scope).toBe("account");
+        expect(policy.description).toBe("Test policy for e2e tests");
+        expect(policy.rules).toHaveLength(4);
+      });
+
+      it("should list policies", async () => {
+        const policies: Policy[] = [];
+        let result = await cdp.policies.listPolicies({
+          pageSize: 100,
+        });
+        policies.push(...result.policies);
+
+        // Paginate through all policies so that we can find our test policy.
+        // This will not be necessary once we consistently remove policies from the e2e project.
+        while (result.nextPageToken) {
+          result = await cdp.policies.listPolicies({
+            pageSize: 100,
+            pageToken: result.nextPageToken,
+          });
+          policies.push(...result.policies);
+        }
+
+        expect(result).toBeDefined();
+        expect(policies).toBeDefined();
+        expect(Array.isArray(policies)).toBe(true);
+
+        // Find our test policy
+        const testPolicy = policies.find(p => p.id === testPolicyId);
+        expect(testPolicy).toBeDefined();
+      });
+
+      it("should list policies with scope filter", async () => {
+        const result = await cdp.policies.listPolicies({
+          scope: "account",
+          pageSize: 100,
+        });
+
+        expect(result).toBeDefined();
+        expect(result.policies).toBeDefined();
+        expect(Array.isArray(result.policies)).toBe(true);
+
+        // All policies should have account scope
+        const allHaveAccountScope = result.policies.every(p => p.scope === "account");
+        expect(allHaveAccountScope).toBe(true);
+      });
+
+      it("should list policies with pagination", async () => {
+        const firstPage = await cdp.policies.listPolicies({
+          pageSize: 1,
+        });
+
+        expect(firstPage).toBeDefined();
+        expect(firstPage.policies).toBeDefined();
+        expect(Array.isArray(firstPage.policies)).toBe(true);
+        expect(firstPage.policies.length).toBeLessThanOrEqual(1);
+
+        // Check if we have more policies
+        if (firstPage.nextPageToken) {
+          const secondPage = await cdp.policies.listPolicies({
+            pageSize: 1,
+            pageToken: firstPage.nextPageToken,
+          });
+
+          expect(secondPage).toBeDefined();
+          expect(secondPage.policies).toBeDefined();
+          expect(Array.isArray(secondPage.policies)).toBe(true);
+
+          // Verify first and second page have different policies
+          if (secondPage.policies.length > 0 && firstPage.policies.length > 0) {
+            expect(secondPage.policies[0].id).not.toBe(firstPage.policies[0].id);
+          }
+        }
+      });
+
+      it("should update a policy", async () => {
+        const updatedPolicy = await cdp.policies.updatePolicy({
+          id: testPolicyId,
+          policy: {
+            description: "Updated test policy description",
+            rules: [
+              {
+                action: "reject",
+                operation: "signEvmTransaction",
+                criteria: [
+                  {
+                    type: "ethValue",
+                    ethValue: "2000000000000000000", // 2 ETH
+                    operator: ">",
+                  },
+                  {
+                    type: "evmAddress",
+                    addresses: ["0x0000000000000000000000000000000000000000"],
+                    operator: "in",
+                  },
+                ],
+              },
+            ],
+          },
+        });
+
+        expect(updatedPolicy).toBeDefined();
+        expect(updatedPolicy.id).toBe(testPolicyId);
+        expect(updatedPolicy.description).toBe("Updated test policy description");
+        expect(updatedPolicy.rules).toHaveLength(1);
+        expect("criteria" in updatedPolicy.rules[0]).toBe(true);
+        expect((updatedPolicy.rules[0] as SignEvmTransactionRule).criteria).toHaveLength(2);
+      });
+
+      it("should delete a policy", async () => {
+        await cdp.policies.deletePolicy({
+          id: testPolicyId,
+        });
+
+        // Verify the policy was deleted by attempting to get it
+        try {
+          await cdp.policies.getPolicyById({
+            id: testPolicyId,
+          });
+          // If we get here, the policy wasn't deleted
+          expect(true).toBe(false);
+        } catch (error) {
+          // Expected error
+          expect(error).toBeDefined();
+        }
+      });
+    });
+
+    describe("Solana Policies", () => {
+      let createdSolanaPolicy: Policy;
+      let testSolanaPolicyId: string;
+
+      it("should create a Solana policy", async () => {
+        createdSolanaPolicy = await cdp.policies.createPolicy({
+          policy: {
+            scope: "account",
+            description: "Test Solana policy for e2e tests",
+            rules: [
+              {
+                action: "reject",
+                operation: "signSolTransaction",
+                criteria: [
+                  {
+                    type: "solValue",
+                    solValue: "1000000000", // 1 SOL in lamports
+                    operator: ">",
+                  },
+                  {
+                    type: "solAddress",
+                    addresses: ["EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo"],
+                    operator: "in",
+                  },
+                ],
+              },
+              {
+                action: "reject",
+                operation: "sendSolTransaction",
+                criteria: [
+                  {
+                    type: "splValue",
+                    splValue: "1000000", // 1 USDC (6 decimals)
+                    operator: ">",
+                  },
+                  {
+                    type: "mintAddress",
+                    addresses: ["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"], // USDC mint
+                    operator: "in",
+                  },
+                ],
+              },
+            ],
+          },
+        });
+
+        expect(createdSolanaPolicy).toBeDefined();
+        expect(createdSolanaPolicy.id).toBeDefined();
+        expect(createdSolanaPolicy.scope).toBe("account");
+        expect(createdSolanaPolicy.description).toBe("Test Solana policy for e2e tests");
+        expect(createdSolanaPolicy.createdAt).toBeDefined();
+        expect(createdSolanaPolicy.updatedAt).toBeDefined();
+        expect(createdSolanaPolicy.rules).toHaveLength(2);
+        expect(createdSolanaPolicy.rules[0].action).toBe("reject");
+        expect(createdSolanaPolicy.rules[0].operation).toBe("signSolTransaction");
+        expect(createdSolanaPolicy.rules[1].action).toBe("reject");
+        expect(createdSolanaPolicy.rules[1].operation).toBe("sendSolTransaction");
+
+        // Save the policy ID for other tests
+        testSolanaPolicyId = createdSolanaPolicy.id;
+      });
+
+      it("should get a Solana policy by ID", async () => {
+        const policy = await cdp.policies.getPolicyById({
+          id: testSolanaPolicyId,
+        });
+
+        expect(policy).toBeDefined();
+        expect(policy.id).toBe(testSolanaPolicyId);
+        expect(policy.scope).toBe("account");
+        expect(policy.description).toBe("Test Solana policy for e2e tests");
+        expect(policy.rules).toHaveLength(2);
+      });
+
+      it("should update a Solana policy", async () => {
+        const updatedPolicy = await cdp.policies.updatePolicy({
+          id: testSolanaPolicyId,
+          policy: {
+            description: "Updated Solana test policy description",
+            rules: [
+              {
+                action: "reject",
+                operation: "signSolTransaction",
+                criteria: [
+                  {
+                    type: "solValue",
+                    solValue: "2000000000", // 2 SOL in lamports
+                    operator: ">",
+                  },
+                  {
+                    type: "solAddress",
+                    addresses: ["DtdSSG8ZJRZVv5Jx7K1MeWp7Zxcu19GD5wQRGRpQ9uMF"],
+                    operator: "not in",
+                  },
+                ],
+              },
+            ],
+          },
+        });
+
+        expect(updatedPolicy).toBeDefined();
+        expect(updatedPolicy.id).toBe(testSolanaPolicyId);
+        expect(updatedPolicy.description).toBe("Updated Solana test policy description");
+        expect(updatedPolicy.rules).toHaveLength(1);
+        expect(updatedPolicy.rules[0].action).toBe("reject");
+        expect(updatedPolicy.rules[0].operation).toBe("signSolTransaction");
+      });
+
+      it("should delete a Solana policy", async () => {
+        await cdp.policies.deletePolicy({
+          id: testSolanaPolicyId,
+        });
+
+        // Verify the policy was deleted by attempting to get it
+        try {
+          await cdp.policies.getPolicyById({
+            id: testSolanaPolicyId,
+          });
+          // If we get here, the policy wasn't deleted
+          expect(true).toBe(false);
+        } catch (error) {
+          // Expected error
+          expect(error).toBeDefined();
+        }
+      });
     });
   });
 
@@ -2627,6 +2765,530 @@ describe("CDP Client E2E Tests", () => {
                 nonce: 0,
                 deadline: Math.floor(Date.now() / 1000) + 3600,
               },
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+    });
+
+    describe("signSolTransaction", () => {
+      describe("solValue", () => {
+        it(">=", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    { type: "solValue", operator: ">=", solValue: "1000000000" }, // 1 SOL in lamports
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.signTransaction({
+              address: testSolanaAccount.address,
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                1.5 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("<=", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    { type: "solValue", operator: "<=", solValue: "500000000" }, // 0.5 SOL in lamports
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.signTransaction({
+              address: testSolanaAccount.address,
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                0.3 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it(">", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    { type: "solValue", operator: ">", solValue: "750000000" }, // 0.75 SOL in lamports
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.signTransaction({
+              address: testSolanaAccount.address,
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                1 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("<", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    { type: "solValue", operator: "<", solValue: "2000000000" }, // 2 SOL in lamports
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.signTransaction({
+              address: testSolanaAccount.address,
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                1 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("==", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    { type: "solValue", operator: "==", solValue: "1000000000" }, // 1 SOL in lamports
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.signTransaction({
+              address: testSolanaAccount.address,
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                1 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+
+      describe("solAddress", () => {
+        it("in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "solAddress",
+                      operator: "in",
+                      addresses: ["EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo"],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.signTransaction({
+              address: testSolanaAccount.address,
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                0.1 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("not in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "solAddress",
+                      operator: "not in",
+                      addresses: ["DtdSSG8ZJRZVv5Jx7K1MeWp7Zxcu19GD5wQRGRpQ9uMF"],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.signTransaction({
+              address: testSolanaAccount.address,
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                0.1 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+    });
+
+    describe("sendSolTransaction", () => {
+      describe("solValue", () => {
+        it(">=", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    { type: "solValue", operator: ">=", solValue: "1000000000" }, // 1 SOL in lamports
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.sendTransaction({
+              network: "solana-devnet",
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                1.5 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("<=", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    { type: "solValue", operator: "<=", solValue: "500000000" }, // 0.5 SOL in lamports
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.sendTransaction({
+              network: "solana-devnet",
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                0.3 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it(">", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    { type: "solValue", operator: ">", solValue: "750000000" }, // 0.75 SOL in lamports
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.sendTransaction({
+              network: "solana-devnet",
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                1 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("<", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    { type: "solValue", operator: "<", solValue: "2000000000" }, // 2 SOL in lamports
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.sendTransaction({
+              network: "solana-devnet",
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                1 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("==", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    { type: "solValue", operator: "==", solValue: "1000000000" }, // 1 SOL in lamports
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.sendTransaction({
+              network: "solana-devnet",
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                1 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+
+      describe("solAddress", () => {
+        it("in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "solAddress",
+                      operator: "in",
+                      addresses: ["EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo"],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.sendTransaction({
+              network: "solana-devnet",
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                0.1 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("not in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "solAddress",
+                      operator: "not in",
+                      addresses: ["DtdSSG8ZJRZVv5Jx7K1MeWp7Zxcu19GD5wQRGRpQ9uMF"],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.sendTransaction({
+              network: "solana-devnet",
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                0.1 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+
+      describe("solNetwork", () => {
+        it("in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendSolTransaction",
+                  action: "reject",
+                  criteria: [{ type: "solNetwork", operator: "in", networks: ["solana-devnet"] }],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.sendTransaction({
+              network: "solana-devnet",
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                0.1 * LAMPORTS_PER_SOL,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("not in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    { type: "solNetwork", operator: "not in", networks: ["solana-mainnet"] },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: testSolanaAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.sendTransaction({
+              network: "solana-devnet",
+              transaction: createAndEncodeTransaction(
+                testSolanaAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                0.1 * LAMPORTS_PER_SOL,
+              ),
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
         });

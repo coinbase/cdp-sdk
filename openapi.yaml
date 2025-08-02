@@ -280,6 +280,23 @@ tags:
       A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
       #### solValue
       A criterion based on the value of the transaction. The criterion's `solValue` field is compared to the transaction's `value`, which is the amount of SOL in lamports being transferred, using the `operator` field.
+      #### splAddress
+      A criterion based on the recipient addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### splValue
+      A criterion based on the SPL token value of SPL token transfer instructions in the transaction. The criterion's `splValue` field is compared to the transaction instruction's `value` field, which is the amount of the SPL token being transferred, using the `operator` field.
+      #### mintAddress
+      A criterion based on the token mint addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      ### SendSolTransaction Criteria
+      #### solAddress
+      A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### solValue
+      A criterion based on the value of the transaction. The criterion's `solValue` field is compared to the transaction's `value`, which is the amount of SOL in lamports being transferred, using the `operator` field.
+      #### splAddress
+      A criterion based on the recipient addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### splValue
+      A criterion based on the SPL token value of SPL token transfer instructions in the transaction. The criterion's `splValue` field is compared to the transaction instruction's `value` field, which is the amount of the SPL token being transferred, using the `operator` field.
+      #### mintAddress
+      A criterion based on the token mint addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
       ## Restricting Contract Interactions on Ethereum
       Smart contract function restrictions serve as a critical security and governance mechanism in decentralized applications, allowing developers and organizations to implement fine-grained access controls over their protocol interactions.
       One of the primary use cases for function restrictions is protecting high-risk operations from unauthorized access such as:
@@ -6761,6 +6778,126 @@ components:
         - type
         - addresses
         - operator
+    SolValueCriterion:
+      x-audience: public
+      type: object
+      description: The criterion for the SOL value in lamports of a native transfer instruction in a Solana transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `solValue`.
+          example: solValue
+          enum:
+            - solValue
+        solValue:
+          type: string
+          description: The amount of SOL in lamports that the transaction instruction's `value` field should be compared to.
+          example: '1000000000000000000'
+        operator:
+          type: string
+          description: The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `solValue` field will be on the right-hand side.
+          enum:
+            - '>'
+            - '>='
+            - <
+            - <=
+            - '=='
+          example: <=
+      required:
+        - type
+        - solValue
+        - operator
+    SplAddressCriterion:
+      x-audience: public
+      type: object
+      description: The criterion for the recipient addresses of a Solana transaction's SPL token transfer instructions.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `splAddress`.
+          example: splAddress
+          enum:
+            - splAddress
+        addresses:
+          type: array
+          description: The Solana addresses that are compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+          items:
+            type: string
+            pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+            description: The Solana address that is compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+          example:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+        operator:
+          type: string
+          description: The operator to use for the comparison. Each of the SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+      required:
+        - type
+        - addresses
+        - operator
+    SplValueCriterion:
+      x-audience: public
+      type: object
+      description: The criterion for the SPL token value of a SPL token transfer instruction in a Solana transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `splValue`.
+          example: splValue
+          enum:
+            - splValue
+        splValue:
+          type: string
+          description: The amount of the SPL token that the transaction instruction's `value` field should be compared to.
+          example: '1000000000000000000'
+        operator:
+          type: string
+          description: The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `splValue` field will be on the right-hand side.
+          enum:
+            - '>'
+            - '>='
+            - <
+            - <=
+            - '=='
+          example: <=
+      required:
+        - type
+        - splValue
+        - operator
+    MintAddressCriterion:
+      x-audience: public
+      type: object
+      description: The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `mintAddress`.
+          example: mintAddress
+          enum:
+            - mintAddress
+        addresses:
+          type: array
+          description: The Solana addresses that are compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+          items:
+            type: string
+            pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+            description: The Solana address that is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+          example:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+        operator:
+          type: string
+          description: The operator to use for the comparison. Each of the token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+      required:
+        - type
+        - addresses
+        - operator
     SignSolTransactionCriteria:
       type: array
       x-audience: public
@@ -6768,6 +6905,10 @@ components:
       items:
         oneOf:
           - $ref: '#/components/schemas/SolAddressCriterion'
+          - $ref: '#/components/schemas/SolValueCriterion'
+          - $ref: '#/components/schemas/SplAddressCriterion'
+          - $ref: '#/components/schemas/SplValueCriterion'
+          - $ref: '#/components/schemas/MintAddressCriterion'
       example:
         - type: solAddress
           addresses:
@@ -6790,6 +6931,47 @@ components:
             - signSolTransaction
         criteria:
           $ref: '#/components/schemas/SignSolTransactionCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    SendSolTransactionCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the SendSolTransaction operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/SolAddressCriterion'
+          - $ref: '#/components/schemas/SolValueCriterion'
+          - $ref: '#/components/schemas/SplAddressCriterion'
+          - $ref: '#/components/schemas/SplValueCriterion'
+          - $ref: '#/components/schemas/MintAddressCriterion'
+      example:
+        - type: solAddress
+          addresses:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+          operator: in
+        - type: solValue
+          solValue: '1000000000000000000'
+          operator: <=
+    SendSolTransactionRule:
+      x-audience: public
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: sendSolTransaction
+          enum:
+            - sendSolTransaction
+        criteria:
+          $ref: '#/components/schemas/SendSolTransactionCriteria'
       required:
         - action
         - operation
@@ -6901,6 +7083,7 @@ components:
         - $ref: '#/components/schemas/SignEvmMessageRule'
         - $ref: '#/components/schemas/SignEvmTypedDataRule'
         - $ref: '#/components/schemas/SignSolTransactionRule'
+        - $ref: '#/components/schemas/SendSolTransactionRule'
         - $ref: '#/components/schemas/SignEvmHashRule'
         - $ref: '#/components/schemas/PrepareUserOperationRule'
         - $ref: '#/components/schemas/SendUserOperationRule'

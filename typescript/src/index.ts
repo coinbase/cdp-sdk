@@ -6,7 +6,7 @@ export {
   UpdatePolicyBodySchema,
   type CreatePolicyBody,
   type UpdatePolicyBody,
-} from "./policies/schema.js";
+} from "./policies/types.js";
 export { NetworkError } from "./openapi-client/errors.js";
 export type { SpendPermission } from "./spend-permissions/types.js";
 export {
