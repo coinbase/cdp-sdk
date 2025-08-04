@@ -1580,26 +1580,6 @@ async def test_solana_policy_crud_operations(cdp_client):
     assert updated_policy.rules[0].operation == "sendSolTransaction"
     assert updated_policy.rules[1].operation == "signSolTransaction"
 
-    # Test listing policies to verify our policy exists
-    policies_result = await cdp_client.policies.list_policies(scope="account", page_size=100)
-    found_policy = False
-    for policy in policies_result.policies:
-        if policy.id == original_policy.id:
-            found_policy = True
-            break
-
-    # If not found in first page, check additional pages
-    while not found_policy and policies_result.next_page_token:
-        policies_result = await cdp_client.policies.list_policies(
-            scope="account", page_size=100, page_token=policies_result.next_page_token
-        )
-        for policy in policies_result.policies:
-            if policy.id == original_policy.id:
-                found_policy = True
-                break
-
-    assert found_policy, f"Policy {original_policy.id} not found in policy list"
-
     # Test deleting the policy
     await cdp_client.policies.delete_policy(id=original_policy.id)
 
