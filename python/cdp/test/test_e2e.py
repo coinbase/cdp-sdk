@@ -31,11 +31,13 @@ from cdp.policies.types import (
     EvmMessageCriterion,
     EvmNetworkCriterion,
     SendEvmTransactionRule,
+    SendSolanaTransactionRule,
     SignEvmHashRule,
     SignEvmMessageRule,
     SignEvmTransactionRule,
     SignSolanaTransactionRule,
-    SolanaAddressCriterion,
+    SolAddressCriterion,
+    SolValueCriterion,
     UpdatePolicyOptions,
 )
 from cdp.spend_permissions.types import SpendPermission
@@ -1074,15 +1076,6 @@ async def test_create_account_policy(cdp_client):
                         ),
                     ],
                 ),
-                SignSolanaTransactionRule(
-                    action="accept",
-                    criteria=[
-                        SolanaAddressCriterion(
-                            addresses=["123456789abcdef123456789abcdef12"],
-                            operator="in",
-                        ),
-                    ],
-                ),
                 SignEvmHashRule(
                     action="accept",
                 ),
@@ -1102,7 +1095,7 @@ async def test_create_account_policy(cdp_client):
     assert policy.scope == "account"
     assert policy.description == "E2E Test Policy"
     assert policy.rules is not None
-    assert len(policy.rules) == 5
+    assert len(policy.rules) == 4
     assert policy.rules[0].action == "accept"
     assert policy.rules[0].operation == "signEvmTransaction"
     assert policy.rules[0].criteria is not None
@@ -1124,20 +1117,13 @@ async def test_create_account_policy(cdp_client):
     ]
     assert policy.rules[1].criteria[0].operator == "in"
     assert policy.rules[2].action == "accept"
-    assert policy.rules[2].operation == "signSolTransaction"
-    assert policy.rules[2].criteria is not None
-    assert len(policy.rules[2].criteria) == 1
-    assert policy.rules[2].criteria[0].type == "solAddress"
-    assert policy.rules[2].criteria[0].addresses == ["123456789abcdef123456789abcdef12"]
-    assert policy.rules[2].criteria[0].operator == "in"
+    assert policy.rules[2].operation == "signEvmHash"
     assert policy.rules[3].action == "accept"
-    assert policy.rules[3].operation == "signEvmHash"
-    assert policy.rules[4].action == "accept"
-    assert policy.rules[4].operation == "signEvmMessage"
-    assert policy.rules[4].criteria is not None
-    assert len(policy.rules[4].criteria) == 1
-    assert policy.rules[4].criteria[0].type == "evmMessage"
-    assert policy.rules[4].criteria[0].match == ".*"
+    assert policy.rules[3].operation == "signEvmMessage"
+    assert policy.rules[3].criteria is not None
+    assert len(policy.rules[3].criteria) == 1
+    assert policy.rules[3].criteria[0].type == "evmMessage"
+    assert policy.rules[3].criteria[0].match == ".*"
 
     # Delete the policy
     await cdp_client.policies.delete_policy(id=policy.id)
@@ -1463,6 +1449,148 @@ async def test_list_policies(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_create_solana_policy_with_combined_rules(cdp_client):
+    """Test creating a Solana policy with both signSolTransaction and sendTransaction rules."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Solana Policy with Combined Rules",
+            rules=[
+                SignSolanaTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolAddressCriterion(
+                            addresses=["HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+                SendSolanaTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolValueCriterion(
+                            type="solValue",
+                            solValue="1000000000",
+                            operator="<=",
+                        ),
+                    ],
+                ),
+            ],
+        )
+    )
+    assert policy is not None
+    assert policy.id is not None
+    assert policy.scope == "account"
+    assert policy.description == "E2E Solana Policy with Combined Rules"
+    assert policy.rules is not None
+    assert len(policy.rules) == 2
+
+    # Verify first rule - SignSolanaTransactionRule
+    assert policy.rules[0].action == "accept"
+    assert policy.rules[0].operation == "signSolTransaction"
+    assert policy.rules[0].criteria is not None
+    assert len(policy.rules[0].criteria) == 1
+    assert policy.rules[0].criteria[0].type == "solAddress"
+    assert policy.rules[0].criteria[0].addresses == ["HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH"]
+    assert policy.rules[0].criteria[0].operator == "in"
+
+    # Verify second rule - SendSolanaTransactionRule
+    assert policy.rules[1].action == "accept"
+    assert policy.rules[1].operation == "sendSolTransaction"
+    assert policy.rules[1].criteria is not None
+    assert len(policy.rules[1].criteria) == 1
+    assert policy.rules[1].criteria[0].type == "solValue"
+    assert policy.rules[1].criteria[0].solValue == "1000000000"
+    assert policy.rules[1].criteria[0].operator == "<="
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_solana_policy_crud_operations(cdp_client):
+    """Test complete CRUD operations for Solana policies."""
+    # Test creating a Solana policy
+    original_policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Solana CRUD Test Policy",
+            rules=[
+                SignSolanaTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolAddressCriterion(
+                            addresses=["Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+            ],
+        )
+    )
+    assert original_policy is not None
+    assert original_policy.id is not None
+
+    # Test getting the policy by ID
+    retrieved_policy = await cdp_client.policies.get_policy_by_id(id=original_policy.id)
+    assert retrieved_policy is not None
+    assert retrieved_policy.id == original_policy.id
+    assert retrieved_policy.scope == "account"
+    assert retrieved_policy.description == "E2E Solana CRUD Test Policy"
+    assert len(retrieved_policy.rules) == 1
+    assert retrieved_policy.rules[0].operation == "signSolTransaction"
+
+    # Test updating the policy
+    updated_policy = await cdp_client.policies.update_policy(
+        id=original_policy.id,
+        policy=UpdatePolicyOptions(
+            description="Updated Solana CRUD Test Policy",
+            rules=[
+                SendSolanaTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolAddressCriterion(
+                            addresses=["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+                SignSolanaTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolAddressCriterion(
+                            addresses=["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    )
+    assert updated_policy is not None
+    assert updated_policy.id == original_policy.id
+    assert updated_policy.description == "Updated Solana CRUD Test Policy"
+    assert len(updated_policy.rules) == 2
+    assert updated_policy.rules[0].operation == "sendSolTransaction"
+    assert updated_policy.rules[1].operation == "signSolTransaction"
+
+    # Test deleting the policy
+    await cdp_client.policies.delete_policy(id=original_policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=original_policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_create_evm_account_with_policy(cdp_client):
     """Test creating an EVM account with a policy."""
     policy = await cdp_client.policies.create_policy(
@@ -1537,7 +1665,7 @@ async def test_create_solana_account_with_policy(cdp_client):
                 SignSolanaTransactionRule(
                     action="accept",
                     criteria=[
-                        SolanaAddressCriterion(
+                        SolAddressCriterion(
                             addresses=["123456789abcdef123456789abcdef12"],
                             operator="in",
                         ),
