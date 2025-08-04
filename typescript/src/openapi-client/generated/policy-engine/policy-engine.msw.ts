@@ -25,6 +25,7 @@ import type {
   EvmTypedStringCondition,
   ListPolicies200,
   MintAddressCriterion,
+  NetUSDChangeCriterion,
   Policy,
   SignEvmTypedDataFieldCriterion,
   SignEvmTypedDataVerifyingContractCriterion,
@@ -159,6 +160,17 @@ export const getListPoliciesResponseEvmDataCriterionMock = (
         ]),
       }),
     ),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseNetUSDChangeCriterionMock = (
+  overrideResponse: Partial<NetUSDChangeCriterion> = {},
+): NetUSDChangeCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["netUSDChange"] as const),
+    changeCents: faker.number.int({ min: undefined, max: undefined }),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
   },
   ...overrideResponse,
 });
@@ -341,6 +353,7 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
                     { ...getListPoliciesResponseEthValueCriterionMock() },
                     { ...getListPoliciesResponseEvmAddressCriterionMock() },
                     { ...getListPoliciesResponseEvmDataCriterionMock() },
+                    { ...getListPoliciesResponseNetUSDChangeCriterionMock() },
                   ]),
                 ),
               },
@@ -356,6 +369,7 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
                     { ...getListPoliciesResponseEvmAddressCriterionMock() },
                     { ...getListPoliciesResponseEvmNetworkCriterionMock() },
                     { ...getListPoliciesResponseEvmDataCriterionMock() },
+                    { ...getListPoliciesResponseNetUSDChangeCriterionMock() },
                   ]),
                 ),
               },
@@ -588,6 +602,17 @@ export const getCreatePolicyResponseEvmDataCriterionMock = (
   ...overrideResponse,
 });
 
+export const getCreatePolicyResponseNetUSDChangeCriterionMock = (
+  overrideResponse: Partial<NetUSDChangeCriterion> = {},
+): NetUSDChangeCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["netUSDChange"] as const),
+    changeCents: faker.number.int({ min: undefined, max: undefined }),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getCreatePolicyResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
@@ -762,6 +787,7 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getCreatePolicyResponseEthValueCriterionMock() },
             { ...getCreatePolicyResponseEvmAddressCriterionMock() },
             { ...getCreatePolicyResponseEvmDataCriterionMock() },
+            { ...getCreatePolicyResponseNetUSDChangeCriterionMock() },
           ]),
         ),
       },
@@ -777,6 +803,7 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getCreatePolicyResponseEvmAddressCriterionMock() },
             { ...getCreatePolicyResponseEvmNetworkCriterionMock() },
             { ...getCreatePolicyResponseEvmDataCriterionMock() },
+            { ...getCreatePolicyResponseNetUSDChangeCriterionMock() },
           ]),
         ),
       },
@@ -1004,6 +1031,17 @@ export const getGetPolicyByIdResponseEvmDataCriterionMock = (
   ...overrideResponse,
 });
 
+export const getGetPolicyByIdResponseNetUSDChangeCriterionMock = (
+  overrideResponse: Partial<NetUSDChangeCriterion> = {},
+): NetUSDChangeCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["netUSDChange"] as const),
+    changeCents: faker.number.int({ min: undefined, max: undefined }),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getGetPolicyByIdResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
@@ -1178,6 +1216,7 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
             { ...getGetPolicyByIdResponseEthValueCriterionMock() },
             { ...getGetPolicyByIdResponseEvmAddressCriterionMock() },
             { ...getGetPolicyByIdResponseEvmDataCriterionMock() },
+            { ...getGetPolicyByIdResponseNetUSDChangeCriterionMock() },
           ]),
         ),
       },
@@ -1193,6 +1232,7 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
             { ...getGetPolicyByIdResponseEvmAddressCriterionMock() },
             { ...getGetPolicyByIdResponseEvmNetworkCriterionMock() },
             { ...getGetPolicyByIdResponseEvmDataCriterionMock() },
+            { ...getGetPolicyByIdResponseNetUSDChangeCriterionMock() },
           ]),
         ),
       },
@@ -1420,6 +1460,17 @@ export const getUpdatePolicyResponseEvmDataCriterionMock = (
   ...overrideResponse,
 });
 
+export const getUpdatePolicyResponseNetUSDChangeCriterionMock = (
+  overrideResponse: Partial<NetUSDChangeCriterion> = {},
+): NetUSDChangeCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["netUSDChange"] as const),
+    changeCents: faker.number.int({ min: undefined, max: undefined }),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getUpdatePolicyResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
@@ -1594,6 +1645,7 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getUpdatePolicyResponseEthValueCriterionMock() },
             { ...getUpdatePolicyResponseEvmAddressCriterionMock() },
             { ...getUpdatePolicyResponseEvmDataCriterionMock() },
+            { ...getUpdatePolicyResponseNetUSDChangeCriterionMock() },
           ]),
         ),
       },
@@ -1609,6 +1661,7 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getUpdatePolicyResponseEvmAddressCriterionMock() },
             { ...getUpdatePolicyResponseEvmNetworkCriterionMock() },
             { ...getUpdatePolicyResponseEvmDataCriterionMock() },
+            { ...getUpdatePolicyResponseNetUSDChangeCriterionMock() },
           ]),
         ),
       },

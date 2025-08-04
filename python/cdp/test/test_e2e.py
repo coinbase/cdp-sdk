@@ -30,6 +30,7 @@ from cdp.policies.types import (
     EvmAddressCriterion,
     EvmMessageCriterion,
     EvmNetworkCriterion,
+    NetUSDChangeCriterion,
     SendEvmTransactionRule,
     SendSolanaTransactionRule,
     SignEvmHashRule,
@@ -1502,6 +1503,72 @@ async def test_create_solana_policy_with_combined_rules(cdp_client):
     assert policy.rules[1].criteria[0].type == "solValue"
     assert policy.rules[1].criteria[0].solValue == "1000000000"
     assert policy.rules[1].criteria[0].operator == "<="
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_create_evm_policy_with_netusdchange(cdp_client):
+    """Test creating EVM policy with both signEvmTransaction and sendEvmTransaction rules for netUSDChange criteria."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E EVM Policy with netUSDChange criteria",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        NetUSDChangeCriterion(
+                            type="netUSDChange",
+                            changeCents=10000,
+                            operator="<",
+                        ),
+                    ],
+                ),
+                SendEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        NetUSDChangeCriterion(
+                            type="netUSDChange",
+                            changeCents=10000,
+                            operator="<",
+                        ),
+                    ],
+                ),
+            ],
+        )
+    )
+    assert policy is not None
+    assert policy.id is not None
+    assert policy.scope == "account"
+    assert policy.description == "E2E EVM Policy with netUSDChange criteria"
+    assert policy.rules is not None
+    assert len(policy.rules) == 2
+
+    # Verify first rule - SignEvmTransactionRule
+    assert policy.rules[0].action == "accept"
+    assert policy.rules[0].operation == "signEvmTransaction"
+    assert policy.rules[0].criteria is not None
+    assert len(policy.rules[0].criteria) == 1
+    assert policy.rules[0].criteria[0].type == "netUSDChange"
+    assert policy.rules[0].criteria[0].changeCents == 10000
+    assert policy.rules[0].criteria[0].operator == "<"
+
+    # Verify second rule - SendEvmTransactionRule
+    assert policy.rules[1].action == "accept"
+    assert policy.rules[1].operation == "sendEvmTransaction"
+    assert policy.rules[1].criteria is not None
+    assert len(policy.rules[1].criteria) == 1
+    assert policy.rules[1].criteria[0].type == "netUSDChange"
+    assert policy.rules[1].criteria[0].changeCents == 10000
+    assert policy.rules[1].criteria[0].operator == "<"
 
     # Delete the policy
     await cdp_client.policies.delete_policy(id=policy.id)

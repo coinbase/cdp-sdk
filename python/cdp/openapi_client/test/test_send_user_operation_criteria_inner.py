@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.sign_evm_transaction_criteria_inner import SignEvmTransactionCriteriaInner
+from cdp.openapi_client.models.send_user_operation_criteria_inner import SendUserOperationCriteriaInner
 
-class TestSignEvmTransactionCriteriaInner(unittest.TestCase):
-    """SignEvmTransactionCriteriaInner unit test stubs"""
+class TestSendUserOperationCriteriaInner(unittest.TestCase):
+    """SendUserOperationCriteriaInner unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,38 +26,36 @@ class TestSignEvmTransactionCriteriaInner(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> SignEvmTransactionCriteriaInner:
-        """Test SignEvmTransactionCriteriaInner
+    def make_instance(self, include_optional) -> SendUserOperationCriteriaInner:
+        """Test SendUserOperationCriteriaInner
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `SignEvmTransactionCriteriaInner`
+        # uncomment below to create an instance of `SendUserOperationCriteriaInner`
         """
-        model = SignEvmTransactionCriteriaInner()
+        model = SendUserOperationCriteriaInner()
         if include_optional:
-            return SignEvmTransactionCriteriaInner(
+            return SendUserOperationCriteriaInner(
                 type = 'ethValue',
                 eth_value = '1000000000000000000',
-                operator = '<=',
+                operator = 'in',
                 addresses = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e, 0x1234567890123456789012345678901234567890],
                 abi = erc20,
-                conditions = [{function=approve}, {function=transfer, params=[{name=value, operator=<=, value=10000}, {name=to, operator=in, values=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e]}]}],
-                change_cents = 10000
+                conditions = [{function=approve}, {function=transfer, params=[{name=value, operator=<=, value=10000}, {name=to, operator=in, values=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e]}]}]
             )
         else:
-            return SignEvmTransactionCriteriaInner(
+            return SendUserOperationCriteriaInner(
                 type = 'ethValue',
                 eth_value = '1000000000000000000',
-                operator = '<=',
+                operator = 'in',
                 addresses = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e, 0x1234567890123456789012345678901234567890],
                 abi = erc20,
                 conditions = [{function=approve}, {function=transfer, params=[{name=value, operator=<=, value=10000}, {name=to, operator=in, values=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e]}]}],
-                change_cents = 10000,
         )
         """
 
-    def testSignEvmTransactionCriteriaInner(self):
-        """Test SignEvmTransactionCriteriaInner"""
+    def testSendUserOperationCriteriaInner(self):
+        """Test SendUserOperationCriteriaInner"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

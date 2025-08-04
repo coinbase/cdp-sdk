@@ -15,6 +15,7 @@ from cdp.openapi_client.models.evm_typed_numerical_condition import EvmTypedNume
 from cdp.openapi_client.models.evm_typed_string_condition import EvmTypedStringCondition
 from cdp.openapi_client.models.known_abi_type import KnownAbiType
 from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterion
+from cdp.openapi_client.models.net_usd_change_criterion import NetUSDChangeCriterion
 from cdp.openapi_client.models.rule import Rule
 from cdp.openapi_client.models.send_evm_transaction_criteria_inner import (
     SendEvmTransactionCriteriaInner,
@@ -78,6 +79,13 @@ openapi_criterion_mapping = {
                 type="evmNetwork",
             )
         ),
+        "netUSDChange": lambda c: SendEvmTransactionCriteriaInner(
+            actual_instance=NetUSDChangeCriterion(
+                change_cents=c.changeCents,
+                operator=c.operator,
+                type="netUSDChange",
+            )
+        ),
         "evmData": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=EvmDataCriterion(
                 type="evmData",
@@ -126,6 +134,13 @@ openapi_criterion_mapping = {
                 addresses=c.addresses,
                 operator=c.operator,
                 type="evmAddress",
+            )
+        ),
+        "netUSDChange": lambda c: SignEvmTransactionCriteriaInner(
+            actual_instance=NetUSDChangeCriterion(
+                change_cents=c.changeCents,
+                operator=c.operator,
+                type="netUSDChange",
             )
         ),
         "evmData": lambda c: SignEvmTransactionCriteriaInner(

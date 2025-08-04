@@ -92,6 +92,33 @@ class EvmNetworkCriterion(BaseModel):
     )
 
 
+class NetUSDChangeCriterion(BaseModel):
+    """Type representing a 'netUSDChange' criterion that can be used to govern the behavior of projects and accounts."""
+
+    type: Literal["netUSDChange"] = Field(
+        "netUSDChange",
+        description="The type of criterion, must be 'netUSDChange' for USD denominated value restrictions.",
+    )
+
+    changeCents: int = Field(
+        ...,
+        ge=0,
+        description="The amount of USD, in cents, that the total value of a transaction's asset transfer should be compared to.",
+    )
+
+    operator: Literal[">", ">=", "==", "<", "<="] = Field(
+        ...,
+        description="The operator to use for the comparison. The total value of a transaction's asset transfer will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side.",
+    )
+
+    @field_validator("changeCents")
+    def validate_change_cents(cls, v: int) -> int:
+        """Validate that changeCents is a non-negative integer."""
+        if v < 0:
+            raise UserInputValidationError("changeCents must be a non-negative integer")
+        return v
+
+
 class EvmDataParameterCondition(BaseModel):
     """EVM data parameter condition."""
 
@@ -184,7 +211,11 @@ class SendEvmTransactionRule(BaseModel):
         description="The operation to which this rule applies. Must be 'sendEvmTransaction'.",
     )
     criteria: list[
-        EthValueCriterion | EvmAddressCriterion | EvmNetworkCriterion | EvmDataCriterion
+        EthValueCriterion
+        | EvmAddressCriterion
+        | EvmNetworkCriterion
+        | EvmDataCriterion
+        | NetUSDChangeCriterion
     ] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
@@ -401,7 +432,9 @@ class SignEvmTransactionRule(BaseModel):
         "signEvmTransaction",
         description="The operation to which this rule applies. Must be 'signEvmTransaction'.",
     )
-    criteria: list[EthValueCriterion | EvmAddressCriterion | EvmDataCriterion] = Field(
+    criteria: list[
+        EthValueCriterion | EvmAddressCriterion | EvmDataCriterion | NetUSDChangeCriterion
+    ] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
     )

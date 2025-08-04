@@ -1320,5 +1320,115 @@ describe("PoliciesClient", () => {
       expect(result).toEqual(mockPolicy);
       expect(createPolicyMock).toHaveBeenCalledWith(policyWithUserOperations, "idem-key");
     });
+
+    it("should throw ZodError for invalid netUSDChange criteria", async () => {
+      const updatePolicyMock = CdpOpenApiClient.updatePolicy as MockedFunction<
+        typeof CdpOpenApiClient.updatePolicy
+      >;
+
+      const invalidNetUSDChangePolicies = [
+        // Using solAddress criterion (not supported for sendUserOperation)
+        {
+          rules: [
+            {
+              action: "reject" as const,
+              operation: "sendEvmTransaction" as const,
+              criteria: [
+                {
+                  type: "netUSDChange",
+                  changeCents: -1,
+                  operator: "==",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          rules: [
+            {
+              action: "reject" as const,
+              operation: "signSolTransaction" as const,
+              criteria: [
+                {
+                  type: "netUSDChange",
+                  changeCents: 1,
+                  operator: "==",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          rules: [
+            {
+              action: "reject" as const,
+              operation: "signEvmTransaction" as const,
+              criteria: [
+                {
+                  type: "netUSDChange",
+                  addresses: [],
+                  operator: "==",
+                },
+              ],
+            },
+          ],
+        },
+      ];
+
+      for (const policy of invalidNetUSDChangePolicies) {
+        await expect(
+          client.updatePolicy({
+            id: "policy-123",
+            // @ts-expect-error Intentionally using incorrect criteria structure for test
+            policy,
+          }),
+        ).rejects.toThrow(ZodError);
+        expect(updatePolicyMock).not.toHaveBeenCalled();
+      }
+    });
+
+    it("should create policies with netUSDChange criterion for sign and send evm transactions", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+      createPolicyMock.mockResolvedValue(mockPolicy);
+
+      const policyWithUSDChange = {
+        scope: "account" as const,
+        description: "netUSDChange policy",
+        rules: [
+          {
+            action: "accept" as const,
+            operation: "sendEvmTransaction" as const,
+            criteria: [
+              {
+                type: "netUSDChange" as const,
+                changeCents: 100,
+                operator: "<=" as const,
+              },
+            ],
+          },
+          {
+            action: "reject" as const,
+            operation: "signEvmTransaction" as const,
+            criteria: [
+              {
+                type: "netUSDChange" as const,
+                changeCents: 0,
+                operator: "<=" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = await client.createPolicy({
+        policy: policyWithUSDChange,
+        idempotencyKey: "idem-key",
+      });
+
+      expect(result).toEqual(mockPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyWithUSDChange, "idem-key");
+    });
   });
 });
