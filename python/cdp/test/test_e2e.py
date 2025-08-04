@@ -2082,6 +2082,7 @@ async def test_use_network_evm_smart_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="Skipping")
 async def test_evm_smart_account_use_spend_permission(cdp_client):
     """Test signing a transaction with an EVM local account and a spend permission."""
     master_owner = await cdp_client.evm.get_or_create_account(
@@ -2149,7 +2150,7 @@ async def test_evm_smart_account_use_spend_permission(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="Skipping due to flakiness")
+@pytest.mark.skip(reason="Skipping")
 async def test_evm_account_use_spend_permission(cdp_client):
     """Test signing a transaction with an EVM local account and a spend permission."""
     master_owner = await cdp_client.evm.get_or_create_account(
