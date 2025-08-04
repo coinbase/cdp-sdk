@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.27.0] - 2025-08-04
+
+### Features
+
+- Added SendSolTransaction rule and updated SignSolTransaction rule with new criteria ([#344](https://github.com/coinbase/cdp-sdk/pull/344))
+
+
 ## [1.26.0] - 2025-07-31
 
 ### Features
