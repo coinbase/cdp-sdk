@@ -17,14 +17,14 @@ async def main():
         # Create a policy that allows sending up to 100 dollars worth of assets at a time
         policy = CreatePolicyOptions(
             scope="account",
-            description="Reject over one hundred dollars",
+            description="Accept up to 100 dollars",
             rules=[
                 SendEvmTransactionRule(
-                    action="reject",
+                    action="accept",
                     criteria=[
                         NetUSDChangeCriterion(
                             changeCents=10000,
-                            operator=">",
+                            operator="<",
                         ),
                     ],
                 ),
