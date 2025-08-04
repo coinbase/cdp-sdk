@@ -25,7 +25,7 @@ import {
 } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { baseSepolia, optimismSepolia } from "viem/chains";
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import kitchenSinkAbi from "../fixtures/kitchenSinkAbi.js";
 import { SolanaAccount } from "./accounts/solana/types.js";
 import type { WaitForUserOperationReturnType } from "./actions/evm/waitForUserOperation.js";
@@ -38,7 +38,7 @@ import type {
 import type { ImportAccountOptions } from "./client/solana/solana.types.js";
 import { TimeoutError } from "./errors.js";
 import { SignEvmTransactionRule } from "./policies/evmSchema.js";
-import type { Policy } from "./policies/types.js";
+import type { CreatePolicyBody, Policy } from "./policies/types.js";
 import { SpendPermission } from "./spend-permissions/types.js";
 
 dotenv.config();
@@ -1821,6 +1821,56 @@ describe("CDP Client E2E Tests", () => {
           // Expected error
           expect(error).toBeDefined();
         }
+      });
+    });
+
+    describe.only("EVM Policies", () => {
+      let createdEvmPolicy: Policy;
+      let testEvmPolicyId: string;
+
+      afterEach(async () => {
+        await cdp.policies.deletePolicy({
+          id: testEvmPolicyId
+        })
+      })
+
+      it("should create a netUSDChange policy", async () => {
+        const policyBody = {
+          scope: "account",
+          description: "Test EVM policy netUSDChange",
+          rules: [
+            {
+              action: "reject",
+              operation: "signEvmTransaction",
+              criteria: [
+                {
+                  type: "netUSDChange",
+                  changeCents: 10000,
+                  operator: ">",
+                },
+              ],
+            },
+            {
+              action: "reject",
+              operation: "sendEvmTransaction",
+              criteria: [
+                {
+                  type: "netUSDChange",
+                  changeCents: 10000,
+                  operator: ">",
+                },
+              ],
+            },
+          ],
+        }
+        createdEvmPolicy = await cdp.policies.createPolicy({
+          policy: policyBody as CreatePolicyBody,
+        });
+
+        expect(createdEvmPolicy).toMatchObject(policyBody)
+
+        // Save the policy ID for other tests
+        testEvmPolicyId = createdEvmPolicy.id;
       });
     });
   });
