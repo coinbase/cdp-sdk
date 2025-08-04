@@ -33,75 +33,6 @@ class PoliciesClient:
         Returns:
             Policy: The created policy.
 
-        Examples:
-            Create an EVM transaction policy:
-            ```python
-            from cdp.policies.types import (
-                CreatePolicyOptions,
-                SendEvmTransactionRule,
-                EthValueCriterion,
-                EvmAddressCriterion,
-            )
-
-            evm_policy = CreatePolicyOptions(
-                scope="account",
-                description="Limit ETH transfers and block specific addresses",
-                rules=[
-                    SendEvmTransactionRule(
-                        action="reject",
-                        operation="sendEvmTransaction",
-                        criteria=[
-                            EthValueCriterion(
-                                type="ethValue",
-                                ethValue="1000000000000000000",  # 1 ETH in wei
-                                operator=">",
-                            ),
-                            EvmAddressCriterion(
-                                type="evmAddress",
-                                addresses=["0x1234567890123456789012345678901234567890"],
-                                operator="in",
-                            ),
-                        ],
-                    )
-                ],
-            )
-            policy = await client.create_policy(evm_policy)
-            ```
-
-            Create a Solana transaction policy:
-            ```python
-            from cdp.policies.types import (
-                CreatePolicyOptions,
-                SignSolanaTransactionRule,
-                SplAddressCriterion,
-                MintAddressCriterion,
-            )
-
-            solana_policy = CreatePolicyOptions(
-                scope="account",
-                description="Limits SOL transfers and SPL token operations",
-                rules=[
-                    SignSolanaTransactionRule(
-                        action="reject",
-                        operation="signSolTransaction",
-                        criteria=[
-                            SplAddressCriterion(
-                                type="splAddress",
-                                addresses=["9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"],
-                                operator="in",
-                            ),
-                            MintAddressCriterion(
-                                type="mintAddress",
-                                addresses=["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"],  # USDC mint
-                                operator="in",
-                            ),
-                        ],
-                    )
-                ],
-            )
-            policy = await client.create_policy(solana_policy)
-            ```
-
         """
         track_action(
             action="create_policy",
@@ -144,40 +75,6 @@ class PoliciesClient:
 
         Returns:
             Policy: The updated policy.
-
-        Examples:
-            Update a policy with Solana sendSolTransaction rules:
-            ```python
-            from cdp.policies.types import (
-                UpdatePolicyOptions,
-                SendSolanaTransactionRule,
-                SplValueCriterion,
-                MintAddressCriterion,
-            )
-
-            updated_policy = UpdatePolicyOptions(
-                description="Updated Solana policy",
-                rules=[
-                    SendSolanaTransactionRule(
-                        action="reject",
-                        operation="sendSolTransaction",
-                        criteria=[
-                            SplValueCriterion(
-                                type="splValue",
-                                splValue="5000000",
-                                operator=">=",
-                            ),
-                            MintAddressCriterion(
-                                type="mintAddress",
-                                addresses=["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"],
-                                operator="in",
-                            ),
-                        ],
-                    ),
-                ],
-            )
-            policy = await client.update_policy("policy-123", updated_policy)
-            ```
 
         """
         track_action(action="update_policy")
