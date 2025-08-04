@@ -238,6 +238,20 @@ const (
 	MintAddress MintAddressCriterionType = "mintAddress"
 )
 
+// Defines values for NetUSDChangeCriterionOperator.
+const (
+	NetUSDChangeCriterionOperatorEmpty      NetUSDChangeCriterionOperator = ">"
+	NetUSDChangeCriterionOperatorEqualEqual NetUSDChangeCriterionOperator = "=="
+	NetUSDChangeCriterionOperatorN1         NetUSDChangeCriterionOperator = ">="
+	NetUSDChangeCriterionOperatorN2         NetUSDChangeCriterionOperator = "<"
+	NetUSDChangeCriterionOperatorN3         NetUSDChangeCriterionOperator = "<="
+)
+
+// Defines values for NetUSDChangeCriterionType.
+const (
+	NetUSDChange NetUSDChangeCriterionType = "netUSDChange"
+)
+
 // Defines values for OnrampOrderFeeType.
 const (
 	FEETYPEEXCHANGE OnrampOrderFeeType = "FEE_TYPE_EXCHANGE"
@@ -434,11 +448,11 @@ const (
 
 // Defines values for SplValueCriterionOperator.
 const (
-	Empty      SplValueCriterionOperator = ">"
-	EqualEqual SplValueCriterionOperator = "=="
-	N1         SplValueCriterionOperator = ">="
-	N2         SplValueCriterionOperator = "<"
-	N3         SplValueCriterionOperator = "<="
+	SplValueCriterionOperatorEmpty      SplValueCriterionOperator = ">"
+	SplValueCriterionOperatorEqualEqual SplValueCriterionOperator = "=="
+	SplValueCriterionOperatorN1         SplValueCriterionOperator = ">="
+	SplValueCriterionOperatorN2         SplValueCriterionOperator = "<"
+	SplValueCriterionOperatorN3         SplValueCriterionOperator = "<="
 )
 
 // Defines values for SplValueCriterionType.
@@ -1269,6 +1283,24 @@ type MintAddressCriterionOperator string
 
 // MintAddressCriterionType The type of criterion to use. This should be `mintAddress`.
 type MintAddressCriterionType string
+
+// NetUSDChangeCriterion A schema for specifying a criterion for the USD denominated asset transfer or exposure for a transaction. This includes native transfers, as well as token transfers.
+type NetUSDChangeCriterion struct {
+	// ChangeCents The amount of USD, in cents, that the total value of a transaction's asset transfer should be compared to.
+	ChangeCents int `json:"changeCents"`
+
+	// Operator The operator to use for the comparison. The total value of a transaction's asset transfer will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side.
+	Operator NetUSDChangeCriterionOperator `json:"operator"`
+
+	// Type The type of criterion to use. This should be `netUSDChange`.
+	Type NetUSDChangeCriterionType `json:"type"`
+}
+
+// NetUSDChangeCriterionOperator The operator to use for the comparison. The total value of a transaction's asset transfer will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side.
+type NetUSDChangeCriterionOperator string
+
+// NetUSDChangeCriterionType The type of criterion to use. This should be `netUSDChange`.
+type NetUSDChangeCriterionType string
 
 // OnrampOrder An Onramp order.
 type OnrampOrder struct {
@@ -3694,6 +3726,32 @@ func (t *SendEvmTransactionCriteria_Item) MergeEvmDataCriterion(v EvmDataCriteri
 	return err
 }
 
+// AsNetUSDChangeCriterion returns the union data inside the SendEvmTransactionCriteria_Item as a NetUSDChangeCriterion
+func (t SendEvmTransactionCriteria_Item) AsNetUSDChangeCriterion() (NetUSDChangeCriterion, error) {
+	var body NetUSDChangeCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNetUSDChangeCriterion overwrites any union data inside the SendEvmTransactionCriteria_Item as the provided NetUSDChangeCriterion
+func (t *SendEvmTransactionCriteria_Item) FromNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNetUSDChangeCriterion performs a merge with any union data inside the SendEvmTransactionCriteria_Item, using the provided NetUSDChangeCriterion
+func (t *SendEvmTransactionCriteria_Item) MergeNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 func (t SendEvmTransactionCriteria_Item) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
@@ -4036,6 +4094,32 @@ func (t *SignEvmTransactionCriteria_Item) FromEvmDataCriterion(v EvmDataCriterio
 
 // MergeEvmDataCriterion performs a merge with any union data inside the SignEvmTransactionCriteria_Item, using the provided EvmDataCriterion
 func (t *SignEvmTransactionCriteria_Item) MergeEvmDataCriterion(v EvmDataCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNetUSDChangeCriterion returns the union data inside the SignEvmTransactionCriteria_Item as a NetUSDChangeCriterion
+func (t SignEvmTransactionCriteria_Item) AsNetUSDChangeCriterion() (NetUSDChangeCriterion, error) {
+	var body NetUSDChangeCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNetUSDChangeCriterion overwrites any union data inside the SignEvmTransactionCriteria_Item as the provided NetUSDChangeCriterion
+func (t *SignEvmTransactionCriteria_Item) FromNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNetUSDChangeCriterion performs a merge with any union data inside the SignEvmTransactionCriteria_Item, using the provided NetUSDChangeCriterion
+func (t *SignEvmTransactionCriteria_Item) MergeNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
