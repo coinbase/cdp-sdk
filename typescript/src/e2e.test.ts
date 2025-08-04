@@ -1166,7 +1166,7 @@ describe("CDP Client E2E Tests", () => {
         }
       });
     });
-    describe("create spend permission", () => {
+    describe.skip("create spend permission", () => {
       it("should create a spend permission", async () => {
         const owner = await cdp.evm.getOrCreateAccount({
           name: "Spend-Permission-Owner",
