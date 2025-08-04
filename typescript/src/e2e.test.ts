@@ -1830,9 +1830,9 @@ describe("CDP Client E2E Tests", () => {
 
       afterEach(async () => {
         await cdp.policies.deletePolicy({
-          id: testEvmPolicyId
-        })
-      })
+          id: testEvmPolicyId,
+        });
+      });
 
       it("should create a netUSDChange policy", async () => {
         const policyBody = {
@@ -1862,12 +1862,12 @@ describe("CDP Client E2E Tests", () => {
               ],
             },
           ],
-        }
+        };
         createdEvmPolicy = await cdp.policies.createPolicy({
           policy: policyBody as CreatePolicyBody,
         });
 
-        expect(createdEvmPolicy).toMatchObject(policyBody)
+        expect(createdEvmPolicy).toMatchObject(policyBody);
 
         // Save the policy ID for other tests
         testEvmPolicyId = createdEvmPolicy.id;
