@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.32.0
+
+### Minor Changes
+
+- [#343](https://github.com/coinbase/cdp-sdk/pull/343) [`ce09b05`](https://github.com/coinbase/cdp-sdk/commit/ce09b056690d77eab289599182f883f6df77fad7) Thanks [@sddioulde](https://github.com/sddioulde)! - Added SendSolTransaction rule and updated SignSolTransaction rule with new criteria
+
 ## 1.31.1
 
 ### Patch Changes
