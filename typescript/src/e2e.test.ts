@@ -1824,7 +1824,7 @@ describe("CDP Client E2E Tests", () => {
       });
     });
 
-    describe.only("EVM Policies", () => {
+    describe("EVM Policies", () => {
       let createdEvmPolicy: Policy;
       let testEvmPolicyId: string;
 
