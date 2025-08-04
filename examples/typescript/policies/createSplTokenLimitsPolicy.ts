@@ -4,6 +4,8 @@ import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
 
 const cdp = new CdpClient();
+
+// Create a policy that allows sending up to 1 USDC on Solana devnet
 const policy = await cdp.policies.createPolicy({
   policy: {
     scope: "account",

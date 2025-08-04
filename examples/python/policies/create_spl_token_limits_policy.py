@@ -15,6 +15,7 @@ load_dotenv()
 
 async def main():
     async with CdpClient() as cdp:
+        # Create a policy that allows sending up to 1 USDC on Solana devnet
         policy = CreatePolicyOptions(
             scope="account",
             description="SPL Token Limits Policy",
