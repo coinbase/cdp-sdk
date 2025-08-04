@@ -38,21 +38,23 @@ class TestSendEvmTransactionCriteriaInner(unittest.TestCase):
             return SendEvmTransactionCriteriaInner(
                 type = 'ethValue',
                 eth_value = '1000000000000000000',
-                operator = 'in',
+                operator = '<=',
                 addresses = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e, 0x1234567890123456789012345678901234567890],
                 networks = [base, base-sepolia],
                 abi = erc20,
-                conditions = [{function=approve}, {function=transfer, params=[{name=value, operator=<=, value=10000}, {name=to, operator=in, values=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e]}]}]
+                conditions = [{function=approve}, {function=transfer, params=[{name=value, operator=<=, value=10000}, {name=to, operator=in, values=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e]}]}],
+                change_cents = 10000
             )
         else:
             return SendEvmTransactionCriteriaInner(
                 type = 'ethValue',
                 eth_value = '1000000000000000000',
-                operator = 'in',
+                operator = '<=',
                 addresses = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e, 0x1234567890123456789012345678901234567890],
                 networks = [base, base-sepolia],
                 abi = erc20,
                 conditions = [{function=approve}, {function=transfer, params=[{name=value, operator=<=, value=10000}, {name=to, operator=in, values=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e]}]}],
+                change_cents = 10000,
         )
         """
 

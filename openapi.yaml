@@ -95,17 +95,17 @@ tags:
   - name: Onramp
     x-audience: public
     description: |-
-      <Note>Currently the v2 Onramp APIs are in private beta and only available to approved partners. [Contact us](https://calendar.app.google/BLn6fzaz2aCZGvLu7)  to get early access.</Note>
+      <Note>Currently the v2 Onramp APIs are in private beta and only available to approved partners. [Contact us](https://calendar.app.google/BLn6fzaz2aCZGvLu7) to get early access.</Note>
 
-      The v2 Onramp APIs are an evolution of our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/),  designed to make the fiat-to-crypto experience feel native to your applications for higher conversion and less friction. These APIs only cover a subset of Coinbase Onramp functionality as described below, for all other use cases please refer to our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/).
+      The v2 Onramp APIs are an evolution of our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/), designed to make the fiat-to-crypto experience feel native to your applications for higher conversion and less friction. These APIs only cover a subset of Coinbase Onramp functionality as described below, for all other use cases please refer to our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/).
 
       ## Supported Use Cases
 
       #### Apple Pay Onramp (iOS apps)
 
-      This use case allows you to offer an Apple Pay onramp experience with debit cards in your mobile app without users  needing to create or log into a Coinbase account. Our API returns a `paymentLink` URL that renders an Apple Pay  button for you to load in a webview in your app, making the onramp experience feel native to your application. 
+      This use case allows you to offer an Apple Pay onramp experience with debit cards in your mobile app without users needing to create or log into a Coinbase account. Our API returns a `paymentLink` URL that renders an Apple Pay button for you to load in a webview in your app, making the onramp experience feel native to your application.
 
-      Refer to our [detailed integration guide](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api)  for more information on the limitations and requirements of this use case. See our [onramp mobile demo app](https://github.com/coinbase/onramp-demo-mobile)  for a reference implementation.
+      Refer to our [detailed integration guide](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more information on the limitations and requirements of this use case. See our [onramp mobile demo app](https://github.com/coinbase/onramp-demo-mobile) for a reference implementation.
   - name: Payments (Alpha)
     x-audience: public
     description: |-
@@ -245,6 +245,8 @@ tags:
       A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
       #### evmData
       A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
+      #### netUSDChange
+      A criterion based on the USD denominated market value of assets being transferred, or exposing the sender to. The types of assets included in the calculation include native assets, `ERC20`, `ERC721`, and `ERC1155` tokens. The sum total USD amount of assets being transferred and exposed is compared to the criterion's `changeCents` field using the `operator` field. If signing a testnet transaction, then this criterion configuration will be ignored.
       ### SendEvmTransaction Criteria
       #### ethValue
       A criterion based on the value of the transaction. The transaction's `value` field is compared to the criterion's `ethValue` field using the `operator` field.
@@ -254,6 +256,8 @@ tags:
       A criterion based on the intended network of the transaction. The `network` field in the `sendEvmTransaction` request body is compared to the criterion's `networks` field using the `operator` field.
       #### evmData
       A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
+      #### netUSDChange
+      A criterion based on the USD denominated market value of assets being transferred, or exposing the sender to. The types of assets included in the calculation include native assets, `ERC20`, `ERC721`, and `ERC1155` tokens. The sum total USD amount of assets being transferred and exposed is compared to the criterion's `changeCents` field using the `operator` field. If sending a testnet transaction, then this criterion configuration will be ignored.
       ### SendUserOperation Criteria
       #### ethValue
       A criterion based on the value of the user operation. The operation's `value` fields are compared to the criterion's `ethValue` field using the `operator` field.
@@ -303,6 +307,36 @@ tags:
       - Fund transfers - Contract upgrades - Parameter modifications - Emergency pauses
       Policy Engine supports such restrictions that evaluate against transaction data with the `evmData` criterion for the `signEvmTransaction`, and `sendEvmTransaction` operations.
       ## Examples
+      ### USD Limits
+      The following example demonstrates a policy that only allows transactions to transfer, or expose the sender to, less than $100.00 worth of assets at a time. This USD denominated amount includes native assets, `ERC20`, `ERC721`, and `ERC1155` tokens calculated using current market prices.
+      ```json {
+        "scope": "account",
+        "description": "Reject assets out over 100 USD",
+        "rules": [
+          {
+            "action": "reject",
+            "operation": "sendEvmTransaction",
+            "criteria": [
+              {
+                "type": "netUSDChange",
+                "changeCents": 10000,
+                "operator": ">",
+              },
+            ],
+          },
+          {
+            "action": "reject",
+            "operation": "signEvmTransaction",
+            "criteria": [
+              {
+                "type": "netUSDChange",
+                "changeCents": 10000,
+                "operator": ">",
+              },
+            ],
+          },
+        ],
+      } ```
       ### Limiting USDC Spend
       This policy restricts USDC transactions on the Base network to transfers of 10,000 tokens or less. It applies to both signing and sending transactions to the USDC contract address, using the ERC20 ABI to validate that only `transfer` function calls with a `value` parameter under the specified limit are permitted.
       ```json {
@@ -6343,6 +6377,34 @@ components:
         - type
         - abi
         - conditions
+    NetUSDChangeCriterion:
+      type: object
+      description: A schema for specifying a criterion for the USD denominated asset transfer or exposure for a transaction. This includes native transfers, as well as token transfers.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `netUSDChange`.
+          example: netUSDChange
+          enum:
+            - netUSDChange
+        changeCents:
+          type: integer
+          description: The amount of USD, in cents, that the total value of a transaction's asset transfer should be compared to.
+          example: 10000
+        operator:
+          type: string
+          description: The operator to use for the comparison. The total value of a transaction's asset transfer will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side.
+          enum:
+            - '>'
+            - '>='
+            - <
+            - <=
+            - '=='
+          example: <=
+      required:
+        - type
+        - changeCents
+        - operator
     SignEvmTransactionCriteria:
       type: array
       description: A schema for specifying criteria for the SignEvmTransaction operation.
@@ -6351,6 +6413,7 @@ components:
           - $ref: '#/components/schemas/EthValueCriterion'
           - $ref: '#/components/schemas/EvmAddressCriterion'
           - $ref: '#/components/schemas/EvmDataCriterion'
+          - $ref: '#/components/schemas/NetUSDChangeCriterion'
       example:
         - type: ethValue
           ethValue: '1000000'
@@ -6425,6 +6488,7 @@ components:
           - $ref: '#/components/schemas/EvmAddressCriterion'
           - $ref: '#/components/schemas/EvmNetworkCriterion'
           - $ref: '#/components/schemas/EvmDataCriterion'
+          - $ref: '#/components/schemas/NetUSDChangeCriterion'
       example:
         - type: ethValue
           ethValue: '1000000'

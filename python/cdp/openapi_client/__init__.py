@@ -113,6 +113,7 @@ from cdp.openapi_client.models.list_solana_token_balances200_response import Lis
 from cdp.openapi_client.models.list_solana_token_balances_network import ListSolanaTokenBalancesNetwork
 from cdp.openapi_client.models.list_spend_permissions200_response import ListSpendPermissions200Response
 from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterion
+from cdp.openapi_client.models.net_usd_change_criterion import NetUSDChangeCriterion
 from cdp.openapi_client.models.onramp_order import OnrampOrder
 from cdp.openapi_client.models.onramp_order_fee import OnrampOrderFee
 from cdp.openapi_client.models.onramp_order_status import OnrampOrderStatus
@@ -126,6 +127,7 @@ from cdp.openapi_client.models.payment_method_limits_target_limit import Payment
 from cdp.openapi_client.models.payment_method_request import PaymentMethodRequest
 from cdp.openapi_client.models.payment_rail_action import PaymentRailAction
 from cdp.openapi_client.models.policy import Policy
+from cdp.openapi_client.models.prepare_user_operation_criteria_inner import PrepareUserOperationCriteriaInner
 from cdp.openapi_client.models.prepare_user_operation_request import PrepareUserOperationRequest
 from cdp.openapi_client.models.prepare_user_operation_rule import PrepareUserOperationRule
 from cdp.openapi_client.models.request_evm_faucet200_response import RequestEvmFaucet200Response
@@ -141,6 +143,7 @@ from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransacti
 from cdp.openapi_client.models.send_sol_transaction_rule import SendSolTransactionRule
 from cdp.openapi_client.models.send_solana_transaction200_response import SendSolanaTransaction200Response
 from cdp.openapi_client.models.send_solana_transaction_request import SendSolanaTransactionRequest
+from cdp.openapi_client.models.send_user_operation_criteria_inner import SendUserOperationCriteriaInner
 from cdp.openapi_client.models.send_user_operation_request import SendUserOperationRequest
 from cdp.openapi_client.models.send_user_operation_rule import SendUserOperationRule
 from cdp.openapi_client.models.sign_evm_hash200_response import SignEvmHash200Response

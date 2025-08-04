@@ -931,10 +931,49 @@ export interface EvmDataCriterion {
   conditions: EvmDataCondition[];
 }
 
+/**
+ * The type of criterion to use. This should be `netUSDChange`.
+ */
+export type NetUSDChangeCriterionType =
+  (typeof NetUSDChangeCriterionType)[keyof typeof NetUSDChangeCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const NetUSDChangeCriterionType = {
+  netUSDChange: "netUSDChange",
+} as const;
+
+/**
+ * The operator to use for the comparison. The total value of a transaction's asset transfer will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side.
+ */
+export type NetUSDChangeCriterionOperator =
+  (typeof NetUSDChangeCriterionOperator)[keyof typeof NetUSDChangeCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const NetUSDChangeCriterionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * A schema for specifying a criterion for the USD denominated asset transfer or exposure for a transaction. This includes native transfers, as well as token transfers.
+ */
+export interface NetUSDChangeCriterion {
+  /** The type of criterion to use. This should be `netUSDChange`. */
+  type: NetUSDChangeCriterionType;
+  /** The amount of USD, in cents, that the total value of a transaction's asset transfer should be compared to. */
+  changeCents: number;
+  /** The operator to use for the comparison. The total value of a transaction's asset transfer will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side. */
+  operator: NetUSDChangeCriterionOperator;
+}
+
 export type SignEvmTransactionCriteriaItem =
   | EthValueCriterion
   | EvmAddressCriterion
-  | EvmDataCriterion;
+  | EvmDataCriterion
+  | NetUSDChangeCriterion;
 
 /**
  * A schema for specifying criteria for the SignEvmTransaction operation.
@@ -1023,7 +1062,8 @@ export type SendEvmTransactionCriteriaItem =
   | EthValueCriterion
   | EvmAddressCriterion
   | EvmNetworkCriterion
-  | EvmDataCriterion;
+  | EvmDataCriterion
+  | NetUSDChangeCriterion;
 
 /**
  * A schema for specifying criteria for the SignEvmTransaction operation.
