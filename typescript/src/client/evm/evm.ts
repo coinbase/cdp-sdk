@@ -74,6 +74,7 @@ import {
   EIP712Message as OpenAPIEIP712Message,
 } from "../../openapi-client/index.js";
 import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
+import { resolveTokenAddress } from "../../spend-permissions/utils.js";
 import { Hex } from "../../types/misc.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
@@ -362,12 +363,12 @@ export class EvmClient implements EvmClientInterface {
       options.spendPermission.account,
       {
         spender: options.spendPermission.spender,
-        token: options.spendPermission.token,
+        token: resolveTokenAddress(options.spendPermission.token, options.network),
         allowance: options.spendPermission.allowance.toString(),
         period: options.spendPermission.period.toString(),
         start: options.spendPermission.start.toString(),
         end: options.spendPermission.end.toString(),
-        salt: options.spendPermission.salt.toString(),
+        salt: options.spendPermission.salt?.toString(),
         extraData: options.spendPermission.extraData,
         network: options.network,
         paymasterUrl: options.paymasterUrl,

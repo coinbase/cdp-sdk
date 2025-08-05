@@ -1,5 +1,6 @@
 import { encodeFunctionData } from "viem";
 
+import { resolveSpendPermission } from "./resolveSpendPermission.js";
 import {
   SPEND_PERMISSION_MANAGER_ABI,
   SPEND_PERMISSION_MANAGER_ADDRESS,
@@ -28,7 +29,9 @@ export async function useSpendPermission(
   address: Address,
   options: UseSpendPermissionOptions,
 ): Promise<TransactionResult> {
-  const { spendPermission, value, network } = options;
+  const { spendPermission: _spendPermission, value, network } = options;
+
+  const spendPermission = resolveSpendPermission(_spendPermission, network);
 
   const result = await apiClient.sendEvmTransaction(address, {
     transaction: serializeEIP1559Transaction({
