@@ -43,3 +43,5 @@ jobs:
         run: |
           pnpm run prepublish
           pnpm publish --recursive --no-git-checks --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
