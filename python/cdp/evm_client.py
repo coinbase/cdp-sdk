@@ -53,7 +53,7 @@ from cdp.update_smart_account_types import UpdateSmartAccountOptions
 
 if TYPE_CHECKING:
     from cdp.actions.evm.swap.types import QuoteSwapResult, SwapPriceResult, SwapUnavailableResult
-    from cdp.spend_permissions import SpendPermission
+    from cdp.spend_permissions import SpendPermissionInput
 
 
 class EvmClient:
@@ -269,7 +269,7 @@ class EvmClient:
 
     async def create_spend_permission(
         self,
-        spend_permission: "SpendPermission",
+        spend_permission: "SpendPermissionInput",
         network: str,
         paymaster_url: str | None = None,
         idempotency_key: str | None = None,
@@ -277,7 +277,7 @@ class EvmClient:
         """Create a spend permission for a smart account.
 
         Args:
-            spend_permission (SpendPermission): The spend permission to create.
+            spend_permission (SpendPermissionInput): The spend permission to create.
             network (str): The network of the spend permission.
             paymaster_url (str | None): Optional paymaster URL for gas sponsorship.
             idempotency_key (str | None): Optional idempotency key.
@@ -286,18 +286,17 @@ class EvmClient:
             EvmUserOperationModel: The user operation to approve the spend permission.
 
         Examples:
-            >>> from cdp.spend_permissions import SpendPermission
+            >>> from cdp.spend_permissions import SpendPermissionInput
+            >>> from cdp.utils import parse_units
             >>>
-            >>> spend_permission = SpendPermission(
-            ...     account=smart_account.address,
+            >>> spend_permission = SpendPermissionInput(
+            ...     account=grantor.address,
             ...     spender=spender.address,
-            ...     token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-            ...     allowance=10**18,  # 1 ETH
+            ...     token="usdc",
+            ...     allowance=parse_units("0.01", 6),
             ...     period=86400,  # 1 day
             ...     start=0,
             ...     end=281474976710655,
-            ...     salt=0,
-            ...     extra_data="0x",
             ... )
             >>>
             >>> user_operation = await cdp.evm.create_spend_permission(
@@ -309,20 +308,26 @@ class EvmClient:
         from cdp.openapi_client.models.create_spend_permission_request import (
             CreateSpendPermissionRequest,
         )
+        from cdp.spend_permissions.utils import resolve_spend_permission
 
         track_action(action="create_spend_permission")
 
+        # Resolve the spend permission input to a full spend permission
+        resolved_permission = resolve_spend_permission(spend_permission, network)
+
         return await self.api_clients.evm_smart_accounts.create_spend_permission(
-            address=spend_permission.account,
+            address=resolved_permission.account,
             create_spend_permission_request=CreateSpendPermissionRequest(
-                spender=spend_permission.spender,
-                token=spend_permission.token,
-                allowance=str(spend_permission.allowance),
-                period=str(spend_permission.period),
-                start=str(spend_permission.start),
-                end=str(spend_permission.end),
-                salt=str(spend_permission.salt),
-                extra_data=spend_permission.extra_data,
+                spender=resolved_permission.spender,
+                token=resolved_permission.token,
+                allowance=str(resolved_permission.allowance),
+                period=str(resolved_permission.period),
+                start=str(resolved_permission.start),
+                end=str(resolved_permission.end),
+                salt=str(resolved_permission.salt)
+                if resolved_permission.salt is not None
+                else None,
+                extra_data=resolved_permission.extra_data,
                 network=network,
                 paymaster_url=paymaster_url,
             ),

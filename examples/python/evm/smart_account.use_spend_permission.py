@@ -1,9 +1,11 @@
 # Usage: uv run python evm/smart_account.use_spend_permission.py
 
 import asyncio
+import sys
 
 from cdp import CdpClient
-from cdp.spend_permissions import SpendPermission
+from cdp.spend_permissions import SpendPermissionInput
+from cdp.utils import parse_units
 
 from dotenv import load_dotenv
 
@@ -14,37 +16,40 @@ async def main():
     """Main function to demonstrate using a spend permission with a smart account."""
     async with CdpClient() as cdp:
         # Create accounts for the example
-        master_owner = await cdp.evm.get_or_create_account(
-            name="Demo-SpendPermissions-Master-Owner"
-        )
-        master = await cdp.evm.get_or_create_smart_account(
-            name="Demo-SpendPermissions-Master",
-            owner=master_owner,
+        account = await cdp.evm.get_or_create_smart_account(
+            name="Demo-SpendPermissions-Account",
+            owner=await cdp.evm.get_or_create_account(
+                name="Demo-SpendPermissions-Account-Owner"
+            ),
             __experimental_enable_spend_permission__=True,
         )
 
-        spender_owner = await cdp.evm.get_or_create_account(
-            name="Demo-SpendPermissions-Spender-Owner"
-        )
         spender = await cdp.evm.get_or_create_smart_account(
             name="Demo-SpendPermissions-Spender",
-            owner=spender_owner,
+            owner=await cdp.evm.get_or_create_account(
+                name="Demo-SpendPermissions-Spender-Owner",
+            ),
         )
 
-        print(f"Master account: {master.address}")
+        print(f"Account: {account.address}")
         print(f"Spender account: {spender.address}")
 
+        # Fund the grantor with USDC if --faucet flag is provided
+        if "--faucet" in sys.argv:
+            await account.request_faucet(
+                network="base-sepolia",
+                token="usdc",
+            )
+
         # Create a spend permission
-        spend_permission = SpendPermission(
-            account=master.address,
+        spend_permission = SpendPermissionInput(
+            account=account.address,
             spender=spender.address,
-            token="0x036CbD53842c5426634e7929541eC2318f3dCF7e",  # USDC on base-sepolia
-            allowance=10000,  # 0.01 USDC (USDC has 6 decimals)
+            token="usdc",  # USDC on base-sepolia
+            allowance=parse_units("0.01", 6),  # 0.01 USDC
             period=86400,  # 1 day in seconds
             start=0,  # Start immediately
             end=281474976710655,  # Max uint48 (effectively no end)
-            salt=0,
-            extra_data="0x",
         )
 
         # Create the spend permission on-chain
@@ -58,7 +63,7 @@ async def main():
 
         # Wait for the user operation to complete
         result = await cdp.evm.wait_for_user_operation(
-            smart_account_address=master.address,
+            smart_account_address=account.address,
             user_op_hash=user_operation.user_op_hash,
         )
         print(f"User operation completed with status: {result.status}")
@@ -71,7 +76,7 @@ async def main():
         # Use the spend permission
         spend_result = await spender.__experimental_use_spend_permission__(
             spend_permission=spend_permission,
-            value=10000,  # 0.01 USDC
+            value=parse_units("0.005", 6),  # Spend 0.005 USDC
             network="base-sepolia",
         )
 

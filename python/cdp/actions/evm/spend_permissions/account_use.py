@@ -6,13 +6,14 @@ from cdp.actions.evm.send_transaction import send_transaction
 from cdp.api_clients import ApiClients
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.spend_permissions import SPEND_PERMISSION_MANAGER_ABI, SPEND_PERMISSION_MANAGER_ADDRESS
-from cdp.spend_permissions.types import SpendPermission
+from cdp.spend_permissions.types import SpendPermissionInput
+from cdp.spend_permissions.utils import resolve_spend_permission
 
 
 async def account_use_spend_permission(
     api_clients: ApiClients,
     address: str,
-    spend_permission: SpendPermission,
+    spend_permission: SpendPermissionInput,
     value: int,
     network: str,
 ) -> str:
@@ -21,7 +22,7 @@ async def account_use_spend_permission(
     Args:
         api_clients (ApiClients): The API client to use.
         address (str): The address of the account to use the spend permission on.
-        spend_permission (SpendPermission): The spend permission to use.
+        spend_permission (SpendPermissionInput): The spend permission to use.
         value (int): The amount to spend (must be <= allowance).
         network (str): The network to execute the transaction on.
 
@@ -29,6 +30,9 @@ async def account_use_spend_permission(
         Hash: The transaction hash of the spend permission.
 
     """
+    # Resolve the spend permission input to a full spend permission
+    resolved_permission = resolve_spend_permission(spend_permission, network)
+
     # Encode the function call data using web3.py
     w3 = Web3()
     contract = w3.eth.contract(
@@ -37,17 +41,17 @@ async def account_use_spend_permission(
 
     # Convert SpendPermission to a tuple matching the contract's struct
     permission_tuple = (
-        spend_permission.account,
-        spend_permission.spender,
-        spend_permission.token,
-        spend_permission.allowance,
-        spend_permission.period,
-        spend_permission.start,
-        spend_permission.end,
-        spend_permission.salt,
-        bytes.fromhex(spend_permission.extra_data[2:])
-        if spend_permission.extra_data.startswith("0x")
-        else bytes.fromhex(spend_permission.extra_data),
+        resolved_permission.account,
+        resolved_permission.spender,
+        resolved_permission.token,
+        resolved_permission.allowance,
+        resolved_permission.period,
+        resolved_permission.start,
+        resolved_permission.end,
+        resolved_permission.salt,
+        bytes.fromhex(resolved_permission.extra_data[2:])
+        if resolved_permission.extra_data.startswith("0x")
+        else bytes.fromhex(resolved_permission.extra_data),
     )
 
     encoded_data = contract.encode_abi("spend", args=[permission_tuple, value])

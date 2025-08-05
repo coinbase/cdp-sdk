@@ -10,6 +10,8 @@ from cdp.spend_permissions import (
     SPEND_PERMISSION_MANAGER_ABI,
     SPEND_PERMISSION_MANAGER_ADDRESS,
     SpendPermission,
+    SpendPermissionInput,
+    SpendPermissionNetworks,
 )
 from cdp.update_account_types import UpdateAccountOptions
 from cdp.utils import parse_units
@@ -25,6 +27,8 @@ __all__ = [
     "HttpErrorType",
     "NetworkError",
     "SpendPermission",
+    "SpendPermissionInput",
+    "SpendPermissionNetworks",
     "SPEND_PERMISSION_MANAGER_ADDRESS",
     "SPEND_PERMISSION_MANAGER_ABI",
     "TransactionRequestEIP1559",
