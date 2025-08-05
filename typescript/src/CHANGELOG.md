@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.33.0
+
+### Minor Changes
+
+- [#355](https://github.com/coinbase/cdp-sdk/pull/355) [`07bb282`](https://github.com/coinbase/cdp-sdk/commit/07bb2822671b7592987e1bdb7a52015a78ff5d1d) Thanks [@sammccord](https://github.com/sammccord)! - Added netUSDChange to sign/sendEvmTransaction policy rules
+
 ## 1.32.0
 
 ### Minor Changes
