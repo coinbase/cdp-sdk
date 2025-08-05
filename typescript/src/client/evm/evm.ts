@@ -361,7 +361,6 @@ export class EvmClient implements EvmClientInterface {
     const userOperation = await CdpOpenApiClient.createSpendPermission(
       options.spendPermission.account,
       {
-        account: options.spendPermission.account,
         spender: options.spendPermission.spender,
         token: options.spendPermission.token,
         allowance: options.spendPermission.allowance.toString(),

@@ -18,41 +18,18 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Any, ClassVar, Dict, List, Optional
+from cdp.openapi_client.models.onchain_data_result_schema_columns_inner import OnchainDataResultSchemaColumnsInner
 from typing import Optional, Set
 from typing_extensions import Self
 
-class EvmNetworkCriterion(BaseModel):
+class OnchainDataResultSchema(BaseModel):
     """
-    A schema for specifying a criterion for the intended `network` of an EVM transaction.
+    Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table. 
     """ # noqa: E501
-    type: StrictStr = Field(description="The type of criterion to use. This should be `evmNetwork`.")
-    networks: List[StrictStr] = Field(description="A list of EVM network identifiers that the transaction's intended `network` should be compared to.")
-    operator: StrictStr = Field(description="The operator to use for the comparison. The transaction's intended `network` will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.")
-    __properties: ClassVar[List[str]] = ["type", "networks", "operator"]
-
-    @field_validator('type')
-    def type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['evmNetwork']):
-            raise ValueError("must be one of enum values ('evmNetwork')")
-        return value
-
-    @field_validator('networks')
-    def networks_validate_enum(cls, value):
-        """Validates the enum"""
-        for i in value:
-            if i not in set(['base-sepolia', 'base', 'ethereum', 'ethereum-sepolia', 'avalanche', 'polygon', 'optimism', 'arbitrum', 'zora', 'bnb']):
-                raise ValueError("each list item must be one of ('base-sepolia', 'base', 'ethereum', 'ethereum-sepolia', 'avalanche', 'polygon', 'optimism', 'arbitrum', 'zora', 'bnb')")
-        return value
-
-    @field_validator('operator')
-    def operator_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['in', 'not in']):
-            raise ValueError("must be one of enum values ('in', 'not in')")
-        return value
+    columns: Optional[List[OnchainDataResultSchemaColumnsInner]] = Field(default=None, description="Column definitions.")
+    __properties: ClassVar[List[str]] = ["columns"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -72,7 +49,7 @@ class EvmNetworkCriterion(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of EvmNetworkCriterion from a JSON string"""
+        """Create an instance of OnchainDataResultSchema from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -93,11 +70,18 @@ class EvmNetworkCriterion(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of each item in columns (list)
+        _items = []
+        if self.columns:
+            for _item_columns in self.columns:
+                if _item_columns:
+                    _items.append(_item_columns.to_dict())
+            _dict['columns'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of EvmNetworkCriterion from a dict"""
+        """Create an instance of OnchainDataResultSchema from a dict"""
         if obj is None:
             return None
 
@@ -105,9 +89,7 @@ class EvmNetworkCriterion(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "type": obj.get("type"),
-            "networks": obj.get("networks"),
-            "operator": obj.get("operator")
+            "columns": [OnchainDataResultSchemaColumnsInner.from_dict(_item) for _item in obj["columns"]] if obj.get("columns") is not None else None
         })
         return _obj
 

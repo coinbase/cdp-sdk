@@ -68,6 +68,7 @@ const (
 	ErrorTypeInternalServerError            ErrorType = "internal_server_error"
 	ErrorTypeInvalidRequest                 ErrorType = "invalid_request"
 	ErrorTypeInvalidSignature               ErrorType = "invalid_signature"
+	ErrorTypeInvalidSqlQuery                ErrorType = "invalid_sql_query"
 	ErrorTypeMalformedTransaction           ErrorType = "malformed_transaction"
 	ErrorTypeNetworkNotTradable             ErrorType = "network_not_tradable"
 	ErrorTypeNotFound                       ErrorType = "not_found"
@@ -134,8 +135,16 @@ const (
 
 // Defines values for EvmNetworkCriterionNetworks.
 const (
-	EvmNetworkCriterionNetworksBase        EvmNetworkCriterionNetworks = "base"
-	EvmNetworkCriterionNetworksBaseSepolia EvmNetworkCriterionNetworks = "base-sepolia"
+	EvmNetworkCriterionNetworksArbitrum        EvmNetworkCriterionNetworks = "arbitrum"
+	EvmNetworkCriterionNetworksAvalanche       EvmNetworkCriterionNetworks = "avalanche"
+	EvmNetworkCriterionNetworksBase            EvmNetworkCriterionNetworks = "base"
+	EvmNetworkCriterionNetworksBaseSepolia     EvmNetworkCriterionNetworks = "base-sepolia"
+	EvmNetworkCriterionNetworksBnb             EvmNetworkCriterionNetworks = "bnb"
+	EvmNetworkCriterionNetworksEthereum        EvmNetworkCriterionNetworks = "ethereum"
+	EvmNetworkCriterionNetworksEthereumSepolia EvmNetworkCriterionNetworks = "ethereum-sepolia"
+	EvmNetworkCriterionNetworksOptimism        EvmNetworkCriterionNetworks = "optimism"
+	EvmNetworkCriterionNetworksPolygon         EvmNetworkCriterionNetworks = "polygon"
+	EvmNetworkCriterionNetworksZora            EvmNetworkCriterionNetworks = "zora"
 )
 
 // Defines values for EvmNetworkCriterionOperator.
@@ -250,6 +259,30 @@ const (
 // Defines values for NetUSDChangeCriterionType.
 const (
 	NetUSDChange NetUSDChangeCriterionType = "netUSDChange"
+)
+
+// Defines values for OnchainDataResultSchemaColumnsType.
+const (
+	Bool       OnchainDataResultSchemaColumnsType = "Bool"
+	Date       OnchainDataResultSchemaColumnsType = "Date"
+	DateTime   OnchainDataResultSchemaColumnsType = "DateTime"
+	DateTime64 OnchainDataResultSchemaColumnsType = "DateTime64"
+	Float32    OnchainDataResultSchemaColumnsType = "Float32"
+	Float64    OnchainDataResultSchemaColumnsType = "Float64"
+	Int128     OnchainDataResultSchemaColumnsType = "Int128"
+	Int16      OnchainDataResultSchemaColumnsType = "Int16"
+	Int256     OnchainDataResultSchemaColumnsType = "Int256"
+	Int32      OnchainDataResultSchemaColumnsType = "Int32"
+	Int64      OnchainDataResultSchemaColumnsType = "Int64"
+	Int8       OnchainDataResultSchemaColumnsType = "Int8"
+	String     OnchainDataResultSchemaColumnsType = "String"
+	UInt128    OnchainDataResultSchemaColumnsType = "UInt128"
+	UInt16     OnchainDataResultSchemaColumnsType = "UInt16"
+	UInt256    OnchainDataResultSchemaColumnsType = "UInt256"
+	UInt32     OnchainDataResultSchemaColumnsType = "UInt32"
+	UInt64     OnchainDataResultSchemaColumnsType = "UInt64"
+	UInt8      OnchainDataResultSchemaColumnsType = "UInt8"
+	UUID       OnchainDataResultSchemaColumnsType = "UUID"
 )
 
 // Defines values for OnrampOrderFeeType.
@@ -678,9 +711,6 @@ type CommonSwapResponseLiquidityAvailable bool
 
 // CreateSpendPermissionRequest defines model for CreateSpendPermissionRequest.
 type CreateSpendPermissionRequest struct {
-	// Account Smart account this spend permission is valid for.
-	Account string `json:"account"`
-
 	// Allowance Maximum allowed value to spend, in atomic units for the specified token, within each period.
 	Allowance string `json:"allowance"`
 
@@ -1301,6 +1331,45 @@ type NetUSDChangeCriterionOperator string
 
 // NetUSDChangeCriterionType The type of criterion to use. This should be `netUSDChange`.
 type NetUSDChangeCriterionType string
+
+// OnchainDataQuery Request to execute a SQL query against indexed blockchain data.
+type OnchainDataQuery struct {
+	// Sql SQL query to execute against the indexed blockchain data.
+	Sql string `json:"sql"`
+}
+
+// OnchainDataResult Result of executing a SQL query.
+type OnchainDataResult struct {
+	// Metadata Metadata about query execution.
+	Metadata *struct {
+		// Cached Whether the result was served from cache.
+		Cached *bool `json:"cached,omitempty"`
+
+		// ExecutionTimeMs Query execution time in milliseconds.
+		ExecutionTimeMs *int `json:"executionTimeMs,omitempty"`
+
+		// RowCount Number of rows returned.
+		RowCount *int `json:"rowCount,omitempty"`
+	} `json:"metadata,omitempty"`
+
+	// Result Query result as an array of objects representing rows.
+	Result *[]map[string]interface{} `json:"result,omitempty"`
+
+	// Schema Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
+	Schema *struct {
+		// Columns Column definitions.
+		Columns *[]struct {
+			// Name Column name.
+			Name *string `json:"name,omitempty"`
+
+			// Type Column data type (ClickHouse types).
+			Type *OnchainDataResultSchemaColumnsType `json:"type,omitempty"`
+		} `json:"columns,omitempty"`
+	} `json:"schema,omitempty"`
+}
+
+// OnchainDataResultSchemaColumnsType Column data type (ClickHouse types).
+type OnchainDataResultSchemaColumnsType string
 
 // OnrampOrder An Onramp order.
 type OnrampOrder struct {
@@ -2123,6 +2192,9 @@ type IdempotencyError = Error
 // InternalServerError An error response including the code for the type of error and a human-readable message describing the error.
 type InternalServerError = Error
 
+// InvalidSQLQueryError An error response including the code for the type of error and a human-readable message describing the error.
+type InvalidSQLQueryError = Error
+
 // PaymentMethodRequiredError An error response including the code for the type of error and a human-readable message describing the error.
 type PaymentMethodRequiredError = Error
 
@@ -2131,6 +2203,9 @@ type RateLimitExceeded = Error
 
 // ServiceUnavailableError An error response including the code for the type of error and a human-readable message describing the error.
 type ServiceUnavailableError = Error
+
+// TimedOutError An error response including the code for the type of error and a human-readable message describing the error.
+type TimedOutError = Error
 
 // UnauthorizedError An error response including the code for the type of error and a human-readable message describing the error.
 type UnauthorizedError = Error
@@ -2860,6 +2935,9 @@ type ListSolanaTokenBalancesParams struct {
 	// PageToken The token for the next page of balances. Will be empty if there are no more balances to fetch.
 	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
+
+// RunSQLQueryJSONRequestBody defines body for RunSQLQuery for application/json ContentType.
+type RunSQLQueryJSONRequestBody = OnchainDataQuery
 
 // CreateEvmAccountJSONRequestBody defines body for CreateEvmAccount for application/json ContentType.
 type CreateEvmAccountJSONRequestBody CreateEvmAccountJSONBody
@@ -4647,6 +4725,11 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// RunSQLQueryWithBody request with any body
+	RunSQLQueryWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RunSQLQuery(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListEvmAccounts request
 	ListEvmAccounts(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -4867,6 +4950,30 @@ type ClientInterface interface {
 
 	// ListSolanaTokenBalances request
 	ListSolanaTokenBalances(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *CDPClient) RunSQLQueryWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRunSQLQueryRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RunSQLQuery(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRunSQLQueryRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *CDPClient) ListEvmAccounts(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5875,6 +5982,46 @@ func (c *CDPClient) ListSolanaTokenBalances(ctx context.Context, network ListSol
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewRunSQLQueryRequest calls the generic RunSQLQuery builder with application/json body
+func NewRunSQLQueryRequest(server string, body RunSQLQueryJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRunSQLQueryRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRunSQLQueryRequestWithBody generates requests for RunSQLQuery with any type of body
+func NewRunSQLQueryRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/data/query/run")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
 }
 
 // NewListEvmAccountsRequest generates requests for ListEvmAccounts
@@ -9011,6 +9158,11 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// RunSQLQueryWithBodyWithResponse request with any body
+	RunSQLQueryWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error)
+
+	RunSQLQueryWithResponse(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error)
+
 	// ListEvmAccountsWithResponse request
 	ListEvmAccountsWithResponse(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*ListEvmAccountsResponse, error)
 
@@ -9231,6 +9383,34 @@ type ClientWithResponsesInterface interface {
 
 	// ListSolanaTokenBalancesWithResponse request
 	ListSolanaTokenBalancesWithResponse(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListSolanaTokenBalancesResponse, error)
+}
+
+type RunSQLQueryResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *OnchainDataResult
+	JSON400      *InvalidSQLQueryError
+	JSON401      *UnauthorizedError
+	JSON408      *Error
+	JSON429      *Error
+	JSON500      *InternalServerError
+	JSON504      *TimedOutError
+}
+
+// Status returns HTTPResponse.Status
+func (r RunSQLQueryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RunSQLQueryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type ListEvmAccountsResponse struct {
@@ -10825,6 +11005,23 @@ func (r ListSolanaTokenBalancesResponse) StatusCode() int {
 	return 0
 }
 
+// RunSQLQueryWithBodyWithResponse request with arbitrary body returning *RunSQLQueryResponse
+func (c *ClientWithResponses) RunSQLQueryWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error) {
+	rsp, err := c.RunSQLQueryWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRunSQLQueryResponse(rsp)
+}
+
+func (c *ClientWithResponses) RunSQLQueryWithResponse(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error) {
+	rsp, err := c.RunSQLQuery(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRunSQLQueryResponse(rsp)
+}
+
 // ListEvmAccountsWithResponse request returning *ListEvmAccountsResponse
 func (c *ClientWithResponses) ListEvmAccountsWithResponse(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*ListEvmAccountsResponse, error) {
 	rsp, err := c.ListEvmAccounts(ctx, params, reqEditors...)
@@ -11548,6 +11745,74 @@ func (c *ClientWithResponses) ListSolanaTokenBalancesWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseListSolanaTokenBalancesResponse(rsp)
+}
+
+// ParseRunSQLQueryResponse parses an HTTP response from a RunSQLQueryWithResponse call
+func ParseRunSQLQueryResponse(rsp *http.Response) (*RunSQLQueryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RunSQLQueryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OnchainDataResult
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest InvalidSQLQueryError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 408:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON408 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest TimedOutError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseListEvmAccountsResponse parses an HTTP response from a ListEvmAccountsWithResponse call

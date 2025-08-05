@@ -180,7 +180,18 @@ export const getListPoliciesResponseEvmNetworkCriterionMock = (
 ): EvmNetworkCriterion => ({
   ...{
     type: faker.helpers.arrayElement(["evmNetwork"] as const),
-    networks: faker.helpers.arrayElements(["base-sepolia", "base"] as const),
+    networks: faker.helpers.arrayElements([
+      "base-sepolia",
+      "base",
+      "ethereum",
+      "ethereum-sepolia",
+      "avalanche",
+      "polygon",
+      "optimism",
+      "arbitrum",
+      "zora",
+      "bnb",
+    ] as const),
     operator: faker.helpers.arrayElement(["in", "not in"] as const),
   },
   ...overrideResponse,
@@ -618,7 +629,18 @@ export const getCreatePolicyResponseEvmNetworkCriterionMock = (
 ): EvmNetworkCriterion => ({
   ...{
     type: faker.helpers.arrayElement(["evmNetwork"] as const),
-    networks: faker.helpers.arrayElements(["base-sepolia", "base"] as const),
+    networks: faker.helpers.arrayElements([
+      "base-sepolia",
+      "base",
+      "ethereum",
+      "ethereum-sepolia",
+      "avalanche",
+      "polygon",
+      "optimism",
+      "arbitrum",
+      "zora",
+      "bnb",
+    ] as const),
     operator: faker.helpers.arrayElement(["in", "not in"] as const),
   },
   ...overrideResponse,
@@ -1047,7 +1069,18 @@ export const getGetPolicyByIdResponseEvmNetworkCriterionMock = (
 ): EvmNetworkCriterion => ({
   ...{
     type: faker.helpers.arrayElement(["evmNetwork"] as const),
-    networks: faker.helpers.arrayElements(["base-sepolia", "base"] as const),
+    networks: faker.helpers.arrayElements([
+      "base-sepolia",
+      "base",
+      "ethereum",
+      "ethereum-sepolia",
+      "avalanche",
+      "polygon",
+      "optimism",
+      "arbitrum",
+      "zora",
+      "bnb",
+    ] as const),
     operator: faker.helpers.arrayElement(["in", "not in"] as const),
   },
   ...overrideResponse,
@@ -1476,7 +1509,18 @@ export const getUpdatePolicyResponseEvmNetworkCriterionMock = (
 ): EvmNetworkCriterion => ({
   ...{
     type: faker.helpers.arrayElement(["evmNetwork"] as const),
-    networks: faker.helpers.arrayElements(["base-sepolia", "base"] as const),
+    networks: faker.helpers.arrayElements([
+      "base-sepolia",
+      "base",
+      "ethereum",
+      "ethereum-sepolia",
+      "avalanche",
+      "polygon",
+      "optimism",
+      "arbitrum",
+      "zora",
+      "bnb",
+    ] as const),
     operator: faker.helpers.arrayElement(["in", "not in"] as const),
   },
   ...overrideResponse,

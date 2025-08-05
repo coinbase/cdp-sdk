@@ -92,6 +92,21 @@ tags:
   - name: Faucets
     x-audience: public
     description: The Faucet APIs enable you to request funds on supported test networks. Faucets are for testing purposes and make development easier by providing a source of funds.
+  - name: Onchain Data
+    x-audience: public
+    description: |-
+      The Onchain Data APIs enable you to query and analyze blockchain data.
+      These APIs provide access to indexed blockchain data including blocks, transactions, and events across supported networks. Data is optimized for high-performance analytics and real-time querying.
+      ### Features
+
+        - **SQL Querying**: Execute custom SQL queries against comprehensive blockchain datasets
+        - **Token Discovery**: Identify all tokens that wallets have interacted with historically
+        - **High Performance**: Optimized data structures for fast analytical queries
+        - **Real-time Data**: Access to the latest blockchain state and transaction data
+
+      ### Supported Networks
+
+        - **Base Mainnet**: Complete transaction and event data from Base Chain.
   - name: Onramp
     x-audience: public
     description: |-
@@ -254,6 +269,16 @@ tags:
       A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
       #### evmNetwork
       A criterion based on the intended network of the transaction. The `network` field in the `sendEvmTransaction` request body is compared to the criterion's `networks` field using the `operator` field.
+      Valid networks for this criterion include:
+        - `base`
+        - `base-sepolia`
+        - `ethereum`
+        - `ethereum-sepolia`
+        - `avalanche`
+        - `polygon`
+        - `optimism`
+        - `arbitrum`
+
       #### evmData
       A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
       #### netUSDChange
@@ -272,6 +297,18 @@ tags:
       A criterion based on the recipient address of the user operation. The operation's `to` fields are compared to the criterion's `addresses` field using the `operator` field.
       #### evmNetwork
       A criterion based on the intended network of the user operation. The `network` field in the `prepareUserOperation` request body is compared to the criterion's `networks` field using the `operator` field.
+      Valid networks for this criterion include:
+        - `base-sepolia`
+        - `base`
+        - `arbitrum`
+        - `optimism`
+        - `zora`
+        - `polygon`
+        - `bnb`
+        - `avalanche`
+        - `ethereum`
+        - `ethereum-sepolia`
+
       #### evmData
       A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
       ### SignEvmHash Criteria
@@ -4233,6 +4270,81 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/data/query/run:
+    post:
+      operationId: runSQLQuery
+      summary: Run SQL against decoded onchain data
+      x-audience: public
+      description: |
+        Run a read-only SQL query against indexed blockchain data including transactions, events, and decoded logs.
+
+        This endpoint provides direct SQL access to comprehensive blockchain data across supported networks.
+        Queries are executed against optimized data structures for high-performance analytics.
+
+        **Query Limitations:**
+        - Read-only queries only (SELECT statements)
+        - No DDL or DML operations allowed
+        - Standard SQL syntax (ClickHouse dialect)
+        - No cartesian products
+
+        ### Supported Tables
+
+        - `base.events` - Base mainnet decoded event logs with contract interactions
+        - `base.transactions` - Base mainnet transaction data including hash, block number, gas usage
+        - `base.blocks` - Base mainnet block metadata including timestamps and difficulty
+
+        ### Query Limits
+
+        - Maximum result set: 10,000 rows
+        - Query timeout: 30 seconds
+        - Maximum JOINs: 5
+      tags:
+        - Onchain Data
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnchainDataQuery'
+      responses:
+        '200':
+          description: Query run successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnchainDataResult'
+        '400':
+          $ref: '#/components/responses/InvalidSQLQueryError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '408':
+          description: Query timeout.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                query_timeout:
+                  value:
+                    errorType: timed_out
+                    errorMessage: Query execution was cut off by the server. Please try again with a more efficient query.
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Too many requests. Please try again later.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '504':
+          $ref: '#/components/responses/TimedOutError'
   /v2/payments/rails/payment-methods:
     get:
       summary: Get the fiat payment methods
@@ -4822,6 +4934,7 @@ components:
         - idempotency_error
         - internal_server_error
         - invalid_request
+        - invalid_sql_query
         - invalid_signature
         - malformed_transaction
         - not_found
@@ -4920,6 +5033,15 @@ components:
           - Invalid parameter types or formats
           - Malformed JSON in request body
           - Invalid enum values
+        invalid_sql_query: |-
+          This error occurs when the SQL query is invalid or not allowed.
+
+          **Common causes:**
+          - Using non-SELECT SQL statements (INSERT, UPDATE, DELETE, etc.)
+          - Invalid table or column names
+          - Syntax errors in SQL query
+          - Query exceeds character limit
+          - Too many JOIN operations
         invalid_signature: |-
           This error occurs when the signature provided for the given user operation is invalid.
 
@@ -5447,11 +5569,6 @@ components:
           type: string
           description: The network of the spend permission.
           example: base
-        account:
-          type: string
-          pattern: ^0x[a-fA-F0-9]{40}$
-          description: Smart account this spend permission is valid for.
-          example: '0xd53Ee96438383Bb1eff07958D110B81363E9Ab47'
         spender:
           type: string
           pattern: ^0x[a-fA-F0-9]{40}$
@@ -5492,7 +5609,6 @@ components:
           example: https://paymaster.cdp.coinbase.com
       required:
         - network
-        - account
         - spender
         - token
         - allowance
@@ -6463,10 +6579,18 @@ components:
             enum:
               - base-sepolia
               - base
+              - ethereum
+              - ethereum-sepolia
+              - avalanche
+              - polygon
+              - optimism
+              - arbitrum
+              - zora
+              - bnb
             example: base-sepolia
           example:
             - base
-            - base-sepolia
+            - ethereum
         operator:
           type: string
           description: The operator to use for the comparison. The transaction's intended `network` will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.
@@ -7331,6 +7455,111 @@ components:
       required:
         - amount
         - token
+    OnchainDataQuery:
+      type: object
+      description: Request to execute a SQL query against indexed blockchain data.
+      required:
+        - sql
+      properties:
+        sql:
+          type: string
+          description: SQL query to execute against the indexed blockchain data.
+          example: SELECT block_number, transaction_hash FROM base.transactions WHERE block_number > 1000000 LIMIT 10
+          minLength: 1
+          maxLength: 10000
+    OnchainDataResult:
+      type: object
+      description: Result of executing a SQL query.
+      properties:
+        result:
+          type: array
+          description: Query result as an array of objects representing rows.
+          items:
+            type: object
+            additionalProperties: true
+            description: Row data with column names as keys.
+            example:
+              event_signature: Transfer(address,address,uint256)
+              from: '0x1234567890abcdef'
+              to: '0x1234567890abcdef'
+              amount: 1000000000000000000
+          example:
+            - event_signature: Transfer(address,address,uint256)
+              from: '0x1234567890abcdef'
+              to: '0x1234567890abcdef'
+              amount: 1000000000000000000
+            - event_signature: Transfer(address,address,uint256)
+              from: '0x1234567890abcdef'
+              to: '0x1234567890abcdef'
+              amount: 2000000000000000000
+        schema:
+          type: object
+          description: |
+            Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
+          example:
+            columns:
+              - name: block_number
+                type: UInt64
+              - name: transaction_hash
+                type: String
+          properties:
+            columns:
+              type: array
+              description: Column definitions.
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Column name.
+                  type:
+                    type: string
+                    description: Column data type (ClickHouse types).
+                    enum:
+                      - String
+                      - UInt8
+                      - UInt16
+                      - UInt32
+                      - UInt64
+                      - UInt128
+                      - UInt256
+                      - Int8
+                      - Int16
+                      - Int32
+                      - Int64
+                      - Int128
+                      - Int256
+                      - Float32
+                      - Float64
+                      - Bool
+                      - Date
+                      - DateTime
+                      - DateTime64
+                      - UUID
+                example:
+                  name: event_signature
+                  type: String
+                  description: The signature of the event.
+        metadata:
+          type: object
+          description: Metadata about query execution.
+          properties:
+            cached:
+              type: boolean
+              description: Whether the result was served from cache.
+              example: false
+            executionTimeMs:
+              type: integer
+              description: Query execution time in milliseconds.
+              example: 145
+            rowCount:
+              type: integer
+              description: Number of rows returned.
+              example: 2
+          example:
+            cached: false
+            executionTimeMs: 145
+            rowCount: 2
     PaymentRailAction:
       description: The action of the payment method.
       type: string
@@ -7900,6 +8129,25 @@ components:
               value:
                 errorType: already_exists
                 errorMessage: Another request with the same idempotency key is currently processing.
+    InvalidSQLQueryError:
+      description: The underlying SQL string is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            unsupported_query:
+              value:
+                errorType: invalid_sql_query
+                errorMessage: INSERTs are not supported
+            invalid_sql:
+              value:
+                errorType: invalid_sql_query
+                errorMessage: 'SQL syntax error: Invalid table name ''invalid_table'''
+            query_too_long:
+              value:
+                errorType: invalid_sql_query
+                errorMessage: Query exceeds maximum length of 10,000 characters
     UnauthorizedError:
       description: Unauthorized.
       content:
@@ -7911,6 +8159,17 @@ components:
               value:
                 errorType: unauthorized
                 errorMessage: The request is not properly authenticated.
+    TimedOutError:
+      description: The request timed out.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            timed_out:
+              value:
+                errorType: timed_out
+                errorMessage: The request timed out because the server did not respond in time.
     RateLimitExceeded:
       description: Rate limit exceeded.
       content:
