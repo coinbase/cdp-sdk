@@ -18,7 +18,6 @@ import pprint
 import re  # noqa: F401
 import json
 
-
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from cdp.openapi_client.models.onchain_data_result_metadata import OnchainDataResultMetadata

@@ -23,15 +23,6 @@ from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
-class RevokeSpendPermissionRequest(BaseModel):
-    """
-    RevokeSpendPermissionRequest
-    """ # noqa: E501
-    network: StrictStr = Field(description="The network of the spend permission.")
-    permission_hash: StrictStr = Field(description="The hash of the spend permission to revoke.", alias="permissionHash")
-    paymaster_url: Optional[StrictStr] = Field(default=None, description="The paymaster URL of the spend permission.", alias="paymasterUrl")
-    __properties: ClassVar[List[str]] = ["network", "permissionHash", "paymasterUrl"]
-
 class OnchainDataResultMetadata(BaseModel):
     """
     Metadata about query execution.
