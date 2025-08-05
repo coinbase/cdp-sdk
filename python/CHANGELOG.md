@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.28.0] - 2025-08-05
+
+### Features
+
+- Added netUSDChange criteria for sign/sendEvmTransaction rules ([#1218](https://github.com/coinbase/cdp-sdk/pull/1218))
+
+
 ## [1.27.0] - 2025-08-04
 
 ### Features
