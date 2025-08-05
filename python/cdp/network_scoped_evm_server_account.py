@@ -221,18 +221,17 @@ class NetworkScopedEvmServerAccount:
         else:
             # For managed networks, try to use Base Node RPC URL for base/base-sepolia
             network_rpc_url = None
-            
+
             # Try to get Base Node RPC URL for base networks
             if self._network in ["base", "base-sepolia"]:
                 try:
                     network_rpc_url = await get_base_node_rpc_url(
-                        self._evm_server_account._EvmServerAccount__api_clients,
-                        self._network
+                        self._evm_server_account._EvmServerAccount__api_clients, self._network
                     )
                 except Exception:
                     # If Base Node RPC URL fails, fall back to default
                     network_rpc_url = None
-            
+
             # Fall back to default RPC URLs if Base Node URL is not available
             if not network_rpc_url:
                 default_rpc_urls = {

@@ -1027,30 +1027,30 @@ async def test_wait_for_fund_operation_receipt_timeout(
 
 
 @pytest.mark.asyncio
-async def test_network_scoped_smart_account_uses_base_node_rpc_as_paymaster(
-    smart_account_factory
-):
+async def test_network_scoped_smart_account_uses_base_node_rpc_as_paymaster(smart_account_factory):
     """Test that NetworkScopedEvmSmartAccount uses Base Node RPC URL as paymaster_url for UserOp sends on base networks."""
     smart_account = smart_account_factory()
-    
+
     # Create network-scoped account for base network
     network_account = await smart_account.__experimental_use_network__("base")
-    
+
     # Mock get_base_node_rpc_url to return a test URL
     base_node_url = "https://api.cdp.coinbase.com/rpc/v1/base/test-token-id"
-    
-    with patch('cdp.network_scoped_evm_smart_account.get_base_node_rpc_url') as mock_get_base_node_rpc_url:
+
+    with patch(
+        "cdp.network_scoped_evm_smart_account.get_base_node_rpc_url"
+    ) as mock_get_base_node_rpc_url:
         mock_get_base_node_rpc_url.return_value = base_node_url
-        
+
         # Mock the underlying send_user_operation function instead of the instance method
-        with patch('cdp.evm_smart_account.send_user_operation') as mock_send_user_op:
+        with patch("cdp.evm_smart_account.send_user_operation") as mock_send_user_op:
             mock_user_op = MagicMock()
             mock_send_user_op.return_value = mock_user_op
-            
+
             # Test send_user_operation
             calls = [MagicMock()]
             result = await network_account.send_user_operation(calls)
-            
+
             # Verify that Base Node RPC URL was used as paymaster_url
             mock_get_base_node_rpc_url.assert_called_once()
             mock_send_user_op.assert_called_once_with(
@@ -1058,8 +1058,8 @@ async def test_network_scoped_smart_account_uses_base_node_rpc_as_paymaster(
                 smart_account.address,
                 smart_account.owners[0],
                 calls,
-                "base", 
-                base_node_url
+                "base",
+                base_node_url,
             )
-            
+
             assert result == mock_user_op

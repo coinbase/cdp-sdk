@@ -112,13 +112,12 @@ class NetworkScopedEvmSmartAccount:
             if paymaster_url is None and self._network in ["base", "base-sepolia"]:
                 try:
                     paymaster_url = await get_base_node_rpc_url(
-                        self._evm_smart_account._EvmSmartAccount__api_clients,
-                        self._network
+                        self._evm_smart_account._EvmSmartAccount__api_clients, self._network
                     )
                 except Exception:
                     # If Base Node RPC URL fails, continue without paymaster_url
                     paymaster_url = None
-                    
+
             return await self._evm_smart_account.send_user_operation(
                 calls=calls,
                 network=self._network,
@@ -142,13 +141,12 @@ class NetworkScopedEvmSmartAccount:
             if paymaster_url is None and self._network in ["base", "base-sepolia"]:
                 try:
                     paymaster_url = await get_base_node_rpc_url(
-                        self._evm_smart_account._EvmSmartAccount__api_clients,
-                        self._network
+                        self._evm_smart_account._EvmSmartAccount__api_clients, self._network
                     )
                 except Exception:
                     # If Base Node RPC URL fails, continue without paymaster_url
                     paymaster_url = None
-                    
+
             return await self._evm_smart_account.transfer(
                 to=to,
                 amount=amount,
