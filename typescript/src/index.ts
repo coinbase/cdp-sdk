@@ -8,7 +8,8 @@ export {
   type UpdatePolicyBody,
 } from "./policies/types.js";
 export { NetworkError } from "./openapi-client/errors.js";
-export type { SpendPermission } from "./spend-permissions/types.js";
+export type { SpendPermission, SpendPermissionNetworks } from "./spend-permissions/types.js";
+export type { SpendPermissionInput } from "./client/evm/evm.types.js";
 export {
   SPEND_PERMISSION_MANAGER_ABI as spendPermissionManagerAbi,
   SPEND_PERMISSION_MANAGER_ADDRESS as spendPermissionManagerAddress,

@@ -1,67 +1,56 @@
 import {
   CdpClient,
   parseUnits,
-  SpendPermission,
-  parseEther,
-  spendPermissionManagerAddress,
-  spendPermissionManagerAbi,
+  type SpendPermissionInput,
 } from "@coinbase/cdp-sdk";
-import { encodeFunctionData } from "viem";
 
 import "dotenv/config";
 
 const cdp = new CdpClient();
 
-const masterOwner = await cdp.evm.getOrCreateAccount({
-  name: "Demo-SpendPermissions-Master-Owner",
-});
-const master = await cdp.evm.getOrCreateSmartAccount({
-  name: "Demo-SpendPermissions-Master",
-  owner: masterOwner,
+const account = await cdp.evm.getOrCreateSmartAccount({
+  name: "Demo-SpendPermissions-Account",
+  owner: await cdp.evm.getOrCreateAccount({
+    name: "Demo-SpendPermissions-Account-Owner",
+  }),
   __experimental_enableSpendPermission: true,
 });
 
-const spenderOwner = await cdp.evm.getOrCreateAccount({
-  name: "Demo-SpendPermissions-Spender-Owner",
-});
 const spender = await cdp.evm.getOrCreateSmartAccount({
   name: "Demo-SpendPermissions-Spender",
-  owner: spenderOwner,
+  owner: await cdp.evm.getOrCreateAccount({
+    name: "Demo-SpendPermissions-Spender-Owner",
+  }),
 });
 
-console.log("Master account:", master.address);
+console.log("Account:", account.address);
 console.log("Spender account:", spender.address);
 
-const spendPermission: SpendPermission = {
-  account: master.address, // User's smart wallet address
+if (process.argv.includes("--faucet")) {
+  await account.requestFaucet({
+    network: "base-sepolia",
+    token: "usdc",
+  });
+}
+
+const spendPermission: SpendPermissionInput = {
+  account: account.address, // User's smart wallet address
   spender: spender.address, // App's spender address
-  token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e", // USDC on base-sepolia
+  token: "usdc", // USDC on base-sepolia
   allowance: parseUnits("0.01", 6), // Small amount for testing
   period: 86400, // 1 day in seconds
   start: 0, // Start immediately
   end: 281474976710655, // Max uint48 (effectively no end)
-  salt: 0n,
-  extraData: "0x",
 };
 
 console.log("Sending approve user operation...");
-const { userOpHash } = await master.sendUserOperation({
+const { userOpHash } = await cdp.evm.createSpendPermission({
   network: "base-sepolia",
-  calls: [
-    {
-      to: spendPermissionManagerAddress,
-      data: encodeFunctionData({
-        abi: spendPermissionManagerAbi,
-        functionName: "approve",
-        args: [spendPermission],
-      }),
-      value: parseEther("0"),
-    },
-  ],
+  spendPermission,
 });
 console.log("Approve user operation sent", userOpHash);
 
-const result = await master.waitForUserOperation({
+const result = await account.waitForUserOperation({
   userOpHash,
 });
 

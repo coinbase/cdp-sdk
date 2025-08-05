@@ -29,6 +29,7 @@ import type {
   UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
   UserOperationReceipt,
 } from "../../openapi-client/index.js";
+import type { SpendPermissionNetworks } from "../../spend-permissions/types.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";
 import type { WaitOptions } from "../../utils/wait.js";
@@ -266,11 +267,17 @@ export interface CreateSwapQuoteResult {
   execute: (options?: ExecuteSwapQuoteOptions) => Promise<ExecuteSwapQuoteResult>;
 }
 
+export type SpendPermissionInput = Omit<SpendPermission, "token" | "salt" | "extraData"> & {
+  token: "eth" | "usdc" | Address;
+  salt?: bigint;
+  extraData?: Hex;
+};
+
 export interface CreateSpendPermissionOptions {
   /** The spend permission. */
-  spendPermission: SpendPermission;
+  spendPermission: SpendPermissionInput;
   /** The network. */
-  network: EvmUserOperationNetwork;
+  network: SpendPermissionNetworks;
   /** The paymaster URL. */
   paymasterUrl?: string;
   /** The idempotency key. */
