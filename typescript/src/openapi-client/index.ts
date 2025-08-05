@@ -9,6 +9,7 @@ export * from "./generated/faucets/faucets.js";
 export * from "./generated/policy-engine/policy-engine.js";
 export * from "./generated/payments-alpha/payments-alpha.js";
 export * from "./generated/onramp/onramp.js";
+export * from "./generated/onchain-data/onchain-data.js";
 
 import { configure } from "./cdpApiClient.js";
 import * as evm from "./generated/evm-accounts/evm-accounts.js";
@@ -52,4 +53,4 @@ export const OpenApiPoliciesMethods = {
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
-export * from "./generated/onchain-data/onchain-data";
+

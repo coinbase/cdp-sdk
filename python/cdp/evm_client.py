@@ -315,7 +315,6 @@ class EvmClient:
         return await self.api_clients.evm_smart_accounts.create_spend_permission(
             address=spend_permission.account,
             create_spend_permission_request=CreateSpendPermissionRequest(
-                account=spend_permission.account,
                 spender=spend_permission.spender,
                 token=spend_permission.token,
                 allowance=str(spend_permission.allowance),
