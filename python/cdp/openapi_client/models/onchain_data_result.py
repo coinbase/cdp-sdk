@@ -18,21 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-<<<<<<<< HEAD:python/cdp/openapi_client/models/list_spend_permissions200_response.py
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
-from cdp.openapi_client.models.spend_permission_response_object import SpendPermissionResponseObject
-from typing import Optional, Set
-from typing_extensions import Self
 
-class ListSpendPermissions200Response(BaseModel):
-    """
-    ListSpendPermissions200Response
-    """ # noqa: E501
-    next_page_token: Optional[StrictStr] = Field(default=None, description="The token for the next page of items, if any.", alias="nextPageToken")
-    spend_permissions: List[SpendPermissionResponseObject] = Field(description="The spend permissions for the smart account.", alias="spendPermissions")
-    __properties: ClassVar[List[str]] = ["nextPageToken", "spendPermissions"]
-========
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
 from cdp.openapi_client.models.onchain_data_result_metadata import OnchainDataResultMetadata
@@ -48,7 +34,6 @@ class OnchainDataResult(BaseModel):
     var_schema: Optional[OnchainDataResultSchema] = Field(default=None, alias="schema")
     metadata: Optional[OnchainDataResultMetadata] = None
     __properties: ClassVar[List[str]] = ["result", "schema", "metadata"]
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result.py
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -68,11 +53,7 @@ class OnchainDataResult(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-<<<<<<<< HEAD:python/cdp/openapi_client/models/list_spend_permissions200_response.py
-        """Create an instance of ListSpendPermissions200Response from a JSON string"""
-========
         """Create an instance of OnchainDataResult from a JSON string"""
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result.py
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -93,31 +74,17 @@ class OnchainDataResult(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-<<<<<<<< HEAD:python/cdp/openapi_client/models/list_spend_permissions200_response.py
-        # override the default output from pydantic by calling `to_dict()` of each item in spend_permissions (list)
-        _items = []
-        if self.spend_permissions:
-            for _item_spend_permissions in self.spend_permissions:
-                if _item_spend_permissions:
-                    _items.append(_item_spend_permissions.to_dict())
-            _dict['spendPermissions'] = _items
-========
         # override the default output from pydantic by calling `to_dict()` of var_schema
         if self.var_schema:
             _dict['schema'] = self.var_schema.to_dict()
         # override the default output from pydantic by calling `to_dict()` of metadata
         if self.metadata:
             _dict['metadata'] = self.metadata.to_dict()
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result.py
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-<<<<<<<< HEAD:python/cdp/openapi_client/models/list_spend_permissions200_response.py
-        """Create an instance of ListSpendPermissions200Response from a dict"""
-========
         """Create an instance of OnchainDataResult from a dict"""
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result.py
         if obj is None:
             return None
 
@@ -125,14 +92,9 @@ class OnchainDataResult(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-<<<<<<<< HEAD:python/cdp/openapi_client/models/list_spend_permissions200_response.py
-            "nextPageToken": obj.get("nextPageToken"),
-            "spendPermissions": [SpendPermissionResponseObject.from_dict(_item) for _item in obj["spendPermissions"]] if obj.get("spendPermissions") is not None else None
-========
             "result": obj.get("result"),
             "schema": OnchainDataResultSchema.from_dict(obj["schema"]) if obj.get("schema") is not None else None,
             "metadata": OnchainDataResultMetadata.from_dict(obj["metadata"]) if obj.get("metadata") is not None else None
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result.py
         })
         return _obj
 
