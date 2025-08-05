@@ -18,23 +18,10 @@ import pprint
 import re  # noqa: F401
 import json
 
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from cdp.openapi_client.models.spend_permission import SpendPermission
 from typing import Optional, Set
 from typing_extensions import Self
-
-class SpendPermissionResponseObject(BaseModel):
-    """
-    SpendPermissionResponseObject
-    """ # noqa: E501
-    permission: Optional[SpendPermission] = None
-    permission_hash: Optional[StrictStr] = Field(default=None, description="Unique hash identifier for this permission.", alias="permissionHash")
-    revoked: Optional[StrictBool] = Field(default=None, description="Whether this permission has been revoked.")
-    revoked_at: Optional[datetime] = Field(default=None, description="The UTC ISO 8601 timestamp when the permission was revoked (if applicable).", alias="revokedAt")
-    created_at: Optional[datetime] = Field(default=None, description="The UTC ISO 8601 timestamp when the permission was created.", alias="createdAt")
-    __properties: ClassVar[List[str]] = ["permission", "permissionHash", "revoked", "revokedAt", "createdAt"]
 
 class OnchainDataResultSchemaColumnsInner(BaseModel):
     """
