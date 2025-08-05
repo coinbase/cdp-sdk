@@ -1,6 +1,5 @@
 import { OpenApiPoliciesMethods } from "../../openapi-client/index.js";
-import { CreatePolicyBody, PolicyScope, UpdatePolicyBody } from "../../policies/schema.js";
-import { Policy } from "../../policies/types.js";
+import { CreatePolicyBody, Policy, PolicyScope, UpdatePolicyBody } from "../../policies/types.js";
 
 /**
  * The PoliciesClient type, where all OpenApiPoliciesMethods methods are wrapped.

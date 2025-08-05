@@ -92,20 +92,35 @@ tags:
   - name: Faucets
     x-audience: public
     description: The Faucet APIs enable you to request funds on supported test networks. Faucets are for testing purposes and make development easier by providing a source of funds.
+  - name: Onchain Data
+    x-audience: public
+    description: |-
+      The Onchain Data APIs enable you to query and analyze blockchain data.
+      These APIs provide access to indexed blockchain data including blocks, transactions, and events across supported networks. Data is optimized for high-performance analytics and real-time querying.
+      ### Features
+
+        - **SQL Querying**: Execute custom SQL queries against comprehensive blockchain datasets
+        - **Token Discovery**: Identify all tokens that wallets have interacted with historically
+        - **High Performance**: Optimized data structures for fast analytical queries
+        - **Real-time Data**: Access to the latest blockchain state and transaction data
+
+      ### Supported Networks
+
+        - **Base Mainnet**: Complete transaction and event data from Base Chain.
   - name: Onramp
     x-audience: public
     description: |-
-      <Note>Currently the v2 Onramp APIs are in private beta and only available to approved partners. [Contact us](https://calendar.app.google/BLn6fzaz2aCZGvLu7)  to get early access.</Note>
+      <Note>Currently the v2 Onramp APIs are in private beta and only available to approved partners. [Contact us](https://calendar.app.google/BLn6fzaz2aCZGvLu7) to get early access.</Note>
 
-      The v2 Onramp APIs are an evolution of our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/),  designed to make the fiat-to-crypto experience feel native to your applications for higher conversion and less friction. These APIs only cover a subset of Coinbase Onramp functionality as described below, for all other use cases please refer to our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/).
+      The v2 Onramp APIs are an evolution of our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/), designed to make the fiat-to-crypto experience feel native to your applications for higher conversion and less friction. These APIs only cover a subset of Coinbase Onramp functionality as described below, for all other use cases please refer to our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/).
 
       ## Supported Use Cases
 
       #### Apple Pay Onramp (iOS apps)
 
-      This use case allows you to offer an Apple Pay onramp experience with debit cards in your mobile app without users  needing to create or log into a Coinbase account. Our API returns a `paymentLink` URL that renders an Apple Pay  button for you to load in a webview in your app, making the onramp experience feel native to your application. 
+      This use case allows you to offer an Apple Pay onramp experience with debit cards in your mobile app without users needing to create or log into a Coinbase account. Our API returns a `paymentLink` URL that renders an Apple Pay button for you to load in a webview in your app, making the onramp experience feel native to your application.
 
-      Refer to our [detailed integration guide](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api)  for more information on the limitations and requirements of this use case. See our [onramp mobile demo app](https://github.com/coinbase/onramp-demo-mobile)  for a reference implementation.
+      Refer to our [detailed integration guide](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more information on the limitations and requirements of this use case. See our [onramp mobile demo app](https://github.com/coinbase/onramp-demo-mobile) for a reference implementation.
   - name: Payments (Alpha)
     x-audience: public
     description: |-
@@ -245,6 +260,8 @@ tags:
       A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
       #### evmData
       A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
+      #### netUSDChange
+      A criterion based on the USD denominated market value of assets being transferred, or exposing the sender to. The types of assets included in the calculation include native assets, `ERC20`, `ERC721`, and `ERC1155` tokens. The sum total USD amount of assets being transferred and exposed is compared to the criterion's `changeCents` field using the `operator` field. If signing a testnet transaction, then this criterion configuration will be ignored.
       ### SendEvmTransaction Criteria
       #### ethValue
       A criterion based on the value of the transaction. The transaction's `value` field is compared to the criterion's `ethValue` field using the `operator` field.
@@ -252,8 +269,20 @@ tags:
       A criterion based on the recipient address of the transaction. The transaction's `to` field is compared to the criterion's `addresses` field using the `operator` field.
       #### evmNetwork
       A criterion based on the intended network of the transaction. The `network` field in the `sendEvmTransaction` request body is compared to the criterion's `networks` field using the `operator` field.
+      Valid networks for this criterion include:
+        - `base`
+        - `base-sepolia`
+        - `ethereum`
+        - `ethereum-sepolia`
+        - `avalanche`
+        - `polygon`
+        - `optimism`
+        - `arbitrum`
+
       #### evmData
       A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
+      #### netUSDChange
+      A criterion based on the USD denominated market value of assets being transferred, or exposing the sender to. The types of assets included in the calculation include native assets, `ERC20`, `ERC721`, and `ERC1155` tokens. The sum total USD amount of assets being transferred and exposed is compared to the criterion's `changeCents` field using the `operator` field. If sending a testnet transaction, then this criterion configuration will be ignored.
       ### SendUserOperation Criteria
       #### ethValue
       A criterion based on the value of the user operation. The operation's `value` fields are compared to the criterion's `ethValue` field using the `operator` field.
@@ -268,6 +297,18 @@ tags:
       A criterion based on the recipient address of the user operation. The operation's `to` fields are compared to the criterion's `addresses` field using the `operator` field.
       #### evmNetwork
       A criterion based on the intended network of the user operation. The `network` field in the `prepareUserOperation` request body is compared to the criterion's `networks` field using the `operator` field.
+      Valid networks for this criterion include:
+        - `base-sepolia`
+        - `base`
+        - `arbitrum`
+        - `optimism`
+        - `zora`
+        - `polygon`
+        - `bnb`
+        - `avalanche`
+        - `ethereum`
+        - `ethereum-sepolia`
+
       #### evmData
       A criterion based on encoded transaction data that evaluates the function being called, as well as any number of arguments accessed by either name or index. Currently this criterion only supports primitive types; `string`, `bool`, `uint(8,16,32,64,256)`, `int(8,16,32,64,256)`, `address`, and both fixed and dynamic length `bytes`.
       ### SignEvmHash Criteria
@@ -280,12 +321,59 @@ tags:
       A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
       #### solValue
       A criterion based on the value of the transaction. The criterion's `solValue` field is compared to the transaction's `value`, which is the amount of SOL in lamports being transferred, using the `operator` field.
+      #### splAddress
+      A criterion based on the recipient addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### splValue
+      A criterion based on the SPL token value of SPL token transfer instructions in the transaction. The criterion's `splValue` field is compared to the transaction instruction's `value` field, which is the amount of the SPL token being transferred, using the `operator` field.
+      #### mintAddress
+      A criterion based on the token mint addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      ### SendSolTransaction Criteria
+      #### solAddress
+      A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### solValue
+      A criterion based on the value of the transaction. The criterion's `solValue` field is compared to the transaction's `value`, which is the amount of SOL in lamports being transferred, using the `operator` field.
+      #### splAddress
+      A criterion based on the recipient addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### splValue
+      A criterion based on the SPL token value of SPL token transfer instructions in the transaction. The criterion's `splValue` field is compared to the transaction instruction's `value` field, which is the amount of the SPL token being transferred, using the `operator` field.
+      #### mintAddress
+      A criterion based on the token mint addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
       ## Restricting Contract Interactions on Ethereum
       Smart contract function restrictions serve as a critical security and governance mechanism in decentralized applications, allowing developers and organizations to implement fine-grained access controls over their protocol interactions.
       One of the primary use cases for function restrictions is protecting high-risk operations from unauthorized access such as:
       - Fund transfers - Contract upgrades - Parameter modifications - Emergency pauses
       Policy Engine supports such restrictions that evaluate against transaction data with the `evmData` criterion for the `signEvmTransaction`, and `sendEvmTransaction` operations.
       ## Examples
+      ### USD Limits
+      The following example demonstrates a policy that only allows transactions to transfer, or expose the sender to, less than $100.00 worth of assets at a time. This USD denominated amount includes native assets, `ERC20`, `ERC721`, and `ERC1155` tokens calculated using current market prices.
+      ```json {
+        "scope": "account",
+        "description": "Reject assets out over 100 USD",
+        "rules": [
+          {
+            "action": "reject",
+            "operation": "sendEvmTransaction",
+            "criteria": [
+              {
+                "type": "netUSDChange",
+                "changeCents": 10000,
+                "operator": ">",
+              },
+            ],
+          },
+          {
+            "action": "reject",
+            "operation": "signEvmTransaction",
+            "criteria": [
+              {
+                "type": "netUSDChange",
+                "changeCents": 10000,
+                "operator": ">",
+              },
+            ],
+          },
+        ],
+      } ```
       ### Limiting USDC Spend
       This policy restricts USDC transactions on the Base network to transfers of 10,000 tokens or less. It applies to both signing and sending transactions to the USDC contract address, using the ERC20 ABI to validate that only `transfer` function calls with a `value` parameter under the specified limit are permitted.
       ```json {
@@ -4182,6 +4270,81 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/data/query/run:
+    post:
+      operationId: runSQLQuery
+      summary: Run SQL against decoded onchain data
+      x-audience: public
+      description: |
+        Run a read-only SQL query against indexed blockchain data including transactions, events, and decoded logs.
+
+        This endpoint provides direct SQL access to comprehensive blockchain data across supported networks.
+        Queries are executed against optimized data structures for high-performance analytics.
+
+        **Query Limitations:**
+        - Read-only queries only (SELECT statements)
+        - No DDL or DML operations allowed
+        - Standard SQL syntax (ClickHouse dialect)
+        - No cartesian products
+
+        ### Supported Tables
+
+        - `base.events` - Base mainnet decoded event logs with contract interactions
+        - `base.transactions` - Base mainnet transaction data including hash, block number, gas usage
+        - `base.blocks` - Base mainnet block metadata including timestamps and difficulty
+
+        ### Query Limits
+
+        - Maximum result set: 10,000 rows
+        - Query timeout: 30 seconds
+        - Maximum JOINs: 5
+      tags:
+        - Onchain Data
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnchainDataQuery'
+      responses:
+        '200':
+          description: Query run successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnchainDataResult'
+        '400':
+          $ref: '#/components/responses/InvalidSQLQueryError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '408':
+          description: Query timeout.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                query_timeout:
+                  value:
+                    errorType: timed_out
+                    errorMessage: Query execution was cut off by the server. Please try again with a more efficient query.
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Too many requests. Please try again later.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '504':
+          $ref: '#/components/responses/TimedOutError'
   /v2/payments/rails/payment-methods:
     get:
       summary: Get the fiat payment methods
@@ -4771,6 +4934,7 @@ components:
         - idempotency_error
         - internal_server_error
         - invalid_request
+        - invalid_sql_query
         - invalid_signature
         - malformed_transaction
         - not_found
@@ -4869,6 +5033,15 @@ components:
           - Invalid parameter types or formats
           - Malformed JSON in request body
           - Invalid enum values
+        invalid_sql_query: |-
+          This error occurs when the SQL query is invalid or not allowed.
+
+          **Common causes:**
+          - Using non-SELECT SQL statements (INSERT, UPDATE, DELETE, etc.)
+          - Invalid table or column names
+          - Syntax errors in SQL query
+          - Query exceeds character limit
+          - Too many JOIN operations
         invalid_signature: |-
           This error occurs when the signature provided for the given user operation is invalid.
 
@@ -5396,11 +5569,6 @@ components:
           type: string
           description: The network of the spend permission.
           example: base
-        account:
-          type: string
-          pattern: ^0x[a-fA-F0-9]{40}$
-          description: Smart account this spend permission is valid for.
-          example: '0xd53Ee96438383Bb1eff07958D110B81363E9Ab47'
         spender:
           type: string
           pattern: ^0x[a-fA-F0-9]{40}$
@@ -5441,7 +5609,6 @@ components:
           example: https://paymaster.cdp.coinbase.com
       required:
         - network
-        - account
         - spender
         - token
         - allowance
@@ -6326,6 +6493,34 @@ components:
         - type
         - abi
         - conditions
+    NetUSDChangeCriterion:
+      type: object
+      description: A schema for specifying a criterion for the USD denominated asset transfer or exposure for a transaction. This includes native transfers, as well as token transfers.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `netUSDChange`.
+          example: netUSDChange
+          enum:
+            - netUSDChange
+        changeCents:
+          type: integer
+          description: The amount of USD, in cents, that the total value of a transaction's asset transfer should be compared to.
+          example: 10000
+        operator:
+          type: string
+          description: The operator to use for the comparison. The total value of a transaction's asset transfer will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side.
+          enum:
+            - '>'
+            - '>='
+            - <
+            - <=
+            - '=='
+          example: <=
+      required:
+        - type
+        - changeCents
+        - operator
     SignEvmTransactionCriteria:
       type: array
       description: A schema for specifying criteria for the SignEvmTransaction operation.
@@ -6334,6 +6529,7 @@ components:
           - $ref: '#/components/schemas/EthValueCriterion'
           - $ref: '#/components/schemas/EvmAddressCriterion'
           - $ref: '#/components/schemas/EvmDataCriterion'
+          - $ref: '#/components/schemas/NetUSDChangeCriterion'
       example:
         - type: ethValue
           ethValue: '1000000'
@@ -6383,10 +6579,18 @@ components:
             enum:
               - base-sepolia
               - base
+              - ethereum
+              - ethereum-sepolia
+              - avalanche
+              - polygon
+              - optimism
+              - arbitrum
+              - zora
+              - bnb
             example: base-sepolia
           example:
             - base
-            - base-sepolia
+            - ethereum
         operator:
           type: string
           description: The operator to use for the comparison. The transaction's intended `network` will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.
@@ -6408,6 +6612,7 @@ components:
           - $ref: '#/components/schemas/EvmAddressCriterion'
           - $ref: '#/components/schemas/EvmNetworkCriterion'
           - $ref: '#/components/schemas/EvmDataCriterion'
+          - $ref: '#/components/schemas/NetUSDChangeCriterion'
       example:
         - type: ethValue
           ethValue: '1000000'
@@ -6761,6 +6966,126 @@ components:
         - type
         - addresses
         - operator
+    SolValueCriterion:
+      x-audience: public
+      type: object
+      description: The criterion for the SOL value in lamports of a native transfer instruction in a Solana transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `solValue`.
+          example: solValue
+          enum:
+            - solValue
+        solValue:
+          type: string
+          description: The amount of SOL in lamports that the transaction instruction's `value` field should be compared to.
+          example: '1000000000000000000'
+        operator:
+          type: string
+          description: The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `solValue` field will be on the right-hand side.
+          enum:
+            - '>'
+            - '>='
+            - <
+            - <=
+            - '=='
+          example: <=
+      required:
+        - type
+        - solValue
+        - operator
+    SplAddressCriterion:
+      x-audience: public
+      type: object
+      description: The criterion for the recipient addresses of a Solana transaction's SPL token transfer instructions.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `splAddress`.
+          example: splAddress
+          enum:
+            - splAddress
+        addresses:
+          type: array
+          description: The Solana addresses that are compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+          items:
+            type: string
+            pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+            description: The Solana address that is compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+          example:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+        operator:
+          type: string
+          description: The operator to use for the comparison. Each of the SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+      required:
+        - type
+        - addresses
+        - operator
+    SplValueCriterion:
+      x-audience: public
+      type: object
+      description: The criterion for the SPL token value of a SPL token transfer instruction in a Solana transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `splValue`.
+          example: splValue
+          enum:
+            - splValue
+        splValue:
+          type: string
+          description: The amount of the SPL token that the transaction instruction's `value` field should be compared to.
+          example: '1000000000000000000'
+        operator:
+          type: string
+          description: The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `splValue` field will be on the right-hand side.
+          enum:
+            - '>'
+            - '>='
+            - <
+            - <=
+            - '=='
+          example: <=
+      required:
+        - type
+        - splValue
+        - operator
+    MintAddressCriterion:
+      x-audience: public
+      type: object
+      description: The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `mintAddress`.
+          example: mintAddress
+          enum:
+            - mintAddress
+        addresses:
+          type: array
+          description: The Solana addresses that are compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+          items:
+            type: string
+            pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+            description: The Solana address that is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+          example:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+        operator:
+          type: string
+          description: The operator to use for the comparison. Each of the token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+      required:
+        - type
+        - addresses
+        - operator
     SignSolTransactionCriteria:
       type: array
       x-audience: public
@@ -6768,6 +7093,10 @@ components:
       items:
         oneOf:
           - $ref: '#/components/schemas/SolAddressCriterion'
+          - $ref: '#/components/schemas/SolValueCriterion'
+          - $ref: '#/components/schemas/SplAddressCriterion'
+          - $ref: '#/components/schemas/SplValueCriterion'
+          - $ref: '#/components/schemas/MintAddressCriterion'
       example:
         - type: solAddress
           addresses:
@@ -6790,6 +7119,47 @@ components:
             - signSolTransaction
         criteria:
           $ref: '#/components/schemas/SignSolTransactionCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    SendSolTransactionCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the SendSolTransaction operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/SolAddressCriterion'
+          - $ref: '#/components/schemas/SolValueCriterion'
+          - $ref: '#/components/schemas/SplAddressCriterion'
+          - $ref: '#/components/schemas/SplValueCriterion'
+          - $ref: '#/components/schemas/MintAddressCriterion'
+      example:
+        - type: solAddress
+          addresses:
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+          operator: in
+        - type: solValue
+          solValue: '1000000000000000000'
+          operator: <=
+    SendSolTransactionRule:
+      x-audience: public
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: sendSolTransaction
+          enum:
+            - sendSolTransaction
+        criteria:
+          $ref: '#/components/schemas/SendSolTransactionCriteria'
       required:
         - action
         - operation
@@ -6901,6 +7271,7 @@ components:
         - $ref: '#/components/schemas/SignEvmMessageRule'
         - $ref: '#/components/schemas/SignEvmTypedDataRule'
         - $ref: '#/components/schemas/SignSolTransactionRule'
+        - $ref: '#/components/schemas/SendSolTransactionRule'
         - $ref: '#/components/schemas/SignEvmHashRule'
         - $ref: '#/components/schemas/PrepareUserOperationRule'
         - $ref: '#/components/schemas/SendUserOperationRule'
@@ -7084,6 +7455,111 @@ components:
       required:
         - amount
         - token
+    OnchainDataQuery:
+      type: object
+      description: Request to execute a SQL query against indexed blockchain data.
+      required:
+        - sql
+      properties:
+        sql:
+          type: string
+          description: SQL query to execute against the indexed blockchain data.
+          example: SELECT block_number, transaction_hash FROM base.transactions WHERE block_number > 1000000 LIMIT 10
+          minLength: 1
+          maxLength: 10000
+    OnchainDataResult:
+      type: object
+      description: Result of executing a SQL query.
+      properties:
+        result:
+          type: array
+          description: Query result as an array of objects representing rows.
+          items:
+            type: object
+            additionalProperties: true
+            description: Row data with column names as keys.
+            example:
+              event_signature: Transfer(address,address,uint256)
+              from: '0x1234567890abcdef'
+              to: '0x1234567890abcdef'
+              amount: 1000000000000000000
+          example:
+            - event_signature: Transfer(address,address,uint256)
+              from: '0x1234567890abcdef'
+              to: '0x1234567890abcdef'
+              amount: 1000000000000000000
+            - event_signature: Transfer(address,address,uint256)
+              from: '0x1234567890abcdef'
+              to: '0x1234567890abcdef'
+              amount: 2000000000000000000
+        schema:
+          type: object
+          description: |
+            Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
+          example:
+            columns:
+              - name: block_number
+                type: UInt64
+              - name: transaction_hash
+                type: String
+          properties:
+            columns:
+              type: array
+              description: Column definitions.
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Column name.
+                  type:
+                    type: string
+                    description: Column data type (ClickHouse types).
+                    enum:
+                      - String
+                      - UInt8
+                      - UInt16
+                      - UInt32
+                      - UInt64
+                      - UInt128
+                      - UInt256
+                      - Int8
+                      - Int16
+                      - Int32
+                      - Int64
+                      - Int128
+                      - Int256
+                      - Float32
+                      - Float64
+                      - Bool
+                      - Date
+                      - DateTime
+                      - DateTime64
+                      - UUID
+                example:
+                  name: event_signature
+                  type: String
+                  description: The signature of the event.
+        metadata:
+          type: object
+          description: Metadata about query execution.
+          properties:
+            cached:
+              type: boolean
+              description: Whether the result was served from cache.
+              example: false
+            executionTimeMs:
+              type: integer
+              description: Query execution time in milliseconds.
+              example: 145
+            rowCount:
+              type: integer
+              description: Number of rows returned.
+              example: 2
+          example:
+            cached: false
+            executionTimeMs: 145
+            rowCount: 2
     PaymentRailAction:
       description: The action of the payment method.
       type: string
@@ -7653,6 +8129,25 @@ components:
               value:
                 errorType: already_exists
                 errorMessage: Another request with the same idempotency key is currently processing.
+    InvalidSQLQueryError:
+      description: The underlying SQL string is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            unsupported_query:
+              value:
+                errorType: invalid_sql_query
+                errorMessage: INSERTs are not supported
+            invalid_sql:
+              value:
+                errorType: invalid_sql_query
+                errorMessage: 'SQL syntax error: Invalid table name ''invalid_table'''
+            query_too_long:
+              value:
+                errorType: invalid_sql_query
+                errorMessage: Query exceeds maximum length of 10,000 characters
     UnauthorizedError:
       description: Unauthorized.
       content:
@@ -7664,6 +8159,17 @@ components:
               value:
                 errorType: unauthorized
                 errorMessage: The request is not properly authenticated.
+    TimedOutError:
+      description: The request timed out.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            timed_out:
+              value:
+                errorType: timed_out
+                errorMessage: The request timed out because the server did not respond in time.
     RateLimitExceeded:
       description: Rate limit exceeded.
       content:

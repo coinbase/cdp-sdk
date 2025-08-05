@@ -1,5 +1,29 @@
 # CDP SDK Changelog
 
+## 1.33.0
+
+### Minor Changes
+
+- [#355](https://github.com/coinbase/cdp-sdk/pull/355) [`07bb282`](https://github.com/coinbase/cdp-sdk/commit/07bb2822671b7592987e1bdb7a52015a78ff5d1d) Thanks [@sammccord](https://github.com/sammccord)! - Added netUSDChange to sign/sendEvmTransaction policy rules
+
+## 1.32.0
+
+### Minor Changes
+
+- [#343](https://github.com/coinbase/cdp-sdk/pull/343) [`ce09b05`](https://github.com/coinbase/cdp-sdk/commit/ce09b056690d77eab289599182f883f6df77fad7) Thanks [@sddioulde](https://github.com/sddioulde)! - Added SendSolTransaction rule and updated SignSolTransaction rule with new criteria
+
+## 1.31.1
+
+### Patch Changes
+
+- [#347](https://github.com/coinbase/cdp-sdk/pull/347) [`ad9f725`](https://github.com/coinbase/cdp-sdk/commit/ad9f725f5f4ba4e1dd8879433de0f271a4893af3) Thanks [@sddioulde](https://github.com/sddioulde)! - Added token symbol and name to EVM token balances response in TypeScript
+
+## 1.31.0
+
+### Minor Changes
+
+- SendEvmTransaction support for new EVM networks - arbitrum, polygon, optimism, avalanche
+
 ## 1.30.0
 
 ### Minor Changes

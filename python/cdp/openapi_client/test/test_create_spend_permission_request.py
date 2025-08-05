@@ -37,7 +37,6 @@ class TestCreateSpendPermissionRequest(unittest.TestCase):
         if include_optional:
             return CreateSpendPermissionRequest(
                 network = 'base',
-                account = '0xd53Ee96438383Bb1eff07958D110B81363E9Ab47',
                 spender = '0x9Fb909eA400c2b8D99Be292DADf07e63B814527c',
                 token = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
                 allowance = '1000000000000000000',
@@ -51,7 +50,6 @@ class TestCreateSpendPermissionRequest(unittest.TestCase):
         else:
             return CreateSpendPermissionRequest(
                 network = 'base',
-                account = '0xd53Ee96438383Bb1eff07958D110B81363E9Ab47',
                 spender = '0x9Fb909eA400c2b8D99Be292DADf07e63B814527c',
                 token = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
                 allowance = '1000000000000000000',

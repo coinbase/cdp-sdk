@@ -1,6 +1,6 @@
 [project]
 name = "cdp-sdk"
-version = "1.25.0"
+version = "1.28.0"
 description = "CDP SDK"
 license = {text = "MIT"}
 readme = "README.md"
@@ -87,4 +87,3 @@ issue_format = "[#{issue}](https://github.com/coinbase/cdp-sdk/pull/{issue})"
 
 [project.scripts]
 test = "pytest:main"
-

@@ -45,6 +45,7 @@ export const ErrorType = {
   idempotency_error: "idempotency_error",
   internal_server_error: "internal_server_error",
   invalid_request: "invalid_request",
+  invalid_sql_query: "invalid_sql_query",
   invalid_signature: "invalid_signature",
   malformed_transaction: "malformed_transaction",
   not_found: "not_found",
@@ -243,11 +244,6 @@ export interface EvmUserOperation {
 export interface CreateSpendPermissionRequest {
   /** The network of the spend permission. */
   network: string;
-  /**
-   * Smart account this spend permission is valid for.
-   * @pattern ^0x[a-fA-F0-9]{40}$
-   */
-  account: string;
   /**
    * Entity that can spend account's tokens.
    * @pattern ^0x[a-fA-F0-9]{40}$
@@ -931,10 +927,49 @@ export interface EvmDataCriterion {
   conditions: EvmDataCondition[];
 }
 
+/**
+ * The type of criterion to use. This should be `netUSDChange`.
+ */
+export type NetUSDChangeCriterionType =
+  (typeof NetUSDChangeCriterionType)[keyof typeof NetUSDChangeCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const NetUSDChangeCriterionType = {
+  netUSDChange: "netUSDChange",
+} as const;
+
+/**
+ * The operator to use for the comparison. The total value of a transaction's asset transfer will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side.
+ */
+export type NetUSDChangeCriterionOperator =
+  (typeof NetUSDChangeCriterionOperator)[keyof typeof NetUSDChangeCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const NetUSDChangeCriterionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * A schema for specifying a criterion for the USD denominated asset transfer or exposure for a transaction. This includes native transfers, as well as token transfers.
+ */
+export interface NetUSDChangeCriterion {
+  /** The type of criterion to use. This should be `netUSDChange`. */
+  type: NetUSDChangeCriterionType;
+  /** The amount of USD, in cents, that the total value of a transaction's asset transfer should be compared to. */
+  changeCents: number;
+  /** The operator to use for the comparison. The total value of a transaction's asset transfer will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side. */
+  operator: NetUSDChangeCriterionOperator;
+}
+
 export type SignEvmTransactionCriteriaItem =
   | EthValueCriterion
   | EvmAddressCriterion
-  | EvmDataCriterion;
+  | EvmDataCriterion
+  | NetUSDChangeCriterion;
 
 /**
  * A schema for specifying criteria for the SignEvmTransaction operation.
@@ -993,6 +1028,14 @@ export type EvmNetworkCriterionNetworksItem =
 export const EvmNetworkCriterionNetworksItem = {
   "base-sepolia": "base-sepolia",
   base: "base",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+  avalanche: "avalanche",
+  polygon: "polygon",
+  optimism: "optimism",
+  arbitrum: "arbitrum",
+  zora: "zora",
+  bnb: "bnb",
 } as const;
 
 /**
@@ -1023,7 +1066,8 @@ export type SendEvmTransactionCriteriaItem =
   | EthValueCriterion
   | EvmAddressCriterion
   | EvmNetworkCriterion
-  | EvmDataCriterion;
+  | EvmDataCriterion
+  | NetUSDChangeCriterion;
 
 /**
  * A schema for specifying criteria for the SignEvmTransaction operation.
@@ -1342,9 +1386,162 @@ export interface SolAddressCriterion {
 }
 
 /**
+ * The type of criterion to use. This should be `solValue`.
+ */
+export type SolValueCriterionType =
+  (typeof SolValueCriterionType)[keyof typeof SolValueCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolValueCriterionType = {
+  solValue: "solValue",
+} as const;
+
+/**
+ * The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `solValue` field will be on the right-hand side.
+ */
+export type SolValueCriterionOperator =
+  (typeof SolValueCriterionOperator)[keyof typeof SolValueCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolValueCriterionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * The criterion for the SOL value in lamports of a native transfer instruction in a Solana transaction.
+ */
+export interface SolValueCriterion {
+  /** The type of criterion to use. This should be `solValue`. */
+  type: SolValueCriterionType;
+  /** The amount of SOL in lamports that the transaction instruction's `value` field should be compared to. */
+  solValue: string;
+  /** The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `solValue` field will be on the right-hand side. */
+  operator: SolValueCriterionOperator;
+}
+
+/**
+ * The type of criterion to use. This should be `splAddress`.
+ */
+export type SplAddressCriterionType =
+  (typeof SplAddressCriterionType)[keyof typeof SplAddressCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SplAddressCriterionType = {
+  splAddress: "splAddress",
+} as const;
+
+/**
+ * The operator to use for the comparison. Each of the SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+ */
+export type SplAddressCriterionOperator =
+  (typeof SplAddressCriterionOperator)[keyof typeof SplAddressCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SplAddressCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * The criterion for the recipient addresses of a Solana transaction's SPL token transfer instructions.
+ */
+export interface SplAddressCriterion {
+  /** The type of criterion to use. This should be `splAddress`. */
+  type: SplAddressCriterionType;
+  /** The Solana addresses that are compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array. */
+  addresses: string[];
+  /** The operator to use for the comparison. Each of the SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
+  operator: SplAddressCriterionOperator;
+}
+
+/**
+ * The type of criterion to use. This should be `splValue`.
+ */
+export type SplValueCriterionType =
+  (typeof SplValueCriterionType)[keyof typeof SplValueCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SplValueCriterionType = {
+  splValue: "splValue",
+} as const;
+
+/**
+ * The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `splValue` field will be on the right-hand side.
+ */
+export type SplValueCriterionOperator =
+  (typeof SplValueCriterionOperator)[keyof typeof SplValueCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SplValueCriterionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * The criterion for the SPL token value of a SPL token transfer instruction in a Solana transaction.
+ */
+export interface SplValueCriterion {
+  /** The type of criterion to use. This should be `splValue`. */
+  type: SplValueCriterionType;
+  /** The amount of the SPL token that the transaction instruction's `value` field should be compared to. */
+  splValue: string;
+  /** The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `splValue` field will be on the right-hand side. */
+  operator: SplValueCriterionOperator;
+}
+
+/**
+ * The type of criterion to use. This should be `mintAddress`.
+ */
+export type MintAddressCriterionType =
+  (typeof MintAddressCriterionType)[keyof typeof MintAddressCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MintAddressCriterionType = {
+  mintAddress: "mintAddress",
+} as const;
+
+/**
+ * The operator to use for the comparison. Each of the token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+ */
+export type MintAddressCriterionOperator =
+  (typeof MintAddressCriterionOperator)[keyof typeof MintAddressCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MintAddressCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
+ */
+export interface MintAddressCriterion {
+  /** The type of criterion to use. This should be `mintAddress`. */
+  type: MintAddressCriterionType;
+  /** The Solana addresses that are compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array. */
+  addresses: string[];
+  /** The operator to use for the comparison. Each of the token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
+  operator: MintAddressCriterionOperator;
+}
+
+export type SignSolTransactionCriteriaItem =
+  | SolAddressCriterion
+  | SolValueCriterion
+  | SplAddressCriterion
+  | SplValueCriterion
+  | MintAddressCriterion;
+
+/**
  * A schema for specifying criteria for the SignSolTransaction operation.
  */
-export type SignSolTransactionCriteria = SolAddressCriterion[];
+export type SignSolTransactionCriteria = SignSolTransactionCriteriaItem[];
 
 /**
  * Whether matching the rule will cause the request to be rejected or accepted.
@@ -1375,6 +1572,49 @@ export interface SignSolTransactionRule {
   /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
   operation: SignSolTransactionRuleOperation;
   criteria: SignSolTransactionCriteria;
+}
+
+export type SendSolTransactionCriteriaItem =
+  | SolAddressCriterion
+  | SolValueCriterion
+  | SplAddressCriterion
+  | SplValueCriterion
+  | MintAddressCriterion;
+
+/**
+ * A schema for specifying criteria for the SendSolTransaction operation.
+ */
+export type SendSolTransactionCriteria = SendSolTransactionCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SendSolTransactionRuleAction =
+  (typeof SendSolTransactionRuleAction)[keyof typeof SendSolTransactionRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendSolTransactionRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SendSolTransactionRuleOperation =
+  (typeof SendSolTransactionRuleOperation)[keyof typeof SendSolTransactionRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendSolTransactionRuleOperation = {
+  sendSolTransaction: "sendSolTransaction",
+} as const;
+
+export interface SendSolTransactionRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SendSolTransactionRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SendSolTransactionRuleOperation;
+  criteria: SendSolTransactionCriteria;
 }
 
 /**
@@ -1499,6 +1739,7 @@ export type Rule =
   | SignEvmMessageRule
   | SignEvmTypedDataRule
   | SignSolTransactionRule
+  | SendSolTransactionRule
   | SignEvmHashRule
   | PrepareUserOperationRule
   | SendUserOperationRule;
@@ -1608,6 +1849,94 @@ For native SOL, the mint address is `So11111111111111111111111111111111111111111
 export interface SolanaTokenBalance {
   amount: SolanaTokenAmount;
   token: SolanaToken;
+}
+
+/**
+ * Request to execute a SQL query against indexed blockchain data.
+ */
+export interface OnchainDataQuery {
+  /**
+   * SQL query to execute against the indexed blockchain data.
+   * @minLength 1
+   * @maxLength 10000
+   */
+  sql: string;
+}
+
+/**
+ * Row data with column names as keys.
+ */
+export type OnchainDataResultResultItem = { [key: string]: unknown };
+
+/**
+ * Column data type (ClickHouse types).
+ */
+export type OnchainDataResultSchemaColumnsItemType =
+  (typeof OnchainDataResultSchemaColumnsItemType)[keyof typeof OnchainDataResultSchemaColumnsItemType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnchainDataResultSchemaColumnsItemType = {
+  String: "String",
+  UInt8: "UInt8",
+  UInt16: "UInt16",
+  UInt32: "UInt32",
+  UInt64: "UInt64",
+  UInt128: "UInt128",
+  UInt256: "UInt256",
+  Int8: "Int8",
+  Int16: "Int16",
+  Int32: "Int32",
+  Int64: "Int64",
+  Int128: "Int128",
+  Int256: "Int256",
+  Float32: "Float32",
+  Float64: "Float64",
+  Bool: "Bool",
+  Date: "Date",
+  DateTime: "DateTime",
+  DateTime64: "DateTime64",
+  UUID: "UUID",
+} as const;
+
+export type OnchainDataResultSchemaColumnsItem = {
+  /** Column name. */
+  name?: string;
+  /** Column data type (ClickHouse types). */
+  type?: OnchainDataResultSchemaColumnsItemType;
+};
+
+/**
+ * Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
+
+ */
+export type OnchainDataResultSchema = {
+  /** Column definitions. */
+  columns?: OnchainDataResultSchemaColumnsItem[];
+};
+
+/**
+ * Metadata about query execution.
+ */
+export type OnchainDataResultMetadata = {
+  /** Whether the result was served from cache. */
+  cached?: boolean;
+  /** Query execution time in milliseconds. */
+  executionTimeMs?: number;
+  /** Number of rows returned. */
+  rowCount?: number;
+};
+
+/**
+ * Result of executing a SQL query.
+ */
+export interface OnchainDataResult {
+  /** Query result as an array of objects representing rows. */
+  result?: OnchainDataResultResultItem[];
+  /** Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
+   */
+  schema?: OnchainDataResultSchema;
+  /** Metadata about query execution. */
+  metadata?: OnchainDataResultMetadata;
 }
 
 /**
@@ -1975,9 +2304,19 @@ export type IdempotencyErrorResponse = Error;
 export type AlreadyExistsErrorResponse = Error;
 
 /**
+ * The underlying SQL string is invalid.
+ */
+export type InvalidSQLQueryErrorResponse = Error;
+
+/**
  * Unauthorized.
  */
 export type UnauthorizedErrorResponse = Error;
+
+/**
+ * The request timed out.
+ */
+export type TimedOutErrorResponse = Error;
 
 /**
  * Rate limit exceeded.

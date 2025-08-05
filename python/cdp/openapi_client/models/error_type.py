@@ -34,6 +34,7 @@ class ErrorType(str, Enum):
     IDEMPOTENCY_ERROR = 'idempotency_error'
     INTERNAL_SERVER_ERROR = 'internal_server_error'
     INVALID_REQUEST = 'invalid_request'
+    INVALID_SQL_QUERY = 'invalid_sql_query'
     INVALID_SIGNATURE = 'invalid_signature'
     MALFORMED_TRANSACTION = 'malformed_transaction'
     NOT_FOUND = 'not_found'

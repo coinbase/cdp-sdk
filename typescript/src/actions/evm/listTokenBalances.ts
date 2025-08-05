@@ -92,6 +92,8 @@ export async function listTokenBalances(
       token: {
         network: balance.token.network,
         contractAddress: balance.token.contractAddress as Address,
+        symbol: balance.token.symbol,
+        name: balance.token.name,
       },
       amount: {
         amount: BigInt(balance.amount.amount),

@@ -330,15 +330,64 @@ class EvmClient:
             x_idempotency_key=idempotency_key,
         )
 
-    async def list_spend_permissions(self, address: str) -> ListEvmAccountsResponse:
-        """List spend permissions for a smart account."""
-        pass
+    async def list_spend_permissions(
+        self, address: str, page_size: int | None = None, page_token: str | None = None
+    ) -> ListEvmAccountsResponse:
+        """List spend permissions for a smart account.
+
+        Args:
+            address (str): The address of the smart account.
+            page_size (int, optional): The number of spend permissions to return per page. Defaults to None.
+            page_token (str, optional): The token for the next page of spend permissions, if any. Defaults to None.
+
+        Returns:
+            ListEvmAccountsResponse: The list of spend permissions.
+
+        """
+        track_action(action="list_spend_permissions")
+
+        return await self.api_clients.evm_smart_accounts.list_spend_permissions(
+            address,
+            page_size=page_size,
+            page_token=page_token,
+        )
 
     async def revoke_spend_permission(
-        self, address: str, permission_hash: str
+        self,
+        address: str,
+        permission_hash: str,
+        network: str,
+        paymaster_url: str | None = None,
+        idempotency_key: str | None = None,
     ) -> EvmUserOperationModel:
-        """Revoke a spend permission for a smart account."""
-        pass
+        """Revoke a spend permission for a smart account.
+
+        Args:
+            address (str): The address of the smart account.
+            permission_hash (str): The hash of the spend permission to revoke.
+            network (str): The network of the spend permission.
+            paymaster_url (str, optional): The paymaster URL of the spend permission.
+            idempotency_key (str, optional): The idempotency key.
+
+        Returns:
+            EvmUserOperationModel: The user operation to revoke the spend permission.
+
+        """
+        from cdp.openapi_client.models.revoke_spend_permission_request import (
+            RevokeSpendPermissionRequest,
+        )
+
+        track_action(action="revoke_spend_permission")
+
+        return await self.api_clients.evm_smart_accounts.revoke_spend_permission(
+            address=address,
+            revoke_spend_permission_request=RevokeSpendPermissionRequest(
+                permission_hash=permission_hash,
+                network=network,
+                paymaster_url=paymaster_url,
+            ),
+            x_idempotency_key=idempotency_key,
+        )
 
     async def get_account(
         self, address: str | None = None, name: str | None = None

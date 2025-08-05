@@ -92,6 +92,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
         accountType: "evm_smart",
         properties: {
           network: options.network,
+          managed: true,
         },
       });
 
@@ -108,6 +109,9 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
       Analytics.trackAction({
         action: "wait_for_user_operation",
         accountType: "evm_smart",
+        properties: {
+          managed: true,
+        },
       });
 
       return waitForUserOperation(apiClient, {
@@ -119,6 +123,9 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
       Analytics.trackAction({
         action: "get_user_operation",
         accountType: "evm_smart",
+        properties: {
+          managed: true,
+        },
       });
 
       return getUserOperation(apiClient, {
@@ -136,6 +143,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
           accountType: "evm_smart",
           properties: {
             network: options.network,
+            managed: true,
           },
         });
 
@@ -163,6 +171,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
           accountType: "evm_smart",
           properties: {
             network: options.network,
+            managed: true,
           },
         });
 
@@ -183,6 +192,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
           accountType: "evm_smart",
           properties: {
             network: options.network,
+            managed: true,
           },
         });
 
@@ -203,6 +213,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
           accountType: "evm_smart",
           properties: {
             network: options.network,
+            managed: true,
           },
         });
 
@@ -222,6 +233,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
           accountType: "evm_smart",
           properties: {
             network: options.network,
+            managed: true,
           },
         });
 
@@ -244,6 +256,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
           accountType: "evm_smart",
           properties: {
             network: options.network,
+            managed: true,
           },
         });
 
@@ -266,6 +279,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
           accountType: "evm_smart",
           properties: {
             network: options.network,
+            managed: true,
           },
         });
 
@@ -286,6 +300,14 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
       __experimental_useSpendPermission: async (
         spendPermissionOptions: Omit<UseSpendPermissionOptions, "network">,
       ) => {
+        Analytics.trackAction({
+          action: "use_spend_permission",
+          accountType: "evm_smart",
+          properties: {
+            managed: true,
+          },
+        });
+
         return options.smartAccount.__experimental_useSpendPermission({
           ...spendPermissionOptions,
           network: options.network as SpendPermissionNetworks,

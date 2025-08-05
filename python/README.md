@@ -588,26 +588,26 @@ async def main():
         await cdp.solana.request_faucet(address=sender.address, token="sol")
 
         connection = SolanaClient("https://api.devnet.solana.com")
-        
+
         source_pubkey = PublicKey.from_string(sender.address)
         dest_pubkey = PublicKey.from_string("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE")
         blockhash = connection.get_latest_blockhash().value.blockhash
-        
+
         transfer_instruction = transfer(TransferParams(
             from_pubkey=source_pubkey,
             to_pubkey=dest_pubkey,
             lamports=1000
         ))
-        
+
         message = Message.new_with_blockhash([transfer_instruction], source_pubkey, blockhash)
         tx_bytes = bytes([1]) + bytes([0] * 64) + bytes(message)
         serialized_tx = base64.b64encode(tx_bytes).decode("utf-8")
-        
+
         response = await cdp.solana.send_transaction(
             network="solana-devnet",
             transaction=serialized_tx
         )
-        
+
         print(f"Transaction sent: {response.transaction_signature}")
         print(f"Explorer: https://explorer.solana.com/tx/{response.transaction_signature}?cluster=devnet")
 
@@ -1193,11 +1193,15 @@ policy = await cdp.policies.delete_policy(id="__POLICY_ID__")
 
 We currently support the following policy rules:
 
-- `SendEvmTransactionRule`
-- `SignEvmHashRule`
-- `SignEvmMessageRule`
-- `SignEvmTransactionRule`
-- `SignSolanaTransactionRule`
+- [SignEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-1)
+- [SendEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-2)
+- [SignEvmMessageRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-3)
+- [SignEvmTypedDataRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-4)
+- [SignSolanaTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-5)
+- [SendSolanaTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-6)
+- [SignEvmHashRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-7)
+- [PrepareUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-8)
+- [SendUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-9)
 
 ## Authentication tools
 

@@ -2,6 +2,31 @@
 
 <!-- towncrier release notes start -->
 
+## [1.28.0] - 2025-08-05
+
+### Features
+
+- Added netUSDChange criteria for sign/sendEvmTransaction rules ([#1218](https://github.com/coinbase/cdp-sdk/pull/1218))
+
+
+## [1.27.0] - 2025-08-04
+
+### Features
+
+- Added SendSolTransaction rule and updated SignSolTransaction rule with new criteria ([#344](https://github.com/coinbase/cdp-sdk/pull/344))
+
+
+## [1.26.0] - 2025-07-31
+
+### Features
+
+- SendEvmTransaction support for new EVM networks - arbitrum, polygon, optimism, avalanche ([#338](https://github.com/coinbase/cdp-sdk/pull/338))
+
+### Bugfixes
+
+- Fixed evmData in python request/response transformer ([#317](https://github.com/coinbase/cdp-sdk/pull/317))
+
+
 ## [1.25.0] - 2025-07-23
 
 ### Features

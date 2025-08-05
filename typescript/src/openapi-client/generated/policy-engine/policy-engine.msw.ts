@@ -24,10 +24,15 @@ import type {
   EvmTypedNumericalCondition,
   EvmTypedStringCondition,
   ListPolicies200,
+  MintAddressCriterion,
+  NetUSDChangeCriterion,
   Policy,
   SignEvmTypedDataFieldCriterion,
   SignEvmTypedDataVerifyingContractCriterion,
   SolAddressCriterion,
+  SolValueCriterion,
+  SplAddressCriterion,
+  SplValueCriterion,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 export const getListPoliciesResponseEthValueCriterionMock = (
@@ -159,12 +164,34 @@ export const getListPoliciesResponseEvmDataCriterionMock = (
   ...overrideResponse,
 });
 
+export const getListPoliciesResponseNetUSDChangeCriterionMock = (
+  overrideResponse: Partial<NetUSDChangeCriterion> = {},
+): NetUSDChangeCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["netUSDChange"] as const),
+    changeCents: faker.number.int({ min: undefined, max: undefined }),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getListPoliciesResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
   ...{
     type: faker.helpers.arrayElement(["evmNetwork"] as const),
-    networks: faker.helpers.arrayElements(["base-sepolia", "base"] as const),
+    networks: faker.helpers.arrayElements([
+      "base-sepolia",
+      "base",
+      "ethereum",
+      "ethereum-sepolia",
+      "avalanche",
+      "polygon",
+      "optimism",
+      "arbitrum",
+      "zora",
+      "bnb",
+    ] as const),
     operator: faker.helpers.arrayElement(["in", "not in"] as const),
   },
   ...overrideResponse,
@@ -263,6 +290,54 @@ export const getListPoliciesResponseSolAddressCriterionMock = (
   ...overrideResponse,
 });
 
+export const getListPoliciesResponseSolValueCriterionMock = (
+  overrideResponse: Partial<SolValueCriterion> = {},
+): SolValueCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["solValue"] as const),
+    solValue: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseSplAddressCriterionMock = (
+  overrideResponse: Partial<SplAddressCriterion> = {},
+): SplAddressCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["splAddress"] as const),
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseSplValueCriterionMock = (
+  overrideResponse: Partial<SplValueCriterion> = {},
+): SplValueCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["splValue"] as const),
+    splValue: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseMintAddressCriterionMock = (
+  overrideResponse: Partial<MintAddressCriterion> = {},
+): MintAddressCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["mintAddress"] as const),
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getListPoliciesResponseMock = (): ListPolicies200 => ({
   ...{
     policies: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
@@ -289,6 +364,7 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
                     { ...getListPoliciesResponseEthValueCriterionMock() },
                     { ...getListPoliciesResponseEvmAddressCriterionMock() },
                     { ...getListPoliciesResponseEvmDataCriterionMock() },
+                    { ...getListPoliciesResponseNetUSDChangeCriterionMock() },
                   ]),
                 ),
               },
@@ -304,6 +380,7 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
                     { ...getListPoliciesResponseEvmAddressCriterionMock() },
                     { ...getListPoliciesResponseEvmNetworkCriterionMock() },
                     { ...getListPoliciesResponseEvmDataCriterionMock() },
+                    { ...getListPoliciesResponseNetUSDChangeCriterionMock() },
                   ]),
                 ),
               },
@@ -341,6 +418,26 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
                 ).map(() =>
                   faker.helpers.arrayElement([
                     { ...getListPoliciesResponseSolAddressCriterionMock() },
+                    { ...getListPoliciesResponseSolValueCriterionMock() },
+                    { ...getListPoliciesResponseSplAddressCriterionMock() },
+                    { ...getListPoliciesResponseSplValueCriterionMock() },
+                    { ...getListPoliciesResponseMintAddressCriterionMock() },
+                  ]),
+                ),
+              },
+              {
+                action: faker.helpers.arrayElement(["reject", "accept"] as const),
+                operation: faker.helpers.arrayElement(["sendSolTransaction"] as const),
+                criteria: Array.from(
+                  { length: faker.number.int({ min: 1, max: 10 }) },
+                  (_, i) => i + 1,
+                ).map(() =>
+                  faker.helpers.arrayElement([
+                    { ...getListPoliciesResponseSolAddressCriterionMock() },
+                    { ...getListPoliciesResponseSolValueCriterionMock() },
+                    { ...getListPoliciesResponseSplAddressCriterionMock() },
+                    { ...getListPoliciesResponseSplValueCriterionMock() },
+                    { ...getListPoliciesResponseMintAddressCriterionMock() },
                   ]),
                 ),
               },
@@ -516,12 +613,34 @@ export const getCreatePolicyResponseEvmDataCriterionMock = (
   ...overrideResponse,
 });
 
+export const getCreatePolicyResponseNetUSDChangeCriterionMock = (
+  overrideResponse: Partial<NetUSDChangeCriterion> = {},
+): NetUSDChangeCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["netUSDChange"] as const),
+    changeCents: faker.number.int({ min: undefined, max: undefined }),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getCreatePolicyResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
   ...{
     type: faker.helpers.arrayElement(["evmNetwork"] as const),
-    networks: faker.helpers.arrayElements(["base-sepolia", "base"] as const),
+    networks: faker.helpers.arrayElements([
+      "base-sepolia",
+      "base",
+      "ethereum",
+      "ethereum-sepolia",
+      "avalanche",
+      "polygon",
+      "optimism",
+      "arbitrum",
+      "zora",
+      "bnb",
+    ] as const),
     operator: faker.helpers.arrayElement(["in", "not in"] as const),
   },
   ...overrideResponse,
@@ -620,6 +739,54 @@ export const getCreatePolicyResponseSolAddressCriterionMock = (
   ...overrideResponse,
 });
 
+export const getCreatePolicyResponseSolValueCriterionMock = (
+  overrideResponse: Partial<SolValueCriterion> = {},
+): SolValueCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["solValue"] as const),
+    solValue: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseSplAddressCriterionMock = (
+  overrideResponse: Partial<SplAddressCriterion> = {},
+): SplAddressCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["splAddress"] as const),
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+  },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseSplValueCriterionMock = (
+  overrideResponse: Partial<SplValueCriterion> = {},
+): SplValueCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["splValue"] as const),
+    splValue: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseMintAddressCriterionMock = (
+  overrideResponse: Partial<MintAddressCriterion> = {},
+): MintAddressCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["mintAddress"] as const),
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = {}): Policy => ({
   id: faker.helpers.fromRegExp(
     "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
@@ -642,6 +809,7 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getCreatePolicyResponseEthValueCriterionMock() },
             { ...getCreatePolicyResponseEvmAddressCriterionMock() },
             { ...getCreatePolicyResponseEvmDataCriterionMock() },
+            { ...getCreatePolicyResponseNetUSDChangeCriterionMock() },
           ]),
         ),
       },
@@ -657,6 +825,7 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getCreatePolicyResponseEvmAddressCriterionMock() },
             { ...getCreatePolicyResponseEvmNetworkCriterionMock() },
             { ...getCreatePolicyResponseEvmDataCriterionMock() },
+            { ...getCreatePolicyResponseNetUSDChangeCriterionMock() },
           ]),
         ),
       },
@@ -690,7 +859,29 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
           { length: faker.number.int({ min: 1, max: 10 }) },
           (_, i) => i + 1,
         ).map(() =>
-          faker.helpers.arrayElement([{ ...getCreatePolicyResponseSolAddressCriterionMock() }]),
+          faker.helpers.arrayElement([
+            { ...getCreatePolicyResponseSolAddressCriterionMock() },
+            { ...getCreatePolicyResponseSolValueCriterionMock() },
+            { ...getCreatePolicyResponseSplAddressCriterionMock() },
+            { ...getCreatePolicyResponseSplValueCriterionMock() },
+            { ...getCreatePolicyResponseMintAddressCriterionMock() },
+          ]),
+        ),
+      },
+      {
+        action: faker.helpers.arrayElement(["reject", "accept"] as const),
+        operation: faker.helpers.arrayElement(["sendSolTransaction"] as const),
+        criteria: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() =>
+          faker.helpers.arrayElement([
+            { ...getCreatePolicyResponseSolAddressCriterionMock() },
+            { ...getCreatePolicyResponseSolValueCriterionMock() },
+            { ...getCreatePolicyResponseSplAddressCriterionMock() },
+            { ...getCreatePolicyResponseSplValueCriterionMock() },
+            { ...getCreatePolicyResponseMintAddressCriterionMock() },
+          ]),
         ),
       },
       {
@@ -862,12 +1053,34 @@ export const getGetPolicyByIdResponseEvmDataCriterionMock = (
   ...overrideResponse,
 });
 
+export const getGetPolicyByIdResponseNetUSDChangeCriterionMock = (
+  overrideResponse: Partial<NetUSDChangeCriterion> = {},
+): NetUSDChangeCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["netUSDChange"] as const),
+    changeCents: faker.number.int({ min: undefined, max: undefined }),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getGetPolicyByIdResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
   ...{
     type: faker.helpers.arrayElement(["evmNetwork"] as const),
-    networks: faker.helpers.arrayElements(["base-sepolia", "base"] as const),
+    networks: faker.helpers.arrayElements([
+      "base-sepolia",
+      "base",
+      "ethereum",
+      "ethereum-sepolia",
+      "avalanche",
+      "polygon",
+      "optimism",
+      "arbitrum",
+      "zora",
+      "bnb",
+    ] as const),
     operator: faker.helpers.arrayElement(["in", "not in"] as const),
   },
   ...overrideResponse,
@@ -966,6 +1179,54 @@ export const getGetPolicyByIdResponseSolAddressCriterionMock = (
   ...overrideResponse,
 });
 
+export const getGetPolicyByIdResponseSolValueCriterionMock = (
+  overrideResponse: Partial<SolValueCriterion> = {},
+): SolValueCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["solValue"] as const),
+    solValue: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseSplAddressCriterionMock = (
+  overrideResponse: Partial<SplAddressCriterion> = {},
+): SplAddressCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["splAddress"] as const),
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+  },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseSplValueCriterionMock = (
+  overrideResponse: Partial<SplValueCriterion> = {},
+): SplValueCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["splValue"] as const),
+    splValue: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseMintAddressCriterionMock = (
+  overrideResponse: Partial<MintAddressCriterion> = {},
+): MintAddressCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["mintAddress"] as const),
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> = {}): Policy => ({
   id: faker.helpers.fromRegExp(
     "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
@@ -988,6 +1249,7 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
             { ...getGetPolicyByIdResponseEthValueCriterionMock() },
             { ...getGetPolicyByIdResponseEvmAddressCriterionMock() },
             { ...getGetPolicyByIdResponseEvmDataCriterionMock() },
+            { ...getGetPolicyByIdResponseNetUSDChangeCriterionMock() },
           ]),
         ),
       },
@@ -1003,6 +1265,7 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
             { ...getGetPolicyByIdResponseEvmAddressCriterionMock() },
             { ...getGetPolicyByIdResponseEvmNetworkCriterionMock() },
             { ...getGetPolicyByIdResponseEvmDataCriterionMock() },
+            { ...getGetPolicyByIdResponseNetUSDChangeCriterionMock() },
           ]),
         ),
       },
@@ -1036,7 +1299,29 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
           { length: faker.number.int({ min: 1, max: 10 }) },
           (_, i) => i + 1,
         ).map(() =>
-          faker.helpers.arrayElement([{ ...getGetPolicyByIdResponseSolAddressCriterionMock() }]),
+          faker.helpers.arrayElement([
+            { ...getGetPolicyByIdResponseSolAddressCriterionMock() },
+            { ...getGetPolicyByIdResponseSolValueCriterionMock() },
+            { ...getGetPolicyByIdResponseSplAddressCriterionMock() },
+            { ...getGetPolicyByIdResponseSplValueCriterionMock() },
+            { ...getGetPolicyByIdResponseMintAddressCriterionMock() },
+          ]),
+        ),
+      },
+      {
+        action: faker.helpers.arrayElement(["reject", "accept"] as const),
+        operation: faker.helpers.arrayElement(["sendSolTransaction"] as const),
+        criteria: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() =>
+          faker.helpers.arrayElement([
+            { ...getGetPolicyByIdResponseSolAddressCriterionMock() },
+            { ...getGetPolicyByIdResponseSolValueCriterionMock() },
+            { ...getGetPolicyByIdResponseSplAddressCriterionMock() },
+            { ...getGetPolicyByIdResponseSplValueCriterionMock() },
+            { ...getGetPolicyByIdResponseMintAddressCriterionMock() },
+          ]),
         ),
       },
       {
@@ -1208,12 +1493,34 @@ export const getUpdatePolicyResponseEvmDataCriterionMock = (
   ...overrideResponse,
 });
 
+export const getUpdatePolicyResponseNetUSDChangeCriterionMock = (
+  overrideResponse: Partial<NetUSDChangeCriterion> = {},
+): NetUSDChangeCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["netUSDChange"] as const),
+    changeCents: faker.number.int({ min: undefined, max: undefined }),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getUpdatePolicyResponseEvmNetworkCriterionMock = (
   overrideResponse: Partial<EvmNetworkCriterion> = {},
 ): EvmNetworkCriterion => ({
   ...{
     type: faker.helpers.arrayElement(["evmNetwork"] as const),
-    networks: faker.helpers.arrayElements(["base-sepolia", "base"] as const),
+    networks: faker.helpers.arrayElements([
+      "base-sepolia",
+      "base",
+      "ethereum",
+      "ethereum-sepolia",
+      "avalanche",
+      "polygon",
+      "optimism",
+      "arbitrum",
+      "zora",
+      "bnb",
+    ] as const),
     operator: faker.helpers.arrayElement(["in", "not in"] as const),
   },
   ...overrideResponse,
@@ -1312,6 +1619,54 @@ export const getUpdatePolicyResponseSolAddressCriterionMock = (
   ...overrideResponse,
 });
 
+export const getUpdatePolicyResponseSolValueCriterionMock = (
+  overrideResponse: Partial<SolValueCriterion> = {},
+): SolValueCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["solValue"] as const),
+    solValue: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseSplAddressCriterionMock = (
+  overrideResponse: Partial<SplAddressCriterion> = {},
+): SplAddressCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["splAddress"] as const),
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseSplValueCriterionMock = (
+  overrideResponse: Partial<SplValueCriterion> = {},
+): SplValueCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["splValue"] as const),
+    splValue: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseMintAddressCriterionMock = (
+  overrideResponse: Partial<MintAddressCriterion> = {},
+): MintAddressCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["mintAddress"] as const),
+    addresses: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => faker.helpers.fromRegExp("^[1-9A-HJ-NP-Za-km-z]{32,44}$"),
+    ),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+  },
+  ...overrideResponse,
+});
+
 export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = {}): Policy => ({
   id: faker.helpers.fromRegExp(
     "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
@@ -1334,6 +1689,7 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getUpdatePolicyResponseEthValueCriterionMock() },
             { ...getUpdatePolicyResponseEvmAddressCriterionMock() },
             { ...getUpdatePolicyResponseEvmDataCriterionMock() },
+            { ...getUpdatePolicyResponseNetUSDChangeCriterionMock() },
           ]),
         ),
       },
@@ -1349,6 +1705,7 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getUpdatePolicyResponseEvmAddressCriterionMock() },
             { ...getUpdatePolicyResponseEvmNetworkCriterionMock() },
             { ...getUpdatePolicyResponseEvmDataCriterionMock() },
+            { ...getUpdatePolicyResponseNetUSDChangeCriterionMock() },
           ]),
         ),
       },
@@ -1382,7 +1739,29 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
           { length: faker.number.int({ min: 1, max: 10 }) },
           (_, i) => i + 1,
         ).map(() =>
-          faker.helpers.arrayElement([{ ...getUpdatePolicyResponseSolAddressCriterionMock() }]),
+          faker.helpers.arrayElement([
+            { ...getUpdatePolicyResponseSolAddressCriterionMock() },
+            { ...getUpdatePolicyResponseSolValueCriterionMock() },
+            { ...getUpdatePolicyResponseSplAddressCriterionMock() },
+            { ...getUpdatePolicyResponseSplValueCriterionMock() },
+            { ...getUpdatePolicyResponseMintAddressCriterionMock() },
+          ]),
+        ),
+      },
+      {
+        action: faker.helpers.arrayElement(["reject", "accept"] as const),
+        operation: faker.helpers.arrayElement(["sendSolTransaction"] as const),
+        criteria: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() =>
+          faker.helpers.arrayElement([
+            { ...getUpdatePolicyResponseSolAddressCriterionMock() },
+            { ...getUpdatePolicyResponseSolValueCriterionMock() },
+            { ...getUpdatePolicyResponseSplAddressCriterionMock() },
+            { ...getUpdatePolicyResponseSplValueCriterionMock() },
+            { ...getUpdatePolicyResponseMintAddressCriterionMock() },
+          ]),
         ),
       },
       {

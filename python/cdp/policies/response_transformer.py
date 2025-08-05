@@ -11,8 +11,11 @@ from cdp.policies.types import (
     EvmTypedAddressCondition as EvmTypedAddressConditionModel,
     EvmTypedNumericalCondition as EvmTypedNumericalConditionModel,
     EvmTypedStringCondition as EvmTypedStringConditionModel,
+    MintAddressCriterion as MintAddressCriterionModel,
+    NetUSDChangeCriterion as NetUSDChangeCriterionModel,
     Rule as RuleType,
     SendEvmTransactionRule as SendEvmTransactionRuleModel,
+    SendSolanaTransactionRule as SendSolanaTransactionRuleModel,
     SignEvmHashRule as SignEvmHashRuleModel,
     SignEvmMessageRule as SignEvmMessageRuleModel,
     SignEvmTransactionRule as SignEvmTransactionRuleModel,
@@ -21,7 +24,10 @@ from cdp.policies.types import (
     SignEvmTypedDataTypes as SignEvmTypedDataTypesModel,
     SignEvmTypedDataVerifyingContractCriterion as SignEvmTypedDataVerifyingContractCriterionModel,
     SignSolanaTransactionRule as SignSolanaTransactionRuleModel,
-    SolanaAddressCriterion as SolanaAddressCriterionModel,
+    SolAddressCriterion as SolAddressCriterionModel,
+    SolValueCriterion as SolValueCriterionModel,
+    SplAddressCriterion as SplAddressCriterionModel,
+    SplValueCriterion as SplValueCriterionModel,
 )
 
 # Response criterion mapping per operation
@@ -32,6 +38,9 @@ response_criterion_mapping = {
             addresses=c.addresses, operator=c.operator
         ),
         "evmNetwork": lambda c: EvmNetworkCriterionModel(networks=c.networks, operator=c.operator),
+        "netUSDChange": lambda c: NetUSDChangeCriterionModel(
+            changeCents=c.change_cents, operator=c.operator
+        ),
         "evmData": lambda c: EvmDataCriterionModel(
             abi=c.abi.actual_instance,
             conditions=[
@@ -66,6 +75,9 @@ response_criterion_mapping = {
         "ethValue": lambda c: EthValueCriterionModel(ethValue=c.eth_value, operator=c.operator),
         "evmAddress": lambda c: EvmAddressCriterionModel(
             addresses=c.addresses, operator=c.operator
+        ),
+        "netUSDChange": lambda c: NetUSDChangeCriterionModel(
+            changeCents=c.change_cents, operator=c.operator
         ),
         "evmData": lambda c: EvmDataCriterionModel(
             abi=c.abi.actual_instance,
@@ -138,7 +150,28 @@ response_criterion_mapping = {
         ),
     },
     "signSolTransaction": {
-        "solAddress": lambda c: SolanaAddressCriterionModel(
+        "solAddress": lambda c: SolAddressCriterionModel(
+            addresses=c.addresses, operator=c.operator
+        ),
+        "solValue": lambda c: SolValueCriterionModel(solValue=c.sol_value, operator=c.operator),
+        "splAddress": lambda c: SplAddressCriterionModel(
+            addresses=c.addresses, operator=c.operator
+        ),
+        "splValue": lambda c: SplValueCriterionModel(splValue=c.spl_value, operator=c.operator),
+        "mintAddress": lambda c: MintAddressCriterionModel(
+            addresses=c.addresses, operator=c.operator
+        ),
+    },
+    "sendSolTransaction": {
+        "solAddress": lambda c: SolAddressCriterionModel(
+            addresses=c.addresses, operator=c.operator
+        ),
+        "solValue": lambda c: SolValueCriterionModel(solValue=c.sol_value, operator=c.operator),
+        "splAddress": lambda c: SplAddressCriterionModel(
+            addresses=c.addresses, operator=c.operator
+        ),
+        "splValue": lambda c: SplValueCriterionModel(splValue=c.spl_value, operator=c.operator),
+        "mintAddress": lambda c: MintAddressCriterionModel(
             addresses=c.addresses, operator=c.operator
         ),
     },
@@ -152,6 +185,7 @@ response_rule_mapping = {
     "signEvmMessage": SignEvmMessageRuleModel,
     "signEvmTypedData": SignEvmTypedDataRuleModel,
     "signSolTransaction": SignSolanaTransactionRuleModel,
+    "sendSolTransaction": SendSolanaTransactionRuleModel,
 }
 
 

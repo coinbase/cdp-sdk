@@ -68,6 +68,7 @@ const (
 	ErrorTypeInternalServerError            ErrorType = "internal_server_error"
 	ErrorTypeInvalidRequest                 ErrorType = "invalid_request"
 	ErrorTypeInvalidSignature               ErrorType = "invalid_signature"
+	ErrorTypeInvalidSqlQuery                ErrorType = "invalid_sql_query"
 	ErrorTypeMalformedTransaction           ErrorType = "malformed_transaction"
 	ErrorTypeNetworkNotTradable             ErrorType = "network_not_tradable"
 	ErrorTypeNotFound                       ErrorType = "not_found"
@@ -134,8 +135,16 @@ const (
 
 // Defines values for EvmNetworkCriterionNetworks.
 const (
-	EvmNetworkCriterionNetworksBase        EvmNetworkCriterionNetworks = "base"
-	EvmNetworkCriterionNetworksBaseSepolia EvmNetworkCriterionNetworks = "base-sepolia"
+	EvmNetworkCriterionNetworksArbitrum        EvmNetworkCriterionNetworks = "arbitrum"
+	EvmNetworkCriterionNetworksAvalanche       EvmNetworkCriterionNetworks = "avalanche"
+	EvmNetworkCriterionNetworksBase            EvmNetworkCriterionNetworks = "base"
+	EvmNetworkCriterionNetworksBaseSepolia     EvmNetworkCriterionNetworks = "base-sepolia"
+	EvmNetworkCriterionNetworksBnb             EvmNetworkCriterionNetworks = "bnb"
+	EvmNetworkCriterionNetworksEthereum        EvmNetworkCriterionNetworks = "ethereum"
+	EvmNetworkCriterionNetworksEthereumSepolia EvmNetworkCriterionNetworks = "ethereum-sepolia"
+	EvmNetworkCriterionNetworksOptimism        EvmNetworkCriterionNetworks = "optimism"
+	EvmNetworkCriterionNetworksPolygon         EvmNetworkCriterionNetworks = "polygon"
+	EvmNetworkCriterionNetworksZora            EvmNetworkCriterionNetworks = "zora"
 )
 
 // Defines values for EvmNetworkCriterionOperator.
@@ -165,11 +174,11 @@ const (
 
 // Defines values for EvmTypedNumericalConditionOperator.
 const (
-	Empty      EvmTypedNumericalConditionOperator = ">"
-	EqualEqual EvmTypedNumericalConditionOperator = "=="
-	N1         EvmTypedNumericalConditionOperator = ">="
-	N2         EvmTypedNumericalConditionOperator = "<"
-	N3         EvmTypedNumericalConditionOperator = "<="
+	EvmTypedNumericalConditionOperatorEmpty      EvmTypedNumericalConditionOperator = ">"
+	EvmTypedNumericalConditionOperatorEqualEqual EvmTypedNumericalConditionOperator = "=="
+	EvmTypedNumericalConditionOperatorN1         EvmTypedNumericalConditionOperator = ">="
+	EvmTypedNumericalConditionOperatorN2         EvmTypedNumericalConditionOperator = "<"
+	EvmTypedNumericalConditionOperatorN3         EvmTypedNumericalConditionOperator = "<="
 )
 
 // Defines values for EvmUserOperationStatus.
@@ -225,6 +234,55 @@ const (
 const (
 	ListSolanaTokenBalancesNetworkSolana       ListSolanaTokenBalancesNetwork = "solana"
 	ListSolanaTokenBalancesNetworkSolanaDevnet ListSolanaTokenBalancesNetwork = "solana-devnet"
+)
+
+// Defines values for MintAddressCriterionOperator.
+const (
+	MintAddressCriterionOperatorIn    MintAddressCriterionOperator = "in"
+	MintAddressCriterionOperatorNotIn MintAddressCriterionOperator = "not in"
+)
+
+// Defines values for MintAddressCriterionType.
+const (
+	MintAddress MintAddressCriterionType = "mintAddress"
+)
+
+// Defines values for NetUSDChangeCriterionOperator.
+const (
+	NetUSDChangeCriterionOperatorEmpty      NetUSDChangeCriterionOperator = ">"
+	NetUSDChangeCriterionOperatorEqualEqual NetUSDChangeCriterionOperator = "=="
+	NetUSDChangeCriterionOperatorN1         NetUSDChangeCriterionOperator = ">="
+	NetUSDChangeCriterionOperatorN2         NetUSDChangeCriterionOperator = "<"
+	NetUSDChangeCriterionOperatorN3         NetUSDChangeCriterionOperator = "<="
+)
+
+// Defines values for NetUSDChangeCriterionType.
+const (
+	NetUSDChange NetUSDChangeCriterionType = "netUSDChange"
+)
+
+// Defines values for OnchainDataResultSchemaColumnsType.
+const (
+	Bool       OnchainDataResultSchemaColumnsType = "Bool"
+	Date       OnchainDataResultSchemaColumnsType = "Date"
+	DateTime   OnchainDataResultSchemaColumnsType = "DateTime"
+	DateTime64 OnchainDataResultSchemaColumnsType = "DateTime64"
+	Float32    OnchainDataResultSchemaColumnsType = "Float32"
+	Float64    OnchainDataResultSchemaColumnsType = "Float64"
+	Int128     OnchainDataResultSchemaColumnsType = "Int128"
+	Int16      OnchainDataResultSchemaColumnsType = "Int16"
+	Int256     OnchainDataResultSchemaColumnsType = "Int256"
+	Int32      OnchainDataResultSchemaColumnsType = "Int32"
+	Int64      OnchainDataResultSchemaColumnsType = "Int64"
+	Int8       OnchainDataResultSchemaColumnsType = "Int8"
+	String     OnchainDataResultSchemaColumnsType = "String"
+	UInt128    OnchainDataResultSchemaColumnsType = "UInt128"
+	UInt16     OnchainDataResultSchemaColumnsType = "UInt16"
+	UInt256    OnchainDataResultSchemaColumnsType = "UInt256"
+	UInt32     OnchainDataResultSchemaColumnsType = "UInt32"
+	UInt64     OnchainDataResultSchemaColumnsType = "UInt64"
+	UInt8      OnchainDataResultSchemaColumnsType = "UInt8"
+	UUID       OnchainDataResultSchemaColumnsType = "UUID"
 )
 
 // Defines values for OnrampOrderFeeType.
@@ -290,6 +348,17 @@ const (
 // Defines values for SendEvmTransactionRuleOperation.
 const (
 	SendEvmTransaction SendEvmTransactionRuleOperation = "sendEvmTransaction"
+)
+
+// Defines values for SendSolTransactionRuleAction.
+const (
+	SendSolTransactionRuleActionAccept SendSolTransactionRuleAction = "accept"
+	SendSolTransactionRuleActionReject SendSolTransactionRuleAction = "reject"
+)
+
+// Defines values for SendSolTransactionRuleOperation.
+const (
+	SendSolTransaction SendSolTransactionRuleOperation = "sendSolTransaction"
 )
 
 // Defines values for SendUserOperationRuleAction.
@@ -365,8 +434,8 @@ const (
 
 // Defines values for SignSolTransactionRuleAction.
 const (
-	SignSolTransactionRuleActionAccept SignSolTransactionRuleAction = "accept"
-	SignSolTransactionRuleActionReject SignSolTransactionRuleAction = "reject"
+	Accept SignSolTransactionRuleAction = "accept"
+	Reject SignSolTransactionRuleAction = "reject"
 )
 
 // Defines values for SignSolTransactionRuleOperation.
@@ -383,6 +452,45 @@ const (
 // Defines values for SolAddressCriterionType.
 const (
 	SolAddress SolAddressCriterionType = "solAddress"
+)
+
+// Defines values for SolValueCriterionOperator.
+const (
+	SolValueCriterionOperatorEmpty      SolValueCriterionOperator = ">"
+	SolValueCriterionOperatorEqualEqual SolValueCriterionOperator = "=="
+	SolValueCriterionOperatorN1         SolValueCriterionOperator = ">="
+	SolValueCriterionOperatorN2         SolValueCriterionOperator = "<"
+	SolValueCriterionOperatorN3         SolValueCriterionOperator = "<="
+)
+
+// Defines values for SolValueCriterionType.
+const (
+	SolValue SolValueCriterionType = "solValue"
+)
+
+// Defines values for SplAddressCriterionOperator.
+const (
+	SplAddressCriterionOperatorIn    SplAddressCriterionOperator = "in"
+	SplAddressCriterionOperatorNotIn SplAddressCriterionOperator = "not in"
+)
+
+// Defines values for SplAddressCriterionType.
+const (
+	SplAddress SplAddressCriterionType = "splAddress"
+)
+
+// Defines values for SplValueCriterionOperator.
+const (
+	SplValueCriterionOperatorEmpty      SplValueCriterionOperator = ">"
+	SplValueCriterionOperatorEqualEqual SplValueCriterionOperator = "=="
+	SplValueCriterionOperatorN1         SplValueCriterionOperator = ">="
+	SplValueCriterionOperatorN2         SplValueCriterionOperator = "<"
+	SplValueCriterionOperatorN3         SplValueCriterionOperator = "<="
+)
+
+// Defines values for SplValueCriterionType.
+const (
+	SplValue SplValueCriterionType = "splValue"
 )
 
 // Defines values for SwapUnavailableResponseLiquidityAvailable.
@@ -603,9 +711,6 @@ type CommonSwapResponseLiquidityAvailable bool
 
 // CreateSpendPermissionRequest defines model for CreateSpendPermissionRequest.
 type CreateSpendPermissionRequest struct {
-	// Account Smart account this spend permission is valid for.
-	Account string `json:"account"`
-
 	// Allowance Maximum allowed value to spend, in atomic units for the specified token, within each period.
 	Allowance string `json:"allowance"`
 
@@ -1191,6 +1296,81 @@ type ListResponse struct {
 // ListSolanaTokenBalancesNetwork The name of the supported Solana networks in human-readable format.
 type ListSolanaTokenBalancesNetwork string
 
+// MintAddressCriterion The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
+type MintAddressCriterion struct {
+	// Addresses The Solana addresses that are compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+	Addresses []string `json:"addresses"`
+
+	// Operator The operator to use for the comparison. Each of the token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+	Operator MintAddressCriterionOperator `json:"operator"`
+
+	// Type The type of criterion to use. This should be `mintAddress`.
+	Type MintAddressCriterionType `json:"type"`
+}
+
+// MintAddressCriterionOperator The operator to use for the comparison. Each of the token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+type MintAddressCriterionOperator string
+
+// MintAddressCriterionType The type of criterion to use. This should be `mintAddress`.
+type MintAddressCriterionType string
+
+// NetUSDChangeCriterion A schema for specifying a criterion for the USD denominated asset transfer or exposure for a transaction. This includes native transfers, as well as token transfers.
+type NetUSDChangeCriterion struct {
+	// ChangeCents The amount of USD, in cents, that the total value of a transaction's asset transfer should be compared to.
+	ChangeCents int `json:"changeCents"`
+
+	// Operator The operator to use for the comparison. The total value of a transaction's asset transfer will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side.
+	Operator NetUSDChangeCriterionOperator `json:"operator"`
+
+	// Type The type of criterion to use. This should be `netUSDChange`.
+	Type NetUSDChangeCriterionType `json:"type"`
+}
+
+// NetUSDChangeCriterionOperator The operator to use for the comparison. The total value of a transaction's asset transfer will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side.
+type NetUSDChangeCriterionOperator string
+
+// NetUSDChangeCriterionType The type of criterion to use. This should be `netUSDChange`.
+type NetUSDChangeCriterionType string
+
+// OnchainDataQuery Request to execute a SQL query against indexed blockchain data.
+type OnchainDataQuery struct {
+	// Sql SQL query to execute against the indexed blockchain data.
+	Sql string `json:"sql"`
+}
+
+// OnchainDataResult Result of executing a SQL query.
+type OnchainDataResult struct {
+	// Metadata Metadata about query execution.
+	Metadata *struct {
+		// Cached Whether the result was served from cache.
+		Cached *bool `json:"cached,omitempty"`
+
+		// ExecutionTimeMs Query execution time in milliseconds.
+		ExecutionTimeMs *int `json:"executionTimeMs,omitempty"`
+
+		// RowCount Number of rows returned.
+		RowCount *int `json:"rowCount,omitempty"`
+	} `json:"metadata,omitempty"`
+
+	// Result Query result as an array of objects representing rows.
+	Result *[]map[string]interface{} `json:"result,omitempty"`
+
+	// Schema Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
+	Schema *struct {
+		// Columns Column definitions.
+		Columns *[]struct {
+			// Name Column name.
+			Name *string `json:"name,omitempty"`
+
+			// Type Column data type (ClickHouse types).
+			Type *OnchainDataResultSchemaColumnsType `json:"type,omitempty"`
+		} `json:"columns,omitempty"`
+	} `json:"schema,omitempty"`
+}
+
+// OnchainDataResultSchemaColumnsType Column data type (ClickHouse types).
+type OnchainDataResultSchemaColumnsType string
+
 // OnrampOrder An Onramp order.
 type OnrampOrder struct {
 	// CreatedAt The date and time the order was created.
@@ -1416,6 +1596,32 @@ type SendEvmTransactionRuleAction string
 // SendEvmTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SendEvmTransactionRuleOperation string
 
+// SendSolTransactionCriteria A schema for specifying criteria for the SendSolTransaction operation.
+type SendSolTransactionCriteria = []SendSolTransactionCriteria_Item
+
+// SendSolTransactionCriteria_Item defines model for SendSolTransactionCriteria.Item.
+type SendSolTransactionCriteria_Item struct {
+	union json.RawMessage
+}
+
+// SendSolTransactionRule defines model for SendSolTransactionRule.
+type SendSolTransactionRule struct {
+	// Action Whether matching the rule will cause the request to be rejected or accepted.
+	Action SendSolTransactionRuleAction `json:"action"`
+
+	// Criteria A schema for specifying criteria for the SendSolTransaction operation.
+	Criteria SendSolTransactionCriteria `json:"criteria"`
+
+	// Operation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+	Operation SendSolTransactionRuleOperation `json:"operation"`
+}
+
+// SendSolTransactionRuleAction Whether matching the rule will cause the request to be rejected or accepted.
+type SendSolTransactionRuleAction string
+
+// SendSolTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+type SendSolTransactionRuleOperation string
+
 // SendUserOperationCriteria A schema for specifying criteria for the SendUserOperation operation.
 type SendUserOperationCriteria = []SendUserOperationCriteria_Item
 
@@ -1629,6 +1835,24 @@ type SolAddressCriterionOperator string
 // SolAddressCriterionType The type of criterion to use. This should be `solAddress`.
 type SolAddressCriterionType string
 
+// SolValueCriterion The criterion for the SOL value in lamports of a native transfer instruction in a Solana transaction.
+type SolValueCriterion struct {
+	// Operator The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `solValue` field will be on the right-hand side.
+	Operator SolValueCriterionOperator `json:"operator"`
+
+	// SolValue The amount of SOL in lamports that the transaction instruction's `value` field should be compared to.
+	SolValue string `json:"solValue"`
+
+	// Type The type of criterion to use. This should be `solValue`.
+	Type SolValueCriterionType `json:"type"`
+}
+
+// SolValueCriterionOperator The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `solValue` field will be on the right-hand side.
+type SolValueCriterionOperator string
+
+// SolValueCriterionType The type of criterion to use. This should be `solValue`.
+type SolValueCriterionType string
+
 // SolanaAccount defines model for SolanaAccount.
 type SolanaAccount struct {
 	// Address The base58 encoded Solana address.
@@ -1734,6 +1958,42 @@ type SpendPermissionResponseObject struct {
 	// RevokedAt The UTC ISO 8601 timestamp when the permission was revoked (if applicable).
 	RevokedAt *time.Time `json:"revokedAt,omitempty"`
 }
+
+// SplAddressCriterion The criterion for the recipient addresses of a Solana transaction's SPL token transfer instructions.
+type SplAddressCriterion struct {
+	// Addresses The Solana addresses that are compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
+	Addresses []string `json:"addresses"`
+
+	// Operator The operator to use for the comparison. Each of the SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+	Operator SplAddressCriterionOperator `json:"operator"`
+
+	// Type The type of criterion to use. This should be `splAddress`.
+	Type SplAddressCriterionType `json:"type"`
+}
+
+// SplAddressCriterionOperator The operator to use for the comparison. Each of the SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+type SplAddressCriterionOperator string
+
+// SplAddressCriterionType The type of criterion to use. This should be `splAddress`.
+type SplAddressCriterionType string
+
+// SplValueCriterion The criterion for the SPL token value of a SPL token transfer instruction in a Solana transaction.
+type SplValueCriterion struct {
+	// Operator The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `splValue` field will be on the right-hand side.
+	Operator SplValueCriterionOperator `json:"operator"`
+
+	// SplValue The amount of the SPL token that the transaction instruction's `value` field should be compared to.
+	SplValue string `json:"splValue"`
+
+	// Type The type of criterion to use. This should be `splValue`.
+	Type SplValueCriterionType `json:"type"`
+}
+
+// SplValueCriterionOperator The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `splValue` field will be on the right-hand side.
+type SplValueCriterionOperator string
+
+// SplValueCriterionType The type of criterion to use. This should be `splValue`.
+type SplValueCriterionType string
 
 // SwapUnavailableResponse defines model for SwapUnavailableResponse.
 type SwapUnavailableResponse struct {
@@ -1932,6 +2192,9 @@ type IdempotencyError = Error
 // InternalServerError An error response including the code for the type of error and a human-readable message describing the error.
 type InternalServerError = Error
 
+// InvalidSQLQueryError An error response including the code for the type of error and a human-readable message describing the error.
+type InvalidSQLQueryError = Error
+
 // PaymentMethodRequiredError An error response including the code for the type of error and a human-readable message describing the error.
 type PaymentMethodRequiredError = Error
 
@@ -1940,6 +2203,9 @@ type RateLimitExceeded = Error
 
 // ServiceUnavailableError An error response including the code for the type of error and a human-readable message describing the error.
 type ServiceUnavailableError = Error
+
+// TimedOutError An error response including the code for the type of error and a human-readable message describing the error.
+type TimedOutError = Error
 
 // UnauthorizedError An error response including the code for the type of error and a human-readable message describing the error.
 type UnauthorizedError = Error
@@ -2670,6 +2936,9 @@ type ListSolanaTokenBalancesParams struct {
 	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
+// RunSQLQueryJSONRequestBody defines body for RunSQLQuery for application/json ContentType.
+type RunSQLQueryJSONRequestBody = OnchainDataQuery
+
 // CreateEvmAccountJSONRequestBody defines body for CreateEvmAccount for application/json ContentType.
 type CreateEvmAccountJSONRequestBody CreateEvmAccountJSONBody
 
@@ -3317,6 +3586,32 @@ func (t *Rule) MergeSignSolTransactionRule(v SignSolTransactionRule) error {
 	return err
 }
 
+// AsSendSolTransactionRule returns the union data inside the Rule as a SendSolTransactionRule
+func (t Rule) AsSendSolTransactionRule() (SendSolTransactionRule, error) {
+	var body SendSolTransactionRule
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSendSolTransactionRule overwrites any union data inside the Rule as the provided SendSolTransactionRule
+func (t *Rule) FromSendSolTransactionRule(v SendSolTransactionRule) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSendSolTransactionRule performs a merge with any union data inside the Rule, using the provided SendSolTransactionRule
+func (t *Rule) MergeSendSolTransactionRule(v SendSolTransactionRule) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 // AsSignEvmHashRule returns the union data inside the Rule as a SignEvmHashRule
 func (t Rule) AsSignEvmHashRule() (SignEvmHashRule, error) {
 	var body SignEvmHashRule
@@ -3509,12 +3804,178 @@ func (t *SendEvmTransactionCriteria_Item) MergeEvmDataCriterion(v EvmDataCriteri
 	return err
 }
 
+// AsNetUSDChangeCriterion returns the union data inside the SendEvmTransactionCriteria_Item as a NetUSDChangeCriterion
+func (t SendEvmTransactionCriteria_Item) AsNetUSDChangeCriterion() (NetUSDChangeCriterion, error) {
+	var body NetUSDChangeCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNetUSDChangeCriterion overwrites any union data inside the SendEvmTransactionCriteria_Item as the provided NetUSDChangeCriterion
+func (t *SendEvmTransactionCriteria_Item) FromNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNetUSDChangeCriterion performs a merge with any union data inside the SendEvmTransactionCriteria_Item, using the provided NetUSDChangeCriterion
+func (t *SendEvmTransactionCriteria_Item) MergeNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 func (t SendEvmTransactionCriteria_Item) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
 func (t *SendEvmTransactionCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsSolAddressCriterion returns the union data inside the SendSolTransactionCriteria_Item as a SolAddressCriterion
+func (t SendSolTransactionCriteria_Item) AsSolAddressCriterion() (SolAddressCriterion, error) {
+	var body SolAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolAddressCriterion overwrites any union data inside the SendSolTransactionCriteria_Item as the provided SolAddressCriterion
+func (t *SendSolTransactionCriteria_Item) FromSolAddressCriterion(v SolAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolAddressCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided SolAddressCriterion
+func (t *SendSolTransactionCriteria_Item) MergeSolAddressCriterion(v SolAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolValueCriterion returns the union data inside the SendSolTransactionCriteria_Item as a SolValueCriterion
+func (t SendSolTransactionCriteria_Item) AsSolValueCriterion() (SolValueCriterion, error) {
+	var body SolValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolValueCriterion overwrites any union data inside the SendSolTransactionCriteria_Item as the provided SolValueCriterion
+func (t *SendSolTransactionCriteria_Item) FromSolValueCriterion(v SolValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolValueCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided SolValueCriterion
+func (t *SendSolTransactionCriteria_Item) MergeSolValueCriterion(v SolValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplAddressCriterion returns the union data inside the SendSolTransactionCriteria_Item as a SplAddressCriterion
+func (t SendSolTransactionCriteria_Item) AsSplAddressCriterion() (SplAddressCriterion, error) {
+	var body SplAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplAddressCriterion overwrites any union data inside the SendSolTransactionCriteria_Item as the provided SplAddressCriterion
+func (t *SendSolTransactionCriteria_Item) FromSplAddressCriterion(v SplAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplAddressCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided SplAddressCriterion
+func (t *SendSolTransactionCriteria_Item) MergeSplAddressCriterion(v SplAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplValueCriterion returns the union data inside the SendSolTransactionCriteria_Item as a SplValueCriterion
+func (t SendSolTransactionCriteria_Item) AsSplValueCriterion() (SplValueCriterion, error) {
+	var body SplValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplValueCriterion overwrites any union data inside the SendSolTransactionCriteria_Item as the provided SplValueCriterion
+func (t *SendSolTransactionCriteria_Item) FromSplValueCriterion(v SplValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplValueCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided SplValueCriterion
+func (t *SendSolTransactionCriteria_Item) MergeSplValueCriterion(v SplValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMintAddressCriterion returns the union data inside the SendSolTransactionCriteria_Item as a MintAddressCriterion
+func (t SendSolTransactionCriteria_Item) AsMintAddressCriterion() (MintAddressCriterion, error) {
+	var body MintAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMintAddressCriterion overwrites any union data inside the SendSolTransactionCriteria_Item as the provided MintAddressCriterion
+func (t *SendSolTransactionCriteria_Item) FromMintAddressCriterion(v MintAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMintAddressCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided MintAddressCriterion
+func (t *SendSolTransactionCriteria_Item) MergeMintAddressCriterion(v MintAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SendSolTransactionCriteria_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SendSolTransactionCriteria_Item) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -3721,6 +4182,32 @@ func (t *SignEvmTransactionCriteria_Item) MergeEvmDataCriterion(v EvmDataCriteri
 	return err
 }
 
+// AsNetUSDChangeCriterion returns the union data inside the SignEvmTransactionCriteria_Item as a NetUSDChangeCriterion
+func (t SignEvmTransactionCriteria_Item) AsNetUSDChangeCriterion() (NetUSDChangeCriterion, error) {
+	var body NetUSDChangeCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNetUSDChangeCriterion overwrites any union data inside the SignEvmTransactionCriteria_Item as the provided NetUSDChangeCriterion
+func (t *SignEvmTransactionCriteria_Item) FromNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNetUSDChangeCriterion performs a merge with any union data inside the SignEvmTransactionCriteria_Item, using the provided NetUSDChangeCriterion
+func (t *SignEvmTransactionCriteria_Item) MergeNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 func (t SignEvmTransactionCriteria_Item) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
@@ -3897,6 +4384,110 @@ func (t *SignSolTransactionCriteria_Item) FromSolAddressCriterion(v SolAddressCr
 
 // MergeSolAddressCriterion performs a merge with any union data inside the SignSolTransactionCriteria_Item, using the provided SolAddressCriterion
 func (t *SignSolTransactionCriteria_Item) MergeSolAddressCriterion(v SolAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolValueCriterion returns the union data inside the SignSolTransactionCriteria_Item as a SolValueCriterion
+func (t SignSolTransactionCriteria_Item) AsSolValueCriterion() (SolValueCriterion, error) {
+	var body SolValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolValueCriterion overwrites any union data inside the SignSolTransactionCriteria_Item as the provided SolValueCriterion
+func (t *SignSolTransactionCriteria_Item) FromSolValueCriterion(v SolValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolValueCriterion performs a merge with any union data inside the SignSolTransactionCriteria_Item, using the provided SolValueCriterion
+func (t *SignSolTransactionCriteria_Item) MergeSolValueCriterion(v SolValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplAddressCriterion returns the union data inside the SignSolTransactionCriteria_Item as a SplAddressCriterion
+func (t SignSolTransactionCriteria_Item) AsSplAddressCriterion() (SplAddressCriterion, error) {
+	var body SplAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplAddressCriterion overwrites any union data inside the SignSolTransactionCriteria_Item as the provided SplAddressCriterion
+func (t *SignSolTransactionCriteria_Item) FromSplAddressCriterion(v SplAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplAddressCriterion performs a merge with any union data inside the SignSolTransactionCriteria_Item, using the provided SplAddressCriterion
+func (t *SignSolTransactionCriteria_Item) MergeSplAddressCriterion(v SplAddressCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSplValueCriterion returns the union data inside the SignSolTransactionCriteria_Item as a SplValueCriterion
+func (t SignSolTransactionCriteria_Item) AsSplValueCriterion() (SplValueCriterion, error) {
+	var body SplValueCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSplValueCriterion overwrites any union data inside the SignSolTransactionCriteria_Item as the provided SplValueCriterion
+func (t *SignSolTransactionCriteria_Item) FromSplValueCriterion(v SplValueCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSplValueCriterion performs a merge with any union data inside the SignSolTransactionCriteria_Item, using the provided SplValueCriterion
+func (t *SignSolTransactionCriteria_Item) MergeSplValueCriterion(v SplValueCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsMintAddressCriterion returns the union data inside the SignSolTransactionCriteria_Item as a MintAddressCriterion
+func (t SignSolTransactionCriteria_Item) AsMintAddressCriterion() (MintAddressCriterion, error) {
+	var body MintAddressCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromMintAddressCriterion overwrites any union data inside the SignSolTransactionCriteria_Item as the provided MintAddressCriterion
+func (t *SignSolTransactionCriteria_Item) FromMintAddressCriterion(v MintAddressCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeMintAddressCriterion performs a merge with any union data inside the SignSolTransactionCriteria_Item, using the provided MintAddressCriterion
+func (t *SignSolTransactionCriteria_Item) MergeMintAddressCriterion(v MintAddressCriterion) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -4134,6 +4725,11 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// RunSQLQueryWithBody request with any body
+	RunSQLQueryWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	RunSQLQuery(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListEvmAccounts request
 	ListEvmAccounts(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -4354,6 +4950,30 @@ type ClientInterface interface {
 
 	// ListSolanaTokenBalances request
 	ListSolanaTokenBalances(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *CDPClient) RunSQLQueryWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRunSQLQueryRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) RunSQLQuery(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRunSQLQueryRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *CDPClient) ListEvmAccounts(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5362,6 +5982,46 @@ func (c *CDPClient) ListSolanaTokenBalances(ctx context.Context, network ListSol
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewRunSQLQueryRequest calls the generic RunSQLQuery builder with application/json body
+func NewRunSQLQueryRequest(server string, body RunSQLQueryJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewRunSQLQueryRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewRunSQLQueryRequestWithBody generates requests for RunSQLQuery with any type of body
+func NewRunSQLQueryRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/data/query/run")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
 }
 
 // NewListEvmAccountsRequest generates requests for ListEvmAccounts
@@ -8498,6 +9158,11 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// RunSQLQueryWithBodyWithResponse request with any body
+	RunSQLQueryWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error)
+
+	RunSQLQueryWithResponse(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error)
+
 	// ListEvmAccountsWithResponse request
 	ListEvmAccountsWithResponse(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*ListEvmAccountsResponse, error)
 
@@ -8718,6 +9383,34 @@ type ClientWithResponsesInterface interface {
 
 	// ListSolanaTokenBalancesWithResponse request
 	ListSolanaTokenBalancesWithResponse(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListSolanaTokenBalancesResponse, error)
+}
+
+type RunSQLQueryResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *OnchainDataResult
+	JSON400      *InvalidSQLQueryError
+	JSON401      *UnauthorizedError
+	JSON408      *Error
+	JSON429      *Error
+	JSON500      *InternalServerError
+	JSON504      *TimedOutError
+}
+
+// Status returns HTTPResponse.Status
+func (r RunSQLQueryResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RunSQLQueryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type ListEvmAccountsResponse struct {
@@ -10312,6 +11005,23 @@ func (r ListSolanaTokenBalancesResponse) StatusCode() int {
 	return 0
 }
 
+// RunSQLQueryWithBodyWithResponse request with arbitrary body returning *RunSQLQueryResponse
+func (c *ClientWithResponses) RunSQLQueryWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error) {
+	rsp, err := c.RunSQLQueryWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRunSQLQueryResponse(rsp)
+}
+
+func (c *ClientWithResponses) RunSQLQueryWithResponse(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error) {
+	rsp, err := c.RunSQLQuery(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRunSQLQueryResponse(rsp)
+}
+
 // ListEvmAccountsWithResponse request returning *ListEvmAccountsResponse
 func (c *ClientWithResponses) ListEvmAccountsWithResponse(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*ListEvmAccountsResponse, error) {
 	rsp, err := c.ListEvmAccounts(ctx, params, reqEditors...)
@@ -11035,6 +11745,74 @@ func (c *ClientWithResponses) ListSolanaTokenBalancesWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseListSolanaTokenBalancesResponse(rsp)
+}
+
+// ParseRunSQLQueryResponse parses an HTTP response from a RunSQLQueryWithResponse call
+func ParseRunSQLQueryResponse(rsp *http.Response) (*RunSQLQueryResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RunSQLQueryResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest OnchainDataResult
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest InvalidSQLQueryError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 408:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON408 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest TimedOutError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseListEvmAccountsResponse parses an HTTP response from a ListEvmAccountsWithResponse call

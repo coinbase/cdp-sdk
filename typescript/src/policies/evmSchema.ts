@@ -32,16 +32,6 @@ export const EvmNetworkOperatorEnum = z.enum(["in", "not in"]);
 export type EvmNetworkOperator = z.infer<typeof EvmNetworkOperatorEnum>;
 
 /**
- * Enum for SolAddressOperator values
- */
-export const SolAddressOperatorEnum = z.enum(["in", "not in"]);
-/**
- * Type representing the operators that can be used for Solana address comparisons.
- * These operators determine how transaction addresses are evaluated against a list.
- */
-export type SolAddressOperator = z.infer<typeof SolAddressOperatorEnum>;
-
-/**
  * Schema for ETH value criterions
  */
 export const EthValueCriterionSchema = z.object({
@@ -120,6 +110,23 @@ export const EvmMessageCriterionSchema = z.object({
   match: z.string().min(1),
 });
 export type EvmMessageCriterion = z.infer<typeof EvmMessageCriterionSchema>;
+
+/**
+ * Schema for Net USD change criterion
+ */
+export const NetUSDChangeCriterionSchema = z.object({
+  /** The type of criterion, must be "netUSDChange" for USD denominated asset transfer rules. */
+  type: z.literal("netUSDChange"),
+  /**
+   * The amount of USD, in cents, that the total USD value of a transaction's asset transfer and exposure should be compared to.
+   */
+  changeCents: z.number().int().nonnegative(),
+  /**
+   * The operator to use for the comparison. The total value of a transaction's asset transfer and exposure in USD will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side.
+   */
+  operator: EthValueOperatorEnum,
+});
+export type NetUSDChangeCriterion = z.infer<typeof NetUSDChangeCriterionSchema>;
 
 /**
  * Schema for EVM typed address conditions
@@ -352,26 +359,6 @@ export const EvmDataCriterionSchema = z.object({
 export type EvmDataCriterion = z.infer<typeof EvmDataCriterionSchema>;
 
 /**
- * Schema for Solana address criterions
- */
-export const SolAddressCriterionSchema = z.object({
-  /** The type of criterion, must be "solAddress" for Solana address-based rules. */
-  type: z.literal("solAddress"),
-  /**
-   * Array of Solana addresses to compare against.
-   * Each address must be a valid Base58-encoded Solana address (32-44 characters).
-   */
-  addresses: z.array(z.string().regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/)),
-  /**
-   * The operator to use for evaluating transaction addresses.
-   * "in" checks if an address is in the provided list.
-   * "not in" checks if an address is not in the provided list.
-   */
-  operator: SolAddressOperatorEnum,
-});
-export type SolAddressCriterion = z.infer<typeof SolAddressCriterionSchema>;
-
-/**
  * Schema for criteria used in SignEvmTransaction operations
  */
 export const SignEvmTransactionCriteriaSchema = z
@@ -380,6 +367,7 @@ export const SignEvmTransactionCriteriaSchema = z
       EthValueCriterionSchema,
       EvmAddressCriterionSchema,
       EvmDataCriterionSchema,
+      NetUSDChangeCriterionSchema,
     ]),
   )
   .max(10)
@@ -413,6 +401,7 @@ export const SendEvmTransactionCriteriaSchema = z
       EvmAddressCriterionSchema,
       EvmNetworkCriterionSchema,
       EvmDataCriterionSchema,
+      NetUSDChangeCriterionSchema,
     ]),
   )
   .max(10)
@@ -420,19 +409,6 @@ export const SendEvmTransactionCriteriaSchema = z
 
 // Type representing a set of criteria for the sendEvmTransaction operation. Can contain up to 10 individual criterion objects of ETH value or EVM address types.
 export type SendEvmTransactionCriteria = z.infer<typeof SendEvmTransactionCriteriaSchema>;
-
-/**
- * Schema for criteria used in SignSolTransaction operations
- */
-export const SignSolTransactionCriteriaSchema = z
-  .array(z.discriminatedUnion("type", [SolAddressCriterionSchema]))
-  .max(10)
-  .min(1);
-/**
- * Type representing a set of criteria for the signSolTransaction operation.
- * Can contain up to 10 individual Solana address criterion objects.
- */
-export type SignSolTransactionCriteria = z.infer<typeof SignSolTransactionCriteriaSchema>;
 
 /**
  * Schema for criteria used in PrepareUserOperation operations
@@ -474,19 +450,17 @@ export const SendUserOperationCriteriaSchema = z
 export type SendUserOperationCriteria = z.infer<typeof SendUserOperationCriteriaSchema>;
 
 /**
- * Enum for Solana Operation types
- */
-export const SolOperationEnum = z.enum(["signSolTransaction"]);
-/**
- * Type representing the operations that can be governed by a policy.
- * Defines what Solana operations the policy applies to.
- */
-export type SolOperation = z.infer<typeof SolOperationEnum>;
-
-/**
  * Enum for Evm Operation types
  */
-export const EvmOperationEnum = z.enum(["signEvmTransaction"]);
+export const EvmOperationEnum = z.enum([
+  "signEvmTransaction",
+  "sendEvmTransaction",
+  "signEvmMessage",
+  "signEvmTypedData",
+  "signEvmHash",
+  "prepareUserOperation",
+  "sendUserOperation",
+]);
 /**
  * Type representing the operations that can be governed by a policy.
  * Defines what EVM operations the policy applies to.
@@ -614,29 +588,6 @@ export const SendEvmTransactionRuleSchema = z.object({
 export type SendEvmTransactionRule = z.infer<typeof SendEvmTransactionRuleSchema>;
 
 /**
- * Type representing a 'signSolTransaction' policy rule that can accept or reject specific operations
- * based on a set of criteria.
- */
-export const SignSolTransactionRuleSchema = z.object({
-  /**
-   * Determines whether matching the rule will cause a request to be rejected or accepted.
-   * "accept" will allow the transaction, "reject" will block it.
-   */
-  action: ActionEnum,
-  /**
-   * The operation to which this rule applies.
-   * Must be "signSolTransaction".
-   */
-  operation: z.literal("signSolTransaction"),
-  /**
-   * The set of criteria that must be matched for this rule to apply.
-   * Must be compatible with the specified operation type.
-   */
-  criteria: SignSolTransactionCriteriaSchema,
-});
-export type SignSolTransactionRule = z.infer<typeof SignSolTransactionRuleSchema>;
-
-/**
  * Type representing a 'prepareUserOperation' policy rule that can accept or reject specific operations
  * based on a set of criteria.
  */
@@ -681,84 +632,3 @@ export const SendUserOperationRuleSchema = z.object({
   criteria: SendUserOperationCriteriaSchema,
 });
 export type SendUserOperationRule = z.infer<typeof SendUserOperationRuleSchema>;
-
-/**
- * Schema for policy rules
- */
-export const RuleSchema = z.discriminatedUnion("operation", [
-  SignEvmTransactionRuleSchema,
-  SignEvmHashRuleSchema,
-  SignEvmMessageRuleSchema,
-  SignEvmTypedDataRuleSchema,
-  SendEvmTransactionRuleSchema,
-  SignSolTransactionRuleSchema,
-  PrepareUserOperationRuleSchema,
-  SendUserOperationRuleSchema,
-]);
-
-/**
- * Type representing a policy rule that can accept or reject specific operations
- * based on a set of criteria.
- */
-export type Rule = z.infer<typeof RuleSchema>;
-
-/**
- * Enum for policy scopes
- */
-export const PolicyScopeEnum = z.enum(["project", "account"]);
-/**
- * Type representing the scope of a policy.
- * Determines whether the policy applies at the project level or account level.
- */
-export type PolicyScope = z.infer<typeof PolicyScopeEnum>;
-
-/**
- * Schema for creating or updating a Policy.
- */
-export const CreatePolicyBodySchema = z.object({
-  /**
-   * The scope of the policy.
-   * "project" applies to the entire project, "account" applies to specific accounts.
-   */
-  scope: PolicyScopeEnum,
-  /**
-   * An optional human-readable description for the policy.
-   * Limited to 50 characters of alphanumeric characters, spaces, commas, and periods.
-   */
-  description: z
-    .string()
-    .regex(/^[A-Za-z0-9 ,.]{1,50}$/)
-    .optional(),
-  /**
-   * Array of rules that comprise the policy.
-   * Limited to a maximum of 10 rules per policy.
-   */
-  rules: z.array(RuleSchema).max(10).min(1),
-});
-/**
- * Type representing the request body for creating a new policy.
- * Contains the scope, optional description, and rules for the policy.
- */
-export type CreatePolicyBody = z.infer<typeof CreatePolicyBodySchema>;
-
-export const UpdatePolicyBodySchema = z.object({
-  /**
-   * An optional human-readable description for the policy.
-   * Limited to 50 characters of alphanumeric characters, spaces, commas, and periods.
-   */
-  description: z
-    .string()
-    .regex(/^[A-Za-z0-9 ,.]{1,50}$/)
-    .optional(),
-  /**
-   * Array of rules that comprise the policy.
-   * Limited to a maximum of 10 rules per policy.
-   */
-  rules: z.array(RuleSchema).max(10).min(1),
-});
-/**
- * Type representing the request body for updating an existing policy.
- * Contains the optional description and rules for the updated policy.
- * Note that the scope cannot be changed once a policy is created.
- */
-export type UpdatePolicyBody = z.infer<typeof UpdatePolicyBodySchema>;
