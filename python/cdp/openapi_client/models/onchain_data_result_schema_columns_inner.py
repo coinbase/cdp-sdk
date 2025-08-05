@@ -18,7 +18,6 @@ import pprint
 import re  # noqa: F401
 import json
 
-<<<<<<<< HEAD:python/cdp/openapi_client/models/spend_permission_response_object.py
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
@@ -36,11 +35,6 @@ class SpendPermissionResponseObject(BaseModel):
     revoked_at: Optional[datetime] = Field(default=None, description="The UTC ISO 8601 timestamp when the permission was revoked (if applicable).", alias="revokedAt")
     created_at: Optional[datetime] = Field(default=None, description="The UTC ISO 8601 timestamp when the permission was created.", alias="createdAt")
     __properties: ClassVar[List[str]] = ["permission", "permissionHash", "revoked", "revokedAt", "createdAt"]
-========
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
-from typing import Optional, Set
-from typing_extensions import Self
 
 class OnchainDataResultSchemaColumnsInner(BaseModel):
     """
@@ -59,7 +53,6 @@ class OnchainDataResultSchemaColumnsInner(BaseModel):
         if value not in set(['String', 'UInt8', 'UInt16', 'UInt32', 'UInt64', 'UInt128', 'UInt256', 'Int8', 'Int16', 'Int32', 'Int64', 'Int128', 'Int256', 'Float32', 'Float64', 'Bool', 'Date', 'DateTime', 'DateTime64', 'UUID']):
             raise ValueError("must be one of enum values ('String', 'UInt8', 'UInt16', 'UInt32', 'UInt64', 'UInt128', 'UInt256', 'Int8', 'Int16', 'Int32', 'Int64', 'Int128', 'Int256', 'Float32', 'Float64', 'Bool', 'Date', 'DateTime', 'DateTime64', 'UUID')")
         return value
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result_schema_columns_inner.py
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -79,11 +72,7 @@ class OnchainDataResultSchemaColumnsInner(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-<<<<<<<< HEAD:python/cdp/openapi_client/models/spend_permission_response_object.py
-        """Create an instance of SpendPermissionResponseObject from a JSON string"""
-========
         """Create an instance of OnchainDataResultSchemaColumnsInner from a JSON string"""
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result_schema_columns_inner.py
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -104,21 +93,11 @@ class OnchainDataResultSchemaColumnsInner(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-<<<<<<<< HEAD:python/cdp/openapi_client/models/spend_permission_response_object.py
-        # override the default output from pydantic by calling `to_dict()` of permission
-        if self.permission:
-            _dict['permission'] = self.permission.to_dict()
-========
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result_schema_columns_inner.py
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-<<<<<<<< HEAD:python/cdp/openapi_client/models/spend_permission_response_object.py
-        """Create an instance of SpendPermissionResponseObject from a dict"""
-========
         """Create an instance of OnchainDataResultSchemaColumnsInner from a dict"""
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result_schema_columns_inner.py
         if obj is None:
             return None
 
@@ -126,16 +105,8 @@ class OnchainDataResultSchemaColumnsInner(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-<<<<<<<< HEAD:python/cdp/openapi_client/models/spend_permission_response_object.py
-            "permission": SpendPermission.from_dict(obj["permission"]) if obj.get("permission") is not None else None,
-            "permissionHash": obj.get("permissionHash"),
-            "revoked": obj.get("revoked"),
-            "revokedAt": obj.get("revokedAt"),
-            "createdAt": obj.get("createdAt")
-========
             "name": obj.get("name"),
             "type": obj.get("type")
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result_schema_columns_inner.py
         })
         return _obj
 

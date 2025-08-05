@@ -18,16 +18,11 @@ import pprint
 import re  # noqa: F401
 import json
 
-<<<<<<<< HEAD:python/cdp/openapi_client/models/revoke_spend_permission_request.py
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-========
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result_metadata.py
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
 
-<<<<<<<< HEAD:python/cdp/openapi_client/models/revoke_spend_permission_request.py
 class RevokeSpendPermissionRequest(BaseModel):
     """
     RevokeSpendPermissionRequest
@@ -36,7 +31,7 @@ class RevokeSpendPermissionRequest(BaseModel):
     permission_hash: StrictStr = Field(description="The hash of the spend permission to revoke.", alias="permissionHash")
     paymaster_url: Optional[StrictStr] = Field(default=None, description="The paymaster URL of the spend permission.", alias="paymasterUrl")
     __properties: ClassVar[List[str]] = ["network", "permissionHash", "paymasterUrl"]
-========
+
 class OnchainDataResultMetadata(BaseModel):
     """
     Metadata about query execution.
@@ -45,7 +40,6 @@ class OnchainDataResultMetadata(BaseModel):
     execution_time_ms: Optional[StrictInt] = Field(default=None, description="Query execution time in milliseconds.", alias="executionTimeMs")
     row_count: Optional[StrictInt] = Field(default=None, description="Number of rows returned.", alias="rowCount")
     __properties: ClassVar[List[str]] = ["cached", "executionTimeMs", "rowCount"]
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result_metadata.py
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -65,11 +59,7 @@ class OnchainDataResultMetadata(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-<<<<<<<< HEAD:python/cdp/openapi_client/models/revoke_spend_permission_request.py
-        """Create an instance of RevokeSpendPermissionRequest from a JSON string"""
-========
         """Create an instance of OnchainDataResultMetadata from a JSON string"""
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result_metadata.py
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -94,11 +84,7 @@ class OnchainDataResultMetadata(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-<<<<<<<< HEAD:python/cdp/openapi_client/models/revoke_spend_permission_request.py
-        """Create an instance of RevokeSpendPermissionRequest from a dict"""
-========
         """Create an instance of OnchainDataResultMetadata from a dict"""
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result_metadata.py
         if obj is None:
             return None
 
@@ -106,15 +92,9 @@ class OnchainDataResultMetadata(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-<<<<<<<< HEAD:python/cdp/openapi_client/models/revoke_spend_permission_request.py
-            "network": obj.get("network"),
-            "permissionHash": obj.get("permissionHash"),
-            "paymasterUrl": obj.get("paymasterUrl")
-========
             "cached": obj.get("cached"),
             "executionTimeMs": obj.get("executionTimeMs"),
             "rowCount": obj.get("rowCount")
->>>>>>>> 6563448cfa934a64d92122e7d3bea9e46973cbc1:python/cdp/openapi_client/models/onchain_data_result_metadata.py
         })
         return _obj
 
