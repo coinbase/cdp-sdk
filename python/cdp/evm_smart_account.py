@@ -35,7 +35,7 @@ from cdp.openapi_client.models.transfer import Transfer
 
 # Avoid circular imports
 if TYPE_CHECKING:
-    from cdp.spend_permissions import SpendPermission
+    from cdp.spend_permissions import SpendPermissionInput
 
 
 class EvmSmartAccount(BaseModel):
@@ -699,7 +699,7 @@ class EvmSmartAccount(BaseModel):
 
     async def __experimental_use_spend_permission__(
         self,
-        spend_permission: "SpendPermission",
+        spend_permission: "SpendPermissionInput",
         value: int,
         network: str,
         paymaster_url: str | None = None,
@@ -711,7 +711,7 @@ class EvmSmartAccount(BaseModel):
         This allows the smart account to spend tokens that have been approved via a spend permission.
 
         Args:
-            spend_permission (SpendPermission): The spend permission object containing authorization details.
+            spend_permission (SpendPermissionInput): The spend permission object containing authorization details.
             value (int): The amount to spend (must not exceed the permission's allowance).
             network (str): The network to execute the transaction on.
             paymaster_url (str | None): Optional paymaster URL for gas sponsorship.
@@ -723,23 +723,22 @@ class EvmSmartAccount(BaseModel):
             Exception: If the network doesn't support spend permissions via CDP API.
 
         Examples:
-            >>> from cdp.spend_permissions import SpendPermission
+            >>> from cdp.spend_permissions import SpendPermissionInput
+            >>> from cdp.utils import parse_units
             >>>
-            >>> spend_permission = SpendPermission(
+            >>> spend_permission = SpendPermissionInput(
             ...     account="0x1234...",  # Smart account that owns the tokens
             ...     spender=smart_account.address,  # This smart account that can spend
-            ...     token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-            ...     allowance=10**18,  # 1 ETH
+            ...     token="usdc",  # USDC
+            ...     allowance=parse_units("0.01", 6),  # 0.01 USDC
             ...     period=86400,  # 1 day
             ...     start=0,
             ...     end=281474976710655,
-            ...     salt=0,
-            ...     extra_data="0x",
             ... )
             >>>
             >>> result = await smart_account.__experimental_use_spend_permission(
             ...     spend_permission=spend_permission,
-            ...     value=10**17,  # Spend 0.1 ETH
+            ...     value=parse_units("0.005", 6),  # Spend 0.005 USDC
             ...     network="base-sepolia",
             ... )
 
