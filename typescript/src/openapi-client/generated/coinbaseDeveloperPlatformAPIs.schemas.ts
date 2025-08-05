@@ -45,6 +45,7 @@ export const ErrorType = {
   idempotency_error: "idempotency_error",
   internal_server_error: "internal_server_error",
   invalid_request: "invalid_request",
+  invalid_sql_query: "invalid_sql_query",
   invalid_signature: "invalid_signature",
   malformed_transaction: "malformed_transaction",
   not_found: "not_found",
@@ -243,11 +244,6 @@ export interface EvmUserOperation {
 export interface CreateSpendPermissionRequest {
   /** The network of the spend permission. */
   network: string;
-  /**
-   * Smart account this spend permission is valid for.
-   * @pattern ^0x[a-fA-F0-9]{40}$
-   */
-  account: string;
   /**
    * Entity that can spend account's tokens.
    * @pattern ^0x[a-fA-F0-9]{40}$
@@ -1032,6 +1028,14 @@ export type EvmNetworkCriterionNetworksItem =
 export const EvmNetworkCriterionNetworksItem = {
   "base-sepolia": "base-sepolia",
   base: "base",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+  avalanche: "avalanche",
+  polygon: "polygon",
+  optimism: "optimism",
+  arbitrum: "arbitrum",
+  zora: "zora",
+  bnb: "bnb",
 } as const;
 
 /**
@@ -1848,6 +1852,94 @@ export interface SolanaTokenBalance {
 }
 
 /**
+ * Request to execute a SQL query against indexed blockchain data.
+ */
+export interface OnchainDataQuery {
+  /**
+   * SQL query to execute against the indexed blockchain data.
+   * @minLength 1
+   * @maxLength 10000
+   */
+  sql: string;
+}
+
+/**
+ * Row data with column names as keys.
+ */
+export type OnchainDataResultResultItem = { [key: string]: unknown };
+
+/**
+ * Column data type (ClickHouse types).
+ */
+export type OnchainDataResultSchemaColumnsItemType =
+  (typeof OnchainDataResultSchemaColumnsItemType)[keyof typeof OnchainDataResultSchemaColumnsItemType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnchainDataResultSchemaColumnsItemType = {
+  String: "String",
+  UInt8: "UInt8",
+  UInt16: "UInt16",
+  UInt32: "UInt32",
+  UInt64: "UInt64",
+  UInt128: "UInt128",
+  UInt256: "UInt256",
+  Int8: "Int8",
+  Int16: "Int16",
+  Int32: "Int32",
+  Int64: "Int64",
+  Int128: "Int128",
+  Int256: "Int256",
+  Float32: "Float32",
+  Float64: "Float64",
+  Bool: "Bool",
+  Date: "Date",
+  DateTime: "DateTime",
+  DateTime64: "DateTime64",
+  UUID: "UUID",
+} as const;
+
+export type OnchainDataResultSchemaColumnsItem = {
+  /** Column name. */
+  name?: string;
+  /** Column data type (ClickHouse types). */
+  type?: OnchainDataResultSchemaColumnsItemType;
+};
+
+/**
+ * Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
+
+ */
+export type OnchainDataResultSchema = {
+  /** Column definitions. */
+  columns?: OnchainDataResultSchemaColumnsItem[];
+};
+
+/**
+ * Metadata about query execution.
+ */
+export type OnchainDataResultMetadata = {
+  /** Whether the result was served from cache. */
+  cached?: boolean;
+  /** Query execution time in milliseconds. */
+  executionTimeMs?: number;
+  /** Number of rows returned. */
+  rowCount?: number;
+};
+
+/**
+ * Result of executing a SQL query.
+ */
+export interface OnchainDataResult {
+  /** Query result as an array of objects representing rows. */
+  result?: OnchainDataResultResultItem[];
+  /** Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
+   */
+  schema?: OnchainDataResultSchema;
+  /** Metadata about query execution. */
+  metadata?: OnchainDataResultMetadata;
+}
+
+/**
  * The action of the payment method.
  */
 export type PaymentRailAction = (typeof PaymentRailAction)[keyof typeof PaymentRailAction];
@@ -2212,9 +2304,19 @@ export type IdempotencyErrorResponse = Error;
 export type AlreadyExistsErrorResponse = Error;
 
 /**
+ * The underlying SQL string is invalid.
+ */
+export type InvalidSQLQueryErrorResponse = Error;
+
+/**
  * Unauthorized.
  */
 export type UnauthorizedErrorResponse = Error;
+
+/**
+ * The request timed out.
+ */
+export type TimedOutErrorResponse = Error;
 
 /**
  * Rate limit exceeded.

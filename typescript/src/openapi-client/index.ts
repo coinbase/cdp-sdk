@@ -52,3 +52,4 @@ export const OpenApiPoliciesMethods = {
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
+export * from "./generated/onchain-data/onchain-data";

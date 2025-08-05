@@ -3,6 +3,7 @@ export * from "./evm-smart-accounts/evm-smart-accounts.msw.js";
 export * from "./evm-swaps/evm-swaps.msw.js";
 export * from "./evm-token-balances/evm-token-balances.msw.js";
 export * from "./faucets/faucets.msw.js";
+export * from "./onchain-data/onchain-data.msw.js";
 export * from "./onramp/onramp.msw.js";
 export * from "./payments-alpha/payments-alpha.msw.js";
 export * from "./policy-engine/policy-engine.msw.js";

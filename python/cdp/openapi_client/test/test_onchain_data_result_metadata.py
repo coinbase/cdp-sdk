@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
+from cdp.openapi_client.models.onchain_data_result_metadata import OnchainDataResultMetadata
 
-class TestEvmNetworkCriterion(unittest.TestCase):
-    """EvmNetworkCriterion unit test stubs"""
+class TestOnchainDataResultMetadata(unittest.TestCase):
+    """OnchainDataResultMetadata unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,27 @@ class TestEvmNetworkCriterion(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> EvmNetworkCriterion:
-        """Test EvmNetworkCriterion
+    def make_instance(self, include_optional) -> OnchainDataResultMetadata:
+        """Test OnchainDataResultMetadata
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `EvmNetworkCriterion`
+        # uncomment below to create an instance of `OnchainDataResultMetadata`
         """
-        model = EvmNetworkCriterion()
+        model = OnchainDataResultMetadata()
         if include_optional:
-            return EvmNetworkCriterion(
-                type = 'evmNetwork',
-                networks = ["base","ethereum"],
-                operator = 'in'
+            return OnchainDataResultMetadata(
+                cached = False,
+                execution_time_ms = 145,
+                row_count = 2
             )
         else:
-            return EvmNetworkCriterion(
-                type = 'evmNetwork',
-                networks = ["base","ethereum"],
-                operator = 'in',
+            return OnchainDataResultMetadata(
         )
         """
 
-    def testEvmNetworkCriterion(self):
-        """Test EvmNetworkCriterion"""
+    def testOnchainDataResultMetadata(self):
+        """Test OnchainDataResultMetadata"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 
