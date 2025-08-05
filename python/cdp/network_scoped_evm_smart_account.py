@@ -6,6 +6,7 @@ from typing import Any, Literal
 from web3 import Web3
 
 from cdp.actions.evm.swap.types import SmartAccountSwapOptions
+from cdp.base_node_rpc_url import get_base_node_rpc_url
 from cdp.evm_call_types import ContractCall
 from cdp.evm_smart_account import EvmSmartAccount
 from cdp.network_capabilities import is_method_supported_on_network
@@ -106,6 +107,18 @@ class NetworkScopedEvmSmartAccount:
         paymaster_url: str | None = None,
     ):
         if self._should_use_api:
+            # For base and base-sepolia networks, try to get Base Node RPC URL as paymaster_url
+            # if paymaster_url is not explicitly provided
+            if paymaster_url is None and self._network in ["base", "base-sepolia"]:
+                try:
+                    paymaster_url = await get_base_node_rpc_url(
+                        self._evm_smart_account._EvmSmartAccount__api_clients,
+                        self._network
+                    )
+                except Exception:
+                    # If Base Node RPC URL fails, continue without paymaster_url
+                    paymaster_url = None
+                    
             return await self._evm_smart_account.send_user_operation(
                 calls=calls,
                 network=self._network,
@@ -124,6 +137,18 @@ class NetworkScopedEvmSmartAccount:
         paymaster_url: str | None = None,
     ):
         if self._should_use_api:
+            # For base and base-sepolia networks, try to get Base Node RPC URL as paymaster_url
+            # if paymaster_url is not explicitly provided
+            if paymaster_url is None and self._network in ["base", "base-sepolia"]:
+                try:
+                    paymaster_url = await get_base_node_rpc_url(
+                        self._evm_smart_account._EvmSmartAccount__api_clients,
+                        self._network
+                    )
+                except Exception:
+                    # If Base Node RPC URL fails, continue without paymaster_url
+                    paymaster_url = None
+                    
             return await self._evm_smart_account.transfer(
                 to=to,
                 amount=amount,
