@@ -29,11 +29,11 @@ class SpendPermissionResponseObject(BaseModel):
     """
     SpendPermissionResponseObject
     """ # noqa: E501
-    permission: Optional[SpendPermission] = None
-    permission_hash: Optional[StrictStr] = Field(default=None, description="Unique hash identifier for this permission.", alias="permissionHash")
-    revoked: Optional[StrictBool] = Field(default=None, description="Whether this permission has been revoked.")
+    permission: SpendPermission
+    permission_hash: StrictStr = Field(description="Unique hash identifier for this permission.", alias="permissionHash")
+    revoked: StrictBool = Field(description="Whether this permission has been revoked.")
     revoked_at: Optional[datetime] = Field(default=None, description="The UTC ISO 8601 timestamp when the permission was revoked (if applicable).", alias="revokedAt")
-    created_at: Optional[datetime] = Field(default=None, description="The UTC ISO 8601 timestamp when the permission was created.", alias="createdAt")
+    created_at: datetime = Field(description="The UTC ISO 8601 timestamp when the permission was created.", alias="createdAt")
     __properties: ClassVar[List[str]] = ["permission", "permissionHash", "revoked", "revokedAt", "createdAt"]
 
     model_config = ConfigDict(

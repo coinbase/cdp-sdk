@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
@@ -32,11 +32,11 @@ class SpendPermission(BaseModel):
     spender: Annotated[str, Field(strict=True)] = Field(description="Entity that can spend account's tokens.")
     token: Annotated[str, Field(strict=True)] = Field(description="Token address (ERC-7528 native token address or ERC-20 contract).")
     allowance: StrictStr = Field(description="Maximum allowed value to spend, in atomic units for the specified token, within each period.")
-    period: Optional[StrictStr] = Field(default=None, description="Time duration for resetting used allowance on a recurring basis (seconds).")
-    start: Optional[StrictStr] = Field(default=None, description="The start time for this spend permission, in Unix seconds.")
-    end: Optional[StrictStr] = Field(default=None, description="The expiration time for this spend permission, in Unix seconds.")
-    salt: Optional[StrictStr] = Field(default=None, description="An arbitrary salt to differentiate unique spend permissions with otherwise identical data.")
-    extra_data: Optional[StrictStr] = Field(default=None, description="Arbitrary data to include in the permission.", alias="extraData")
+    period: StrictStr = Field(description="Time duration for resetting used allowance on a recurring basis (seconds).")
+    start: StrictStr = Field(description="The start time for this spend permission, in Unix seconds.")
+    end: StrictStr = Field(description="The expiration time for this spend permission, in Unix seconds.")
+    salt: StrictStr = Field(description="An arbitrary salt to differentiate unique spend permissions with otherwise identical data.")
+    extra_data: StrictStr = Field(description="Arbitrary data to include in the permission.", alias="extraData")
     __properties: ClassVar[List[str]] = ["account", "spender", "token", "allowance", "period", "start", "end", "salt", "extraData"]
 
     @field_validator('account')
