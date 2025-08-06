@@ -13,6 +13,7 @@ import type { UseSpendPermissionOptions } from "./types.js";
 import type { CdpOpenApiClientType } from "../../../openapi-client/index.js";
 import type { Address, Hex } from "../../../types/misc.js";
 import type { SpendPermission } from "../../../spend-permissions/types.js";
+import type { SpendPermissionInput } from "../../../client/evm/evm.types.js";
 
 // Mock viem functions
 vi.mock("viem", () => ({
@@ -33,14 +34,27 @@ describe("useSpendPermission", () => {
   const mockSerializedTransaction =
     "0x02f86c0180808080809412345678901234567890123456789012345678908080c080a01234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdefa01234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" as `0x02${string}`;
 
-  const mockSpendPermission: SpendPermission = {
+  const mockSpendPermission: SpendPermissionInput = {
     account: "0x1111111111111111111111111111111111111111" as Address,
     spender: mockAddress,
-    token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" as Address, // ETH
+    token: "eth",
     allowance: 1000000000000000000n, // 1 ETH
     period: 86400, // 1 day
-    start: 1700000000,
-    end: 1700086400,
+    start: new Date("2023-11-15T06:13:20Z"), // 1700000000 in Date format
+    end: new Date("2023-11-16T06:13:20Z"), // 1700086400 in Date format
+    salt: 12345n,
+    extraData: "0x" as Hex,
+  };
+
+  // Expected resolved spend permission (what encodeFunctionData will receive)
+  const expectedResolvedSpendPermission: SpendPermission = {
+    account: "0x1111111111111111111111111111111111111111" as Address,
+    spender: mockAddress,
+    token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" as Address, // ETH resolved address
+    allowance: 1000000000000000000n, // 1 ETH
+    period: 86400, // 1 day
+    start: 1700028800, // Date converted to timestamp
+    end: 1700115200, // Date converted to timestamp
     salt: 12345n,
     extraData: "0x" as Hex,
   };
@@ -75,7 +89,7 @@ describe("useSpendPermission", () => {
     expect(encodeFunctionData).toHaveBeenCalledWith({
       abi: SPEND_PERMISSION_MANAGER_ABI,
       functionName: "spend",
-      args: [mockSpendPermission, mockOptions.value],
+      args: [expectedResolvedSpendPermission, mockOptions.value],
     });
 
     // Verify serializeEIP1559Transaction was called correctly
