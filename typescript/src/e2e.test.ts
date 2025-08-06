@@ -1384,27 +1384,29 @@ describe("CDP Client E2E Tests", () => {
       });
 
       it("should transfer USDC and wait for confirmation", async () => {
-        const { signature } = await testSolanaAccount.transfer({
-          to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
-          amount: 0n,
-          token: "usdc",
-          network: "devnet",
+        await retryOnFailure(async () => {
+          const { signature } = await testSolanaAccount.transfer({
+            to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+            amount: 0n,
+            token: "usdc",
+            network: "devnet",
+          });
+
+          expect(signature).toBeDefined();
+
+          const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+          const confirmation = await connection.confirmTransaction(
+            {
+              signature,
+              blockhash,
+              lastValidBlockHeight,
+            },
+            "confirmed",
+          );
+
+          expect(confirmation.value.err).toBeNull();
         });
-
-        expect(signature).toBeDefined();
-
-        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-
-        const confirmation = await connection.confirmTransaction(
-          {
-            signature,
-            blockhash,
-            lastValidBlockHeight,
-          },
-          "confirmed",
-        );
-
-        expect(confirmation.value.err).toBeNull();
       });
     });
   });
@@ -3641,4 +3643,40 @@ function createAndEncodeTransaction(address: string, to?: string, amount?: numbe
   });
 
   return Buffer.from(serializedTransaction).toString("base64");
+}
+
+/**
+ * Retry flaky tests with configurable attempts and delays.
+ *
+ * @param testFn - The test function to retry
+ * @param maxRetries - Maximum number of retry attempts (default: 3)
+ * @param delay - Delay between retries in milliseconds (default: 1000)
+ * @returns Function that will retry on failure
+ */
+async function retryOnFailure<T>(
+  testFn: () => Promise<T>,
+  maxRetries: number = 3,
+  delay: number = 1000,
+): Promise<T> {
+  let lastException: Error | undefined;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await testFn();
+    } catch (error) {
+      lastException = error as Error;
+      if (attempt < maxRetries) {
+        console.log(
+          `Test failed on attempt ${attempt + 1}/${maxRetries + 1}. Retrying in ${delay}ms...`,
+        );
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        console.log(`Test failed after ${maxRetries + 1} attempts.`);
+        throw lastException;
+      }
+    }
+  }
+
+  // This should never be reached, but TypeScript requires it
+  throw lastException;
 }
