@@ -1384,27 +1384,29 @@ describe("CDP Client E2E Tests", () => {
       });
 
       it("should transfer USDC and wait for confirmation", async () => {
-        const { signature } = await testSolanaAccount.transfer({
-          to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
-          amount: 0n,
-          token: "usdc",
-          network: "devnet",
+        await retryOnFailure(async () => {
+          const { signature } = await testSolanaAccount.transfer({
+            to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
+            amount: 0n,
+            token: "usdc",
+            network: "devnet",
+          });
+
+          expect(signature).toBeDefined();
+
+          const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+          const confirmation = await connection.confirmTransaction(
+            {
+              signature,
+              blockhash,
+              lastValidBlockHeight,
+            },
+            "confirmed",
+          );
+
+          expect(confirmation.value.err).toBeNull();
         });
-
-        expect(signature).toBeDefined();
-
-        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-
-        const confirmation = await connection.confirmTransaction(
-          {
-            signature,
-            blockhash,
-            lastValidBlockHeight,
-          },
-          "confirmed",
-        );
-
-        expect(confirmation.value.err).toBeNull();
       });
     });
   });
@@ -3535,60 +3537,62 @@ describe("CDP Client E2E Tests", () => {
   });
 
   it("should use Base Node RPC URL when using managed mode with network identifiers", async () => {
-    if (process.env.E2E_BASE_PATH?.includes("localhost")) {
-      logger.log("Skipping test in local environment");
-      return;
-    }
+    await retryOnFailure(async () => {
+      if (process.env.E2E_BASE_PATH?.includes("localhost")) {
+        logger.log("Skipping test in local environment");
+        return;
+      }
 
-    // Spy on global fetch to capture HTTP calls
-    const fetchSpy = vi.spyOn(globalThis, "fetch");
+      // Spy on global fetch to capture HTTP calls
+      const fetchSpy = vi.spyOn(globalThis, "fetch");
 
-    try {
-      const account = await cdp.evm.getOrCreateAccount({ name: testAccountName });
+      try {
+        const account = await cdp.evm.getOrCreateAccount({ name: testAccountName });
 
-      const baseAccount = await account.useNetwork("base-sepolia");
+        const baseAccount = await account.useNetwork("base-sepolia");
 
-      const txResult = await baseAccount.sendTransaction({
-        transaction: {
-          to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
-          value: parseEther("0.000001"),
-        },
-      });
+        const txResult = await baseAccount.sendTransaction({
+          transaction: {
+            to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
+            value: parseEther("0.000001"),
+          },
+        });
 
-      // Wait for transaction receipt - this should use the Base Node RPC
-      await baseAccount.waitForTransactionReceipt({
-        hash: txResult.transactionHash,
-      });
+        // Wait for transaction receipt - this should use the Base Node RPC
+        await baseAccount.waitForTransactionReceipt({
+          hash: txResult.transactionHash,
+        });
 
-      // Find the RPC calls made during the transaction
-      const rpcCalls = fetchSpy.mock.calls.filter(call => {
-        const url = call[0] as string;
-        const body = call[1]?.body;
-        return (
-          url.includes("/rpc/v1/base-sepolia/") &&
-          body &&
-          body.toString().includes("eth_getTransactionReceipt")
-        );
-      });
+        // Find the RPC calls made during the transaction
+        const rpcCalls = fetchSpy.mock.calls.filter(call => {
+          const url = call[0] as string;
+          const body = call[1]?.body;
+          return (
+            url.includes("/rpc/v1/base-sepolia/") &&
+            body &&
+            body.toString().includes("eth_getTransactionReceipt")
+          );
+        });
 
-      expect(rpcCalls.length).toBeGreaterThan(0);
+        expect(rpcCalls.length).toBeGreaterThan(0);
 
-      const rpcUrl = rpcCalls[0][0] as string;
-      expect(rpcUrl).toMatch(/\/rpc\/v1\/base-sepolia\/[a-zA-Z0-9-]+$/);
+        const rpcUrl = rpcCalls[0][0] as string;
+        expect(rpcUrl).toMatch(/\/rpc\/v1\/base-sepolia\/[a-zA-Z0-9-]+$/);
 
-      logger.log(`Base Node RPC URL used: ${rpcUrl}`);
+        logger.log(`Base Node RPC URL used: ${rpcUrl}`);
 
-      // Also verify that the initial getBaseNodeRpcUrl call was made
-      const tokenCalls = fetchSpy.mock.calls.filter(call => {
-        const url = call[0] as string;
-        return url.includes("/apikeys/v1/tokens/active");
-      });
+        // Also verify that the initial getBaseNodeRpcUrl call was made
+        const tokenCalls = fetchSpy.mock.calls.filter(call => {
+          const url = call[0] as string;
+          return url.includes("/apikeys/v1/tokens/active");
+        });
 
-      expect(tokenCalls.length).toBeGreaterThan(0);
-      logger.log(`Token endpoint called ${tokenCalls.length} times`);
-    } finally {
-      fetchSpy.mockRestore();
-    }
+        expect(tokenCalls.length).toBeGreaterThan(0);
+        logger.log(`Token endpoint called ${tokenCalls.length} times`);
+      } finally {
+        fetchSpy.mockRestore();
+      }
+    });
   });
 });
 
@@ -3641,4 +3645,40 @@ function createAndEncodeTransaction(address: string, to?: string, amount?: numbe
   });
 
   return Buffer.from(serializedTransaction).toString("base64");
+}
+
+/**
+ * Retry flaky tests with configurable attempts and delays.
+ *
+ * @param testFn - The test function to retry
+ * @param maxRetries - Maximum number of retry attempts (default: 3)
+ * @param delay - Delay between retries in milliseconds (default: 1000)
+ * @returns Function that will retry on failure
+ */
+async function retryOnFailure<T>(
+  testFn: () => Promise<T>,
+  maxRetries: number = 3,
+  delay: number = 1000,
+): Promise<T> {
+  let lastException: Error | undefined;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await testFn();
+    } catch (error) {
+      lastException = error as Error;
+      if (attempt < maxRetries) {
+        console.log(
+          `Test failed on attempt ${attempt + 1}/${maxRetries + 1}. Retrying in ${delay}ms...`,
+        );
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        console.log(`Test failed after ${maxRetries + 1} attempts.`);
+        throw lastException;
+      }
+    }
+  }
+
+  // This should never be reached, but TypeScript requires it
+  throw lastException;
 }
