@@ -2,7 +2,6 @@
 
 import asyncio
 import sys
-import time
 
 from cdp import CdpClient
 from cdp.spend_permissions import SpendPermissionInput
@@ -42,9 +41,7 @@ async def main():
                 spender=spender.address,
                 token="usdc",
                 allowance=parse_units("0.01", 6),
-                period=60 * 60,  # 1 hour
-                start=0,
-                end=int(time.time()) + 24 * 60 * 60,  # in one day
+                period_in_days=7,
             )
 
             user_operation = await cdp.evm.create_spend_permission(
@@ -60,8 +57,15 @@ async def main():
 
         # List the spend permissions
         permissions = await cdp.evm.list_spend_permissions(account.address)
+        # filter permissions by spender
+        permissions = [
+            permission
+            for permission in permissions.spend_permissions
+            if permission.permission.spender == spender.address.lower()
+        ]
+        print(permissions)
 
-        print(f"Spend permissions: {permissions}")
+        # print(f"Spend permissions: {permissions}")
 
 
 if __name__ == "__main__":

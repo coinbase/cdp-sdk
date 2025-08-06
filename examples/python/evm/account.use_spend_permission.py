@@ -5,7 +5,8 @@ import asyncio
 from web3 import Web3
 
 from cdp import CdpClient
-from cdp.spend_permissions import SpendPermission
+from cdp.spend_permissions import SpendPermissionInput
+from cdp.utils import parse_units
 
 from dotenv import load_dotenv
 
@@ -41,20 +42,15 @@ async def main():
         print(f"Master account: {master.address}")
         print(f"Spender account: {spender.address}")
 
-        # Create a spend permission
-        spend_permission = SpendPermission(
+        spend_permission = SpendPermissionInput(
             account=master.address,
             spender=spender.address,
-            token="0x036CbD53842c5426634e7929541eC2318f3dCF7e",  # USDC on base-sepolia
-            allowance=10000,  # 0.01 USDC (USDC has 6 decimals)
-            period=86400,  # 1 day in seconds
-            start=0,  # Start immediately
-            end=281474976710655,  # Max uint48 (effectively no end)
-            salt=0,
-            extra_data="0x",
+            token="usdc",
+            allowance=parse_units("0.01", 6),
+            period_in_days=1,
         )
 
-        # Create the spend permission on-chain
+        # Create the spend permission onchain
         user_operation = await cdp.evm.create_spend_permission(
             spend_permission=spend_permission,
             network="base-sepolia",
@@ -73,12 +69,19 @@ async def main():
         # Sleep 2 seconds
         await asyncio.sleep(2)
 
+        all_permissions = await cdp.evm.list_spend_permissions(master.address)
+        permissions = [
+            permission
+            for permission in all_permissions.spend_permissions
+            if permission.permission.spender == spender.address.lower()
+        ]
+
         print("Executing spend...")
 
         # Use the spend permission
         spend_tx_hash = await spender.__experimental_use_spend_permission__(
-            spend_permission=spend_permission,
-            value=10000,  # 0.01 USDC
+            spend_permission=permissions[-1].permission,
+            value=parse_units("0.005", 6),  # Spend 0.005 USDC (half the allowance)
             network="base-sepolia",
         )
 
