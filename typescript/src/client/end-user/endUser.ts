@@ -11,7 +11,7 @@ export class CDPEndUserClient {
    *
    * @param options - The options for validating an access token.
    *
-   * @returns boolean - Whether the access token is valid.
+   * @returns An empty response if the access token is valid.
    */
   async validateAccessToken(options: ValidateAccessTokenOptions) {
     Analytics.trackAction({
