@@ -30,7 +30,7 @@ class TestOnchainDataApi(unittest.IsolatedAsyncioTestCase):
     async def test_run_sql_query(self) -> None:
         """Test case for run_sql_query
 
-        Run SQL against decoded onchain data
+        Run SQL Query
         """
         pass
 

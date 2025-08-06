@@ -292,27 +292,27 @@ export interface SpendPermission {
   /** Maximum allowed value to spend, in atomic units for the specified token, within each period. */
   allowance: string;
   /** Time duration for resetting used allowance on a recurring basis (seconds). */
-  period?: string;
+  period: string;
   /** The start time for this spend permission, in Unix seconds. */
-  start?: string;
+  start: string;
   /** The expiration time for this spend permission, in Unix seconds. */
-  end?: string;
+  end: string;
   /** An arbitrary salt to differentiate unique spend permissions with otherwise identical data. */
-  salt?: string;
+  salt: string;
   /** Arbitrary data to include in the permission. */
-  extraData?: string;
+  extraData: string;
 }
 
 export interface SpendPermissionResponseObject {
-  permission?: SpendPermission;
+  permission: SpendPermission;
   /** Unique hash identifier for this permission. */
-  permissionHash?: string;
+  permissionHash: string;
   /** Whether this permission has been revoked. */
-  revoked?: boolean;
+  revoked: boolean;
   /** The UTC ISO 8601 timestamp when the permission was revoked (if applicable). */
   revokedAt?: string;
   /** The UTC ISO 8601 timestamp when the permission was created. */
-  createdAt?: string;
+  createdAt: string;
 }
 
 export interface RevokeSpendPermissionRequest {

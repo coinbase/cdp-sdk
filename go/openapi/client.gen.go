@@ -1920,22 +1920,22 @@ type SpendPermission struct {
 	Allowance string `json:"allowance"`
 
 	// End The expiration time for this spend permission, in Unix seconds.
-	End *string `json:"end,omitempty"`
+	End string `json:"end"`
 
 	// ExtraData Arbitrary data to include in the permission.
-	ExtraData *string `json:"extraData,omitempty"`
+	ExtraData string `json:"extraData"`
 
 	// Period Time duration for resetting used allowance on a recurring basis (seconds).
-	Period *string `json:"period,omitempty"`
+	Period string `json:"period"`
 
 	// Salt An arbitrary salt to differentiate unique spend permissions with otherwise identical data.
-	Salt *string `json:"salt,omitempty"`
+	Salt string `json:"salt"`
 
 	// Spender Entity that can spend account's tokens.
 	Spender string `json:"spender"`
 
 	// Start The start time for this spend permission, in Unix seconds.
-	Start *string `json:"start,omitempty"`
+	Start string `json:"start"`
 
 	// Token Token address (ERC-7528 native token address or ERC-20 contract).
 	Token string `json:"token"`
@@ -1944,16 +1944,16 @@ type SpendPermission struct {
 // SpendPermissionResponseObject defines model for SpendPermissionResponseObject.
 type SpendPermissionResponseObject struct {
 	// CreatedAt The UTC ISO 8601 timestamp when the permission was created.
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
 
 	// Permission The core spend permission.
-	Permission *SpendPermission `json:"permission,omitempty"`
+	Permission SpendPermission `json:"permission"`
 
 	// PermissionHash Unique hash identifier for this permission.
-	PermissionHash *string `json:"permissionHash,omitempty"`
+	PermissionHash string `json:"permissionHash"`
 
 	// Revoked Whether this permission has been revoked.
-	Revoked *bool `json:"revoked,omitempty"`
+	Revoked bool `json:"revoked"`
 
 	// RevokedAt The UTC ISO 8601 timestamp when the permission was revoked (if applicable).
 	RevokedAt *time.Time `json:"revokedAt,omitempty"`
