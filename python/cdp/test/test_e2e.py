@@ -46,6 +46,44 @@ from cdp.update_account_types import UpdateAccountOptions
 
 load_dotenv()
 
+
+def retry_on_failure(max_retries=3, delay=1.0):
+    """Retry flaky tests with configurable attempts and delays.
+
+    Args:
+        max_retries (int): Maximum number of retry attempts (default: 3)
+        delay (float): Delay between retries in seconds (default: 1.0)
+
+    Returns:
+        Decorated async function that will retry on failure
+
+    """
+
+    def decorator(func):
+        import functools
+
+        @functools.wraps(func)
+        async def async_wrapper(*args, **kwargs):
+            last_exception = None
+            for attempt in range(max_retries + 1):
+                try:
+                    return await func(*args, **kwargs)
+                except Exception as e:
+                    last_exception = e
+                    if attempt < max_retries:
+                        print(
+                            f"Test {func.__name__} failed on attempt {attempt + 1}/{max_retries + 1}. Retrying in {delay}s..."
+                        )
+                        await asyncio.sleep(delay)
+                    else:
+                        print(f"Test {func.__name__} failed after {max_retries + 1} attempts.")
+                        raise last_exception from e
+
+        return async_wrapper
+
+    return decorator
+
+
 w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 
 test_account_name = "E2EServerAccount2"
@@ -851,7 +889,7 @@ async def test_transfer_sol(solana_account):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="Skipping due to flakiness")
+@retry_on_failure()
 async def test_solana_account_transfer_usdc(solana_account):
     """Test transferring USDC tokens."""
     connection = SolanaClient(
