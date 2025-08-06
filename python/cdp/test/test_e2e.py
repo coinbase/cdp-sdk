@@ -761,6 +761,7 @@ async def test_evm_sign_typed_data_for_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@retry_on_failure()
 async def test_transfer_eth(cdp_client):
     """Test transferring ETH."""
     account = await cdp_client.evm.get_or_create_account(name=test_account_name)
@@ -807,6 +808,7 @@ async def test_transfer_usdc(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@retry_on_failure()
 async def test_transfer_eth_smart_account(cdp_client):
     """Test transferring ETH with a smart account."""
     account = await cdp_client.evm.create_smart_account(owner=Account.create())
