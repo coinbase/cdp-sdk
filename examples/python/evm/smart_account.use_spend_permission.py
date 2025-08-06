@@ -41,15 +41,12 @@ async def main():
                 token="usdc",
             )
 
-        # Create a spend permission
         spend_permission = SpendPermissionInput(
             account=account.address,
             spender=spender.address,
             token="usdc",  # USDC on base-sepolia
             allowance=parse_units("0.01", 6),  # 0.01 USDC
-            period=86400,  # 1 day in seconds
-            start=0,  # Start immediately
-            end=281474976710655,  # Max uint48 (effectively no end)
+            period_in_days=1,  # 1 day (much clearer than 86400 seconds!)
         )
 
         # Create the spend permission on-chain
@@ -71,11 +68,18 @@ async def main():
         # Sleep 2 seconds
         await asyncio.sleep(2)
 
+        all_permissions = await cdp.evm.list_spend_permissions(account.address)
+        permissions = [
+            permission
+            for permission in all_permissions.spend_permissions
+            if permission.permission.spender == spender.address.lower()
+        ]
+
         print("Executing spend...")
 
         # Use the spend permission
         spend_result = await spender.__experimental_use_spend_permission__(
-            spend_permission=spend_permission,
+            spend_permission=permissions[-1].permission,  # Use the latest permission
             value=parse_units("0.005", 6),  # Spend 0.005 USDC
             network="base-sepolia",
         )

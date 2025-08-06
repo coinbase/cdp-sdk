@@ -1,6 +1,7 @@
 # Usage: uv run python evm/create_spend_permission.py
 
 import asyncio
+from datetime import datetime, timedelta
 
 from cdp import CdpClient
 from cdp.spend_permissions import SpendPermissionInput
@@ -28,18 +29,17 @@ async def main():
         spender = await cdp.evm.create_account()
         print(f"Spender Address: {spender.address}")
 
-        # Create a spend permission
         spend_permission = SpendPermissionInput(
             account=account.address,
             spender=spender.address,
             token="usdc",
             allowance=parse_units("0.01", 6),
-            period=86400,  # 1 day
-            start=0,
-            end=281474976710655,  # Max uint48
+            period_in_days=1,
+            start=datetime.now(),
+            end=datetime.now() + timedelta(days=30),
         )
 
-        # Create the spend permission on-chain
+        # Create the spend permission onchain
         user_operation = await cdp.evm.create_spend_permission(
             spend_permission=spend_permission,
             network="base-sepolia",
