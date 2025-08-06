@@ -25,9 +25,7 @@ const spendPermission: SpendPermissionInput = {
   spender: spender.address,
   token: "usdc",
   allowance: parseUnits("0.01", 6),
-  period: 86400,
-  start: 0,
-  end: 281474976710655,
+  periodInDays: 30, // monthly
 };
 
 const { userOpHash } = await cdp.evm.createSpendPermission({

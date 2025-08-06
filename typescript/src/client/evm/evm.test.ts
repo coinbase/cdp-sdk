@@ -41,6 +41,7 @@ import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../ut
 import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
 import { parseEther } from "viem";
 import { SpendPermission } from "../../spend-permissions/types.js";
+import { SpendPermissionInput } from "./evm.types.js";
 
 vi.mock("../../openapi-client", () => {
   return {
@@ -348,14 +349,14 @@ describe("EvmClient", () => {
 
   describe("createSpendPermission", () => {
     it("should create a spend permission", async () => {
-      const spendPermission: SpendPermission = {
+      const spendPermission: SpendPermissionInput = {
         account: "0x4F49b4B249720Fa384D3510645418208248833a9",
         spender: "0x75b1929d08f0d97BaaB6d1697408BCfd619Ae03d",
-        token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        token: "eth",
         allowance: parseEther("0.00001"),
         period: 86400,
-        start: 0,
-        end: 281474976710655,
+        start: new Date("2024-01-01T00:00:00Z"),
+        end: new Date("2024-12-31T23:59:59Z"),
         salt: BigInt(0),
         extraData: "0x",
       };

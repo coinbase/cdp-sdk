@@ -17,7 +17,7 @@ export function resolveTokenAddress(
   token: "eth" | "usdc" | Address,
   network: SpendPermissionNetworks,
 ): Address {
-  if (token === "eth" && (network === "ethereum" || network === "ethereum-sepolia")) {
+  if (token === "eth") {
     return "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
   }
 
@@ -25,7 +25,7 @@ export function resolveTokenAddress(
     return getErc20Address(token, network as Network);
   }
 
-  if (token === "eth" || token === "usdc") {
+  if (token === "usdc") {
     throw new UserInputValidationError(
       `Automatic token address lookup for ${token} is not supported on ${network}. Please provide the token address manually.`,
     );

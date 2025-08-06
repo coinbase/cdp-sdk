@@ -38,9 +38,7 @@ const spendPermission: SpendPermissionInput = {
   spender: spender.address, // App's spender address
   token: "usdc", // USDC on base-sepolia
   allowance: parseUnits("0.01", 6), // Small amount for testing
-  period: 86400, // 1 day in seconds
-  start: 0, // Start immediately
-  end: 281474976710655, // Max uint48 (effectively no end)
+  periodInDays: 1, // 1 day
 };
 
 console.log("Sending approve user operation...");

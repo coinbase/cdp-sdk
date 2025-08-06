@@ -267,10 +267,17 @@ export interface CreateSwapQuoteResult {
   execute: (options?: ExecuteSwapQuoteOptions) => Promise<ExecuteSwapQuoteResult>;
 }
 
-export type SpendPermissionInput = Omit<SpendPermission, "token" | "salt" | "extraData"> & {
+export type SpendPermissionInput = Omit<
+  SpendPermission,
+  "token" | "salt" | "extraData" | "period" | "start" | "end"
+> & {
   token: "eth" | "usdc" | Address;
   salt?: bigint;
   extraData?: Hex;
+  period?: number;
+  periodInDays?: number;
+  start?: Date;
+  end?: Date;
 };
 
 export interface CreateSpendPermissionOptions {
