@@ -7,9 +7,9 @@ const cdp = new CdpClient();
 
 const smartAccount = await cdp.evm.getOrCreateSmartAccount({
   __experimental_enableSpendPermission: true,
-  name: "Example-SmartAccount",
+  name: "Example-Account",
   owner: await cdp.evm.getOrCreateAccount({
-    name: "Example-EOA",
+    name: "Example-Account-Owner",
   }),
 });
 

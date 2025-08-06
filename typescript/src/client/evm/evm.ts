@@ -41,7 +41,10 @@ import {
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
-import { listSpendPermissions } from "../../actions/evm/listSpendPermissions.js";
+import {
+  listSpendPermissions,
+  ListSpendPermissionsResult,
+} from "../../actions/evm/listSpendPermissions.js";
 import {
   listTokenBalances,
   ListTokenBalancesOptions,
@@ -71,7 +74,6 @@ import { UserInputValidationError } from "../../errors.js";
 import { APIError } from "../../openapi-client/errors.js";
 import {
   CdpOpenApiClient,
-  ListSpendPermissionsResult,
   EIP712Message as OpenAPIEIP712Message,
 } from "../../openapi-client/index.js";
 import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";

@@ -14,7 +14,6 @@ import type { EvmSmartAccount } from "../../../accounts/evm/types.js";
 import type { CdpOpenApiClientType } from "../../../openapi-client/index.js";
 import type { Address, Hex } from "../../../types/misc.js";
 import type { SpendPermission } from "../../../spend-permissions/types.js";
-import type { SpendPermissionInput } from "../../../client/evm/evm.types.js";
 
 // Mock viem functions
 vi.mock("viem", () => ({
@@ -37,27 +36,14 @@ describe("useSpendPermission for smart accounts", () => {
     "0xdeadbeef1234567890abcdef1234567890abcdef1234567890abcdef12345678" as Hex;
   const mockEncodedData = "0xencodeddata1234567890" as Hex;
 
-  const mockSpendPermission: SpendPermissionInput = {
-    account: mockSmartAccountAddress,
-    spender: "0x1234567890123456789012345678901234567890" as Address,
-    token: "eth",
-    allowance: 1000000000000000000n, // 1 ETH
-    period: 86400, // 1 day
-    start: new Date("2023-11-15T06:13:20Z"), // 1700000000 in Date format
-    end: new Date("2023-11-16T06:13:20Z"), // 1700086400 in Date format
-    salt: 12345n,
-    extraData: "0x" as Hex,
-  };
-
-  // Expected resolved spend permission (what encodeFunctionData will receive)
-  const expectedResolvedSpendPermission: SpendPermission = {
+  const mockSpendPermission: SpendPermission = {
     account: mockSmartAccountAddress,
     spender: "0x1234567890123456789012345678901234567890" as Address,
     token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" as Address, // ETH resolved address
     allowance: 1000000000000000000n, // 1 ETH
     period: 86400, // 1 day
-    start: 1700028800, // Date converted to timestamp
-    end: 1700115200, // Date converted to timestamp
+    start: 1700000000, // Timestamp
+    end: 1700086400, // Timestamp
     salt: 12345n,
     extraData: "0x" as Hex,
   };
@@ -95,7 +81,7 @@ describe("useSpendPermission for smart accounts", () => {
     expect(encodeFunctionData).toHaveBeenCalledWith({
       abi: SPEND_PERMISSION_MANAGER_ABI,
       functionName: "spend",
-      args: [expectedResolvedSpendPermission, mockOptions.value],
+      args: [mockSpendPermission, mockOptions.value],
     });
 
     // Verify sendUserOperation was called correctly

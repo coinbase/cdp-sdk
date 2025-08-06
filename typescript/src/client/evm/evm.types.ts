@@ -5,6 +5,7 @@ import type {
   EvmServerAccount as ServerAccount,
   EvmSmartAccount as SmartAccount,
 } from "../../accounts/evm/types.js";
+import type { ListSpendPermissionsResult } from "../../actions/evm/listSpendPermissions.js";
 import type {
   ListTokenBalancesOptions,
   ListTokenBalancesResult,
@@ -23,7 +24,6 @@ import type {
   EvmSwapsNetwork,
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
-  ListSpendPermissionsResult,
   OpenApiEvmMethods,
   UpdateEvmAccountBody as UpdateEvmAccount,
   UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
