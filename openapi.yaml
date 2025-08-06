@@ -5509,6 +5509,24 @@ components:
       properties:
         revert:
           $ref: '#/components/schemas/UserOperationReceiptRevert'
+        transactionHash:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{64}$
+          description: The hash of this transaction as 0x-prefixed string.
+          example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+        blockHash:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{64}$|^$
+          description: The block hash of the block including the transaction as 0x-prefixed string.
+          example: '0x386544b58930c0ec9e8f3ed09fb4cdb76b9ae0a1a37ddcacebe3925b57978e65'
+        blockNumber:
+          type: integer
+          description: The block height (number) of the block including the transaction.
+          example: 29338819
+        gasUsed:
+          type: string
+          description: The gas used for landing this user operation.
+          example: '100000'
       example:
         revert:
           data: '0x123'
@@ -5570,17 +5588,29 @@ components:
       properties:
         network:
           type: string
-          description: The network of the spend permission.
+          description: The network to create the spend permission on.
+          enum:
+            - base
+            - base-sepolia
+            - ethereum
+            - ethereum-sepolia
+            - optimism
+            - optimism-sepolia
+            - arbitrum
+            - avalanche
+            - bnb
+            - polygon
+            - zora
           example: base
         spender:
           type: string
           pattern: ^0x[a-fA-F0-9]{40}$
-          description: Entity that can spend account's tokens.
+          description: Entity that can spend account's tokens. Can be either a Smart Account or an EOA.
           example: '0x9Fb909eA400c2b8D99Be292DADf07e63B814527c'
         token:
           type: string
           pattern: ^0x[a-fA-F0-9]{40}$
-          description: Token address (ERC-7528 native token address or ERC-20 contract).
+          description: ERC-7528 native token address (e.g. "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" for native ETH), or an  ERC-20 contract address.
           example: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
         allowance:
           type: string
@@ -5601,7 +5631,7 @@ components:
         salt:
           type: string
           description: An arbitrary salt to differentiate unique spend permissions with otherwise identical data.
-          example: '0'
+          example: '95959551014433038874972658238091428449162862973207257628575040053304171156143'
         extraData:
           type: string
           description: Arbitrary data to include in the permission.

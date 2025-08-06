@@ -203,6 +203,20 @@ export interface UserOperationReceiptRevert {
  */
 export interface UserOperationReceipt {
   revert?: UserOperationReceiptRevert;
+  /**
+   * The hash of this transaction as 0x-prefixed string.
+   * @pattern ^0x[a-fA-F0-9]{64}$
+   */
+  transactionHash?: string;
+  /**
+   * The block hash of the block including the transaction as 0x-prefixed string.
+   * @pattern ^0x[0-9a-fA-F]{64}$|^$
+   */
+  blockHash?: string;
+  /** The block height (number) of the block including the transaction. */
+  blockNumber?: number;
+  /** The gas used for landing this user operation. */
+  gasUsed?: string;
 }
 
 /**
@@ -241,16 +255,37 @@ export interface EvmUserOperation {
   receipts?: UserOperationReceipt[];
 }
 
+/**
+ * The network to create the spend permission on.
+ */
+export type CreateSpendPermissionRequestNetwork =
+  (typeof CreateSpendPermissionRequestNetwork)[keyof typeof CreateSpendPermissionRequestNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const CreateSpendPermissionRequestNetwork = {
+  base: "base",
+  "base-sepolia": "base-sepolia",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+  optimism: "optimism",
+  "optimism-sepolia": "optimism-sepolia",
+  arbitrum: "arbitrum",
+  avalanche: "avalanche",
+  bnb: "bnb",
+  polygon: "polygon",
+  zora: "zora",
+} as const;
+
 export interface CreateSpendPermissionRequest {
-  /** The network of the spend permission. */
-  network: string;
+  /** The network to create the spend permission on. */
+  network: CreateSpendPermissionRequestNetwork;
   /**
-   * Entity that can spend account's tokens.
+   * Entity that can spend account's tokens. Can be either a Smart Account or an EOA.
    * @pattern ^0x[a-fA-F0-9]{40}$
    */
   spender: string;
   /**
-   * Token address (ERC-7528 native token address or ERC-20 contract).
+   * ERC-7528 native token address (e.g. "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" for native ETH), or an  ERC-20 contract address.
    * @pattern ^0x[a-fA-F0-9]{40}$
    */
   token: string;

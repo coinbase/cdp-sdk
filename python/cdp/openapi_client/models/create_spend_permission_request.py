@@ -28,9 +28,9 @@ class CreateSpendPermissionRequest(BaseModel):
     """
     CreateSpendPermissionRequest
     """ # noqa: E501
-    network: StrictStr = Field(description="The network of the spend permission.")
-    spender: Annotated[str, Field(strict=True)] = Field(description="Entity that can spend account's tokens.")
-    token: Annotated[str, Field(strict=True)] = Field(description="Token address (ERC-7528 native token address or ERC-20 contract).")
+    network: StrictStr = Field(description="The network to create the spend permission on.")
+    spender: Annotated[str, Field(strict=True)] = Field(description="Entity that can spend account's tokens. Can be either a Smart Account or an EOA.")
+    token: Annotated[str, Field(strict=True)] = Field(description="ERC-7528 native token address (e.g. \"0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE\" for native ETH), or an  ERC-20 contract address.")
     allowance: StrictStr = Field(description="Maximum allowed value to spend, in atomic units for the specified token, within each period.")
     period: StrictStr = Field(description="Time duration for resetting used allowance on a recurring basis (seconds).")
     start: StrictStr = Field(description="The start time for this spend permission, in Unix seconds.")
@@ -39,6 +39,13 @@ class CreateSpendPermissionRequest(BaseModel):
     extra_data: Optional[StrictStr] = Field(default=None, description="Arbitrary data to include in the permission.", alias="extraData")
     paymaster_url: Optional[StrictStr] = Field(default=None, description="The paymaster URL of the spend permission.", alias="paymasterUrl")
     __properties: ClassVar[List[str]] = ["network", "spender", "token", "allowance", "period", "start", "end", "salt", "extraData", "paymasterUrl"]
+
+    @field_validator('network')
+    def network_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['base', 'base-sepolia', 'ethereum', 'ethereum-sepolia', 'optimism', 'optimism-sepolia', 'arbitrum', 'avalanche', 'bnb', 'polygon', 'zora']):
+            raise ValueError("must be one of enum values ('base', 'base-sepolia', 'ethereum', 'ethereum-sepolia', 'optimism', 'optimism-sepolia', 'arbitrum', 'avalanche', 'bnb', 'polygon', 'zora')")
+        return value
 
     @field_validator('spender')
     def spender_validate_regular_expression(cls, value):

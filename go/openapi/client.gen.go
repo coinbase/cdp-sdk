@@ -48,6 +48,21 @@ const (
 	CommonSwapResponseLiquidityAvailableTrue CommonSwapResponseLiquidityAvailable = true
 )
 
+// Defines values for CreateSpendPermissionRequestNetwork.
+const (
+	CreateSpendPermissionRequestNetworkArbitrum        CreateSpendPermissionRequestNetwork = "arbitrum"
+	CreateSpendPermissionRequestNetworkAvalanche       CreateSpendPermissionRequestNetwork = "avalanche"
+	CreateSpendPermissionRequestNetworkBase            CreateSpendPermissionRequestNetwork = "base"
+	CreateSpendPermissionRequestNetworkBaseSepolia     CreateSpendPermissionRequestNetwork = "base-sepolia"
+	CreateSpendPermissionRequestNetworkBnb             CreateSpendPermissionRequestNetwork = "bnb"
+	CreateSpendPermissionRequestNetworkEthereum        CreateSpendPermissionRequestNetwork = "ethereum"
+	CreateSpendPermissionRequestNetworkEthereumSepolia CreateSpendPermissionRequestNetwork = "ethereum-sepolia"
+	CreateSpendPermissionRequestNetworkOptimism        CreateSpendPermissionRequestNetwork = "optimism"
+	CreateSpendPermissionRequestNetworkOptimismSepolia CreateSpendPermissionRequestNetwork = "optimism-sepolia"
+	CreateSpendPermissionRequestNetworkPolygon         CreateSpendPermissionRequestNetwork = "polygon"
+	CreateSpendPermissionRequestNetworkZora            CreateSpendPermissionRequestNetwork = "zora"
+)
+
 // Defines values for CreateSwapQuoteResponseLiquidityAvailable.
 const (
 	CreateSwapQuoteResponseLiquidityAvailableTrue CreateSwapQuoteResponseLiquidityAvailable = true
@@ -531,9 +546,9 @@ const (
 
 // Defines values for RequestEvmFaucetJSONBodyNetwork.
 const (
-	RequestEvmFaucetJSONBodyNetworkBaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
-	RequestEvmFaucetJSONBodyNetworkEthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
-	RequestEvmFaucetJSONBodyNetworkEthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
+	BaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
+	EthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
+	EthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
 )
 
 // Defines values for RequestEvmFaucetJSONBodyToken.
@@ -720,8 +735,8 @@ type CreateSpendPermissionRequest struct {
 	// ExtraData Arbitrary data to include in the permission.
 	ExtraData *string `json:"extraData,omitempty"`
 
-	// Network The network of the spend permission.
-	Network string `json:"network"`
+	// Network The network to create the spend permission on.
+	Network CreateSpendPermissionRequestNetwork `json:"network"`
 
 	// PaymasterUrl The paymaster URL of the spend permission.
 	PaymasterUrl *string `json:"paymasterUrl,omitempty"`
@@ -732,15 +747,18 @@ type CreateSpendPermissionRequest struct {
 	// Salt An arbitrary salt to differentiate unique spend permissions with otherwise identical data.
 	Salt *string `json:"salt,omitempty"`
 
-	// Spender Entity that can spend account's tokens.
+	// Spender Entity that can spend account's tokens. Can be either a Smart Account or an EOA.
 	Spender string `json:"spender"`
 
 	// Start The start time for this spend permission, in Unix seconds.
 	Start string `json:"start"`
 
-	// Token Token address (ERC-7528 native token address or ERC-20 contract).
+	// Token ERC-7528 native token address (e.g. "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" for native ETH), or an  ERC-20 contract address.
 	Token string `json:"token"`
 }
+
+// CreateSpendPermissionRequestNetwork The network to create the spend permission on.
+type CreateSpendPermissionRequestNetwork string
 
 // CreateSwapQuoteResponse defines model for CreateSwapQuoteResponse.
 type CreateSwapQuoteResponse struct {
@@ -2140,8 +2158,20 @@ type TransferTarget struct {
 
 // UserOperationReceipt The receipt that contains information about the execution of user operation.
 type UserOperationReceipt struct {
+	// BlockHash The block hash of the block including the transaction as 0x-prefixed string.
+	BlockHash *string `json:"blockHash,omitempty"`
+
+	// BlockNumber The block height (number) of the block including the transaction.
+	BlockNumber *int `json:"blockNumber,omitempty"`
+
+	// GasUsed The gas used for landing this user operation.
+	GasUsed *string `json:"gasUsed,omitempty"`
+
 	// Revert The revert data if the user operation has reverted.
 	Revert *UserOperationReceiptRevert `json:"revert,omitempty"`
+
+	// TransactionHash The hash of this transaction as 0x-prefixed string.
+	TransactionHash *string `json:"transactionHash,omitempty"`
 }
 
 // UserOperationReceiptRevert The revert data if the user operation has reverted.
