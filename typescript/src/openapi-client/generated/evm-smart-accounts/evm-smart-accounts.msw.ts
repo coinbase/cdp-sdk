@@ -199,6 +199,19 @@ export const getPrepareUserOperationResponseMock = (
         { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
         undefined,
       ]),
+      transactionHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[a-fA-F0-9]{64}$"),
+        undefined,
+      ]),
+      blockHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+        undefined,
+      ]),
+      blockNumber: faker.helpers.arrayElement([
+        faker.number.int({ min: undefined, max: undefined }),
+        undefined,
+      ]),
+      gasUsed: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
     })),
     undefined,
   ]),
@@ -233,6 +246,19 @@ export const getGetUserOperationResponseMock = (
         { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
         undefined,
       ]),
+      transactionHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[a-fA-F0-9]{64}$"),
+        undefined,
+      ]),
+      blockHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+        undefined,
+      ]),
+      blockNumber: faker.helpers.arrayElement([
+        faker.number.int({ min: undefined, max: undefined }),
+        undefined,
+      ]),
+      gasUsed: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
     })),
     undefined,
   ]),
@@ -267,6 +293,19 @@ export const getSendUserOperationResponseMock = (
         { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
         undefined,
       ]),
+      transactionHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[a-fA-F0-9]{64}$"),
+        undefined,
+      ]),
+      blockHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+        undefined,
+      ]),
+      blockNumber: faker.helpers.arrayElement([
+        faker.number.int({ min: undefined, max: undefined }),
+        undefined,
+      ]),
+      gasUsed: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
     })),
     undefined,
   ]),
@@ -301,6 +340,19 @@ export const getCreateSpendPermissionResponseMock = (
         { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
         undefined,
       ]),
+      transactionHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[a-fA-F0-9]{64}$"),
+        undefined,
+      ]),
+      blockHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+        undefined,
+      ]),
+      blockNumber: faker.helpers.arrayElement([
+        faker.number.int({ min: undefined, max: undefined }),
+        undefined,
+      ]),
+      gasUsed: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
     })),
     undefined,
   ]),
@@ -364,6 +416,19 @@ export const getRevokeSpendPermissionResponseMock = (
         { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
         undefined,
       ]),
+      transactionHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[a-fA-F0-9]{64}$"),
+        undefined,
+      ]),
+      blockHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+        undefined,
+      ]),
+      blockNumber: faker.helpers.arrayElement([
+        faker.number.int({ min: undefined, max: undefined }),
+        undefined,
+      ]),
+      gasUsed: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
     })),
     undefined,
   ]),

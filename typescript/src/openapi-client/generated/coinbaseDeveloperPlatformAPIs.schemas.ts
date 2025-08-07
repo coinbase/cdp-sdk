@@ -203,6 +203,20 @@ export interface UserOperationReceiptRevert {
  */
 export interface UserOperationReceipt {
   revert?: UserOperationReceiptRevert;
+  /**
+   * The hash of this transaction as 0x-prefixed string.
+   * @pattern ^0x[a-fA-F0-9]{64}$
+   */
+  transactionHash?: string;
+  /**
+   * The block hash of the block including the transaction as 0x-prefixed string.
+   * @pattern ^0x[0-9a-fA-F]{64}$|^$
+   */
+  blockHash?: string;
+  /** The block height (number) of the block including the transaction. */
+  blockNumber?: number;
+  /** The gas used for landing this user operation. */
+  gasUsed?: string;
 }
 
 /**
@@ -241,16 +255,33 @@ export interface EvmUserOperation {
   receipts?: UserOperationReceipt[];
 }
 
+/**
+ * The network the spend permission is on.
+ */
+export type SpendPermissionNetwork =
+  (typeof SpendPermissionNetwork)[keyof typeof SpendPermissionNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SpendPermissionNetwork = {
+  base: "base",
+  "base-sepolia": "base-sepolia",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+  optimism: "optimism",
+  arbitrum: "arbitrum",
+  avalanche: "avalanche",
+  polygon: "polygon",
+} as const;
+
 export interface CreateSpendPermissionRequest {
-  /** The network of the spend permission. */
-  network: string;
+  network: SpendPermissionNetwork;
   /**
-   * Entity that can spend account's tokens.
+   * Entity that can spend account's tokens. Can be either a Smart Account or an EOA.
    * @pattern ^0x[a-fA-F0-9]{40}$
    */
   spender: string;
   /**
-   * Token address (ERC-7528 native token address or ERC-20 contract).
+   * ERC-7528 native token address (e.g. "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" for native ETH), or an  ERC-20 contract address.
    * @pattern ^0x[a-fA-F0-9]{40}$
    */
   token: string;
@@ -316,8 +347,7 @@ export interface SpendPermissionResponseObject {
 }
 
 export interface RevokeSpendPermissionRequest {
-  /** The network of the spend permission. */
-  network: string;
+  network: SpendPermissionNetwork;
   /** The hash of the spend permission to revoke. */
   permissionHash: string;
   /** The paymaster URL of the spend permission. */
@@ -1940,6 +1970,21 @@ export interface OnchainDataResult {
 }
 
 /**
+ * Response containing token addresses that an account has received.
+ */
+export interface AccountTokenAddressesResponse {
+  /** The account address that was queried. */
+  accountAddress?: string;
+  /** List of token contract addresses that the account has received. */
+  tokenAddresses?: string[];
+  /**
+   * Total number of unique token addresses discovered.
+   * @minimum 0
+   */
+  totalCount?: number;
+}
+
+/**
  * The action of the payment method.
  */
 export type PaymentRailAction = (typeof PaymentRailAction)[keyof typeof PaymentRailAction];
@@ -2907,6 +2952,24 @@ export type ListSolanaTokenBalances200AllOf = {
 };
 
 export type ListSolanaTokenBalances200 = ListSolanaTokenBalances200AllOf & ListResponse;
+
+export type ListDataTokenBalancesParams = {
+  /**
+   * The number of balances to return per page.
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of balances. Will be empty if there are no more balances to fetch.
+   */
+  pageToken?: string;
+};
+
+export type ListDataTokenBalances200AllOf = {
+  /** The list of EVM token balances. */
+  balances: TokenBalance[];
+};
+
+export type ListDataTokenBalances200 = ListDataTokenBalances200AllOf & ListResponse;
 
 export type GetCryptoRailsParams = {
   /**

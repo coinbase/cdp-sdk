@@ -9,7 +9,12 @@ import { faker } from "@faker-js/faker";
 
 import { HttpResponse, delay, http } from "msw";
 
-import type { OnchainDataResult } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
+import { ListEvmTokenBalancesNetwork } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
+import type {
+  AccountTokenAddressesResponse,
+  ListDataTokenBalances200,
+  OnchainDataResult,
+} from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 export const getRunSQLQueryResponseMock = (
   overrideResponse: Partial<OnchainDataResult> = {},
@@ -71,6 +76,40 @@ export const getRunSQLQueryResponseMock = (
   ...overrideResponse,
 });
 
+export const getListTokensForAccountResponseMock = (
+  overrideResponse: Partial<AccountTokenAddressesResponse> = {},
+): AccountTokenAddressesResponse => ({
+  accountAddress: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+  tokenAddresses: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    ),
+    undefined,
+  ]),
+  totalCount: faker.helpers.arrayElement([faker.number.int({ min: 0, max: undefined }), undefined]),
+  ...overrideResponse,
+});
+
+export const getListDataTokenBalancesResponseMock = (): ListDataTokenBalances200 => ({
+  ...{
+    balances: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        amount: {
+          amount: faker.helpers.fromRegExp("^[0-9]+$"),
+          decimals: faker.number.int({ min: undefined, max: undefined }),
+        },
+        token: {
+          network: faker.helpers.arrayElement(Object.values(ListEvmTokenBalancesNetwork)),
+          symbol: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+          name: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+          contractAddress: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+        },
+      }),
+    ),
+  },
+  ...{ nextPageToken: faker.helpers.arrayElement([faker.string.alpha(20), undefined]) },
+});
+
 export const getRunSQLQueryMockHandler = (
   overrideResponse?:
     | OnchainDataResult
@@ -93,4 +132,54 @@ export const getRunSQLQueryMockHandler = (
     );
   });
 };
-export const getOnchainDataMock = () => [getRunSQLQueryMockHandler()];
+
+export const getListTokensForAccountMockHandler = (
+  overrideResponse?:
+    | AccountTokenAddressesResponse
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<AccountTokenAddressesResponse> | AccountTokenAddressesResponse),
+) => {
+  return http.get("*/v2/data/evm/token-ownership/:network/:address", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getListTokensForAccountResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getListDataTokenBalancesMockHandler = (
+  overrideResponse?:
+    | ListDataTokenBalances200
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<ListDataTokenBalances200> | ListDataTokenBalances200),
+) => {
+  return http.get("*/v2/data/evm/token-balances/:network/:address", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getListDataTokenBalancesResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+export const getOnchainDataMock = () => [
+  getRunSQLQueryMockHandler(),
+  getListTokensForAccountMockHandler(),
+  getListDataTokenBalancesMockHandler(),
+];

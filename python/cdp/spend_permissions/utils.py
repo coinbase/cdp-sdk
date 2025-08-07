@@ -5,15 +5,15 @@ from datetime import datetime
 from typing import Literal
 
 from cdp.errors import UserInputValidationError
+from cdp.openapi_client import SpendPermissionNetwork
 from cdp.spend_permissions.types import (
     SpendPermission,
     SpendPermissionInput,
-    SpendPermissionNetworks,
 )
 
 
 def resolve_token_address(
-    token: Literal["eth", "usdc"] | str, network: SpendPermissionNetworks
+    token: Literal["eth", "usdc"] | str, network: SpendPermissionNetwork
 ) -> str:
     """Resolve the address of a token for a given network.
 
@@ -58,7 +58,7 @@ def generate_random_salt() -> int:
 
 def resolve_spend_permission(
     spend_permission_input: SpendPermissionInput,
-    network: SpendPermissionNetworks,
+    network: SpendPermissionNetwork,
 ) -> SpendPermission:
     """Resolve a spend permission input to a spend permission.
 

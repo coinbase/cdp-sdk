@@ -1,10 +1,12 @@
-import type { ListSpendPermissionsOptions } from "../../client/evm/evm.types.js";
 import type {
   CdpOpenApiClient,
   ListResponse,
   SpendPermissionResponseObject as SpendPermissionResponseObjectApi,
 } from "../../openapi-client/index.js";
-import type { SpendPermission } from "../../spend-permissions/types.js";
+import type {
+  ListSpendPermissionsOptions,
+  SpendPermission,
+} from "../../spend-permissions/types.js";
 import type { Address, Hex } from "../../types/misc.js";
 
 export type SpendPermissionResponseObject = Omit<
