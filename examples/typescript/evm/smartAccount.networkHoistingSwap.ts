@@ -164,9 +164,9 @@ console.log(`Note: This example is using ${NETWORK} network with smart accounts.
   try {
     console.log(`\nExample 1: Getting swap price estimate...`);
     const priceQuote = await cdp.evm.getSwapPrice({
-      fromToken: fromToken.address,
-      toToken: toToken.address,
-      fromAmount: swapAmount.toString(),
+      fromToken: fromToken.address as Address,
+      toToken: toToken.address as Address,
+      fromAmount: swapAmount,
     });
     
     if (priceQuote.liquidityAvailable) {
@@ -191,9 +191,9 @@ console.log(`Note: This example is using ${NETWORK} network with smart accounts.
    /*
    try {
      const result = await networkSmartAccount.swap({
-       fromToken: fromToken.address,
-       toToken: toToken.address,
-       fromAmount: swapAmount.toString(),
+       fromToken: fromToken.address as Address,
+       toToken: toToken.address as Address,
+       fromAmount: swapAmount,
      });
      
      console.log(`Smart account swap executed successfully on ${NETWORK}:`);
@@ -211,9 +211,9 @@ console.log(`Note: This example is using ${NETWORK} network with smart accounts.
      // 1. Create the quote
      console.log(`\nStep 1: Creating smart account swap quote...`);
      const swapQuote = await networkSmartAccount.quoteSwap({
-       fromToken: fromToken.address,
-       toToken: toToken.address,
-       fromAmount: swapAmount.toString(),
+       fromToken: fromToken.address as Address,
+       toToken: toToken.address as Address,
+       fromAmount: swapAmount,
      });
      
      if (!swapQuote.liquidityAvailable) {
