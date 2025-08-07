@@ -141,7 +141,7 @@ describe("toNetworkScopedEvmSmartAccount", () => {
         expect(account.waitForFundOperationReceipt).toBeDefined();
         expect(account.quoteSwap).toBeDefined();
         expect(account.swap).toBeDefined();
-        expect(account.__experimental_useSpendPermission).toBeDefined();
+        expect(account.useSpendPermission).toBeDefined();
 
         // Should NOT have requestFaucet (only on testnets)
         expect(account).not.toHaveProperty("requestFaucet");
@@ -160,7 +160,7 @@ describe("toNetworkScopedEvmSmartAccount", () => {
         expect(account.listTokenBalances).toBeDefined();
         expect(account.transfer).toBeDefined();
         expect(account.requestFaucet).toBeDefined();
-        expect(account.__experimental_useSpendPermission).toBeDefined();
+        expect(account.useSpendPermission).toBeDefined();
 
         // Should NOT have mainnet-only methods
         expect(account).not.toHaveProperty("quoteFund");
@@ -184,7 +184,7 @@ describe("toNetworkScopedEvmSmartAccount", () => {
         expect(account.transfer).toBeDefined();
         expect(account.quoteSwap).toBeDefined();
         expect(account.swap).toBeDefined();
-        expect(account.__experimental_useSpendPermission).toBeDefined();
+        expect(account.useSpendPermission).toBeDefined();
 
         // Should NOT have base-only methods or testnet methods
         expect(account).not.toHaveProperty("quoteFund");
@@ -205,7 +205,7 @@ describe("toNetworkScopedEvmSmartAccount", () => {
         // Should have these methods
         expect(account.transfer).toBeDefined();
         expect(account.requestFaucet).toBeDefined();
-        expect(account.__experimental_useSpendPermission).toBeDefined();
+        expect(account.useSpendPermission).toBeDefined();
 
         // Should NOT have these methods
         expect(account).not.toHaveProperty("listTokenBalances");
@@ -234,7 +234,7 @@ describe("toNetworkScopedEvmSmartAccount", () => {
       expect(account).toHaveProperty("waitForFundOperationReceipt");
       expect(account).toHaveProperty("quoteSwap");
       expect(account).toHaveProperty("swap");
-      expect(account).toHaveProperty("__experimental_useSpendPermission");
+      expect(account).toHaveProperty("useSpendPermission");
     });
 
     it("should return correct type for ethereum network", async () => {
@@ -249,7 +249,7 @@ describe("toNetworkScopedEvmSmartAccount", () => {
       expect(account).toHaveProperty("transfer");
       expect(account).toHaveProperty("quoteSwap");
       expect(account).toHaveProperty("swap");
-      expect(account).toHaveProperty("__experimental_useSpendPermission");
+      expect(account).toHaveProperty("useSpendPermission");
     });
   });
 

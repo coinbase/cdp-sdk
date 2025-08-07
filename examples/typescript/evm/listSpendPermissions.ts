@@ -6,7 +6,7 @@ import "dotenv/config";
 const cdp = new CdpClient();
 
 const smartAccount = await cdp.evm.getOrCreateSmartAccount({
-  __experimental_enableSpendPermission: true,
+  enableSpendPermissions: true,
   name: "Example-Account",
   owner: await cdp.evm.getOrCreateAccount({
     name: "Example-Account-Owner",

@@ -299,7 +299,7 @@ describe("EvmClient", () => {
       const createOptions = {
         owner,
         name,
-        __experimental_enableSpendPermission: true,
+        enableSpendPermissions: true,
       };
 
       const openApiEvmSmartAccount: OpenApiEvmSmartAccount = {

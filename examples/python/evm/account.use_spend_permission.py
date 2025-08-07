@@ -25,7 +25,7 @@ async def main():
         master = await cdp.evm.get_or_create_smart_account(
             name="Demo-SpendPermissions-Master",
             owner=master_owner,
-            __experimental_enable_spend_permission__=True,
+            enable_spend_permissions=True,
         )
 
         spender = await cdp.evm.get_or_create_account(
@@ -79,7 +79,7 @@ async def main():
         print("Executing spend...")
 
         # Use the spend permission
-        spend_tx_hash = await spender.__experimental_use_spend_permission__(
+        spend_tx_hash = await spender.use_spend_permission(
             spend_permission=permissions[-1].permission,
             value=parse_units("0.005", 6),  # Spend 0.005 USDC (half the allowance)
             network="base-sepolia",

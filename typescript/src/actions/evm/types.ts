@@ -356,8 +356,6 @@ export type AccountActions = Actions & {
   swap: (options: AccountSwapOptions) => Promise<AccountSwapResult>;
 
   /**
-   * @deprecated Experimental! This method name will change, and is subject to other breaking changes.
-   *
    * Uses a spend permission to execute a transaction.
    * This allows the account to spend tokens that have been approved via a spend permission.
    *
@@ -384,16 +382,14 @@ export type AccountActions = Actions & {
    *   extraData: "0x",
    * };
    *
-   * const result = await account.__experimental_useSpendPermission({
+   * const result = await account.useSpendPermission({
    *   spendPermission,
    *   value: parseEther("0.001"), // Spend 0.001 ETH
    *   network: "base-sepolia",
    * });
    * ```
    */
-  __experimental_useSpendPermission: (
-    options: UseSpendPermissionOptions,
-  ) => Promise<TransactionResult>;
+  useSpendPermission: (options: UseSpendPermissionOptions) => Promise<TransactionResult>;
 };
 
 export type SmartAccountActions = Actions & {
@@ -683,8 +679,6 @@ export type SmartAccountActions = Actions & {
   ) => Promise<Hex>;
 
   /**
-   * @deprecated Experimental! This method name will change, and is subject to other breaking changes.
-   *
    * Uses a spend permission to execute a transaction via user operation.
    * This allows the smart account to spend tokens that have been approved via a spend permission.
    *
@@ -711,14 +705,12 @@ export type SmartAccountActions = Actions & {
    *   extraData: "0x",
    * };
    *
-   * const result = await smartAccount.__experimental_useSpendPermission({
+   * const result = await smartAccount.useSpendPermission({
    *   spendPermission,
    *   value: parseEther("0.001"), // Spend 0.001 ETH
    *   network: "base-sepolia",
    * });
    * ```
    */
-  __experimental_useSpendPermission: (
-    options: UseSpendPermissionOptions,
-  ) => Promise<SendUserOperationReturnType>;
+  useSpendPermission: (options: UseSpendPermissionOptions) => Promise<SendUserOperationReturnType>;
 };

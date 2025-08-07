@@ -20,7 +20,7 @@ async def main():
             owner=await cdp.evm.get_or_create_account(
                 name="Example-Account-Revoke-Owner",
             ),
-            __experimental_enable_spend_permission__=True,
+            enable_spend_permissions=True,
         )
         print(f"Account Address: {account.address}")
 

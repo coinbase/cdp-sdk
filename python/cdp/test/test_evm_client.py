@@ -541,7 +541,7 @@ async def test_create_smart_account_with_spend_permission(
     client = EvmClient(api_clients=mock_api_clients)
     owner = local_account_factory()
 
-    result = await client.create_smart_account(owner, __experimental_enable_spend_permission__=True)
+    result = await client.create_smart_account(owner, enable_spend_permissions=True)
 
     mock_evm_smart_accounts_api.create_evm_smart_account.assert_called_once_with(
         create_evm_smart_account_request=CreateEvmSmartAccountRequest(
