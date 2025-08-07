@@ -31,7 +31,7 @@ import {
 import "dotenv/config";
 
 // Network configuration
-const NETWORK = "optimism"; // "optimism" or "arbitrum" for this example
+const NETWORK = "base"; // "optimism" or "arbitrum" for this example
 
 // Token definitions for different networks
 const TOKENS = {
@@ -74,6 +74,26 @@ const TOKENS = {
             decimals: 18,
             isNativeAsset: false,
         }
+    },
+    base: {
+        WETH: {
+            address: "0x4200000000000000000000000000000000000006",
+            symbol: "WETH",
+            decimals: 18,
+            isNativeAsset: false,
+        },
+        USDC: {
+            address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            symbol: "USDC",
+            decimals: 6,
+            isNativeAsset: false,
+        },
+        BRETT: {
+            address: "0x532f27101965dd16442E59d40670FaF5eBB142E4",
+            symbol: "BRETT",
+            decimals: 18,
+            isNativeAsset: false,
+        }
     }
 };
 
@@ -84,6 +104,7 @@ const PERMIT2_ADDRESS: Address = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
 const NETWORK_RPC_URLS = {
   optimism: "https://mainnet.optimism.io",
   arbitrum: "https://arb1.arbitrum.io/rpc",
+  base: "https://mainnet.base.org",
 };
 
 // Create viem public clients for different networks
@@ -93,6 +114,9 @@ const publicClients = {
   }),
   arbitrum: createPublicClient({
     transport: http(NETWORK_RPC_URLS.arbitrum),
+  }),
+  base: createPublicClient({
+    transport: http(NETWORK_RPC_URLS.base),
   }),
 };
 
@@ -105,7 +129,7 @@ console.log(`Note: This example is using ${NETWORK} network. Make sure you have 
   
   // Create base account
   const baseAccount = await cdp.evm.getOrCreateAccount({ 
-    name: "NetworkHoistingSwapDemo" 
+    name: "networkHoistingSwap"
   });
   console.log(`\nBase account created: ${baseAccount.address}`);
 
@@ -263,8 +287,8 @@ console.log(`Note: This example is using ${NETWORK} network. Make sure you have 
  */
 function displaySwapQuoteDetails(
   swapQuote: any,
-  fromToken: typeof TOKENS.optimism.WETH | typeof TOKENS.arbitrum.WETH,
-  toToken: typeof TOKENS.optimism.USDC | typeof TOKENS.arbitrum.USDC
+  fromToken: typeof TOKENS.optimism.WETH | typeof TOKENS.arbitrum.WETH | typeof TOKENS.base.WETH,
+  toToken: typeof TOKENS.optimism.USDC | typeof TOKENS.arbitrum.USDC | typeof TOKENS.base.USDC
 ): void {
   console.log("Swap Quote Details:");
   console.log("==================");
