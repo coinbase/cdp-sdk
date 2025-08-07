@@ -2376,3 +2376,34 @@ def generate_random_name():
 
     last_char = chars[floor(random.random() * len(chars))]
     return first_char + middle_part + last_char
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_use_network_with_rpc_url_base(cdp_client):
+    """Test creating a network-scoped account using the use_network method with a managed network."""
+    # Create an account
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
+
+    # Test the use_network method with a managed network (base)
+    network_account = await account.__experimental_use_network__("base")
+
+    assert network_account.network == "base"
+    assert network_account.rpc_url is None
+
+    # Test send_transaction with a structured transaction object
+    # This should use the CDP API since it's a managed network
+    transaction = TransactionRequestEIP1559(
+        to="0x1234567890123456789012345678901234567890", value=w3.to_wei(0.000001, "ether")
+    )
+
+    # Note: This will fail if the account doesn't have sufficient balance
+    # but it tests that the method can be called correctly
+    try:
+        tx_hash = await network_account.send_transaction(transaction=transaction)
+        assert tx_hash is not None
+        assert tx_hash.startswith("0x")
+    except Exception as e:
+        # If it fails due to insufficient balance, that's expected
+        # The important thing is that the method call structure works
+        assert "insufficient" in str(e).lower() or "balance" in str(e).lower()
