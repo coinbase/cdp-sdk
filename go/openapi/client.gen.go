@@ -468,6 +468,18 @@ const (
 	SolValue SolValueCriterionType = "solValue"
 )
 
+// Defines values for SpendPermissionNetwork.
+const (
+	SpendPermissionNetworkArbitrum        SpendPermissionNetwork = "arbitrum"
+	SpendPermissionNetworkAvalanche       SpendPermissionNetwork = "avalanche"
+	SpendPermissionNetworkBase            SpendPermissionNetwork = "base"
+	SpendPermissionNetworkBaseSepolia     SpendPermissionNetwork = "base-sepolia"
+	SpendPermissionNetworkEthereum        SpendPermissionNetwork = "ethereum"
+	SpendPermissionNetworkEthereumSepolia SpendPermissionNetwork = "ethereum-sepolia"
+	SpendPermissionNetworkOptimism        SpendPermissionNetwork = "optimism"
+	SpendPermissionNetworkPolygon         SpendPermissionNetwork = "polygon"
+)
+
 // Defines values for SplAddressCriterionOperator.
 const (
 	SplAddressCriterionOperatorIn    SplAddressCriterionOperator = "in"
@@ -515,6 +527,12 @@ const (
 // Defines values for TransferTargetType.
 const (
 	TransferTargetTypeCryptoRail TransferTargetType = "crypto_rail"
+)
+
+// Defines values for ListTokensForAccountParamsNetwork.
+const (
+	ListTokensForAccountParamsNetworkBase        ListTokensForAccountParamsNetwork = "base"
+	ListTokensForAccountParamsNetworkBaseSepolia ListTokensForAccountParamsNetwork = "base-sepolia"
 )
 
 // Defines values for SendEvmTransactionJSONBodyNetwork.
@@ -646,6 +664,18 @@ type AbiParameter struct {
 // AbiStateMutability State mutability of a function in Solidity.
 type AbiStateMutability string
 
+// AccountTokenAddressesResponse Response containing token addresses that an account has received.
+type AccountTokenAddressesResponse struct {
+	// AccountAddress The account address that was queried.
+	AccountAddress *string `json:"accountAddress,omitempty"`
+
+	// TokenAddresses List of token contract addresses that the account has received.
+	TokenAddresses *[]string `json:"tokenAddresses,omitempty"`
+
+	// TotalCount Total number of unique token addresses discovered.
+	TotalCount *int `json:"totalCount,omitempty"`
+}
+
 // CommonSwapResponse defines model for CommonSwapResponse.
 type CommonSwapResponse struct {
 	// BlockNumber The block number at which the liquidity conditions were examined.
@@ -720,8 +750,8 @@ type CreateSpendPermissionRequest struct {
 	// ExtraData Arbitrary data to include in the permission.
 	ExtraData *string `json:"extraData,omitempty"`
 
-	// Network The network of the spend permission.
-	Network string `json:"network"`
+	// Network The network the spend permission is on.
+	Network SpendPermissionNetwork `json:"network"`
 
 	// PaymasterUrl The paymaster URL of the spend permission.
 	PaymasterUrl *string `json:"paymasterUrl,omitempty"`
@@ -732,13 +762,13 @@ type CreateSpendPermissionRequest struct {
 	// Salt An arbitrary salt to differentiate unique spend permissions with otherwise identical data.
 	Salt *string `json:"salt,omitempty"`
 
-	// Spender Entity that can spend account's tokens.
+	// Spender Entity that can spend account's tokens. Can be either a Smart Account or an EOA.
 	Spender string `json:"spender"`
 
 	// Start The start time for this spend permission, in Unix seconds.
 	Start string `json:"start"`
 
-	// Token Token address (ERC-7528 native token address or ERC-20 contract).
+	// Token ERC-7528 native token address (e.g. "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" for native ETH), or an  ERC-20 contract address.
 	Token string `json:"token"`
 }
 
@@ -1555,8 +1585,8 @@ type PrepareUserOperationRuleOperation string
 
 // RevokeSpendPermissionRequest defines model for RevokeSpendPermissionRequest.
 type RevokeSpendPermissionRequest struct {
-	// Network The network of the spend permission.
-	Network string `json:"network"`
+	// Network The network the spend permission is on.
+	Network SpendPermissionNetwork `json:"network"`
 
 	// PaymasterUrl The paymaster URL of the spend permission.
 	PaymasterUrl *string `json:"paymasterUrl,omitempty"`
@@ -1941,6 +1971,9 @@ type SpendPermission struct {
 	Token string `json:"token"`
 }
 
+// SpendPermissionNetwork The network the spend permission is on.
+type SpendPermissionNetwork string
+
 // SpendPermissionResponseObject defines model for SpendPermissionResponseObject.
 type SpendPermissionResponseObject struct {
 	// CreatedAt The UTC ISO 8601 timestamp when the permission was created.
@@ -2140,8 +2173,20 @@ type TransferTarget struct {
 
 // UserOperationReceipt The receipt that contains information about the execution of user operation.
 type UserOperationReceipt struct {
+	// BlockHash The block hash of the block including the transaction as 0x-prefixed string.
+	BlockHash *string `json:"blockHash,omitempty"`
+
+	// BlockNumber The block height (number) of the block including the transaction.
+	BlockNumber *int `json:"blockNumber,omitempty"`
+
+	// GasUsed The gas used for landing this user operation.
+	GasUsed *string `json:"gasUsed,omitempty"`
+
 	// Revert The revert data if the user operation has reverted.
 	Revert *UserOperationReceiptRevert `json:"revert,omitempty"`
+
+	// TransactionHash The hash of this transaction as 0x-prefixed string.
+	TransactionHash *string `json:"transactionHash,omitempty"`
 }
 
 // UserOperationReceiptRevert The revert data if the user operation has reverted.
@@ -2209,6 +2254,18 @@ type TimedOutError = Error
 
 // UnauthorizedError An error response including the code for the type of error and a human-readable message describing the error.
 type UnauthorizedError = Error
+
+// ListDataTokenBalancesParams defines parameters for ListDataTokenBalances.
+type ListDataTokenBalancesParams struct {
+	// PageSize The number of balances to return per page.
+	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of balances. Will be empty if there are no more balances to fetch.
+	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
+
+// ListTokensForAccountParamsNetwork defines parameters for ListTokensForAccount.
+type ListTokensForAccountParamsNetwork string
 
 // ListEvmAccountsParams defines parameters for ListEvmAccounts.
 type ListEvmAccountsParams struct {
@@ -4725,6 +4782,12 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// ListDataTokenBalances request
+	ListDataTokenBalances(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListDataTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListTokensForAccount request
+	ListTokensForAccount(ctx context.Context, network ListTokensForAccountParamsNetwork, address string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// RunSQLQueryWithBody request with any body
 	RunSQLQueryWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -4950,6 +5013,30 @@ type ClientInterface interface {
 
 	// ListSolanaTokenBalances request
 	ListSolanaTokenBalances(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *CDPClient) ListDataTokenBalances(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListDataTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListDataTokenBalancesRequest(c.Server, network, address, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListTokensForAccount(ctx context.Context, network ListTokensForAccountParamsNetwork, address string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListTokensForAccountRequest(c.Server, network, address)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *CDPClient) RunSQLQueryWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5982,6 +6069,126 @@ func (c *CDPClient) ListSolanaTokenBalances(ctx context.Context, network ListSol
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewListDataTokenBalancesRequest generates requests for ListDataTokenBalances
+func NewListDataTokenBalancesRequest(server string, network ListEvmTokenBalancesNetwork, address string, params *ListDataTokenBalancesParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "network", runtime.ParamLocationPath, network)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/data/evm/token-balances/%s/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListTokensForAccountRequest generates requests for ListTokensForAccount
+func NewListTokensForAccountRequest(server string, network ListTokensForAccountParamsNetwork, address string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "network", runtime.ParamLocationPath, network)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/data/evm/token-ownership/%s/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 // NewRunSQLQueryRequest calls the generic RunSQLQuery builder with application/json body
@@ -9158,6 +9365,12 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// ListDataTokenBalancesWithResponse request
+	ListDataTokenBalancesWithResponse(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListDataTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListDataTokenBalancesResponse, error)
+
+	// ListTokensForAccountWithResponse request
+	ListTokensForAccountWithResponse(ctx context.Context, network ListTokensForAccountParamsNetwork, address string, reqEditors ...RequestEditorFn) (*ListTokensForAccountResponse, error)
+
 	// RunSQLQueryWithBodyWithResponse request with any body
 	RunSQLQueryWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error)
 
@@ -9383,6 +9596,65 @@ type ClientWithResponsesInterface interface {
 
 	// ListSolanaTokenBalancesWithResponse request
 	ListSolanaTokenBalancesWithResponse(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListSolanaTokenBalancesResponse, error)
+}
+
+type ListDataTokenBalancesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Balances The list of EVM token balances.
+		Balances []TokenBalance `json:"balances"`
+
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+	}
+	JSON400 *Error
+	JSON404 *Error
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListDataTokenBalancesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListDataTokenBalancesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListTokensForAccountResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *AccountTokenAddressesResponse
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON429      *Error
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListTokensForAccountResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListTokensForAccountResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type RunSQLQueryResponse struct {
@@ -11005,6 +11277,24 @@ func (r ListSolanaTokenBalancesResponse) StatusCode() int {
 	return 0
 }
 
+// ListDataTokenBalancesWithResponse request returning *ListDataTokenBalancesResponse
+func (c *ClientWithResponses) ListDataTokenBalancesWithResponse(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListDataTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListDataTokenBalancesResponse, error) {
+	rsp, err := c.ListDataTokenBalances(ctx, network, address, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListDataTokenBalancesResponse(rsp)
+}
+
+// ListTokensForAccountWithResponse request returning *ListTokensForAccountResponse
+func (c *ClientWithResponses) ListTokensForAccountWithResponse(ctx context.Context, network ListTokensForAccountParamsNetwork, address string, reqEditors ...RequestEditorFn) (*ListTokensForAccountResponse, error) {
+	rsp, err := c.ListTokensForAccount(ctx, network, address, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListTokensForAccountResponse(rsp)
+}
+
 // RunSQLQueryWithBodyWithResponse request with arbitrary body returning *RunSQLQueryResponse
 func (c *ClientWithResponses) RunSQLQueryWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error) {
 	rsp, err := c.RunSQLQueryWithBody(ctx, contentType, body, reqEditors...)
@@ -11745,6 +12035,127 @@ func (c *ClientWithResponses) ListSolanaTokenBalancesWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseListSolanaTokenBalancesResponse(rsp)
+}
+
+// ParseListDataTokenBalancesResponse parses an HTTP response from a ListDataTokenBalancesWithResponse call
+func ParseListDataTokenBalancesResponse(rsp *http.Response) (*ListDataTokenBalancesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListDataTokenBalancesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Balances The list of EVM token balances.
+			Balances []TokenBalance `json:"balances"`
+
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListTokensForAccountResponse parses an HTTP response from a ListTokensForAccountWithResponse call
+func ParseListTokensForAccountResponse(rsp *http.Response) (*ListTokensForAccountResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListTokensForAccountResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest AccountTokenAddressesResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseRunSQLQueryResponse parses an HTTP response from a RunSQLQueryWithResponse call

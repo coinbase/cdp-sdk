@@ -20,6 +20,7 @@ from cdp.openapi_client.models.abi_inner import AbiInner
 from cdp.openapi_client.models.abi_input import AbiInput
 from cdp.openapi_client.models.abi_parameter import AbiParameter
 from cdp.openapi_client.models.abi_state_mutability import AbiStateMutability
+from cdp.openapi_client.models.account_token_addresses_response import AccountTokenAddressesResponse
 from cdp.openapi_client.models.common_swap_response import CommonSwapResponse
 from cdp.openapi_client.models.common_swap_response_fees import CommonSwapResponseFees
 from cdp.openapi_client.models.common_swap_response_issues import CommonSwapResponseIssues
@@ -156,6 +157,7 @@ from cdp.openapi_client.models.solana_token import SolanaToken
 from cdp.openapi_client.models.solana_token_amount import SolanaTokenAmount
 from cdp.openapi_client.models.solana_token_balance import SolanaTokenBalance
 from cdp.openapi_client.models.spend_permission import SpendPermission
+from cdp.openapi_client.models.spend_permission_network import SpendPermissionNetwork
 from cdp.openapi_client.models.spend_permission_response_object import SpendPermissionResponseObject
 from cdp.openapi_client.models.spl_address_criterion import SplAddressCriterion
 from cdp.openapi_client.models.spl_value_criterion import SplValueCriterion
