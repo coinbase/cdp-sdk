@@ -5,8 +5,6 @@ import { type Address, getTypesForEIP712Domain } from "viem";
 import {
   CreateServerAccountOptions,
   CreateSmartAccountOptions,
-  CreateSpendPermissionOptions,
-  RevokeSpendPermissionOptions,
   CreateSwapQuoteOptions,
   CreateSwapQuoteResult,
   EvmClientInterface,
@@ -23,7 +21,6 @@ import {
   ListServerAccountsOptions,
   ListSmartAccountResult,
   ListSmartAccountsOptions,
-  ListSpendPermissionsOptions,
   PrepareUserOperationOptions,
   ServerAccount,
   SignatureResult,
@@ -84,6 +81,11 @@ import type {
   SendTransactionOptions,
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
+import type {
+  CreateSpendPermissionOptions,
+  ListSpendPermissionsOptions,
+  RevokeSpendPermissionOptions,
+} from "../../spend-permissions/types.js";
 
 /**
  * The namespace containing all EVM methods.

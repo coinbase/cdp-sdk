@@ -1,8 +1,8 @@
 import { UserInputValidationError } from "../../../errors.js";
 import { resolveTokenAddress } from "../../../spend-permissions/utils.js";
 
-import type { SpendPermissionInput } from "../../../client/evm/evm.types.js";
-import type { SpendPermission, SpendPermissionNetworks } from "../../../spend-permissions/types.js";
+import type { SpendPermissionNetwork } from "../../../openapi-client/index.js";
+import type { SpendPermission, SpendPermissionInput } from "../../../spend-permissions/types.js";
 
 /**
  * Generate a random salt using crypto.getRandomValues().
@@ -32,7 +32,7 @@ function generateRandomSalt(): bigint {
  */
 export function resolveSpendPermission(
   spendPermissionInput: SpendPermissionInput,
-  network: SpendPermissionNetworks,
+  network: SpendPermissionNetwork,
 ): SpendPermission {
   // Validate that either period or periodInDays is provided, but not both
   if (

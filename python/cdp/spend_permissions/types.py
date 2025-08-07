@@ -49,20 +49,3 @@ class SpendPermissionInput(BaseModel):
     )
     salt: int | None = Field(default=None, description="Unique salt to prevent replay attacks")
     extra_data: str | None = Field(default=None, description="Additional data for the permission")
-
-
-# Networks that the SpendPermissionManager contract supports.
-# From https://github.com/coinbase/spend-permissions/blob/main/README.md#deployments
-SpendPermissionNetworks = Literal[
-    "base",
-    "base-sepolia",
-    "ethereum",
-    "ethereum-sepolia",
-    "optimism",
-    "optimism-sepolia",
-    "arbitrum",
-    "avalanche",
-    "binance",
-    "polygon",
-    "zora",
-]

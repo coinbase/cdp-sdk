@@ -1,3 +1,4 @@
+import type { SpendPermissionNetwork } from "../openapi-client/index.js";
 import type { Address, Hex } from "../types/misc.js";
 
 /**
@@ -24,19 +25,48 @@ export type SpendPermission = {
   extraData: Hex;
 };
 
-/**
- * Networks that the SpendPermissionManager contract supports.
- * From https://github.com/coinbase/spend-permissions/blob/main/README.md#deployments
- */
-export type SpendPermissionNetworks =
-  | "base"
-  | "base-sepolia"
-  | "ethereum"
-  | "ethereum-sepolia"
-  | "optimism"
-  | "optimism-sepolia"
-  | "arbitrum"
-  | "avalanche"
-  | "binance"
-  | "polygon"
-  | "zora";
+export type SpendPermissionInput = Omit<
+  SpendPermission,
+  "token" | "salt" | "extraData" | "period" | "start" | "end"
+> & {
+  token: "eth" | "usdc" | Address;
+  salt?: bigint;
+  extraData?: Hex;
+  period?: number;
+  periodInDays?: number;
+  start?: Date;
+  end?: Date;
+};
+
+export interface CreateSpendPermissionOptions {
+  /** The spend permission. */
+  spendPermission: SpendPermissionInput;
+  /** The network. */
+  network: SpendPermissionNetwork;
+  /** The paymaster URL. */
+  paymasterUrl?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+}
+
+export interface ListSpendPermissionsOptions {
+  /** The address of the smart account. */
+  address: Address;
+  /** The page size to paginate through the spend permissions. */
+  pageSize?: number;
+  /** The page token to paginate through the spend permissions. */
+  pageToken?: string;
+}
+
+export interface RevokeSpendPermissionOptions {
+  /** The address of the smart account. */
+  address: Address;
+  /** The hash of the spend permission to revoke. */
+  permissionHash: Hex;
+  /** The network. */
+  network: SpendPermissionNetwork;
+  /** The paymaster URL. */
+  paymasterUrl?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+}

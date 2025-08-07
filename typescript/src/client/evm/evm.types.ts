@@ -1,5 +1,3 @@
-import { SpendPermission } from "../../spend-permissions/types.js";
-
 import type {
   EvmAccount as Account,
   EvmServerAccount as ServerAccount,
@@ -29,7 +27,7 @@ import type {
   UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
   UserOperationReceipt,
 } from "../../openapi-client/index.js";
-import type { SpendPermissionNetworks } from "../../spend-permissions/types.js";
+import type { ListSpendPermissionsOptions } from "../../spend-permissions/types.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";
 import type { WaitOptions } from "../../utils/wait.js";
@@ -265,52 +263,6 @@ export interface CreateSwapQuoteResult {
    * @returns {Promise<ExecuteSwapQuoteResult>} A promise that resolves to the swap execution result.
    */
   execute: (options?: ExecuteSwapQuoteOptions) => Promise<ExecuteSwapQuoteResult>;
-}
-
-export type SpendPermissionInput = Omit<
-  SpendPermission,
-  "token" | "salt" | "extraData" | "period" | "start" | "end"
-> & {
-  token: "eth" | "usdc" | Address;
-  salt?: bigint;
-  extraData?: Hex;
-  period?: number;
-  periodInDays?: number;
-  start?: Date;
-  end?: Date;
-};
-
-export interface CreateSpendPermissionOptions {
-  /** The spend permission. */
-  spendPermission: SpendPermissionInput;
-  /** The network. */
-  network: SpendPermissionNetworks;
-  /** The paymaster URL. */
-  paymasterUrl?: string;
-  /** The idempotency key. */
-  idempotencyKey?: string;
-}
-
-export interface ListSpendPermissionsOptions {
-  /** The address of the smart account. */
-  address: Address;
-  /** The page size to paginate through the spend permissions. */
-  pageSize?: number;
-  /** The page token to paginate through the spend permissions. */
-  pageToken?: string;
-}
-
-export interface RevokeSpendPermissionOptions {
-  /** The address of the smart account. */
-  address: Address;
-  /** The hash of the spend permission to revoke. */
-  permissionHash: Hex;
-  /** The network. */
-  network: EvmUserOperationNetwork;
-  /** The paymaster URL. */
-  paymasterUrl?: string;
-  /** The idempotency key. */
-  idempotencyKey?: string;
 }
 
 /**
