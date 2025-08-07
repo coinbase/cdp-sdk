@@ -98,8 +98,6 @@ tags:
   - name: Onramp
     x-audience: public
     description: |-
-      <Note>Currently the v2 Onramp APIs are in private beta and only available to approved partners. [Contact us](https://calendar.app.google/BLn6fzaz2aCZGvLu7) to get early access.</Note>
-
       The v2 Onramp APIs are an evolution of our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/), designed to make the fiat-to-crypto experience feel native to your applications for higher conversion and less friction. These APIs only cover a subset of Coinbase Onramp functionality as described below, for all other use cases please refer to our [v1 APIs](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/).
 
       ## Supported Use Cases
