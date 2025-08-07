@@ -15,7 +15,7 @@ const spender = await cdp.evm.getOrCreateSmartAccount({
 });
 
 const account = await cdp.evm.getOrCreateSmartAccount({
-  __experimental_enableSpendPermission: true,
+  enableSpendPermissions: true,
   name: "Example-Account-SmartAccount-1",
   owner: await cdp.evm.getOrCreateAccount({
     name: "Example-Account-Owner-1",

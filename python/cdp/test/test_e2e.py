@@ -2131,7 +2131,7 @@ async def test_evm_smart_account_use_spend_permission(cdp_client):
     master = await cdp_client.evm.get_or_create_smart_account(
         name="E2E-SpendPermissions-Master",
         owner=master_owner,
-        __experimental_enable_spend_permission__=True,
+        enable_spend_permissions=True,
     )
 
     spender_owner = await cdp_client.evm.get_or_create_account(
@@ -2173,7 +2173,7 @@ async def test_evm_smart_account_use_spend_permission(cdp_client):
     await asyncio.sleep(2)
 
     # Use the spend permission
-    spend_result = await spender.__experimental_use_spend_permission__(
+    spend_result = await spender.use_spend_permission(
         spend_permission=spend_permission,
         value=Web3.to_wei(0.000001, "ether"),
         network="base-sepolia",
@@ -2199,7 +2199,7 @@ async def test_evm_account_use_spend_permission(cdp_client):
     master = await cdp_client.evm.get_or_create_smart_account(
         name="E2E-SpendPermissions-Master",
         owner=master_owner,
-        __experimental_enable_spend_permission__=True,
+        enable_spend_permissions=True,
     )
 
     spender = await cdp_client.evm.get_or_create_account(name="E2E-SpendPermissions-EOA-Spender")
@@ -2236,7 +2236,7 @@ async def test_evm_account_use_spend_permission(cdp_client):
     await asyncio.sleep(2)
 
     # Use the spend permission
-    spend_tx_hash = await spender.__experimental_use_spend_permission__(
+    spend_tx_hash = await spender.use_spend_permission(
         spend_permission=spend_permission,
         value=Web3.to_wei(0.000001, "ether"),  # 0.01 USDC
         network="base-sepolia",

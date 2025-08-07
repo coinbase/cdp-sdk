@@ -260,7 +260,7 @@ export function toEvmSmartAccount(
       });
       return result.signature;
     },
-    async __experimental_useSpendPermission(
+    async useSpendPermission(
       options: UseSpendPermissionOptions,
     ): Promise<SendUserOperationReturnType> {
       Analytics.trackAction({

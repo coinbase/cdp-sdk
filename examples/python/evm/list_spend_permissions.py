@@ -21,7 +21,7 @@ async def main():
             owner=await cdp.evm.get_or_create_account(
                 name="Example-Account-Owner",
             ),
-            __experimental_enable_spend_permission__=True,
+            enable_spend_permissions=True,
         )
 
         spender = await cdp.evm.get_or_create_smart_account(

@@ -13,7 +13,7 @@ const account = await cdp.evm.getOrCreateSmartAccount({
   owner: await cdp.evm.getOrCreateAccount({
     name: "Demo-SpendPermissions-Account-Owner",
   }),
-  __experimental_enableSpendPermission: true,
+  enableSpendPermissions: true,
 });
 
 const spender = await cdp.evm.getOrCreateSmartAccount({
@@ -74,21 +74,19 @@ if (permissions.length === 0) {
 
 console.log("Executing spend...");
 
-const spend = await spender.__experimental_useSpendPermission({
+const spend = await spender.useSpendPermission({
   spendPermission: permissions.at(-1)!.permission, // Use the latest permission
   value: parseUnits("0.005", 6), // 0.005 USDC (half the allowance)
   network: "base-sepolia",
 });
 
-const spendReceipt = await spender.waitForUserOperation(spend);
+console.log("Spend sent, waiting for receipt...");
 
-console.log("Spend sent, waiting for receipt...", spendReceipt.userOpHash);
+await spender.waitForUserOperation(spend);
 
-const spendUserOp = await spender.getUserOperation({
-  userOpHash: spendReceipt.userOpHash,
-});
+const spendReceipt = await spender.getUserOperation(spend);
 
 console.log(
   "Spend completed!",
-  `https://sepolia.basescan.org/tx/${spendUserOp.transactionHash}`
+  `https://sepolia.basescan.org/tx/${spendReceipt.transactionHash}`
 );

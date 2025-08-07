@@ -1,0 +1,5 @@
+---
+"@coinbase/cdp-sdk": minor
+---
+
+Promoted Spend Permissions out of experimental mode. For more info, see: https://docs.cdp.coinbase.com/wallet-api/v2/evm-features/spend-permissions

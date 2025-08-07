@@ -739,15 +739,13 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
         return NetworkScopedEvmServerAccount(self, network, rpc_url)
 
-    async def __experimental_use_spend_permission__(
+    async def use_spend_permission(
         self,
         spend_permission: "SpendPermissionInput",
         value: int,
         network: str,
     ) -> str:
         """Use a spend permission to spend tokens.
-
-        Experimental! This method name will change, and is subject to other breaking changes.
 
         This allows the account to spend tokens that have been approved via a spend permission.
 
@@ -776,7 +774,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ...     end=281474976710655,
             ... )
             >>>
-            >>> tx_hash = await account.__experimental_use_spend_permission(
+            >>> tx_hash = await account.use_spend_permission(
             ...     spend_permission=spend_permission,
             ...     value=parse_units("0.005", 6),  # Spend 0.005 USDC
             ...     network="base-sepolia",

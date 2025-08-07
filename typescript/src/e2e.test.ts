@@ -1175,7 +1175,7 @@ describe("CDP Client E2E Tests", () => {
         const smartAccount = await cdp.evm.getOrCreateSmartAccount({
           name: "Spend-Permission-Smart-Account",
           owner,
-          __experimental_enableSpendPermission: true,
+          enableSpendPermissions: true,
         });
 
         const spender = await cdp.evm.getOrCreateAccount({
@@ -1216,7 +1216,7 @@ describe("CDP Client E2E Tests", () => {
         const smartAccount = await cdp.evm.getOrCreateSmartAccount({
           name: "Spend-Permission-Smart-Account",
           owner,
-          __experimental_enableSpendPermission: true,
+          enableSpendPermissions: true,
         });
 
         const permissions = await cdp.evm.listSpendPermissions({
@@ -1234,7 +1234,7 @@ describe("CDP Client E2E Tests", () => {
         const smartAccount = await cdp.evm.getOrCreateSmartAccount({
           name: "Spend-Permission-Smart-Account",
           owner,
-          __experimental_enableSpendPermission: true,
+          enableSpendPermissions: true,
         });
 
         const spender = await cdp.evm.getOrCreateAccount({

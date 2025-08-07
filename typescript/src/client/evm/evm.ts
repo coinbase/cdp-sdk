@@ -1445,7 +1445,7 @@ export class EvmClient implements EvmClientInterface {
   ): Promise<SmartAccount> {
     const owners = [options.owner.address];
 
-    if (options.__experimental_enableSpendPermission) {
+    if (options.enableSpendPermissions) {
       owners.push(SPEND_PERMISSION_MANAGER_ADDRESS);
     }
 

@@ -195,16 +195,15 @@ class EvmClient:
         self,
         owner: BaseAccount,
         name: str | None = None,
-        __experimental_enable_spend_permission__: bool = False,
+        enable_spend_permissions: bool = False,
     ) -> EvmSmartAccount:
         """Create an EVM smart account.
 
         Args:
             owner (BaseAccount): The owner of the smart account.
             name (str, optional): The name of the smart account.
-            __experimental_enable_spend_permission (bool, optional):
-                Experimental! This method name will change, and is subject to other breaking changes.
-                The flag to enable spend permission. Defaults to False.
+            enable_spend_permissions (bool, optional):
+                The flag to enable spend permissions. Defaults to False.
 
         Returns:
             EvmSmartAccount: The EVM smart account.
@@ -214,7 +213,7 @@ class EvmClient:
 
         owners = [owner.address]
 
-        if __experimental_enable_spend_permission__:
+        if enable_spend_permissions:
             from cdp.spend_permissions import SPEND_PERMISSION_MANAGER_ADDRESS
 
             owners.append(SPEND_PERMISSION_MANAGER_ADDRESS)
@@ -231,16 +230,15 @@ class EvmClient:
         )
 
     async def get_or_create_smart_account(
-        self, owner: BaseAccount, name: str, __experimental_enable_spend_permission__: bool = False
+        self, owner: BaseAccount, name: str, enable_spend_permissions: bool = False
     ) -> EvmSmartAccount:
         """Get an EVM smart account, or create one if it doesn't exist.
 
         Args:
             owner (BaseAccount): The owner of the smart account.
             name (str): The name of the smart account.
-            __experimental_enable_spend_permission (bool, optional):
-                Experimental! This method name will change, and is subject to other breaking changes.
-                The flag to enable spend permission. Defaults to False.
+            enable_spend_permissions (bool, optional):
+                The flag to enable spend permissions. Defaults to False.
 
         Returns:
             EvmSmartAccount: The EVM smart account.
@@ -257,7 +255,7 @@ class EvmClient:
                     account = await self.create_smart_account(
                         name=name,
                         owner=owner,
-                        __experimental_enable_spend_permission__=__experimental_enable_spend_permission__,
+                        enable_spend_permissions=enable_spend_permissions,
                     )
                     return account
                 except ApiError as e:

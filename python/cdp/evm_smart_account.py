@@ -697,7 +697,7 @@ class EvmSmartAccount(BaseModel):
             ),
         )
 
-    async def __experimental_use_spend_permission__(
+    async def use_spend_permission(
         self,
         spend_permission: "SpendPermissionInput",
         value: int,
@@ -705,8 +705,6 @@ class EvmSmartAccount(BaseModel):
         paymaster_url: str | None = None,
     ) -> EvmUserOperationModel:
         """Use a spend permission to spend tokens via user operation.
-
-        Experimental! This method name will change, and is subject to other breaking changes.
 
         This allows the smart account to spend tokens that have been approved via a spend permission.
 
@@ -736,7 +734,7 @@ class EvmSmartAccount(BaseModel):
             ...     end=281474976710655,
             ... )
             >>>
-            >>> result = await smart_account.__experimental_use_spend_permission(
+            >>> result = await smart_account.use_spend_permission(
             ...     spend_permission=spend_permission,
             ...     value=parse_units("0.005", 6),  # Spend 0.005 USDC
             ...     network="base-sepolia",
