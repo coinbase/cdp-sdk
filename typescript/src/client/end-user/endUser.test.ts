@@ -50,7 +50,7 @@ describe("EndUserClient", () => {
       expect(CdpOpenApiClient.validateEndUserAccessToken).toHaveBeenCalledWith({
         accessToken: validateAccessTokenOptions.accessToken,
       });
-      expect(result).toBe(undefined);
+      expect(result).toEqual(mockEndUser);
     });
 
     it("return a validation error if the access token is invalid", async () => {
@@ -64,9 +64,9 @@ describe("EndUserClient", () => {
         >
       ).mockRejectedValue(expectedError);
 
-      const result = await client.validateAccessToken(validateAccessTokenOptions);
-
-      expect(result).rejects.toThrow(expectedError);
+      await expect(
+        client.validateAccessToken(validateAccessTokenOptions),
+      ).rejects.toThrow(expectedError);
     });
   });
 });
