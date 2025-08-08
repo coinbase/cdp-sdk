@@ -18,9 +18,9 @@ export class CDPEndUserClient {
       action: "validate_access_token",
     });
 
-    const { accessToken, userId } = options;
+    const { accessToken } = options;
 
-    return CdpOpenApiClient.validateEndUserAccessToken(userId, {
+    return CdpOpenApiClient.validateEndUserAccessToken({
       accessToken,
     });
   }

@@ -10,10 +10,10 @@ export * from "./generated/policy-engine/policy-engine.js";
 export * from "./generated/payments-alpha/payments-alpha.js";
 export * from "./generated/onramp/onramp.js";
 export * from "./generated/onchain-data/onchain-data.js";
-export * from "./generated/end-user-accounts-under-development/end-user-accounts-under-development.js";
+export * from "./generated/end-user-accounts/end-user-accounts.js";
 
 import { configure } from "./cdpApiClient.js";
-import * as endUserAccounts from "./generated/end-user-accounts-under-development/end-user-accounts-under-development.js";
+import * as endUserAccounts from "./generated/end-user-accounts/end-user-accounts.js";
 import * as evm from "./generated/evm-accounts/evm-accounts.js";
 import * as evmSmartAccounts from "./generated/evm-smart-accounts/evm-smart-accounts.js";
 import * as evmSwaps from "./generated/evm-swaps/evm-swaps.js";
