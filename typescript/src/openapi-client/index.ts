@@ -24,6 +24,7 @@ import * as payments from "./generated/payments-alpha/payments-alpha.js";
 import * as policies from "./generated/policy-engine/policy-engine.js";
 import * as solana from "./generated/solana-accounts/solana-accounts.js";
 import * as solanaTokenBalances from "./generated/solana-token-balances/solana-token-balances.js";
+export * from "./generated/x402-facilitator/x402-facilitator.js";
 
 export const CdpOpenApiClient = {
   ...evm,
