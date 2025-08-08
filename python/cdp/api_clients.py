@@ -3,6 +3,7 @@ from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
 from cdp.openapi_client.api.evm_swaps_api import EVMSwapsApi
 from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
+from cdp.openapi_client.api.onramp_api import OnrampApi
 from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
@@ -23,6 +24,7 @@ class ApiClients:
         _evm_swaps (Optional[EVMSwapsApi]): The EVMSwapsApi client instance.
         _evm_token_balances (Optional[EVMTokenBalancesApi]): The EVMTokenBalancesApi client instance.
         _faucets (Optional[FaucetsApi]): The FaucetsApi client instance.
+        _onramp (Optional[OnrampApi]): The OnrampApi client instance.
         _solana_accounts (Optional[SolanaAccountsApi]): The SolanaAccountsApi client instance.
         _solana_token_balances (Optional[SolanaTokenBalancesApi]): The SolanaTokenBalancesApi client instance.
 
@@ -42,6 +44,7 @@ class ApiClients:
         self._evm_swaps: EVMSwapsApi | None = None
         self._evm_token_balances: EVMTokenBalancesApi | None = None
         self._faucets: FaucetsApi | None = None
+        self._onramp: OnrampApi | None = None
         self._solana_accounts: SolanaAccountsApi | None = None
         self._solana_token_balances: SolanaTokenBalancesApi | None = None
         self._policies: PolicyEngineApi | None = None
@@ -199,6 +202,22 @@ class ApiClients:
         if self._payments is None:
             self._payments = PaymentsAlphaApi(api_client=self._cdp_client)
         return self._payments
+
+    @property
+    def onramp(self) -> OnrampApi:
+        """Get the OnrampApi client instance.
+
+        Returns:
+            OnrampApi: The OnrampApi client instance.
+
+        Note:
+            This property lazily initializes the OnrampApi client on first access.
+
+        """
+        self._check_closed()
+        if self._onramp is None:
+            self._onramp = OnrampApi(api_client=self._cdp_client)
+        return self._onramp
 
     async def close(self):
         """Close the CDP client asynchronously."""
