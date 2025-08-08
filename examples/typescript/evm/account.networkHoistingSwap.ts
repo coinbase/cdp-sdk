@@ -157,9 +157,11 @@ console.log(`Note: This example is using ${NETWORK} network. Make sure you have 
   try {
     console.log(`\nExample 1: Getting swap price estimate...`);
     const priceQuote = await cdp.evm.getSwapPrice({
+      network: NETWORK,
       fromToken: fromToken.address as Address,
       toToken: toToken.address as Address,
       fromAmount: swapAmount,
+      taker: networkAccount.address as Address,
     });
     
     if (priceQuote.liquidityAvailable) {
@@ -203,6 +205,7 @@ console.log(`Note: This example is using ${NETWORK} network. Make sure you have 
      // 1. Create the quote
      console.log(`\nStep 1: Creating swap quote...`);
      const swapQuote = await networkAccount.quoteSwap({
+       network: NETWORK,
        fromToken: fromToken.address as Address,
        toToken: toToken.address as Address,
        fromAmount: swapAmount,

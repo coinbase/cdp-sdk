@@ -164,9 +164,11 @@ console.log(`Note: This example is using ${NETWORK} network with smart accounts.
   try {
     console.log(`\nExample 1: Getting swap price estimate...`);
     const priceQuote = await cdp.evm.getSwapPrice({
+      network: NETWORK,
       fromToken: fromToken.address as Address,
       toToken: toToken.address as Address,
       fromAmount: swapAmount,
+      taker: networkSmartAccount.address as Address,
     });
     
     if (priceQuote.liquidityAvailable) {
