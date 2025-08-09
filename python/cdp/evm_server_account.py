@@ -737,7 +737,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
         """
         from cdp.network_scoped_evm_server_account import NetworkScopedEvmServerAccount
 
-        return NetworkScopedEvmServerAccount(self, network, rpc_url)
+        return NetworkScopedEvmServerAccount(self, network)
 
     async def use_spend_permission(
         self,
