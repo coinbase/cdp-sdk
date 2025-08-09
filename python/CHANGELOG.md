@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.29.1] - 2025-08-09
+
+### Bugfixes
+
+- Added discovery layer disclaimer notice to x402 subpackage
+
+
 ## [1.29.0] - 2025-08-07
 
 ### Features
