@@ -3,16 +3,13 @@
 from collections.abc import Callable
 from typing import Any, Literal
 
-from eth_account import Account
 from web3 import Web3
 from web3.middleware import ExtraDataToPOAMiddleware
 
 from cdp.actions.evm.swap import AccountSwapOptions
 from cdp.evm_server_account import EvmServerAccount
-from cdp.export import decrypt_with_private_key, generate_export_encryption_key_pair
 from cdp.network_capabilities import is_method_supported_on_network
 from cdp.network_config import get_network_name, resolve_chain_id_from_rpc_url
-from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 
 
 class NetworkScopedEvmServerAccount:
@@ -60,19 +57,17 @@ class NetworkScopedEvmServerAccount:
 
     async def _send_transaction_with_remote_signing(self, transaction_dict: dict[str, Any]) -> str:
         """Send transaction using CDP remote signing + web3 submission.
-        
+
         This avoids exporting private keys by:
         1. Using web3.py to auto-populate gas, nonce, and other fields
         2. Using CDP API to sign the complete transaction remotely
         3. Using web3.py to submit the pre-signed transaction
         """
-        # Let web3 auto-populate missing fields (gas, nonce, gasPrice/maxFeePerGas, etc.)
-        # This is much cleaner and more reliable than manual field population
         filled_transaction = self._web3.eth.fill_transaction(transaction_dict)
-        
+
         # Use CDP to sign the complete transaction remotely (secure!)
         signed_tx = await self._evm_server_account.sign_transaction(filled_transaction)
-        
+
         # Submit the pre-signed transaction via our custom RPC
         tx_hash = self._web3.eth.send_transaction(signed_tx.raw_transaction)
         return self._web3.toHex(tx_hash)
@@ -84,7 +79,7 @@ class NetworkScopedEvmServerAccount:
             network_lower = self._network.lower()
             if any(net in network_lower for net in ["polygon", "mumbai", "binance", "bsc"]):
                 return True
-        
+
         return False
 
     def _init_supported_methods(self):
@@ -167,7 +162,9 @@ class NetworkScopedEvmServerAccount:
 
             # Convert transaction to dictionary format
             if isinstance(transaction, str):
-                raise ValueError("Raw transaction strings are not supported. Please provide transaction as a dictionary.")
+                raise ValueError(
+                    "Raw transaction strings are not supported. Please provide transaction as a dictionary."
+                )
             else:
                 # For structured transaction objects, prepare for remote signing
                 if hasattr(transaction, "as_dict"):
@@ -255,12 +252,14 @@ class NetworkScopedEvmServerAccount:
                 # ERC20 transfer: build transaction and sign remotely
                 erc20_address = _get_erc20_address(token, self._network)
                 contract = self._web3.eth.contract(address=erc20_address, abi=_ERC20_ABI)
-                
+
                 # Build transfer transaction (web3 will auto-populate gas, nonce, etc.)
                 transfer_tx = contract.functions.transfer(to, amount).build_transaction({})
                 try:
                     # Use secure remote signing + submission
-                    transfer_hash_hex = await self._send_transaction_with_remote_signing(transfer_tx)
+                    transfer_hash_hex = await self._send_transaction_with_remote_signing(
+                        transfer_tx
+                    )
                     print(
                         f"✅ ERC20 transfer sent via custom RPC '{self._rpc_url}' for network '{self._network}' (signed remotely) - Hash: {transfer_hash_hex}"
                     )
