@@ -258,9 +258,7 @@ export function toEvmServerAccount(
         taker: this.address, // Always use account's address as taker
       });
     },
-    async __experimental_useSpendPermission(
-      options: UseSpendPermissionOptions,
-    ): Promise<TransactionResult> {
+    async useSpendPermission(options: UseSpendPermissionOptions): Promise<TransactionResult> {
       Analytics.trackAction({
         action: "use_spend_permission",
         accountType: "evm_server",

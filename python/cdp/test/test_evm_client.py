@@ -541,7 +541,7 @@ async def test_create_smart_account_with_spend_permission(
     client = EvmClient(api_clients=mock_api_clients)
     owner = local_account_factory()
 
-    result = await client.create_smart_account(owner, __experimental_enable_spend_permission__=True)
+    result = await client.create_smart_account(owner, enable_spend_permissions=True)
 
     mock_evm_smart_accounts_api.create_evm_smart_account.assert_called_once_with(
         create_evm_smart_account_request=CreateEvmSmartAccountRequest(
@@ -1208,11 +1208,10 @@ async def test_list_token_balances(evm_token_balances_model_factory):
 @pytest.mark.asyncio
 async def test_create_spend_permission():
     """Test creating a spend permission."""
-    from cdp.openapi_client.models.create_spend_permission_request import (
-        CreateSpendPermissionRequest,
-    )
+    from datetime import datetime
+
     from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
-    from cdp.spend_permissions import SpendPermission
+    from cdp.spend_permissions import SpendPermissionInput
 
     mock_evm_smart_accounts_api = AsyncMock()
     mock_api_clients = AsyncMock()
@@ -1231,17 +1230,15 @@ async def test_create_spend_permission():
 
     client = EvmClient(api_clients=mock_api_clients)
 
-    # Create spend permission
-    spend_permission = SpendPermission(
+    # Create spend permission input
+    spend_permission = SpendPermissionInput(
         account="0x" + "a" * 40,  # Valid 40 hex character address
         spender="0x" + "b" * 40,  # Valid 40 hex character address
         token="0x" + "c" * 40,  # Valid 40 hex character address
         allowance=1000000,
-        period=86400,
-        start=0,
-        end=1000000000,
-        salt=0,
-        extra_data="0x",
+        period_in_days=1,
+        start=datetime(2024, 1, 1),
+        end=datetime(2024, 12, 31),
     )
 
     result = await client.create_spend_permission(
@@ -1252,22 +1249,23 @@ async def test_create_spend_permission():
     )
 
     # Verify the API was called correctly
-    mock_evm_smart_accounts_api.create_spend_permission.assert_called_once_with(
-        address="0x" + "a" * 40,
-        create_spend_permission_request=CreateSpendPermissionRequest(
-            account="0x" + "a" * 40,
-            spender="0x" + "b" * 40,
-            token="0x" + "c" * 40,
-            allowance="1000000",
-            period="86400",
-            start="0",
-            end="1000000000",
-            salt="0",
-            extra_data="0x",
-            network="base-sepolia",
-            paymaster_url="https://paymaster.example.com",
-        ),
-        x_idempotency_key="test-key",
-    )
+    mock_evm_smart_accounts_api.create_spend_permission.assert_called_once()
+    call_args = mock_evm_smart_accounts_api.create_spend_permission.call_args
+    assert call_args[1]["address"] == "0x" + "a" * 40
+    assert call_args[1]["x_idempotency_key"] == "test-key"
+
+    request = call_args[1]["create_spend_permission_request"]
+    assert request.spender == "0x" + "b" * 40
+    assert request.token == "0x" + "c" * 40
+    assert request.allowance == "1000000"
+    assert request.period == "86400"
+    assert request.start is not None
+    assert request.end is not None
+    assert request.extra_data == "0x"
+    assert request.network == "base-sepolia"
+    assert request.paymaster_url == "https://paymaster.example.com"
+    # Salt should be a random value, just verify it's not the old default of "0"
+    assert request.salt != "0"
+    assert len(request.salt) > 10  # Should be a large random number
 
     assert result == mock_user_operation

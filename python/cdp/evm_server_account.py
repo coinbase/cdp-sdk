@@ -1,4 +1,4 @@
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from eth_account.datastructures import (
     SignedMessage,
@@ -48,7 +48,9 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
 from cdp.openapi_client.models.transfer import Transfer
-from cdp.spend_permissions import SpendPermission
+
+if TYPE_CHECKING:
+    from cdp.spend_permissions import SpendPermissionInput
 
 
 class EvmServerAccount(BaseAccount, BaseModel):
@@ -737,20 +739,18 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
         return NetworkScopedEvmServerAccount(self, network, rpc_url)
 
-    async def __experimental_use_spend_permission__(
+    async def use_spend_permission(
         self,
-        spend_permission: "SpendPermission",
+        spend_permission: "SpendPermissionInput",
         value: int,
         network: str,
     ) -> str:
         """Use a spend permission to spend tokens.
 
-        Experimental! This method name will change, and is subject to other breaking changes.
-
         This allows the account to spend tokens that have been approved via a spend permission.
 
         Args:
-            spend_permission (SpendPermission): The spend permission object containing authorization details.
+            spend_permission (SpendPermissionInput): The spend permission object containing authorization details.
             value (int): The amount to spend (must not exceed the permission's allowance).
             network (str): The network to execute the transaction on.
 
@@ -761,23 +761,22 @@ class EvmServerAccount(BaseAccount, BaseModel):
             Exception: If the network doesn't support spend permissions via CDP API.
 
         Examples:
-            >>> from cdp.spend_permissions import SpendPermission
+            >>> from cdp.spend_permissions import SpendPermissionInput
+            >>> from cdp.utils import parse_units
             >>>
-            >>> spend_permission = SpendPermission(
+            >>> spend_permission = SpendPermissionInput(
             ...     account="0x1234...",  # Smart account that owns the tokens
             ...     spender=account.address,  # This account that can spend
-            ...     token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-            ...     allowance=10**18,  # 1 ETH
+            ...     token="usdc",  # USDC
+            ...     allowance=parse_units("0.01", 6),  # 0.01 USDC
             ...     period=86400,  # 1 day
             ...     start=0,
             ...     end=281474976710655,
-            ...     salt=0,
-            ...     extra_data="0x",
             ... )
             >>>
-            >>> tx_hash = await account.__experimental_use_spend_permission(
+            >>> tx_hash = await account.use_spend_permission(
             ...     spend_permission=spend_permission,
-            ...     value=10**17,  # Spend 0.1 ETH
+            ...     value=parse_units("0.005", 6),  # Spend 0.005 USDC
             ...     network="base-sepolia",
             ... )
 

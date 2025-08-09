@@ -15,7 +15,7 @@ const spender = await cdp.evm.getOrCreateSmartAccount({
 });
 
 const account = await cdp.evm.getOrCreateSmartAccount({
-  __experimental_enableSpendPermission: true,
+  enableSpendPermissions: true,
   name: "Example-Account-SmartAccount-1",
   owner: await cdp.evm.getOrCreateAccount({
     name: "Example-Account-Owner-1",
@@ -34,9 +34,7 @@ if (process.argv.includes("--with-create")) {
       spender: spender.address,
       token: "usdc",
       allowance: parseUnits("0.01", 6),
-      period: 60 * 60, // 1 hour
-      start: 0,
-      end: Date.now() + 24 * 60 * 60 * 1000, // in one day
+      periodInDays: 1, // 1 day
     },
   });
   console.log("Spend permission created");

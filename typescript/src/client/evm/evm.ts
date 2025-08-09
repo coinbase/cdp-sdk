@@ -5,8 +5,6 @@ import { type Address, getTypesForEIP712Domain } from "viem";
 import {
   CreateServerAccountOptions,
   CreateSmartAccountOptions,
-  CreateSpendPermissionOptions,
-  RevokeSpendPermissionOptions,
   CreateSwapQuoteOptions,
   CreateSwapQuoteResult,
   EvmClientInterface,
@@ -23,7 +21,6 @@ import {
   ListServerAccountsOptions,
   ListSmartAccountResult,
   ListSmartAccountsOptions,
-  ListSpendPermissionsOptions,
   PrepareUserOperationOptions,
   ServerAccount,
   SignatureResult,
@@ -41,7 +38,10 @@ import {
 import { toEvmServerAccount } from "../../accounts/evm/toEvmServerAccount.js";
 import { toEvmSmartAccount } from "../../accounts/evm/toEvmSmartAccount.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
-import { listSpendPermissions } from "../../actions/evm/listSpendPermissions.js";
+import {
+  listSpendPermissions,
+  ListSpendPermissionsResult,
+} from "../../actions/evm/listSpendPermissions.js";
 import {
   listTokenBalances,
   ListTokenBalancesOptions,
@@ -58,6 +58,7 @@ import {
   SendUserOperationOptions,
   SendUserOperationReturnType,
 } from "../../actions/evm/sendUserOperation.js";
+import { resolveSpendPermission } from "../../actions/evm/spend-permissions/resolveSpendPermission.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { getSwapPrice } from "../../actions/evm/swap/getSwapPrice.js";
 import {
@@ -70,11 +71,9 @@ import { UserInputValidationError } from "../../errors.js";
 import { APIError } from "../../openapi-client/errors.js";
 import {
   CdpOpenApiClient,
-  ListSpendPermissionsResult,
   EIP712Message as OpenAPIEIP712Message,
 } from "../../openapi-client/index.js";
 import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
-import { resolveTokenAddress } from "../../spend-permissions/utils.js";
 import { Hex } from "../../types/misc.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 
@@ -82,6 +81,11 @@ import type {
   SendTransactionOptions,
   TransactionResult,
 } from "../../actions/evm/sendTransaction.js";
+import type {
+  CreateSpendPermissionOptions,
+  ListSpendPermissionsOptions,
+  RevokeSpendPermissionOptions,
+} from "../../spend-permissions/types.js";
 
 /**
  * The namespace containing all EVM methods.
@@ -359,17 +363,22 @@ export class EvmClient implements EvmClientInterface {
       action: "create_spend_permission",
     });
 
+    const resolvedSpendPermission = resolveSpendPermission(
+      options.spendPermission,
+      options.network,
+    );
+
     const userOperation = await CdpOpenApiClient.createSpendPermission(
-      options.spendPermission.account,
+      resolvedSpendPermission.account,
       {
-        spender: options.spendPermission.spender,
-        token: resolveTokenAddress(options.spendPermission.token, options.network),
-        allowance: options.spendPermission.allowance.toString(),
-        period: options.spendPermission.period.toString(),
-        start: options.spendPermission.start.toString(),
-        end: options.spendPermission.end.toString(),
-        salt: options.spendPermission.salt?.toString(),
-        extraData: options.spendPermission.extraData,
+        spender: resolvedSpendPermission.spender,
+        token: resolvedSpendPermission.token,
+        allowance: resolvedSpendPermission.allowance.toString(),
+        period: resolvedSpendPermission.period.toString(),
+        start: resolvedSpendPermission.start.toString(),
+        end: resolvedSpendPermission.end.toString(),
+        salt: resolvedSpendPermission.salt.toString(),
+        extraData: resolvedSpendPermission.extraData,
         network: options.network,
         paymasterUrl: options.paymasterUrl,
       },
@@ -1436,7 +1445,7 @@ export class EvmClient implements EvmClientInterface {
   ): Promise<SmartAccount> {
     const owners = [options.owner.address];
 
-    if (options.__experimental_enableSpendPermission) {
+    if (options.enableSpendPermissions) {
       owners.push(SPEND_PERMISSION_MANAGER_ADDRESS);
     }
 

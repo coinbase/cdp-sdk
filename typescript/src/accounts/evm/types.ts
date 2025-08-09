@@ -40,7 +40,7 @@ import {
   WaitForFundOperationResult,
 } from "../../actions/waitForFundOperationReceipt.js";
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
-import { SpendPermissionNetworks } from "../../spend-permissions/types.js";
+import { SpendPermissionNetwork } from "../../openapi-client/index.js";
 
 import type {
   SmartAccountTransferOptions,
@@ -246,9 +246,9 @@ export type NetworkSpecificSmartAccountActions<Network extends string> = Prettif
         }
       : EmptyObject) &
     // Conditionally include useSpendPermission
-    (Network extends SpendPermissionNetworks
+    (Network extends SpendPermissionNetwork
       ? {
-          __experimental_useSpendPermission: (
+          useSpendPermission: (
             options: Omit<UseSpendPermissionOptions, "network">,
           ) => Promise<SendUserOperationReturnType>;
         }
@@ -334,9 +334,9 @@ export type NetworkSpecificAccountActions<Network extends string> = Prettify<
         }
       : EmptyObject) &
     // Conditionally include useSpendPermission
-    (Network extends SpendPermissionNetworks
+    (Network extends SpendPermissionNetwork
       ? {
-          __experimental_useSpendPermission: (
+          useSpendPermission: (
             options: Omit<UseSpendPermissionOptions, "network">,
           ) => Promise<TransactionResult>;
         }

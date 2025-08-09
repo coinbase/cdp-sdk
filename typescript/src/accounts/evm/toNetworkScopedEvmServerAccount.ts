@@ -23,8 +23,8 @@ import type { WaitForFundOperationOptions } from "../../actions/waitForFundOpera
 import type {
   ListEvmTokenBalancesNetwork,
   SendEvmTransactionBodyNetwork,
+  SpendPermissionNetwork,
 } from "../../openapi-client/index.js";
-import type { SpendPermissionNetworks } from "../../spend-permissions/types.js";
 import type { Address, TransactionRequestEIP1559 } from "../../types/misc.js";
 
 /**
@@ -258,7 +258,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
 
   if (isMethodSupportedOnNetwork("useSpendPermission", resolvedNetworkName)) {
     Object.assign(account, {
-      __experimental_useSpendPermission: async (
+      useSpendPermission: async (
         spendPermissionOptions: Omit<UseSpendPermissionOptions, "network">,
       ) => {
         Analytics.trackAction({
@@ -269,9 +269,9 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
           },
         });
 
-        return options.account.__experimental_useSpendPermission({
+        return options.account.useSpendPermission({
           ...spendPermissionOptions,
-          network: options.network as SpendPermissionNetworks,
+          network: options.network as SpendPermissionNetwork,
         });
       },
     });

@@ -1,10 +1,11 @@
 # Usage: uv run python evm/create_spend_permission.py
 
 import asyncio
-from web3 import Web3
+from datetime import datetime, timedelta
 
 from cdp import CdpClient
-from cdp.spend_permissions import SpendPermission
+from cdp.spend_permissions import SpendPermissionInput
+from cdp.utils import parse_units
 
 from dotenv import load_dotenv
 
@@ -15,34 +16,30 @@ async def main():
     """Main function to demonstrate creating a spend permission."""
 
     async with CdpClient() as cdp:
-        # Create the owner account
-        owner = await cdp.evm.create_account()
-        print(f"Created owner account: {owner.address}")
-
-        # Create a smart account with spend permissions enabled
-        smart_account = await cdp.evm.create_smart_account(
-            owner=owner, __experimental_enable_spend_permission__=True
+        account = await cdp.evm.get_or_create_smart_account(
+            name="Example-Account",
+            owner=await cdp.evm.get_or_create_account(
+                name="Example-Account-Owner",
+            ),
+            enable_spend_permissions=True,
         )
-        print(f"Created smart account: {smart_account.address}")
+        print(f"Account Address: {account.address}")
 
         # Create a spender account
         spender = await cdp.evm.create_account()
-        print(f"Created spender account: {spender.address}")
+        print(f"Spender Address: {spender.address}")
 
-        # Create a spend permission
-        spend_permission = SpendPermission(
-            account=smart_account.address,
+        spend_permission = SpendPermissionInput(
+            account=account.address,
             spender=spender.address,
-            token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # ETH
-            allowance=Web3.to_wei(0.00001, "ether"),  # 0.00001 ETH
-            period=86400,  # 1 day
-            start=0,
-            end=281474976710655,  # Max uint48
-            salt=0,
-            extra_data="0x",
+            token="usdc",
+            allowance=parse_units("0.01", 6),
+            period_in_days=1,
+            start=datetime.now(),
+            end=datetime.now() + timedelta(days=30),
         )
 
-        # Create the spend permission on-chain
+        # Create the spend permission onchain
         user_operation = await cdp.evm.create_spend_permission(
             spend_permission=spend_permission,
             network="base-sepolia",
@@ -53,7 +50,7 @@ async def main():
 
         # Wait for the user operation to complete
         result = await cdp.evm.wait_for_user_operation(
-            smart_account_address=smart_account.address,
+            smart_account_address=account.address,
             user_op_hash=user_operation.user_op_hash,
         )
         print(f"User operation completed with status: {result.status}")

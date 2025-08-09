@@ -189,7 +189,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
       expect(networkAccount.transfer).toBeDefined();
       expect(networkAccount.sendTransaction).toBeDefined();
       expect(networkAccount.waitForTransactionReceipt).toBeDefined();
-      expect(networkAccount.__experimental_useSpendPermission).toBeDefined();
+      expect(networkAccount.useSpendPermission).toBeDefined();
 
       // Unavailable methods - check via 'in' operator
       expect("quoteFund" in networkAccount).toBe(false);

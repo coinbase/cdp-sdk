@@ -52,6 +52,11 @@ class TestSpendPermission(unittest.TestCase):
                 spender = '0x9Fb909eA400c2b8D99Be292DADf07e63B814527c',
                 token = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
                 allowance = '1000000000000000000',
+                period = '86400',
+                start = '0',
+                end = '281474976710655',
+                salt = '0',
+                extra_data = '0x',
         )
         """
 

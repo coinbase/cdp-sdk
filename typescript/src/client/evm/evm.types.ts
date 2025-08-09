@@ -1,10 +1,9 @@
-import { SpendPermission } from "../../spend-permissions/types.js";
-
 import type {
   EvmAccount as Account,
   EvmServerAccount as ServerAccount,
   EvmSmartAccount as SmartAccount,
 } from "../../accounts/evm/types.js";
+import type { ListSpendPermissionsResult } from "../../actions/evm/listSpendPermissions.js";
 import type {
   ListTokenBalancesOptions,
   ListTokenBalancesResult,
@@ -23,13 +22,12 @@ import type {
   EvmSwapsNetwork,
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
-  ListSpendPermissionsResult,
   OpenApiEvmMethods,
   UpdateEvmAccountBody as UpdateEvmAccount,
   UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
   UserOperationReceipt,
 } from "../../openapi-client/index.js";
-import type { SpendPermissionNetworks } from "../../spend-permissions/types.js";
+import type { ListSpendPermissionsOptions } from "../../spend-permissions/types.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";
 import type { WaitOptions } from "../../utils/wait.js";
@@ -267,45 +265,6 @@ export interface CreateSwapQuoteResult {
   execute: (options?: ExecuteSwapQuoteOptions) => Promise<ExecuteSwapQuoteResult>;
 }
 
-export type SpendPermissionInput = Omit<SpendPermission, "token" | "salt" | "extraData"> & {
-  token: "eth" | "usdc" | Address;
-  salt?: bigint;
-  extraData?: Hex;
-};
-
-export interface CreateSpendPermissionOptions {
-  /** The spend permission. */
-  spendPermission: SpendPermissionInput;
-  /** The network. */
-  network: SpendPermissionNetworks;
-  /** The paymaster URL. */
-  paymasterUrl?: string;
-  /** The idempotency key. */
-  idempotencyKey?: string;
-}
-
-export interface ListSpendPermissionsOptions {
-  /** The address of the smart account. */
-  address: Address;
-  /** The page size to paginate through the spend permissions. */
-  pageSize?: number;
-  /** The page token to paginate through the spend permissions. */
-  pageToken?: string;
-}
-
-export interface RevokeSpendPermissionOptions {
-  /** The address of the smart account. */
-  address: Address;
-  /** The hash of the spend permission to revoke. */
-  permissionHash: Hex;
-  /** The network. */
-  network: EvmUserOperationNetwork;
-  /** The paymaster URL. */
-  paymasterUrl?: string;
-  /** The idempotency key. */
-  idempotencyKey?: string;
-}
-
 /**
  * Options for getting a user operation.
  */
@@ -446,12 +405,8 @@ export interface GetOrCreateSmartAccountOptions {
   name: string;
   /** The owner of the account. */
   owner: Account;
-  /**
-   * @deprecated Experimental! This method name will change, and is subject to other breaking changes.
-   *
-   * The flag to enable spend permission.
-   */
-  __experimental_enableSpendPermission?: boolean;
+  /** The flag to enable spend permissions. */
+  enableSpendPermissions?: boolean;
 }
 
 /**
@@ -547,12 +502,8 @@ export interface CreateSmartAccountOptions {
   idempotencyKey?: string;
   /** The name of the account. */
   name?: string;
-  /**
-   * @deprecated Experimental! This method name will change, and is subject to other breaking changes.
-   *
-   * The flag to enable spend permission.
-   */
-  __experimental_enableSpendPermission?: boolean;
+  /** The flag to enable spend permissions. */
+  enableSpendPermissions?: boolean;
 }
 
 /**

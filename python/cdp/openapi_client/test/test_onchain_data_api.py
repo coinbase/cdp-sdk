@@ -27,10 +27,24 @@ class TestOnchainDataApi(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self) -> None:
         await self.api.api_client.close()
 
+    async def test_list_data_token_balances(self) -> None:
+        """Test case for list_data_token_balances
+
+        List EVM token balances
+        """
+        pass
+
+    async def test_list_tokens_for_account(self) -> None:
+        """Test case for list_tokens_for_account
+
+        List token addresses for account
+        """
+        pass
+
     async def test_run_sql_query(self) -> None:
         """Test case for run_sql_query
 
-        Run SQL against decoded onchain data
+        Run SQL Query
         """
         pass
 

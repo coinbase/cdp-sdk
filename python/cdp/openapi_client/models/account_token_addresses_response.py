@@ -18,20 +18,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
-from cdp.openapi_client.models.spend_permission_network import SpendPermissionNetwork
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class RevokeSpendPermissionRequest(BaseModel):
+class AccountTokenAddressesResponse(BaseModel):
     """
-    RevokeSpendPermissionRequest
+    Response containing token addresses that an account has received.
     """ # noqa: E501
-    network: SpendPermissionNetwork
-    permission_hash: StrictStr = Field(description="The hash of the spend permission to revoke.", alias="permissionHash")
-    paymaster_url: Optional[StrictStr] = Field(default=None, description="The paymaster URL of the spend permission.", alias="paymasterUrl")
-    __properties: ClassVar[List[str]] = ["network", "permissionHash", "paymasterUrl"]
+    account_address: Optional[StrictStr] = Field(default=None, description="The account address that was queried.", alias="accountAddress")
+    token_addresses: Optional[List[Annotated[str, Field(strict=True)]]] = Field(default=None, description="List of token contract addresses that the account has received.", alias="tokenAddresses")
+    total_count: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=None, description="Total number of unique token addresses discovered.", alias="totalCount")
+    __properties: ClassVar[List[str]] = ["accountAddress", "tokenAddresses", "totalCount"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -51,7 +51,7 @@ class RevokeSpendPermissionRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of RevokeSpendPermissionRequest from a JSON string"""
+        """Create an instance of AccountTokenAddressesResponse from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -76,7 +76,7 @@ class RevokeSpendPermissionRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of RevokeSpendPermissionRequest from a dict"""
+        """Create an instance of AccountTokenAddressesResponse from a dict"""
         if obj is None:
             return None
 
@@ -84,9 +84,9 @@ class RevokeSpendPermissionRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "network": obj.get("network"),
-            "permissionHash": obj.get("permissionHash"),
-            "paymasterUrl": obj.get("paymasterUrl")
+            "accountAddress": obj.get("accountAddress"),
+            "tokenAddresses": obj.get("tokenAddresses"),
+            "totalCount": obj.get("totalCount")
         })
         return _obj
 

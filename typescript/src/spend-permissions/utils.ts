@@ -1,8 +1,8 @@
 import { getErc20Address } from "../actions/evm/transfer/utils.js";
 import { UserInputValidationError } from "../errors.js";
 
-import type { SpendPermissionNetworks } from "./types.js";
 import type { Network } from "../actions/evm/transfer/types.js";
+import type { SpendPermissionNetwork } from "../openapi-client/index.js";
 import type { Address } from "../types/misc.js";
 
 /**
@@ -15,9 +15,9 @@ import type { Address } from "../types/misc.js";
  */
 export function resolveTokenAddress(
   token: "eth" | "usdc" | Address,
-  network: SpendPermissionNetworks,
+  network: SpendPermissionNetwork,
 ): Address {
-  if (token === "eth" && (network === "ethereum" || network === "ethereum-sepolia")) {
+  if (token === "eth") {
     return "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
   }
 
@@ -25,7 +25,7 @@ export function resolveTokenAddress(
     return getErc20Address(token, network as Network);
   }
 
-  if (token === "eth" || token === "usdc") {
+  if (token === "usdc") {
     throw new UserInputValidationError(
       `Automatic token address lookup for ${token} is not supported on ${network}. Please provide the token address manually.`,
     );

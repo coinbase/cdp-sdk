@@ -94,19 +94,7 @@ tags:
     description: The Faucet APIs enable you to request funds on supported test networks. Faucets are for testing purposes and make development easier by providing a source of funds.
   - name: Onchain Data
     x-audience: public
-    description: |-
-      The Onchain Data APIs enable you to query and analyze blockchain data.
-      These APIs provide access to indexed blockchain data including blocks, transactions, and events across supported networks. Data is optimized for high-performance analytics and real-time querying.
-      ### Features
-
-        - **SQL Querying**: Execute custom SQL queries against comprehensive blockchain datasets
-        - **Token Discovery**: Identify all tokens that wallets have interacted with historically
-        - **High Performance**: Optimized data structures for fast analytical queries
-        - **Real-time Data**: Access to the latest blockchain state and transaction data
-
-      ### Supported Networks
-
-        - **Base Mainnet**: Complete transaction and event data from Base Chain.
+    description: Query and analyze blockchain data with high performance and reliability. Features include real-time token balances,  token discovery, transaction history, and flexible onchain SQL querying to explore Base mainnet with  freshness, accuracy, and flexibility like never before.
   - name: Onramp
     x-audience: public
     description: |-
@@ -2628,7 +2616,6 @@ paths:
       summary: List EVM token balances
       description: |-
         Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.
-
         **Note:** This endpoint is still under development and does not yet provide strong freshness guarantees. Specifically, balances of new tokens can, on occasion, take up to ~30 seconds to appear, while balances of tokens already belonging to an address will generally be close to chain tip. Freshness of new token balances will improve over the coming weeks.
       operationId: listEvmTokenBalances
       tags:
@@ -4273,7 +4260,7 @@ paths:
   /v2/data/query/run:
     post:
       operationId: runSQLQuery
-      summary: Run SQL against decoded onchain data
+      summary: Run SQL Query
       x-audience: public
       description: |
         Run a read-only SQL query against indexed blockchain data including transactions, events, and decoded logs.
@@ -4281,23 +4268,26 @@ paths:
         This endpoint provides direct SQL access to comprehensive blockchain data across supported networks.
         Queries are executed against optimized data structures for high-performance analytics.
 
-        **Query Limitations:**
-        - Read-only queries only (SELECT statements)
-        - No DDL or DML operations allowed
-        - Standard SQL syntax (ClickHouse dialect)
-        - No cartesian products
+        ### Allowed Queries
+
+          - Standard SQL syntax (ClickHouse dialect)
+          - Read-only queries (SELECT statements)
+          - No DDL or DML operations
+          - No cartesian products
 
         ### Supported Tables
 
-        - `base.events` - Base mainnet decoded event logs with contract interactions
-        - `base.transactions` - Base mainnet transaction data including hash, block number, gas usage
-        - `base.blocks` - Base mainnet block metadata including timestamps and difficulty
+          - `base.events` - Base mainnet decoded event logs with parameters, event signature, topics, and more.
+          - `base.transactions` - Base mainnet transaction data including hash, block number, gas usage.
+          - `base.blocks` - Base mainnet block information.
+          - `base.encoded_logs` - Encoded log data of event logs that aren't able to be decoded by our event decoder (ex: log0 opcode).
+          - `base.transfers` - All event logs with event signature `Transfer(address,address,uint256)`. ERC-20, ERC-721, and ERC-1155 transfers are all included.
 
         ### Query Limits
 
-        - Maximum result set: 10,000 rows
-        - Query timeout: 30 seconds
-        - Maximum JOINs: 5
+          - Maximum result set: 10,000 rows
+          - Query timeout: 30 seconds
+          - Maximum JOINs: 5
       tags:
         - Onchain Data
       security:
@@ -4345,6 +4335,176 @@ paths:
           $ref: '#/components/responses/InternalServerError'
         '504':
           $ref: '#/components/responses/TimedOutError'
+  /v2/data/evm/token-ownership/{network}/{address}:
+    get:
+      operationId: listTokensForAccount
+      summary: List token addresses for account
+      x-audience: public
+      description: |
+        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from. 
+        Analyzes transaction history to discover token interactions.
+      tags:
+        - Onchain Data
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: network
+          in: path
+          required: true
+          description: The blockchain network to query.
+          schema:
+            type: string
+            enum:
+              - base
+              - base-sepolia
+          example: base
+        - name: address
+          in: path
+          required: true
+          description: The account address to analyze for token interactions.
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      responses:
+        '200':
+          description: Token addresses retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountTokenAddressesResponse'
+        '400':
+          description: Invalid account address format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_address:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid account address format. Address must be 40 hex characters prefixed with '0x'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Too many requests. Please try again later.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v2/data/evm/token-balances/{network}/{address}:
+    get:
+      summary: List EVM token balances
+      x-audience: public
+      description: |-
+        Lists the token balances of an EVM address on a given network. The balances include ERC-20 tokens and the native gas token (usually ETH). The response is paginated, and by default, returns 20 balances per page.
+
+        **Note:** This endpoint provides <1 second freshness from chain tip, <500ms response latency for wallets with reasonable token history, and 99.9% uptime for production use.
+      operationId: listDataTokenBalances
+      tags:
+        - Onchain Data
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: address
+          description: The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        - name: network
+          description: The human-readable network name to get the balances for.
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/ListEvmTokenBalancesNetwork'
+          example: base
+        - name: pageSize
+          description: The number of balances to return per page.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+          example: 10
+        - name: pageToken
+          description: The token for the next page of balances. Will be empty if there are no more balances to fetch.
+          in: query
+          required: false
+          schema:
+            type: string
+          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+      responses:
+        '200':
+          description: Successfully listed token balances.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - balances
+                    properties:
+                      balances:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TokenBalance'
+                        description: The list of EVM token balances.
+                        example:
+                          - amount:
+                              amount: '1250000000000000000'
+                              decimals: 18
+                            token:
+                              network: base
+                              symbol: ETH
+                              name: ether
+                              contractAddress: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+                          - amount:
+                              amount: '123456'
+                              decimals: 6
+                            token:
+                              network: base
+                              symbol: USDC
+                              name: USD Coin
+                              contractAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+                  - $ref: '#/components/schemas/ListResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: string doesn't match the regular expression "^0x[0-9a-fA-F]{40}$"
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Address not found, or no balances found for the given address on this chain.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/payments/rails/payment-methods:
     get:
       summary: Get the fiat payment methods
@@ -5506,6 +5666,24 @@ components:
       properties:
         revert:
           $ref: '#/components/schemas/UserOperationReceiptRevert'
+        transactionHash:
+          type: string
+          pattern: ^0x[a-fA-F0-9]{64}$
+          description: The hash of this transaction as 0x-prefixed string.
+          example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
+        blockHash:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{64}$|^$
+          description: The block hash of the block including the transaction as 0x-prefixed string.
+          example: '0x386544b58930c0ec9e8f3ed09fb4cdb76b9ae0a1a37ddcacebe3925b57978e65'
+        blockNumber:
+          type: integer
+          description: The block height (number) of the block including the transaction.
+          example: 29338819
+        gasUsed:
+          type: string
+          description: The gas used for landing this user operation.
+          example: '100000'
       example:
         revert:
           data: '0x123'
@@ -5562,22 +5740,33 @@ components:
         - userOpHash
         - calls
         - status
+    SpendPermissionNetwork:
+      type: string
+      description: The network the spend permission is on.
+      enum:
+        - base
+        - base-sepolia
+        - ethereum
+        - ethereum-sepolia
+        - optimism
+        - arbitrum
+        - avalanche
+        - polygon
+      example: base
     CreateSpendPermissionRequest:
       type: object
       properties:
         network:
-          type: string
-          description: The network of the spend permission.
-          example: base
+          $ref: '#/components/schemas/SpendPermissionNetwork'
         spender:
           type: string
           pattern: ^0x[a-fA-F0-9]{40}$
-          description: Entity that can spend account's tokens.
+          description: Entity that can spend account's tokens. Can be either a Smart Account or an EOA.
           example: '0x9Fb909eA400c2b8D99Be292DADf07e63B814527c'
         token:
           type: string
           pattern: ^0x[a-fA-F0-9]{40}$
-          description: Token address (ERC-7528 native token address or ERC-20 contract).
+          description: ERC-7528 native token address (e.g. "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" for native ETH), or an  ERC-20 contract address.
           example: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
         allowance:
           type: string
@@ -5598,7 +5787,7 @@ components:
         salt:
           type: string
           description: An arbitrary salt to differentiate unique spend permissions with otherwise identical data.
-          example: '0'
+          example: '95959551014433038874972658238091428449162862973207257628575040053304171156143'
         extraData:
           type: string
           description: Arbitrary data to include in the permission.
@@ -5673,6 +5862,11 @@ components:
         - spender
         - token
         - allowance
+        - period
+        - start
+        - end
+        - salt
+        - extraData
     SpendPermissionResponseObject:
       type: object
       properties:
@@ -5696,13 +5890,16 @@ components:
           description: The UTC ISO 8601 timestamp when the permission was created.
           example: '2025-03-25T12:00:00Z'
           format: date-time
+      required:
+        - permission
+        - permissionHash
+        - revoked
+        - createdAt
     RevokeSpendPermissionRequest:
       type: object
       properties:
         network:
-          type: string
-          description: The network of the spend permission.
-          example: base
+          $ref: '#/components/schemas/SpendPermissionNetwork'
         permissionHash:
           type: string
           description: The hash of the spend permission to revoke.
@@ -7560,6 +7757,30 @@ components:
             cached: false
             executionTimeMs: 145
             rowCount: 2
+    AccountTokenAddressesResponse:
+      type: object
+      description: Response containing token addresses that an account has received.
+      properties:
+        accountAddress:
+          type: string
+          description: The account address that was queried.
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+        tokenAddresses:
+          type: array
+          description: List of token contract addresses that the account has received.
+          items:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+            description: Token contract address.
+          example:
+            - '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+            - '0x4200000000000000000000000000000000000006'
+            - '0x0000000000000000000000000000000000000000'
+        totalCount:
+          type: integer
+          description: Total number of unique token addresses discovered.
+          example: 15
+          minimum: 0
     PaymentRailAction:
       description: The action of the payment method.
       type: string

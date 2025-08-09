@@ -13,7 +13,7 @@ const account = await cdp.evm.getOrCreateSmartAccount({
   owner: await cdp.evm.getOrCreateAccount({
     name: "Example-Account-Revoke-Owner",
   }),
-  __experimental_enableSpendPermission: true,
+  enableSpendPermissions: true,
 });
 
 const spender = await cdp.evm.createAccount();
@@ -23,9 +23,7 @@ const spendPermission: SpendPermissionInput = {
   spender: spender.address,
   token: "usdc",
   allowance: parseUnits("0.01", 6),
-  period: 86400,
-  start: 0,
-  end: 281474976710655,
+  periodInDays: 30, // monthly
 };
 
 const { userOpHash } = await cdp.evm.createSpendPermission({

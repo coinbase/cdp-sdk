@@ -13,7 +13,7 @@ const account = await cdp.evm.getOrCreateSmartAccount({
   owner: await cdp.evm.getOrCreateAccount({
     name: "Demo-SpendPermissions-Account-Owner",
   }),
-  __experimental_enableSpendPermission: true,
+  enableSpendPermissions: true,
 });
 
 const spender = await cdp.evm.getOrCreateSmartAccount({
@@ -38,9 +38,7 @@ const spendPermission: SpendPermissionInput = {
   spender: spender.address, // App's spender address
   token: "usdc", // USDC on base-sepolia
   allowance: parseUnits("0.01", 6), // Small amount for testing
-  period: 86400, // 1 day in seconds
-  start: 0, // Start immediately
-  end: 281474976710655, // Max uint48 (effectively no end)
+  periodInDays: 1, // 1 day
 };
 
 console.log("Sending approve user operation...");
@@ -61,23 +59,34 @@ console.log(
 // sleep 2 seconds
 await new Promise((resolve) => setTimeout(resolve, 2000));
 
+// List spend permissions to get the actual resolved permission
+const allPermissions = await cdp.evm.listSpendPermissions({
+  address: account.address,
+});
+const permissions = allPermissions.spendPermissions.filter(
+  (p) => p.permission.spender.toLowerCase() === spender.address.toLowerCase()
+);
+
+if (permissions.length === 0) {
+  console.log("No spend permissions found");
+  process.exit(1);
+}
+
 console.log("Executing spend...");
 
-const spend = await spender.__experimental_useSpendPermission({
-  spendPermission,
-  value: parseUnits("0.01", 6), // 0.01 USDC
+const spend = await spender.useSpendPermission({
+  spendPermission: permissions.at(-1)!.permission, // Use the latest permission
+  value: parseUnits("0.005", 6), // 0.005 USDC (half the allowance)
   network: "base-sepolia",
 });
 
-const spendReceipt = await spender.waitForUserOperation(spend);
+console.log("Spend sent, waiting for receipt...");
 
-console.log("Spend sent, waiting for receipt...", spendReceipt.userOpHash);
+await spender.waitForUserOperation(spend);
 
-const spendUserOp = await spender.getUserOperation({
-  userOpHash: spendReceipt.userOpHash,
-});
+const spendReceipt = await spender.getUserOperation(spend);
 
 console.log(
   "Spend completed!",
-  `https://sepolia.basescan.org/tx/${spendUserOp.transactionHash}`
+  `https://sepolia.basescan.org/tx/${spendReceipt.transactionHash}`
 );

@@ -36,11 +36,11 @@ describe("useSpendPermission", () => {
   const mockSpendPermission: SpendPermission = {
     account: "0x1111111111111111111111111111111111111111" as Address,
     spender: mockAddress,
-    token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" as Address, // ETH
+    token: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" as Address, // ETH resolved address
     allowance: 1000000000000000000n, // 1 ETH
     period: 86400, // 1 day
-    start: 1700000000,
-    end: 1700086400,
+    start: 1700000000, // Timestamp
+    end: 1700086400, // Timestamp
     salt: 12345n,
     extraData: "0x" as Hex,
   };

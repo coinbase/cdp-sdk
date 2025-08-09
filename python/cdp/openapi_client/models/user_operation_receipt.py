@@ -18,8 +18,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from cdp.openapi_client.models.user_operation_receipt_revert import UserOperationReceiptRevert
 from typing import Optional, Set
 from typing_extensions import Self
@@ -29,7 +30,31 @@ class UserOperationReceipt(BaseModel):
     The receipt that contains information about the execution of user operation.
     """ # noqa: E501
     revert: Optional[UserOperationReceiptRevert] = None
-    __properties: ClassVar[List[str]] = ["revert"]
+    transaction_hash: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The hash of this transaction as 0x-prefixed string.", alias="transactionHash")
+    block_hash: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The block hash of the block including the transaction as 0x-prefixed string.", alias="blockHash")
+    block_number: Optional[StrictInt] = Field(default=None, description="The block height (number) of the block including the transaction.", alias="blockNumber")
+    gas_used: Optional[StrictStr] = Field(default=None, description="The gas used for landing this user operation.", alias="gasUsed")
+    __properties: ClassVar[List[str]] = ["revert", "transactionHash", "blockHash", "blockNumber", "gasUsed"]
+
+    @field_validator('transaction_hash')
+    def transaction_hash_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^0x[a-fA-F0-9]{64}$", value):
+            raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{64}$/")
+        return value
+
+    @field_validator('block_hash')
+    def block_hash_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^0x[0-9a-fA-F]{64}$|^$", value):
+            raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{64}$|^$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -85,7 +110,11 @@ class UserOperationReceipt(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "revert": UserOperationReceiptRevert.from_dict(obj["revert"]) if obj.get("revert") is not None else None
+            "revert": UserOperationReceiptRevert.from_dict(obj["revert"]) if obj.get("revert") is not None else None,
+            "transactionHash": obj.get("transactionHash"),
+            "blockHash": obj.get("blockHash"),
+            "blockNumber": obj.get("blockNumber"),
+            "gasUsed": obj.get("gasUsed")
         })
         return _obj
 

@@ -5,7 +5,6 @@ import {
   SPEND_PERMISSION_MANAGER_ADDRESS,
 } from "../../../spend-permissions/constants.js";
 import { type SendUserOperationReturnType, sendUserOperation } from "../sendUserOperation.js";
-import { resolveSpendPermission } from "./resolveSpendPermission.js";
 
 import type { UseSpendPermissionOptions } from "./types.js";
 import type { EvmSmartAccount } from "../../../accounts/evm/types.js";
@@ -28,9 +27,7 @@ export function useSpendPermission(
   account: EvmSmartAccount,
   options: UseSpendPermissionOptions,
 ): Promise<SendUserOperationReturnType> {
-  const { spendPermission: _spendPermission, value, network } = options;
-
-  const spendPermission = resolveSpendPermission(_spendPermission, network);
+  const { spendPermission, value, network } = options;
 
   const data = encodeFunctionData({
     abi: SPEND_PERMISSION_MANAGER_ABI,

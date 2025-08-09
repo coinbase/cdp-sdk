@@ -39,8 +39,8 @@ import type {
   CdpOpenApiClientType,
   EvmUserOperationNetwork,
   ListEvmTokenBalancesNetwork,
+  SpendPermissionNetwork,
 } from "../../openapi-client/index.js";
-import type { SpendPermissionNetworks } from "../../spend-permissions/types.js";
 
 /**
  * Options for converting a pre-existing EvmSmartAccount and owner to a NetworkScopedEvmSmartAccount
@@ -297,7 +297,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
 
   if (isMethodSupportedOnNetwork("useSpendPermission", options.network)) {
     Object.assign(account, {
-      __experimental_useSpendPermission: async (
+      useSpendPermission: async (
         spendPermissionOptions: Omit<UseSpendPermissionOptions, "network">,
       ) => {
         Analytics.trackAction({
@@ -308,9 +308,9 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
           },
         });
 
-        return options.smartAccount.__experimental_useSpendPermission({
+        return options.smartAccount.useSpendPermission({
           ...spendPermissionOptions,
-          network: options.network as SpendPermissionNetworks,
+          network: options.network as SpendPermissionNetwork,
         });
       },
     });

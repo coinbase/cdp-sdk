@@ -1,5 +1,25 @@
-import type { ListSpendPermissionsOptions } from "../../client/evm/evm.types.js";
-import type { CdpOpenApiClient, ListSpendPermissionsResult } from "../../openapi-client/index.js";
+import type {
+  CdpOpenApiClient,
+  ListResponse,
+  SpendPermissionResponseObject as SpendPermissionResponseObjectApi,
+} from "../../openapi-client/index.js";
+import type {
+  ListSpendPermissionsOptions,
+  SpendPermission,
+} from "../../spend-permissions/types.js";
+import type { Address, Hex } from "../../types/misc.js";
+
+export type SpendPermissionResponseObject = Omit<
+  SpendPermissionResponseObjectApi,
+  "permission" | "permissionHash"
+> & {
+  permissionHash: Hex;
+  permission: SpendPermission;
+};
+
+export type ListSpendPermissionsResult = ListResponse & {
+  spendPermissions: SpendPermissionResponseObject[];
+};
 
 /**
  * Lists the spend permissions for a smart account.
@@ -13,8 +33,27 @@ export async function listSpendPermissions(
   client: typeof CdpOpenApiClient,
   options: ListSpendPermissionsOptions,
 ): Promise<ListSpendPermissionsResult> {
-  return await client.listSpendPermissions(options.address, {
+  const result = await client.listSpendPermissions(options.address, {
     pageSize: options.pageSize,
     pageToken: options.pageToken,
   });
+
+  return {
+    spendPermissions: result.spendPermissions.map(permission => ({
+      ...permission,
+      permissionHash: permission.permissionHash as Hex,
+      permission: {
+        ...permission.permission,
+        account: permission.permission.account as Address,
+        spender: permission.permission.spender as Address,
+        token: permission.permission.token as Address,
+        allowance: BigInt(permission.permission.allowance),
+        period: Number(permission.permission.period),
+        start: Number(permission.permission.start),
+        end: Number(permission.permission.end),
+        salt: BigInt(permission.permission.salt),
+        extraData: permission.permission.extraData as Hex,
+      },
+    })),
+  };
 }

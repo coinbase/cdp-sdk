@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.29.0] - 2025-08-07
+
+### Features
+
+- Promoted Spend Permissions out of experimental mode. For more info, see: https://docs.cdp.coinbase.com/wallet-api/v2/evm-features/spend-permissions ([#376](https://github.com/coinbase/cdp-sdk/pull/376))
+
+
 ## [1.28.0] - 2025-08-05
 
 ### Features

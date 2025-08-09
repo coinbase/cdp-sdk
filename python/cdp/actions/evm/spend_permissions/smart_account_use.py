@@ -33,31 +33,39 @@ async def smart_account_use_spend_permission(
         EvmUserOperation: The user operation response.
 
     """
+    # Use the spend permission directly
+    resolved_permission = spend_permission
+
     # Encode the function call data using web3.py
     w3 = Web3()
     contract = w3.eth.contract(
-        address=SPEND_PERMISSION_MANAGER_ADDRESS, abi=SPEND_PERMISSION_MANAGER_ABI
+        address=w3.to_checksum_address(SPEND_PERMISSION_MANAGER_ADDRESS),
+        abi=SPEND_PERMISSION_MANAGER_ABI,
     )
 
     # Convert SpendPermission to a tuple matching the contract's struct
+    # Ensure all numeric values are integers (API may return strings)
+    # Convert addresses to checksum format for Web3.py compatibility
     permission_tuple = (
-        spend_permission.account,
-        spend_permission.spender,
-        spend_permission.token,
-        spend_permission.allowance,
-        spend_permission.period,
-        spend_permission.start,
-        spend_permission.end,
-        spend_permission.salt,
-        bytes.fromhex(spend_permission.extra_data[2:])
-        if spend_permission.extra_data.startswith("0x")
-        else bytes.fromhex(spend_permission.extra_data),
+        w3.to_checksum_address(resolved_permission.account),
+        w3.to_checksum_address(resolved_permission.spender),
+        w3.to_checksum_address(resolved_permission.token),
+        int(resolved_permission.allowance),  # Convert to int
+        int(resolved_permission.period),  # Convert to int
+        int(resolved_permission.start),  # Convert to int
+        int(resolved_permission.end),  # Convert to int
+        int(resolved_permission.salt),  # Convert to int
+        bytes.fromhex(resolved_permission.extra_data[2:])
+        if resolved_permission.extra_data.startswith("0x")
+        else bytes.fromhex(resolved_permission.extra_data),
     )
 
     encoded_data = contract.encode_abi("spend", args=[permission_tuple, value])
 
     # Create the call
-    call = EncodedCall(to=SPEND_PERMISSION_MANAGER_ADDRESS, data=encoded_data, value=0)
+    call = EncodedCall(
+        to=w3.to_checksum_address(SPEND_PERMISSION_MANAGER_ADDRESS), data=encoded_data, value=0
+    )
 
     # Send the user operation
     return await send_user_operation(

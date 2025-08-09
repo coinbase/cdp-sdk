@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.34.0
+
+### Minor Changes
+
+- [#376](https://github.com/coinbase/cdp-sdk/pull/376) [`47f3cf1`](https://github.com/coinbase/cdp-sdk/commit/47f3cf18b200a3a9c8b7539989d77c8d44695965) Thanks [@0xRAG](https://github.com/0xRAG)! - Promoted Spend Permissions out of experimental mode. For more info, see: https://docs.cdp.coinbase.com/wallet-api/v2/evm-features/spend-permissions
+
 ## 1.33.0
 
 ### Minor Changes
