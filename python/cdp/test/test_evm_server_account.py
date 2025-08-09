@@ -813,6 +813,20 @@ async def test_use_network_with_rpc_url_custom(server_account_model_factory, cap
     mock_web3.toHex.return_value = "0x1234567890abcdef"
     mock_web3.eth.chain_id = 137  # Polygon mainnet chain ID
     mock_web3.eth.get_transaction_count.return_value = 0  # Mock nonce
+    
+    # Mock fill_transaction to return a proper transaction dictionary instead of a MagicMock
+    def mock_fill_transaction(tx_dict):
+        filled_tx = tx_dict.copy()
+        filled_tx.update({
+            "type": "0x2",  # EIP-1559 transaction type
+            "chainId": 137,
+            "nonce": 0,
+            "maxFeePerGas": 2000000000,  # 2 gwei
+            "maxPriorityFeePerGas": 1000000000,  # 1 gwei
+            "gas": 21000,
+        })
+        return filled_tx
+    mock_web3.eth.fill_transaction.side_effect = mock_fill_transaction
 
     # Mock web3 account creation
     mock_web3_account = MagicMock()
@@ -838,7 +852,7 @@ async def test_use_network_with_rpc_url_custom(server_account_model_factory, cap
 
     # Verify the confirmation message was printed
     captured = capsys.readouterr()
-    expected_message = "✅ Transaction sent via custom RPC 'https://polygon-rpc.com' for network 'polygon' (signed and sent via Web3) - Hash: 0x1234567890abcdef"
+    expected_message = "✅ Transaction sent via custom RPC 'https://polygon-rpc.com' for network 'polygon' (signed remotely via CDP, sent via Web3) - Hash: 0x1234567890abcdef"
     assert (
         expected_message in captured.out
     ), f"Expected confirmation message not found in output: {captured.out}"

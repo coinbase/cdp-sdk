@@ -50,35 +50,32 @@ class NetworkScopedEvmServerAccount:
         self._supported_methods: dict[str, Callable] = {}
         self._init_supported_methods()
 
-    async def _get_web3_account(self):
-        """Get or create a web3 account from the EVM server account's private key."""
-        if self._web3_account is None and self._web3:
-            try:
-                # Export the private key from the EVM server account
-                public_key, private_key = generate_export_encryption_key_pair()
+    async def _setup_web3_for_remote_signing(self):
+        """Set up web3 to work with CDP remote signing (no private key export needed)."""
+        if self._web3:
+            # Just set the default account to our CDP account address
+            # We'll use CDP's remote signing instead of local signing
+            self._web3.eth.default_account = self._evm_server_account.address
+        return self._evm_server_account.address
 
-                response = await self._evm_server_account._EvmServerAccount__evm_accounts_api.export_evm_account(
-                    address=self._evm_server_account.address,
-                    export_evm_account_request=ExportEvmAccountRequest(
-                        export_encryption_key=public_key,
-                    ),
-                )
-
-                decrypted_private_key = decrypt_with_private_key(
-                    private_key, response.encrypted_private_key
-                )
-
-                # Create web3 account from private key
-                self._web3_account = Account.from_key(decrypted_private_key)
-
-                # Add account to web3 instance for easier transaction handling
-                self._web3.eth.default_account = self._web3_account.address
-
-            except Exception as e:
-                print(f"Warning: Could not create web3 account: {e}")
-                self._web3_account = None
-
-        return self._web3_account
+    async def _send_transaction_with_remote_signing(self, transaction_dict: dict[str, Any]) -> str:
+        """Send transaction using CDP remote signing + web3 submission.
+        
+        This avoids exporting private keys by:
+        1. Using web3.py to auto-populate gas, nonce, and other fields
+        2. Using CDP API to sign the complete transaction remotely
+        3. Using web3.py to submit the pre-signed transaction
+        """
+        # Let web3 auto-populate missing fields (gas, nonce, gasPrice/maxFeePerGas, etc.)
+        # This is much cleaner and more reliable than manual field population
+        filled_transaction = self._web3.eth.fill_transaction(transaction_dict)
+        
+        # Use CDP to sign the complete transaction remotely (secure!)
+        signed_tx = await self._evm_server_account.sign_transaction(filled_transaction)
+        
+        # Submit the pre-signed transaction via our custom RPC
+        tx_hash = self._web3.eth.send_transaction(signed_tx.raw_transaction)
+        return self._web3.toHex(tx_hash)
 
     def _is_poa_network(self) -> bool:
         """Check if the network is a Proof of Authority network that needs PoA middleware."""
@@ -87,13 +84,7 @@ class NetworkScopedEvmServerAccount:
             network_lower = self._network.lower()
             if any(net in network_lower for net in ["polygon", "mumbai", "binance", "bsc"]):
                 return True
-
-        # Check RPC URL patterns
-        if self._rpc_url:
-            rpc_lower = self._rpc_url.lower()
-            if any(pattern in rpc_lower for pattern in ["polygon", "mumbai", "binance", "bsc"]):
-                return True
-
+        
         return False
 
     def _init_supported_methods(self):
@@ -171,34 +162,25 @@ class NetworkScopedEvmServerAccount:
             )
             return tx_hash
         elif self._web3:
-            # Use custom RPC for sends (other networks with RPC URL provided)
-            # Make sure we have the web3 account attached
-            web3_account = await self._get_web3_account()
-            if not web3_account:
-                raise Exception("Failed to attach web3 account for transaction signing")
+            # Use custom RPC with secure remote signing (no private key export!)
+            await self._setup_web3_for_remote_signing()
 
             # Convert transaction to dictionary format
             if isinstance(transaction, str):
-                # Raw transaction strings are not supported with send_transaction
-                # The transaction should be provided as a dictionary for proper signing
-                raise ValueError(
-                    "Raw transaction strings are not supported. Please provide transaction as a dictionary."
-                )
+                raise ValueError("Raw transaction strings are not supported. Please provide transaction as a dictionary.")
             else:
-                # For structured transaction objects, use send_transaction with attached account
+                # For structured transaction objects, prepare for remote signing
                 if hasattr(transaction, "as_dict"):
-                    # Convert TransactionRequestEIP1559 to dictionary
                     transaction_dict = transaction.as_dict()
                 else:
-                    # Already a dictionary
                     transaction_dict = transaction
 
                 # Add required fields for Web3
                 if "chainId" not in transaction_dict or transaction_dict["chainId"] == 0:
                     if self._network == "polygon":
-                        transaction_dict["chainId"] = 137  # Polygon mainnet
+                        transaction_dict["chainId"] = 137
                     elif self._network == "mumbai":
-                        transaction_dict["chainId"] = 80001  # Polygon Mumbai testnet
+                        transaction_dict["chainId"] = 80001
                     else:
                         # Try to get chain ID from the connected node
                         try:
@@ -210,14 +192,10 @@ class NetworkScopedEvmServerAccount:
                             elif "mumbai" in self._rpc_url.lower():
                                 transaction_dict["chainId"] = 80001
 
-                # Ensure 'from' field is set to the web3 account address
-                transaction_dict["from"] = web3_account.address
-
-                # Use send_transaction with attached account - web3 will handle signing automatically
-                tx_hash = self._web3.eth.send_transaction(transaction_dict)
-                tx_hash_hex = self._web3.toHex(tx_hash)
+                # Use secure remote signing instead of local signing with exported keys
+                tx_hash_hex = await self._send_transaction_with_remote_signing(transaction_dict)
                 print(
-                    f"✅ Transaction sent via custom RPC '{self._rpc_url}' for network '{self._network}' (signed and sent via Web3) - Hash: {tx_hash_hex}"
+                    f"✅ Transaction sent via custom RPC '{self._rpc_url}' for network '{self._network}' (signed remotely via CDP, sent via Web3) - Hash: {tx_hash_hex}"
                 )
                 return tx_hash_hex
         else:
@@ -256,62 +234,35 @@ class NetworkScopedEvmServerAccount:
             )
             return tx_hash
         elif self._web3:
-            # Use custom RPC for transfers (other networks with RPC URL provided)
-            # Make sure we have the web3 account attached
-            web3_account = await self._get_web3_account()
-            if not web3_account:
-                raise Exception("Failed to attach web3 account for transfer")
+            # Use custom RPC with secure remote signing (no private key export!)
+            await self._setup_web3_for_remote_signing()
 
-            w3 = self._web3
             if token.lower() == "eth":
                 tx = {
-                    "from": web3_account.address,
                     "to": to,
                     "value": amount,
-                    "gas": 21000,
-                    "nonce": w3.eth.get_transaction_count(web3_account.address),
                 }
                 try:
-                    tx_hash = w3.eth.send_transaction(tx)
-                    tx_hash_hex = w3.toHex(tx_hash)
+                    # Use secure remote signing + submission (web3 will auto-populate gas, nonce, etc.)
+                    tx_hash_hex = await self._send_transaction_with_remote_signing(tx)
                     print(
-                        f"✅ Transfer sent via custom RPC '{self._rpc_url}' for network '{self._network}' - Hash: {tx_hash_hex}"
+                        f"✅ ETH Transfer sent via custom RPC '{self._rpc_url}' for network '{self._network}' (signed remotely) - Hash: {tx_hash_hex}"
                     )
                     return tx_hash_hex
                 except ValueError as e:
                     raise Exception(f"Failed to send ETH transfer: {e}") from e
             else:
-                # ERC20 transfer: approve and transfer
+                # ERC20 transfer: build transaction and sign remotely
                 erc20_address = _get_erc20_address(token, self._network)
-                contract = w3.eth.contract(address=erc20_address, abi=_ERC20_ABI)
-                nonce = w3.eth.get_transaction_count(web3_account.address)
-                # Approve
+                contract = self._web3.eth.contract(address=erc20_address, abi=_ERC20_ABI)
+                
+                # Build transfer transaction (web3 will auto-populate gas, nonce, etc.)
+                transfer_tx = contract.functions.transfer(to, amount).build_transaction({})
                 try:
-                    approve_tx = contract.functions.approve(to, amount).build_transaction(
-                        {
-                            "from": web3_account.address,
-                            "nonce": nonce,
-                            "gas": 100000,
-                        }
-                    )
-                    approve_hash = w3.eth.send_transaction(approve_tx)
-                    approve_hash_hex = w3.toHex(approve_hash)
+                    # Use secure remote signing + submission
+                    transfer_hash_hex = await self._send_transaction_with_remote_signing(transfer_tx)
                     print(
-                        f"✅ ERC20 approval sent via custom RPC '{self._rpc_url}' for network '{self._network}' - Hash: {approve_hash_hex}"
-                    )
-
-                    # Transfer
-                    transfer_tx = contract.functions.transfer(to, amount).build_transaction(
-                        {
-                            "from": web3_account.address,
-                            "nonce": nonce + 1,
-                            "gas": 100000,
-                        }
-                    )
-                    transfer_hash = w3.eth.send_transaction(transfer_tx)
-                    transfer_hash_hex = w3.toHex(transfer_hash)
-                    print(
-                        f"✅ ERC20 transfer sent via custom RPC '{self._rpc_url}' for network '{self._network}' - Hash: {transfer_hash_hex}"
+                        f"✅ ERC20 transfer sent via custom RPC '{self._rpc_url}' for network '{self._network}' (signed remotely) - Hash: {transfer_hash_hex}"
                     )
                     return transfer_hash_hex
                 except ValueError as e:
