@@ -934,3 +934,46 @@ async def test_wait_for_fund_operation_receipt_timeout(
         await server_account.wait_for_fund_operation_receipt(
             transfer_id="test-transfer-id", timeout_seconds=0.1, interval_seconds=0.1
         )
+
+
+@pytest.mark.asyncio
+async def test_network_scoped_server_account_uses_base_node_rpc_for_tx_waits(
+    server_account_model_factory,
+):
+    """Test that NetworkScopedEvmServerAccount uses Base Node RPC URL for transaction waits on base networks."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    server_account_model = server_account_model_factory(address, name)
+
+    # Create mock API clients
+    mock_api_clients = MagicMock()
+    mock_cdp_client = MagicMock()
+    mock_cdp_client.configuration.host = "https://api.cdp.coinbase.com/platform"
+    mock_api_clients._cdp_client = mock_cdp_client
+
+    # Create the server account
+    server_account = EvmServerAccount(server_account_model, mock_api_clients, mock_api_clients)
+
+    # Create network-scoped account for base network
+    network_account = await server_account.__experimental_use_network__("base")
+
+    # Mock get_base_node_rpc_url to return a test URL
+    base_node_url = "https://api.cdp.coinbase.com/rpc/v1/base/test-token-id"
+
+    with patch(
+        "cdp.network_scoped_evm_server_account.get_base_node_rpc_url"
+    ) as mock_get_base_node_rpc_url:
+        mock_get_base_node_rpc_url.return_value = base_node_url
+
+        # Mock Web3 and transaction receipt
+        with patch("cdp.network_scoped_evm_server_account.Web3") as mock_web3:
+            mock_web3_instance = MagicMock()
+            mock_web3.return_value = mock_web3_instance
+            mock_web3_instance.eth.get_transaction_receipt.return_value = {"status": 1}
+
+            # Test wait_for_transaction_receipt
+            await network_account.wait_for_transaction_receipt("0x123")
+
+            # Verify that Base Node RPC URL was used
+            mock_get_base_node_rpc_url.assert_called_once_with(mock_api_clients, "base")
+            mock_web3.assert_called_once_with(mock_web3.HTTPProvider(base_node_url))
