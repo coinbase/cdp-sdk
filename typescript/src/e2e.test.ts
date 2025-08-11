@@ -1895,6 +1895,18 @@ describe("CDP Client E2E Tests", () => {
           accountPolicy: "",
         },
       });
+      await cdp.solana.updateAccount({
+        address: testSolanaAccount.address,
+        update: {
+          accountPolicy: "",
+        },
+      });
+      await cdp.evm.updateAccount({
+        address: policyTestAccount.address,
+        update: {
+          accountPolicy: "",
+        },
+      });
       policyTestAccount = await cdp.evm.getOrCreateAccount({
         name: generateRandomName().slice(0, 36),
       });
@@ -1919,7 +1931,25 @@ describe("CDP Client E2E Tests", () => {
 
     async function cleanup() {
       await cdp.evm.updateAccount({
+        address: testAccount.address,
+        update: {
+          accountPolicy: "",
+        },
+      });
+      await cdp.solana.updateAccount({
+        address: testSolanaAccount.address,
+        update: {
+          accountPolicy: "",
+        },
+      });
+      await cdp.evm.updateAccount({
         address: policyTestAccount.address,
+        update: {
+          accountPolicy: "",
+        },
+      });
+      await cdp.solana.updateAccount({
+        address: testSolanaAccount.address,
         update: {
           accountPolicy: "",
         },
