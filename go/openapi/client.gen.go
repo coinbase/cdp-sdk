@@ -69,6 +69,7 @@ const (
 	ErrorTypeAccountLimitExceeded           ErrorType = "account_limit_exceeded"
 	ErrorTypeAlreadyExists                  ErrorType = "already_exists"
 	ErrorTypeBadGateway                     ErrorType = "bad_gateway"
+	ErrorTypeDocumentVerificationFailed     ErrorType = "document_verification_failed"
 	ErrorTypeFaucetLimitExceeded            ErrorType = "faucet_limit_exceeded"
 	ErrorTypeForbidden                      ErrorType = "forbidden"
 	ErrorTypeGuestPermissionDenied          ErrorType = "guest_permission_denied"
@@ -88,9 +89,12 @@ const (
 	ErrorTypePolicyInUse                    ErrorType = "policy_in_use"
 	ErrorTypePolicyViolation                ErrorType = "policy_violation"
 	ErrorTypeRateLimitExceeded              ErrorType = "rate_limit_exceeded"
+	ErrorTypeRecipientAllowlistPending      ErrorType = "recipient_allowlist_pending"
+	ErrorTypeRecipientAllowlistViolation    ErrorType = "recipient_allowlist_violation"
 	ErrorTypeRequestCanceled                ErrorType = "request_canceled"
 	ErrorTypeServiceUnavailable             ErrorType = "service_unavailable"
 	ErrorTypeTimedOut                       ErrorType = "timed_out"
+	ErrorTypeTravelRulesRecipientViolation  ErrorType = "travel_rules_recipient_violation"
 	ErrorTypeUnauthorized                   ErrorType = "unauthorized"
 )
 
