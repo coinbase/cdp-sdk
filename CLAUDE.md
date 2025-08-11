@@ -46,6 +46,9 @@ pnpm format:check
 # Generate docs
 pnpm run docs
 
+# Generate Markdown docs
+pnpm run docs:md
+
 # Generate OpenAPI client
 pnpm orval
 ```
