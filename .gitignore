@@ -60,6 +60,7 @@ _types
 # TypeScript
 *.tsbuildinfo
 typescript/docs
+typescript/docs-md
 
 # Go
 *.exe
