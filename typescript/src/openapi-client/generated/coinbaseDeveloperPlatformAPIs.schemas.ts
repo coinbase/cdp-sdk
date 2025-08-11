@@ -5,30 +5,103 @@
  * The Coinbase Developer Platform APIs - leading the world's transition onchain.
  * OpenAPI spec version: 2.0.0
  */
-export interface EvmAccount {
-  /**
-   * The 0x-prefixed, checksum EVM address.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  address: string;
-  /**
-   * An optional name for the account.
-Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
-Account names are guaranteed to be unique across all EVM accounts in the developer's CDP Project.
-   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
-   */
-  name?: string;
-  /** The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists. */
-  policies?: string[];
-  /** The UTC ISO 8601 timestamp at which the account was created. */
-  createdAt?: string;
-  /** The UTC ISO 8601 timestamp at which the account was last updated. */
-  updatedAt?: string;
+/**
+ * The type of authentication information.
+ */
+export type EmailAuthenticationType =
+  (typeof EmailAuthenticationType)[keyof typeof EmailAuthenticationType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EmailAuthenticationType = {
+  email: "email",
+} as const;
+
+/**
+ * Information about an end user who authenticates using a one-time password sent to their email address.
+ */
+export interface EmailAuthentication {
+  /** The type of authentication information. */
+  type: EmailAuthenticationType;
+  /** The email address of the end user. */
+  email: string;
 }
 
-export interface ListResponse {
-  /** The token for the next page of items, if any. */
-  nextPageToken?: string;
+/**
+ * The type of authentication information.
+ */
+export type SmsAuthenticationType =
+  (typeof SmsAuthenticationType)[keyof typeof SmsAuthenticationType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SmsAuthenticationType = {
+  sms: "sms",
+} as const;
+
+/**
+ * Information about an end user who authenticates using a one-time password sent to their phone number via SMS.
+ */
+export interface SmsAuthentication {
+  /** The type of authentication information. */
+  type: SmsAuthenticationType;
+  /**
+   * The phone number of the end user in E.164 format.
+   * @pattern ^\+[1-9]\d{1,14}$
+   */
+  phoneNumber: string;
+}
+
+/**
+ * The type of authentication information.
+ */
+export type DeveloperJWTAuthenticationType =
+  (typeof DeveloperJWTAuthenticationType)[keyof typeof DeveloperJWTAuthenticationType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const DeveloperJWTAuthenticationType = {
+  jwt: "jwt",
+} as const;
+
+/**
+ * Information about an end user who authenticates using a JWT issued by the developer.
+ */
+export interface DeveloperJWTAuthentication {
+  /** The type of authentication information. */
+  type: DeveloperJWTAuthenticationType;
+  /** The key ID of the JWK used to sign the JWT. */
+  kid: string;
+  /** The unique identifier for the end user that is captured in the `sub` claim of the JWT. */
+  sub: string;
+}
+
+/**
+ * Information about how the end user is authenticated.
+ */
+export type AuthenticationMethod =
+  | EmailAuthentication
+  | SmsAuthentication
+  | DeveloperJWTAuthentication;
+
+/**
+ * The list of valid authentication methods linked to the end user.
+ */
+export type AuthenticationMethods = AuthenticationMethod[];
+
+/**
+ * Information about the end user.
+ */
+export interface EndUser {
+  /**
+   * A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  userId: string;
+  authenticationMethods: AuthenticationMethods;
+  /** The list of EVM accounts associated with the end user. Currently, only one EVM account is supported per end user. */
+  evmAccounts: string[];
+  /** The list of EVM smart accounts associated with the end user. Currently, only one EVM smart account is supported per end user. */
+  evmSmartAccounts: string[];
+  /** The list of Solana accounts associated with the end user. Currently, only one Solana account is supported per end user. */
+  solanaAccounts: string[];
 }
 
 /**
@@ -77,6 +150,32 @@ export interface Error {
   correlationId?: string;
   /** A link to the corresponding error documentation. */
   errorLink?: string;
+}
+
+export interface EvmAccount {
+  /**
+   * The 0x-prefixed, checksum EVM address.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: string;
+  /**
+   * An optional name for the account.
+Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names are guaranteed to be unique across all EVM accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
+  /** The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists. */
+  policies?: string[];
+  /** The UTC ISO 8601 timestamp at which the account was created. */
+  createdAt?: string;
+  /** The UTC ISO 8601 timestamp at which the account was last updated. */
+  updatedAt?: string;
+}
+
+export interface ListResponse {
+  /** The token for the next page of items, if any. */
+  nextPageToken?: string;
 }
 
 /**
@@ -1985,6 +2084,252 @@ export interface AccountTokenAddressesResponse {
 }
 
 /**
+ * The version of the x402 protocol.
+ */
+export type X402Version = (typeof X402Version)[keyof typeof X402Version];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402Version = {
+  NUMBER_1: 1,
+} as const;
+
+/**
+ * The authorization data for the ERC-3009 authorization message.
+ */
+export type X402ExactEvmPayloadAuthorization = {
+  /**
+   * The 0x-prefixed, checksum EVM address of the sender of the payment.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  from: string;
+  /**
+   * The 0x-prefixed, checksum EVM address of the recipient of the payment.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  to: string;
+  /** The value of the payment, in atomic units of the payment asset. */
+  value: string;
+  /** The unix timestamp after which the payment is valid. */
+  validAfter: string;
+  /** The unix timestamp before which the payment is valid. */
+  validBefore: string;
+  /** The hex-encoded nonce of the payment. */
+  nonce: string;
+};
+
+/**
+ * The x402 protocol exact scheme payload for EVM networks. The scheme is implemented using ERC-3009. For more details, please see [EVM Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_evm.md).
+ */
+export interface X402ExactEvmPayload {
+  /** The EIP-712 hex-encoded signature of the ERC-3009 authorization message. */
+  signature: string;
+  /** The authorization data for the ERC-3009 authorization message. */
+  authorization: X402ExactEvmPayloadAuthorization;
+}
+
+/**
+ * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+ */
+export type X402PaymentPayloadScheme =
+  (typeof X402PaymentPayloadScheme)[keyof typeof X402PaymentPayloadScheme];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402PaymentPayloadScheme = {
+  exact: "exact",
+} as const;
+
+/**
+ * The network of the blockchain to send payment on.
+ */
+export type X402PaymentPayloadNetwork =
+  (typeof X402PaymentPayloadNetwork)[keyof typeof X402PaymentPayloadNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402PaymentPayloadNetwork = {
+  "base-sepolia": "base-sepolia",
+  base: "base",
+} as const;
+
+/**
+ * The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+ */
+export interface X402PaymentPayload {
+  x402Version: X402Version;
+  /** The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`. */
+  scheme: X402PaymentPayloadScheme;
+  /** The network of the blockchain to send payment on. */
+  network: X402PaymentPayloadNetwork;
+  /** The payload of the payment depending on the x402Version, scheme, and network. */
+  payload: X402ExactEvmPayload;
+}
+
+/**
+ * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+ */
+export type X402PaymentRequirementsScheme =
+  (typeof X402PaymentRequirementsScheme)[keyof typeof X402PaymentRequirementsScheme];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402PaymentRequirementsScheme = {
+  exact: "exact",
+} as const;
+
+/**
+ * The network of the blockchain to send payment on.
+ */
+export type X402PaymentRequirementsNetwork =
+  (typeof X402PaymentRequirementsNetwork)[keyof typeof X402PaymentRequirementsNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402PaymentRequirementsNetwork = {
+  "base-sepolia": "base-sepolia",
+  base: "base",
+} as const;
+
+/**
+ * The optional JSON schema describing the resource output.
+ */
+export type X402PaymentRequirementsOutputSchema = { [key: string]: unknown };
+
+/**
+ * The optional additional scheme-specific payment info.
+ */
+export type X402PaymentRequirementsExtra = { [key: string]: unknown };
+
+/**
+ * The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+ */
+export interface X402PaymentRequirements {
+  /** The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`. */
+  scheme: X402PaymentRequirementsScheme;
+  /** The network of the blockchain to send payment on. */
+  network: X402PaymentRequirementsNetwork;
+  /** The maximum amount required to pay for the resource in atomic units of the payment asset. */
+  maxAmountRequired: string;
+  /** The URL of the resource to pay for. */
+  resource: string;
+  /** The description of the resource. */
+  description: string;
+  /** The MIME type of the resource response. */
+  mimeType: string;
+  /** The optional JSON schema describing the resource output. */
+  outputSchema?: X402PaymentRequirementsOutputSchema;
+  /**
+   * The destination to pay value to.
+
+For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, payTo will be a base58-encoded Solana address.
+   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  payTo: string;
+  /** The maximum time in seconds for the resource server to respond. */
+  maxTimeoutSeconds: number;
+  /**
+   * The asset to pay with.
+
+For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, the asset will be a base58-encoded Solana address.
+   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  asset: string;
+  /** The optional additional scheme-specific payment info. */
+  extra?: X402PaymentRequirementsExtra;
+}
+
+/**
+ * The reason the payment is invalid on the x402 protocol.
+ */
+export type X402VerifyInvalidReason =
+  (typeof X402VerifyInvalidReason)[keyof typeof X402VerifyInvalidReason];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402VerifyInvalidReason = {
+  insufficient_funds: "insufficient_funds",
+  invalid_scheme: "invalid_scheme",
+  invalid_network: "invalid_network",
+  invalid_x402_version: "invalid_x402_version",
+  invalid_payment_requirements: "invalid_payment_requirements",
+  invalid_payload: "invalid_payload",
+  invalid_exact_evm_payload_authorization_value: "invalid_exact_evm_payload_authorization_value",
+  invalid_exact_evm_payload_authorization_valid_after:
+    "invalid_exact_evm_payload_authorization_valid_after",
+  invalid_exact_evm_payload_authorization_valid_before:
+    "invalid_exact_evm_payload_authorization_valid_before",
+  invalid_exact_evm_payload_authorization_typed_data_message:
+    "invalid_exact_evm_payload_authorization_typed_data_message",
+  invalid_exact_evm_payload_authorization_from_address_kyt:
+    "invalid_exact_evm_payload_authorization_from_address_kyt",
+  invalid_exact_evm_payload_authorization_to_address_kyt:
+    "invalid_exact_evm_payload_authorization_to_address_kyt",
+  invalid_exact_evm_payload_signature: "invalid_exact_evm_payload_signature",
+  invalid_exact_evm_payload_signature_address: "invalid_exact_evm_payload_signature_address",
+} as const;
+
+/**
+ * The reason the payment settlement errored on the x402 protocol.
+ */
+export type X402SettleErrorReason =
+  (typeof X402SettleErrorReason)[keyof typeof X402SettleErrorReason];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402SettleErrorReason = {
+  insufficient_funds: "insufficient_funds",
+  invalid_scheme: "invalid_scheme",
+  invalid_network: "invalid_network",
+  invalid_x402_version: "invalid_x402_version",
+  invalid_payment_requirements: "invalid_payment_requirements",
+  invalid_payload: "invalid_payload",
+  invalid_exact_evm_payload_authorization_value: "invalid_exact_evm_payload_authorization_value",
+  invalid_exact_evm_payload_authorization_valid_after:
+    "invalid_exact_evm_payload_authorization_valid_after",
+  invalid_exact_evm_payload_authorization_valid_before:
+    "invalid_exact_evm_payload_authorization_valid_before",
+  invalid_exact_evm_payload_authorization_typed_data_message:
+    "invalid_exact_evm_payload_authorization_typed_data_message",
+  invalid_exact_evm_payload_authorization_from_address_kyt:
+    "invalid_exact_evm_payload_authorization_from_address_kyt",
+  invalid_exact_evm_payload_authorization_to_address_kyt:
+    "invalid_exact_evm_payload_authorization_to_address_kyt",
+  invalid_exact_evm_payload_signature_address: "invalid_exact_evm_payload_signature_address",
+} as const;
+
+/**
+ * The scheme of the payment protocol.
+ */
+export type X402SupportedPaymentKindScheme =
+  (typeof X402SupportedPaymentKindScheme)[keyof typeof X402SupportedPaymentKindScheme];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402SupportedPaymentKindScheme = {
+  exact: "exact",
+} as const;
+
+/**
+ * The network of the blockchain.
+ */
+export type X402SupportedPaymentKindNetwork =
+  (typeof X402SupportedPaymentKindNetwork)[keyof typeof X402SupportedPaymentKindNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402SupportedPaymentKindNetwork = {
+  "base-sepolia": "base-sepolia",
+  base: "base",
+} as const;
+
+/**
+ * The supported payment kind for the x402 protocol. A kind is comprised of a scheme and a network, which together uniquely identify a way to move money on the x402 protocol. For more details, please see [x402 Schemes](https://github.com/coinbase/x402?tab=readme-ov-file#schemes).
+ */
+export interface X402SupportedPaymentKind {
+  x402Version: X402Version;
+  /** The scheme of the payment protocol. */
+  scheme: X402SupportedPaymentKindScheme;
+  /** The network of the blockchain. */
+  network: X402SupportedPaymentKindNetwork;
+}
+
+/**
  * The action of the payment method.
  */
 export type PaymentRailAction = (typeof PaymentRailAction)[keyof typeof PaymentRailAction];
@@ -2363,6 +2708,50 @@ export type UnauthorizedErrorResponse = Error;
  */
 export type TimedOutErrorResponse = Error;
 
+export type X402VerifyResponseResponse = {
+  /** Indicates whether the payment is valid. */
+  isValid: boolean;
+  invalidReason?: X402VerifyInvalidReason;
+  /**
+   * The onchain address of the client that is paying for the resource.
+
+For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, the payer will be a base58-encoded Solana address.
+   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  payer: string;
+};
+
+export type X402SettleResponseResponse = {
+  /** Indicates whether the payment settlement is successful. */
+  success: boolean;
+  errorReason?: X402SettleErrorReason;
+  /**
+   * The onchain address of the client that is paying for the resource.
+
+For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, the payer will be a base58-encoded Solana address.
+   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  payer: string;
+  /**
+   * The transaction of the settlement.
+For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
+For Solana-based networks, the transaction will be a base58-encoded Solana signature.
+   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  transaction: string;
+  /** The network where the settlement occurred. */
+  network: string;
+};
+
+export type X402SupportedPaymentKindsResponseResponse = {
+  /** The list of supported payment kinds. */
+  kinds: X402SupportedPaymentKind[];
+};
+
 /**
  * Rate limit exceeded.
  */
@@ -2383,6 +2772,14 @@ Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/i
 
  */
 export type IdempotencyKeyParameter = string;
+
+/**
+ * The request body for a developer to verify an end user's access token.
+ */
+export type ValidateEndUserAccessTokenBody = {
+  /** The access token in JWT format to verify. */
+  accessToken: string;
+};
 
 export type ListEvmAccountsParams = {
   /**
@@ -2970,6 +3367,18 @@ export type ListDataTokenBalances200AllOf = {
 };
 
 export type ListDataTokenBalances200 = ListDataTokenBalances200AllOf & ListResponse;
+
+export type VerifyX402PaymentBody = {
+  x402Version: X402Version;
+  paymentPayload: X402PaymentPayload;
+  paymentRequirements: X402PaymentRequirements;
+};
+
+export type SettleX402PaymentBody = {
+  x402Version: X402Version;
+  paymentPayload: X402PaymentPayload;
+  paymentRequirements: X402PaymentRequirements;
+};
 
 export type GetCryptoRailsParams = {
   /**

@@ -10,6 +10,8 @@ export * from "./generated/policy-engine/policy-engine.js";
 export * from "./generated/payments-alpha/payments-alpha.js";
 export * from "./generated/onramp/onramp.js";
 export * from "./generated/onchain-data/onchain-data.js";
+export * from "./generated/end-user-accounts/end-user-accounts.js";
+export * from "./generated/x402-facilitator/x402-facilitator.js";
 
 import { configure } from "./cdpApiClient.js";
 import * as evm from "./generated/evm-accounts/evm-accounts.js";

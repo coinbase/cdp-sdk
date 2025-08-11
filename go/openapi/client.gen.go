@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/oapi-codegen/runtime"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 const (
@@ -51,6 +52,16 @@ const (
 // Defines values for CreateSwapQuoteResponseLiquidityAvailable.
 const (
 	CreateSwapQuoteResponseLiquidityAvailableTrue CreateSwapQuoteResponseLiquidityAvailable = true
+)
+
+// Defines values for DeveloperJWTAuthenticationType.
+const (
+	Jwt DeveloperJWTAuthenticationType = "jwt"
+)
+
+// Defines values for EmailAuthenticationType.
+const (
+	Email EmailAuthenticationType = "email"
 )
 
 // Defines values for ErrorType.
@@ -443,6 +454,11 @@ const (
 	SignSolTransaction SignSolTransactionRuleOperation = "signSolTransaction"
 )
 
+// Defines values for SmsAuthenticationType.
+const (
+	Sms SmsAuthenticationType = "sms"
+)
+
 // Defines values for SolAddressCriterionOperator.
 const (
 	SolAddressCriterionOperatorIn    SolAddressCriterionOperator = "in"
@@ -529,6 +545,79 @@ const (
 	TransferTargetTypeCryptoRail TransferTargetType = "crypto_rail"
 )
 
+// Defines values for X402Version.
+const (
+	N1 X402Version = 1
+)
+
+// Defines values for X402PaymentPayloadNetwork.
+const (
+	X402PaymentPayloadNetworkBase        X402PaymentPayloadNetwork = "base"
+	X402PaymentPayloadNetworkBaseSepolia X402PaymentPayloadNetwork = "base-sepolia"
+)
+
+// Defines values for X402PaymentPayloadScheme.
+const (
+	X402PaymentPayloadSchemeExact X402PaymentPayloadScheme = "exact"
+)
+
+// Defines values for X402PaymentRequirementsNetwork.
+const (
+	X402PaymentRequirementsNetworkBase        X402PaymentRequirementsNetwork = "base"
+	X402PaymentRequirementsNetworkBaseSepolia X402PaymentRequirementsNetwork = "base-sepolia"
+)
+
+// Defines values for X402PaymentRequirementsScheme.
+const (
+	X402PaymentRequirementsSchemeExact X402PaymentRequirementsScheme = "exact"
+)
+
+// Defines values for X402SettleErrorReason.
+const (
+	X402SettleErrorReasonInsufficientFunds                                   X402SettleErrorReason = "insufficient_funds"
+	X402SettleErrorReasonInvalidExactEvmPayloadAuthorizationFromAddressKyt   X402SettleErrorReason = "invalid_exact_evm_payload_authorization_from_address_kyt"
+	X402SettleErrorReasonInvalidExactEvmPayloadAuthorizationToAddressKyt     X402SettleErrorReason = "invalid_exact_evm_payload_authorization_to_address_kyt"
+	X402SettleErrorReasonInvalidExactEvmPayloadAuthorizationTypedDataMessage X402SettleErrorReason = "invalid_exact_evm_payload_authorization_typed_data_message"
+	X402SettleErrorReasonInvalidExactEvmPayloadAuthorizationValidAfter       X402SettleErrorReason = "invalid_exact_evm_payload_authorization_valid_after"
+	X402SettleErrorReasonInvalidExactEvmPayloadAuthorizationValidBefore      X402SettleErrorReason = "invalid_exact_evm_payload_authorization_valid_before"
+	X402SettleErrorReasonInvalidExactEvmPayloadAuthorizationValue            X402SettleErrorReason = "invalid_exact_evm_payload_authorization_value"
+	X402SettleErrorReasonInvalidExactEvmPayloadSignatureAddress              X402SettleErrorReason = "invalid_exact_evm_payload_signature_address"
+	X402SettleErrorReasonInvalidNetwork                                      X402SettleErrorReason = "invalid_network"
+	X402SettleErrorReasonInvalidPayload                                      X402SettleErrorReason = "invalid_payload"
+	X402SettleErrorReasonInvalidPaymentRequirements                          X402SettleErrorReason = "invalid_payment_requirements"
+	X402SettleErrorReasonInvalidScheme                                       X402SettleErrorReason = "invalid_scheme"
+	X402SettleErrorReasonInvalidX402Version                                  X402SettleErrorReason = "invalid_x402_version"
+)
+
+// Defines values for X402SupportedPaymentKindNetwork.
+const (
+	X402SupportedPaymentKindNetworkBase        X402SupportedPaymentKindNetwork = "base"
+	X402SupportedPaymentKindNetworkBaseSepolia X402SupportedPaymentKindNetwork = "base-sepolia"
+)
+
+// Defines values for X402SupportedPaymentKindScheme.
+const (
+	Exact X402SupportedPaymentKindScheme = "exact"
+)
+
+// Defines values for X402VerifyInvalidReason.
+const (
+	X402VerifyInvalidReasonInsufficientFunds                                   X402VerifyInvalidReason = "insufficient_funds"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationFromAddressKyt   X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_from_address_kyt"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationToAddressKyt     X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_to_address_kyt"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationTypedDataMessage X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_typed_data_message"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidAfter       X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_after"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidBefore      X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_before"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValue            X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadSignature                     X402VerifyInvalidReason = "invalid_exact_evm_payload_signature"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadSignatureAddress              X402VerifyInvalidReason = "invalid_exact_evm_payload_signature_address"
+	X402VerifyInvalidReasonInvalidNetwork                                      X402VerifyInvalidReason = "invalid_network"
+	X402VerifyInvalidReasonInvalidPayload                                      X402VerifyInvalidReason = "invalid_payload"
+	X402VerifyInvalidReasonInvalidPaymentRequirements                          X402VerifyInvalidReason = "invalid_payment_requirements"
+	X402VerifyInvalidReasonInvalidScheme                                       X402VerifyInvalidReason = "invalid_scheme"
+	X402VerifyInvalidReasonInvalidX402Version                                  X402VerifyInvalidReason = "invalid_x402_version"
+)
+
 // Defines values for ListTokensForAccountParamsNetwork.
 const (
 	ListTokensForAccountParamsNetworkBase        ListTokensForAccountParamsNetwork = "base"
@@ -549,9 +638,9 @@ const (
 
 // Defines values for RequestEvmFaucetJSONBodyNetwork.
 const (
-	RequestEvmFaucetJSONBodyNetworkBaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
-	RequestEvmFaucetJSONBodyNetworkEthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
-	RequestEvmFaucetJSONBodyNetworkEthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
+	BaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
+	EthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
+	EthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
 )
 
 // Defines values for RequestEvmFaucetJSONBodyToken.
@@ -675,6 +764,14 @@ type AccountTokenAddressesResponse struct {
 	// TotalCount Total number of unique token addresses discovered.
 	TotalCount *int `json:"totalCount,omitempty"`
 }
+
+// AuthenticationMethod Information about how the end user is authenticated.
+type AuthenticationMethod struct {
+	union json.RawMessage
+}
+
+// AuthenticationMethods The list of valid authentication methods linked to the end user.
+type AuthenticationMethods = []AuthenticationMethod
 
 // CommonSwapResponse defines model for CommonSwapResponse.
 type CommonSwapResponse struct {
@@ -903,6 +1000,21 @@ type CryptoRailAddress struct {
 	Network string `json:"network"`
 }
 
+// DeveloperJWTAuthentication Information about an end user who authenticates using a JWT issued by the developer.
+type DeveloperJWTAuthentication struct {
+	// Kid The key ID of the JWK used to sign the JWT.
+	Kid string `json:"kid"`
+
+	// Sub The unique identifier for the end user that is captured in the `sub` claim of the JWT.
+	Sub string `json:"sub"`
+
+	// Type The type of authentication information.
+	Type DeveloperJWTAuthenticationType `json:"type"`
+}
+
+// DeveloperJWTAuthenticationType The type of authentication information.
+type DeveloperJWTAuthenticationType string
+
 // EIP712Domain The domain of the EIP-712 typed data.
 type EIP712Domain struct {
 	// ChainId The chain ID of the EVM network.
@@ -940,6 +1052,36 @@ type EIP712Message struct {
 // EIP712Types A mapping of struct names to an array of type objects (name + type).
 // Each key corresponds to a type name (e.g., "`EIP712Domain`", "`PermitTransferFrom`").
 type EIP712Types = map[string]interface{}
+
+// EmailAuthentication Information about an end user who authenticates using a one-time password sent to their email address.
+type EmailAuthentication struct {
+	// Email The email address of the end user.
+	Email openapi_types.Email `json:"email"`
+
+	// Type The type of authentication information.
+	Type EmailAuthenticationType `json:"type"`
+}
+
+// EmailAuthenticationType The type of authentication information.
+type EmailAuthenticationType string
+
+// EndUser Information about the end user.
+type EndUser struct {
+	// AuthenticationMethods The list of valid authentication methods linked to the end user.
+	AuthenticationMethods AuthenticationMethods `json:"authenticationMethods"`
+
+	// EvmAccounts The list of EVM accounts associated with the end user. Currently, only one EVM account is supported per end user.
+	EvmAccounts []string `json:"evmAccounts"`
+
+	// EvmSmartAccounts The list of EVM smart accounts associated with the end user. Currently, only one EVM smart account is supported per end user.
+	EvmSmartAccounts []string `json:"evmSmartAccounts"`
+
+	// SolanaAccounts The list of Solana accounts associated with the end user. Currently, only one Solana account is supported per end user.
+	SolanaAccounts []string `json:"solanaAccounts"`
+
+	// UserId A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
+	UserId string `json:"userId"`
+}
 
 // Error An error response including the code for the type of error and a human-readable message describing the error.
 type Error struct {
@@ -1847,6 +1989,18 @@ type SignSolTransactionRuleAction string
 // SignSolTransactionRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type SignSolTransactionRuleOperation string
 
+// SmsAuthentication Information about an end user who authenticates using a one-time password sent to their phone number via SMS.
+type SmsAuthentication struct {
+	// PhoneNumber The phone number of the end user in E.164 format.
+	PhoneNumber string `json:"phoneNumber"`
+
+	// Type The type of authentication information.
+	Type SmsAuthenticationType `json:"type"`
+}
+
+// SmsAuthenticationType The type of authentication information.
+type SmsAuthenticationType string
+
 // SolAddressCriterion The criterion for the recipient addresses of a Solana transaction's native transfer instruction.
 type SolAddressCriterion struct {
 	// Addresses The Solana addresses that are compared to the list of native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
@@ -2198,6 +2352,9 @@ type UserOperationReceiptRevert struct {
 	Message string `json:"message"`
 }
 
+// X402Version The version of the x402 protocol.
+type X402Version int
+
 // FromAmount The amount of the `fromToken` to send in atomic units of the token. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.
 type FromAmount = string
 
@@ -2218,6 +2375,133 @@ type Taker = string
 
 // ToToken The 0x-prefixed contract address of the token to receive.
 type ToToken = string
+
+// X402ExactEvmPayload The x402 protocol exact scheme payload for EVM networks. The scheme is implemented using ERC-3009. For more details, please see [EVM Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_evm.md).
+type X402ExactEvmPayload struct {
+	// Authorization The authorization data for the ERC-3009 authorization message.
+	Authorization struct {
+		// From The 0x-prefixed, checksum EVM address of the sender of the payment.
+		From string `json:"from"`
+
+		// Nonce The hex-encoded nonce of the payment.
+		Nonce string `json:"nonce"`
+
+		// To The 0x-prefixed, checksum EVM address of the recipient of the payment.
+		To string `json:"to"`
+
+		// ValidAfter The unix timestamp after which the payment is valid.
+		ValidAfter string `json:"validAfter"`
+
+		// ValidBefore The unix timestamp before which the payment is valid.
+		ValidBefore string `json:"validBefore"`
+
+		// Value The value of the payment, in atomic units of the payment asset.
+		Value string `json:"value"`
+	} `json:"authorization"`
+
+	// Signature The EIP-712 hex-encoded signature of the ERC-3009 authorization message.
+	Signature string `json:"signature"`
+}
+
+// X402PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+type X402PaymentPayload struct {
+	// Network The network of the blockchain to send payment on.
+	Network X402PaymentPayloadNetwork `json:"network"`
+
+	// Payload The payload of the payment depending on the x402Version, scheme, and network.
+	Payload X402PaymentPayload_Payload `json:"payload"`
+
+	// Scheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+	Scheme X402PaymentPayloadScheme `json:"scheme"`
+
+	// X402Version The version of the x402 protocol.
+	X402Version X402Version `json:"x402Version"`
+}
+
+// X402PaymentPayloadNetwork The network of the blockchain to send payment on.
+type X402PaymentPayloadNetwork string
+
+// X402PaymentPayload_Payload The payload of the payment depending on the x402Version, scheme, and network.
+type X402PaymentPayload_Payload struct {
+	union json.RawMessage
+}
+
+// X402PaymentPayloadScheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+type X402PaymentPayloadScheme string
+
+// X402PaymentRequirements The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+type X402PaymentRequirements struct {
+	// Asset The asset to pay with.
+	//
+	// For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
+	//
+	// For Solana-based networks, the asset will be a base58-encoded Solana address.
+	Asset string `json:"asset"`
+
+	// Description The description of the resource.
+	Description string `json:"description"`
+
+	// Extra The optional additional scheme-specific payment info.
+	Extra *map[string]interface{} `json:"extra,omitempty"`
+
+	// MaxAmountRequired The maximum amount required to pay for the resource in atomic units of the payment asset.
+	MaxAmountRequired string `json:"maxAmountRequired"`
+
+	// MaxTimeoutSeconds The maximum time in seconds for the resource server to respond.
+	MaxTimeoutSeconds int `json:"maxTimeoutSeconds"`
+
+	// MimeType The MIME type of the resource response.
+	MimeType string `json:"mimeType"`
+
+	// Network The network of the blockchain to send payment on.
+	Network X402PaymentRequirementsNetwork `json:"network"`
+
+	// OutputSchema The optional JSON schema describing the resource output.
+	OutputSchema *map[string]interface{} `json:"outputSchema,omitempty"`
+
+	// PayTo The destination to pay value to.
+	//
+	// For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
+	//
+	// For Solana-based networks, payTo will be a base58-encoded Solana address.
+	PayTo string `json:"payTo"`
+
+	// Resource The URL of the resource to pay for.
+	Resource string `json:"resource"`
+
+	// Scheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+	Scheme X402PaymentRequirementsScheme `json:"scheme"`
+}
+
+// X402PaymentRequirementsNetwork The network of the blockchain to send payment on.
+type X402PaymentRequirementsNetwork string
+
+// X402PaymentRequirementsScheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+type X402PaymentRequirementsScheme string
+
+// X402SettleErrorReason The reason the payment settlement errored on the x402 protocol.
+type X402SettleErrorReason string
+
+// X402SupportedPaymentKind The supported payment kind for the x402 protocol. A kind is comprised of a scheme and a network, which together uniquely identify a way to move money on the x402 protocol. For more details, please see [x402 Schemes](https://github.com/coinbase/x402?tab=readme-ov-file#schemes).
+type X402SupportedPaymentKind struct {
+	// Network The network of the blockchain.
+	Network X402SupportedPaymentKindNetwork `json:"network"`
+
+	// Scheme The scheme of the payment protocol.
+	Scheme X402SupportedPaymentKindScheme `json:"scheme"`
+
+	// X402Version The version of the x402 protocol.
+	X402Version X402Version `json:"x402Version"`
+}
+
+// X402SupportedPaymentKindNetwork The network of the blockchain.
+type X402SupportedPaymentKindNetwork string
+
+// X402SupportedPaymentKindScheme The scheme of the payment protocol.
+type X402SupportedPaymentKindScheme string
+
+// X402VerifyInvalidReason The reason the payment is invalid on the x402 protocol.
+type X402VerifyInvalidReason string
 
 // IdempotencyKey defines model for IdempotencyKey.
 type IdempotencyKey = string
@@ -2255,6 +2539,52 @@ type TimedOutError = Error
 // UnauthorizedError An error response including the code for the type of error and a human-readable message describing the error.
 type UnauthorizedError = Error
 
+// X402SettleResponse defines model for x402SettleResponse.
+type X402SettleResponse struct {
+	// ErrorReason The reason the payment settlement errored on the x402 protocol.
+	ErrorReason *X402SettleErrorReason `json:"errorReason,omitempty"`
+
+	// Network The network where the settlement occurred.
+	Network string `json:"network"`
+
+	// Payer The onchain address of the client that is paying for the resource.
+	//
+	// For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+	//
+	// For Solana-based networks, the payer will be a base58-encoded Solana address.
+	Payer string `json:"payer"`
+
+	// Success Indicates whether the payment settlement is successful.
+	Success bool `json:"success"`
+
+	// Transaction The transaction of the settlement.
+	// For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
+	// For Solana-based networks, the transaction will be a base58-encoded Solana signature.
+	Transaction string `json:"transaction"`
+}
+
+// X402SupportedPaymentKindsResponse defines model for x402SupportedPaymentKindsResponse.
+type X402SupportedPaymentKindsResponse struct {
+	// Kinds The list of supported payment kinds.
+	Kinds []X402SupportedPaymentKind `json:"kinds"`
+}
+
+// X402VerifyResponse defines model for x402VerifyResponse.
+type X402VerifyResponse struct {
+	// InvalidReason The reason the payment is invalid on the x402 protocol.
+	InvalidReason *X402VerifyInvalidReason `json:"invalidReason,omitempty"`
+
+	// IsValid Indicates whether the payment is valid.
+	IsValid bool `json:"isValid"`
+
+	// Payer The onchain address of the client that is paying for the resource.
+	//
+	// For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+	//
+	// For Solana-based networks, the payer will be a base58-encoded Solana address.
+	Payer string `json:"payer"`
+}
+
 // ListDataTokenBalancesParams defines parameters for ListDataTokenBalances.
 type ListDataTokenBalancesParams struct {
 	// PageSize The number of balances to return per page.
@@ -2266,6 +2596,12 @@ type ListDataTokenBalancesParams struct {
 
 // ListTokensForAccountParamsNetwork defines parameters for ListTokensForAccount.
 type ListTokensForAccountParamsNetwork string
+
+// ValidateEndUserAccessTokenJSONBody defines parameters for ValidateEndUserAccessToken.
+type ValidateEndUserAccessTokenJSONBody struct {
+	// AccessToken The access token in JWT format to verify.
+	AccessToken string `json:"accessToken"`
+}
 
 // ListEvmAccountsParams defines parameters for ListEvmAccounts.
 type ListEvmAccountsParams struct {
@@ -2993,8 +3329,35 @@ type ListSolanaTokenBalancesParams struct {
 	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
+// SettleX402PaymentJSONBody defines parameters for SettleX402Payment.
+type SettleX402PaymentJSONBody struct {
+	// PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+	PaymentPayload X402PaymentPayload `json:"paymentPayload"`
+
+	// PaymentRequirements The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+	PaymentRequirements X402PaymentRequirements `json:"paymentRequirements"`
+
+	// X402Version The version of the x402 protocol.
+	X402Version X402Version `json:"x402Version"`
+}
+
+// VerifyX402PaymentJSONBody defines parameters for VerifyX402Payment.
+type VerifyX402PaymentJSONBody struct {
+	// PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+	PaymentPayload X402PaymentPayload `json:"paymentPayload"`
+
+	// PaymentRequirements The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+	PaymentRequirements X402PaymentRequirements `json:"paymentRequirements"`
+
+	// X402Version The version of the x402 protocol.
+	X402Version X402Version `json:"x402Version"`
+}
+
 // RunSQLQueryJSONRequestBody defines body for RunSQLQuery for application/json ContentType.
 type RunSQLQueryJSONRequestBody = OnchainDataQuery
+
+// ValidateEndUserAccessTokenJSONRequestBody defines body for ValidateEndUserAccessToken for application/json ContentType.
+type ValidateEndUserAccessTokenJSONRequestBody ValidateEndUserAccessTokenJSONBody
 
 // CreateEvmAccountJSONRequestBody defines body for CreateEvmAccount for application/json ContentType.
 type CreateEvmAccountJSONRequestBody CreateEvmAccountJSONBody
@@ -3089,6 +3452,12 @@ type SignSolanaTransactionJSONRequestBody SignSolanaTransactionJSONBody
 // RequestSolanaFaucetJSONRequestBody defines body for RequestSolanaFaucet for application/json ContentType.
 type RequestSolanaFaucetJSONRequestBody RequestSolanaFaucetJSONBody
 
+// SettleX402PaymentJSONRequestBody defines body for SettleX402Payment for application/json ContentType.
+type SettleX402PaymentJSONRequestBody SettleX402PaymentJSONBody
+
+// VerifyX402PaymentJSONRequestBody defines body for VerifyX402Payment for application/json ContentType.
+type VerifyX402PaymentJSONRequestBody VerifyX402PaymentJSONBody
+
 // AsAbiFunction returns the union data inside the Abi_Item as a AbiFunction
 func (t Abi_Item) AsAbiFunction() (AbiFunction, error) {
 	var body AbiFunction
@@ -3147,6 +3516,94 @@ func (t Abi_Item) MarshalJSON() ([]byte, error) {
 }
 
 func (t *Abi_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsEmailAuthentication returns the union data inside the AuthenticationMethod as a EmailAuthentication
+func (t AuthenticationMethod) AsEmailAuthentication() (EmailAuthentication, error) {
+	var body EmailAuthentication
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromEmailAuthentication overwrites any union data inside the AuthenticationMethod as the provided EmailAuthentication
+func (t *AuthenticationMethod) FromEmailAuthentication(v EmailAuthentication) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeEmailAuthentication performs a merge with any union data inside the AuthenticationMethod, using the provided EmailAuthentication
+func (t *AuthenticationMethod) MergeEmailAuthentication(v EmailAuthentication) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSmsAuthentication returns the union data inside the AuthenticationMethod as a SmsAuthentication
+func (t AuthenticationMethod) AsSmsAuthentication() (SmsAuthentication, error) {
+	var body SmsAuthentication
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSmsAuthentication overwrites any union data inside the AuthenticationMethod as the provided SmsAuthentication
+func (t *AuthenticationMethod) FromSmsAuthentication(v SmsAuthentication) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSmsAuthentication performs a merge with any union data inside the AuthenticationMethod, using the provided SmsAuthentication
+func (t *AuthenticationMethod) MergeSmsAuthentication(v SmsAuthentication) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsDeveloperJWTAuthentication returns the union data inside the AuthenticationMethod as a DeveloperJWTAuthentication
+func (t AuthenticationMethod) AsDeveloperJWTAuthentication() (DeveloperJWTAuthentication, error) {
+	var body DeveloperJWTAuthentication
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromDeveloperJWTAuthentication overwrites any union data inside the AuthenticationMethod as the provided DeveloperJWTAuthentication
+func (t *AuthenticationMethod) FromDeveloperJWTAuthentication(v DeveloperJWTAuthentication) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeDeveloperJWTAuthentication performs a merge with any union data inside the AuthenticationMethod, using the provided DeveloperJWTAuthentication
+func (t *AuthenticationMethod) MergeDeveloperJWTAuthentication(v DeveloperJWTAuthentication) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t AuthenticationMethod) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *AuthenticationMethod) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }
@@ -4709,6 +5166,42 @@ func (t *TransferTarget) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+// AsX402ExactEvmPayload returns the union data inside the X402PaymentPayload_Payload as a X402ExactEvmPayload
+func (t X402PaymentPayload_Payload) AsX402ExactEvmPayload() (X402ExactEvmPayload, error) {
+	var body X402ExactEvmPayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402ExactEvmPayload overwrites any union data inside the X402PaymentPayload_Payload as the provided X402ExactEvmPayload
+func (t *X402PaymentPayload_Payload) FromX402ExactEvmPayload(v X402ExactEvmPayload) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402ExactEvmPayload performs a merge with any union data inside the X402PaymentPayload_Payload, using the provided X402ExactEvmPayload
+func (t *X402PaymentPayload_Payload) MergeX402ExactEvmPayload(v X402ExactEvmPayload) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t X402PaymentPayload_Payload) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *X402PaymentPayload_Payload) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
@@ -4792,6 +5285,11 @@ type ClientInterface interface {
 	RunSQLQueryWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	RunSQLQuery(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ValidateEndUserAccessTokenWithBody request with any body
+	ValidateEndUserAccessTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	ValidateEndUserAccessToken(ctx context.Context, body ValidateEndUserAccessTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListEvmAccounts request
 	ListEvmAccounts(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -5013,6 +5511,19 @@ type ClientInterface interface {
 
 	// ListSolanaTokenBalances request
 	ListSolanaTokenBalances(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SettleX402PaymentWithBody request with any body
+	SettleX402PaymentWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SettleX402Payment(ctx context.Context, body SettleX402PaymentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SupportedX402PaymentKinds request
+	SupportedX402PaymentKinds(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// VerifyX402PaymentWithBody request with any body
+	VerifyX402PaymentWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	VerifyX402Payment(ctx context.Context, body VerifyX402PaymentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *CDPClient) ListDataTokenBalances(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListDataTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -5053,6 +5564,30 @@ func (c *CDPClient) RunSQLQueryWithBody(ctx context.Context, contentType string,
 
 func (c *CDPClient) RunSQLQuery(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRunSQLQueryRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ValidateEndUserAccessTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewValidateEndUserAccessTokenRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ValidateEndUserAccessToken(ctx context.Context, body ValidateEndUserAccessTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewValidateEndUserAccessTokenRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6071,6 +6606,66 @@ func (c *CDPClient) ListSolanaTokenBalances(ctx context.Context, network ListSol
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) SettleX402PaymentWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSettleX402PaymentRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SettleX402Payment(ctx context.Context, body SettleX402PaymentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSettleX402PaymentRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) SupportedX402PaymentKinds(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSupportedX402PaymentKindsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) VerifyX402PaymentWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewVerifyX402PaymentRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) VerifyX402Payment(ctx context.Context, body VerifyX402PaymentJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewVerifyX402PaymentRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // NewListDataTokenBalancesRequest generates requests for ListDataTokenBalances
 func NewListDataTokenBalancesRequest(server string, network ListEvmTokenBalancesNetwork, address string, params *ListDataTokenBalancesParams) (*http.Request, error) {
 	var err error
@@ -6212,6 +6807,46 @@ func NewRunSQLQueryRequestWithBody(server string, contentType string, body io.Re
 	}
 
 	operationPath := fmt.Sprintf("/v2/data/query/run")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewValidateEndUserAccessTokenRequest calls the generic ValidateEndUserAccessToken builder with application/json body
+func NewValidateEndUserAccessTokenRequest(server string, body ValidateEndUserAccessTokenJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewValidateEndUserAccessTokenRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewValidateEndUserAccessTokenRequestWithBody generates requests for ValidateEndUserAccessToken with any type of body
+func NewValidateEndUserAccessTokenRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/end-users/auth/validate-token")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -9322,6 +9957,113 @@ func NewListSolanaTokenBalancesRequest(server string, network ListSolanaTokenBal
 	return req, nil
 }
 
+// NewSettleX402PaymentRequest calls the generic SettleX402Payment builder with application/json body
+func NewSettleX402PaymentRequest(server string, body SettleX402PaymentJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSettleX402PaymentRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSettleX402PaymentRequestWithBody generates requests for SettleX402Payment with any type of body
+func NewSettleX402PaymentRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/x402/settle")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewSupportedX402PaymentKindsRequest generates requests for SupportedX402PaymentKinds
+func NewSupportedX402PaymentKindsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/x402/supported")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewVerifyX402PaymentRequest calls the generic VerifyX402Payment builder with application/json body
+func NewVerifyX402PaymentRequest(server string, body VerifyX402PaymentJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewVerifyX402PaymentRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewVerifyX402PaymentRequestWithBody generates requests for VerifyX402Payment with any type of body
+func NewVerifyX402PaymentRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/x402/verify")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *CDPClient) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -9375,6 +10117,11 @@ type ClientWithResponsesInterface interface {
 	RunSQLQueryWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error)
 
 	RunSQLQueryWithResponse(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error)
+
+	// ValidateEndUserAccessTokenWithBodyWithResponse request with any body
+	ValidateEndUserAccessTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ValidateEndUserAccessTokenResponse, error)
+
+	ValidateEndUserAccessTokenWithResponse(ctx context.Context, body ValidateEndUserAccessTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*ValidateEndUserAccessTokenResponse, error)
 
 	// ListEvmAccountsWithResponse request
 	ListEvmAccountsWithResponse(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*ListEvmAccountsResponse, error)
@@ -9596,6 +10343,19 @@ type ClientWithResponsesInterface interface {
 
 	// ListSolanaTokenBalancesWithResponse request
 	ListSolanaTokenBalancesWithResponse(ctx context.Context, network ListSolanaTokenBalancesNetwork, address string, params *ListSolanaTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListSolanaTokenBalancesResponse, error)
+
+	// SettleX402PaymentWithBodyWithResponse request with any body
+	SettleX402PaymentWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SettleX402PaymentResponse, error)
+
+	SettleX402PaymentWithResponse(ctx context.Context, body SettleX402PaymentJSONRequestBody, reqEditors ...RequestEditorFn) (*SettleX402PaymentResponse, error)
+
+	// SupportedX402PaymentKindsWithResponse request
+	SupportedX402PaymentKindsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SupportedX402PaymentKindsResponse, error)
+
+	// VerifyX402PaymentWithBodyWithResponse request with any body
+	VerifyX402PaymentWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VerifyX402PaymentResponse, error)
+
+	VerifyX402PaymentWithResponse(ctx context.Context, body VerifyX402PaymentJSONRequestBody, reqEditors ...RequestEditorFn) (*VerifyX402PaymentResponse, error)
 }
 
 type ListDataTokenBalancesResponse struct {
@@ -9679,6 +10439,32 @@ func (r RunSQLQueryResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r RunSQLQueryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ValidateEndUserAccessTokenResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EndUser
+	JSON400      *Error
+	JSON401      *Error
+	JSON404      *Error
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r ValidateEndUserAccessTokenResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ValidateEndUserAccessTokenResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -11277,6 +12063,83 @@ func (r ListSolanaTokenBalancesResponse) StatusCode() int {
 	return 0
 }
 
+type SettleX402PaymentResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *X402SettleResponse
+	JSON400      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SettleX402PaymentResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SettleX402PaymentResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type SupportedX402PaymentKindsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *X402SupportedPaymentKindsResponse
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r SupportedX402PaymentKindsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SupportedX402PaymentKindsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type VerifyX402PaymentResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *X402VerifyResponse
+	JSON400      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r VerifyX402PaymentResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r VerifyX402PaymentResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // ListDataTokenBalancesWithResponse request returning *ListDataTokenBalancesResponse
 func (c *ClientWithResponses) ListDataTokenBalancesWithResponse(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListDataTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListDataTokenBalancesResponse, error) {
 	rsp, err := c.ListDataTokenBalances(ctx, network, address, params, reqEditors...)
@@ -11310,6 +12173,23 @@ func (c *ClientWithResponses) RunSQLQueryWithResponse(ctx context.Context, body 
 		return nil, err
 	}
 	return ParseRunSQLQueryResponse(rsp)
+}
+
+// ValidateEndUserAccessTokenWithBodyWithResponse request with arbitrary body returning *ValidateEndUserAccessTokenResponse
+func (c *ClientWithResponses) ValidateEndUserAccessTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ValidateEndUserAccessTokenResponse, error) {
+	rsp, err := c.ValidateEndUserAccessTokenWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseValidateEndUserAccessTokenResponse(rsp)
+}
+
+func (c *ClientWithResponses) ValidateEndUserAccessTokenWithResponse(ctx context.Context, body ValidateEndUserAccessTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*ValidateEndUserAccessTokenResponse, error) {
+	rsp, err := c.ValidateEndUserAccessToken(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseValidateEndUserAccessTokenResponse(rsp)
 }
 
 // ListEvmAccountsWithResponse request returning *ListEvmAccountsResponse
@@ -12037,6 +12917,49 @@ func (c *ClientWithResponses) ListSolanaTokenBalancesWithResponse(ctx context.Co
 	return ParseListSolanaTokenBalancesResponse(rsp)
 }
 
+// SettleX402PaymentWithBodyWithResponse request with arbitrary body returning *SettleX402PaymentResponse
+func (c *ClientWithResponses) SettleX402PaymentWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SettleX402PaymentResponse, error) {
+	rsp, err := c.SettleX402PaymentWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSettleX402PaymentResponse(rsp)
+}
+
+func (c *ClientWithResponses) SettleX402PaymentWithResponse(ctx context.Context, body SettleX402PaymentJSONRequestBody, reqEditors ...RequestEditorFn) (*SettleX402PaymentResponse, error) {
+	rsp, err := c.SettleX402Payment(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSettleX402PaymentResponse(rsp)
+}
+
+// SupportedX402PaymentKindsWithResponse request returning *SupportedX402PaymentKindsResponse
+func (c *ClientWithResponses) SupportedX402PaymentKindsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*SupportedX402PaymentKindsResponse, error) {
+	rsp, err := c.SupportedX402PaymentKinds(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSupportedX402PaymentKindsResponse(rsp)
+}
+
+// VerifyX402PaymentWithBodyWithResponse request with arbitrary body returning *VerifyX402PaymentResponse
+func (c *ClientWithResponses) VerifyX402PaymentWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*VerifyX402PaymentResponse, error) {
+	rsp, err := c.VerifyX402PaymentWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseVerifyX402PaymentResponse(rsp)
+}
+
+func (c *ClientWithResponses) VerifyX402PaymentWithResponse(ctx context.Context, body VerifyX402PaymentJSONRequestBody, reqEditors ...RequestEditorFn) (*VerifyX402PaymentResponse, error) {
+	rsp, err := c.VerifyX402Payment(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseVerifyX402PaymentResponse(rsp)
+}
+
 // ParseListDataTokenBalancesResponse parses an HTTP response from a ListDataTokenBalancesWithResponse call
 func ParseListDataTokenBalancesResponse(rsp *http.Response) (*ListDataTokenBalancesResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -12220,6 +13143,60 @@ func ParseRunSQLQueryResponse(rsp *http.Response) (*RunSQLQueryResponse, error) 
 			return nil, err
 		}
 		response.JSON504 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseValidateEndUserAccessTokenResponse parses an HTTP response from a ValidateEndUserAccessTokenWithResponse call
+func ParseValidateEndUserAccessTokenResponse(rsp *http.Response) (*ValidateEndUserAccessTokenResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ValidateEndUserAccessTokenResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EndUser
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
 
 	}
 
@@ -15965,6 +16942,161 @@ func ParseListSolanaTokenBalancesResponse(rsp *http.Response) (*ListSolanaTokenB
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSettleX402PaymentResponse parses an HTTP response from a SettleX402PaymentWithResponse call
+func ParseSettleX402PaymentResponse(rsp *http.Response) (*SettleX402PaymentResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SettleX402PaymentResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest X402SettleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseSupportedX402PaymentKindsResponse parses an HTTP response from a SupportedX402PaymentKindsWithResponse call
+func ParseSupportedX402PaymentKindsResponse(rsp *http.Response) (*SupportedX402PaymentKindsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SupportedX402PaymentKindsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest X402SupportedPaymentKindsResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseVerifyX402PaymentResponse parses an HTTP response from a VerifyX402PaymentWithResponse call
+func ParseVerifyX402PaymentResponse(rsp *http.Response) (*VerifyX402PaymentResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &VerifyX402PaymentResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest X402VerifyResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError
