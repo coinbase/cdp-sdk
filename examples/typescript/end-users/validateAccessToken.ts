@@ -3,9 +3,7 @@
 import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
 
-const cdp = new CdpClient({
-    basePath: "https://cloud-api-dev.cbhq.net/platform",
-});
+const cdp = new CdpClient();
 
 const accessToken = process.env.CDP_ACCESS_TOKEN;
 if (!accessToken) {
