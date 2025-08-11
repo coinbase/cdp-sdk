@@ -64,9 +64,9 @@ describe("EndUserClient", () => {
         >
       ).mockRejectedValue(expectedError);
 
-      await expect(
-        client.validateAccessToken(validateAccessTokenOptions),
-      ).rejects.toThrow(expectedError);
+      await expect(client.validateAccessToken(validateAccessTokenOptions)).rejects.toThrow(
+        expectedError,
+      );
     });
   });
 });
