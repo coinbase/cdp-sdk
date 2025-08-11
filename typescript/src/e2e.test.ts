@@ -1879,7 +1879,7 @@ describe("CDP Client E2E Tests", () => {
 
   // Skipping due to flakiness where this test is run concurrently with other tests,
   // causing other unrelated tests to fail due to policy violations.
-  describe.only("Policy Evaluation", () => {
+  describe("Policy Evaluation", () => {
     const policyViolation = {
       statusCode: 403,
       errorType: "policy_violation",
