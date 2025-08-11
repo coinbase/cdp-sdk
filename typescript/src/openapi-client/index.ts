@@ -14,6 +14,7 @@ export * from "./generated/end-user-accounts/end-user-accounts.js";
 export * from "./generated/x402-facilitator/x402-facilitator.js";
 
 import { configure } from "./cdpApiClient.js";
+import * as endUserAccounts from "./generated/end-user-accounts/end-user-accounts.js";
 import * as evm from "./generated/evm-accounts/evm-accounts.js";
 import * as evmSmartAccounts from "./generated/evm-smart-accounts/evm-smart-accounts.js";
 import * as evmSwaps from "./generated/evm-swaps/evm-swaps.js";
@@ -34,6 +35,7 @@ export const CdpOpenApiClient = {
   ...faucets,
   ...policies,
   ...payments,
+  ...endUserAccounts,
   configure,
 };
 
