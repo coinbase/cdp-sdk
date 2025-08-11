@@ -1,3 +1,4 @@
+# Usage: uv run python main.py
 def main():
     print("Hello from python!")
 
