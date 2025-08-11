@@ -1892,9 +1892,9 @@ describe("CDP Client E2E Tests", () => {
       await cdp.evm.updateAccount({
         address: testAccount.address,
         update: {
-          accountPolicy: ""
-        }
-      })
+          accountPolicy: "",
+        },
+      });
       policyTestAccount = await cdp.evm.getOrCreateAccount({
         name: generateRandomName().slice(0, 36),
       });
