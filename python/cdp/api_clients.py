@@ -1,3 +1,4 @@
+from cdp.openapi_client.api.end_user_accounts_api import EndUserAccountsApi
 from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
 from cdp.openapi_client.api.evm_swaps_api import EVMSwapsApi
@@ -18,6 +19,7 @@ class ApiClients:
 
     Attributes:
         _cdp_client (CdpApiClient): The CDP API client used to initialize individual API clients.
+        _end_user (Optional[EndUserAccountsApi]): The EndUserAccountsApi client instance.
         _evm_accounts (Optional[EVMAccountsApi]): The EVMAccountsApi client instance.
         _evm_smart_accounts (Optional[EVMSmartAccountsApi]): The EVMSmartAccountsApi client instance.
         _evm_swaps (Optional[EVMSwapsApi]): The EVMSwapsApi client instance.
@@ -46,6 +48,7 @@ class ApiClients:
         self._solana_token_balances: SolanaTokenBalancesApi | None = None
         self._policies: PolicyEngineApi | None = None
         self._payments: PaymentsAlphaApi | None = None
+        self._end_user: EndUserAccountsApi | None = None
         self._closed = False
 
     def _check_closed(self) -> None:
@@ -199,6 +202,19 @@ class ApiClients:
         if self._payments is None:
             self._payments = PaymentsAlphaApi(api_client=self._cdp_client)
         return self._payments
+
+    @property
+    def end_user(self) -> EndUserAccountsApi:
+        """Get the EndUserAccountsApi client instance.
+
+        Returns:
+            EndUserAccountsApi: The EndUserAccountsApi client instance.
+
+        """
+        self._check_closed()
+        if self._end_user is None:
+            self._end_user = EndUserAccountsApi(api_client=self._cdp_client)
+        return self._end_user
 
     async def close(self):
         """Close the CDP client asynchronously."""
