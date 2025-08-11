@@ -1889,29 +1889,11 @@ describe("CDP Client E2E Tests", () => {
     let policySolanaTestAccount: typeof testSolanaAccount;
 
     beforeAll(async () => {
-      await cdp.evm.updateAccount({
-        address: testAccount.address,
-        update: {
-          accountPolicy: "",
-        },
-      });
       policyTestAccount = await cdp.evm.getOrCreateAccount({
         name: generateRandomName().slice(0, 36),
       });
-      await cdp.evm.updateAccount({
-        address: policyTestAccount.address,
-        update: {
-          accountPolicy: "",
-        },
-      });
       policySolanaTestAccount = await cdp.solana.getOrCreateAccount({
         name: generateRandomName().slice(0, 36),
-      });
-      await cdp.solana.updateAccount({
-        address: testSolanaAccount.address,
-        update: {
-          accountPolicy: "",
-        },
       });
       await ensureSufficientEthBalance(cdp, policyTestAccount);
       policy = await cdp.policies.createPolicy({
@@ -1930,18 +1912,6 @@ describe("CDP Client E2E Tests", () => {
     });
 
     async function cleanup() {
-      await cdp.evm.updateAccount({
-        address: testAccount.address,
-        update: {
-          accountPolicy: "",
-        },
-      });
-      await cdp.solana.updateAccount({
-        address: testSolanaAccount.address,
-        update: {
-          accountPolicy: "",
-        },
-      });
       await cdp.evm.updateAccount({
         address: policyTestAccount.address,
         update: {
