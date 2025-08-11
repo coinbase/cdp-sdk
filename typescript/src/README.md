@@ -1072,6 +1072,25 @@ We currently support the following policy rules:
 - [PrepareUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-8)
 - [SendUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-9)
 
+### End-user Management
+
+You can use the End User SDK to manage the users of your applications.
+
+#### Validate Access Token
+
+When your end user has signed in with an [Embedded Wallet](https://docs.cdp.coinbase.com/embedded-wallets/welcome), you can check whether the access token they were granted is valid, and which of your user's it is associated with.
+
+```typescript
+try {
+  const endUser = await cdp.endUser.validateAccessToken({
+      accessToken,
+  });
+  console.log(endUser)
+} catch(e) {
+  // the access token is not valid or expired
+}
+```
+
 ## Authentication tools
 
 This SDK also contains simple tools for authenticating REST API requests to the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). See the [Auth README](src/auth/README.md) for more details.
