@@ -184,7 +184,6 @@ export const SendSolTransactionCriteriaSchema = z
       SplAddressCriterionSchema,
       SplValueCriterionSchema,
       MintAddressCriterionSchema,
-      SolNetworkCriterionSchema
     ]),
   )
   .max(10)

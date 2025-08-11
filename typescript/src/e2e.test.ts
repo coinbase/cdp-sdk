@@ -1885,12 +1885,16 @@ describe("CDP Client E2E Tests", () => {
       errorType: "policy_violation",
     };
     let policy: Policy;
-    let policyTestAccount: typeof testAccount
-    let policySolanaTestAccount: typeof testSolanaAccount
+    let policyTestAccount: typeof testAccount;
+    let policySolanaTestAccount: typeof testSolanaAccount;
 
     beforeAll(async () => {
-      policyTestAccount = await cdp.evm.getOrCreateAccount({ name: generateRandomName().slice(0, 36) })
-      policySolanaTestAccount = await cdp.solana.getOrCreateAccount({ name: generateRandomName().slice(0, 36) })
+      policyTestAccount = await cdp.evm.getOrCreateAccount({
+        name: generateRandomName().slice(0, 36),
+      });
+      policySolanaTestAccount = await cdp.solana.getOrCreateAccount({
+        name: generateRandomName().slice(0, 36),
+      });
       await ensureSufficientEthBalance(cdp, policyTestAccount);
       policy = await cdp.policies.createPolicy({
         policy: {
@@ -1971,7 +1975,9 @@ describe("CDP Client E2E Tests", () => {
                 {
                   operation: "signEvmTransaction",
                   action: "reject",
-                  criteria: [{ type: "ethValue", operator: ">", ethValue: parseEther("200").toString() }],
+                  criteria: [
+                    { type: "ethValue", operator: ">", ethValue: parseEther("200").toString() },
+                  ],
                 },
               ],
             },
@@ -2005,7 +2011,9 @@ describe("CDP Client E2E Tests", () => {
                 {
                   operation: "signEvmTransaction",
                   action: "reject",
-                  criteria: [{ type: "ethValue", operator: "==", ethValue: parseEther("200").toString() }],
+                  criteria: [
+                    { type: "ethValue", operator: "==", ethValue: parseEther("200").toString() },
+                  ],
                 },
               ],
             },
@@ -2034,7 +2042,7 @@ describe("CDP Client E2E Tests", () => {
 
       describe("evmAddress", () => {
         it("in", async () => {
-          const testAddress = generateRandomAddress()
+          const testAddress = generateRandomAddress();
           await cdp.policies.updatePolicy({
             id: policy.id,
             policy: {
@@ -2196,7 +2204,7 @@ describe("CDP Client E2E Tests", () => {
     describe("sendEvmTransaction", () => {
       describe("ethValue", () => {
         it("<=", async () => {
-          const testAddress = generateRandomAddress()
+          const testAddress = generateRandomAddress();
           await cdp.policies.updatePolicy({
             id: policy.id,
             policy: {
@@ -2206,7 +2214,8 @@ describe("CDP Client E2E Tests", () => {
                   action: "reject",
                   criteria: [
                     { type: "ethValue", operator: ">", ethValue: parseEther("0.5").toString() },
-                    { type: "evmAddress", operator: "in", addresses: [testAddress] }],
+                    { type: "evmAddress", operator: "in", addresses: [testAddress] },
+                  ],
                 },
               ],
             },
@@ -2236,7 +2245,7 @@ describe("CDP Client E2E Tests", () => {
 
       describe("evmAddress", () => {
         it("in", async () => {
-          const address = generateRandomAddress()
+          const address = generateRandomAddress();
           await cdp.policies.updatePolicy({
             id: policy.id,
             policy: {
@@ -2282,7 +2291,7 @@ describe("CDP Client E2E Tests", () => {
 
       describe("evmNetwork", () => {
         it("in", async () => {
-          const address = generateRandomAddress()
+          const address = generateRandomAddress();
           await cdp.policies.updatePolicy({
             id: policy.id,
             policy: {
@@ -2292,7 +2301,8 @@ describe("CDP Client E2E Tests", () => {
                   action: "reject",
                   criteria: [
                     { type: "evmNetwork", operator: "in", networks: ["base-sepolia"] },
-                    { type: "evmAddress", operator: "in", addresses: [address] }],
+                    { type: "evmAddress", operator: "in", addresses: [address] },
+                  ],
                 },
               ],
             },
@@ -2322,7 +2332,7 @@ describe("CDP Client E2E Tests", () => {
         });
 
         it("not in", async () => {
-          const address = generateRandomAddress()
+          const address = generateRandomAddress();
           await cdp.policies.updatePolicy({
             id: policy.id,
             policy: {
@@ -2332,7 +2342,8 @@ describe("CDP Client E2E Tests", () => {
                   action: "reject",
                   criteria: [
                     { type: "evmNetwork", operator: "not in", networks: ["base"] },
-                    { type: "evmAddress", operator: "in", addresses: [address] }],
+                    { type: "evmAddress", operator: "in", addresses: [address] },
+                  ],
                 },
               ],
             },
@@ -2364,7 +2375,7 @@ describe("CDP Client E2E Tests", () => {
 
       describe("evmData", () => {
         it("erc20 transfer value constraint", async () => {
-          const address = generateRandomAddress()
+          const address = generateRandomAddress();
           const erc20Abi = [
             {
               type: "function",
@@ -2410,7 +2421,7 @@ describe("CDP Client E2E Tests", () => {
                         },
                       ],
                     },
-                    { type: "evmAddress", operator: "in", addresses: [address] }
+                    { type: "evmAddress", operator: "in", addresses: [address] },
                   ],
                 },
               ],
@@ -3633,5 +3644,6 @@ async function retryOnFailure<T>(
 }
 
 function generateRandomAddress() {
-  return '0x' + [...Array(40)].map(() => Math.floor(Math.random() * 16).toString(16)).join('') as Address
+  return ("0x" +
+    [...Array(40)].map(() => Math.floor(Math.random() * 16).toString(16)).join("")) as Address;
 }
