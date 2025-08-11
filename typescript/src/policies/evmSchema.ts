@@ -69,25 +69,55 @@ export const EvmAddressCriterionSchema = z.object({
 export type EvmAddressCriterion = z.infer<typeof EvmAddressCriterionSchema>;
 
 /**
- * Enum for EVM Network values
+ * Enum for  PrepareUserOperation EVM Network values
  */
-export const EvmNetworkEnum = z.enum(["base", "base-sepolia"]);
+export const PrepareUserOperationEvmNetworkEnum = z.enum([
+  "base-sepolia",
+  "base",
+  "arbitrum",
+  "optimism",
+  "zora",
+  "polygon",
+  "bnb",
+  "avalanche",
+  "ethereum",
+  "ethereum-sepolia",
+]);
+
+export type PrepareUserOperationEvmNetwork = z.infer<typeof PrepareUserOperationEvmNetworkEnum>;
+
+/**
+ * Enum for SendEvmTransaction EVM Network values
+ */
+export const SendEvmTransactionEvmNetworkEnum = z.enum([
+  "base",
+  "base-sepolia",
+  "ethereum",
+  "ethereum-sepolia",
+  "avalanche",
+  "polygon",
+  "optimism",
+  "arbitrum",
+]);
+
 /**
  * Type representing the valid networks used with CDP transaction API's.
  */
-export type EvmNetwork = z.infer<typeof EvmNetworkEnum>;
+export type EvmNetwork = z.ZodUnion<
+  [typeof SendEvmTransactionEvmNetworkEnum, typeof PrepareUserOperationEvmNetworkEnum]
+>;
 
 /**
  * Schema for EVM network criterions
  */
-export const EvmNetworkCriterionSchema = z.object({
+export const SendEvmTransactionEvmNetworkCriterionSchema = z.object({
   /** The type of criterion, must be "evmAddress" for EVM address-based rules. */
   type: z.literal("evmNetwork"),
   /**
    * Array of EVM network identifiers to compare against.
-   * Either "base" or "base-sepolia"
+   * Either "base", "base-sepolia", "ethereum", "ethereum-sepolia", "avalanche", "polygon", "optimism", "arbitrum"
    */
-  networks: z.array(EvmNetworkEnum),
+  networks: z.array(SendEvmTransactionEvmNetworkEnum),
   /**
    * The operator to use for evaluating transaction network.
    * "in" checks if a network is in the provided list.
@@ -95,7 +125,34 @@ export const EvmNetworkCriterionSchema = z.object({
    */
   operator: EvmNetworkOperatorEnum,
 });
-export type EvmNetworkCriterion = z.infer<typeof EvmNetworkCriterionSchema>;
+
+export const PrepareUserOperationEvmNetworkCriterionSchema = z.object({
+  /** The type of criterion, must be "evmAddress" for EVM address-based rules. */
+  type: z.literal("evmNetwork"),
+  /**
+   * Array of EVM network identifiers to compare against.
+   * Either "base-sepolia", "base", "arbitrum", "optimism", "zora", "polygon", "bnb", "avalanche", "ethereum", "ethereum-sepolia"
+   */
+  networks: z.array(PrepareUserOperationEvmNetworkEnum),
+  /**
+   * The operator to use for evaluating transaction network.
+   * "in" checks if a network is in the provided list.
+   * "not in" checks if a network is not in the provided list.
+   */
+  operator: EvmNetworkOperatorEnum,
+});
+
+export const EvmNetworkCriterionSchema = z.union([
+  SendEvmTransactionEvmNetworkCriterionSchema,
+  PrepareUserOperationEvmNetworkCriterionSchema,
+]);
+
+export type EvmNetworkCriterion = z.ZodUnion<
+  [
+    typeof SendEvmTransactionEvmNetworkCriterionSchema,
+    typeof PrepareUserOperationEvmNetworkCriterionSchema,
+  ]
+>;
 
 /**
  * Schema for EVM message criterions
@@ -399,7 +456,7 @@ export const SendEvmTransactionCriteriaSchema = z
     z.discriminatedUnion("type", [
       EthValueCriterionSchema,
       EvmAddressCriterionSchema,
-      EvmNetworkCriterionSchema,
+      SendEvmTransactionEvmNetworkCriterionSchema,
       EvmDataCriterionSchema,
       NetUSDChangeCriterionSchema,
     ]),
@@ -418,7 +475,7 @@ export const PrepareUserOperationCriteriaSchema = z
     z.discriminatedUnion("type", [
       EthValueCriterionSchema,
       EvmAddressCriterionSchema,
-      EvmNetworkCriterionSchema,
+      PrepareUserOperationEvmNetworkCriterionSchema,
       EvmDataCriterionSchema,
     ]),
   )
