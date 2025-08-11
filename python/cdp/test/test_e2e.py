@@ -1157,7 +1157,7 @@ async def test_create_account_policy(cdp_client):
     assert policy.scope == "account"
     assert policy.description == "E2E Test Policy"
     assert policy.rules is not None
-    assert len(policy.rules) == 4
+    assert len(policy.rules) == 6
     assert policy.rules[0].action == "accept"
     assert policy.rules[0].operation == "signEvmTransaction"
     assert policy.rules[0].criteria is not None
