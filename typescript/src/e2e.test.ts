@@ -1889,6 +1889,12 @@ describe("CDP Client E2E Tests", () => {
     let policySolanaTestAccount: typeof testSolanaAccount;
 
     beforeAll(async () => {
+      await cdp.evm.updateAccount({
+        address: testAccount.address,
+        update: {
+          accountPolicy: ""
+        }
+      })
       policyTestAccount = await cdp.evm.getOrCreateAccount({
         name: generateRandomName().slice(0, 36),
       });
