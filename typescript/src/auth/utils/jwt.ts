@@ -86,7 +86,7 @@ export interface WalletJwtOptions {
   requestPath: string;
 
   /**
-   * - The request data for the request (e.g. { "wallet_id": "1234567890" })
+   * - The request data for the request (e.g. `{ "wallet_id": "1234567890" }`)
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requestData: Record<string, any>;
