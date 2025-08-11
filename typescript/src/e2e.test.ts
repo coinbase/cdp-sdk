@@ -1949,7 +1949,7 @@ describe("CDP Client E2E Tests", () => {
         },
       });
       await cdp.solana.updateAccount({
-        address: testSolanaAccount.address,
+        address: policySolanaTestAccount.address,
         update: {
           accountPolicy: "",
         },
