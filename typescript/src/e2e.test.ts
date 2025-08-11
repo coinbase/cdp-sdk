@@ -1895,11 +1895,8 @@ describe("CDP Client E2E Tests", () => {
           accountPolicy: "",
         },
       });
-      await cdp.solana.updateAccount({
-        address: testSolanaAccount.address,
-        update: {
-          accountPolicy: "",
-        },
+      policyTestAccount = await cdp.evm.getOrCreateAccount({
+        name: generateRandomName().slice(0, 36),
       });
       await cdp.evm.updateAccount({
         address: policyTestAccount.address,
@@ -1907,11 +1904,14 @@ describe("CDP Client E2E Tests", () => {
           accountPolicy: "",
         },
       });
-      policyTestAccount = await cdp.evm.getOrCreateAccount({
-        name: generateRandomName().slice(0, 36),
-      });
       policySolanaTestAccount = await cdp.solana.getOrCreateAccount({
         name: generateRandomName().slice(0, 36),
+      });
+      await cdp.solana.updateAccount({
+        address: testSolanaAccount.address,
+        update: {
+          accountPolicy: "",
+        },
       });
       await ensureSufficientEthBalance(cdp, policyTestAccount);
       policy = await cdp.policies.createPolicy({
