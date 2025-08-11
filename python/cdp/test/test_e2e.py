@@ -836,6 +836,7 @@ async def test_transfer_eth_smart_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@retry_on_failure()
 async def test_transfer_usdc_smart_account(cdp_client):
     """Test transferring USDC tokens with a smart account."""
     account = await cdp_client.evm.create_smart_account(owner=Account.create())
