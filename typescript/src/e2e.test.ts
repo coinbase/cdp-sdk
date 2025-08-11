@@ -1879,15 +1879,19 @@ describe("CDP Client E2E Tests", () => {
 
   // Skipping due to flakiness where this test is run concurrently with other tests,
   // causing other unrelated tests to fail due to policy violations.
-  describe.skip("Policy Evaluation", () => {
+  describe.only("Policy Evaluation", () => {
     const policyViolation = {
       statusCode: 403,
       errorType: "policy_violation",
     };
     let policy: Policy;
+    let policyTestAccount: typeof testAccount
+    let policySolanaTestAccount: typeof testSolanaAccount
 
     beforeAll(async () => {
-      await ensureSufficientEthBalance(cdp, testAccount);
+      policyTestAccount = await cdp.evm.getOrCreateAccount({ name: generateRandomName().slice(0, 36) })
+      policySolanaTestAccount = await cdp.solana.getOrCreateAccount({ name: generateRandomName().slice(0, 36) })
+      await ensureSufficientEthBalance(cdp, policyTestAccount);
       policy = await cdp.policies.createPolicy({
         policy: {
           description: Date.now().toString(),
@@ -1905,7 +1909,7 @@ describe("CDP Client E2E Tests", () => {
 
     async function cleanup() {
       await cdp.evm.updateAccount({
-        address: testAccount.address,
+        address: policyTestAccount.address,
         update: {
           accountPolicy: "",
         },
@@ -1932,57 +1936,23 @@ describe("CDP Client E2E Tests", () => {
                   operation: "signEvmTransaction",
                   action: "reject",
                   criteria: [
-                    { type: "ethValue", operator: ">=", ethValue: "10000000000000000000" },
+                    { type: "ethValue", operator: ">=", ethValue: parseEther("200").toString() },
                   ],
                 },
               ],
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.signTransaction({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
                 to: "0x0000000000000000000000000000000000000000",
-                value: parseEther("11"),
-                type: "eip1559",
-                maxFeePerGas: BigInt(20000000000),
-                maxPriorityFeePerGas: BigInt(1000000000),
-                gas: BigInt(21000),
-                nonce: 0,
-              }),
-            }),
-          ).rejects.toThrowError(expect.objectContaining(policyViolation));
-        });
-
-        it("<=", async () => {
-          await cdp.policies.updatePolicy({
-            id: policy.id,
-            policy: {
-              rules: [
-                {
-                  operation: "signEvmTransaction",
-                  action: "reject",
-                  criteria: [{ type: "ethValue", operator: "<=", ethValue: "1000000000000000000" }],
-                },
-              ],
-            },
-          });
-          await cdp.evm.updateAccount({
-            address: testAccount.address,
-            update: { accountPolicy: policy.id },
-          });
-          await expect(() =>
-            cdp.evm.signTransaction({
-              address: testAccount.address,
-              transaction: serializeTransaction({
-                chainId: baseSepolia.id,
-                to: "0x0000000000000000000000000000000000000000",
-                value: parseEther("0.5"),
+                value: parseEther("201"),
                 type: "eip1559",
                 maxFeePerGas: BigInt(20000000000),
                 maxPriorityFeePerGas: BigInt(1000000000),
@@ -2001,56 +1971,22 @@ describe("CDP Client E2E Tests", () => {
                 {
                   operation: "signEvmTransaction",
                   action: "reject",
-                  criteria: [{ type: "ethValue", operator: ">", ethValue: "500000000000000000" }],
+                  criteria: [{ type: "ethValue", operator: ">", ethValue: parseEther("200").toString() }],
                 },
               ],
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.signTransaction({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
                 to: "0x0000000000000000000000000000000000000000",
-                value: parseEther("1"),
-                type: "eip1559",
-                maxFeePerGas: BigInt(20000000000),
-                maxPriorityFeePerGas: BigInt(1000000000),
-                gas: BigInt(21000),
-                nonce: 0,
-              }),
-            }),
-          ).rejects.toThrowError(expect.objectContaining(policyViolation));
-        });
-
-        it("<", async () => {
-          await cdp.policies.updatePolicy({
-            id: policy.id,
-            policy: {
-              rules: [
-                {
-                  operation: "signEvmTransaction",
-                  action: "reject",
-                  criteria: [{ type: "ethValue", operator: "<", ethValue: "2000000000000000000" }],
-                },
-              ],
-            },
-          });
-          await cdp.evm.updateAccount({
-            address: testAccount.address,
-            update: { accountPolicy: policy.id },
-          });
-          await expect(() =>
-            cdp.evm.signTransaction({
-              address: testAccount.address,
-              transaction: serializeTransaction({
-                chainId: baseSepolia.id,
-                to: "0x0000000000000000000000000000000000000000",
-                value: parseEther("1"),
+                value: parseEther("201"),
                 type: "eip1559",
                 maxFeePerGas: BigInt(20000000000),
                 maxPriorityFeePerGas: BigInt(1000000000),
@@ -2069,22 +2005,22 @@ describe("CDP Client E2E Tests", () => {
                 {
                   operation: "signEvmTransaction",
                   action: "reject",
-                  criteria: [{ type: "ethValue", operator: "==", ethValue: "1000000000000000000" }],
+                  criteria: [{ type: "ethValue", operator: "==", ethValue: parseEther("200").toString() }],
                 },
               ],
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.signTransaction({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
                 to: "0x0000000000000000000000000000000000000000",
-                value: parseEther("1"),
+                value: parseEther("200"),
                 type: "eip1559",
                 maxFeePerGas: BigInt(20000000000),
                 maxPriorityFeePerGas: BigInt(1000000000),
@@ -2098,6 +2034,7 @@ describe("CDP Client E2E Tests", () => {
 
       describe("evmAddress", () => {
         it("in", async () => {
+          const testAddress = generateRandomAddress()
           await cdp.policies.updatePolicy({
             id: policy.id,
             policy: {
@@ -2109,7 +2046,7 @@ describe("CDP Client E2E Tests", () => {
                     {
                       type: "evmAddress",
                       operator: "in",
-                      addresses: ["0x0000000000000000000000000000000000000000"],
+                      addresses: [testAddress],
                     },
                   ],
                 },
@@ -2117,15 +2054,15 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.signTransaction({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
-                to: "0x0000000000000000000000000000000000000000",
+                to: testAddress,
                 value: parseEther("0.1"),
                 type: "eip1559",
                 maxFeePerGas: BigInt(20000000000),
@@ -2149,7 +2086,7 @@ describe("CDP Client E2E Tests", () => {
                     {
                       type: "evmAddress",
                       operator: "not in",
-                      addresses: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                      addresses: [generateRandomAddress()],
                     },
                   ],
                 },
@@ -2157,15 +2094,15 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.signTransaction({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
-                to: "0x0000000000000000000000000000000000000000",
+                to: generateRandomAddress(),
                 value: parseEther("0.1"),
                 type: "eip1559",
                 maxFeePerGas: BigInt(20000000000),
@@ -2231,7 +2168,7 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           const transferData =
@@ -2239,7 +2176,7 @@ describe("CDP Client E2E Tests", () => {
 
           await expect(() =>
             cdp.evm.signTransaction({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
                 to: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", // UNI token contract
@@ -2259,6 +2196,7 @@ describe("CDP Client E2E Tests", () => {
     describe("sendEvmTransaction", () => {
       describe("ethValue", () => {
         it("<=", async () => {
+          const testAddress = generateRandomAddress()
           await cdp.policies.updatePolicy({
             id: policy.id,
             policy: {
@@ -2266,23 +2204,25 @@ describe("CDP Client E2E Tests", () => {
                 {
                   operation: "sendEvmTransaction",
                   action: "reject",
-                  criteria: [{ type: "ethValue", operator: "==", ethValue: "0" }],
+                  criteria: [
+                    { type: "ethValue", operator: ">", ethValue: parseEther("0.5").toString() },
+                    { type: "evmAddress", operator: "in", addresses: [testAddress] }],
                 },
               ],
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.sendTransaction({
               network: "base-sepolia",
-              address: testAccount.address,
+              address: policyTestAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
-                to: "0x0000000000000000000000000000000000000000",
-                value: BigInt(0),
+                to: testAddress,
+                value: parseEther("0.51"),
                 type: "eip1559",
                 maxFeePerGas: BigInt(20000000000),
                 maxPriorityFeePerGas: BigInt(1000000000),
@@ -2296,6 +2236,7 @@ describe("CDP Client E2E Tests", () => {
 
       describe("evmAddress", () => {
         it("in", async () => {
+          const address = generateRandomAddress()
           await cdp.policies.updatePolicy({
             id: policy.id,
             policy: {
@@ -2307,7 +2248,7 @@ describe("CDP Client E2E Tests", () => {
                     {
                       type: "evmAddress",
                       operator: "in",
-                      addresses: ["0x0000000000000000000000000000000000000000"],
+                      addresses: [address],
                     },
                   ],
                 },
@@ -2315,16 +2256,16 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.sendTransaction({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               network: "base-sepolia",
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
-                to: "0x0000000000000000000000000000000000000000",
+                to: address,
                 value: parseEther("0.1"),
                 type: "eip1559",
                 maxFeePerGas: BigInt(20000000000),
@@ -2341,6 +2282,7 @@ describe("CDP Client E2E Tests", () => {
 
       describe("evmNetwork", () => {
         it("in", async () => {
+          const address = generateRandomAddress()
           await cdp.policies.updatePolicy({
             id: policy.id,
             policy: {
@@ -2348,22 +2290,24 @@ describe("CDP Client E2E Tests", () => {
                 {
                   operation: "sendEvmTransaction",
                   action: "reject",
-                  criteria: [{ type: "evmNetwork", operator: "in", networks: ["base-sepolia"] }],
+                  criteria: [
+                    { type: "evmNetwork", operator: "in", networks: ["base-sepolia"] },
+                    { type: "evmAddress", operator: "in", addresses: [address] }],
                 },
               ],
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.sendTransaction({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               network: "base-sepolia",
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
-                to: "0x0000000000000000000000000000000000000000",
+                to: address,
                 value: parseEther("0.1"),
                 type: "eip1559",
                 maxFeePerGas: BigInt(20000000000),
@@ -2378,6 +2322,7 @@ describe("CDP Client E2E Tests", () => {
         });
 
         it("not in", async () => {
+          const address = generateRandomAddress()
           await cdp.policies.updatePolicy({
             id: policy.id,
             policy: {
@@ -2385,22 +2330,24 @@ describe("CDP Client E2E Tests", () => {
                 {
                   operation: "sendEvmTransaction",
                   action: "reject",
-                  criteria: [{ type: "evmNetwork", operator: "not in", networks: ["base"] }],
+                  criteria: [
+                    { type: "evmNetwork", operator: "not in", networks: ["base"] },
+                    { type: "evmAddress", operator: "in", addresses: [address] }],
                 },
               ],
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.sendTransaction({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               network: "base-sepolia",
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
-                to: "0x0000000000000000000000000000000000000000",
+                to: address,
                 value: parseEther("0.1"),
                 type: "eip1559",
                 maxFeePerGas: BigInt(20000000000),
@@ -2417,6 +2364,7 @@ describe("CDP Client E2E Tests", () => {
 
       describe("evmData", () => {
         it("erc20 transfer value constraint", async () => {
+          const address = generateRandomAddress()
           const erc20Abi = [
             {
               type: "function",
@@ -2462,13 +2410,14 @@ describe("CDP Client E2E Tests", () => {
                         },
                       ],
                     },
+                    { type: "evmAddress", operator: "in", addresses: [address] }
                   ],
                 },
               ],
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           const transferData =
@@ -2477,10 +2426,10 @@ describe("CDP Client E2E Tests", () => {
           await expect(() =>
             cdp.evm.sendTransaction({
               network: "base-sepolia",
-              address: testAccount.address,
+              address: policyTestAccount.address,
               transaction: serializeTransaction({
                 chainId: baseSepolia.id,
-                to: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", // UNI token contract
+                to: address,
                 data: transferData,
                 type: "eip1559",
                 maxFeePerGas: BigInt(20000000000),
@@ -2510,12 +2459,12 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.signMessage({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               message: "forbidden message content",
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
@@ -2535,12 +2484,12 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.signMessage({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               message: "I want to transfer 1000 tokens to my friend",
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
@@ -2557,12 +2506,12 @@ describe("CDP Client E2E Tests", () => {
           },
         });
         await cdp.evm.updateAccount({
-          address: testAccount.address,
+          address: policyTestAccount.address,
           update: { accountPolicy: policy.id },
         });
         await expect(() =>
           cdp.evm.signHash({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             hash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           }),
         ).rejects.toThrowError(
@@ -2610,12 +2559,12 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.signTypedData({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               types: {
                 Permit: [
                   { name: "owner", type: "address" },
@@ -2633,7 +2582,7 @@ describe("CDP Client E2E Tests", () => {
                 verifyingContract: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
               },
               message: {
-                owner: testAccount.address,
+                owner: policyTestAccount.address,
                 spender: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
                 value: "2000000000000000000000", // 2000 tokens - exceeds limit
                 nonce: 0,
@@ -2680,12 +2629,12 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.signTypedData({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               types: {
                 Permit: [
                   { name: "owner", type: "address" },
@@ -2703,7 +2652,7 @@ describe("CDP Client E2E Tests", () => {
                 verifyingContract: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
               },
               message: {
-                owner: testAccount.address,
+                owner: policyTestAccount.address,
                 spender: "0x0000000000000000000000000000000000000000", // Forbidden spender
                 value: "1000000000000000000",
                 nonce: 0,
@@ -2735,12 +2684,12 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.signTypedData({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               types: {
                 Permit: [
                   { name: "owner", type: "address" },
@@ -2758,7 +2707,7 @@ describe("CDP Client E2E Tests", () => {
                 verifyingContract: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", // This is in the forbidden list
               },
               message: {
-                owner: testAccount.address,
+                owner: policyTestAccount.address,
                 spender: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
                 value: "1000000000000000000",
                 nonce: 0,
@@ -2788,12 +2737,12 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.evm.updateAccount({
-            address: testAccount.address,
+            address: policyTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.evm.signTypedData({
-              address: testAccount.address,
+              address: policyTestAccount.address,
               types: {
                 Permit: [
                   { name: "owner", type: "address" },
@@ -2811,7 +2760,7 @@ describe("CDP Client E2E Tests", () => {
                 verifyingContract: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", // This is not in the allowed list
               },
               message: {
-                owner: testAccount.address,
+                owner: policyTestAccount.address,
                 spender: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
                 value: "1000000000000000000",
                 nonce: 0,
@@ -2841,14 +2790,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.signTransaction({
-              address: testSolanaAccount.address,
+              address: policySolanaTestAccount.address,
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 1.5 * LAMPORTS_PER_SOL,
               ),
@@ -2872,14 +2821,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.signTransaction({
-              address: testSolanaAccount.address,
+              address: policySolanaTestAccount.address,
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 0.3 * LAMPORTS_PER_SOL,
               ),
@@ -2903,14 +2852,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.signTransaction({
-              address: testSolanaAccount.address,
+              address: policySolanaTestAccount.address,
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 1 * LAMPORTS_PER_SOL,
               ),
@@ -2934,14 +2883,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.signTransaction({
-              address: testSolanaAccount.address,
+              address: policySolanaTestAccount.address,
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 1 * LAMPORTS_PER_SOL,
               ),
@@ -2965,14 +2914,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.signTransaction({
-              address: testSolanaAccount.address,
+              address: policySolanaTestAccount.address,
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 1 * LAMPORTS_PER_SOL,
               ),
@@ -3002,14 +2951,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.signTransaction({
-              address: testSolanaAccount.address,
+              address: policySolanaTestAccount.address,
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 0.1 * LAMPORTS_PER_SOL,
               ),
@@ -3037,14 +2986,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.signTransaction({
-              address: testSolanaAccount.address,
+              address: policySolanaTestAccount.address,
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 0.1 * LAMPORTS_PER_SOL,
               ),
@@ -3072,14 +3021,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.sendTransaction({
               network: "solana-devnet",
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 1.5 * LAMPORTS_PER_SOL,
               ),
@@ -3103,14 +3052,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.sendTransaction({
               network: "solana-devnet",
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 0.3 * LAMPORTS_PER_SOL,
               ),
@@ -3134,14 +3083,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.sendTransaction({
               network: "solana-devnet",
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 1 * LAMPORTS_PER_SOL,
               ),
@@ -3165,14 +3114,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.sendTransaction({
               network: "solana-devnet",
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 1 * LAMPORTS_PER_SOL,
               ),
@@ -3196,14 +3145,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.sendTransaction({
               network: "solana-devnet",
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 1 * LAMPORTS_PER_SOL,
               ),
@@ -3233,14 +3182,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.sendTransaction({
               network: "solana-devnet",
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 0.1 * LAMPORTS_PER_SOL,
               ),
@@ -3268,14 +3217,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.sendTransaction({
               network: "solana-devnet",
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 0.1 * LAMPORTS_PER_SOL,
               ),
@@ -3299,14 +3248,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.sendTransaction({
               network: "solana-devnet",
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 0.1 * LAMPORTS_PER_SOL,
               ),
@@ -3330,14 +3279,14 @@ describe("CDP Client E2E Tests", () => {
             },
           });
           await cdp.solana.updateAccount({
-            address: testSolanaAccount.address,
+            address: policySolanaTestAccount.address,
             update: { accountPolicy: policy.id },
           });
           await expect(() =>
             cdp.solana.sendTransaction({
               network: "solana-devnet",
               transaction: createAndEncodeTransaction(
-                testSolanaAccount.address,
+                policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
                 0.1 * LAMPORTS_PER_SOL,
               ),
@@ -3681,4 +3630,8 @@ async function retryOnFailure<T>(
 
   // This should never be reached, but TypeScript requires it
   throw lastException;
+}
+
+function generateRandomAddress() {
+  return '0x' + [...Array(40)].map(() => Math.floor(Math.random() * 16).toString(16)).join('') as Address
 }
