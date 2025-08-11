@@ -1,6 +1,6 @@
 import { type ValidateAccessTokenOptions } from "./endUser.types.js";
 import { Analytics } from "../../analytics.js";
-import { CdpOpenApiClient } from "../../openapi-client/index.js";
+import { CdpOpenApiClient, type EndUser } from "../../openapi-client/index.js";
 
 /**
  * The CDP end user client.
@@ -11,9 +11,9 @@ export class CDPEndUserClient {
    *
    * @param options - The options for validating an access token.
    *
-   * @returns An empty response if the access token is valid.
+   * @returns The end user object if the access token is valid.
    */
-  async validateAccessToken(options: ValidateAccessTokenOptions) {
+  async validateAccessToken(options: ValidateAccessTokenOptions): Promise<EndUser> {
     Analytics.trackAction({
       action: "validate_access_token",
     });
