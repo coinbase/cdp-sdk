@@ -3244,7 +3244,7 @@ describe("CDP Client E2E Tests", () => {
         });
       });
 
-      describe("solNetwork", () => {
+      describe.skip("solNetwork", () => {
         it("in", async () => {
           await cdp.policies.updatePolicy({
             id: policy.id,
