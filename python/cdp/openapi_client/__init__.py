@@ -22,6 +22,7 @@ from cdp.openapi_client.api.evm_accounts_api import EVMAccountsApi
 from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
 from cdp.openapi_client.api.evm_swaps_api import EVMSwapsApi
 from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
+from cdp.openapi_client.api.end_user_accounts_api import EndUserAccountsApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.onchain_data_api import OnchainDataApi
 from cdp.openapi_client.api.onramp_api import OnrampApi
@@ -29,6 +30,7 @@ from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
 from cdp.openapi_client.api.solana_token_balances_api import SolanaTokenBalancesApi
+from cdp.openapi_client.api.x402_facilitator_api import X402FacilitatorApi
 
 # import ApiClient
 from cdp.openapi_client.api_response import ApiResponse
@@ -49,6 +51,7 @@ from cdp.openapi_client.models.abi_input import AbiInput
 from cdp.openapi_client.models.abi_parameter import AbiParameter
 from cdp.openapi_client.models.abi_state_mutability import AbiStateMutability
 from cdp.openapi_client.models.account_token_addresses_response import AccountTokenAddressesResponse
+from cdp.openapi_client.models.authentication_method import AuthenticationMethod
 from cdp.openapi_client.models.common_swap_response import CommonSwapResponse
 from cdp.openapi_client.models.common_swap_response_fees import CommonSwapResponseFees
 from cdp.openapi_client.models.common_swap_response_issues import CommonSwapResponseIssues
@@ -71,8 +74,11 @@ from cdp.openapi_client.models.create_swap_quote_response_wrapper import CreateS
 from cdp.openapi_client.models.crypto_rail import CryptoRail
 from cdp.openapi_client.models.crypto_rail_address import CryptoRailAddress
 from cdp.openapi_client.models.crypto_rail_networks_inner import CryptoRailNetworksInner
+from cdp.openapi_client.models.developer_jwt_authentication import DeveloperJWTAuthentication
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
+from cdp.openapi_client.models.email_authentication import EmailAuthentication
+from cdp.openapi_client.models.end_user import EndUser
 from cdp.openapi_client.models.error import Error
 from cdp.openapi_client.models.error_type import ErrorType
 from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
@@ -153,6 +159,7 @@ from cdp.openapi_client.models.send_solana_transaction_request import SendSolana
 from cdp.openapi_client.models.send_user_operation_criteria_inner import SendUserOperationCriteriaInner
 from cdp.openapi_client.models.send_user_operation_request import SendUserOperationRequest
 from cdp.openapi_client.models.send_user_operation_rule import SendUserOperationRule
+from cdp.openapi_client.models.settle_x402_payment200_response import SettleX402Payment200Response
 from cdp.openapi_client.models.sign_evm_hash200_response import SignEvmHash200Response
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
 from cdp.openapi_client.models.sign_evm_hash_rule import SignEvmHashRule
@@ -178,6 +185,7 @@ from cdp.openapi_client.models.sign_solana_message200_response import SignSolana
 from cdp.openapi_client.models.sign_solana_message_request import SignSolanaMessageRequest
 from cdp.openapi_client.models.sign_solana_transaction200_response import SignSolanaTransaction200Response
 from cdp.openapi_client.models.sign_solana_transaction_request import SignSolanaTransactionRequest
+from cdp.openapi_client.models.sms_authentication import SmsAuthentication
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
 from cdp.openapi_client.models.sol_value_criterion import SolValueCriterion
 from cdp.openapi_client.models.solana_account import SolanaAccount
@@ -189,6 +197,7 @@ from cdp.openapi_client.models.spend_permission_network import SpendPermissionNe
 from cdp.openapi_client.models.spend_permission_response_object import SpendPermissionResponseObject
 from cdp.openapi_client.models.spl_address_criterion import SplAddressCriterion
 from cdp.openapi_client.models.spl_value_criterion import SplValueCriterion
+from cdp.openapi_client.models.supported_x402_payment_kinds200_response import SupportedX402PaymentKinds200Response
 from cdp.openapi_client.models.swap_unavailable_response import SwapUnavailableResponse
 from cdp.openapi_client.models.token import Token
 from cdp.openapi_client.models.token_amount import TokenAmount
@@ -203,5 +212,17 @@ from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.openapi_client.models.update_solana_account_request import UpdateSolanaAccountRequest
 from cdp.openapi_client.models.user_operation_receipt import UserOperationReceipt
 from cdp.openapi_client.models.user_operation_receipt_revert import UserOperationReceiptRevert
+from cdp.openapi_client.models.validate_end_user_access_token_request import ValidateEndUserAccessTokenRequest
+from cdp.openapi_client.models.verify_x402_payment200_response import VerifyX402Payment200Response
+from cdp.openapi_client.models.verify_x402_payment_request import VerifyX402PaymentRequest
+from cdp.openapi_client.models.x402_exact_evm_payload import X402ExactEvmPayload
+from cdp.openapi_client.models.x402_exact_evm_payload_authorization import X402ExactEvmPayloadAuthorization
+from cdp.openapi_client.models.x402_payment_payload import X402PaymentPayload
+from cdp.openapi_client.models.x402_payment_payload_payload import X402PaymentPayloadPayload
+from cdp.openapi_client.models.x402_payment_requirements import X402PaymentRequirements
+from cdp.openapi_client.models.x402_settle_error_reason import X402SettleErrorReason
+from cdp.openapi_client.models.x402_supported_payment_kind import X402SupportedPaymentKind
+from cdp.openapi_client.models.x402_verify_invalid_reason import X402VerifyInvalidReason
+from cdp.openapi_client.models.x402_version import X402Version
 
 
