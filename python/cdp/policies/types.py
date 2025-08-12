@@ -82,9 +82,22 @@ class EvmNetworkCriterion(BaseModel):
         "evmNetwork",
         description="The type of criterion, must be 'evmNetwork' for EVM network-based rules.",
     )
-    networks: list[Literal["base-sepolia", "base"]] = Field(
+    networks: list[
+        Literal[
+            "base-sepolia",
+            "base",
+            "ethereum",
+            "ethereum-sepolia",
+            "avalanche",
+            "polygon",
+            "optimism",
+            "arbitrum",
+            "zora",
+            "bnb",
+        ]
+    ] = Field(
         ...,
-        description="The list of EVM networks to compare against. Valid networks are 'base-sepolia' and 'base'.",
+        description="The list of EVM networks to compare against. Valid networks are 'base-sepolia', 'base', 'ethereum', 'ethereum-sepolia', 'avalanche', 'polygon', 'optimism', 'arbitrum', 'zora', and 'bnb'",
     )
     operator: Literal["in", "not in"] = Field(
         ...,
@@ -612,6 +625,42 @@ class SendSolanaTransactionRule(BaseModel):
     )
 
 
+class PrepareUserOperationRule(BaseModel):
+    """Type representing a 'prepareUserOperation' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the user operation preparation, 'reject' will block it.",
+    )
+    operation: Literal["prepareUserOperation"] = Field(
+        "prepareUserOperation",
+        description="The operation to which this rule applies. Must be 'prepareUserOperation'.",
+    )
+    criteria: list[
+        EthValueCriterion | EvmAddressCriterion | EvmNetworkCriterion | EvmDataCriterion
+    ] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
+class SendUserOperationRule(BaseModel):
+    """Type representing a 'sendUserOperation' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the user operation, 'reject' will block it.",
+    )
+    operation: Literal["sendUserOperation"] = Field(
+        "sendUserOperation",
+        description="The operation to which this rule applies. Must be 'sendUserOperation'.",
+    )
+    criteria: list[EthValueCriterion | EvmAddressCriterion | EvmDataCriterion] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
 """Type representing the scope of a policy.
 Determines whether the policy applies at the project level or account level."""
 PolicyScope = Literal["project", "account"]
@@ -626,6 +675,8 @@ Rule = (
     | SignEvmTypedDataRule
     | SignSolanaTransactionRule
     | SendSolanaTransactionRule
+    | PrepareUserOperationRule
+    | SendUserOperationRule
 )
 
 

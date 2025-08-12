@@ -1430,5 +1430,122 @@ describe("PoliciesClient", () => {
       expect(result).toEqual(mockPolicy);
       expect(createPolicyMock).toHaveBeenCalledWith(policyWithUSDChange, "idem-key");
     });
+
+    it("should throw ZodError for invalid evmNetwork criteria", async () => {
+      const updatePolicyMock = CdpOpenApiClient.updatePolicy as MockedFunction<
+        typeof CdpOpenApiClient.updatePolicy
+      >;
+
+      await expect(
+        client.updatePolicy({
+          id: "policy-123",
+          policy: {
+            rules: [
+              {
+                action: "reject" as const,
+                operation: "sendEvmTransaction" as const,
+                criteria: [
+                  {
+                    type: "evmNetwork",
+                    // @ts-expect-error Intentionally using incorrect criteria structure for test
+                    networks: ["unichain"],
+                    operator: "in",
+                  },
+                ],
+              },
+            ],
+          },
+        }),
+      ).rejects.toThrow(ZodError);
+      expect(updatePolicyMock).not.toHaveBeenCalled();
+
+      await expect(
+        client.updatePolicy({
+          id: "policy-123",
+          policy: {
+            rules: [
+              {
+                action: "reject" as const,
+                operation: "prepareUserOperation" as const,
+                criteria: [
+                  {
+                    type: "evmNetwork",
+                    // @ts-expect-error Intentionally using incorrect criteria structure for test
+                    networks: ["unichain"],
+                    operator: "in",
+                  },
+                ],
+              },
+            ],
+          },
+        }),
+      ).rejects.toThrow(ZodError);
+      expect(updatePolicyMock).not.toHaveBeenCalled();
+    });
+
+    it("should create policies with evmNetwork criterion for prepare user operation and send evm transactions", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+      createPolicyMock.mockResolvedValue(mockPolicy);
+
+      const policyWithEvmNetwork = {
+        scope: "account" as const,
+        description: "evmNetwork policy",
+        rules: [
+          {
+            action: "accept" as const,
+            operation: "sendEvmTransaction" as const,
+            criteria: [
+              {
+                type: "evmNetwork" as const,
+                networks: [
+                  "base-sepolia",
+                  "base",
+                  "ethereum",
+                  "ethereum-sepolia",
+                  "avalanche",
+                  "polygon",
+                  "optimism",
+                  "arbitrum",
+                ] as const,
+                operator: "in" as const,
+              },
+            ],
+          },
+          {
+            action: "accept" as const,
+            operation: "prepareUserOperation" as const,
+            criteria: [
+              {
+                type: "evmNetwork" as const,
+                networks: [
+                  "base-sepolia",
+                  "base",
+                  "ethereum",
+                  "ethereum-sepolia",
+                  "avalanche",
+                  "polygon",
+                  "optimism",
+                  "arbitrum",
+                  "zora",
+                  "bnb",
+                ] as const,
+                operator: "in" as const,
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = await client.createPolicy({
+        //@ts-expect-error
+        policy: policyWithEvmNetwork,
+        idempotencyKey: "idem-key",
+      });
+
+      expect(result).toEqual(mockPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyWithEvmNetwork, "idem-key");
+    });
   });
 });

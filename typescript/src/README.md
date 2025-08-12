@@ -1064,15 +1064,15 @@ try {
 
 We currently support the following policy rules:
 
-- [SignEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-1)
-- [SendEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-2)
-- [SignEvmMessageRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-3)
-- [SignEvmTypedDataRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-4)
-- [SignSolanaTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-5)
-- [SendSolanaTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-6)
-- [SignEvmHashRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-7)
-- [PrepareUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-8)
-- [SendUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-9)
+- [SignEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#signevmtransactionrule)
+- [SendEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#sendevmtransactionrule)
+- [SignEvmMessageRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#signevmmessagerule)
+- [SignEvmTypedDataRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#signevmtypeddatarule)
+- [SignSolanaTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#signsolanatransactionrule)
+- [SendSolanaTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#sendsolanatransactionrule)
+- [SignEvmHashRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#signevmhashrule)
+- [PrepareUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#prepareuseroperationrule)
+- [SendUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#senduseroperationrule)
 
 ### End-user Management
 
