@@ -1,5 +1,13 @@
 # CDP SDK Changelog
 
+## 1.34.1
+
+### Patch Changes
+
+- [#388](https://github.com/coinbase/cdp-sdk/pull/388) [`f0523e6`](https://github.com/coinbase/cdp-sdk/commit/f0523e6c5f457dccb9ce3a4c87ca65f7cd86711c) Thanks [@github-actions](https://github.com/apps/github-actions)! - Update generated openapi client
+
+- [#369](https://github.com/coinbase/cdp-sdk/pull/369) [`f0c9904`](https://github.com/coinbase/cdp-sdk/commit/f0c99041a227e248175ceabf32d3e631b0e24d46) Thanks [@avidreder](https://github.com/avidreder)! - Adds validateAccessToken method to CDP SDK
+
 ## 1.34.0
 
 ### Minor Changes
