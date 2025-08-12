@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/integrations/viem/viem.smartAccount.quoteSwapAndExecute.ts
+// Usage: pnpm tsx evm/ecosystem/viem/viem.smartAccount.swap.ts
 //
 // Required Dependencies: pnpm add permissionless viem@^2.0.0
 //
@@ -8,43 +8,34 @@
 // - PAYMASTER_URL: Your paymaster service endpoint (optional, for gasless transactions)
 
 /**
- * This example demonstrates the two-step swap approach using viem's smart account
- * (ERC-4337) capabilities with CDP's swap routing. This pattern gives you more
- * control and visibility compared to the all-in-one approach.
+ * This example demonstrates the all-in-one approach for performing token swaps
+ * using viem's smart account (ERC-4337) capabilities with CDP's swap routing.
  * 
- * Why use the two-step approach with viem smart accounts?
- * - Inspect swap details before execution (rates, fees, gas estimates)
- * - Implement conditional logic based on swap parameters
- * - Better error handling and user confirmation flows
- * - More control over the execution timing
- * - Advanced account abstraction features and customization
+ * Why use viem smart accounts with CDP swaps?
+ * - Leverage existing viem + account abstraction infrastructure
+ * - Use your preferred bundler and paymaster services
+ * - Full control over the account abstraction flow
+ * - Combine CDP's optimal swap routing with custom AA setup
+ * - Integrate with existing viem-based dApp architecture
  * 
  * This approach combines:
  * 1. CDP's swap quote creation and routing optimization
  * 2. Viem's account abstraction and user operation management
  * 3. Your choice of bundler and paymaster services
- * 4. Full control over quote analysis and execution decisions
  * 
- * Smart account benefits over regular accounts:
+ * Smart account benefits:
  * - Gasless transactions (with paymaster)
- * - Batch operations support (combine multiple actions)
+ * - Batch operations support
  * - Custom validation logic
  * - Social recovery options
  * - Enhanced security features
  * 
- * Two-step process:
- * 1. Create quote: cdp.evm.createSwapQuote() with smart account as taker
- * 2. Execute swap: Manual user operation submission using viem smart account client
+ * Prerequisites:
+ * - Bundler service account (Pimlico, Stackup, Alchemy AA, etc.)
+ * - Optional: Paymaster service for gasless transactions
+ * - Smart account implementation (SimpleAccount, Safe, Kernel, etc.)
  * 
- * When to use this pattern:
- * - When you need to show users exact swap details before execution
- * - For implementing approval flows or confirmation dialogs
- * - When integrating with existing viem + account abstraction infrastructure
- * - For advanced trading applications that need precise control
- * - When you want to leverage specific bundler/paymaster features
- * 
- * For simpler smart account usage, consider CDP's built-in smart accounts.
- * For simpler viem usage, consider viem.smartAccount.swap.ts instead.
+ * For simpler smart account usage, consider using CDP's built-in smart accounts instead.
  */
 
 import { CdpClient } from "@coinbase/cdp-sdk";
@@ -140,7 +131,7 @@ const PERMIT2_ADDRESS = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
 const cdp = new CdpClient();
 
 async function main() {
-  console.log(`Note: This example demonstrates two-step viem smart account swap execution on ${NETWORK} network.`);
+  console.log(`Note: This example demonstrates viem smart account swap execution on ${NETWORK} network.`);
   console.log(`Owner address: ${owner.address}`);
 
   try {
@@ -184,7 +175,7 @@ async function main() {
     // Set the amount we want to send
     const fromAmount = parseUnits("0.1", fromToken.decimals); // 0.1 WETH
     
-    console.log(`\nInitiating two-step smart account swap: ${formatEther(fromAmount)} ${fromToken.symbol} → ${toToken.symbol}`);
+    console.log(`\nInitiating smart account swap of ${formatEther(fromAmount)} ${fromToken.symbol} for ${toToken.symbol}`);
 
     // Handle token allowance check and approval if needed (applicable when sending non-native assets only)
     if (!fromToken.isNativeAsset) {
@@ -198,9 +189,11 @@ async function main() {
       );
     }
     
-    // STEP 1: Create the swap quote
-    console.log("\n🔍 Step 1: Creating smart account swap quote using CDP API...");
-    const swapQuote = await cdp.evm.createSwapQuote({
+    // Create and execute the swap in one flow
+    console.log("\n🚀 Creating and executing swap via user operation...");
+    
+    // Create the swap quote using CDP API
+    const swapResult = await cdp.evm.createSwapQuote({
       network: NETWORK,
       toToken: toToken.address as Address,
       fromToken: fromToken.address as Address,
@@ -211,38 +204,34 @@ async function main() {
     });
     
     // Check if swap is available
-    if (!swapQuote.liquidityAvailable) {
+    if (!swapResult.liquidityAvailable) {
       console.log("\n❌ Swap failed: Insufficient liquidity for this swap pair or amount.");
       console.log("Try reducing the swap amount or using a different token pair.");
       return;
     }
     
-    // STEP 2: Inspect and validate the swap details
-    console.log("\n📊 Step 2: Analyzing smart account swap quote...");
-    displaySwapQuoteDetails(swapQuote, fromToken, toToken);
-    
-    // Validate the swap for any issues
-    if (!validateSwapQuote(swapQuote)) {
+    // Validate the swap
+    if (!validateSwap(swapResult)) {
       console.log("\n❌ Swap validation failed. Aborting execution.");
       return;
     }
     
-    // STEP 3: Execute the swap via user operation
-    console.log("\n🚀 Step 3: Executing swap via viem smart account user operation...");
+    // Log swap details
+    logSwapInfo(swapResult, fromToken, toToken);
     
     // Prepare the swap transaction data
-    let txData = swapQuote.transaction!.data as Hex;
+    let txData = swapResult.transaction!.data as Hex;
     
     // If permit2 is needed, sign it with the owner
-    if (swapQuote.permit2?.eip712) {
-      console.log("Signing Permit2 message...");
+    if (swapResult.permit2?.eip712) {
+      console.log("\nSigning Permit2 message...");
       
       const signature = await walletClient.signTypedData({
         account: owner,
-        domain: swapQuote.permit2.eip712.domain,
-        types: swapQuote.permit2.eip712.types,
-        primaryType: swapQuote.permit2.eip712.primaryType,
-        message: swapQuote.permit2.eip712.message,
+        domain: swapResult.permit2.eip712.domain,
+        types: swapResult.permit2.eip712.types,
+        primaryType: swapResult.permit2.eip712.primaryType,
+        message: swapResult.permit2.eip712.message,
       });
       
       // Calculate the signature length as a 32-byte hex value
@@ -258,8 +247,8 @@ async function main() {
     // Submit the swap as a user operation
     const userOpHash = await smartAccountClient.sendUserOperation({
       calls: [{
-        to: swapQuote.transaction!.to as Address,
-        value: swapQuote.transaction!.value ? BigInt(swapQuote.transaction!.value) : BigInt(0),
+        to: swapResult.transaction!.to as Address,
+        value: swapResult.transaction!.value ? BigInt(swapResult.transaction!.value) : BigInt(0),
         data: txData,
       }],
     });
@@ -283,128 +272,12 @@ async function main() {
     console.log(`Transaction Explorer: https://basescan.org/tx/${receipt.receipt.transactionHash}`);
     
   } catch (error) {
-    console.error("Error in two-step smart account swap process:", error);
+    console.error("Error executing smart account swap:", error);
   }
 }
 
 /**
- * Displays detailed information about the swap quote
- * @param swapQuote - The swap quote data
- * @param fromToken - The token being sent
- * @param toToken - The token being received
- */
-function displaySwapQuoteDetails(
-  swapQuote: any,
-  fromToken: typeof TOKENS.WETH,
-  toToken: typeof TOKENS.USDC
-): void {
-  console.log("Smart Account Swap Quote Details:");
-  console.log("=================================");
-  
-  const fromAmountFormatted = formatUnits(BigInt(swapQuote.fromAmount), fromToken.decimals);
-  const toAmountFormatted = formatUnits(BigInt(swapQuote.toAmount), toToken.decimals);
-  const minToAmountFormatted = formatUnits(BigInt(swapQuote.minToAmount), toToken.decimals);
-  
-  console.log(`📤 Sending: ${fromAmountFormatted} ${fromToken.symbol}`);
-  console.log(`📥 Receiving: ${toAmountFormatted} ${toToken.symbol}`);
-  console.log(`🔒 Minimum Receive: ${minToAmountFormatted} ${toToken.symbol}`);
-  
-  // Calculate exchange rate
-  const exchangeRate = Number(swapQuote.toAmount) / Number(swapQuote.fromAmount) * 
-                      Math.pow(10, fromToken.decimals - toToken.decimals);
-  console.log(`💱 Exchange Rate: 1 ${fromToken.symbol} = ${exchangeRate.toFixed(2)} ${toToken.symbol}`);
-  
-  // Calculate slippage
-  const slippagePercent = ((Number(swapQuote.toAmount) - Number(swapQuote.minToAmount)) / 
-                          Number(swapQuote.toAmount) * 100);
-  console.log(`📉 Max Slippage: ${slippagePercent.toFixed(2)}%`);
-  
-  // Gas information for user operation
-  if (swapQuote.transaction?.gas) {
-    console.log(`⛽ Estimated Gas: ${swapQuote.transaction.gas.toLocaleString()}`);
-  }
-  
-  // Fee information
-  if (swapQuote.fees?.gasFee) {
-    const gasFeeFormatted = formatEther(BigInt(swapQuote.fees.gasFee.amount));
-    console.log(`💰 Gas Fee: ${gasFeeFormatted} ${swapQuote.fees.gasFee.token}`);
-  }
-  
-  if (swapQuote.fees?.protocolFee) {
-    const protocolFeeFormatted = formatUnits(
-      BigInt(swapQuote.fees.protocolFee.amount), 
-      swapQuote.fees.protocolFee.token === fromToken.symbol ? fromToken.decimals : toToken.decimals
-    );
-    console.log(`🏛️ Protocol Fee: ${protocolFeeFormatted} ${swapQuote.fees.protocolFee.token}`);
-  }
-  
-  // Viem smart account specific information
-  console.log("\nViem Smart Account Execution Details:");
-  console.log("------------------------------------");
-  console.log("• Execution method: User Operation via viem account abstraction");
-  console.log("• Owner signs Permit2 messages if required");
-  console.log("• Uses your configured bundler service");
-  console.log("• Optional paymaster support for gasless transactions");
-  console.log("• Full control over account abstraction and user operation flow");
-  console.log("• Supports batch operations for multiple actions in one user op");
-}
-
-/**
- * Validates the swap quote for any issues
- * @param swapQuote - The swap quote data
- * @returns true if swap is valid, false if there are issues
- */
-function validateSwapQuote(swapQuote: any): boolean {
-  console.log("\nValidating Smart Account Swap Quote:");
-  console.log("===================================");
-  
-  let isValid = true;
-  
-  // Check liquidity
-  if (!swapQuote.liquidityAvailable) {
-    console.log("❌ Insufficient liquidity available");
-    isValid = false;
-  } else {
-    console.log("✅ Liquidity available");
-  }
-  
-  // Check balance issues
-  if (swapQuote.issues?.balance) {
-    console.log("❌ Balance Issues:");
-    console.log(`   Current: ${swapQuote.issues.balance.currentBalance}`);
-    console.log(`   Required: ${swapQuote.issues.balance.requiredBalance}`);
-    console.log(`   Token: ${swapQuote.issues.balance.token}`);
-    console.log("   → Add funds to your smart account");
-    isValid = false;
-  } else {
-    console.log("✅ Sufficient balance");
-  }
-  
-  // Check allowance issues
-  if (swapQuote.issues?.allowance) {
-    console.log("❌ Allowance Issues:");
-    console.log(`   Current: ${swapQuote.issues.allowance.currentAllowance}`);
-    console.log(`   Required: ${swapQuote.issues.allowance.requiredAllowance}`);
-    console.log(`   Spender: ${swapQuote.issues.allowance.spender}`);
-    console.log("   → Submit user operation to approve tokens");
-    isValid = false;
-  } else {
-    console.log("✅ Sufficient allowance");
-  }
-  
-  // Check simulation
-  if (swapQuote.issues?.simulationIncomplete) {
-    console.log("⚠️ WARNING: Simulation incomplete - user operation may fail");
-    // Not marking as invalid since this is just a warning
-  } else {
-    console.log("✅ Simulation complete");
-  }
-  
-  return isValid;
-}
-
-/**
- * Handles token allowance check and approval if needed for smart accounts
+ * Handles token allowance check and approval if needed
  * @param smartAccountAddress - The smart account address
  * @param smartAccountClient - The smart account client
  * @param bundlerClient - The bundler client for waiting on operations
@@ -465,7 +338,7 @@ async function handleTokenAllowance(
 
 /**
  * Check token allowance for the Permit2 contract
- * @param owner - The token owner's address (smart account)
+ * @param owner - The token owner's address
  * @param token - The token contract address
  * @param symbol - The token symbol for logging
  * @returns The current allowance
@@ -491,6 +364,105 @@ async function getAllowance(
   }
 }
 
+/**
+ * Logs information about the swap
+ * @param swap - The swap quote data
+ * @param fromToken - The token being sent
+ * @param toToken - The token being received
+ */
+function logSwapInfo(
+  swap: any,
+  fromToken: typeof TOKENS.WETH,
+  toToken: typeof TOKENS.USDC
+): void {
+  console.log("\n📊 Smart Account Swap Details:");
+  console.log("==============================");
+  
+  const fromAmountFormatted = formatUnits(BigInt(swap.fromAmount), fromToken.decimals);
+  const toAmountFormatted = formatUnits(BigInt(swap.toAmount), toToken.decimals);
+  const minToAmountFormatted = formatUnits(BigInt(swap.minToAmount), toToken.decimals);
+  
+  console.log(`📤 Sending: ${fromAmountFormatted} ${fromToken.symbol}`);
+  console.log(`📥 Receiving: ${toAmountFormatted} ${toToken.symbol}`);
+  console.log(`🔒 Minimum Receive: ${minToAmountFormatted} ${toToken.symbol}`);
+  
+  // Calculate exchange rate
+  const exchangeRate = Number(swap.toAmount) / Number(swap.fromAmount) * 
+                      Math.pow(10, fromToken.decimals - toToken.decimals);
+  console.log(`💱 Exchange Rate: 1 ${fromToken.symbol} = ${exchangeRate.toFixed(2)} ${toToken.symbol}`);
+  
+  // Calculate slippage
+  const slippagePercent = ((Number(swap.toAmount) - Number(swap.minToAmount)) / 
+                          Number(swap.toAmount) * 100);
+  console.log(`📉 Max Slippage: ${slippagePercent.toFixed(2)}%`);
+  
+  // Gas information
+  if (swap.transaction?.gas) {
+    console.log(`⛽ Estimated Gas: ${BigInt(swap.transaction.gas).toLocaleString()}`);
+  }
+  
+  // Viem smart account specific information
+  console.log("\nViem Smart Account Execution Details:");
+  console.log("------------------------------------");
+  console.log("• Execution method: User Operation via viem account abstraction");
+  console.log("• Owner signs Permit2 messages if required");
+  console.log("• Uses your configured bundler service");
+  console.log("• Optional paymaster support for gasless transactions");
+  console.log("• Full control over account abstraction flow");
+}
+
+/**
+ * Validates the swap for any issues
+ * @param swap - The swap quote data
+ * @returns true if swap is valid, false if there are issues
+ */
+function validateSwap(swap: any): boolean {
+  console.log("\n🔍 Validating Smart Account Swap:");
+  console.log("=================================");
+  
+  let isValid = true;
+  
+  // Check liquidity
+  if (!swap.liquidityAvailable) {
+    console.log("❌ Insufficient liquidity available");
+    isValid = false;
+  } else {
+    console.log("✅ Liquidity available");
+  }
+  
+  // Check balance issues
+  if (swap.issues?.balance) {
+    console.log("❌ Balance Issues:");
+    console.log(`   Current: ${swap.issues.balance.currentBalance}`);
+    console.log(`   Required: ${swap.issues.balance.requiredBalance}`);
+    console.log(`   Token: ${swap.issues.balance.token}`);
+    isValid = false;
+  } else {
+    console.log("✅ Sufficient balance");
+  }
+  
+  // Check allowance issues
+  if (swap.issues?.allowance) {
+    console.log("❌ Allowance Issues:");
+    console.log(`   Current: ${swap.issues.allowance.currentAllowance}`);
+    console.log(`   Required: ${swap.issues.allowance.requiredAllowance}`);
+    console.log(`   Spender: ${swap.issues.allowance.spender}`);
+    isValid = false;
+  } else {
+    console.log("✅ Sufficient allowance");
+  }
+  
+  // Check simulation
+  if (swap.issues?.simulationIncomplete) {
+    console.log("⚠️ WARNING: Simulation incomplete - transaction may fail");
+    // Not marking as invalid since this is just a warning
+  } else {
+    console.log("✅ Simulation complete");
+  }
+  
+  return isValid;
+}
+
 // Show setup information
 console.log("\n📦 Dependencies required:");
 console.log("   pnpm add permissionless viem@^2.0.0");
@@ -499,10 +471,5 @@ console.log("   - BUNDLER_URL: Your bundler service endpoint (required)");
 console.log("   - PAYMASTER_URL: Your paymaster service endpoint (optional)");
 console.log("   - VIEM_PRIVATE_KEY: Private key for the smart account owner (required)");
 console.log("\n💡 Bundler providers: Pimlico, Stackup, Alchemy Account Abstraction");
-console.log("\n🔗 Useful for:");
-console.log("   - Advanced trading applications");
-console.log("   - Custom account abstraction flows");
-console.log("   - Integration with existing viem + AA infrastructure");
-console.log("   - Detailed swap analysis before execution");
 
 main().catch(console.error); 

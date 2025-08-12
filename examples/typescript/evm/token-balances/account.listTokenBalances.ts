@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/tokens/account.listTokenBalances.ts
+// Usage: pnpm tsx evm/token-balances/account.listTokenBalances.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import { createPublicClient, http } from "viem";

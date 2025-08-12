@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/integrations/viem/viem.account.quoteSwapAndExecute.ts
+// Usage: pnpm tsx evm/ecosystem/viem/viem.account.quoteSwapAndExecute.ts
 //
 // Required Environment Variable:
 // - VIEM_WALLET_PRIVATE_KEY: The private key of the wallet to use for transactions

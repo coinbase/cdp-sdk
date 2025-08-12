@@ -1,4 +1,4 @@
-# Usage: uv run python evm/integrations/web3py/evm_local_account.py
+# Usage: uv run python evm/ecosystem/web3py/evm_local_account.py
 
 import asyncio
 

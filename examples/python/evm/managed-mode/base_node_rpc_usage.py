@@ -1,4 +1,4 @@
-# Usage: uv run python evm/networks/base_node_rpc_usage.py
+# Usage: uv run python evm/managed-mode/base_node_rpc_usage.py
 """
 Example demonstrating Base Node RPC URL functionality.
 

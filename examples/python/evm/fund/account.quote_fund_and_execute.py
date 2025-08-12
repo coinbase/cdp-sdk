@@ -1,4 +1,4 @@
-# Usage: uv run python evm/funding/account.quote_fund.py
+# Usage: uv run python evm/fund/account.quote_fund_and_execute.py
 
 import asyncio
 from cdp import CdpClient
@@ -14,7 +14,7 @@ async def main():
         quote = await account.quote_fund(
             network="base",
             token="eth",
-            amount=500000000000000,  # 0.0005 eth
+            amount=500000000000000, # 0.0005 eth
         )
 
         # get details of the quote
@@ -27,6 +27,14 @@ async def main():
             print("Fee type: ", fee.type)  # operation or network
             print("Fee amount: ", fee.amount)  # amount in the token
             print("Fee currency: ", fee.currency)  # currency of the amount
+
+        response = await quote.execute()
+
+        completed_transfer = await account.wait_for_fund_operation_receipt(
+            transfer_id=response.id,
+        )
+
+        print(completed_transfer)
 
 
 asyncio.run(main()) 

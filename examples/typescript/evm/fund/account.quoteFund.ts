@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/funding/account.quoteFund.ts
+// Usage: pnpm tsx evm/fund/account.quoteFund.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";

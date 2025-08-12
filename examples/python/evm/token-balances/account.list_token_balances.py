@@ -1,4 +1,4 @@
-# Usage: uv run python evm/tokens/account.list_token_balances.py
+# Usage: uv run python evm/token-balances/account.list_token_balances.py
 
 import asyncio
 from cdp import CdpClient

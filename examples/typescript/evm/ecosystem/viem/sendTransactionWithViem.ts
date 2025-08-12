@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/integrations/viem/sendTransactionWithViem.ts
+// Usage: pnpm tsx evm/ecosystem/viem/sendTransactionWithViem.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 

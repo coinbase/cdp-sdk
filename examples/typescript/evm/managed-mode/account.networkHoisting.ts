@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/networks/account.networkHoisting.ts
+// Usage: pnpm tsx evm/managed-mode/account.networkHoisting.ts
 // This file demonstrates the type-safe network scoping feature
 // It's for demonstration purposes only and won't run without proper setup
 

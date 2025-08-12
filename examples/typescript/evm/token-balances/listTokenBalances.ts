@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/tokens/listTokenBalances.ts
+// Usage: pnpm tsx evm/token-balances/listTokenBalances.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";

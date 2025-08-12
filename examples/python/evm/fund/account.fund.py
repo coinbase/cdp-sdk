@@ -1,4 +1,4 @@
-# Usage: uv run python evm/funding/account.fund.py
+# Usage: uv run python evm/fund/account.fund.py
 
 import asyncio
 from cdp import CdpClient

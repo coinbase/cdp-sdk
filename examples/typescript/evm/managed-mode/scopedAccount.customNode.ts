@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/networks/scopedAccount.customNode.ts
+// Usage: pnpm tsx evm/managed-mode/scopedAccount.customNode.ts
 // Make sure to set NODE_RPC_URL in your .env file
 
 import { CdpClient } from "@coinbase/cdp-sdk";

@@ -1,4 +1,4 @@
-// Usage: pnpm tsx evm/networks/smartAccount.networkHoisting.ts
+// Usage: pnpm tsx evm/managed-mode/smartAccount.networkHoisting.ts
 // This file demonstrates the type-safe network scoping feature for smart accounts
 // It's for demonstration purposes only and won't run without proper setup
 
