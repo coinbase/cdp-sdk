@@ -427,13 +427,13 @@ async def test_list_token_balances(server_account_model_factory, evm_token_balan
     name = "test-account"
     server_account_model = server_account_model_factory(address, name)
 
-    mock_evm_token_balances_api = AsyncMock()
+    mock_onchain_data_api = AsyncMock()
     mock_api_clients = AsyncMock()
-    mock_api_clients.evm_token_balances = mock_evm_token_balances_api
+    mock_api_clients.onchain_data = mock_onchain_data_api
 
     mock_token_balances = evm_token_balances_model_factory()
 
-    mock_evm_token_balances_api.list_evm_token_balances = AsyncMock(
+    mock_onchain_data_api.list_data_token_balances = AsyncMock(
         return_value=mock_token_balances
     )
 
@@ -456,7 +456,7 @@ async def test_list_token_balances(server_account_model_factory, evm_token_balan
 
     result = await server_account.list_token_balances(network="base-sepolia")
 
-    mock_evm_token_balances_api.list_evm_token_balances.assert_called_once_with(
+    mock_onchain_data_api.list_data_token_balances.assert_called_once_with(
         address=address, network="base-sepolia", page_size=None, page_token=None
     )
 
