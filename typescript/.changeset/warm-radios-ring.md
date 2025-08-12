@@ -1,0 +1,5 @@
+---
+"@coinbase/cdp-sdk": minor
+---
+
+Added additional network support for sendEvmTransaction and prepareUserOperation evmNetwork policy criteria

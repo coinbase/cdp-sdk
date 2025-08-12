@@ -31,8 +31,10 @@ from cdp.policies.types import (
     EvmMessageCriterion,
     EvmNetworkCriterion,
     NetUSDChangeCriterion,
+    PrepareUserOperationRule,
     SendEvmTransactionRule,
     SendSolanaTransactionRule,
+    SendUserOperationRule,
     SignEvmHashRule,
     SignEvmMessageRule,
     SignEvmTransactionRule,
@@ -836,6 +838,7 @@ async def test_transfer_eth_smart_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@retry_on_failure()
 async def test_transfer_usdc_smart_account(cdp_client):
     """Test transferring USDC tokens with a smart account."""
     account = await cdp_client.evm.create_smart_account(owner=Account.create())
@@ -1128,6 +1131,24 @@ async def test_create_account_policy(cdp_client):
                         ),
                     ],
                 ),
+                PrepareUserOperationRule(
+                    action="accept",
+                    criteria=[
+                        EvmNetworkCriterion(
+                            networks=["base-sepolia", "base"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+                SendUserOperationRule(
+                    action="accept",
+                    criteria=[
+                        EthValueCriterion(
+                            ethValue="1000000000000000000",
+                            operator="<=",
+                        ),
+                    ],
+                ),
             ],
         )
     )
@@ -1136,7 +1157,7 @@ async def test_create_account_policy(cdp_client):
     assert policy.scope == "account"
     assert policy.description == "E2E Test Policy"
     assert policy.rules is not None
-    assert len(policy.rules) == 4
+    assert len(policy.rules) == 6
     assert policy.rules[0].action == "accept"
     assert policy.rules[0].operation == "signEvmTransaction"
     assert policy.rules[0].criteria is not None
@@ -1165,6 +1186,25 @@ async def test_create_account_policy(cdp_client):
     assert len(policy.rules[3].criteria) == 1
     assert policy.rules[3].criteria[0].type == "evmMessage"
     assert policy.rules[3].criteria[0].match == ".*"
+    # prepareUserOperation
+    assert policy.rules[4].action == "accept"
+    assert policy.rules[4].operation == "prepareUserOperation"
+    assert policy.rules[4].criteria is not None
+    assert len(policy.rules[4].criteria) == 1
+    assert policy.rules[4].criteria[0].type == "evmNetwork"
+    assert policy.rules[4].criteria[0].networks == [
+        "base-sepolia",
+        "base",
+    ]
+    assert policy.rules[4].criteria[0].operator == "in"
+    # sendUserOperation
+    assert policy.rules[5].action == "accept"
+    assert policy.rules[5].operation == "sendUserOperation"
+    assert policy.rules[5].criteria is not None
+    assert len(policy.rules[5].criteria) == 1
+    assert policy.rules[5].criteria[0].type == "ethValue"
+    assert policy.rules[5].criteria[0].ethValue == "1000000000000000000"
+    assert policy.rules[5].criteria[0].operator == "<="
 
     # Delete the policy
     await cdp_client.policies.delete_policy(id=policy.id)
