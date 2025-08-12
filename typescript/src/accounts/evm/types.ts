@@ -59,6 +59,9 @@ import type {
   WaitForTransactionReceiptParameters,
 } from "viem";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type DistributedOmit<T, K extends PropertyKey> = T extends any ? Omit<T, K> : never;
+
 /**
  * Base type for any Ethereum account with signing capabilities.
  * For example, this could be an EVM ServerAccount, or a viem LocalAccount.
@@ -168,9 +171,6 @@ export type EvmSmartAccountProperties = {
  * Ethereum smart account which supports account abstraction features like user operations, batch transactions, and paymaster.
  */
 export type EvmSmartAccount = Prettify<EvmSmartAccountProperties & SmartAccountActions>;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type DistributedOmit<T, K extends PropertyKey> = T extends any ? Omit<T, K> : never;
 
 /**
  * Helper type for network-specific smart account actions
@@ -324,13 +324,17 @@ export type NetworkSpecificAccountActions<Network extends string> = Prettify<
     // Conditionally include quoteSwap
     (Network extends QuoteSwapNetworks
       ? {
-          quoteSwap: (options: AccountQuoteSwapOptions) => Promise<AccountQuoteSwapResult>;
+          quoteSwap: (
+            options: DistributedOmit<AccountQuoteSwapOptions, "network">,
+          ) => Promise<AccountQuoteSwapResult>;
         }
       : EmptyObject) &
     // Conditionally include swap
     (Network extends SwapNetworks
       ? {
-          swap: (options: AccountSwapOptions) => Promise<AccountSwapResult>;
+          swap: (
+            options: DistributedOmit<AccountSwapOptions, "network">,
+          ) => Promise<AccountSwapResult>;
         }
       : EmptyObject) &
     // Conditionally include useSpendPermission
