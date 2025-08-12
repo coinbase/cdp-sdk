@@ -1879,23 +1879,27 @@ describe("CDP Client E2E Tests", () => {
 
   // Skipping due to flakiness where this test is run concurrently with other tests,
   // causing other unrelated tests to fail due to policy violations.
-  describe("Policy Evaluation", () => {
+  describe.only("Policy Evaluation", () => {
     const policyViolation = {
       statusCode: 403,
       errorType: "policy_violation",
     };
     let policy: Policy;
+
+    // Use a pool of accounts to prevent linear account growth
+    const testEvmAccountNames = Array.from({ length: 10 }, (_, i) => `EVM E2E Account ${i + 1}`)
+    const testSolAccountNames = Array.from({ length: 10 }, (_, i) => `SOL E2E Account ${i + 1}`)
+
     let policyTestAccount: typeof testAccount;
     let policySolanaTestAccount: typeof testSolanaAccount;
 
     beforeAll(async () => {
       policyTestAccount = await cdp.evm.getOrCreateAccount({
-        name: generateRandomName().slice(0, 36),
+        name: testEvmAccountNames[Math.floor(Math.random() * testEvmAccountNames.length)],
       });
       policySolanaTestAccount = await cdp.solana.getOrCreateAccount({
-        name: generateRandomName().slice(0, 36),
+        name: testSolAccountNames[Math.floor(Math.random() * testSolAccountNames.length)],
       });
-      await ensureSufficientEthBalance(cdp, policyTestAccount);
       policy = await cdp.policies.createPolicy({
         policy: {
           description: Date.now().toString(),
