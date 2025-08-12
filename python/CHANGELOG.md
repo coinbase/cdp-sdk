@@ -2,6 +2,183 @@
 
 <!-- towncrier release notes start -->
 
+## [1.29.1] - 2025-08-09
+
+### Bugfixes
+
+- Added discovery layer disclaimer notice to x402 subpackage
+
+
+## [1.29.0] - 2025-08-07
+
+### Features
+
+- Promoted Spend Permissions out of experimental mode. For more info, see: https://docs.cdp.coinbase.com/wallet-api/v2/evm-features/spend-permissions ([#376](https://github.com/coinbase/cdp-sdk/pull/376))
+
+
+## [1.28.0] - 2025-08-05
+
+### Features
+
+- Added netUSDChange criteria for sign/sendEvmTransaction rules ([#1218](https://github.com/coinbase/cdp-sdk/pull/1218))
+
+
+## [1.27.0] - 2025-08-04
+
+### Features
+
+- Added SendSolTransaction rule and updated SignSolTransaction rule with new criteria ([#344](https://github.com/coinbase/cdp-sdk/pull/344))
+
+
+## [1.26.0] - 2025-07-31
+
+### Features
+
+- SendEvmTransaction support for new EVM networks - arbitrum, polygon, optimism, avalanche ([#338](https://github.com/coinbase/cdp-sdk/pull/338))
+
+### Bugfixes
+
+- Fixed evmData in python request/response transformer ([#317](https://github.com/coinbase/cdp-sdk/pull/317))
+
+
+## [1.25.0] - 2025-07-23
+
+### Features
+
+- Added Solana onramp ([#294](https://github.com/coinbase/cdp-sdk/pull/294))
+
+### Bugfixes
+
+- Updated transfer to use SendSolanaTransaction ([#309](https://github.com/coinbase/cdp-sdk/pull/309))
+
+
+## [1.24.0] - 2025-07-18
+
+### Features
+
+- Added sendTransaction function for Solana accounts ([#291](https://github.com/coinbase/cdp-sdk/pull/291))
+- Improved network error handling ([#293](https://github.com/coinbase/cdp-sdk/pull/293))
+
+### Bugfixes
+
+- Gracefully handle closed client connections ([#298](https://github.com/coinbase/cdp-sdk/pull/298))
+
+
+## [1.23.0] - 2025-07-16
+
+### Features
+
+- Added signTypedData on EvmSmartAccount ([#284](https://github.com/coinbase/cdp-sdk/pull/284))
+
+### Bugfixes
+
+- Made solana mainnet default network for listTokenBalances ([#282](https://github.com/coinbase/cdp-sdk/pull/282))
+
+
+## [1.22.0] - 2025-07-10
+
+### Features
+
+- Added list_token_balances on Solana to get SOL and SPL token balances ([#277](https://github.com/coinbase/cdp-sdk/pull/277))
+
+
+## [1.21.0] - 2025-07-09
+
+### Features
+
+- Added updateSmartAccount to EvmClient ([#267](https://github.com/coinbase/cdp-sdk/pull/267))
+- Added sendUserOperation, prepareUserOperation policy rules and EVM Smart Account policies ([#270](https://github.com/coinbase/cdp-sdk/pull/270))
+
+
+## [1.20.0] - 2025-07-08
+
+### Features
+
+- Added support for policy creation on signTypedData operations ([#264](https://github.com/coinbase/cdp-sdk/pull/264))
+
+
+## [1.19.0] - 2025-07-01
+
+### Features
+
+- Added ethereum mainnet support for wallet fund and quote_fund operations ([#251](https://github.com/coinbase/cdp-sdk/pull/251))
+
+
+## [1.18.0] - 2025-06-27
+
+### Features
+
+- Added importAccount method for Solana client ([#244](https://github.com/coinbase/cdp-sdk/pull/244))
+
+### Bugfixes
+
+- Fixed EvmLocalAccount sign typed data compatibility with eth-account.
+
+  - Convert bytes32 to hex string to make it serializable
+  - Include EIP712 domain if missing from types
+  - Return SignedMessage
+
+  ([#246](https://github.com/coinbase/cdp-sdk/pull/246))
+
+
+## [1.17.0] - 2025-06-26
+
+### Features
+
+- Added ethereum & ethereum-sepolia to SendEvmTransaction ([#234](https://github.com/coinbase/cdp-sdk/pull/234))
+
+
+## [1.16.0] - 2025-06-25
+
+### Features
+
+- Added support for EvmDataCriterion in policies, which can restrict smart contract interactions ([#220](https://github.com/coinbase/cdp-sdk/pull/220))
+
+### Bugfixes
+
+- Hash req body in wallet jwt claims ([#212](https://github.com/coinbase/cdp-sdk/pull/212))
+
+
+## [1.15.0] - 2025-06-18
+
+### Features
+
+- Added the CDP facilitator configuration export for the x402 payment protocol
+
+
+## [1.14.0] - 2025-06-17
+
+### Features
+
+- **Added swap support for EVM Smart Accounts** ([#200](https://github.com/coinbase/cdp-sdk/pull/200)):
+  
+    - Added the following EVM Smart Account methods: `evm_smart_account.quote_swap()`, `evm_smart_account.swap()`
+    - Added `swap_quote.execute()` method for executing swap quotes generated for EVM Smart Accounts
+
+- Added idempotency support for get_swap_price and create_swap_quote ([#200](https://github.com/coinbase/cdp-sdk/pull/200))
+
+### Bugfixes
+
+  - Fixed usage of optional idempotency keys for one-line swap approach ([#200](https://github.com/coinbase/cdp-sdk/pull/200))
+
+## [1.13.0] - 2025-06-13
+
+### Features
+
+- Added get_or_create_smart_account and added optional name argument to get_smart_account and create_smart_account ([#198](https://github.com/coinbase/cdp-sdk/pull/198))
+
+
+## [1.12.0] - 2025-06-12
+
+### Features
+
+- Added evm and solana account export by address or name ([#195](https://github.com/coinbase/cdp-sdk/pull/195))
+
+### Bugfixes
+
+- Log response body for unexpected error scenarios ([#192](https://github.com/coinbase/cdp-sdk/pull/192))
+
+
 ## [1.11.1] - 2025-06-04
 
 ### Bugfixes

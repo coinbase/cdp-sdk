@@ -10,7 +10,7 @@ from cdp.openapi_client.api_client import ApiClient
 from cdp.openapi_client.api_response import ApiResponse, T as ApiResponseT
 from cdp.openapi_client.configuration import Configuration
 from cdp.openapi_client.constants import ERROR_DOCS_PAGE_URL, SDK_DEFAULT_SOURCE
-from cdp.openapi_client.errors import ApiError, is_openapi_error
+from cdp.openapi_client.errors import ApiError, NetworkError, HttpErrorType, is_openapi_error
 from cdp.openapi_client.exceptions import ApiException
 
 
@@ -124,37 +124,79 @@ class CdpApiClient(ApiClient):
             if e.status == 401:
                 raise ApiError(
                     http_code=401,
-                    error_type="unauthorized",
+                    error_type=HttpErrorType.UNAUTHORIZED,
                     error_message="Unauthorized.",
                     error_link=f"{ERROR_DOCS_PAGE_URL}#unauthorized",
+                ) from None
+            elif e.status == 403:
+                # Special handling for IP blocklist and other gateway-level 403s
+                response_data = e.body
+                is_gateway_error = False
+                
+                if response_data:
+                    response_str = str(response_data).lower()
+                    is_gateway_error = any(keyword in response_str for keyword in ["forbidden", "ip", "blocked", "gateway"])
+                
+                if is_gateway_error:
+                    raise NetworkError(
+                        error_type=HttpErrorType.NETWORK_IP_BLOCKED,
+                        error_message="Access denied. Your IP address may be blocked or restricted.",
+                        network_details={
+                            "code": "IP_BLOCKED",
+                            "message": str(response_data) if response_data else None,
+                            "retryable": False,
+                        },
+                        error_link=f"{ERROR_DOCS_PAGE_URL}#network-errors",
+                    ) from None
+                
+                # Regular 403 forbidden error
+                raise ApiError(
+                    http_code=403,
+                    error_type=HttpErrorType.UNAUTHORIZED,
+                    error_message="Forbidden. You don't have permission to access this resource.",
+                    error_link=f"{ERROR_DOCS_PAGE_URL}#forbidden",
                 ) from None
             elif e.status == 404:
                 raise ApiError(
                     http_code=404,
-                    error_type="not_found",
+                    error_type=HttpErrorType.NOT_FOUND,
                     error_message="API not found",
                     error_link=f"{ERROR_DOCS_PAGE_URL}#not_found",
                 ) from None
             elif e.status == 502:
                 raise ApiError(
                     http_code=502,
-                    error_type="bad_gateway",
+                    error_type=HttpErrorType.BAD_GATEWAY,
                     error_message="Bad gateway.",
                     error_link=ERROR_DOCS_PAGE_URL,
                 ) from None
             elif e.status == 503:
                 raise ApiError(
                     http_code=503,
-                    error_type="service_unavailable",
+                    error_type=HttpErrorType.SERVICE_UNAVAILABLE,
                     error_message="Service unavailable. Please try again later.",
                     error_link=ERROR_DOCS_PAGE_URL,
                 ) from None
 
             # Default to unexpected error
+            error_text = ""
+            
+            if e.body:
+                try:
+                    error_text = json.dumps(e.body)
+                except (TypeError, ValueError):
+                    error_text = str(e.body)
+            
+            error_message = (
+                f"An unexpected error occurred: {error_text}" 
+                if error_text 
+                else "An unexpected error occurred."
+            )
+            
             raise ApiError(
                 http_code=e.status or 500,
-                error_type="unexpected_error",
-                error_message="An unexpected error occurred.",
+                error_type=HttpErrorType.UNEXPECTED_ERROR,
+                error_message=error_message,
                 error_link=ERROR_DOCS_PAGE_URL,
             ) from None
         except Exception as e:
@@ -162,18 +204,64 @@ class CdpApiClient(ApiClient):
                 print(f"Error: {e}")
 
             # Handle network errors
-            if "Connection refused" in str(e):
-                raise ApiError(
-                    http_code=503,
-                    error_type="service_unavailable",
-                    error_message="Network error, unable to reach the service.",
-                    error_link=ERROR_DOCS_PAGE_URL,
+            error_str = str(e).lower()
+            
+            # Connection refused errors
+            if "connection refused" in error_str or "econnrefused" in error_str:
+                raise NetworkError(
+                    error_type=HttpErrorType.NETWORK_CONNECTION_FAILED,
+                    error_message="Unable to connect to CDP service. The service may be unavailable.",
+                    network_details={
+                        "code": "ECONNREFUSED",
+                        "message": str(e),
+                        "retryable": True,
+                    },
+                    error_link=f"{ERROR_DOCS_PAGE_URL}#network-errors",
+                ) from None
+            
+            # Timeout errors
+            elif any(timeout_keyword in error_str for timeout_keyword in ["timeout", "timed out", "etimedout", "econnaborted"]):
+                raise NetworkError(
+                    error_type=HttpErrorType.NETWORK_TIMEOUT,
+                    error_message="Request timed out. Please try again.",
+                    network_details={
+                        "code": "ETIMEDOUT",
+                        "message": str(e),
+                        "retryable": True,
+                    },
+                    error_link=f"{ERROR_DOCS_PAGE_URL}#network-errors",
+                ) from None
+            
+            # DNS resolution errors
+            elif any(dns_keyword in error_str for dns_keyword in ["nodename nor servname provided", "getaddrinfo failed", "name or service not known", "enotfound"]):
+                raise NetworkError(
+                    error_type=HttpErrorType.NETWORK_DNS_FAILURE,
+                    error_message="DNS resolution failed. Please check your network connection.",
+                    network_details={
+                        "code": "ENOTFOUND",
+                        "message": str(e),
+                        "retryable": False,
+                    },
+                    error_link=f"{ERROR_DOCS_PAGE_URL}#network-errors",
+                ) from None
+            
+            # Generic network errors
+            elif any(network_keyword in error_str for network_keyword in ["network", "econnreset", "connection reset", "connection aborted"]):
+                raise NetworkError(
+                    error_type=HttpErrorType.NETWORK_CONNECTION_FAILED,
+                    error_message="Network error occurred. Please check your connection and try again.",
+                    network_details={
+                        "code": "NETWORK_ERROR",
+                        "message": str(e),
+                        "retryable": True,
+                    },
+                    error_link=f"{ERROR_DOCS_PAGE_URL}#network-errors",
                 ) from None
 
             # Default unexpected error
             raise ApiError(
                 http_code=500,
-                error_type="unexpected_error",
+                error_type=HttpErrorType.UNEXPECTED_ERROR,
                 error_message=f"An unexpected error occurred: {e!s}",
                 error_link=ERROR_DOCS_PAGE_URL,
             ) from None
@@ -230,8 +318,8 @@ class CdpApiClient(ApiClient):
 
         """
         return Retry(
-            total=max_network_retries,  # Number of total retries
-            status_forcelist=[500, 502, 503, 504],  # Retry on HTTP status code 500
-            allowed_methods=["GET"],  # Retry only on GET requests
+            total=max_network_retries,
+            status_forcelist=[500, 502, 503, 504],
+            allowed_methods=["GET", "HEAD", "OPTIONS", "PUT", "DELETE"],
             backoff_factor=1,  # Exponential backoff factor
         )

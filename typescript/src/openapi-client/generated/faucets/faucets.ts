@@ -19,10 +19,10 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 /**
  * Request funds from the CDP Faucet on supported EVM test networks.
 
-Faucets are available for ETH, USDC, EURC, and cbBTC on Base Sepolia and Ethereum Sepolia.
+Faucets are available for ETH, USDC, EURC, and cbBTC on Base Sepolia and Ethereum Sepolia, and for ETH only on Ethereum Hoodi.
 
-To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested. 
-These limits are applied at both the CDP User level and the blockchain address level. 
+To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested.
+These limits are applied at both the CDP User level and the blockchain address level.
 A single blockchain address cannot exceed the specified limits, even if multiple users submit requests to the same address.
 
 | Token | Amount per Faucet Request |Rolling 24-hour window Rate Limits|
@@ -53,8 +53,8 @@ export const requestEvmFaucet = (
 
 Faucets are available for SOL.
 
-To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested. 
-These limits are applied at both the CDP User level and the blockchain address level. 
+To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested.
+These limits are applied at both the CDP User level and the blockchain address level.
 A single blockchain address cannot exceed the specified limits, even if multiple users submit requests to the same address.
 
 | Token | Amount per Faucet Request |Rolling 24-hour window Rate Limits|

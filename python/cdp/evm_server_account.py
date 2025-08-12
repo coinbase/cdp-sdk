@@ -1,4 +1,4 @@
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from eth_account.datastructures import (
     SignedMessage,
@@ -21,19 +21,20 @@ from pydantic import BaseModel, ConfigDict, Field
 from web3 import Web3
 
 from cdp.actions.evm.fund import (
-    FundOptions,
-    QuoteFundOptions,
+    EvmFundOptions,
+    EvmQuoteFundOptions,
     fund,
     quote_fund,
-    wait_for_fund_operation_receipt,
 )
-from cdp.actions.evm.fund.quote import Quote
-from cdp.actions.evm.fund.types import FundOperationResult
 from cdp.actions.evm.list_token_balances import list_token_balances
 from cdp.actions.evm.request_faucet import request_faucet
 from cdp.actions.evm.send_transaction import send_transaction
-from cdp.actions.evm.swap import SwapOptions
-from cdp.actions.evm.swap.types import QuoteSwapResult, SwapResult
+from cdp.actions.evm.swap import AccountSwapOptions
+from cdp.actions.evm.swap.types import AccountSwapResult, QuoteSwapResult
+from cdp.actions.quote import EvmQuote
+from cdp.actions.types import FundOperationResult
+from cdp.actions.wait_for_fund_operation_receipt import wait_for_fund_operation_receipt
+from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.evm_transaction_types import TransactionRequestEIP1559
@@ -47,6 +48,9 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
 from cdp.openapi_client.models.transfer import Transfer
+
+if TYPE_CHECKING:
+    from cdp.spend_permissions import SpendPermissionInput
 
 
 class EvmServerAccount(BaseAccount, BaseModel):
@@ -97,11 +101,11 @@ class EvmServerAccount(BaseAccount, BaseModel):
         return self.__name
 
     @property
-    def policies(self) -> list[str]:
+    def policies(self) -> list[str] | None:
         """Gets the list of policies the apply to this account.
 
         Returns:
-            str: The list of Policy IDs.
+            list[str] | None: The list of Policy IDs.
 
         """
         return self.__policies
@@ -122,6 +126,8 @@ class EvmServerAccount(BaseAccount, BaseModel):
             AttributeError: If the signature response is missing required fields
 
         """
+        track_action(action="sign_message", account_type="evm_server")
+
         message_body = signable_message.body
         message_hex = (
             message_body.hex() if isinstance(message_body, bytes) else HexBytes(message_body).hex()
@@ -166,6 +172,8 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ValueError: If the signature response is missing required fields
 
         """
+        track_action(action="sign", account_type="evm_server")
+
         hash_hex = HexBytes(message_hash).hex()
         sign_evm_hash_request = SignEvmHashRequest(hash=hash_hex)
         signature_response = await self.__evm_accounts_api.sign_evm_hash(
@@ -201,6 +209,8 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ValueError: If the signature response is missing required fields
 
         """
+        track_action(action="sign_transaction", account_type="evm_server")
+
         typed_tx = TypedTransaction.from_dict(transaction_dict)
         typed_tx.transaction.dictionary["v"] = 0
         typed_tx.transaction.dictionary["r"] = 0
@@ -278,6 +288,14 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ... })
 
         """
+        track_action(
+            action="transfer",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
         from cdp.actions.evm.transfer import account_transfer_strategy, transfer
 
         return await transfer(
@@ -290,89 +308,56 @@ class EvmServerAccount(BaseAccount, BaseModel):
             transfer_strategy=account_transfer_strategy,
         )
 
-    async def swap(self, options: SwapOptions) -> SwapResult:
-        """Swap tokens from one asset to another.
+    async def swap(self, swap_options: AccountSwapOptions) -> AccountSwapResult:
+        """Execute a token swap.
 
         Args:
-            options: The swap options. Must be a SwapOptions instance containing either:
-                - Direct swap parameters (network, from_token, to_token, from_amount, slippage_bps)
-                - A pre-created swap quote (swap_quote)
-
-                Note: The account address is always used as the taker.
+            swap_options: The swap options
 
         Returns:
-            SwapResult: The result of the swap transaction.
-
-        Examples:
-            **Direct swap with parameters**:
-            >>> from cdp.actions.evm.swap import SwapOptions
-            >>> result = await account.swap(
-            ...     SwapOptions(
-            ...         network="base",
-            ...         from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
-            ...         to_token="0x4200000000000000000000000000000000000006",  # WETH
-            ...         from_amount="100000000",  # 100 USDC
-            ...         slippage_bps=100  # 1% slippage
-            ...     )
-            ... )
-
-            **Swap with pre-created quote**:
-            >>> # First create a quote
-            >>> quote = await cdp.evm.create_swap_quote(
-            ...     from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-            ...     to_token="0x4200000000000000000000000000000000000006",
-            ...     from_amount="100000000",
-            ...     network="base",
-            ...     taker=account.address
-            ... )
-            >>> # Then execute with the quote
-            >>> result = await account.swap(
-            ...     SwapOptions(swap_quote=quote)
-            ... )
+            AccountSwapResult: The result containing the transaction hash
 
         """
-        # Validate that options is a SwapOptions instance
-        if not isinstance(options, SwapOptions):
-            raise TypeError("swap() expects a SwapOptions instance")
-
-        from cdp.actions.evm.swap import AccountSwapStrategy, swap
-        from cdp.actions.evm.swap.types import SwapUnavailableResult
-        from cdp.evm_client import EvmClient
-
-        # Handle pre-created quote
-        if options.swap_quote is not None:
-            return await swap(
-                api_clients=self.__api_clients,
-                from_account=self,
-                swap_options=options,
-                swap_strategy=AccountSwapStrategy(),
-            )
-
-        # Handle direct parameters - create quote first
-        # Create an EVM client instance
-        evm_client = EvmClient(self.__api_clients)
-
-        # Create the swap quote from parameters, always using account address as taker
-        swap_quote = await evm_client.create_swap_quote(
-            from_token=options.from_token,
-            to_token=options.to_token,
-            from_amount=options.from_amount,
-            network=options.network,
-            taker=self.address,  # Always use account address as taker
-            slippage_bps=options.slippage_bps,
-            signer_address=self.address,  # Pass account address as signer
+        track_action(
+            action="swap",
+            account_type="evm_server",
+            properties={
+                "network": swap_options.network
+                if hasattr(swap_options, "network") and swap_options.network
+                else None,
+            },
         )
 
-        # Check if liquidity is unavailable
-        if isinstance(swap_quote, SwapUnavailableResult):
-            raise ValueError("Swap unavailable: Insufficient liquidity")
+        from cdp.actions.evm.swap.send_swap_transaction import send_swap_transaction
+        from cdp.actions.evm.swap.types import (
+            InlineSendSwapTransactionOptions,
+            QuoteBasedSendSwapTransactionOptions,
+        )
 
-        # Execute the swap
-        return await swap(
+        # Convert AccountSwapOptions to the appropriate discriminated union type
+        if swap_options.swap_quote is not None:
+            # Use quote-based options
+            options = QuoteBasedSendSwapTransactionOptions(
+                address=self.address,
+                swap_quote=swap_options.swap_quote,
+                idempotency_key=swap_options.idempotency_key,
+            )
+        else:
+            # Use inline options
+            options = InlineSendSwapTransactionOptions(
+                address=self.address,
+                network=swap_options.network,
+                from_token=swap_options.from_token,
+                to_token=swap_options.to_token,
+                from_amount=swap_options.from_amount,
+                taker=self.address,  # For regular accounts, taker is same as address
+                slippage_bps=swap_options.slippage_bps,
+                idempotency_key=swap_options.idempotency_key,
+            )
+
+        return await send_swap_transaction(
             api_clients=self.__api_clients,
-            from_account=self,
-            swap_options=SwapOptions(swap_quote=swap_quote),
-            swap_strategy=AccountSwapStrategy(),
+            options=options,
         )
 
     async def quote_swap(
@@ -383,6 +368,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
         network: str,
         slippage_bps: int | None = None,
         signer_address: str | None = None,
+        idempotency_key: str | None = None,
     ) -> "QuoteSwapResult":
         """Get a quote for swapping tokens.
 
@@ -396,6 +382,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             network: The network to execute the swap on
             slippage_bps: Maximum slippage in basis points (100 = 1%). Defaults to 100.
             signer_address: The address that will sign the transaction (for smart accounts). Currently unused.
+            idempotency_key: Optional idempotency key for safe retryable requests.
 
         Returns:
             QuoteSwapResult: The swap quote with transaction data
@@ -406,21 +393,25 @@ class EvmServerAccount(BaseAccount, BaseModel):
             ...     from_token="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",  # USDC
             ...     to_token="0x4200000000000000000000000000000000000006",  # WETH
             ...     from_amount="100000000",  # 100 USDC
-            ...     network="base"
+            ...     network="base",
+            ...     idempotency_key="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
             ... )
             >>> print(f"Expected output: {quote.to_amount}")
             >>>
             >>> # Execute the quote if satisfied
-            >>> result = await account.swap(SwapOptions(swap_quote=quote))
+            >>> result = await account.swap(AccountSwapOptions(swap_quote=quote))
 
         """
-        from cdp.evm_client import EvmClient
+        track_action(
+            action="create_swap_quote",
+            properties={"network": network},
+        )
 
-        # Create an EVM client instance
-        evm_client = EvmClient(self.__api_clients)
+        from cdp.actions.evm.swap.create_swap_quote import create_swap_quote
 
-        # Call create_swap_quote with the account address as taker
-        return await evm_client.create_swap_quote(
+        # Call create_swap_quote directly with the account address as taker
+        return await create_swap_quote(
+            api_clients=self.__api_clients,
             from_token=from_token,
             to_token=to_token,
             from_amount=from_amount,
@@ -428,6 +419,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             taker=self.address,
             slippage_bps=slippage_bps,
             signer_address=signer_address,
+            idempotency_key=idempotency_key,
         )
 
     async def request_faucet(
@@ -445,6 +437,14 @@ class EvmServerAccount(BaseAccount, BaseModel):
             str: The transaction hash of the faucet request.
 
         """
+        track_action(
+            action="request_faucet",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
         return await request_faucet(
             self.__api_clients.faucets,
             self.address,
@@ -473,6 +473,8 @@ class EvmServerAccount(BaseAccount, BaseModel):
             str: The signature.
 
         """
+        track_action(action="sign_typed_data", account_type="evm_server")
+
         eip712_message = EIP712Message(
             domain=domain,
             types=types,
@@ -503,8 +505,16 @@ class EvmServerAccount(BaseAccount, BaseModel):
             [ListTokenBalancesResult]: The token balances for the account on the network.
 
         """
+        track_action(
+            action="list_token_balances",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
         return await list_token_balances(
-            self.__api_clients.evm_token_balances,
+            self.__api_clients.onchain_data,
             self.address,
             network,
             page_size,
@@ -549,6 +559,14 @@ class EvmServerAccount(BaseAccount, BaseModel):
             str: The transaction hash.
 
         """
+        track_action(
+            action="send_transaction",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
         return await send_transaction(
             evm_accounts=self.__evm_accounts_api,
             address=self.address,
@@ -559,10 +577,10 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
     async def quote_fund(
         self,
-        network: Literal["base"],
+        network: Literal["base", "ethereum"],
         amount: int,
         token: Literal["eth", "usdc"],
-    ) -> Quote:
+    ) -> EvmQuote:
         """Quote a fund operation.
 
         Args:
@@ -571,7 +589,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             token: The token to fund.
 
         Returns:
-            Quote: A quote object containing:
+            EvmQuote: A quote object containing:
                 - quote_id: The ID of the quote
                 - network: The network the quote is for
                 - fiat_amount: The amount in fiat currency
@@ -581,7 +599,15 @@ class EvmServerAccount(BaseAccount, BaseModel):
                 - fees: List of fees associated with the quote
 
         """
-        fund_options = QuoteFundOptions(
+        track_action(
+            action="quote_fund",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
+        fund_options = EvmQuoteFundOptions(
             network=network,
             amount=amount,
             token=token,
@@ -595,7 +621,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
     async def fund(
         self,
-        network: Literal["base"],
+        network: Literal["base", "ethereum"],
         amount: int,
         token: Literal["eth", "usdc"],
     ) -> FundOperationResult:
@@ -617,8 +643,27 @@ class EvmServerAccount(BaseAccount, BaseModel):
                     - target_currency: The target currency
                     - fees: List of fees associated with the transfer
 
+        Examples:
+            >>> # Fund an account with USDC
+            >>> account = await cdp.evm.get_account("account-id")
+            >>> fund_result = await account.fund(
+            ...     network="base",
+            ...     amount=1000000,  # 1 USDC (USDC has 6 decimals)
+            ...     token="usdc"
+            ... )
+            >>> # Wait for fund operation to complete
+            >>> result = await account.wait_for_fund_operation_receipt(fund_result.transfer.id)
+
         """
-        fund_options = FundOptions(
+        track_action(
+            action="fund",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
+        fund_options = EvmFundOptions(
             network=network,
             amount=amount,
             token=token,
@@ -657,11 +702,102 @@ class EvmServerAccount(BaseAccount, BaseModel):
             TimeoutError: If the transfer does not complete within the timeout period.
 
         """
+        track_action(
+            action="wait_for_fund_operation_receipt",
+            account_type="evm_server",
+        )
+
         return await wait_for_fund_operation_receipt(
             api_clients=self.__api_clients,
             transfer_id=transfer_id,
             timeout_seconds=timeout_seconds,
             interval_seconds=interval_seconds,
+        )
+
+    async def __experimental_use_network__(
+        self, network: str | None = None, rpc_url: str | None = None
+    ):
+        """Create a network-scoped version of this account.
+
+        Args:
+            network: The network to scope the account to. If None, the account will be scoped to the network it was created on.
+            rpc_url: The RPC URL to use for the account.
+
+        Returns:
+            A NetworkScopedEvmServerAccount instance ready for network-specific operations
+        Example:
+            ```python
+            # Create a network-scoped account
+            base_account = await account.use_network("base")
+            # Now you can use network-specific methods
+            await base_account.list_token_balances()
+            await base_account.quote_fund(amount=1000000, token="usdc")
+            ```
+
+        """
+        from cdp.network_scoped_evm_server_account import NetworkScopedEvmServerAccount
+
+        return NetworkScopedEvmServerAccount(self, network, rpc_url)
+
+    async def use_spend_permission(
+        self,
+        spend_permission: "SpendPermissionInput",
+        value: int,
+        network: str,
+    ) -> str:
+        """Use a spend permission to spend tokens.
+
+        This allows the account to spend tokens that have been approved via a spend permission.
+
+        Args:
+            spend_permission (SpendPermissionInput): The spend permission object containing authorization details.
+            value (int): The amount to spend (must not exceed the permission's allowance).
+            network (str): The network to execute the transaction on.
+
+        Returns:
+            str: The transaction hash.
+
+        Raises:
+            Exception: If the network doesn't support spend permissions via CDP API.
+
+        Examples:
+            >>> from cdp.spend_permissions import SpendPermissionInput
+            >>> from cdp.utils import parse_units
+            >>>
+            >>> spend_permission = SpendPermissionInput(
+            ...     account="0x1234...",  # Smart account that owns the tokens
+            ...     spender=account.address,  # This account that can spend
+            ...     token="usdc",  # USDC
+            ...     allowance=parse_units("0.01", 6),  # 0.01 USDC
+            ...     period=86400,  # 1 day
+            ...     start=0,
+            ...     end=281474976710655,
+            ... )
+            >>>
+            >>> tx_hash = await account.use_spend_permission(
+            ...     spend_permission=spend_permission,
+            ...     value=parse_units("0.005", 6),  # Spend 0.005 USDC
+            ...     network="base-sepolia",
+            ... )
+
+        """
+        from cdp.actions.evm.spend_permissions import account_use_spend_permission
+        from cdp.analytics import track_action
+
+        track_action(
+            action="use_spend_permission",
+            account_type="evm_server",
+            properties={
+                "network": network,
+            },
+        )
+
+        return await account_use_spend_permission(
+            api_clients=self.__api_clients,
+            address=self.address,
+            spend_permission=spend_permission,
+            value=value,
+            network=network,
         )
 
     def __str__(self) -> str:

@@ -29,6 +29,7 @@ class ListEvmTokenBalancesNetwork(str, Enum):
     """
     BASE = 'base'
     BASE_MINUS_SEPOLIA = 'base-sepolia'
+    ETHEREUM = 'ethereum'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

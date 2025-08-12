@@ -3,6 +3,7 @@ import type {
   EvmServerAccount as ServerAccount,
   EvmSmartAccount as SmartAccount,
 } from "../../accounts/evm/types.js";
+import type { ListSpendPermissionsResult } from "../../actions/evm/listSpendPermissions.js";
 import type {
   ListTokenBalancesOptions,
   ListTokenBalancesResult,
@@ -22,8 +23,11 @@ import type {
   EvmUserOperationNetwork,
   EvmUserOperationStatus,
   OpenApiEvmMethods,
-  UpdateEvmAccountBody,
+  UpdateEvmAccountBody as UpdateEvmAccount,
+  UpdateEvmSmartAccountBody as UpdateEvmSmartAccount,
+  UserOperationReceipt,
 } from "../../openapi-client/index.js";
+import type { ListSpendPermissionsOptions } from "../../spend-permissions/types.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, EIP712Message, Hex } from "../../types/misc.js";
 import type { WaitOptions } from "../../utils/wait.js";
@@ -35,10 +39,16 @@ export type EvmClientInterface = Omit<
   typeof OpenApiEvmMethods,
   | "createEvmAccount" // mapped to createAccount
   | "createEvmSmartAccount" // mapped to createSmartAccount
+  | "createSpendPermission" // mapped to createSpendPermission
+  | "listSpendPermissions" // mapped to listSpendPermissions
+  | "revokeSpendPermission" // mapped to revokeSpendPermission
   | "importEvmAccount" // mapped to importAccount
+  | "exportEvmAccount" // mapped to exportAccount
+  | "exportEvmAccountByName" // mapped to exportAccount
   | "getEvmAccount" // mapped to getAccount
   | "getEvmAccountByName" // mapped to getAccount
   | "getEvmSmartAccount" // mapped to getSmartAccount
+  | "getEvmSmartAccountByName" // mapped to getSmartAccount
   | "getEvmSwapPrice" // mapped to getSwapPrice
   | "createEvmSwapQuote" // mapped to createSwapQuote
   | "getUserOperation"
@@ -56,10 +66,14 @@ export type EvmClientInterface = Omit<
   | "sendEvmTransaction" // mapped to sendTransaction
   | "signEvmTypedData" // mapped to signTypedData
   | "updateEvmAccount" // mapped to updateAccount
+  | "exportEvmAccount"
+  | "exportEvmAccountByName"
+  | "updateEvmSmartAccount" // 🚧 Coming soon
 > & {
   createAccount: (options: CreateServerAccountOptions) => Promise<ServerAccount>;
   createSmartAccount: (options: CreateSmartAccountOptions) => Promise<SmartAccount>;
   importAccount: (options: ImportServerAccountOptions) => Promise<ServerAccount>;
+  exportAccount: (options: ExportServerAccountOptions) => Promise<string>;
   getAccount: (options: GetServerAccountOptions) => Promise<ServerAccount>;
   getSmartAccount: (options: GetSmartAccountOptions) => Promise<SmartAccount>;
   getSwapPrice: (
@@ -71,8 +85,12 @@ export type EvmClientInterface = Omit<
   getOrCreateAccount: (options: GetOrCreateServerAccountOptions) => Promise<ServerAccount>;
   getUserOperation: (options: GetUserOperationOptions) => Promise<UserOperation>;
   updateAccount: (options: UpdateEvmAccountOptions) => Promise<ServerAccount>;
+  updateSmartAccount: (options: UpdateEvmSmartAccountOptions) => Promise<SmartAccount>;
   listAccounts: (options: ListServerAccountsOptions) => Promise<ListServerAccountResult>;
   listSmartAccounts: (options: ListSmartAccountsOptions) => Promise<ListSmartAccountResult>;
+  listSpendPermissions: (
+    options: ListSpendPermissionsOptions,
+  ) => Promise<ListSpendPermissionsResult>;
   listTokenBalances: (options: ListTokenBalancesOptions) => Promise<ListTokenBalancesResult>;
   prepareUserOperation: (options: PrepareUserOperationOptions) => Promise<UserOperation>;
   requestFaucet: (options: RequestFaucetOptions) => Promise<RequestFaucetResult>;
@@ -100,14 +118,18 @@ export interface CreateSwapQuoteOptions {
   fromToken: Address;
   /** The amount to send in atomic units of the token. */
   fromAmount: bigint;
-  /** The address that will perform the swap. */
-  taker?: Address;
-  /** The signer address (only needed if taker is a smart contract). */
+  /** The address receiving the output of the swap. */
+  taker: Address;
+  /** The address signing the swap (only needed if taker is a smart contract, i.e. for smart account swaps). */
   signerAddress?: Address;
-  /** The gas price in Wei. */
+  /** The smart account object (required for smart account execution context only). */
+  smartAccount?: SmartAccount;
+  /** The price per unit of gas in wei. */
   gasPrice?: bigint;
   /** The slippage tolerance in basis points (0-10000). */
   slippageBps?: number;
+  /** The idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -130,6 +152,8 @@ export interface GetSwapPriceOptions {
   gasPrice?: bigint;
   /** The slippage tolerance in basis points (0-10000). */
   slippageBps?: number;
+  /** The idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**
@@ -180,8 +204,14 @@ export interface ExecuteSwapQuoteOptions {
  * Result of executing a swap quote.
  */
 export interface ExecuteSwapQuoteResult {
-  /** The transaction hash of the executed swap. */
-  transactionHash: Hex;
+  /** The transaction hash of the executed swap (for EOA swaps). */
+  transactionHash?: Hex;
+  /** The user operation hash of the executed swap (for smart account swaps). */
+  userOpHash?: Hex;
+  /** The address of the smart account (for smart account swaps). */
+  smartAccountAddress?: Address;
+  /** The status of the user operation (for smart accounts swaps). */
+  status?: typeof EvmUserOperationStatus.broadcast;
 }
 
 /**
@@ -240,7 +270,7 @@ export interface CreateSwapQuoteResult {
  */
 export interface GetUserOperationOptions {
   /** The smart account. */
-  smartAccount: SmartAccount;
+  smartAccount: SmartAccount | ReadonlySmartAccount | Address;
   /** The user operation hash. */
   userOpHash: Hex;
 }
@@ -293,6 +323,10 @@ export interface UserOperation {
    * The hash of the transaction that included this particular user operation. This gets set after the user operation is broadcasted and the transaction is included in a block.
    */
   transactionHash?: Hex;
+  /**
+   * The receipts associated with the broadcasted user operation.
+   */
+  receipts?: UserOperationReceipt[];
 }
 
 /**
@@ -322,6 +356,18 @@ export interface ImportServerAccountOptions {
 }
 
 /**
+ * Options for exporting an EVM server account.
+ */
+export interface ExportServerAccountOptions {
+  /** The address of the account. */
+  address?: Address;
+  /** The name of the account. */
+  name?: string;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+}
+
+/**
  * Options for getting an EVM account.
  */
 export interface GetServerAccountOptions {
@@ -336,9 +382,11 @@ export interface GetServerAccountOptions {
  */
 export interface GetSmartAccountOptions {
   /** The address of the account. */
-  address: Address;
+  address?: Address;
   /** The owner of the account. */
   owner: Account;
+  /** The name of the account. */
+  name?: string;
 }
 
 /**
@@ -347,6 +395,18 @@ export interface GetSmartAccountOptions {
 export interface GetOrCreateServerAccountOptions {
   /** The name of the account. */
   name: string;
+}
+
+/**
+ * Options for getting an EVM account, or creating one if it doesn't exist.
+ */
+export interface GetOrCreateSmartAccountOptions {
+  /** The name of the account. */
+  name: string;
+  /** The owner of the account. */
+  owner: Account;
+  /** The flag to enable spend permissions. */
+  enableSpendPermissions?: boolean;
 }
 
 /**
@@ -363,7 +423,7 @@ export interface ListServerAccountsOptions {
  * A smart account that only contains the owner address.
  */
 export interface ReadonlySmartAccount
-  extends Omit<SmartAccount, "owners" | keyof SmartAccountActions> {
+  extends Omit<SmartAccount, "owners" | keyof SmartAccountActions | "useNetwork"> {
   /** The owners of the smart account. */
   owners: Address[];
 }
@@ -373,11 +433,25 @@ export interface ReadonlySmartAccount
  */
 export interface UpdateEvmAccountOptions {
   /** The address of the account. */
-  address: string;
+  address: Address;
   /** The updates to apply to the account */
-  update: UpdateEvmAccountBody;
+  update: UpdateEvmAccount;
   /** The idempotency key. */
   idempotencyKey?: string;
+}
+
+/**
+ * Options for updating an EVM smart account.
+ */
+export interface UpdateEvmSmartAccountOptions {
+  /** The address of the account. */
+  address: Address;
+  /** The updates to apply to the account */
+  update: UpdateEvmSmartAccount;
+  /** The idempotency key. */
+  idempotencyKey?: string;
+  /** The owner of the account. */
+  owner: Account;
 }
 
 /**
@@ -426,6 +500,10 @@ export interface CreateSmartAccountOptions {
   owner: Account;
   /** The idempotency key. */
   idempotencyKey?: string;
+  /** The name of the account. */
+  name?: string;
+  /** The flag to enable spend permissions. */
+  enableSpendPermissions?: boolean;
 }
 
 /**
@@ -567,3 +645,18 @@ export type GetSwapQuoteOptions = GetSwapPriceOptions;
 export type GetSwapQuoteResult = GetSwapPriceResult;
 export type SwapQuoteUnavailableResult = SwapUnavailableResult;
 export type SwapPriceUnavailableResult = SwapUnavailableResult;
+
+/**
+ * Options for signing and wrapping EIP-712 typed data with a smart account.
+ * This method handles the full smart account signature flow including replay-safe hashing.
+ */
+export interface SmartAccountSignAndWrapTypedDataOptions {
+  /** The chain ID for the signature (used for replay protection). */
+  chainId: bigint;
+  /** The EIP-712 typed data message to sign. */
+  typedData: EIP712Message;
+  /** The index of the owner to sign with (defaults to 0). */
+  ownerIndex?: bigint;
+  /** Optional idempotency key for the signing request. */
+  idempotencyKey?: string;
+}

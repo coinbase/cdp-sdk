@@ -36,7 +36,8 @@ class TestCreateEvmSmartAccountRequest(unittest.TestCase):
         model = CreateEvmSmartAccountRequest()
         if include_optional:
             return CreateEvmSmartAccountRequest(
-                owners = ["0xfc807D1bE4997e5C7B33E4d8D57e60c5b0f02B1a"]
+                owners = ["0xfc807D1bE4997e5C7B33E4d8D57e60c5b0f02B1a"],
+                name = 'my-smart-wallet'
             )
         else:
             return CreateEvmSmartAccountRequest(

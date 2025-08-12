@@ -1,9 +1,11 @@
 """Type definitions for swap functionality."""
 
-from typing import Any, Protocol
+from typing import Any
 
-from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, Field, PrivateAttr, field_validator
+from web3 import Web3
+
+from cdp.errors import UserInputValidationError
 
 # Supported networks for swap
 SUPPORTED_SWAP_NETWORKS = ["base", "ethereum"]
@@ -15,6 +17,74 @@ class SwapUnavailableResult(BaseModel):
     liquidity_available: bool = Field(
         default=False, description="Always False for unavailable swaps"
     )
+
+
+class BaseSendSwapTransactionOptions(BaseModel):
+    """Base options for sending a swap transaction."""
+
+    address: str = Field(description="The address of the account that will execute the swap")
+    idempotency_key: str | None = Field(
+        default=None, description="Optional idempotency key for safe retryable requests"
+    )
+
+    @field_validator("address")
+    @classmethod
+    def validate_address(cls, v: str) -> str:
+        """Validate that the address is a valid Ethereum address."""
+        if not v.startswith("0x") or len(v) != 42:
+            raise UserInputValidationError(
+                "Address must be a valid Ethereum address (0x + 40 hex chars)"
+            )
+        return v
+
+
+class QuoteBasedSendSwapTransactionOptions(BaseSendSwapTransactionOptions):
+    """Options when providing an already created swap quote."""
+
+    swap_quote: "QuoteSwapResult" = Field(description="A pre-created swap quote")
+
+
+class InlineSendSwapTransactionOptions(BaseSendSwapTransactionOptions):
+    """Options when creating a swap quote inline."""
+
+    network: str = Field(description="The network to execute the swap on")
+    from_token: str = Field(description="The token to swap from")
+    to_token: str = Field(description="The token to swap to")
+    from_amount: str | int = Field(description="The amount to swap")
+    taker: str = Field(description="The address that will perform the swap")
+    slippage_bps: int | None = Field(
+        default=100, description="Maximum slippage in basis points (100 = 1%)"
+    )
+
+    @field_validator("network")
+    @classmethod
+    def validate_network(cls, v: str) -> str:
+        """Validate network is supported."""
+        if v not in SUPPORTED_SWAP_NETWORKS:
+            raise UserInputValidationError(
+                f"Network must be one of: {', '.join(SUPPORTED_SWAP_NETWORKS)}"
+            )
+        return v
+
+    @field_validator("from_amount")
+    @classmethod
+    def validate_amount(cls, v: str | int) -> str:
+        """Validate and convert amount to string."""
+        return str(v)
+
+    @field_validator("from_token", "to_token", "taker")
+    @classmethod
+    def validate_token_addresses(cls, v: str) -> str:
+        """Validate address format."""
+        if not v.startswith("0x") or len(v) != 42:
+            raise UserInputValidationError(
+                "Address must be a valid Ethereum address (0x + 40 hex chars)"
+            )
+        return v
+
+
+# Discriminated union for send_swap_transaction options
+SendSwapTransactionOptions = InlineSendSwapTransactionOptions | QuoteBasedSendSwapTransactionOptions
 
 
 class SwapParams(BaseModel):
@@ -38,7 +108,7 @@ class SwapParams(BaseModel):
         if v is None:
             return 100  # 1% default
         if v < 0 or v > 10000:
-            raise ValueError("Slippage basis points must be between 0 and 10000")
+            raise UserInputValidationError("Slippage basis points must be between 0 and 10000")
         return v
 
     @field_validator("network")
@@ -46,7 +116,9 @@ class SwapParams(BaseModel):
     def validate_network(cls, v: str) -> str:
         """Validate network is supported."""
         if v not in SUPPORTED_SWAP_NETWORKS:
-            raise ValueError(f"Network must be one of: {', '.join(SUPPORTED_SWAP_NETWORKS)}")
+            raise UserInputValidationError(
+                f"Network must be one of: {', '.join(SUPPORTED_SWAP_NETWORKS)}"
+            )
         return v
 
     @field_validator("from_amount")
@@ -57,11 +129,13 @@ class SwapParams(BaseModel):
 
     @field_validator("from_token", "to_token")
     @classmethod
-    def validate_token_address(cls, v: str) -> str:
-        """Validate token address format."""
+    def validate_address(cls, v: str) -> str:
+        """Validate address format."""
         if not v.startswith("0x") or len(v) != 42:
-            raise ValueError("Token address must be a valid Ethereum address (0x + 40 hex chars)")
-        return v.lower()  # Normalize to lowercase
+            raise UserInputValidationError(
+                "Address must be a valid Ethereum address (0x + 40 hex chars)"
+            )
+        return v
 
     @field_validator("taker")
     @classmethod
@@ -70,8 +144,10 @@ class SwapParams(BaseModel):
         if v is None:
             return None
         if not v.startswith("0x") or len(v) != 42:
-            raise ValueError("Taker address must be a valid Ethereum address (0x + 40 hex chars)")
-        return v.lower()  # Normalize to lowercase
+            raise UserInputValidationError(
+                "Taker address must be a valid Ethereum address (0x + 40 hex chars)"
+            )
+        return v
 
 
 class QuoteSwapResult(BaseModel):
@@ -103,12 +179,17 @@ class QuoteSwapResult(BaseModel):
     _taker: str | None = PrivateAttr(default=None)
     _signer_address: str | None = PrivateAttr(default=None)
     _api_clients: Any | None = PrivateAttr(default=None)
+    _smart_account: Any | None = PrivateAttr(default=None)
+    _paymaster_url: str | None = PrivateAttr(default=None)
 
-    async def execute(self) -> str:
+    async def execute(self, idempotency_key: str | None = None) -> "ExecuteSwapQuoteResult":
         """Execute the swap quote.
 
+        Args:
+            idempotency_key: Optional idempotency key for safe retryable requests.
+
         Returns:
-            str: The transaction hash of the executed swap.
+            ExecuteSwapQuoteResult: The result of the executed swap.
 
         Raises:
             ValueError: If the quote was not created with proper context.
@@ -117,87 +198,150 @@ class QuoteSwapResult(BaseModel):
         if self._taker is None or self._api_clients is None:
             raise ValueError(
                 "This swap quote cannot be executed directly. "
-                "Use account.swap(SwapOptions(swap_quote=quote)) instead."
+                "Use account.swap(AccountSwapOptions(swap_quote=quote)) instead."
             )
 
         from cdp.actions.evm.swap import send_swap_transaction
 
-        # Use signer_address if available (for smart accounts), otherwise use taker
-        address = self._signer_address or self._taker
+        # Check if this is a smart account swap by looking for _smart_account
+        if self._smart_account is not None:
+            # Smart account swap
+            from cdp.actions.evm.swap.send_swap_operation import (
+                SendSwapOperationOptions,
+                send_swap_operation,
+            )
 
-        result = await send_swap_transaction(
-            api_clients=self._api_clients,
-            address=address,
-            network=self.network,
-            swap_quote=self,
-        )
-        return result.transaction_hash
+            options = SendSwapOperationOptions(
+                smart_account=self._smart_account,
+                network=self.network,
+                paymaster_url=self._paymaster_url,
+                swap_quote=self,
+                idempotency_key=idempotency_key,
+            )
+
+            result = await send_swap_operation(
+                api_clients=self._api_clients,
+                options=options,
+            )
+
+            # Return ExecuteSwapQuoteResult for smart account
+            return ExecuteSwapQuoteResult(
+                user_op_hash=result.user_op_hash,
+                smart_account_address=result.smart_account_address,
+                status=result.status,
+            )
+        else:
+            # Regular account swap
+            address = self._taker
+
+            # Create the options object for send_swap_transaction
+            options = QuoteBasedSendSwapTransactionOptions(
+                address=address,
+                swap_quote=self,
+                idempotency_key=idempotency_key,
+            )
+
+            result = await send_swap_transaction(
+                api_clients=self._api_clients,
+                options=options,
+            )
+
+            # Return ExecuteSwapQuoteResult for regular account
+            return ExecuteSwapQuoteResult(transaction_hash=result.transaction_hash)
 
 
-class SwapOptions(BaseModel):
-    """Options for initiating a swap transaction.
+class AccountSwapOptions(BaseModel):
+    """Options for executing a token swap via regular EOA account.
 
-    Must contain EITHER:
-    - Direct swap parameters (network, from_token, to_token, etc.)
-    - A pre-created swap quote (swap_quote)
-
-    Note: For account.swap(), the taker is always the account address.
-    For global methods, use create_swap_quote() which requires explicit taker.
+    This class represents swap options that can be either quote-based
+    (using a pre-created swap quote) or inline (using direct parameters).
     """
 
-    # Direct swap parameters
-    network: str | None = Field(default=None, description="The network to execute the swap on")
-    from_token: str | None = Field(default=None, description="The token address to swap from")
-    to_token: str | None = Field(default=None, description="The token address to swap to")
-    from_amount: str | int | None = Field(default=None, description="The amount to swap from")
-    slippage_bps: int | None = Field(
-        default=None, description="Maximum slippage in basis points (100 = 1%)"
+    # Quote-based pattern
+    swap_quote: "QuoteSwapResult | None" = Field(
+        None, description="Pre-created swap quote to execute"
     )
 
-    # Pre-created swap quote
-    swap_quote: QuoteSwapResult | None = Field(
-        default=None, description="A pre-created swap quote from create_swap_quote"
+    # Inline pattern fields
+    network: str | None = Field(None, description="Network to execute swap on")
+    from_token: str | None = Field(None, description="Address of token to swap from")
+    to_token: str | None = Field(None, description="Address of token to swap to")
+    from_amount: str | int | None = Field(None, description="Amount to swap in smallest units")
+    slippage_bps: int | None = Field(100, description="Slippage tolerance in basis points")
+
+    # Common fields
+    idempotency_key: str | None = Field(None, description="Optional idempotency key")
+
+    @field_validator("from_token", "to_token")
+    @classmethod
+    def validate_addresses(cls, v):
+        """Validate Ethereum addresses."""
+        if v is not None and not Web3.is_address(v):
+            raise UserInputValidationError(f"Invalid Ethereum address: {v}")
+        return v
+
+    @field_validator("slippage_bps")
+    @classmethod
+    def validate_slippage(cls, v):
+        """Validate slippage is within reasonable bounds."""
+        if v is not None and (v < 0 or v > 10000):
+            raise UserInputValidationError("Slippage must be between 0 and 10000 basis points")
+        return v
+
+
+class SmartAccountSwapOptions(BaseModel):
+    """Options for executing a token swap via smart account.
+
+    This class represents swap options that can be either quote-based
+    (using a pre-created swap quote) or inline (using direct parameters).
+    Same developer experience as AccountSwapOptions.
+    """
+
+    # Quote-based pattern
+    swap_quote: "QuoteSwapResult | None" = Field(
+        None, description="Pre-created swap quote to execute"
     )
 
-    def __init__(self, **data):
-        """Initialize SwapOptions with validation."""
-        super().__init__(**data)
+    # Inline pattern fields
+    network: str | None = Field(None, description="Network to execute swap on")
+    from_token: str | None = Field(None, description="Address of token to swap from")
+    to_token: str | None = Field(None, description="Address of token to swap to")
+    from_amount: str | int | None = Field(None, description="Amount to swap in smallest units")
+    slippage_bps: int | None = Field(100, description="Slippage tolerance in basis points")
 
-        # Check if we have direct parameters
-        has_direct_params = all(
-            x is not None for x in [self.network, self.from_token, self.to_token, self.from_amount]
-        )
+    # Smart account specific fields
+    paymaster_url: str | None = Field(
+        None, description="Optional paymaster URL for gas sponsorship"
+    )
+    idempotency_key: str | None = Field(None, description="Optional idempotency key")
 
-        # Check if we have swap quote
-        has_swap_quote = self.swap_quote is not None
+    @field_validator("from_token", "to_token")
+    @classmethod
+    def validate_addresses(cls, v):
+        """Validate Ethereum addresses."""
+        if v is not None and not Web3.is_address(v):
+            raise UserInputValidationError(f"Invalid Ethereum address: {v}")
+        return v
 
-        if not has_direct_params and not has_swap_quote:
-            raise ValueError(
-                "SwapOptions must contain either direct swap parameters "
-                "(network, from_token, to_token, from_amount) or a swap_quote"
-            )
-
-        if has_direct_params and has_swap_quote:
-            raise ValueError(
-                "SwapOptions cannot contain both direct swap parameters and a swap_quote. "
-                "Please provide only one."
-            )
-
-        # Apply defaults for direct parameters if provided
-        if has_direct_params and self.slippage_bps is None:
-            self.slippage_bps = 100  # Default 1% slippage
+    @field_validator("slippage_bps")
+    @classmethod
+    def validate_slippage(cls, v):
+        """Validate slippage is within reasonable bounds."""
+        if v is not None and (v < 0 or v > 10000):
+            raise UserInputValidationError("Slippage must be between 0 and 10000 basis points")
+        return v
 
 
-class SwapQuote(BaseModel):
-    """A swap quote from the backend."""
+class SwapPriceResult(BaseModel):
+    """A swap price estimate from get_swap_price."""
 
-    quote_id: str = Field(description="Unique identifier for the quote")
+    quote_id: str = Field(description="Unique identifier for the price estimate")
     from_token: str = Field(description="The token being swapped from")
     to_token: str = Field(description="The token being swapped to")
     from_amount: str = Field(description="The amount being swapped")
     to_amount: str = Field(description="The expected amount to receive")
     price_ratio: str = Field(description="The price ratio between tokens")
-    expires_at: str = Field(description="When the quote expires")
+    expires_at: str = Field(description="When the price estimate expires")
 
 
 class Permit2Data(BaseModel):
@@ -219,28 +363,39 @@ class SwapResult(BaseModel):
     network: str = Field(description="The network the swap was executed on")
 
 
-class SwapStrategy(Protocol):
-    """Protocol for swap execution strategies."""
+class AccountSwapResult(BaseModel):
+    """Result of a swap transaction for regular accounts (EOA).
 
-    async def execute_swap(
-        self,
-        api_clients: Any,
-        from_account: BaseAccount,
-        swap_data: QuoteSwapResult,
-        network: str,
-        permit2_signature: str | None = None,
-    ) -> SwapResult:
-        """Execute a swap using the strategy.
+    Matches TypeScript's SendSwapTransactionResult which contains { transactionHash: Hex }.
+    """
 
-        Args:
-            api_clients: The API clients instance
-            from_account: The account to swap from
-            swap_data: The swap data
-            network: The network to execute on
-            permit2_signature: Optional Permit2 signature
+    transaction_hash: str = Field(description="The transaction hash of the submitted swap")
 
-        Returns:
-            SwapResult: The result of the swap
 
-        """
-        ...
+class SmartAccountSwapResult(BaseModel):
+    """Result of a swap transaction for smart accounts."""
+
+    user_op_hash: str = Field(description="The user operation hash")
+    smart_account_address: str = Field(description="The smart account address")
+    status: str = Field(description="The user operation status")
+
+
+class ExecuteSwapQuoteResult(BaseModel):
+    """Result of executing a swap quote via QuoteSwapResult.execute().
+
+    Can contain either transaction hash (for EOA) or user operation info (for smart accounts).
+    """
+
+    # EOA swap result
+    transaction_hash: str | None = Field(None, description="The transaction hash (for EOA swaps)")
+
+    # Smart account swap result
+    user_op_hash: str | None = Field(
+        None, description="The user operation hash (for smart account swaps)"
+    )
+    smart_account_address: str | None = Field(
+        None, description="The smart account address (for smart account swaps)"
+    )
+    status: str | None = Field(
+        None, description="The user operation status (for smart account swaps)"
+    )

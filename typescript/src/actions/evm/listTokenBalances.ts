@@ -32,7 +32,7 @@ export interface EvmTokenAmount {
   /** The amount of the token in the smallest indivisible unit of the token. */
   amount: bigint;
   /** The number of decimals in the token. */
-  decimals: bigint;
+  decimals: number;
 }
 /**
  * An EVM token balance.
@@ -82,7 +82,7 @@ export async function listTokenBalances(
   client: CdpOpenApiClientType,
   options: ListTokenBalancesOptions,
 ): Promise<ListTokenBalancesResult> {
-  const response = await client.listEvmTokenBalances(options.network, options.address, {
+  const response = await client.listDataTokenBalances(options.network, options.address, {
     pageSize: options.pageSize,
     pageToken: options.pageToken,
   });
@@ -92,10 +92,12 @@ export async function listTokenBalances(
       token: {
         network: balance.token.network,
         contractAddress: balance.token.contractAddress as Address,
+        symbol: balance.token.symbol,
+        name: balance.token.name,
       },
       amount: {
         amount: BigInt(balance.amount.amount),
-        decimals: BigInt(balance.amount.decimals),
+        decimals: balance.amount.decimals,
       },
     };
   });

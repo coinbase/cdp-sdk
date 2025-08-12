@@ -18,6 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
@@ -31,7 +32,10 @@ class EvmSmartAccount(BaseModel):
     address: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed, checksum address of the Smart Account.")
     owners: List[Annotated[str, Field(strict=True)]] = Field(description="Today, only a single owner can be set for a Smart Account, but this is an array to allow having multiple owners in the future. The address is a 0x-prefixed, checksum address.")
     name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names are guaranteed to be unique across all Smart Accounts in the developer's CDP Project.")
-    __properties: ClassVar[List[str]] = ["address", "owners", "name"]
+    policies: Optional[List[Annotated[str, Field(strict=True)]]] = Field(default=None, description="The list of policy IDs that apply to the smart account. This will include both the project-level policy and the account-level policy, if one exists.")
+    created_at: Optional[datetime] = Field(default=None, description="The UTC ISO 8601 timestamp at which the account was created.", alias="createdAt")
+    updated_at: Optional[datetime] = Field(default=None, description="The UTC ISO 8601 timestamp at which the account was last updated.", alias="updatedAt")
+    __properties: ClassVar[List[str]] = ["address", "owners", "name", "policies", "createdAt", "updatedAt"]
 
     @field_validator('address')
     def address_validate_regular_expression(cls, value):
@@ -103,7 +107,10 @@ class EvmSmartAccount(BaseModel):
         _obj = cls.model_validate({
             "address": obj.get("address"),
             "owners": obj.get("owners"),
-            "name": obj.get("name")
+            "name": obj.get("name"),
+            "policies": obj.get("policies"),
+            "createdAt": obj.get("createdAt"),
+            "updatedAt": obj.get("updatedAt")
         })
         return _obj
 

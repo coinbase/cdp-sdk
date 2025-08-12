@@ -7,9 +7,13 @@ import {
   DeletePolicyOptions,
   UpdatePolicyOptions,
 } from "./policies.types.js";
-import { CdpOpenApiClient } from "../../openapi-client/index.js";
-import { CreatePolicyBodySchema, UpdatePolicyBodySchema } from "../../policies/schema.js";
-import { Policy } from "../../policies/types.js";
+import { Analytics } from "../../analytics.js";
+import {
+  CdpOpenApiClient,
+  CreatePolicyBody,
+  UpdatePolicyBody,
+} from "../../openapi-client/index.js";
+import { Policy, CreatePolicyBodySchema, UpdatePolicyBodySchema } from "../../policies/types.js";
 
 /**
  * The namespace containing all Policy methods.
@@ -53,6 +57,13 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    */
   async listPolicies(options: ListPoliciesOptions = {}): Promise<ListPoliciesResult> {
+    Analytics.trackAction({
+      action: "list_policies",
+      properties: {
+        scope: options.scope,
+      },
+    });
+
     return CdpOpenApiClient.listPolicies(options) as Promise<ListPoliciesResult>;
   }
 
@@ -68,7 +79,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    * @returns {Promise<Policy>} The created policy
    * @throws {ZodError<typeof CreatePolicyBodySchema>} When the policy is invalid
    *
-   * @example **Creating a new policy**
+   * @example **Creating a new EVM policy**
    *          ```ts
    *          const policy = await cdp.policies.createPolicy({
    *            policy: {
@@ -83,6 +94,45 @@ export class PoliciesClient implements PoliciesClientInterface {
    *                      type: "ethValue",
    *                      ethValue: "1000000000000000000",
    *                      operator: ">",
+   *                    },
+   *                  ],
+   *                },
+   *              ],
+   *            }
+   *          });
+   *          ```
+   *
+   * @example **Creating a new Solana policy**
+   *          ```ts
+   *          const policy = await cdp.policies.createPolicy({
+   *            policy: {
+   *              scope: "account",
+   *              description: "Limits SOL transfers and SPL token operations",
+   *              rules: [
+   *                {
+   *                  action: "reject",
+   *                  operation: "signSolTransaction",
+   *                  criteria: [
+   *                    {
+   *                      type: "solValue",
+   *                      solValue: "1000000000", // 1 SOL in lamports
+   *                      operator: ">",
+   *                    },
+   *                    {
+   *                      type: "solAddress",
+   *                      addresses: ["9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"],
+   *                      operator: "in",
+   *                    },
+   *                  ],
+   *                },
+   *                {
+   *                  action: "accept",
+   *                  operation: "sendSolTransaction",
+   *                  criteria: [
+   *                    {
+   *                      type: "mintAddress",
+   *                      addresses: ["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"], // USDC mint
+   *                      operator: "in",
    *                    },
    *                  ],
    *                },
@@ -125,8 +175,20 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    */
   async createPolicy(options: CreatePolicyOptions): Promise<Policy> {
+    Analytics.trackAction({
+      action: "create_policy",
+      properties: {
+        scope: options.policy.scope,
+      },
+    });
+
     CreatePolicyBodySchema.parse(options.policy);
-    return CdpOpenApiClient.createPolicy(options.policy, options.idempotencyKey) as Promise<Policy>;
+    return CdpOpenApiClient.createPolicy(
+      // There are arbitrary differences between the abitype Abi and the openapi Abi
+      options.policy as CreatePolicyBody,
+
+      options.idempotencyKey,
+    ) as Promise<Policy>;
   }
 
   /**
@@ -148,6 +210,10 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    */
   async getPolicyById(options: GetPolicyByIdOptions): Promise<Policy> {
+    Analytics.trackAction({
+      action: "get_policy_by_id",
+    });
+
     return CdpOpenApiClient.getPolicyById(options.id) as Promise<Policy>;
   }
 
@@ -180,6 +246,10 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    */
   async deletePolicy(options: DeletePolicyOptions): Promise<void> {
+    Analytics.trackAction({
+      action: "delete_policy",
+    });
+
     return CdpOpenApiClient.deletePolicy(options.id, options.idempotencyKey);
   }
 
@@ -197,7 +267,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    * @returns {Promise<Policy>} The updated policy
    * @throws {ZodError<typeof UpdatePolicyBodySchema>} When the updated policy is invalid
    *
-   * @example **Updating a policy**
+   * @example **Updating an EVM policy**
    *          ```ts
    *          const updatedPolicy = await cdp.policies.updatePolicy({
    *            id: "__ID__",
@@ -212,6 +282,34 @@ export class PoliciesClient implements PoliciesClientInterface {
    *                      type: "ethValue",
    *                      ethValue: "1000000000",
    *                      operator: ">",
+   *                    },
+   *                  ],
+   *                },
+   *              ],
+   *            },
+   *          });
+   *          ```
+   *
+   * @example **Updating a Solana policy**
+   *          ```ts
+   *          const updatedPolicy = await cdp.policies.updatePolicy({
+   *            id: "__ID__",
+   *            policy: {
+   *              description: "Updated Solana transaction limits",
+   *              rules: [
+   *                {
+   *                  action: "reject",
+   *                  operation: "signSolTransaction",
+   *                  criteria: [
+   *                    {
+   *                      type: "splValue",
+   *                      splValue: "1000000", // SPL token amount
+   *                      operator: ">=",
+   *                    },
+   *                    {
+   *                      type: "mintAddress",
+   *                      addresses: ["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"], // USDC mint
+   *                      operator: "in",
    *                    },
    *                  ],
    *                },
@@ -236,10 +334,15 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    */
   async updatePolicy(options: UpdatePolicyOptions): Promise<Policy> {
+    Analytics.trackAction({
+      action: "update_policy",
+    });
+
     UpdatePolicyBodySchema.parse(options.policy);
     return CdpOpenApiClient.updatePolicy(
       options.id,
-      options.policy,
+      // There are arbitrary differences between the abitype Abi and the openapi Abi
+      options.policy as UpdatePolicyBody,
       options.idempotencyKey,
     ) as Promise<Policy>;
   }

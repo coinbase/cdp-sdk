@@ -1,15 +1,9 @@
-from .fund import FundOptions, fund
-from .quote import Quote
-from .quote_fund import QuoteFundOptions, quote_fund
-from .types import FundOperationResult
-from .wait_for_fund_operation_receipt import wait_for_fund_operation_receipt
+from .fund import EvmFundOptions, fund
+from .quote_fund import EvmQuoteFundOptions, quote_fund
 
 __all__ = [
-    "FundOptions",
-    "FundOperationResult",
-    "QuoteFundOptions",
+    "EvmFundOptions",
+    "EvmQuoteFundOptions",
     "fund",
     "quote_fund",
-    "wait_for_fund_operation_receipt",
-    "Quote",
 ]

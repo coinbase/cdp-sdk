@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
@@ -29,7 +29,18 @@ class CreateEvmSmartAccountRequest(BaseModel):
     CreateEvmSmartAccountRequest
     """ # noqa: E501
     owners: List[Annotated[str, Field(strict=True)]] = Field(description="Today, only a single owner can be set for a Smart Account, but this is an array to allow setting multiple owners in the future.")
-    __properties: ClassVar[List[str]] = ["owners"]
+    name: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="An optional name for the account. Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long. Account names must be unique across all EVM accounts in the developer's CDP Project.")
+    __properties: ClassVar[List[str]] = ["owners", "name"]
+
+    @field_validator('name')
+    def name_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
+            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -82,7 +93,8 @@ class CreateEvmSmartAccountRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "owners": obj.get("owners")
+            "owners": obj.get("owners"),
+            "name": obj.get("name")
         })
         return _obj
 

@@ -5,26 +5,103 @@
  * The Coinbase Developer Platform APIs - leading the world's transition onchain.
  * OpenAPI spec version: 2.0.0
  */
-export interface EvmAccount {
-  /**
-   * The 0x-prefixed, checksum EVM address.
-   * @pattern ^0x[0-9a-fA-F]{40}$
-   */
-  address: string;
-  /**
-   * An optional name for the account.
-Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
-Account names are guaranteed to be unique across all EVM accounts in the developer's CDP Project.
-   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
-   */
-  name?: string;
-  /** The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists. */
-  policies?: string[];
+/**
+ * The type of authentication information.
+ */
+export type EmailAuthenticationType =
+  (typeof EmailAuthenticationType)[keyof typeof EmailAuthenticationType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EmailAuthenticationType = {
+  email: "email",
+} as const;
+
+/**
+ * Information about an end user who authenticates using a one-time password sent to their email address.
+ */
+export interface EmailAuthentication {
+  /** The type of authentication information. */
+  type: EmailAuthenticationType;
+  /** The email address of the end user. */
+  email: string;
 }
 
-export interface ListResponse {
-  /** The token for the next page of items, if any. */
-  nextPageToken?: string;
+/**
+ * The type of authentication information.
+ */
+export type SmsAuthenticationType =
+  (typeof SmsAuthenticationType)[keyof typeof SmsAuthenticationType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SmsAuthenticationType = {
+  sms: "sms",
+} as const;
+
+/**
+ * Information about an end user who authenticates using a one-time password sent to their phone number via SMS.
+ */
+export interface SmsAuthentication {
+  /** The type of authentication information. */
+  type: SmsAuthenticationType;
+  /**
+   * The phone number of the end user in E.164 format.
+   * @pattern ^\+[1-9]\d{1,14}$
+   */
+  phoneNumber: string;
+}
+
+/**
+ * The type of authentication information.
+ */
+export type DeveloperJWTAuthenticationType =
+  (typeof DeveloperJWTAuthenticationType)[keyof typeof DeveloperJWTAuthenticationType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const DeveloperJWTAuthenticationType = {
+  jwt: "jwt",
+} as const;
+
+/**
+ * Information about an end user who authenticates using a JWT issued by the developer.
+ */
+export interface DeveloperJWTAuthentication {
+  /** The type of authentication information. */
+  type: DeveloperJWTAuthenticationType;
+  /** The key ID of the JWK used to sign the JWT. */
+  kid: string;
+  /** The unique identifier for the end user that is captured in the `sub` claim of the JWT. */
+  sub: string;
+}
+
+/**
+ * Information about how the end user is authenticated.
+ */
+export type AuthenticationMethod =
+  | EmailAuthentication
+  | SmsAuthentication
+  | DeveloperJWTAuthentication;
+
+/**
+ * The list of valid authentication methods linked to the end user.
+ */
+export type AuthenticationMethods = AuthenticationMethod[];
+
+/**
+ * Information about the end user.
+ */
+export interface EndUser {
+  /**
+   * A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  userId: string;
+  authenticationMethods: AuthenticationMethods;
+  /** The list of EVM accounts associated with the end user. Currently, only one EVM account is supported per end user. */
+  evmAccounts: string[];
+  /** The list of EVM smart accounts associated with the end user. Currently, only one EVM smart account is supported per end user. */
+  evmSmartAccounts: string[];
+  /** The list of Solana accounts associated with the end user. Currently, only one Solana account is supported per end user. */
+  solanaAccounts: string[];
 }
 
 /**
@@ -41,9 +118,11 @@ export const ErrorType = {
   idempotency_error: "idempotency_error",
   internal_server_error: "internal_server_error",
   invalid_request: "invalid_request",
+  invalid_sql_query: "invalid_sql_query",
   invalid_signature: "invalid_signature",
   malformed_transaction: "malformed_transaction",
   not_found: "not_found",
+  payment_method_required: "payment_method_required",
   rate_limit_exceeded: "rate_limit_exceeded",
   request_canceled: "request_canceled",
   service_unavailable: "service_unavailable",
@@ -51,6 +130,13 @@ export const ErrorType = {
   unauthorized: "unauthorized",
   policy_violation: "policy_violation",
   policy_in_use: "policy_in_use",
+  account_limit_exceeded: "account_limit_exceeded",
+  network_not_tradable: "network_not_tradable",
+  guest_permission_denied: "guest_permission_denied",
+  guest_region_forbidden: "guest_region_forbidden",
+  guest_transaction_limit: "guest_transaction_limit",
+  guest_transaction_count: "guest_transaction_count",
+  phone_number_verification_expired: "phone_number_verification_expired",
 } as const;
 
 /**
@@ -64,6 +150,32 @@ export interface Error {
   correlationId?: string;
   /** A link to the corresponding error documentation. */
   errorLink?: string;
+}
+
+export interface EvmAccount {
+  /**
+   * The 0x-prefixed, checksum EVM address.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: string;
+  /**
+   * An optional name for the account.
+Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names are guaranteed to be unique across all EVM accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
+  /** The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists. */
+  policies?: string[];
+  /** The UTC ISO 8601 timestamp at which the account was created. */
+  createdAt?: string;
+  /** The UTC ISO 8601 timestamp at which the account was last updated. */
+  updatedAt?: string;
+}
+
+export interface ListResponse {
+  /** The token for the next page of items, if any. */
+  nextPageToken?: string;
 }
 
 /**
@@ -129,7 +241,33 @@ Account names are guaranteed to be unique across all Smart Accounts in the devel
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /** The list of policy IDs that apply to the smart account. This will include both the project-level policy and the account-level policy, if one exists. */
+  policies?: string[];
+  /** The UTC ISO 8601 timestamp at which the account was created. */
+  createdAt?: string;
+  /** The UTC ISO 8601 timestamp at which the account was last updated. */
+  updatedAt?: string;
 }
+
+/**
+ * The network the user operation is for.
+ */
+export type EvmUserOperationNetwork =
+  (typeof EvmUserOperationNetwork)[keyof typeof EvmUserOperationNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmUserOperationNetwork = {
+  "base-sepolia": "base-sepolia",
+  base: "base",
+  arbitrum: "arbitrum",
+  optimism: "optimism",
+  zora: "zora",
+  polygon: "polygon",
+  bnb: "bnb",
+  avalanche: "avalanche",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+} as const;
 
 export interface EvmCall {
   /**
@@ -147,16 +285,38 @@ export interface EvmCall {
 }
 
 /**
- * The network the user operation is for.
+ * The revert data if the user operation has reverted.
  */
-export type EvmUserOperationNetwork =
-  (typeof EvmUserOperationNetwork)[keyof typeof EvmUserOperationNetwork];
+export interface UserOperationReceiptRevert {
+  /**
+   * The 0x-prefixed raw hex string.
+   * @pattern ^0x[0-9a-fA-F]*$
+   */
+  data: string;
+  /** Human-readable revert reason if able to decode. */
+  message: string;
+}
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const EvmUserOperationNetwork = {
-  "base-sepolia": "base-sepolia",
-  base: "base",
-} as const;
+/**
+ * The receipt that contains information about the execution of user operation.
+ */
+export interface UserOperationReceipt {
+  revert?: UserOperationReceiptRevert;
+  /**
+   * The hash of this transaction as 0x-prefixed string.
+   * @pattern ^0x[a-fA-F0-9]{64}$
+   */
+  transactionHash?: string;
+  /**
+   * The block hash of the block including the transaction as 0x-prefixed string.
+   * @pattern ^0x[0-9a-fA-F]{64}$|^$
+   */
+  blockHash?: string;
+  /** The block height (number) of the block including the transaction. */
+  blockNumber?: number;
+  /** The gas used for landing this user operation. */
+  gasUsed?: string;
+}
 
 /**
  * The status of the user operation.
@@ -170,11 +330,11 @@ export const EvmUserOperationStatus = {
   signed: "signed",
   broadcast: "broadcast",
   complete: "complete",
+  dropped: "dropped",
   failed: "failed",
 } as const;
 
 export interface EvmUserOperation {
-  /** The network the user operation is for. */
   network: EvmUserOperationNetwork;
   /**
    * The hash of the user operation. This is not the transaction hash, as a transaction consists of multiple user operations. The user operation hash is the hash of this particular user operation which gets signed by the owner of the Smart Account.
@@ -190,6 +350,107 @@ export interface EvmUserOperation {
    * @pattern ^0x[0-9a-fA-F]{64}$|^$
    */
   transactionHash?: string;
+  /** The list of receipts associated with the user operation. */
+  receipts?: UserOperationReceipt[];
+}
+
+/**
+ * The network the spend permission is on.
+ */
+export type SpendPermissionNetwork =
+  (typeof SpendPermissionNetwork)[keyof typeof SpendPermissionNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SpendPermissionNetwork = {
+  base: "base",
+  "base-sepolia": "base-sepolia",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+  optimism: "optimism",
+  arbitrum: "arbitrum",
+  avalanche: "avalanche",
+  polygon: "polygon",
+} as const;
+
+export interface CreateSpendPermissionRequest {
+  network: SpendPermissionNetwork;
+  /**
+   * Entity that can spend account's tokens. Can be either a Smart Account or an EOA.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  spender: string;
+  /**
+   * ERC-7528 native token address (e.g. "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" for native ETH), or an  ERC-20 contract address.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  token: string;
+  /** Maximum allowed value to spend, in atomic units for the specified token, within each period. */
+  allowance: string;
+  /** Time duration for resetting used allowance on a recurring basis (seconds). */
+  period: string;
+  /** The start time for this spend permission, in Unix seconds. */
+  start: string;
+  /** The expiration time for this spend permission, in Unix seconds. */
+  end: string;
+  /** An arbitrary salt to differentiate unique spend permissions with otherwise identical data. */
+  salt?: string;
+  /** Arbitrary data to include in the permission. */
+  extraData?: string;
+  /** The paymaster URL of the spend permission. */
+  paymasterUrl?: string;
+}
+
+/**
+ * The core spend permission.
+ */
+export interface SpendPermission {
+  /**
+   * Smart account this spend permission is valid for.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  account: string;
+  /**
+   * Entity that can spend account's tokens.
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  spender: string;
+  /**
+   * Token address (ERC-7528 native token address or ERC-20 contract).
+   * @pattern ^0x[a-fA-F0-9]{40}$
+   */
+  token: string;
+  /** Maximum allowed value to spend, in atomic units for the specified token, within each period. */
+  allowance: string;
+  /** Time duration for resetting used allowance on a recurring basis (seconds). */
+  period: string;
+  /** The start time for this spend permission, in Unix seconds. */
+  start: string;
+  /** The expiration time for this spend permission, in Unix seconds. */
+  end: string;
+  /** An arbitrary salt to differentiate unique spend permissions with otherwise identical data. */
+  salt: string;
+  /** Arbitrary data to include in the permission. */
+  extraData: string;
+}
+
+export interface SpendPermissionResponseObject {
+  permission: SpendPermission;
+  /** Unique hash identifier for this permission. */
+  permissionHash: string;
+  /** Whether this permission has been revoked. */
+  revoked: boolean;
+  /** The UTC ISO 8601 timestamp when the permission was revoked (if applicable). */
+  revokedAt?: string;
+  /** The UTC ISO 8601 timestamp when the permission was created. */
+  createdAt: string;
+}
+
+export interface RevokeSpendPermissionRequest {
+  network: SpendPermissionNetwork;
+  /** The hash of the spend permission to revoke. */
+  permissionHash: string;
+  /** The paymaster URL of the spend permission. */
+  paymasterUrl?: string;
 }
 
 /**
@@ -201,6 +462,8 @@ export type EvmSwapsNetwork = (typeof EvmSwapsNetwork)[keyof typeof EvmSwapsNetw
 export const EvmSwapsNetwork = {
   base: "base",
   ethereum: "ethereum",
+  arbitrum: "arbitrum",
+  optimism: "optimism",
 } as const;
 
 /**
@@ -477,6 +740,7 @@ export type ListEvmTokenBalancesNetwork =
 export const ListEvmTokenBalancesNetwork = {
   base: "base",
   "base-sepolia": "base-sepolia",
+  ethereum: "ethereum",
 } as const;
 
 /**
@@ -595,13 +859,246 @@ export const EvmAddressCriterionOperator = {
 export interface EvmAddressCriterion {
   /** The type of criterion to use. This should be `evmAddress`. */
   type: EvmAddressCriterionType;
-  /** A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 100 addresses per criterion. */
+  /** A list of 0x-prefixed EVM addresses that the transaction's `to` field should be compared to. There is a limit of 300 addresses per criterion. */
   addresses: string[];
   /** The operator to use for the comparison. The transaction's `to` field will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
   operator: EvmAddressCriterionOperator;
 }
 
-export type SignEvmTransactionCriteriaItem = EthValueCriterion | EvmAddressCriterion;
+/**
+ * A reference to an established EIP standard. When referencing a `KnownAbiType` within a policy rule configuring an `EvmDataCriterion`, criteria will only decode function data officially documented in the standard. For more information on supported token standards, see the links below.
+  - [erc20 - Token Standard](https://eips.ethereum.org/EIPS/eip-20).
+  - [erc721 - Non-Fungible Token Standard](https://eips.ethereum.org/EIPS/eip-721).
+  - [erc1155 - Multi Token Standard](https://eips.ethereum.org/EIPS/eip-1155).
+ */
+export type KnownAbiType = (typeof KnownAbiType)[keyof typeof KnownAbiType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const KnownAbiType = {
+  erc20: "erc20",
+  erc721: "erc721",
+  erc1155: "erc1155",
+} as const;
+
+/**
+ * Parameter definition for ABI functions, errors, and constructors.
+ */
+export interface AbiParameter {
+  /** The name of the parameter. */
+  name?: string;
+  /** The canonical type of the parameter. */
+  type: string;
+  /** The internal Solidity type used by the compiler. */
+  internalType?: string;
+  /** Used for tuple types. */
+  components?: AbiParameter[];
+}
+
+/**
+ * State mutability of a function in Solidity.
+ */
+export type AbiStateMutability = (typeof AbiStateMutability)[keyof typeof AbiStateMutability];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AbiStateMutability = {
+  pure: "pure",
+  view: "view",
+  nonpayable: "nonpayable",
+  payable: "payable",
+} as const;
+
+/**
+ * The type of the ABI item, must be `function`.
+ */
+export type AbiFunctionType = (typeof AbiFunctionType)[keyof typeof AbiFunctionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AbiFunctionType = {
+  function: "function",
+} as const;
+
+/**
+ * ABI function type for contract functions.
+ */
+export interface AbiFunction {
+  /** The type of the ABI item, must be `function`. */
+  type: AbiFunctionType;
+  /** The name of the ABI function. */
+  name: string;
+  /** The list of ABI parameters used for this function. */
+  inputs: AbiParameter[];
+  /** The values returned by this function. */
+  outputs: AbiParameter[];
+  /** Deprecated. Use pure or view from stateMutability instead. */
+  constant?: boolean;
+  /** Deprecated. Use payable or nonpayable from `stateMutability` instead. */
+  payable?: boolean;
+  stateMutability: AbiStateMutability;
+  /** Deprecated. Vyper used to provide gas estimates. */
+  gas?: number;
+}
+
+/**
+ * The type of the ABI item.
+ */
+export type AbiInputType = (typeof AbiInputType)[keyof typeof AbiInputType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const AbiInputType = {
+  constructor: "constructor",
+  error: "error",
+  event: "event",
+  fallback: "fallback",
+  receive: "receive",
+} as const;
+
+/**
+ * Generic ABI item type encapsulating all other types besides `function`.
+ */
+export interface AbiInput {
+  /** The type of the ABI item. */
+  type: AbiInputType;
+  /** For additional information on the ABI JSON specification, see [the Solidity documentation](https://docs.soliditylang.org/en/latest/abi-spec.html#json). */
+  additionalProperties?: unknown;
+}
+
+export type AbiItem = AbiFunction | AbiInput;
+
+/**
+ * Contract ABI Specification following Solidity's external JSON interface format.
+ */
+export type Abi = AbiItem[];
+
+/**
+ * The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+ */
+export type EvmDataParameterConditionOperator =
+  (typeof EvmDataParameterConditionOperator)[keyof typeof EvmDataParameterConditionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmDataParameterConditionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+export interface EvmDataParameterCondition {
+  /** The name of the parameter to check against a transaction's calldata. If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter. */
+  name: string;
+  /** The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side. */
+  operator: EvmDataParameterConditionOperator;
+  /** A single value to compare the value resolved at `name` to. All values are encoded as strings. Refer to the table in the documentation for how values should be encoded, and which operators are supported for each type. */
+  value: string;
+}
+
+/**
+ * The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `values` field will be on the right-hand side.
+ */
+export type EvmDataParameterConditionListOperator =
+  (typeof EvmDataParameterConditionListOperator)[keyof typeof EvmDataParameterConditionListOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmDataParameterConditionListOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+export interface EvmDataParameterConditionList {
+  /** The name of the parameter to check against a transaction's calldata. If name is unknown, or is not named, you may supply an array index, e.g., `0` for first parameter. */
+  name: string;
+  /** The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `values` field will be on the right-hand side. */
+  operator: EvmDataParameterConditionListOperator;
+  /** Values to compare against the resolved `name` value. All values are encoded as strings. Refer to the table in the documentation for how values should be encoded, and which operators are supported for each type. */
+  values: string[];
+}
+
+/**
+ * A list of parameter conditions to apply against encoded arguments in the transaction's `data` field.
+ */
+export type EvmDataConditionParamsItem = EvmDataParameterCondition | EvmDataParameterConditionList;
+
+/**
+ * A single condition to apply against the function and encoded arguments in the transaction's `data` field. Each `parameter` configuration must be successfully evaluated against the corresponding function argument in order for a policy to be accepted.
+ */
+export interface EvmDataCondition {
+  /** The name of a smart contract function being called. */
+  function: string;
+  /** An optional list of parameter conditions to apply against encoded arguments in the transaction's `data` field. */
+  params?: EvmDataConditionParamsItem[];
+}
+
+/**
+ * The type of criterion to use. This should be `evmData`.
+ */
+export type EvmDataCriterionType = (typeof EvmDataCriterionType)[keyof typeof EvmDataCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmDataCriterionType = {
+  evmData: "evmData",
+} as const;
+
+/**
+ * The ABI of the smart contract being called. This can be a partial structure with only specific functions.
+ */
+export type EvmDataCriterionAbi = KnownAbiType | Abi;
+
+/**
+ * A schema for specifying a criterion for the `data` field of an EVM transaction.
+ */
+export interface EvmDataCriterion {
+  /** The type of criterion to use. This should be `evmData`. */
+  type: EvmDataCriterionType;
+  /** The ABI of the smart contract being called. This can be a partial structure with only specific functions. */
+  abi: EvmDataCriterionAbi;
+  /** A list of conditions to apply against the function and encoded arguments in the transaction's `data` field. Each condition must be met in order for this policy to be accepted or rejected. */
+  conditions: EvmDataCondition[];
+}
+
+/**
+ * The type of criterion to use. This should be `netUSDChange`.
+ */
+export type NetUSDChangeCriterionType =
+  (typeof NetUSDChangeCriterionType)[keyof typeof NetUSDChangeCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const NetUSDChangeCriterionType = {
+  netUSDChange: "netUSDChange",
+} as const;
+
+/**
+ * The operator to use for the comparison. The total value of a transaction's asset transfer will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side.
+ */
+export type NetUSDChangeCriterionOperator =
+  (typeof NetUSDChangeCriterionOperator)[keyof typeof NetUSDChangeCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const NetUSDChangeCriterionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * A schema for specifying a criterion for the USD denominated asset transfer or exposure for a transaction. This includes native transfers, as well as token transfers.
+ */
+export interface NetUSDChangeCriterion {
+  /** The type of criterion to use. This should be `netUSDChange`. */
+  type: NetUSDChangeCriterionType;
+  /** The amount of USD, in cents, that the total value of a transaction's asset transfer should be compared to. */
+  changeCents: number;
+  /** The operator to use for the comparison. The total value of a transaction's asset transfer will be on the left-hand side of the operator, and the `changeCents` field will be on the right-hand side. */
+  operator: NetUSDChangeCriterionOperator;
+}
+
+export type SignEvmTransactionCriteriaItem =
+  | EthValueCriterion
+  | EvmAddressCriterion
+  | EvmDataCriterion
+  | NetUSDChangeCriterion;
 
 /**
  * A schema for specifying criteria for the SignEvmTransaction operation.
@@ -660,6 +1157,14 @@ export type EvmNetworkCriterionNetworksItem =
 export const EvmNetworkCriterionNetworksItem = {
   "base-sepolia": "base-sepolia",
   base: "base",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+  avalanche: "avalanche",
+  polygon: "polygon",
+  optimism: "optimism",
+  arbitrum: "arbitrum",
+  zora: "zora",
+  bnb: "bnb",
 } as const;
 
 /**
@@ -689,7 +1194,9 @@ export interface EvmNetworkCriterion {
 export type SendEvmTransactionCriteriaItem =
   | EthValueCriterion
   | EvmAddressCriterion
-  | EvmNetworkCriterion;
+  | EvmNetworkCriterion
+  | EvmDataCriterion
+  | NetUSDChangeCriterion;
 
 /**
  * A schema for specifying criteria for the SignEvmTransaction operation.
@@ -785,6 +1292,194 @@ export interface SignEvmMessageRule {
 }
 
 /**
+ * The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+ */
+export type EvmTypedAddressConditionOperator =
+  (typeof EvmTypedAddressConditionOperator)[keyof typeof EvmTypedAddressConditionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmTypedAddressConditionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * A schema for specifying criterion for an address field of an EVM typed message. The address can be deeply nested within the typed data's message.
+ */
+export interface EvmTypedAddressCondition {
+  /** A list of 0x-prefixed EVM addresses that the value located at the message's path should be compared to. There is a limit of 300 addresses per criterion. */
+  addresses: string[];
+  /** The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
+  operator: EvmTypedAddressConditionOperator;
+  /** The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected. */
+  path: string;
+}
+
+/**
+ * The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+ */
+export type EvmTypedNumericalConditionOperator =
+  (typeof EvmTypedNumericalConditionOperator)[keyof typeof EvmTypedNumericalConditionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EvmTypedNumericalConditionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * A schema for specifying criterion for a numerical field of an EVM typed message. The value can be deeply nested within the typed data's message.
+ */
+export interface EvmTypedNumericalCondition {
+  /**
+   * The amount that the value located at the message's path should be compared to.
+   * @pattern ^[0-9]+$
+   */
+  value: string;
+  /** The operator to use for the comparison. The value located at the message's path will be on the left-hand side of the operator, and the `value` field will be on the right-hand side. */
+  operator: EvmTypedNumericalConditionOperator;
+  /** The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected. */
+  path: string;
+}
+
+/**
+ * A schema for specifying criterion for a string field of an EVM typed message. The value can be deeply nested within the typed data's message.
+ */
+export interface EvmTypedStringCondition {
+  /** A regular expression the field is matched against. */
+  match: string;
+  /** The path to the field to compare against this criterion. To reference deeply nested fields within the message, separate object keys by `.`, and access array values using `[index]`. If the field does not exist or is not an address, the operation will be rejected. */
+  path: string;
+}
+
+/**
+ * The type of criterion to use. This should be `evmTypedDataField`.
+ */
+export type SignEvmTypedDataFieldCriterionType =
+  (typeof SignEvmTypedDataFieldCriterionType)[keyof typeof SignEvmTypedDataFieldCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataFieldCriterionType = {
+  evmTypedDataField: "evmTypedDataField",
+} as const;
+
+export type SignEvmTypedDataFieldCriterionTypesTypesItem = {
+  /** The name of a key within an EIP-712 data structure. */
+  name?: string;
+  /** The Solidity type of a value within an EIP-712 data structure. */
+  type?: string;
+};
+
+/**
+ * EIP-712 compliant map of model names to model definitions.
+ */
+export type SignEvmTypedDataFieldCriterionTypesTypes = {
+  [key: string]: SignEvmTypedDataFieldCriterionTypesTypesItem[];
+};
+
+/**
+ * An object containing EIP-712 type definitions, as well as a primary type for the root message object.
+ */
+export type SignEvmTypedDataFieldCriterionTypes = {
+  /** EIP-712 compliant map of model names to model definitions. */
+  types: SignEvmTypedDataFieldCriterionTypesTypes;
+  /** The name of the root EIP-712 type. This value must be included in the `types` object. */
+  primaryType: string;
+};
+
+export type SignEvmTypedDataFieldCriterionConditionsItem =
+  | EvmTypedAddressCondition
+  | EvmTypedNumericalCondition
+  | EvmTypedStringCondition;
+
+export interface SignEvmTypedDataFieldCriterion {
+  /** The type of criterion to use. This should be `evmTypedDataField`. */
+  type: SignEvmTypedDataFieldCriterionType;
+  /** An object containing EIP-712 type definitions, as well as a primary type for the root message object. */
+  types: SignEvmTypedDataFieldCriterionTypes;
+  /** A list of conditions to check against the data being signed. Each condition must be met for the rule to take effect. */
+  conditions: SignEvmTypedDataFieldCriterionConditionsItem[];
+}
+
+/**
+ * The type of criterion to use. This should be `evmTypedDataVerifyingContract`.
+ */
+export type SignEvmTypedDataVerifyingContractCriterionType =
+  (typeof SignEvmTypedDataVerifyingContractCriterionType)[keyof typeof SignEvmTypedDataVerifyingContractCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataVerifyingContractCriterionType = {
+  evmTypedDataVerifyingContract: "evmTypedDataVerifyingContract",
+} as const;
+
+/**
+ * The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+ */
+export type SignEvmTypedDataVerifyingContractCriterionOperator =
+  (typeof SignEvmTypedDataVerifyingContractCriterionOperator)[keyof typeof SignEvmTypedDataVerifyingContractCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataVerifyingContractCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * A schema for specifying criterion for a domain's verifying contract.
+ */
+export interface SignEvmTypedDataVerifyingContractCriterion {
+  /** The type of criterion to use. This should be `evmTypedDataVerifyingContract`. */
+  type: SignEvmTypedDataVerifyingContractCriterionType;
+  /** A list of 0x-prefixed EVM addresses that the domain's verifying contract should be compared to. There is a limit of 300 addresses per criterion. */
+  addresses: string[];
+  /** The operator to use for the comparison. The domain's verifying contract will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
+  operator: SignEvmTypedDataVerifyingContractCriterionOperator;
+}
+
+export type SignEvmTypedDataCriteriaItem =
+  | SignEvmTypedDataFieldCriterion
+  | SignEvmTypedDataVerifyingContractCriterion;
+
+/**
+ * A schema for specifying criteria for the SignEvmTypedData operation.
+ */
+export type SignEvmTypedDataCriteria = SignEvmTypedDataCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SignEvmTypedDataRuleAction =
+  (typeof SignEvmTypedDataRuleAction)[keyof typeof SignEvmTypedDataRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SignEvmTypedDataRuleOperation =
+  (typeof SignEvmTypedDataRuleOperation)[keyof typeof SignEvmTypedDataRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignEvmTypedDataRuleOperation = {
+  signEvmTypedData: "signEvmTypedData",
+} as const;
+
+export interface SignEvmTypedDataRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SignEvmTypedDataRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SignEvmTypedDataRuleOperation;
+  criteria: SignEvmTypedDataCriteria;
+}
+
+/**
  * The type of criterion to use. This should be `solAddress`.
  */
 export type SolAddressCriterionType =
@@ -796,7 +1491,7 @@ export const SolAddressCriterionType = {
 } as const;
 
 /**
- * The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side.
+ * The operator to use for the comparison. Each of the native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
  */
 export type SolAddressCriterionOperator =
   (typeof SolAddressCriterionOperator)[keyof typeof SolAddressCriterionOperator];
@@ -808,21 +1503,174 @@ export const SolAddressCriterionOperator = {
 } as const;
 
 /**
- * The criterion for the recipient addresses of a Solana transaction.
+ * The criterion for the recipient addresses of a Solana transaction's native transfer instruction.
  */
 export interface SolAddressCriterion {
   /** The type of criterion to use. This should be `solAddress`. */
   type: SolAddressCriterionType;
-  /** The Solana addresses that are compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array. */
+  /** The Solana addresses that are compared to the list of native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array. */
   addresses: string[];
-  /** The operator to use for the comparison. Each of the addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the addresses field will be on the right-hand side. */
+  /** The operator to use for the comparison. Each of the native transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
   operator: SolAddressCriterionOperator;
 }
 
 /**
+ * The type of criterion to use. This should be `solValue`.
+ */
+export type SolValueCriterionType =
+  (typeof SolValueCriterionType)[keyof typeof SolValueCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolValueCriterionType = {
+  solValue: "solValue",
+} as const;
+
+/**
+ * The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `solValue` field will be on the right-hand side.
+ */
+export type SolValueCriterionOperator =
+  (typeof SolValueCriterionOperator)[keyof typeof SolValueCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolValueCriterionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * The criterion for the SOL value in lamports of a native transfer instruction in a Solana transaction.
+ */
+export interface SolValueCriterion {
+  /** The type of criterion to use. This should be `solValue`. */
+  type: SolValueCriterionType;
+  /** The amount of SOL in lamports that the transaction instruction's `value` field should be compared to. */
+  solValue: string;
+  /** The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `solValue` field will be on the right-hand side. */
+  operator: SolValueCriterionOperator;
+}
+
+/**
+ * The type of criterion to use. This should be `splAddress`.
+ */
+export type SplAddressCriterionType =
+  (typeof SplAddressCriterionType)[keyof typeof SplAddressCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SplAddressCriterionType = {
+  splAddress: "splAddress",
+} as const;
+
+/**
+ * The operator to use for the comparison. Each of the SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+ */
+export type SplAddressCriterionOperator =
+  (typeof SplAddressCriterionOperator)[keyof typeof SplAddressCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SplAddressCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * The criterion for the recipient addresses of a Solana transaction's SPL token transfer instructions.
+ */
+export interface SplAddressCriterion {
+  /** The type of criterion to use. This should be `splAddress`. */
+  type: SplAddressCriterionType;
+  /** The Solana addresses that are compared to the list of SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array. */
+  addresses: string[];
+  /** The operator to use for the comparison. Each of the SPL token transfer recipient addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
+  operator: SplAddressCriterionOperator;
+}
+
+/**
+ * The type of criterion to use. This should be `splValue`.
+ */
+export type SplValueCriterionType =
+  (typeof SplValueCriterionType)[keyof typeof SplValueCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SplValueCriterionType = {
+  splValue: "splValue",
+} as const;
+
+/**
+ * The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `splValue` field will be on the right-hand side.
+ */
+export type SplValueCriterionOperator =
+  (typeof SplValueCriterionOperator)[keyof typeof SplValueCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SplValueCriterionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * The criterion for the SPL token value of a SPL token transfer instruction in a Solana transaction.
+ */
+export interface SplValueCriterion {
+  /** The type of criterion to use. This should be `splValue`. */
+  type: SplValueCriterionType;
+  /** The amount of the SPL token that the transaction instruction's `value` field should be compared to. */
+  splValue: string;
+  /** The operator to use for the comparison. The transaction instruction's `value` field will be on the left-hand side of the operator, and the `splValue` field will be on the right-hand side. */
+  operator: SplValueCriterionOperator;
+}
+
+/**
+ * The type of criterion to use. This should be `mintAddress`.
+ */
+export type MintAddressCriterionType =
+  (typeof MintAddressCriterionType)[keyof typeof MintAddressCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MintAddressCriterionType = {
+  mintAddress: "mintAddress",
+} as const;
+
+/**
+ * The operator to use for the comparison. Each of the token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side.
+ */
+export type MintAddressCriterionOperator =
+  (typeof MintAddressCriterionOperator)[keyof typeof MintAddressCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MintAddressCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
+ */
+export interface MintAddressCriterion {
+  /** The type of criterion to use. This should be `mintAddress`. */
+  type: MintAddressCriterionType;
+  /** The Solana addresses that are compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array. */
+  addresses: string[];
+  /** The operator to use for the comparison. Each of the token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array will be on the left-hand side of the operator, and the `addresses` field will be on the right-hand side. */
+  operator: MintAddressCriterionOperator;
+}
+
+export type SignSolTransactionCriteriaItem =
+  | SolAddressCriterion
+  | SolValueCriterion
+  | SplAddressCriterion
+  | SplValueCriterion
+  | MintAddressCriterion;
+
+/**
  * A schema for specifying criteria for the SignSolTransaction operation.
  */
-export type SignSolTransactionCriteria = SolAddressCriterion[];
+export type SignSolTransactionCriteria = SignSolTransactionCriteriaItem[];
 
 /**
  * Whether matching the rule will cause the request to be rejected or accepted.
@@ -855,6 +1703,49 @@ export interface SignSolTransactionRule {
   criteria: SignSolTransactionCriteria;
 }
 
+export type SendSolTransactionCriteriaItem =
+  | SolAddressCriterion
+  | SolValueCriterion
+  | SplAddressCriterion
+  | SplValueCriterion
+  | MintAddressCriterion;
+
+/**
+ * A schema for specifying criteria for the SendSolTransaction operation.
+ */
+export type SendSolTransactionCriteria = SendSolTransactionCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SendSolTransactionRuleAction =
+  (typeof SendSolTransactionRuleAction)[keyof typeof SendSolTransactionRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendSolTransactionRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SendSolTransactionRuleOperation =
+  (typeof SendSolTransactionRuleOperation)[keyof typeof SendSolTransactionRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendSolTransactionRuleOperation = {
+  sendSolTransaction: "sendSolTransaction",
+} as const;
+
+export interface SendSolTransactionRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SendSolTransactionRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SendSolTransactionRuleOperation;
+  criteria: SendSolTransactionCriteria;
+}
+
 /**
  * Whether any attempts to sign a hash will be accepted or rejected. This rule does not accept any criteria.
  */
@@ -885,6 +1776,89 @@ export interface SignEvmHashRule {
   operation: SignEvmHashRuleOperation;
 }
 
+export type PrepareUserOperationCriteriaItem =
+  | EthValueCriterion
+  | EvmAddressCriterion
+  | EvmNetworkCriterion
+  | EvmDataCriterion;
+
+/**
+ * A schema for specifying criteria for the PrepareUserOperation operation.
+ */
+export type PrepareUserOperationCriteria = PrepareUserOperationCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type PrepareUserOperationRuleAction =
+  (typeof PrepareUserOperationRuleAction)[keyof typeof PrepareUserOperationRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PrepareUserOperationRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type PrepareUserOperationRuleOperation =
+  (typeof PrepareUserOperationRuleOperation)[keyof typeof PrepareUserOperationRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PrepareUserOperationRuleOperation = {
+  prepareUserOperation: "prepareUserOperation",
+} as const;
+
+export interface PrepareUserOperationRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: PrepareUserOperationRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: PrepareUserOperationRuleOperation;
+  criteria: PrepareUserOperationCriteria;
+}
+
+export type SendUserOperationCriteriaItem =
+  | EthValueCriterion
+  | EvmAddressCriterion
+  | EvmDataCriterion;
+
+/**
+ * A schema for specifying criteria for the SendUserOperation operation.
+ */
+export type SendUserOperationCriteria = SendUserOperationCriteriaItem[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SendUserOperationRuleAction =
+  (typeof SendUserOperationRuleAction)[keyof typeof SendUserOperationRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendUserOperationRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SendUserOperationRuleOperation =
+  (typeof SendUserOperationRuleOperation)[keyof typeof SendUserOperationRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendUserOperationRuleOperation = {
+  sendUserOperation: "sendUserOperation",
+} as const;
+
+export interface SendUserOperationRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SendUserOperationRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SendUserOperationRuleOperation;
+  criteria: SendUserOperationCriteria;
+}
+
 /**
  * A rule that limits the behavior of an account.
  */
@@ -892,8 +1866,12 @@ export type Rule =
   | SignEvmTransactionRule
   | SendEvmTransactionRule
   | SignEvmMessageRule
+  | SignEvmTypedDataRule
   | SignSolTransactionRule
-  | SignEvmHashRule;
+  | SendSolTransactionRule
+  | SignEvmHashRule
+  | PrepareUserOperationRule
+  | SendUserOperationRule;
 
 /**
  * The scope of the policy. Only one project-level policy can exist at any time.
@@ -943,6 +1921,412 @@ Account names are guaranteed to be unique across all Solana accounts in the deve
   name?: string;
   /** The list of policy IDs that apply to the account. This will include both the project-level policy and the account-level policy, if one exists. */
   policies?: string[];
+  /** The ISO 8601 UTC timestamp at which the account was created. */
+  createdAt?: string;
+  /** The ISO 8601 UTC timestamp at which the account was last updated. */
+  updatedAt?: string;
+}
+
+/**
+ * The name of the supported Solana networks in human-readable format.
+ */
+export type ListSolanaTokenBalancesNetwork =
+  (typeof ListSolanaTokenBalancesNetwork)[keyof typeof ListSolanaTokenBalancesNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ListSolanaTokenBalancesNetwork = {
+  solana: "solana",
+  "solana-devnet": "solana-devnet",
+} as const;
+
+/**
+ * Amount of a given Solana token.
+ */
+export interface SolanaTokenAmount {
+  /**
+   * The amount is denominated in the smallest indivisible unit of the token. For SOL, the smallest indivisible unit is lamports (10^-9 SOL). For SPL tokens, the smallest unit is defined by the token's decimals configuration.
+   * @pattern ^[0-9]+$
+   */
+  amount: string;
+  /** 'decimals' is the exponential value N that satisfies the equation `amount * 10^-N = standard_denomination`. The standard denomination is the most commonly used denomination for the token.
+- For native SOL, `decimals` is 9 (1 SOL = 10^9 lamports). - For SPL tokens, `decimals` is defined in the token's mint configuration. */
+  decimals: number;
+}
+
+/**
+ * General information about a Solana token. Includes the mint address, and other identifying information.
+ */
+export interface SolanaToken {
+  /** The symbol of this token (ex: SOL, USDC, RAY).
+The token symbol is not unique. It is possible for two different tokens to have the same symbol.
+For the native SOL token, this symbol is "SOL". For SPL tokens, this symbol is defined in the token's metadata.
+Not all tokens have a symbol. This field will only be populated when the token has metadata available. */
+  symbol?: string;
+  /** The name of this token (ex: "Solana", "USD Coin", "Raydium").
+The token name is not unique. It is possible for two different tokens to have the same name.
+For the native SOL token, this name is "Solana". For SPL tokens, this name is defined in the token's metadata.
+Not all tokens have a name. This field will only be populated when the token has metadata available. */
+  name?: string;
+  /**
+   * The mint address of the token.
+For native SOL, the mint address is `So11111111111111111111111111111111111111111`. For SPL tokens, this is the mint address where the token is defined.
+   * @pattern ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+   */
+  mintAddress: string;
+}
+
+export interface SolanaTokenBalance {
+  amount: SolanaTokenAmount;
+  token: SolanaToken;
+}
+
+/**
+ * Request to execute a SQL query against indexed blockchain data.
+ */
+export interface OnchainDataQuery {
+  /**
+   * SQL query to execute against the indexed blockchain data.
+   * @minLength 1
+   * @maxLength 10000
+   */
+  sql: string;
+}
+
+/**
+ * Row data with column names as keys.
+ */
+export type OnchainDataResultResultItem = { [key: string]: unknown };
+
+/**
+ * Column data type (ClickHouse types).
+ */
+export type OnchainDataResultSchemaColumnsItemType =
+  (typeof OnchainDataResultSchemaColumnsItemType)[keyof typeof OnchainDataResultSchemaColumnsItemType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnchainDataResultSchemaColumnsItemType = {
+  String: "String",
+  UInt8: "UInt8",
+  UInt16: "UInt16",
+  UInt32: "UInt32",
+  UInt64: "UInt64",
+  UInt128: "UInt128",
+  UInt256: "UInt256",
+  Int8: "Int8",
+  Int16: "Int16",
+  Int32: "Int32",
+  Int64: "Int64",
+  Int128: "Int128",
+  Int256: "Int256",
+  Float32: "Float32",
+  Float64: "Float64",
+  Bool: "Bool",
+  Date: "Date",
+  DateTime: "DateTime",
+  DateTime64: "DateTime64",
+  UUID: "UUID",
+} as const;
+
+export type OnchainDataResultSchemaColumnsItem = {
+  /** Column name. */
+  name?: string;
+  /** Column data type (ClickHouse types). */
+  type?: OnchainDataResultSchemaColumnsItemType;
+};
+
+/**
+ * Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
+
+ */
+export type OnchainDataResultSchema = {
+  /** Column definitions. */
+  columns?: OnchainDataResultSchemaColumnsItem[];
+};
+
+/**
+ * Metadata about query execution.
+ */
+export type OnchainDataResultMetadata = {
+  /** Whether the result was served from cache. */
+  cached?: boolean;
+  /** Query execution time in milliseconds. */
+  executionTimeMs?: number;
+  /** Number of rows returned. */
+  rowCount?: number;
+};
+
+/**
+ * Result of executing a SQL query.
+ */
+export interface OnchainDataResult {
+  /** Query result as an array of objects representing rows. */
+  result?: OnchainDataResultResultItem[];
+  /** Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
+   */
+  schema?: OnchainDataResultSchema;
+  /** Metadata about query execution. */
+  metadata?: OnchainDataResultMetadata;
+}
+
+/**
+ * Response containing token addresses that an account has received.
+ */
+export interface AccountTokenAddressesResponse {
+  /** The account address that was queried. */
+  accountAddress?: string;
+  /** List of token contract addresses that the account has received. */
+  tokenAddresses?: string[];
+  /**
+   * Total number of unique token addresses discovered.
+   * @minimum 0
+   */
+  totalCount?: number;
+}
+
+/**
+ * The version of the x402 protocol.
+ */
+export type X402Version = (typeof X402Version)[keyof typeof X402Version];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402Version = {
+  NUMBER_1: 1,
+} as const;
+
+/**
+ * The authorization data for the ERC-3009 authorization message.
+ */
+export type X402ExactEvmPayloadAuthorization = {
+  /**
+   * The 0x-prefixed, checksum EVM address of the sender of the payment.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  from: string;
+  /**
+   * The 0x-prefixed, checksum EVM address of the recipient of the payment.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  to: string;
+  /** The value of the payment, in atomic units of the payment asset. */
+  value: string;
+  /** The unix timestamp after which the payment is valid. */
+  validAfter: string;
+  /** The unix timestamp before which the payment is valid. */
+  validBefore: string;
+  /** The hex-encoded nonce of the payment. */
+  nonce: string;
+};
+
+/**
+ * The x402 protocol exact scheme payload for EVM networks. The scheme is implemented using ERC-3009. For more details, please see [EVM Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_evm.md).
+ */
+export interface X402ExactEvmPayload {
+  /** The EIP-712 hex-encoded signature of the ERC-3009 authorization message. */
+  signature: string;
+  /** The authorization data for the ERC-3009 authorization message. */
+  authorization: X402ExactEvmPayloadAuthorization;
+}
+
+/**
+ * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+ */
+export type X402PaymentPayloadScheme =
+  (typeof X402PaymentPayloadScheme)[keyof typeof X402PaymentPayloadScheme];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402PaymentPayloadScheme = {
+  exact: "exact",
+} as const;
+
+/**
+ * The network of the blockchain to send payment on.
+ */
+export type X402PaymentPayloadNetwork =
+  (typeof X402PaymentPayloadNetwork)[keyof typeof X402PaymentPayloadNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402PaymentPayloadNetwork = {
+  "base-sepolia": "base-sepolia",
+  base: "base",
+} as const;
+
+/**
+ * The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+ */
+export interface X402PaymentPayload {
+  x402Version: X402Version;
+  /** The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`. */
+  scheme: X402PaymentPayloadScheme;
+  /** The network of the blockchain to send payment on. */
+  network: X402PaymentPayloadNetwork;
+  /** The payload of the payment depending on the x402Version, scheme, and network. */
+  payload: X402ExactEvmPayload;
+}
+
+/**
+ * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+ */
+export type X402PaymentRequirementsScheme =
+  (typeof X402PaymentRequirementsScheme)[keyof typeof X402PaymentRequirementsScheme];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402PaymentRequirementsScheme = {
+  exact: "exact",
+} as const;
+
+/**
+ * The network of the blockchain to send payment on.
+ */
+export type X402PaymentRequirementsNetwork =
+  (typeof X402PaymentRequirementsNetwork)[keyof typeof X402PaymentRequirementsNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402PaymentRequirementsNetwork = {
+  "base-sepolia": "base-sepolia",
+  base: "base",
+} as const;
+
+/**
+ * The optional JSON schema describing the resource output.
+ */
+export type X402PaymentRequirementsOutputSchema = { [key: string]: unknown };
+
+/**
+ * The optional additional scheme-specific payment info.
+ */
+export type X402PaymentRequirementsExtra = { [key: string]: unknown };
+
+/**
+ * The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+ */
+export interface X402PaymentRequirements {
+  /** The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`. */
+  scheme: X402PaymentRequirementsScheme;
+  /** The network of the blockchain to send payment on. */
+  network: X402PaymentRequirementsNetwork;
+  /** The maximum amount required to pay for the resource in atomic units of the payment asset. */
+  maxAmountRequired: string;
+  /** The URL of the resource to pay for. */
+  resource: string;
+  /** The description of the resource. */
+  description: string;
+  /** The MIME type of the resource response. */
+  mimeType: string;
+  /** The optional JSON schema describing the resource output. */
+  outputSchema?: X402PaymentRequirementsOutputSchema;
+  /**
+   * The destination to pay value to.
+
+For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, payTo will be a base58-encoded Solana address.
+   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  payTo: string;
+  /** The maximum time in seconds for the resource server to respond. */
+  maxTimeoutSeconds: number;
+  /**
+   * The asset to pay with.
+
+For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, the asset will be a base58-encoded Solana address.
+   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  asset: string;
+  /** The optional additional scheme-specific payment info. */
+  extra?: X402PaymentRequirementsExtra;
+}
+
+/**
+ * The reason the payment is invalid on the x402 protocol.
+ */
+export type X402VerifyInvalidReason =
+  (typeof X402VerifyInvalidReason)[keyof typeof X402VerifyInvalidReason];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402VerifyInvalidReason = {
+  insufficient_funds: "insufficient_funds",
+  invalid_scheme: "invalid_scheme",
+  invalid_network: "invalid_network",
+  invalid_x402_version: "invalid_x402_version",
+  invalid_payment_requirements: "invalid_payment_requirements",
+  invalid_payload: "invalid_payload",
+  invalid_exact_evm_payload_authorization_value: "invalid_exact_evm_payload_authorization_value",
+  invalid_exact_evm_payload_authorization_valid_after:
+    "invalid_exact_evm_payload_authorization_valid_after",
+  invalid_exact_evm_payload_authorization_valid_before:
+    "invalid_exact_evm_payload_authorization_valid_before",
+  invalid_exact_evm_payload_authorization_typed_data_message:
+    "invalid_exact_evm_payload_authorization_typed_data_message",
+  invalid_exact_evm_payload_authorization_from_address_kyt:
+    "invalid_exact_evm_payload_authorization_from_address_kyt",
+  invalid_exact_evm_payload_authorization_to_address_kyt:
+    "invalid_exact_evm_payload_authorization_to_address_kyt",
+  invalid_exact_evm_payload_signature: "invalid_exact_evm_payload_signature",
+  invalid_exact_evm_payload_signature_address: "invalid_exact_evm_payload_signature_address",
+} as const;
+
+/**
+ * The reason the payment settlement errored on the x402 protocol.
+ */
+export type X402SettleErrorReason =
+  (typeof X402SettleErrorReason)[keyof typeof X402SettleErrorReason];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402SettleErrorReason = {
+  insufficient_funds: "insufficient_funds",
+  invalid_scheme: "invalid_scheme",
+  invalid_network: "invalid_network",
+  invalid_x402_version: "invalid_x402_version",
+  invalid_payment_requirements: "invalid_payment_requirements",
+  invalid_payload: "invalid_payload",
+  invalid_exact_evm_payload_authorization_value: "invalid_exact_evm_payload_authorization_value",
+  invalid_exact_evm_payload_authorization_valid_after:
+    "invalid_exact_evm_payload_authorization_valid_after",
+  invalid_exact_evm_payload_authorization_valid_before:
+    "invalid_exact_evm_payload_authorization_valid_before",
+  invalid_exact_evm_payload_authorization_typed_data_message:
+    "invalid_exact_evm_payload_authorization_typed_data_message",
+  invalid_exact_evm_payload_authorization_from_address_kyt:
+    "invalid_exact_evm_payload_authorization_from_address_kyt",
+  invalid_exact_evm_payload_authorization_to_address_kyt:
+    "invalid_exact_evm_payload_authorization_to_address_kyt",
+  invalid_exact_evm_payload_signature_address: "invalid_exact_evm_payload_signature_address",
+} as const;
+
+/**
+ * The scheme of the payment protocol.
+ */
+export type X402SupportedPaymentKindScheme =
+  (typeof X402SupportedPaymentKindScheme)[keyof typeof X402SupportedPaymentKindScheme];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402SupportedPaymentKindScheme = {
+  exact: "exact",
+} as const;
+
+/**
+ * The network of the blockchain.
+ */
+export type X402SupportedPaymentKindNetwork =
+  (typeof X402SupportedPaymentKindNetwork)[keyof typeof X402SupportedPaymentKindNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402SupportedPaymentKindNetwork = {
+  "base-sepolia": "base-sepolia",
+  base: "base",
+} as const;
+
+/**
+ * The supported payment kind for the x402 protocol. A kind is comprised of a scheme and a network, which together uniquely identify a way to move money on the x402 protocol. For more details, please see [x402 Schemes](https://github.com/coinbase/x402?tab=readme-ov-file#schemes).
+ */
+export interface X402SupportedPaymentKind {
+  x402Version: X402Version;
+  /** The scheme of the payment protocol. */
+  scheme: X402SupportedPaymentKindScheme;
+  /** The network of the blockchain. */
+  network: X402SupportedPaymentKindNetwork;
 }
 
 /**
@@ -1176,6 +2560,110 @@ export interface Transfer {
 }
 
 /**
+ * The type of payment method to be used to complete the order.
+ */
+export type OnrampPaymentMethodTypeId =
+  (typeof OnrampPaymentMethodTypeId)[keyof typeof OnrampPaymentMethodTypeId];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampPaymentMethodTypeId = {
+  GUEST_CHECKOUT_APPLE_PAY: "GUEST_CHECKOUT_APPLE_PAY",
+} as const;
+
+/**
+ * The type of fee.
+ */
+export type OnrampOrderFeeType = (typeof OnrampOrderFeeType)[keyof typeof OnrampOrderFeeType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampOrderFeeType = {
+  FEE_TYPE_NETWORK: "FEE_TYPE_NETWORK",
+  FEE_TYPE_EXCHANGE: "FEE_TYPE_EXCHANGE",
+} as const;
+
+/**
+ * A fee associated with an order.
+ */
+export interface OnrampOrderFee {
+  /** The type of fee. */
+  type: OnrampOrderFeeType;
+  /** The amount of the fee. */
+  amount: string;
+  /** The currency of the fee. */
+  currency: string;
+}
+
+/**
+ * The status of an onramp order.
+ */
+export type OnrampOrderStatus = (typeof OnrampOrderStatus)[keyof typeof OnrampOrderStatus];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampOrderStatus = {
+  ONRAMP_ORDER_STATUS_PENDING_AUTH: "ONRAMP_ORDER_STATUS_PENDING_AUTH",
+  ONRAMP_ORDER_STATUS_PENDING_PAYMENT: "ONRAMP_ORDER_STATUS_PENDING_PAYMENT",
+  ONRAMP_ORDER_STATUS_PROCESSING: "ONRAMP_ORDER_STATUS_PROCESSING",
+  ONRAMP_ORDER_STATUS_COMPLETED: "ONRAMP_ORDER_STATUS_COMPLETED",
+  ONRAMP_ORDER_STATUS_FAILED: "ONRAMP_ORDER_STATUS_FAILED",
+} as const;
+
+/**
+ * An Onramp order.
+ */
+export interface OnrampOrder {
+  /** The ID of the onramp order. */
+  orderId: string;
+  /** The total amount of fiat to be paid, inclusive of any fees. */
+  paymentTotal: string;
+  /** The amount of fiat to be converted to crypto. */
+  paymentSubtotal: string;
+  /** The fiat currency to be converted to crypto. */
+  paymentCurrency: string;
+  paymentMethod: OnrampPaymentMethodTypeId;
+  /** The amount of crypto to be purchased. */
+  purchaseAmount: string;
+  /** The crypto currency to be purchased. */
+  purchaseCurrency: string;
+  /** The fees associated with the order. */
+  fees: OnrampOrderFee[];
+  /** The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat. */
+  exchangeRate: string;
+  /** The destination address to send the crypto to. */
+  destinationAddress: string;
+  /** The network to send the crypto on. */
+  destinationNetwork: string;
+  status: OnrampOrderStatus;
+  /** The transaction hash of the order (only available once crypto has been sent). */
+  txHash?: string;
+  /** The date and time the order was created. */
+  createdAt: string;
+  /** The date and time the order was last updated. */
+  updatedAt: string;
+}
+
+/**
+ * The type of payment link.
+ */
+export type OnrampPaymentLinkType =
+  (typeof OnrampPaymentLinkType)[keyof typeof OnrampPaymentLinkType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampPaymentLinkType = {
+  PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON: "PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON",
+} as const;
+
+/**
+ * A payment link to pay for an order.
+
+Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
+ */
+export interface OnrampPaymentLink {
+  /** The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your  own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes. */
+  url: string;
+  paymentLinkType: OnrampPaymentLinkType;
+}
+
+/**
  * Internal server error.
  */
 export type InternalServerErrorResponse = Error;
@@ -1191,6 +2679,11 @@ export type BadGatewayErrorResponse = Error;
 export type ServiceUnavailableErrorResponse = Error;
 
 /**
+ * A payment method is required to complete this operation.
+ */
+export type PaymentMethodRequiredErrorResponse = Error;
+
+/**
  * Idempotency key conflict.
  */
 export type IdempotencyErrorResponse = Error;
@@ -1201,8 +2694,72 @@ export type IdempotencyErrorResponse = Error;
 export type AlreadyExistsErrorResponse = Error;
 
 /**
+ * The underlying SQL string is invalid.
+ */
+export type InvalidSQLQueryErrorResponse = Error;
+
+/**
+ * Unauthorized.
+ */
+export type UnauthorizedErrorResponse = Error;
+
+/**
+ * The request timed out.
+ */
+export type TimedOutErrorResponse = Error;
+
+export type X402VerifyResponseResponse = {
+  /** Indicates whether the payment is valid. */
+  isValid: boolean;
+  invalidReason?: X402VerifyInvalidReason;
+  /**
+   * The onchain address of the client that is paying for the resource.
+
+For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, the payer will be a base58-encoded Solana address.
+   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  payer: string;
+};
+
+export type X402SettleResponseResponse = {
+  /** Indicates whether the payment settlement is successful. */
+  success: boolean;
+  errorReason?: X402SettleErrorReason;
+  /**
+   * The onchain address of the client that is paying for the resource.
+
+For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, the payer will be a base58-encoded Solana address.
+   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  payer: string;
+  /**
+   * The transaction of the settlement.
+For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
+For Solana-based networks, the transaction will be a base58-encoded Solana signature.
+   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  transaction: string;
+  /** The network where the settlement occurred. */
+  network: string;
+};
+
+export type X402SupportedPaymentKindsResponseResponse = {
+  /** The list of supported payment kinds. */
+  kinds: X402SupportedPaymentKind[];
+};
+
+/**
+ * Rate limit exceeded.
+ */
+export type RateLimitExceededResponse = Error;
+
+/**
  * A JWT signed using your Wallet Secret, encoded in base64. Refer to the
-[Generate Wallet Token](https://docs.cdp.coinbase.com/api-v2/docs/authentication#2-generate-wallet-token)
+[Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
 section of our Authentication docs for more details on how to generate your Wallet Token.
 
  */
@@ -1211,10 +2768,18 @@ export type XWalletAuthParameter = string;
 /**
  * An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
 When included, duplicate requests with the same key will return identical responses. 
-Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-v2/docs/idempotency) for more information on using idempotency keys.
+Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
  */
 export type IdempotencyKeyParameter = string;
+
+/**
+ * The request body for a developer to verify an end user's access token.
+ */
+export type ValidateEndUserAccessTokenBody = {
+  /** The access token in JWT format to verify. */
+  accessToken: string;
+};
 
 export type ListEvmAccountsParams = {
   /**
@@ -1258,8 +2823,8 @@ Account names must be unique across all EVM accounts in the developer's CDP Proj
    */
   name?: string;
   /**
-   * The ID of the account-level policy to apply to the account.
-   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   * The ID of the account-level policy to apply to the account, or an empty string to unset attached policy.
+   * @pattern (^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)|(^$)
    */
   accountPolicy?: string;
 };
@@ -1274,6 +2839,12 @@ export type SendEvmTransactionBodyNetwork =
 export const SendEvmTransactionBodyNetwork = {
   base: "base",
   "base-sepolia": "base-sepolia",
+  ethereum: "ethereum",
+  "ethereum-sepolia": "ethereum-sepolia",
+  avalanche: "avalanche",
+  polygon: "polygon",
+  optimism: "optimism",
+  arbitrum: "arbitrum",
 } as const;
 
 export type SendEvmTransactionBody = {
@@ -1344,6 +2915,13 @@ export type ListEvmSmartAccounts200 = ListEvmSmartAccounts200AllOf & ListRespons
 export type CreateEvmSmartAccountBody = {
   /** Today, only a single owner can be set for a Smart Account, but this is an array to allow setting multiple owners in the future. */
   owners: string[];
+  /**
+   * An optional name for the account.
+Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names must be unique across all EVM accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
 };
 
 export type ImportEvmAccountBody = {
@@ -1356,23 +2934,45 @@ Account names must be unique across all EVM accounts in the developer's CDP Proj
    * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
    */
   name?: string;
+  /**
+   * The ID of the account-level policy to apply to the account.
+   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   */
+  accountPolicy?: string;
 };
 
-/**
- * The network to prepare the user operation for.
- */
-export type PrepareUserOperationBodyNetwork =
-  (typeof PrepareUserOperationBodyNetwork)[keyof typeof PrepareUserOperationBodyNetwork];
+export type ExportEvmAccountBody = {
+  /** The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key. */
+  exportEncryptionKey: string;
+};
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const PrepareUserOperationBodyNetwork = {
-  "base-sepolia": "base-sepolia",
-  base: "base",
-} as const;
+export type ExportEvmAccount200 = {
+  /** The base64-encoded, encrypted private key of the EVM account which is a 32 byte raw private key. The private key is encrypted in transport using the exportEncryptionKey in the request. */
+  encryptedPrivateKey: string;
+};
+
+export type ExportEvmAccountByNameBody = {
+  /** The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key. */
+  exportEncryptionKey: string;
+};
+
+export type ExportEvmAccountByName200 = {
+  /** The base64-encoded, encrypted private key of the EVM account which is a 32 byte raw private key. The private key is encrypted in transport using the exportEncryptionKey in the request. */
+  encryptedPrivateKey: string;
+};
+
+export type UpdateEvmSmartAccountBody = {
+  /**
+   * An optional name for the smart account.
+Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names must be unique across all EVM smart accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
+};
 
 export type PrepareUserOperationBody = {
-  /** The network to prepare the user operation for. */
-  network: PrepareUserOperationBodyNetwork;
+  network: EvmUserOperationNetwork;
   /** The list of calls to make from the Smart Account. */
   calls: EvmCall[];
   /** The URL of the paymaster to use for the user operation. */
@@ -1383,6 +2983,24 @@ export type SendUserOperationBody = {
   /** The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28. */
   signature: string;
 };
+
+export type ListSpendPermissionsParams = {
+  /**
+   * The number of spend permissions to return per page.
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of spend permissions. Will be empty if there are no more spend permissions to fetch.
+   */
+  pageToken?: string;
+};
+
+export type ListSpendPermissions200AllOf = {
+  /** The spend permissions for the smart account. */
+  spendPermissions: SpendPermissionResponseObject[];
+};
+
+export type ListSpendPermissions200 = ListSpendPermissions200AllOf & ListResponse;
 
 export type GetEvmSwapPriceParams = {
   network: EvmSwapsNetwork;
@@ -1463,6 +3081,7 @@ export type RequestEvmFaucetBodyNetwork =
 export const RequestEvmFaucetBodyNetwork = {
   "base-sepolia": "base-sepolia",
   "ethereum-sepolia": "ethereum-sepolia",
+  "ethereum-hoodi": "ethereum-hoodi",
 } as const;
 
 /**
@@ -1604,10 +3223,42 @@ Account names must be unique across all Solana accounts in the developer's CDP P
    */
   name?: string;
   /**
-   * The ID of the account-level policy to apply to the account.
-   * @pattern ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+   * The ID of the account-level policy to apply to the account, or an empty string to unset attached policy.
+   * @pattern (^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$)|(^$)
    */
   accountPolicy?: string;
+};
+
+export type ImportSolanaAccountBody = {
+  /** The base64-encoded, encrypted 32-byte private key of the Solana account. The private key must be encrypted using the CDP SDK's encryption scheme. */
+  encryptedPrivateKey: string;
+  /**
+   * An optional name for the account.
+Account names can consist of alphanumeric characters and hyphens, and be between 2 and 36 characters long.
+Account names must be unique across all EVM accounts in the developer's CDP Project.
+   * @pattern ^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   */
+  name?: string;
+};
+
+export type ExportSolanaAccountBody = {
+  /** The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key. */
+  exportEncryptionKey: string;
+};
+
+export type ExportSolanaAccount200 = {
+  /** The base64-encoded, encrypted private key of the Solana account which is a 32 byte raw private key. The private key is encrypted in transport using the exportEncryptionKey in the request. */
+  encryptedPrivateKey: string;
+};
+
+export type ExportSolanaAccountByNameBody = {
+  /** The base64-encoded, public part of the RSA key in DER format used to encrypt the account private key. */
+  exportEncryptionKey: string;
+};
+
+export type ExportSolanaAccountByName200 = {
+  /** The base64-encoded, encrypted private key of the Solana account which is a 32 byte raw private key. The private key is encrypted in transport using the exportEncryptionKey in the request. */
+  encryptedPrivateKey: string;
 };
 
 export type SignSolanaTransactionBody = {
@@ -1628,6 +3279,30 @@ export type SignSolanaMessageBody = {
 export type SignSolanaMessage200 = {
   /** The signature of the message, as a base58 encoded string. */
   signature: string;
+};
+
+/**
+ * The Solana network to send the transaction to.
+ */
+export type SendSolanaTransactionBodyNetwork =
+  (typeof SendSolanaTransactionBodyNetwork)[keyof typeof SendSolanaTransactionBodyNetwork];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SendSolanaTransactionBodyNetwork = {
+  solana: "solana",
+  "solana-devnet": "solana-devnet",
+} as const;
+
+export type SendSolanaTransactionBody = {
+  /** The Solana network to send the transaction to. */
+  network: SendSolanaTransactionBodyNetwork;
+  /** The base64 encoded transaction to sign and send. This transaction can contain multiple instructions for native Solana batching. */
+  transaction: string;
+};
+
+export type SendSolanaTransaction200 = {
+  /** The base58 encoded transaction signature. */
+  transactionSignature: string;
 };
 
 /**
@@ -1655,6 +3330,54 @@ export type RequestSolanaFaucetBody = {
 export type RequestSolanaFaucet200 = {
   /** The signature identifying the transaction that requested the funds. */
   transactionSignature: string;
+};
+
+export type ListSolanaTokenBalancesParams = {
+  /**
+   * The number of balances to return per page.
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of balances. Will be empty if there are no more balances to fetch.
+   */
+  pageToken?: string;
+};
+
+export type ListSolanaTokenBalances200AllOf = {
+  /** The list of Solana token balances. */
+  balances: SolanaTokenBalance[];
+};
+
+export type ListSolanaTokenBalances200 = ListSolanaTokenBalances200AllOf & ListResponse;
+
+export type ListDataTokenBalancesParams = {
+  /**
+   * The number of balances to return per page.
+   */
+  pageSize?: number;
+  /**
+   * The token for the next page of balances. Will be empty if there are no more balances to fetch.
+   */
+  pageToken?: string;
+};
+
+export type ListDataTokenBalances200AllOf = {
+  /** The list of EVM token balances. */
+  balances: TokenBalance[];
+};
+
+export type ListDataTokenBalances200 = ListDataTokenBalances200AllOf & ListResponse;
+
+export type VerifyX402PaymentBody = {
+  x402Version: X402Version;
+  paymentPayload: X402PaymentPayload;
+  paymentRequirements: X402PaymentRequirements;
+};
+
+export type SettleX402PaymentBody = {
+  x402Version: X402Version;
+  paymentPayload: X402PaymentPayload;
+  paymentRequirements: X402PaymentRequirements;
 };
 
 export type GetCryptoRailsParams = {
@@ -1703,4 +3426,51 @@ export type CreatePaymentTransferQuoteBody = {
 
 export type CreatePaymentTransferQuote201 = {
   transfer: Transfer;
+};
+
+export type CreateOnrampOrderBody = {
+  /** The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy). */
+  agreementAcceptedAt: string;
+  /** The address the purchased crypto will be sent to. */
+  destinationAddress: string;
+  /** The name of the crypto network the purchased currency will be sent on.
+
+Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location. */
+  destinationNetwork: string;
+  /** The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API. */
+  email: string;
+  /** If true, this API will return a quote without creating any transaction. */
+  isQuote?: boolean;
+  /** Optional partner order reference ID. */
+  partnerOrderRef?: string;
+  /** A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+
+This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user. */
+  partnerUserRef: string;
+  /** A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount  of the payment currency. */
+  paymentAmount?: string;
+  /** The fiat currency to be converted to crypto. */
+  paymentCurrency: string;
+  paymentMethod: OnrampPaymentMethodTypeId;
+  /** The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
+
+Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices. */
+  phoneNumber: string;
+  /** Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned. */
+  phoneNumberVerifiedAt: string;
+  /** A string representing the amount of crypto the user wishes to purchase. When using this parameter the  returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase  currency. */
+  purchaseAmount?: string;
+  /** The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
+
+Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location. */
+  purchaseCurrency: string;
+};
+
+export type CreateOnrampOrder201 = {
+  order: OnrampOrder;
+  paymentLink?: OnrampPaymentLink;
+};
+
+export type GetOnrampOrderById200 = {
+  order: OnrampOrder;
 };

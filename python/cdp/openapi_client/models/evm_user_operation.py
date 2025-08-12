@@ -22,6 +22,8 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.evm_call import EvmCall
+from cdp.openapi_client.models.evm_user_operation_network import EvmUserOperationNetwork
+from cdp.openapi_client.models.user_operation_receipt import UserOperationReceipt
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -29,19 +31,13 @@ class EvmUserOperation(BaseModel):
     """
     EvmUserOperation
     """ # noqa: E501
-    network: StrictStr = Field(description="The network the user operation is for.")
+    network: EvmUserOperationNetwork
     user_op_hash: Annotated[str, Field(strict=True)] = Field(description="The hash of the user operation. This is not the transaction hash, as a transaction consists of multiple user operations. The user operation hash is the hash of this particular user operation which gets signed by the owner of the Smart Account.", alias="userOpHash")
     calls: List[EvmCall] = Field(description="The list of calls in the user operation.")
     status: StrictStr = Field(description="The status of the user operation.")
     transaction_hash: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The hash of the transaction that included this particular user operation. This gets set after the user operation is broadcasted and the transaction is included in a block.", alias="transactionHash")
-    __properties: ClassVar[List[str]] = ["network", "userOpHash", "calls", "status", "transactionHash"]
-
-    @field_validator('network')
-    def network_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['base-sepolia', 'base']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'base')")
-        return value
+    receipts: Optional[List[UserOperationReceipt]] = Field(default=None, description="The list of receipts associated with the user operation.")
+    __properties: ClassVar[List[str]] = ["network", "userOpHash", "calls", "status", "transactionHash", "receipts"]
 
     @field_validator('user_op_hash')
     def user_op_hash_validate_regular_expression(cls, value):
@@ -53,8 +49,8 @@ class EvmUserOperation(BaseModel):
     @field_validator('status')
     def status_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['pending', 'signed', 'broadcast', 'complete', 'failed']):
-            raise ValueError("must be one of enum values ('pending', 'signed', 'broadcast', 'complete', 'failed')")
+        if value not in set(['pending', 'signed', 'broadcast', 'complete', 'dropped', 'failed']):
+            raise ValueError("must be one of enum values ('pending', 'signed', 'broadcast', 'complete', 'dropped', 'failed')")
         return value
 
     @field_validator('transaction_hash')
@@ -113,6 +109,13 @@ class EvmUserOperation(BaseModel):
                 if _item_calls:
                     _items.append(_item_calls.to_dict())
             _dict['calls'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in receipts (list)
+        _items = []
+        if self.receipts:
+            for _item_receipts in self.receipts:
+                if _item_receipts:
+                    _items.append(_item_receipts.to_dict())
+            _dict['receipts'] = _items
         return _dict
 
     @classmethod
@@ -129,7 +132,8 @@ class EvmUserOperation(BaseModel):
             "userOpHash": obj.get("userOpHash"),
             "calls": [EvmCall.from_dict(_item) for _item in obj["calls"]] if obj.get("calls") is not None else None,
             "status": obj.get("status"),
-            "transactionHash": obj.get("transactionHash")
+            "transactionHash": obj.get("transactionHash"),
+            "receipts": [UserOperationReceipt.from_dict(_item) for _item in obj["receipts"]] if obj.get("receipts") is not None else None
         })
         return _obj
 

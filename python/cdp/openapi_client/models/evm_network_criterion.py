@@ -43,8 +43,8 @@ class EvmNetworkCriterion(BaseModel):
     def networks_validate_enum(cls, value):
         """Validates the enum"""
         for i in value:
-            if i not in set(['base-sepolia', 'base']):
-                raise ValueError("each list item must be one of ('base-sepolia', 'base')")
+            if i not in set(['base-sepolia', 'base', 'ethereum', 'ethereum-sepolia', 'avalanche', 'polygon', 'optimism', 'arbitrum', 'zora', 'bnb']):
+                raise ValueError("each list item must be one of ('base-sepolia', 'base', 'ethereum', 'ethereum-sepolia', 'avalanche', 'polygon', 'optimism', 'arbitrum', 'zora', 'bnb')")
         return value
 
     @field_validator('operator')

@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.11'",
@@ -182,6 +182,15 @@ wheels = [
 ]
 
 [[package]]
+name = "base58"
+version = "2.1.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/7f/45/8ae61209bb9015f516102fa559a2914178da1d5868428bd86a1b4421141d/base58-2.1.1.tar.gz", hash = "sha256:c5d0cb3f5b6e81e8e35da5754388ddcc6d0d14b6c6a132cb93d69ed580a7278c", size = 6528, upload-time = "2021-10-30T22:12:17.858Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4a/45/ec96b29162a402fc4c1c5512d114d7b3787b9d1c2ec241d9568b4816ee23/base58-2.1.1-py3-none-any.whl", hash = "sha256:11a36f4d3ce51dfc1043f3218591ac4eb1ceb172919cebe05b52a5bcc8d245c2", size = 5621, upload-time = "2021-10-30T22:12:16.658Z" },
+]
+
+[[package]]
 name = "bitarray"
 version = "3.3.1"
 source = { registry = "https://pypi.org/simple" }
@@ -253,11 +262,12 @@ wheels = [
 
 [[package]]
 name = "cdp-sdk"
-version = "1.11.1"
+version = "1.29.1"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
     { name = "aiohttp-retry" },
+    { name = "base58" },
     { name = "cryptography" },
     { name = "nest-asyncio" },
     { name = "pydantic" },
@@ -291,10 +301,11 @@ dev = [
 requires-dist = [
     { name = "aiohttp", specifier = "==3.11.16" },
     { name = "aiohttp-retry", specifier = "==2.9.1" },
+    { name = "base58", specifier = ">=2.1.1" },
     { name = "cryptography", specifier = ">=42.0.0" },
     { name = "myst-parser", marker = "extra == 'dev'", specifier = ">=4.0.1" },
     { name = "nest-asyncio", specifier = ">=1.6.0,<2" },
-    { name = "pydantic", specifier = ">=2.10.3,<=2.10.4" },
+    { name = "pydantic", specifier = ">=2.10.3" },
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.26.0" },

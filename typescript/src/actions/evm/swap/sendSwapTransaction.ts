@@ -1,6 +1,7 @@
 import { concat, numberToHex, size } from "viem";
 
 import { createSwapQuote } from "./createSwapQuote.js";
+import { createDeterministicUuidV4 } from "../../../utils/uuidV4.js";
 import { sendTransaction } from "../sendTransaction.js";
 
 import type { SendSwapTransactionOptions, SendSwapTransactionResult } from "./types.js";
@@ -90,6 +91,13 @@ export async function sendSwapTransaction(
     swapResult = options.swapQuote;
   } else {
     // Create the swap quote using the provided options (InlineSendSwapTransactionOptions)
+    /**
+     * Deterministically derive a new idempotency key from the provided idempotency key for swap quote creation to avoid key reuse.
+     */
+    const swapQuoteIdempotencyKey = idempotencyKey
+      ? createDeterministicUuidV4(idempotencyKey, "createSwapQuote")
+      : undefined;
+
     swapResult = await createSwapQuote(client, {
       network: options.network as CreateSwapQuoteOptions["network"],
       toToken: options.toToken,
@@ -99,6 +107,7 @@ export async function sendSwapTransaction(
       signerAddress: options.signerAddress,
       gasPrice: options.gasPrice,
       slippageBps: options.slippageBps,
+      idempotencyKey: swapQuoteIdempotencyKey,
     });
   }
 
@@ -128,7 +137,14 @@ export async function sendSwapTransaction(
   let txData = swap.transaction.data as Hex;
 
   if (swap.permit2?.eip712) {
-    // Sign the Permit2 EIP-712 message
+    /**
+     * Sign the Permit2 EIP-712 message.
+     * Deterministically derive a new idempotency key from the provided idempotency key for permit2 signing to avoid key reuse.
+     */
+    const permit2IdempotencyKey = idempotencyKey
+      ? createDeterministicUuidV4(idempotencyKey, "permit2")
+      : undefined;
+
     const signature = await client.signEvmTypedData(
       address,
       {
@@ -137,7 +153,7 @@ export async function sendSwapTransaction(
         primaryType: swap.permit2.eip712.primaryType,
         message: swap.permit2.eip712.message,
       },
-      idempotencyKey,
+      permit2IdempotencyKey,
     );
 
     // Calculate the signature length as a 32-byte hex value

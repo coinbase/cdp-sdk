@@ -1,3 +1,5 @@
+import { isValidNetworkForAccount } from "./types.js";
+
 import type {
   TransferExecutionStrategy,
   SmartAccountTransferOptions,
@@ -24,6 +26,12 @@ export async function transfer<T extends EvmAccount | EvmSmartAccount>(
   transferArgs: T extends EvmSmartAccount ? SmartAccountTransferOptions : TransferOptions,
   transferStrategy: TransferExecutionStrategy<T>,
 ): Promise<T extends EvmSmartAccount ? SendUserOperationReturnType : TransactionResult> {
+  if (!isValidNetworkForAccount(transferArgs.network, from)) {
+    throw new Error(
+      `Network "${transferArgs.network}" is not supported for the given account type.`,
+    );
+  }
+
   const to =
     typeof transferArgs.to === "string" ? transferArgs.to : (transferArgs.to.address as Address);
 

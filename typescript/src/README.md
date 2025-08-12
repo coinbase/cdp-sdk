@@ -19,6 +19,7 @@
 - [Policy Management](#policy-management)
 - [Authentication tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
+- [Usage Tracking](#usage-tracking)
 - [License](#license)
 - [Support](#support)
 - [Security](#security)
@@ -114,6 +115,7 @@ const cdp = new CdpClient({
 ```typescript
 const account = await cdp.evm.createAccount();
 ```
+
 #### Import an EVM account as follows:
 
 ```typescript
@@ -129,6 +131,44 @@ const account = await cdp.evm.importAccount({
 const account = await cdp.solana.createAccount();
 ```
 
+#### Import a Solana account as follows:
+```typescript
+const account = await cdp.solana.importAccount({
+  privateKey: "3MLZ...Uko8zz",
+  name: "MyAccount",
+});
+```
+
+### Exporting EVM or Solana accounts
+
+#### Export an EVM account as follows:
+
+```typescript
+// by name
+const privateKey = await cdp.evm.exportAccount({
+  name: "MyAccount",
+});
+
+// by address
+const privateKey = await cdp.evm.exportAccount({
+  address: "0x123",
+});
+```
+
+#### Export a Solana account as follows:
+
+```typescript
+// by name
+const privateKey = await cdp.solana.exportAccount({
+  name: "MyAccount",
+});
+
+// by address
+const privateKey = await cdp.solana.exportAccount({
+  address: "Abc",
+});
+```
+
 #### Get or Create an EVM account as follows:
 
 ```typescript
@@ -142,6 +182,15 @@ const account = await cdp.evm.getOrCreateAccount({
 ```typescript
 const account = await cdp.solana.getOrCreateAccount({
   name: "Account1",
+});
+```
+
+#### Get or Create a Smart Account as follows:
+```typescript
+const owner = await cdp.evm.createAccount();
+const account = await cdp.evm.getOrCreateSmartAccount({
+  name: "Account1",
+  owner
 });
 ```
 
@@ -303,7 +352,58 @@ console.log(`Transaction confirmed! Explorer link: https://sepolia.basescan.org/
 
 #### Solana
 
-For Solana, we recommend using the `@solana/web3.js` library to send transactions. See the [examples](https://github.com/coinbase/cdp-sdk/tree/main/examples/typescript/solana/signAndSendTransaction.ts).
+You can use CDP SDK to send transactions on Solana.
+
+For complete examples, check out [sendTransaction.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/sendTransaction.ts), [sendManyTransactions.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/sendManyTransactions.ts), and [sendManyBatchedTransactions.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/sendManyBatchedTransactions.ts).
+
+```typescript
+import { CdpClient } from "@coinbase/cdp-sdk";
+import "dotenv/config";
+
+import {
+  PublicKey,
+  SystemProgram,
+  SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+  Transaction,
+} from "@solana/web3.js";
+
+const cdp = new CdpClient();
+
+const account = await cdp.solana.createAccount();
+
+const faucetResp = await cdp.solana.requestFaucet({
+  address: account.address,
+  token: "sol",
+});
+
+const transaction = new Transaction();
+transaction.add(
+  SystemProgram.transfer({
+    fromPubkey: new PublicKey(account.address),
+    toPubkey: new PublicKey("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE"),
+    lamports: 10000,
+  })
+);
+
+// A more recent blockhash is set in the backend by CDP
+transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
+transaction.feePayer = new PublicKey(account.address);
+
+const serializedTx = Buffer.from(
+  transaction.serialize({ requireAllSignatures: false })
+).toString("base64");
+
+console.log("Transaction serialized successfully");
+
+const txResult = await cdp.solana.sendTransaction({
+  network: "solana-devnet",
+  transaction: serializedTx,
+});
+
+console.log(
+  `Transaction confirmed! Explorer link: https://explorer.solana.com/tx/${txResult.signature}?cluster=devnet`
+);
+```
 
 ### EVM Smart Accounts
 
@@ -353,7 +453,7 @@ const userOperation = await cdp.sendUserOperation({
 
 ### EVM Swaps
 
-You can use the CDP SDK to swap tokens on EVM networks.
+You can use the CDP SDK to swap tokens on EVM networks using both regular accounts (EOAs) and smart accounts.
 
 The SDK provides three approaches for performing token swaps:
 
@@ -361,6 +461,7 @@ The SDK provides three approaches for performing token swaps:
 
 The simplest approach for performing swaps. Creates and executes the swap in a single line of code:
 
+**Regular Account (EOA):**
 ```typescript
 // Retrieve an existing EVM account with funds already in it
 const account = await cdp.evm.getOrCreateAccount({ name: "MyExistingFundedAccount" });
@@ -375,6 +476,29 @@ const { transactionHash } = await account.swap({
 });
 
 console.log(`Swap executed: ${transactionHash}`);
+```
+
+**Smart Account:**
+```typescript
+// Create or retrieve a smart account with funds already in it
+const owner = await cdp.evm.getOrCreateAccount({ name: "MyOwnerAccount" });
+const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MyExistingFundedSmartAccount", owner });
+
+// Execute a swap directly on a smart account in one line
+const { userOpHash } = await smartAccount.swap({
+  network: "base",
+  toToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
+  fromToken: "0x4200000000000000000000000000000000000006", // WETH on Base
+  fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+  slippageBps: 100, // 1% slippage tolerance
+  // Optional: paymasterUrl: "https://paymaster.example.com" // For gas sponsorship
+});
+
+console.log(`Smart account swap executed: ${userOpHash}`);
+
+// Wait for the user operation to complete
+const receipt = await smartAccount.waitForUserOperation({ userOpHash });
+console.log(`Status: ${receipt.status}`);
 ```
 
 #### 2. Get pricing information
@@ -400,10 +524,11 @@ if (swapPrice.liquidityAvailable) {
 
 #### 3. Create and execute separately
 
-Use `createSwapQuote` when you need full control over the swap process. This returns complete transaction data for execution:
+Use `account.quoteSwap()` / `smartAccount.quoteSwap()` when you need full control over the swap process. This returns complete transaction data for execution:
 
-**Important:** `createSwapQuote` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `getSwapPrice` to prevent abuse.
+**Important:** `quoteSwap()` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `getSwapPrice` to prevent abuse.
 
+**Regular Account (EOA):**
 ```typescript
 // Retrieve an existing EVM account with funds already in it
 const account = await cdp.evm.getOrCreateAccount({ name: "MyExistingFundedAccount" });
@@ -423,21 +548,51 @@ if (!swapQuote.liquidityAvailable) {
   return;
 }
 
-// Step 3: Execute using the quote (two options)
-// Option 3A: Use the execute method on the quote
-const { transactionHash } = await swapQuote.execute({});
+// Step 3: Execute using the quote
+const { transactionHash } = await swapQuote.execute();
+```
 
-// Option 3B: Pass the quote to account.swap()
-const { transactionHash } = await account.swap({
-  swapQuote: swapQuote
+**Smart Account:**
+```typescript
+// Create or retrieve a smart account with funds already in it
+const owner = await cdp.evm.getOrCreateAccount({ name: "MyOwnerAccount" });
+const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MyExistingFundedSmartAccount", owner });
+
+// Step 1: Create a swap quote with full transaction details for smart account
+const swapQuote = await smartAccount.quoteSwap({
+  network: "base",
+  toToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+  fromToken: "0x4200000000000000000000000000000000000006", // WETH
+  fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
+  slippageBps: 100, // 1% slippage tolerance
 });
+
+// Step 2: Check if liquidity is available, and/or perform other analysis on the swap quote
+if (!swapQuote.liquidityAvailable) {
+  console.error("Insufficient liquidity for swap");
+  return;
+}
+
+// Step 3: Execute using the quote
+const { userOpHash } = await swapQuote.execute();
+
+// Wait for the user operation to complete
+const receipt = await smartAccount.waitForUserOperation({ userOpHash });
+console.log(`Status: ${receipt.status}`);
 ```
 
 #### When to use each approach:
 
-- **All-in-one (`account.swap()`)**: Best for most use cases. Simple, handles everything automatically.
+- **All-in-one (`account.swap()` / `smartAccount.swap()`)**: Best for most use cases. Simple, handles everything automatically.
 - **Price only (`getSwapPrice`)**: For displaying exchange rates, building price calculators, or checking liquidity without executing. Suitable when frequent price updates are needed - although the data may be slightly less precise.
-- **Create then execute (`createSwapQuote`)**: When you need to inspect swap details, implement custom logic, or handle complex scenarios before execution. Note: May reserve funds on-chain and is more strictly rate-limited.
+- **Create then execute (`account.quoteSwap()` / `smartAccount.quoteSwap()`)**: When you need to inspect swap details, implement custom logic, or handle complex scenarios before execution. Note: May reserve funds on-chain and is more strictly rate-limited.
+
+#### Key differences between Regular Accounts (EOAs) and Smart Accounts:
+
+- **Regular accounts (EOAs)** return `transactionHash` and execute immediately on-chain
+- **Smart accounts** return `userOpHash` and execute via user operations with optional gas sponsorship through paymasters
+- **Smart accounts** require an owner account for signing operations
+- **Smart accounts** support batch operations and advanced account abstraction features
 
 All approaches handle Permit2 signatures automatically for ERC20 token swaps. Make sure tokens have proper allowances set for the Permit2 contract before swapping.
 
@@ -445,18 +600,25 @@ All approaches handle Permit2 signatures automatically for ERC20 token swaps. Ma
 
 To help you get started with token swaps in your application, we provide the following fully-working examples demonstrating different scenarios:
 
-**Core swap patterns:**
-- [Get a swap price estimate](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/getSwapPrice.ts) - Price estimation without commitment
-- [Create a concrete swap quote for execution](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/createSwapQuote.ts) - Direct API usage with explicit taker
-- [Execute a swap transaction using CDP Wallets (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.swap.ts) - All-in-one swap execution
-
-**Account-based swap examples:**
+**Regular account (EOA) swap examples:**
+- [Execute a swap transaction using account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.swap.ts) - All-in-one regular account swap execution
 - [Quote swap using account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.quoteSwap.ts) - Account convenience method for creating quotes
 - [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
 
-**External wallet integration:**
-- [Execute a swap transaction using an external account (Viem)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.swap.ts) - Full swap execution with viem wallets
-- [Create swap quotes using Viem wallets](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.quoteSwap.ts) - Quote creation with external wallets
+**Smart account swap examples:**
+- [Execute a swap transaction using smart account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.swap.ts) - All-in-one smart account swap execution with user operations and optional paymaster support
+- [Quote swap using smart account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.quoteSwap.ts) - Smart account convenience method for creating quotes
+- [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
+
+**BYO wallet (viem) regular account (EOA) swap examples:**
+- [Execute a swap transaction using viem account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.account.swap.ts) - All-in-one swap execution with viem wallets
+- [Two-step quote and execute process using viem account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.account.quoteSwapAndExecute.ts) - Detailed two-step approach with viem wallets
+
+**BYO wallet (viem + account abstraction) smart account swap examples:**
+- [Execute a swap transaction using viem smart account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.smartAccount.swap.ts) - All-in-one smart account swap with custom bundler/paymaster setup
+- [Two-step quote and execute process using viem smart account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.smartAccount.quoteSwapAndExecute.ts) - Advanced account abstraction integration
+
+**Note:** The viem smart account examples require additional dependencies (`permissionless` package) and external service setup (bundler, optional paymaster). For simpler smart account usage, consider CDP's built-in smart account features instead.
 
 ### Transferring tokens
 
@@ -561,6 +723,7 @@ You can also pass another account as the `to` parameter:
 
 ```typescript
 const sender = await cdp.evm.createAccount({ name: "Sender" });
+
 const receiver = await cdp.evm.createAccount({ name: "Receiver" });
 
 await sender.transfer({
@@ -570,7 +733,6 @@ await sender.transfer({
   network: "base-sepolia",
 });
 ```
-
 #### Solana
 
 For complete examples, check out [solana/account.transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/account.transfer.ts).
@@ -900,11 +1062,34 @@ try {
 
 We currently support the following policy rules:
 
-- `SendEvmTransactionRule`
-- `SignEvmHashRule`
-- `SignEvmMessageRule`
-- `SignEvmTransactionRule`
-- `SignSolanaTransactionRule`
+- [SignEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-1)
+- [SendEvmTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-2)
+- [SignEvmMessageRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-3)
+- [SignEvmTypedDataRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-4)
+- [SignSolanaTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-5)
+- [SendSolanaTransactionRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-6)
+- [SignEvmHashRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-7)
+- [PrepareUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-8)
+- [SendUserOperationRule](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/policy-engine/create-a-policy#option-9)
+
+### End-user Management
+
+You can use the End User SDK to manage the users of your applications.
+
+#### Validate Access Token
+
+When your end user has signed in with an [Embedded Wallet](https://docs.cdp.coinbase.com/embedded-wallets/welcome), you can check whether the access token they were granted is valid, and which of your user's it is associated with.
+
+```typescript
+try {
+  const endUser = await cdp.endUser.validateAccessToken({
+      accessToken,
+  });
+  console.log(endUser)
+} catch(e) {
+  // the access token is not valid or expired
+}
+```
 
 ## Authentication tools
 
@@ -912,11 +1097,15 @@ This SDK also contains simple tools for authenticating REST API requests to the 
 
 ## Error Reporting
 
-This SDK contains error reporting functionality that sends error events to the CDP. If you would like to disable this behavior, you can set the `DISABLE_CDP_ERROR_REPORTING` environment variable to `true`.
+This SDK contains error reporting functionality that sends error events to CDP. If you would like to disable this behavior, you can set the `DISABLE_CDP_ERROR_REPORTING` environment variable to `true`.
 
 ```bash
 DISABLE_CDP_ERROR_REPORTING=true
 ```
+
+## Usage Tracking
+
+This SDK contains usage tracking functionality that sends usage events to CDP. If you would like to disable this behavior, you can set the `DISABLE_CDP_USAGE_TRACKING` environment variable to `true`.
 
 ## License
 

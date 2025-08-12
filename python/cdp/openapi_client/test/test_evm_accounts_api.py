@@ -34,6 +34,20 @@ class TestEVMAccountsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_export_evm_account(self) -> None:
+        """Test case for export_evm_account
+
+        Export an EVM account
+        """
+        pass
+
+    async def test_export_evm_account_by_name(self) -> None:
+        """Test case for export_evm_account_by_name
+
+        Export an EVM account by name
+        """
+        pass
+
     async def test_get_evm_account(self) -> None:
         """Test case for get_evm_account
 

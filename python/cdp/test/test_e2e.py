@@ -3,8 +3,10 @@ import base64
 import os
 import random
 import string
+import time
 from math import floor
 
+import base58
 import pytest
 import pytest_asyncio
 from dotenv import load_dotenv
@@ -12,6 +14,7 @@ from eth_account.account import Account
 from eth_account.messages import encode_defunct
 from solana.rpc.api import Client as SolanaClient
 from solders.pubkey import Pubkey as PublicKey
+from solders.signature import Signature
 from web3 import Web3
 
 from cdp import CdpClient
@@ -20,23 +23,66 @@ from cdp.evm_local_account import EvmLocalAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.errors import ApiError
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.policies.types import (
     CreatePolicyOptions,
     EthValueCriterion,
     EvmAddressCriterion,
     EvmMessageCriterion,
     EvmNetworkCriterion,
+    NetUSDChangeCriterion,
     SendEvmTransactionRule,
+    SendSolanaTransactionRule,
     SignEvmHashRule,
     SignEvmMessageRule,
     SignEvmTransactionRule,
     SignSolanaTransactionRule,
-    SolanaAddressCriterion,
+    SolAddressCriterion,
+    SolValueCriterion,
     UpdatePolicyOptions,
 )
+from cdp.spend_permissions.types import SpendPermission
 from cdp.update_account_types import UpdateAccountOptions
 
 load_dotenv()
+
+
+def retry_on_failure(max_retries=3, delay=1.0):
+    """Retry flaky tests with configurable attempts and delays.
+
+    Args:
+        max_retries (int): Maximum number of retry attempts (default: 3)
+        delay (float): Delay between retries in seconds (default: 1.0)
+
+    Returns:
+        Decorated async function that will retry on failure
+
+    """
+
+    def decorator(func):
+        import functools
+
+        @functools.wraps(func)
+        async def async_wrapper(*args, **kwargs):
+            last_exception = None
+            for attempt in range(max_retries + 1):
+                try:
+                    return await func(*args, **kwargs)
+                except Exception as e:
+                    last_exception = e
+                    if attempt < max_retries:
+                        print(
+                            f"Test {func.__name__} failed on attempt {attempt + 1}/{max_retries + 1}. Retrying in {delay}s..."
+                        )
+                        await asyncio.sleep(delay)
+                    else:
+                        print(f"Test {func.__name__} failed after {max_retries + 1} attempts.")
+                        raise last_exception from e
+
+        return async_wrapper
+
+    return decorator
+
 
 w3 = Web3(Web3.HTTPProvider("https://sepolia.base.org"))
 
@@ -120,6 +166,121 @@ async def test_import_account(cdp_client):
     assert imported_account is not None
     assert imported_account.address == account.address
     assert imported_account.name == random_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_import_solana_account(cdp_client):
+    """Test importing a Solana account."""
+    from solders.keypair import Keypair
+
+    # Generate a new Solana keypair
+    keypair = Keypair()
+    random_name = generate_random_name()
+
+    # Convert private key to base58 string (32 bytes)
+    private_key_bytes = bytes(keypair.secret())
+    private_key_b58 = base58.b58encode(private_key_bytes).decode()
+
+    import_account_options = {
+        "private_key": private_key_b58,
+        "name": random_name,
+    }
+
+    if os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY"):
+        import_account_options["encryption_public_key"] = os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY")
+
+    imported_account = await cdp_client.solana.import_account(
+        **import_account_options,
+    )
+    assert imported_account is not None
+    assert imported_account.address == str(keypair.pubkey())
+    assert imported_account.name == random_name
+
+    # Verify we can retrieve the imported account
+    retrieved_account = await cdp_client.solana.get_account(address=imported_account.address)
+    assert retrieved_account is not None
+    assert retrieved_account.address == str(keypair.pubkey())
+    assert retrieved_account.name == random_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_import_solana_account_with_bytes(cdp_client):
+    """Test importing a Solana account using bytes directly instead of base58 string."""
+    from solders.keypair import Keypair
+
+    # Generate a new Solana keypair
+    keypair = Keypair()
+    random_name = generate_random_name()
+
+    # Use private key bytes directly (64 bytes)
+    private_key_bytes = bytes(keypair.secret())
+
+    import_account_options = {
+        "private_key": private_key_bytes,
+        "name": random_name,
+    }
+
+    if os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY"):
+        import_account_options["encryption_public_key"] = os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY")
+
+    imported_account = await cdp_client.solana.import_account(
+        **import_account_options,
+    )
+    assert imported_account is not None
+    assert imported_account.address == str(keypair.pubkey())
+    assert imported_account.name == random_name
+
+    # Verify we can retrieve the imported account
+    retrieved_account = await cdp_client.solana.get_account(address=imported_account.address)
+    assert retrieved_account is not None
+    assert retrieved_account.address == str(keypair.pubkey())
+    assert retrieved_account.name == random_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_export_evm_account(cdp_client):
+    """Test exporting an EVM account."""
+    random_name = generate_random_name()
+    account = await cdp_client.evm.create_account(name=random_name)
+    assert account is not None
+
+    exported_private_key_by_address = await cdp_client.evm.export_account(address=account.address)
+    assert exported_private_key_by_address is not None
+    public_key_by_address = Account.from_key(private_key=exported_private_key_by_address).address
+    assert public_key_by_address == account.address
+
+    exported_private_key_by_name = await cdp_client.evm.export_account(name=random_name)
+    assert exported_private_key_by_name is not None
+    public_key_by_name = Account.from_key(private_key=exported_private_key_by_name).address
+    assert public_key_by_name == account.address
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_export_solana_account(cdp_client):
+    """Test exporting a Solana account."""
+    random_name = generate_random_name()
+    account = await cdp_client.solana.create_account(name=random_name)
+    assert account is not None
+
+    exported_private_key_by_address = await cdp_client.solana.export_account(
+        address=account.address
+    )
+    assert exported_private_key_by_address is not None
+    full_key_bytes_by_address = base58.b58decode(exported_private_key_by_address)
+    public_key_bytes_by_address = full_key_bytes_by_address[32:]
+    public_key_by_address = base58.b58encode(public_key_bytes_by_address).decode("utf-8")
+    assert public_key_by_address == account.address
+
+    exported_private_key_by_name = await cdp_client.solana.export_account(name=random_name)
+    assert exported_private_key_by_name is not None
+    full_key_bytes_by_name = base58.b58decode(exported_private_key_by_name)
+    public_key_bytes_by_name = full_key_bytes_by_name[32:]
+    public_key_by_name = base58.b58encode(public_key_bytes_by_name).decode("utf-8")
+    assert public_key_by_name == account.address
 
 
 @pytest.mark.e2e
@@ -449,6 +610,44 @@ async def test_create_get_and_list_solana_accounts(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_list_solana_token_balances(cdp_client):
+    """Test listing solana token balances."""
+    address = "4PkiqJkUvxr9P8C1UsMqGN8NJsUcep9GahDRLfmeu8UK"
+
+    first_page = await cdp_client.solana.list_token_balances(
+        address=address,
+        network="solana-devnet",
+        page_size=1,
+    )
+    assert first_page is not None
+    assert len(first_page.balances) == 1
+    assert first_page.balances[0].token is not None
+    assert first_page.balances[0].token.mint_address is not None
+    assert first_page.balances[0].token.name is not None
+    assert first_page.balances[0].token.symbol is not None
+    assert first_page.balances[0].amount is not None
+    assert first_page.balances[0].amount.amount is not None
+    assert first_page.balances[0].amount.decimals is not None
+
+    if first_page.next_page_token is not None:
+        second_page = await cdp_client.solana.list_token_balances(
+            address=address,
+            network="solana-devnet",
+            page_size=1,
+            page_token=first_page.next_page_token,
+        )
+
+        assert second_page is not None
+        assert len(second_page.balances) == 1
+        assert second_page.balances[0].token is not None
+        assert second_page.balances[0].token.mint_address is not None
+        assert second_page.balances[0].amount is not None
+        assert second_page.balances[0].amount.amount is not None
+        assert second_page.balances[0].amount.decimals is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_solana_sign_fns(cdp_client):
     """Test signing functions."""
     account = await cdp_client.solana.create_account()
@@ -470,8 +669,11 @@ async def test_solana_sign_fns(cdp_client):
         ]
     )
 
-    # Add a dummy account key (32 bytes)
-    unsigned_tx_bytes += bytes([0] * 32)
+    # Use account key.
+    pubkey_bytes = base58.b58decode(account.address)
+    assert len(pubkey_bytes) == 32
+
+    unsigned_tx_bytes += pubkey_bytes
     # Add recent blockhash (32 bytes)
     unsigned_tx_bytes += bytes([1] * 32)
     # Add number of instructions (1)
@@ -559,6 +761,7 @@ async def test_evm_sign_typed_data_for_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@retry_on_failure()
 async def test_transfer_eth(cdp_client):
     """Test transferring ETH."""
     account = await cdp_client.evm.get_or_create_account(name=test_account_name)
@@ -605,6 +808,7 @@ async def test_transfer_usdc(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@retry_on_failure()
 async def test_transfer_eth_smart_account(cdp_client):
     """Test transferring ETH with a smart account."""
     account = await cdp_client.evm.create_smart_account(owner=Account.create())
@@ -661,7 +865,9 @@ async def test_transfer_usdc_smart_account(cdp_client):
 @pytest.mark.asyncio
 async def test_transfer_sol(solana_account):
     """Test transferring SOL."""
-    connection = SolanaClient("https://api.devnet.solana.com")
+    connection = SolanaClient(
+        os.getenv("CDP_E2E_SOLANA_RPC_URL") or "https://api.devnet.solana.com"
+    )
 
     await _ensure_sufficient_sol_balance(cdp_client, solana_account)
 
@@ -674,7 +880,7 @@ async def test_transfer_sol(solana_account):
     last_valid_block_height = connection.get_latest_blockhash()
 
     confirmation = connection.confirm_transaction(
-        tx_sig=signature,
+        tx_sig=Signature.from_string(signature),
         last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
         commitment="confirmed",
     )
@@ -685,9 +891,12 @@ async def test_transfer_sol(solana_account):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@retry_on_failure()
 async def test_solana_account_transfer_usdc(solana_account):
     """Test transferring USDC tokens."""
-    connection = SolanaClient("https://api.devnet.solana.com")
+    connection = SolanaClient(
+        os.getenv("CDP_E2E_SOLANA_RPC_URL") or "https://api.devnet.solana.com"
+    )
 
     await _ensure_sufficient_sol_balance(cdp_client, solana_account)
 
@@ -700,7 +909,7 @@ async def test_solana_account_transfer_usdc(solana_account):
     last_valid_block_height = connection.get_latest_blockhash()
 
     confirmation = connection.confirm_transaction(
-        tx_sig=signature,
+        tx_sig=Signature.from_string(signature),
         last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
         commitment="confirmed",
     )
@@ -722,6 +931,31 @@ async def test_evm_get_or_create_account(cdp_client):
     assert account is not None
 
     account2 = await cdp_client.evm.get_or_create_account(name=random_name)
+    assert account2 is not None
+    assert account.address == account2.address
+    assert account.name == account2.name
+    assert account.name == random_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_get_or_create_smart_account(cdp_client):
+    """Test getting or creating an EVM account."""
+    random_name = "".join(
+        [random.choice(string.ascii_letters + string.digits)]
+        + [random.choice(string.ascii_letters + string.digits + "-") for _ in range(34)]
+        + [random.choice(string.ascii_letters + string.digits)]
+    )
+
+    # Create the owner account first
+    owner = await cdp_client.evm.create_account()
+
+    # Now use the owner to create/get the smart account
+    account = await cdp_client.evm.get_or_create_smart_account(name=random_name, owner=owner)
+    assert account is not None
+
+    # Try to get the same account again - should return the existing one
+    account2 = await cdp_client.evm.get_or_create_smart_account(name=random_name, owner=owner)
     assert account2 is not None
     assert account.address == account2.address
     assert account.name == account2.name
@@ -824,6 +1058,36 @@ async def test_solana_sign_transaction(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_solana_send_transaction(cdp_client, solana_account):
+    """Test sending a transaction."""
+    await _ensure_sufficient_sol_balance(cdp_client, solana_account)
+
+    response = await cdp_client.solana.send_transaction(
+        network="solana-devnet",
+        transaction=_get_transaction(
+            solana_account.address, "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo", 10
+        ),
+    )
+    assert response is not None
+    assert response.transaction_signature is not None
+
+    connection = SolanaClient(
+        os.getenv("CDP_E2E_SOLANA_RPC_URL") or "https://api.devnet.solana.com"
+    )
+
+    last_valid_block_height = connection.get_latest_blockhash()
+    confirmation = connection.confirm_transaction(
+        tx_sig=Signature.from_string(response.transaction_signature),
+        last_valid_block_height=last_valid_block_height.value.last_valid_block_height,
+        commitment="confirmed",
+    )
+
+    assert confirmation is not None
+    assert confirmation.value[0].err is None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_create_account_policy(cdp_client):
     """Test creating an account policy."""
     policy = await cdp_client.policies.create_policy(
@@ -853,15 +1117,6 @@ async def test_create_account_policy(cdp_client):
                         ),
                     ],
                 ),
-                SignSolanaTransactionRule(
-                    action="accept",
-                    criteria=[
-                        SolanaAddressCriterion(
-                            addresses=["123456789abcdef123456789abcdef12"],
-                            operator="in",
-                        ),
-                    ],
-                ),
                 SignEvmHashRule(
                     action="accept",
                 ),
@@ -881,7 +1136,7 @@ async def test_create_account_policy(cdp_client):
     assert policy.scope == "account"
     assert policy.description == "E2E Test Policy"
     assert policy.rules is not None
-    assert len(policy.rules) == 5
+    assert len(policy.rules) == 4
     assert policy.rules[0].action == "accept"
     assert policy.rules[0].operation == "signEvmTransaction"
     assert policy.rules[0].criteria is not None
@@ -903,20 +1158,13 @@ async def test_create_account_policy(cdp_client):
     ]
     assert policy.rules[1].criteria[0].operator == "in"
     assert policy.rules[2].action == "accept"
-    assert policy.rules[2].operation == "signSolTransaction"
-    assert policy.rules[2].criteria is not None
-    assert len(policy.rules[2].criteria) == 1
-    assert policy.rules[2].criteria[0].type == "solAddress"
-    assert policy.rules[2].criteria[0].addresses == ["123456789abcdef123456789abcdef12"]
-    assert policy.rules[2].criteria[0].operator == "in"
+    assert policy.rules[2].operation == "signEvmHash"
     assert policy.rules[3].action == "accept"
-    assert policy.rules[3].operation == "signEvmHash"
-    assert policy.rules[4].action == "accept"
-    assert policy.rules[4].operation == "signEvmMessage"
-    assert policy.rules[4].criteria is not None
-    assert len(policy.rules[4].criteria) == 1
-    assert policy.rules[4].criteria[0].type == "evmMessage"
-    assert policy.rules[4].criteria[0].match == ".*"
+    assert policy.rules[3].operation == "signEvmMessage"
+    assert policy.rules[3].criteria is not None
+    assert len(policy.rules[3].criteria) == 1
+    assert policy.rules[3].criteria[0].type == "evmMessage"
+    assert policy.rules[3].criteria[0].match == ".*"
 
     # Delete the policy
     await cdp_client.policies.delete_policy(id=policy.id)
@@ -1139,6 +1387,7 @@ async def test_get_policy_by_id(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="Skipping due to flakiness")
 async def test_list_policies(cdp_client):
     """Test listing policies."""
     # Create a new policy
@@ -1220,9 +1469,9 @@ async def test_list_policies(cdp_client):
     assert len(first_page_policies.policies) == 1
 
     # Check if we have more policies
-    if result.next_page_token:
+    if first_page_policies.next_page_token:
         result = await cdp_client.policies.list_policies(
-            page_size=1, page_token=result.next_page_token
+            page_size=1, page_token=first_page_policies.next_page_token
         )
         assert result is not None
         assert result.policies is not None
@@ -1236,6 +1485,214 @@ async def test_list_policies(cdp_client):
     # Verify the policy is deleted
     with pytest.raises(ApiError) as e:
         await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_create_solana_policy_with_combined_rules(cdp_client):
+    """Test creating a Solana policy with both signSolTransaction and sendTransaction rules."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Solana Policy with Combined Rules",
+            rules=[
+                SignSolanaTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolAddressCriterion(
+                            addresses=["HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+                SendSolanaTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolValueCriterion(
+                            type="solValue",
+                            solValue="1000000000",
+                            operator="<=",
+                        ),
+                    ],
+                ),
+            ],
+        )
+    )
+    assert policy is not None
+    assert policy.id is not None
+    assert policy.scope == "account"
+    assert policy.description == "E2E Solana Policy with Combined Rules"
+    assert policy.rules is not None
+    assert len(policy.rules) == 2
+
+    # Verify first rule - SignSolanaTransactionRule
+    assert policy.rules[0].action == "accept"
+    assert policy.rules[0].operation == "signSolTransaction"
+    assert policy.rules[0].criteria is not None
+    assert len(policy.rules[0].criteria) == 1
+    assert policy.rules[0].criteria[0].type == "solAddress"
+    assert policy.rules[0].criteria[0].addresses == ["HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH"]
+    assert policy.rules[0].criteria[0].operator == "in"
+
+    # Verify second rule - SendSolanaTransactionRule
+    assert policy.rules[1].action == "accept"
+    assert policy.rules[1].operation == "sendSolTransaction"
+    assert policy.rules[1].criteria is not None
+    assert len(policy.rules[1].criteria) == 1
+    assert policy.rules[1].criteria[0].type == "solValue"
+    assert policy.rules[1].criteria[0].solValue == "1000000000"
+    assert policy.rules[1].criteria[0].operator == "<="
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_create_evm_policy_with_netusdchange(cdp_client):
+    """Test creating EVM policy with both signEvmTransaction and sendEvmTransaction rules for netUSDChange criteria."""
+    policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E EVM Policy with netUSDChange criteria",
+            rules=[
+                SignEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        NetUSDChangeCriterion(
+                            type="netUSDChange",
+                            changeCents=10000,
+                            operator="<",
+                        ),
+                    ],
+                ),
+                SendEvmTransactionRule(
+                    action="accept",
+                    criteria=[
+                        NetUSDChangeCriterion(
+                            type="netUSDChange",
+                            changeCents=10000,
+                            operator="<",
+                        ),
+                    ],
+                ),
+            ],
+        )
+    )
+    assert policy is not None
+    assert policy.id is not None
+    assert policy.scope == "account"
+    assert policy.description == "E2E EVM Policy with netUSDChange criteria"
+    assert policy.rules is not None
+    assert len(policy.rules) == 2
+
+    # Verify first rule - SignEvmTransactionRule
+    assert policy.rules[0].action == "accept"
+    assert policy.rules[0].operation == "signEvmTransaction"
+    assert policy.rules[0].criteria is not None
+    assert len(policy.rules[0].criteria) == 1
+    assert policy.rules[0].criteria[0].type == "netUSDChange"
+    assert policy.rules[0].criteria[0].changeCents == 10000
+    assert policy.rules[0].criteria[0].operator == "<"
+
+    # Verify second rule - SendEvmTransactionRule
+    assert policy.rules[1].action == "accept"
+    assert policy.rules[1].operation == "sendEvmTransaction"
+    assert policy.rules[1].criteria is not None
+    assert len(policy.rules[1].criteria) == 1
+    assert policy.rules[1].criteria[0].type == "netUSDChange"
+    assert policy.rules[1].criteria[0].changeCents == 10000
+    assert policy.rules[1].criteria[0].operator == "<"
+
+    # Delete the policy
+    await cdp_client.policies.delete_policy(id=policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=policy.id)
+    assert e.value.http_code == 404
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_solana_policy_crud_operations(cdp_client):
+    """Test complete CRUD operations for Solana policies."""
+    # Test creating a Solana policy
+    original_policy = await cdp_client.policies.create_policy(
+        policy=CreatePolicyOptions(
+            scope="account",
+            description="E2E Solana CRUD Test Policy",
+            rules=[
+                SignSolanaTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolAddressCriterion(
+                            addresses=["Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+            ],
+        )
+    )
+    assert original_policy is not None
+    assert original_policy.id is not None
+
+    # Test getting the policy by ID
+    retrieved_policy = await cdp_client.policies.get_policy_by_id(id=original_policy.id)
+    assert retrieved_policy is not None
+    assert retrieved_policy.id == original_policy.id
+    assert retrieved_policy.scope == "account"
+    assert retrieved_policy.description == "E2E Solana CRUD Test Policy"
+    assert len(retrieved_policy.rules) == 1
+    assert retrieved_policy.rules[0].operation == "signSolTransaction"
+
+    # Test updating the policy
+    updated_policy = await cdp_client.policies.update_policy(
+        id=original_policy.id,
+        policy=UpdatePolicyOptions(
+            description="Updated Solana CRUD Test Policy",
+            rules=[
+                SendSolanaTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolAddressCriterion(
+                            addresses=["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+                SignSolanaTransactionRule(
+                    action="accept",
+                    criteria=[
+                        SolAddressCriterion(
+                            addresses=["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"],
+                            operator="in",
+                        ),
+                    ],
+                ),
+            ],
+        ),
+    )
+    assert updated_policy is not None
+    assert updated_policy.id == original_policy.id
+    assert updated_policy.description == "Updated Solana CRUD Test Policy"
+    assert len(updated_policy.rules) == 2
+    assert updated_policy.rules[0].operation == "sendSolTransaction"
+    assert updated_policy.rules[1].operation == "signSolTransaction"
+
+    # Test deleting the policy
+    await cdp_client.policies.delete_policy(id=original_policy.id)
+
+    # Verify the policy is deleted
+    with pytest.raises(ApiError) as e:
+        await cdp_client.policies.get_policy_by_id(id=original_policy.id)
     assert e.value.http_code == 404
 
 
@@ -1315,7 +1772,7 @@ async def test_create_solana_account_with_policy(cdp_client):
                 SignSolanaTransactionRule(
                     action="accept",
                     criteria=[
-                        SolanaAddressCriterion(
+                        SolAddressCriterion(
                             addresses=["123456789abcdef123456789abcdef12"],
                             operator="in",
                         ),
@@ -1360,6 +1817,35 @@ async def test_update_solana_account(cdp_client):
     retrieved_account = await cdp_client.solana.get_account(name=updated_name)
     assert retrieved_account is not None
     assert retrieved_account.address == account_to_update.address
+    assert retrieved_account.name == updated_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_update_evm_smart_account(cdp_client):
+    """Test updating an EVM smart account."""
+    original_name = generate_random_name()
+    owner = Account.create()
+    account = await cdp_client.evm.create_smart_account(name=original_name, owner=owner)
+    assert account is not None
+    assert account.name == original_name
+
+    # Update the account with a new name
+    updated_name = generate_random_name()
+    updated_account = await cdp_client.evm.update_smart_account(
+        address=account.address,
+        update=UpdateEvmSmartAccountRequest(
+            name=updated_name,
+        ),
+        owner=owner,
+    )
+    assert updated_account is not None
+    assert updated_account.name == updated_name
+
+    # Verify we can get the updated account by its new name
+    retrieved_account = await cdp_client.evm.get_smart_account(name=updated_name, owner=owner)
+    assert retrieved_account is not None
+    assert retrieved_account.address == account.address
     assert retrieved_account.name == updated_name
 
 
@@ -1475,6 +1961,106 @@ async def test_evm_local_account_sign_typed_data_with_full_message(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_evm_local_account_sign_typed_data_with_bytes32_type(cdp_client):
+    """Test signing typed data with a bytes32 type with an EVM local account."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    evm_local_account = EvmLocalAccount(account)
+    assert evm_local_account is not None
+
+    signature = evm_local_account.sign_typed_data(
+        full_message={
+            "domain": {
+                "name": "EIP712Domain",
+                "version": "1",
+                "chainId": 1,
+                "verifyingContract": "0x0000000000000000000000000000000000000000",
+            },
+            "types": {
+                "EIP712Domain": [
+                    {"name": "name", "type": "string"},
+                    {"name": "version", "type": "string"},
+                    {"name": "chainId", "type": "uint256"},
+                    {"name": "verifyingContract", "type": "address"},
+                ],
+                "TransferWithAuthorization": [
+                    {"name": "from", "type": "address"},
+                    {"name": "to", "type": "address"},
+                    {"name": "value", "type": "uint256"},
+                    {"name": "validAfter", "type": "uint256"},
+                    {"name": "validBefore", "type": "uint256"},
+                    {"name": "nonce", "type": "bytes32"},
+                ],
+            },
+            "primaryType": "TransferWithAuthorization",
+            "message": {
+                "from": "0x0123456789012345678901234567890123456789",
+                "to": "0x0123456789012345678901234567890123456789",
+                "value": 1000000,
+                "validAfter": 1000000,
+                "validBefore": 1000000,
+                "nonce": bytes.fromhex(
+                    "0000000000000000000000001234567890123456789012345678901234567890"
+                ),
+            },
+        },
+    )
+    assert signature is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_evm_local_account_sign_typed_data_without_eip712_domain_type(cdp_client):
+    """Test signing typed data without eip712 domain type with an EVM local account."""
+    account = await cdp_client.evm.create_account()
+    assert account is not None
+
+    evm_local_account = EvmLocalAccount(account)
+    assert evm_local_account is not None
+
+    domain_data = {
+        "name": "EIP712Domain",
+        "version": "1",
+    }
+    message_types = {
+        "TransferWithAuthorization": [
+            {"name": "from", "type": "address"},
+            {"name": "to", "type": "address"},
+            {"name": "value", "type": "uint256"},
+            {"name": "validAfter", "type": "uint256"},
+            {"name": "validBefore", "type": "uint256"},
+            {"name": "nonce", "type": "bytes32"},
+        ]
+    }
+    message_data = {
+        "from": "0x0123456789012345678901234567890123456789",
+        "to": "0x0123456789012345678901234567890123456789",
+        "value": 1000000,
+        "validAfter": 1000000,
+        "validBefore": 1000000,
+        "nonce": bytes.fromhex("0000000000000000000000001234567890123456789012345678901234567890"),
+    }
+    signature = evm_local_account.sign_typed_data(
+        domain_data=domain_data,
+        message_types=message_types,
+        message_data=message_data,
+    )
+    assert signature is not None
+
+    signature = evm_local_account.sign_typed_data(
+        full_message={
+            "domain": domain_data,
+            "types": message_types,
+            "primaryType": "TransferWithAuthorization",
+            "message": message_data,
+        },
+    )
+    assert signature is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 @pytest.mark.skip(reason="Skipping due to nonce issue with concurrent test")
 async def test_evm_local_account_sign_and_send_transaction(cdp_client):
     """Test signing a transaction with an EVM local account."""
@@ -1507,23 +2093,181 @@ async def test_evm_local_account_sign_and_send_transaction(cdp_client):
     assert tx_receipt is not None
 
 
-def _get_transaction(address: str):
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_use_network_evm_smart_account(cdp_client):
+    """E2E: Test use_network for EvmSmartAccount only."""
+    from eth_account.account import Account
+
+    owner = Account.create()
+    smart_account = await cdp_client.evm.create_smart_account(owner=owner)
+    assert smart_account is not None
+    orig_address = smart_account.address
+    orig_name = smart_account.name
+    orig_policies = smart_account.policies
+
+    network = "base"
+    # Use the use_network method to create a network-scoped smart account
+    network_smart_account = await smart_account.__experimental_use_network__(network)
+
+    assert network_smart_account.address == orig_address
+    assert network_smart_account.name == orig_name
+    assert network_smart_account.policies == orig_policies
+    assert network_smart_account.owner == owner
+    assert network_smart_account.network == network
+
+    balances = await network_smart_account.list_token_balances()
+    assert balances is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@pytest.mark.skip(reason="Skipping")
+async def test_evm_smart_account_use_spend_permission(cdp_client):
+    """Test signing a transaction with an EVM local account and a spend permission."""
+    master_owner = await cdp_client.evm.get_or_create_account(
+        name="E2E-SpendPermissions-Master-Owner"
+    )
+    master = await cdp_client.evm.get_or_create_smart_account(
+        name="E2E-SpendPermissions-Master",
+        owner=master_owner,
+        enable_spend_permissions=True,
+    )
+
+    spender_owner = await cdp_client.evm.get_or_create_account(
+        name="E2E-SpendPermissions-Spender-Owner"
+    )
+    spender = await cdp_client.evm.get_or_create_smart_account(
+        name="E2E-SpendPermissions-Spender",
+        owner=spender_owner,
+    )
+
+    await _ensure_sufficient_eth_balance(cdp_client, master)
+
+    # Create a spend permission
+    spend_permission = SpendPermission(
+        account=master.address,
+        spender=spender.address,
+        token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # native eth
+        allowance=Web3.to_wei(0.000001, "ether"),
+        period=86400,  # 1 day in seconds
+        start=0,  # Start immediately
+        end=int(time.time()) + 24 * 60 * 60,  # 24 hours from now
+        salt=random.randint(0, 2**256 - 1),
+        extra_data="0x",
+    )
+
+    # Create the spend permission on-chain
+    user_operation = await cdp_client.evm.create_spend_permission(
+        spend_permission=spend_permission,
+        network="base-sepolia",
+    )
+
+    # Wait for the user operation to complete
+    await cdp_client.evm.wait_for_user_operation(
+        smart_account_address=master.address,
+        user_op_hash=user_operation.user_op_hash,
+    )
+
+    # Sleep 2 seconds
+    await asyncio.sleep(2)
+
+    # Use the spend permission
+    spend_result = await spender.use_spend_permission(
+        spend_permission=spend_permission,
+        value=Web3.to_wei(0.000001, "ether"),
+        network="base-sepolia",
+    )
+
+    # Wait for spend to complete
+    spend_user_op = await spender.wait_for_user_operation(
+        user_op_hash=spend_result.user_op_hash,
+    )
+
+    assert spend_user_op.status == "complete"
+    assert spend_user_op.transaction_hash is not None
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+@pytest.mark.skip(reason="Skipping")
+async def test_evm_account_use_spend_permission(cdp_client):
+    """Test signing a transaction with an EVM local account and a spend permission."""
+    master_owner = await cdp_client.evm.get_or_create_account(
+        name="E2E-SpendPermissions-Master-Owner"
+    )
+    master = await cdp_client.evm.get_or_create_smart_account(
+        name="E2E-SpendPermissions-Master",
+        owner=master_owner,
+        enable_spend_permissions=True,
+    )
+
+    spender = await cdp_client.evm.get_or_create_account(name="E2E-SpendPermissions-EOA-Spender")
+
+    await _ensure_sufficient_eth_balance(cdp_client, master)
+    await _ensure_sufficient_eth_balance(cdp_client, spender)
+
+    # Create a spend permission
+    spend_permission = SpendPermission(
+        account=master.address,
+        spender=spender.address,
+        token="0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # native eth
+        allowance=Web3.to_wei(0.000001, "ether"),
+        period=86400,  # 1 day in seconds
+        start=0,  # Start immediately
+        end=int(time.time()) + 24 * 60 * 60,  # 24 hours from now
+        salt=random.randint(0, 2**256 - 1),
+        extra_data="0x",
+    )
+
+    # Create the spend permission on-chain
+    user_operation = await cdp_client.evm.create_spend_permission(
+        spend_permission=spend_permission,
+        network="base-sepolia",
+    )
+
+    # Wait for the user operation to complete
+    await cdp_client.evm.wait_for_user_operation(
+        smart_account_address=master.address,
+        user_op_hash=user_operation.user_op_hash,
+    )
+
+    # Sleep 2 seconds
+    await asyncio.sleep(2)
+
+    # Use the spend permission
+    spend_tx_hash = await spender.use_spend_permission(
+        spend_permission=spend_permission,
+        value=Web3.to_wei(0.000001, "ether"),  # 0.01 USDC
+        network="base-sepolia",
+    )
+
+    tx_receipt = w3.eth.wait_for_transaction_receipt(spend_tx_hash)
+    assert tx_receipt is not None
+
+
+def _get_transaction(address: str, to: str | None = None, amount: int | None = None):
     """Help method to create a transaction."""
     from solana.rpc.api import Client as SolanaClient
+    from solders.keypair import Keypair
     from solders.message import Message
     from solders.pubkey import Pubkey as PublicKey
     from solders.system_program import TransferParams, transfer
 
-    connection = SolanaClient("https://api.devnet.solana.com")
+    connection = SolanaClient(
+        os.getenv("CDP_E2E_SOLANA_RPC_URL") or "https://api.devnet.solana.com"
+    )
 
     source_pubkey = PublicKey.from_string(address)
-    dest_pubkey = PublicKey.from_string("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE")
+    dest_pubkey = PublicKey.from_string(to) if to else Keypair().pubkey()
 
     blockhash_resp = connection.get_latest_blockhash()
     blockhash = blockhash_resp.value.blockhash
 
+    transfer_amount = amount if amount is not None else 1000
+
     transfer_params = TransferParams(
-        from_pubkey=source_pubkey, to_pubkey=dest_pubkey, lamports=1000
+        from_pubkey=source_pubkey, to_pubkey=dest_pubkey, lamports=transfer_amount
     )
     transfer_instr = transfer(transfer_params)
 
@@ -1568,7 +2312,7 @@ async def _ensure_sufficient_eth_balance(cdp_client, account):
         w3.eth.wait_for_transaction_receipt(faucet_hash)
 
         # Verify the balance is now sufficient
-        new_balance = w3.eth.get_balance(account.address)
+        new_balance = w3.eth.get_balance(account.address, "pending")
         assert (
             new_balance >= min_required_balance
         ), f"Balance still insufficient after faucet request: {w3.from_wei(new_balance, 'ether')} ETH"
@@ -1581,13 +2325,16 @@ async def _ensure_sufficient_eth_balance(cdp_client, account):
 
 async def _ensure_sufficient_sol_balance(cdp_client, account):
     """Ensure an account has sufficient SOL balance."""
-    connection = SolanaClient("https://api.devnet.solana.com")
+    connection = SolanaClient(
+        os.getenv("CDP_E2E_SOLANA_RPC_URL") or "https://api.devnet.solana.com"
+    )
 
     async def sleep(ms):
         await asyncio.sleep(ms / 1000)
 
     # 1250000 is the amount the faucet gives, and is plenty to cover gas
-    min_required_balance = 1250000
+    # Increase to 12500000 to give us more buffer for testing transfers via sendTransaction.
+    min_required_balance = 12500000
 
     # Get initial balance
     balance_resp = connection.get_balance(PublicKey.from_string(account.address))
@@ -1618,10 +2365,11 @@ def generate_random_name():
     """Generate a random name."""
     chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     chars_with_hyphen = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
+    min_length = 5
 
     first_char = chars[floor(random.random() * len(chars))]
 
-    middle_length = floor(random.random() * 34)
+    middle_length = max(floor(random.random() * 34), min_length)
     middle_part = ""
     for _ in range(middle_length):
         middle_part += chars_with_hyphen[floor(random.random() * len(chars_with_hyphen))]

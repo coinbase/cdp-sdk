@@ -7,12 +7,17 @@
  */
 import type {
   CreateEvmSmartAccountBody,
+  CreateSpendPermissionRequest,
   EvmSmartAccount,
   EvmUserOperation,
   ListEvmSmartAccounts200,
   ListEvmSmartAccountsParams,
+  ListSpendPermissions200,
+  ListSpendPermissionsParams,
   PrepareUserOperationBody,
+  RevokeSpendPermissionRequest,
   SendUserOperationBody,
+  UpdateEvmSmartAccountBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -52,6 +57,19 @@ export const createEvmSmartAccount = (
   );
 };
 /**
+ * Gets a Smart Account by its name.
+ * @summary Get a Smart Account by name
+ */
+export const getEvmSmartAccountByName = (
+  name: string,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmSmartAccount>(
+    { url: `/v2/evm/smart-accounts/by-name/${name}`, method: "GET" },
+    options,
+  );
+};
+/**
  * Gets a Smart Account by its address.
  * @summary Get a Smart Account by address
  */
@@ -61,6 +79,25 @@ export const getEvmSmartAccount = (
 ) => {
   return cdpApiClient<EvmSmartAccount>(
     { url: `/v2/evm/smart-accounts/${address}`, method: "GET" },
+    options,
+  );
+};
+/**
+ * Updates an existing EVM smart account. Use this to update the smart account's name.
+ * @summary Update an EVM Smart Account
+ */
+export const updateEvmSmartAccount = (
+  address: string,
+  updateEvmSmartAccountBody: UpdateEvmSmartAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmSmartAccount>(
+    {
+      url: `/v2/evm/smart-accounts/${address}`,
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      data: updateEvmSmartAccountBody,
+    },
     options,
   );
 };
@@ -120,15 +157,82 @@ export const sendUserOperation = (
     options,
   );
 };
+/**
+ * Creates a spend permission for the given smart account address.
+ * @summary Create a spend permission
+ */
+export const createSpendPermission = (
+  address: string,
+  createSpendPermissionRequest: CreateSpendPermissionRequest,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/evm/smart-accounts/${address}/spend-permissions`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createSpendPermissionRequest,
+    },
+    options,
+  );
+};
+/**
+ * Lists spend permission for the given smart account address.
+ * @summary List spend permissions
+ */
+export const listSpendPermissions = (
+  address: string,
+  params?: ListSpendPermissionsParams,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ListSpendPermissions200>(
+    { url: `/v2/evm/smart-accounts/${address}/spend-permissions/list`, method: "GET", params },
+    options,
+  );
+};
+/**
+ * Revokes an existing spend permission.
+ * @summary Revoke a spend permission
+ */
+export const revokeSpendPermission = (
+  address: string,
+  revokeSpendPermissionRequest: RevokeSpendPermissionRequest,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/evm/smart-accounts/${address}/spend-permissions/revoke`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: revokeSpendPermissionRequest,
+    },
+    options,
+  );
+};
 export type ListEvmSmartAccountsResult = NonNullable<
   Awaited<ReturnType<typeof listEvmSmartAccounts>>
 >;
 export type CreateEvmSmartAccountResult = NonNullable<
   Awaited<ReturnType<typeof createEvmSmartAccount>>
 >;
+export type GetEvmSmartAccountByNameResult = NonNullable<
+  Awaited<ReturnType<typeof getEvmSmartAccountByName>>
+>;
 export type GetEvmSmartAccountResult = NonNullable<Awaited<ReturnType<typeof getEvmSmartAccount>>>;
+export type UpdateEvmSmartAccountResult = NonNullable<
+  Awaited<ReturnType<typeof updateEvmSmartAccount>>
+>;
 export type PrepareUserOperationResult = NonNullable<
   Awaited<ReturnType<typeof prepareUserOperation>>
 >;
 export type GetUserOperationResult = NonNullable<Awaited<ReturnType<typeof getUserOperation>>>;
 export type SendUserOperationResult = NonNullable<Awaited<ReturnType<typeof sendUserOperation>>>;
+export type CreateSpendPermissionResult = NonNullable<
+  Awaited<ReturnType<typeof createSpendPermission>>
+>;
+export type ListSpendPermissionsResult = NonNullable<
+  Awaited<ReturnType<typeof listSpendPermissions>>
+>;
+export type RevokeSpendPermissionResult = NonNullable<
+  Awaited<ReturnType<typeof revokeSpendPermission>>
+>;

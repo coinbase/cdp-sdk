@@ -1,47 +1,50 @@
-import { describe, it, expect } from "vitest";
-import crypto from "crypto";
+import { describe, it, expect, beforeAll } from "vitest";
+import { generateKeyPair, exportPKCS8, exportJWK } from "jose";
 import { InvalidWalletSecretFormatError, UndefinedWalletSecretError } from "../errors.js";
 import { generateJwt, JwtOptions, WalletJwtOptions, generateWalletJwt } from "./jwt.js";
+import { authHash } from "./hash.js";
 
 describe("JWT Authentication", () => {
-  // Generate EC256 key pair for testing
-  const testECPrivateKey = crypto.generateKeyPairSync("ec", {
-    namedCurve: "P-256", // secp256k1 for ES256
-    publicKeyEncoding: { type: "spki", format: "pem" },
-    privateKeyEncoding: { type: "sec1", format: "pem" },
-  }).privateKey;
+  let testECPrivateKey: string;
+  let testEd25519Key: string;
+  let testWalletSecret: string;
 
-  // Generate Ed25519 key pair for testing
-  const { privateKey, publicKey } = crypto.generateKeyPairSync("ed25519");
-  const testEd25519Key = Buffer.concat([
-    privateKey.export({ type: "pkcs8", format: "der" }).subarray(-32), // Extract the 32-byte private key
-    publicKey.export({ type: "spki", format: "der" }).subarray(-32), // Extract the 32-byte public key
-  ]).toString("base64");
+  beforeAll(async () => {
+    // Generate valid EC key pair for testing (extractable so we can export)
+    const ecKeyPair = await generateKeyPair("ES256", { extractable: true });
+    testECPrivateKey = await exportPKCS8(ecKeyPair.privateKey);
 
-  // Generate a valid Wallet Secret in proper PKCS8 DER format
-  const testWalletSecret = crypto
-    .generateKeyPairSync("ec", {
-      namedCurve: "P-256",
-      publicKeyEncoding: { type: "spki", format: "der" },
-      privateKeyEncoding: { type: "pkcs8", format: "der" },
-    })
-    .privateKey.toString("base64");
+    // Generate valid Ed25519 key pair for testing (extractable so we can export)
+    const ed25519KeyPair = await generateKeyPair("EdDSA", { crv: "Ed25519", extractable: true });
+    const privateKeyJwk = await exportJWK(ed25519KeyPair.privateKey);
+
+    // Create 64-byte key (32-byte seed + 32-byte public key) for Ed25519
+    const seed = Buffer.from(privateKeyJwk.d!, "base64url");
+    const publicKeyJwk = await exportJWK(ed25519KeyPair.publicKey);
+    const publicKey = Buffer.from(publicKeyJwk.x!, "base64url");
+    testEd25519Key = Buffer.concat([seed, publicKey]).toString("base64");
+
+    // Use same EC key for wallet secret (convert PEM to DER and base64 encode)
+    const walletKeyPair = await generateKeyPair("ES256", { extractable: true });
+    const walletPrivateKeyPem = await exportPKCS8(walletKeyPair.privateKey);
+    // Convert PEM to DER for wallet secret
+    const pemBody = walletPrivateKeyPem
+      .replace(/-----BEGIN PRIVATE KEY-----/, "")
+      .replace(/-----END PRIVATE KEY-----/, "")
+      .replace(/\s/g, "");
+    testWalletSecret = pemBody;
+  });
 
   const defaultECOptions: JwtOptions = {
     apiKeyId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    apiKeySecret: testECPrivateKey,
+    apiKeySecret: "", // Will be set in beforeAll
     requestMethod: "GET",
     requestHost: "api.cdp.coinbase.com",
     requestPath: "/platform/v1/wallets",
   };
 
-  const defaultEd25519Options: JwtOptions = {
-    ...defaultECOptions,
-    apiKeySecret: testEd25519Key,
-  };
-
   const defaultWalletJwtOptions: WalletJwtOptions = {
-    walletSecret: testWalletSecret,
+    walletSecret: "", // Will be set in beforeAll
     requestMethod: "GET",
     requestHost: "api.coinbase.com",
     requestPath: "/api/v3/brokerage/accounts",
@@ -63,28 +66,31 @@ describe("JWT Authentication", () => {
   };
 
   it("should generate a valid JWT token with EC key", async () => {
-    const token = await generateJwt(defaultECOptions);
+    const options = { ...defaultECOptions, apiKeySecret: testECPrivateKey };
+    const token = await generateJwt(options);
     expect(token).toBeTruthy();
     expect(typeof token).toBe("string");
     expect(token.split(".").length).toBe(3);
   });
 
   it("should generate a valid JWT token with Ed25519 key", async () => {
-    const token = await generateJwt(defaultEd25519Options);
+    const options = { ...defaultECOptions, apiKeySecret: testEd25519Key };
+    const token = await generateJwt(options);
     expect(token).toBeTruthy();
     expect(typeof token).toBe("string");
     expect(token.split(".").length).toBe(3);
   });
 
   it("should include correct claims in the JWT payload for EC key", async () => {
-    const token = await generateJwt(defaultECOptions);
+    const options = { ...defaultECOptions, apiKeySecret: testECPrivateKey };
+    const token = await generateJwt(options);
     const payload = decodeJwt(token);
 
     expect(payload.iss).toBe("cdp");
-    expect(payload.sub).toBe(defaultECOptions.apiKeyId);
+    expect(payload.sub).toBe(options.apiKeyId);
     expect(payload.aud).toEqual(["cdp_service"]);
     expect(payload.uris).toEqual([
-      `${defaultECOptions.requestMethod} ${defaultECOptions.requestHost}${defaultECOptions.requestPath}`,
+      `${options.requestMethod} ${options.requestHost}${options.requestPath}`,
     ]);
     expect(typeof payload.nbf).toBe("number");
     expect(typeof payload.exp).toBe("number");
@@ -145,8 +151,9 @@ describe("JWT Authentication", () => {
 
   it("should respect custom expiration time", async () => {
     const customExpiration = 300;
+    const options = { ...defaultECOptions, apiKeySecret: testECPrivateKey };
     const token = await generateJwt({
-      ...defaultECOptions,
+      ...options,
       expiresIn: customExpiration,
     });
     const payload = decodeJwt(token);
@@ -155,14 +162,15 @@ describe("JWT Authentication", () => {
   });
 
   it("should throw error when required parameters are missing", async () => {
-    const invalidOptions = { ...defaultECOptions };
+    const invalidOptions = { ...defaultECOptions, apiKeySecret: testECPrivateKey };
     delete (invalidOptions as Partial<JwtOptions>).apiKeyId;
 
     await expect(generateJwt(invalidOptions as JwtOptions)).rejects.toThrow("Key name is required");
   });
 
   it("should include nonce in header for EC key", async () => {
-    const token = await generateJwt(defaultECOptions);
+    const options = { ...defaultECOptions, apiKeySecret: testECPrivateKey };
+    const token = await generateJwt(options);
     const [headerB64] = token.split(".");
     const header = JSON.parse(Buffer.from(headerB64, "base64").toString());
 
@@ -172,7 +180,8 @@ describe("JWT Authentication", () => {
   });
 
   it("should use ES256 algorithm for EC key", async () => {
-    const token = await generateJwt(defaultECOptions);
+    const options = { ...defaultECOptions, apiKeySecret: testECPrivateKey };
+    const token = await generateJwt(options);
     const [headerB64] = token.split(".");
     const header = JSON.parse(Buffer.from(headerB64, "base64").toString());
 
@@ -180,7 +189,8 @@ describe("JWT Authentication", () => {
   });
 
   it("should use EdDSA algorithm for Ed25519 key", async () => {
-    const token = await generateJwt(defaultEd25519Options);
+    const options = { ...defaultECOptions, apiKeySecret: testEd25519Key };
+    const token = await generateJwt(options);
     const [headerB64] = token.split(".");
     const header = JSON.parse(Buffer.from(headerB64, "base64").toString());
 
@@ -200,7 +210,7 @@ describe("JWT Authentication", () => {
 
   it("should throw error for invalid Ed25519 key length", async () => {
     const invalidOptions = {
-      ...defaultEd25519Options,
+      ...defaultECOptions,
       apiKeySecret: Buffer.from("too-short").toString("base64"),
     };
 
@@ -210,20 +220,24 @@ describe("JWT Authentication", () => {
   });
 
   it("should generate a valid Wallet Auth JWT token", async () => {
-    const token = await generateWalletJwt(defaultWalletJwtOptions);
+    const options = { ...defaultWalletJwtOptions, walletSecret: testWalletSecret };
+    const token = await generateWalletJwt(options);
     expect(token).toBeTruthy();
     expect(typeof token).toBe("string");
     expect(token.split(".").length).toBe(3);
   });
 
   it("should include correct claims in Wallet Auth JWT payload", async () => {
-    const token = await generateWalletJwt(defaultWalletJwtOptions);
+    const options = { ...defaultWalletJwtOptions, walletSecret: testWalletSecret };
+    const token = await generateWalletJwt(options);
     const payload = decodeJwt(token);
 
     expect(payload.uris).toEqual([
-      `${defaultWalletJwtOptions.requestMethod} ${defaultWalletJwtOptions.requestHost}${defaultWalletJwtOptions.requestPath}`,
+      `${options.requestMethod} ${options.requestHost}${options.requestPath}`,
     ]);
-    expect(payload.req).toEqual(defaultWalletJwtOptions.requestData);
+    expect(payload.reqHash).toEqual(
+      await authHash(Buffer.from(JSON.stringify(options.requestData))),
+    );
     expect(typeof payload.iat).toBe("number");
     expect(typeof payload.nbf).toBe("number");
     expect(typeof payload.jti).toBe("string");
@@ -250,17 +264,19 @@ describe("JWT Authentication", () => {
   it("should support empty request data in Wallet Auth JWT", async () => {
     const options = {
       ...defaultWalletJwtOptions,
+      walletSecret: testWalletSecret,
       requestData: {},
     };
 
     const token = await generateWalletJwt(options);
     const payload = decodeJwt(token);
 
-    expect(payload.req).toBeUndefined();
+    expect(payload.reqHash).toBeUndefined();
   });
 
   it("should use ES256 algorithm for Wallet Auth JWT", async () => {
-    const token = await generateWalletJwt(defaultWalletJwtOptions);
+    const options = { ...defaultWalletJwtOptions, walletSecret: testWalletSecret };
+    const token = await generateWalletJwt(options);
     const [headerB64] = token.split(".");
     const header = JSON.parse(Buffer.from(headerB64, "base64").toString());
 

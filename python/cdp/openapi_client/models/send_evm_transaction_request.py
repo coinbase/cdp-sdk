@@ -34,8 +34,8 @@ class SendEvmTransactionRequest(BaseModel):
     @field_validator('network')
     def network_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['base', 'base-sepolia']):
-            raise ValueError("must be one of enum values ('base', 'base-sepolia')")
+        if value not in set(['base', 'base-sepolia', 'ethereum', 'ethereum-sepolia', 'avalanche', 'polygon', 'optimism', 'arbitrum']):
+            raise ValueError("must be one of enum values ('base', 'base-sepolia', 'ethereum', 'ethereum-sepolia', 'avalanche', 'polygon', 'optimism', 'arbitrum')")
         return value
 
     model_config = ConfigDict(

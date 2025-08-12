@@ -4,6 +4,7 @@ from cdp.__version__ import __version__
 from cdp.analytics import Analytics, wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
 from cdp.constants import SDK_DEFAULT_SOURCE
+from cdp.end_user_client import EndUserClient
 from cdp.evm_client import EvmClient
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.policies_client import PoliciesClient
@@ -91,9 +92,16 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
         self._evm = EvmClient(self.api_clients)
         self._solana = SolanaClient(self.api_clients)
         self._policies = PoliciesClient(self.api_clients)
+        self._end_user = EndUserClient(self.api_clients)
+        self._closed = False
+
+        if (
+            os.getenv("DISABLE_CDP_ERROR_REPORTING") != "true"
+            or os.getenv("DISABLE_CDP_USAGE_TRACKING") != "true"
+        ):
+            Analytics["identifier"] = api_key_id
 
         if os.getenv("DISABLE_CDP_ERROR_REPORTING") != "true":
-            Analytics["identifier"] = api_key_id
             wrap_class_with_error_tracking(CdpClient)
             wrap_class_with_error_tracking(EvmClient)
             wrap_class_with_error_tracking(SolanaClient)
@@ -102,17 +110,34 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
     @property
     def evm(self) -> EvmClient:
         """Get the EvmClient instance."""
+        self._check_closed()
         return self._evm
 
     @property
     def solana(self) -> SolanaClient:
         """Get the SolanaClient instance."""
+        self._check_closed()
         return self._solana
 
     @property
     def policies(self) -> PoliciesClient:
         """Get the PoliciesClient instance."""
+        self._check_closed()
         return self._policies
+
+    @property
+    def end_user(self) -> EndUserClient:
+        """Get the EndUserClient instance."""
+        self._check_closed()
+        return self._end_user
+
+    def _check_closed(self) -> None:
+        """Check if the client has been closed and raise an appropriate error."""
+        if self._closed:
+            raise RuntimeError(
+                "Cannot use a closed CDP client. Please create a new client instance. "
+                "This error occurs when trying to use a client after calling close()."
+            )
 
     async def __aenter__(self):
         """Enter the context manager."""
@@ -125,4 +150,5 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
     async def close(self):
         """Close the CDP client."""
         await self.api_clients.close()
+        self._closed = True
         return None

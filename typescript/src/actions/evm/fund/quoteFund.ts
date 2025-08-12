@@ -1,22 +1,20 @@
 import { formatUnits } from "viem";
 
-import { Quote } from "./Quote.js";
+import { UserInputValidationError } from "../../../errors.js";
 import {
   CreatePaymentTransferQuoteBodySourceType,
   CreatePaymentTransferQuoteBodyTargetType,
   type CdpOpenApiClientType,
 } from "../../../openapi-client/index.js";
+import { EvmQuote } from "../../Quote.js";
+import { BaseQuoteFundOptions } from "../../types.js";
 
 /**
  * Options for getting a quote to fund an EVM account.
  */
-export interface QuoteFundOptions {
-  /** The address of the account. */
-  address: string;
+export interface EvmQuoteFundOptions extends BaseQuoteFundOptions {
   /** The network to request funds from. */
-  network: "base";
-  /** The amount to fund the account with, in atomic units (wei) of the token. */
-  amount: bigint;
+  network: "base" | "ethereum";
   /** The token to request funds for. */
   token: "eth" | "usdc";
 }
@@ -31,8 +29,15 @@ export interface QuoteFundOptions {
  */
 export async function quoteFund(
   apiClient: CdpOpenApiClientType,
-  options: QuoteFundOptions,
-): Promise<Quote> {
+  options: EvmQuoteFundOptions,
+): Promise<EvmQuote> {
+  if (options.token !== "eth" && options.token !== "usdc") {
+    throw new UserInputValidationError("Invalid token, must be eth or usdc");
+  }
+
+  const decimals = options.token === "eth" ? 18 : 6;
+  const amount = formatUnits(options.amount, decimals);
+
   const paymentMethods = await apiClient.getPaymentMethods();
   const cardPaymentMethod = paymentMethods.find(
     method => method.type === "card" && method.actions.includes("source"),
@@ -41,13 +46,6 @@ export async function quoteFund(
   if (!cardPaymentMethod) {
     throw new Error("No card found to fund account");
   }
-
-  if (options.token.toLowerCase() !== "eth" && options.token.toLowerCase() !== "usdc") {
-    throw new Error("Invalid currency, must be eth or usdc");
-  }
-
-  const decimals = options.token === "eth" ? 18 : 6;
-  const amount = formatUnits(options.amount, decimals);
 
   const response = await apiClient.createPaymentTransferQuote({
     sourceType: CreatePaymentTransferQuoteBodySourceType.payment_method,
@@ -64,7 +62,7 @@ export async function quoteFund(
     currency: options.token,
   });
 
-  return new Quote(
+  return new EvmQuote(
     apiClient,
     response.transfer.id,
     options.network,

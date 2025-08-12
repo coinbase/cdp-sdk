@@ -2,8 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from cdp.actions.evm.fund.types import FundOperationResult
-from cdp.actions.evm.fund.util import format_units
+from cdp.actions.types import FundOperationResult
+from cdp.actions.util import format_units
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.create_payment_transfer_quote_request import (
     CreatePaymentTransferQuoteRequest,
@@ -14,11 +14,11 @@ from cdp.openapi_client.models.transfer_source import TransferSource
 from cdp.openapi_client.models.transfer_target import TransferTarget
 
 
-class FundOptions(BaseModel):
+class EvmFundOptions(BaseModel):
     """The options for funding an EVM account."""
 
     # The network to fund the account on
-    network: Literal["base"]
+    network: Literal["base", "ethereum"]
 
     # The amount of the token to fund
     amount: int
@@ -30,7 +30,7 @@ class FundOptions(BaseModel):
 async def fund(
     api_clients: ApiClients,
     address: str,
-    fund_options: FundOptions,
+    fund_options: EvmFundOptions,
 ) -> FundOperationResult:
     """Fund an EVM account."""
     payment_methods = await api_clients.payments.get_payment_methods()

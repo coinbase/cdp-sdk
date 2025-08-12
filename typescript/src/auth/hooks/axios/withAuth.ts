@@ -1,5 +1,6 @@
 import { AxiosInstance, AxiosHeaders } from "axios";
 
+import { convertBigIntsToStrings } from "../../../utils/bigint.js";
 import { getAuthHeaders } from "../../utils/http.js";
 
 export interface AuthInterceptorOptions {
@@ -57,6 +58,11 @@ export function withAuth(axiosClient: AxiosInstance, options: AuthInterceptorOpt
     // Parse URL to get host and path
     const url = new URL(fullyQualifiedURL);
 
+    // Convert bigints in request body to strings for safe serialization
+    if (axiosConfig.data) {
+      axiosConfig.data = convertBigIntsToStrings(axiosConfig.data);
+    }
+
     // Get authentication headers
     const headers = await getAuthHeaders({
       apiKeyId: options.apiKeyId,
@@ -78,6 +84,7 @@ export function withAuth(axiosClient: AxiosInstance, options: AuthInterceptorOpt
     });
 
     if (options.debug) {
+      // eslint-disable-next-line no-console
       console.log("Request:", {
         method,
         url: fullyQualifiedURL,
@@ -92,6 +99,7 @@ export function withAuth(axiosClient: AxiosInstance, options: AuthInterceptorOpt
   if (options.debug) {
     axiosClient.interceptors.response.use(
       response => {
+        // eslint-disable-next-line no-console
         console.log("Response:", {
           status: response.status,
           statusText: response.statusText,
@@ -111,6 +119,7 @@ export function withAuth(axiosClient: AxiosInstance, options: AuthInterceptorOpt
           cause: error.cause,
         };
 
+        // eslint-disable-next-line no-console
         console.error("Response Error:", errorDetails);
         return Promise.reject(error);
       },

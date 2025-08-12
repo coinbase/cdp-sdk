@@ -1,4 +1,6 @@
 import base64
+import hashlib
+import json
 import random
 import time
 import uuid
@@ -10,6 +12,9 @@ import jwt
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec, ed25519
 from pydantic import BaseModel, Field, field_validator
+
+from cdp.errors import UserInputValidationError
+from cdp.utils import sort_keys
 
 
 class JwtOptions(BaseModel):
@@ -74,7 +79,9 @@ class JwtOptions(BaseModel):
         valid_methods = ["GET", "POST", "PUT", "DELETE", "PATCH"]
         upper_method = v.upper()
         if upper_method not in valid_methods:
-            raise ValueError(f"Invalid request method. Must be one of: {', '.join(valid_methods)}")
+            raise UserInputValidationError(
+                f"Invalid request method. Must be one of: {', '.join(valid_methods)}"
+            )
         return upper_method
 
 
@@ -117,7 +124,9 @@ class WalletJwtOptions(BaseModel):
         valid_methods = ["GET", "POST", "PUT", "DELETE", "PATCH"]
         upper_method = v.upper()
         if upper_method not in valid_methods:
-            raise ValueError(f"Invalid request method. Must be one of: {', '.join(valid_methods)}")
+            raise UserInputValidationError(
+                f"Invalid request method. Must be one of: {', '.join(valid_methods)}"
+            )
         return upper_method
 
 
@@ -227,7 +236,9 @@ def generate_wallet_jwt(options: WalletJwtOptions) -> str:
     claims = {"uris": [uri], "iat": now, "nbf": now, "jti": str(uuid.uuid4())}
 
     if options.request_data:
-        claims["req"] = options.request_data
+        sorted_data = sort_keys(options.request_data)
+        json_bytes = json.dumps(sorted_data, separators=(",", ":"), sort_keys=True).encode("utf-8")
+        claims["reqHash"] = hashlib.sha256(json_bytes).hexdigest()
 
     try:
         der_bytes = serialization.load_der_private_key(

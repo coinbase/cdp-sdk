@@ -6,7 +6,7 @@ from eth_account.typed_transactions import DynamicFeeTransaction
 from web3 import Web3
 
 from cdp.api_clients import ApiClients
-from cdp.constants import ImportEvmAccountPublicRSAKey
+from cdp.constants import ImportAccountPublicRSAKey
 from cdp.evm_client import EvmClient
 from cdp.evm_token_balances import (
     EvmToken,
@@ -23,6 +23,8 @@ from cdp.openapi_client.models.create_evm_smart_account_request import (
 )
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
+from cdp.openapi_client.models.export_evm_account200_response import ExportEvmAccount200Response
+from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTransaction200Response
@@ -33,7 +35,10 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
 from cdp.openapi_client.models.sign_evm_typed_data200_response import SignEvmTypedData200Response
+from cdp.openapi_client.models.update_evm_account_request import UpdateEvmAccountRequest
+from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.update_account_types import UpdateAccountOptions
+from cdp.update_smart_account_types import UpdateSmartAccountOptions
 
 
 def test_init():
@@ -160,7 +165,7 @@ async def test_import_account(
     )
 
     # Verify the encryption was called with correct parameters
-    mock_load_pem_public_key.assert_called_once_with(ImportEvmAccountPublicRSAKey.encode())
+    mock_load_pem_public_key.assert_called_once_with(ImportAccountPublicRSAKey.encode())
     mock_public_key.encrypt.assert_called_once_with(
         test_private_key_bytes,
         mock_oaep,
@@ -233,7 +238,7 @@ async def test_import_account_without_0x_prefix(
     )
 
     # Verify the encryption was called with correct parameters
-    mock_load_pem_public_key.assert_called_once_with(ImportEvmAccountPublicRSAKey.encode())
+    mock_load_pem_public_key.assert_called_once_with(ImportAccountPublicRSAKey.encode())
     mock_public_key.encrypt.assert_called_once_with(
         test_private_key_bytes,
         mock_oaep,
@@ -282,6 +287,97 @@ async def test_import_account_invalid_private_key():
             private_key="0x123456789012345678901234567890123456789012345678901234567890123g",
             name="test-account",
         )
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_client.generate_export_encryption_key_pair")
+@patch("cdp.evm_client.decrypt_with_private_key")
+async def test_export_evm_account_by_address(
+    mock_decrypt_with_private_key,
+    mock_generate_export_encryption_key_pair,
+):
+    """Test exporting an EVM account by address."""
+    test_address = "0x1234567890123456789012345678901234567890"
+
+    test_public_key = "public_key"
+    test_private_key = "private_key"
+    mock_generate_export_encryption_key_pair.return_value = (test_public_key, test_private_key)
+
+    test_decrypted_private_key = "decrypted_private_key"
+    mock_decrypt_with_private_key.return_value = test_decrypted_private_key
+
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+
+    test_encrypted_private_key = "encrypted_private_key"
+    mock_evm_accounts_api.export_evm_account = AsyncMock(
+        return_value=ExportEvmAccount200Response(
+            encrypted_private_key=test_encrypted_private_key,
+        )
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    result = await client.export_account(address=test_address)
+
+    mock_generate_export_encryption_key_pair.assert_called_once()
+    mock_evm_accounts_api.export_evm_account.assert_called_once_with(
+        address=test_address,
+        export_evm_account_request=ExportEvmAccountRequest(
+            export_encryption_key=test_public_key,
+        ),
+        x_idempotency_key=None,
+    )
+    mock_decrypt_with_private_key.assert_called_once_with(
+        test_private_key, test_encrypted_private_key
+    )
+    assert result == test_decrypted_private_key
+
+
+@pytest.mark.asyncio
+@patch("cdp.evm_client.generate_export_encryption_key_pair")
+@patch("cdp.evm_client.decrypt_with_private_key")
+async def test_export_evm_account_by_name(
+    mock_decrypt_with_private_key,
+    mock_generate_export_encryption_key_pair,
+):
+    """Test exporting an EVM account by name."""
+    test_name = "test-account"
+    test_public_key = "public_key"
+    test_private_key = "private_key"
+    mock_generate_export_encryption_key_pair.return_value = (test_public_key, test_private_key)
+
+    test_decrypted_private_key = "decrypted_private_key"
+    mock_decrypt_with_private_key.return_value = test_decrypted_private_key
+
+    mock_evm_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_accounts = mock_evm_accounts_api
+
+    test_encrypted_private_key = "encrypted_private_key"
+    mock_evm_accounts_api.export_evm_account_by_name = AsyncMock(
+        return_value=ExportEvmAccount200Response(
+            encrypted_private_key=test_encrypted_private_key,
+        )
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    result = await client.export_account(name=test_name)
+
+    mock_generate_export_encryption_key_pair.assert_called_once()
+    mock_evm_accounts_api.export_evm_account_by_name.assert_called_once_with(
+        name=test_name,
+        export_evm_account_request=ExportEvmAccountRequest(
+            export_encryption_key=test_public_key,
+        ),
+        x_idempotency_key=None,
+    )
+    mock_decrypt_with_private_key.assert_called_once_with(
+        test_private_key, test_encrypted_private_key
+    )
+    assert result == test_decrypted_private_key
 
 
 @pytest.mark.asyncio
@@ -418,11 +514,80 @@ async def test_create_smart_account(smart_account_model_factory):
     result = await client.create_smart_account(evm_smart_account_model)
 
     mock_evm_smart_accounts_api.create_evm_smart_account.assert_called_once_with(
-        CreateEvmSmartAccountRequest(owners=[evm_smart_account_model.address])
+        create_evm_smart_account_request=CreateEvmSmartAccountRequest(
+            owners=[evm_smart_account_model.address]
+        )
     )
 
     assert result.address == evm_smart_account_model.address
     assert result.name == evm_smart_account_model.name
+
+
+@pytest.mark.asyncio
+async def test_create_smart_account_with_spend_permission(
+    smart_account_model_factory, local_account_factory
+):
+    """Test creating an EVM smart account with spend permissions enabled."""
+    from cdp.spend_permissions import SPEND_PERMISSION_MANAGER_ADDRESS
+
+    mock_evm_smart_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
+    evm_smart_account_model = smart_account_model_factory()
+    mock_evm_smart_accounts_api.create_evm_smart_account = AsyncMock(
+        return_value=evm_smart_account_model
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+    owner = local_account_factory()
+
+    result = await client.create_smart_account(owner, enable_spend_permissions=True)
+
+    mock_evm_smart_accounts_api.create_evm_smart_account.assert_called_once_with(
+        create_evm_smart_account_request=CreateEvmSmartAccountRequest(
+            owners=[owner.address, SPEND_PERMISSION_MANAGER_ADDRESS]
+        )
+    )
+
+    assert result.address == evm_smart_account_model.address
+    assert result.name == evm_smart_account_model.name
+
+
+@pytest.mark.asyncio
+async def test_get_or_create_smart_account(smart_account_model_factory, local_account_factory):
+    """Test getting or creating an EVM smart account."""
+    mock_evm_smart_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
+    client = EvmClient(api_clients=mock_api_clients)
+
+    smart_account_model = smart_account_model_factory()
+    mock_evm_smart_accounts_api.get_evm_smart_account_by_name = AsyncMock(
+        side_effect=[
+            ApiError(404, "not_found", "Account not found"),
+            smart_account_model,
+        ]
+    )
+    mock_evm_smart_accounts_api.create_evm_smart_account = AsyncMock(
+        return_value=smart_account_model
+    )
+
+    test_name = "test-account"
+    owner = local_account_factory()
+    result = await client.get_or_create_smart_account(name=test_name, owner=owner)
+    result2 = await client.get_or_create_smart_account(name=test_name, owner=owner)
+
+    assert mock_evm_smart_accounts_api.get_evm_smart_account_by_name.call_count == 2
+    mock_evm_smart_accounts_api.create_evm_smart_account.assert_called_once_with(
+        create_evm_smart_account_request=CreateEvmSmartAccountRequest(
+            owners=[owner.address], name=test_name
+        )
+    )
+
+    assert result.address == smart_account_model.address
+    assert result.name == smart_account_model.name
+    assert result2.address == smart_account_model.address
+    assert result2.name == smart_account_model.name
 
 
 @pytest.mark.asyncio
@@ -800,12 +965,50 @@ async def test_update_account(server_account_model_factory):
 
     mock_evm_accounts_api.update_evm_account.assert_called_once_with(
         address=test_address,
-        create_evm_account_request=CreateEvmAccountRequest(
+        update_evm_account_request=UpdateEvmAccountRequest(
             name=test_name,
             account_policy=test_account_policy,
         ),
         x_idempotency_key=test_idempotency_key,
     )
+
+
+@pytest.mark.asyncio
+async def test_update_smart_account(smart_account_model_factory):
+    """Test updating an EVM smart account."""
+    mock_evm_smart_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
+
+    evm_smart_account_model = smart_account_model_factory()
+
+    mock_evm_smart_accounts_api.update_evm_smart_account = AsyncMock(
+        return_value=evm_smart_account_model
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    test_address = "0x1234567890123456789012345678901234567890"
+    test_name = "updated-smart-account-name"
+    test_idempotency_key = "test-idempotency-key"
+    update_options = UpdateSmartAccountOptions(name=test_name)
+    mock_owner = AsyncMock()
+    mock_owner.address = "0x0987654321098765432109876543210987654321"
+
+    result = await client.update_smart_account(
+        address=test_address,
+        update=update_options,
+        idempotency_key=test_idempotency_key,
+        owner=mock_owner,
+    )
+
+    mock_evm_smart_accounts_api.update_evm_smart_account.assert_called_once_with(
+        address=test_address,
+        update_evm_smart_account_request=UpdateEvmSmartAccountRequest(name=test_name),
+    )
+
+    assert result.address == evm_smart_account_model.address
+    assert result.name == evm_smart_account_model.name
 
 
 @pytest.mark.asyncio
@@ -942,6 +1145,7 @@ async def test_get_user_operation():
     mock_user_operation.network = "ethereum"
     mock_user_operation.calls = [AsyncMock(), AsyncMock()]
     mock_user_operation.status = "pending"
+    mock_user_operation.receipts = [{"revert": {"data": "0x", "message": "reverted"}}]
 
     mock_evm_smart_accounts_api.get_user_operation = AsyncMock(return_value=mock_user_operation)
 
@@ -962,15 +1166,13 @@ async def test_get_user_operation():
 @pytest.mark.asyncio
 async def test_list_token_balances(evm_token_balances_model_factory):
     """Test listing EVM token balances."""
-    mock_evm_token_balances_api = AsyncMock()
+    mock_onchain_data_api = AsyncMock()
     mock_api_clients = AsyncMock()
-    mock_api_clients.evm_token_balances = mock_evm_token_balances_api
+    mock_api_clients.onchain_data = mock_onchain_data_api
 
     mock_token_balances = evm_token_balances_model_factory()
 
-    mock_evm_token_balances_api.list_evm_token_balances = AsyncMock(
-        return_value=mock_token_balances
-    )
+    mock_onchain_data_api.list_data_token_balances = AsyncMock(return_value=mock_token_balances)
 
     expected_result = ListTokenBalancesResult(
         balances=[
@@ -994,8 +1196,74 @@ async def test_list_token_balances(evm_token_balances_model_factory):
 
     result = await client.list_token_balances(address=test_address, network=test_network)
 
-    mock_evm_token_balances_api.list_evm_token_balances.assert_called_once_with(
+    mock_onchain_data_api.list_data_token_balances.assert_called_once_with(
         address=test_address, network=test_network, page_size=None, page_token=None
     )
 
     assert result == expected_result
+
+
+@pytest.mark.asyncio
+async def test_create_spend_permission():
+    """Test creating a spend permission."""
+    from datetime import datetime
+
+    from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
+    from cdp.spend_permissions import SpendPermissionInput
+
+    mock_evm_smart_accounts_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
+
+    # Create mock user operation result
+    mock_user_operation = EvmUserOperation(
+        network="base-sepolia",
+        user_op_hash="0x" + "0" * 64,  # Valid 64 hex character hash
+        status="broadcast",
+        calls=[],  # Empty calls list
+    )
+    mock_evm_smart_accounts_api.create_spend_permission = AsyncMock(
+        return_value=mock_user_operation
+    )
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    # Create spend permission input
+    spend_permission = SpendPermissionInput(
+        account="0x" + "a" * 40,  # Valid 40 hex character address
+        spender="0x" + "b" * 40,  # Valid 40 hex character address
+        token="0x" + "c" * 40,  # Valid 40 hex character address
+        allowance=1000000,
+        period_in_days=1,
+        start=datetime(2024, 1, 1),
+        end=datetime(2024, 12, 31),
+    )
+
+    result = await client.create_spend_permission(
+        spend_permission=spend_permission,
+        network="base-sepolia",
+        paymaster_url="https://paymaster.example.com",
+        idempotency_key="test-key",
+    )
+
+    # Verify the API was called correctly
+    mock_evm_smart_accounts_api.create_spend_permission.assert_called_once()
+    call_args = mock_evm_smart_accounts_api.create_spend_permission.call_args
+    assert call_args[1]["address"] == "0x" + "a" * 40
+    assert call_args[1]["x_idempotency_key"] == "test-key"
+
+    request = call_args[1]["create_spend_permission_request"]
+    assert request.spender == "0x" + "b" * 40
+    assert request.token == "0x" + "c" * 40
+    assert request.allowance == "1000000"
+    assert request.period == "86400"
+    assert request.start is not None
+    assert request.end is not None
+    assert request.extra_data == "0x"
+    assert request.network == "base-sepolia"
+    assert request.paymaster_url == "https://paymaster.example.com"
+    # Salt should be a random value, just verify it's not the old default of "0"
+    assert request.salt != "0"
+    assert len(request.salt) > 10  # Should be a large random number
+
+    assert result == mock_user_operation

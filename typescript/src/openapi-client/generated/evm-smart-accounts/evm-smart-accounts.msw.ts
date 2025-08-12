@@ -9,10 +9,12 @@ import { faker } from "@faker-js/faker";
 
 import { HttpResponse, delay, http } from "msw";
 
+import { EvmUserOperationNetwork } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 import type {
   EvmSmartAccount,
   EvmUserOperation,
   ListEvmSmartAccounts200,
+  ListSpendPermissions200,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 export const getListEvmSmartAccountsResponseMock = (): ListEvmSmartAccounts200 => ({
@@ -25,6 +27,22 @@ export const getListEvmSmartAccountsResponseMock = (): ListEvmSmartAccounts200 =
         ),
         name: faker.helpers.arrayElement([
           faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+          undefined,
+        ]),
+        policies: faker.helpers.arrayElement([
+          Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+            faker.helpers.fromRegExp(
+              "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+            ),
+          ),
+          undefined,
+        ]),
+        createdAt: faker.helpers.arrayElement([
+          `${faker.date.past().toISOString().split(".")[0]}Z`,
+          undefined,
+        ]),
+        updatedAt: faker.helpers.arrayElement([
+          `${faker.date.past().toISOString().split(".")[0]}Z`,
           undefined,
         ]),
       }),
@@ -44,6 +62,52 @@ export const getCreateEvmSmartAccountResponseMock = (
     faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
     undefined,
   ]),
+  policies: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.fromRegExp(
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      ),
+    ),
+    undefined,
+  ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  ...overrideResponse,
+});
+
+export const getGetEvmSmartAccountByNameResponseMock = (
+  overrideResponse: Partial<EvmSmartAccount> = {},
+): EvmSmartAccount => ({
+  address: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  owners: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+    faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  ),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  policies: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.fromRegExp(
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      ),
+    ),
+    undefined,
+  ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -58,13 +122,59 @@ export const getGetEvmSmartAccountResponseMock = (
     faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
     undefined,
   ]),
+  policies: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.fromRegExp(
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      ),
+    ),
+    undefined,
+  ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  ...overrideResponse,
+});
+
+export const getUpdateEvmSmartAccountResponseMock = (
+  overrideResponse: Partial<EvmSmartAccount> = {},
+): EvmSmartAccount => ({
+  address: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  owners: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+    faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+  ),
+  name: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"),
+    undefined,
+  ]),
+  policies: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.fromRegExp(
+        "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+      ),
+    ),
+    undefined,
+  ]),
+  createdAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
+  updatedAt: faker.helpers.arrayElement([
+    `${faker.date.past().toISOString().split(".")[0]}Z`,
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
 export const getPrepareUserOperationResponseMock = (
   overrideResponse: Partial<EvmUserOperation> = {},
 ): EvmUserOperation => ({
-  network: faker.helpers.arrayElement(["base-sepolia", "base"] as const),
+  network: faker.helpers.arrayElement(Object.values(EvmUserOperationNetwork)),
   userOpHash: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$"),
   calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
     to: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
@@ -76,10 +186,33 @@ export const getPrepareUserOperationResponseMock = (
     "signed",
     "broadcast",
     "complete",
+    "dropped",
     "failed",
   ] as const),
   transactionHash: faker.helpers.arrayElement([
     faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+      transactionHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[a-fA-F0-9]{64}$"),
+        undefined,
+      ]),
+      blockHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+        undefined,
+      ]),
+      blockNumber: faker.helpers.arrayElement([
+        faker.number.int({ min: undefined, max: undefined }),
+        undefined,
+      ]),
+      gasUsed: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+    })),
     undefined,
   ]),
   ...overrideResponse,
@@ -88,7 +221,7 @@ export const getPrepareUserOperationResponseMock = (
 export const getGetUserOperationResponseMock = (
   overrideResponse: Partial<EvmUserOperation> = {},
 ): EvmUserOperation => ({
-  network: faker.helpers.arrayElement(["base-sepolia", "base"] as const),
+  network: faker.helpers.arrayElement(Object.values(EvmUserOperationNetwork)),
   userOpHash: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$"),
   calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
     to: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
@@ -100,10 +233,33 @@ export const getGetUserOperationResponseMock = (
     "signed",
     "broadcast",
     "complete",
+    "dropped",
     "failed",
   ] as const),
   transactionHash: faker.helpers.arrayElement([
     faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+      transactionHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[a-fA-F0-9]{64}$"),
+        undefined,
+      ]),
+      blockHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+        undefined,
+      ]),
+      blockNumber: faker.helpers.arrayElement([
+        faker.number.int({ min: undefined, max: undefined }),
+        undefined,
+      ]),
+      gasUsed: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+    })),
     undefined,
   ]),
   ...overrideResponse,
@@ -112,7 +268,7 @@ export const getGetUserOperationResponseMock = (
 export const getSendUserOperationResponseMock = (
   overrideResponse: Partial<EvmUserOperation> = {},
 ): EvmUserOperation => ({
-  network: faker.helpers.arrayElement(["base-sepolia", "base"] as const),
+  network: faker.helpers.arrayElement(Object.values(EvmUserOperationNetwork)),
   userOpHash: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$"),
   calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
     to: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
@@ -124,10 +280,156 @@ export const getSendUserOperationResponseMock = (
     "signed",
     "broadcast",
     "complete",
+    "dropped",
     "failed",
   ] as const),
   transactionHash: faker.helpers.arrayElement([
     faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+      transactionHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[a-fA-F0-9]{64}$"),
+        undefined,
+      ]),
+      blockHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+        undefined,
+      ]),
+      blockNumber: faker.helpers.arrayElement([
+        faker.number.int({ min: undefined, max: undefined }),
+        undefined,
+      ]),
+      gasUsed: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+    })),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
+
+export const getCreateSpendPermissionResponseMock = (
+  overrideResponse: Partial<EvmUserOperation> = {},
+): EvmUserOperation => ({
+  network: faker.helpers.arrayElement(Object.values(EvmUserOperationNetwork)),
+  userOpHash: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$"),
+  calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+    to: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    value: faker.string.alpha(20),
+    data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"),
+  })),
+  status: faker.helpers.arrayElement([
+    "pending",
+    "signed",
+    "broadcast",
+    "complete",
+    "dropped",
+    "failed",
+  ] as const),
+  transactionHash: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+      transactionHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[a-fA-F0-9]{64}$"),
+        undefined,
+      ]),
+      blockHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+        undefined,
+      ]),
+      blockNumber: faker.helpers.arrayElement([
+        faker.number.int({ min: undefined, max: undefined }),
+        undefined,
+      ]),
+      gasUsed: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+    })),
+    undefined,
+  ]),
+  ...overrideResponse,
+});
+
+export const getListSpendPermissionsResponseMock = (): ListSpendPermissions200 => ({
+  ...{
+    spendPermissions: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      permission: {
+        account: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
+        spender: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
+        token: faker.helpers.fromRegExp("^0x[a-fA-F0-9]{40}$"),
+        allowance: faker.string.alpha(20),
+        period: faker.string.alpha(20),
+        start: faker.string.alpha(20),
+        end: faker.string.alpha(20),
+        salt: faker.string.alpha(20),
+        extraData: faker.string.alpha(20),
+      },
+      permissionHash: faker.string.alpha(20),
+      revoked: faker.datatype.boolean(),
+      revokedAt: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        undefined,
+      ]),
+      createdAt: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    })),
+  },
+  ...{ nextPageToken: faker.helpers.arrayElement([faker.string.alpha(20), undefined]) },
+});
+
+export const getRevokeSpendPermissionResponseMock = (
+  overrideResponse: Partial<EvmUserOperation> = {},
+): EvmUserOperation => ({
+  network: faker.helpers.arrayElement(Object.values(EvmUserOperationNetwork)),
+  userOpHash: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$"),
+  calls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+    to: faker.helpers.fromRegExp("^0x[0-9a-fA-F]{40}$"),
+    value: faker.string.alpha(20),
+    data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"),
+  })),
+  status: faker.helpers.arrayElement([
+    "pending",
+    "signed",
+    "broadcast",
+    "complete",
+    "dropped",
+    "failed",
+  ] as const),
+  transactionHash: faker.helpers.arrayElement([
+    faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+    undefined,
+  ]),
+  receipts: faker.helpers.arrayElement([
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+      revert: faker.helpers.arrayElement([
+        { data: faker.helpers.fromRegExp("^0x[0-9a-fA-F]*$"), message: faker.string.alpha(20) },
+        undefined,
+      ]),
+      transactionHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[a-fA-F0-9]{64}$"),
+        undefined,
+      ]),
+      blockHash: faker.helpers.arrayElement([
+        faker.helpers.fromRegExp("^0x[0-9a-fA-F]{64}$|^$"),
+        undefined,
+      ]),
+      blockNumber: faker.helpers.arrayElement([
+        faker.number.int({ min: undefined, max: undefined }),
+        undefined,
+      ]),
+      gasUsed: faker.helpers.arrayElement([faker.string.alpha(20), undefined]),
+    })),
     undefined,
   ]),
   ...overrideResponse,
@@ -179,6 +481,29 @@ export const getCreateEvmSmartAccountMockHandler = (
   });
 };
 
+export const getGetEvmSmartAccountByNameMockHandler = (
+  overrideResponse?:
+    | EvmSmartAccount
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<EvmSmartAccount> | EvmSmartAccount),
+) => {
+  return http.get("*/v2/evm/smart-accounts/by-name/:name", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetEvmSmartAccountByNameResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
 export const getGetEvmSmartAccountMockHandler = (
   overrideResponse?:
     | EvmSmartAccount
@@ -196,6 +521,29 @@ export const getGetEvmSmartAccountMockHandler = (
             ? await overrideResponse(info)
             : overrideResponse
           : getGetEvmSmartAccountResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getUpdateEvmSmartAccountMockHandler = (
+  overrideResponse?:
+    | EvmSmartAccount
+    | ((
+        info: Parameters<Parameters<typeof http.put>[1]>[0],
+      ) => Promise<EvmSmartAccount> | EvmSmartAccount),
+) => {
+  return http.put("*/v2/evm/smart-accounts/:address", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getUpdateEvmSmartAccountResponseMock(),
       ),
       { status: 200, headers: { "Content-Type": "application/json" } },
     );
@@ -273,11 +621,85 @@ export const getSendUserOperationMockHandler = (
     },
   );
 };
+
+export const getCreateSpendPermissionMockHandler = (
+  overrideResponse?:
+    | EvmUserOperation
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<EvmUserOperation> | EvmUserOperation),
+) => {
+  return http.post("*/v2/evm/smart-accounts/:address/spend-permissions", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getCreateSpendPermissionResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getListSpendPermissionsMockHandler = (
+  overrideResponse?:
+    | ListSpendPermissions200
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<ListSpendPermissions200> | ListSpendPermissions200),
+) => {
+  return http.get("*/v2/evm/smart-accounts/:address/spend-permissions/list", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getListSpendPermissionsResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getRevokeSpendPermissionMockHandler = (
+  overrideResponse?:
+    | EvmUserOperation
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<EvmUserOperation> | EvmUserOperation),
+) => {
+  return http.post("*/v2/evm/smart-accounts/:address/spend-permissions/revoke", async info => {
+    await delay(0);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getRevokeSpendPermissionResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 export const getEvmSmartAccountsMock = () => [
   getListEvmSmartAccountsMockHandler(),
   getCreateEvmSmartAccountMockHandler(),
+  getGetEvmSmartAccountByNameMockHandler(),
   getGetEvmSmartAccountMockHandler(),
+  getUpdateEvmSmartAccountMockHandler(),
   getPrepareUserOperationMockHandler(),
   getGetUserOperationMockHandler(),
   getSendUserOperationMockHandler(),
+  getCreateSpendPermissionMockHandler(),
+  getListSpendPermissionsMockHandler(),
+  getRevokeSpendPermissionMockHandler(),
 ];

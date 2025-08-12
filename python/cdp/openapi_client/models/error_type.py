@@ -34,9 +34,11 @@ class ErrorType(str, Enum):
     IDEMPOTENCY_ERROR = 'idempotency_error'
     INTERNAL_SERVER_ERROR = 'internal_server_error'
     INVALID_REQUEST = 'invalid_request'
+    INVALID_SQL_QUERY = 'invalid_sql_query'
     INVALID_SIGNATURE = 'invalid_signature'
     MALFORMED_TRANSACTION = 'malformed_transaction'
     NOT_FOUND = 'not_found'
+    PAYMENT_METHOD_REQUIRED = 'payment_method_required'
     RATE_LIMIT_EXCEEDED = 'rate_limit_exceeded'
     REQUEST_CANCELED = 'request_canceled'
     SERVICE_UNAVAILABLE = 'service_unavailable'
@@ -44,6 +46,13 @@ class ErrorType(str, Enum):
     UNAUTHORIZED = 'unauthorized'
     POLICY_VIOLATION = 'policy_violation'
     POLICY_IN_USE = 'policy_in_use'
+    ACCOUNT_LIMIT_EXCEEDED = 'account_limit_exceeded'
+    NETWORK_NOT_TRADABLE = 'network_not_tradable'
+    GUEST_PERMISSION_DENIED = 'guest_permission_denied'
+    GUEST_REGION_FORBIDDEN = 'guest_region_forbidden'
+    GUEST_TRANSACTION_LIMIT = 'guest_transaction_limit'
+    GUEST_TRANSACTION_COUNT = 'guest_transaction_count'
+    PHONE_NUMBER_VERIFICATION_EXPIRED = 'phone_number_verification_expired'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

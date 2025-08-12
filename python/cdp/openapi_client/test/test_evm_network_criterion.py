@@ -37,13 +37,13 @@ class TestEvmNetworkCriterion(unittest.TestCase):
         if include_optional:
             return EvmNetworkCriterion(
                 type = 'evmNetwork',
-                networks = ["base","base-sepolia"],
+                networks = ["base","ethereum"],
                 operator = 'in'
             )
         else:
             return EvmNetworkCriterion(
                 type = 'evmNetwork',
-                networks = ["base","base-sepolia"],
+                networks = ["base","ethereum"],
                 operator = 'in',
         )
         """

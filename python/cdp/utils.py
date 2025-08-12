@@ -1,5 +1,7 @@
+import hashlib
 import inspect
 import re
+import uuid
 
 from eth_account.typed_transactions import DynamicFeeTransaction
 
@@ -107,3 +109,70 @@ def parse_units(value: str, decimals: int) -> int:
 
     result_str = f"{'-' if negative else ''}{integer}{fraction}"
     return int(result_str)
+
+
+def create_deterministic_uuid_v4(base_key: str, suffix: str = "") -> str:
+    """Create a deterministic UUID v4 from a base key and optional suffix.
+
+    This function generates a deterministic UUID by hashing the input components.
+    Used for creating consistent idempotency keys across operations.
+
+    Args:
+        base_key: The base key to generate the UUID from
+        suffix: An optional suffix to append to the base key
+
+    Returns:
+        str: A deterministic UUID v4 string
+
+    Examples:
+        >>> create_deterministic_uuid_v4("my-base-key", "permit2")
+        "a1b2c3d4-e5f6-47a8-b9c0-d1e2f3a4b5c6"
+
+        >>> create_deterministic_uuid_v4("my-base-key")
+        "f1e2d3c4-b5a6-4798-8765-432109abcdef"
+
+    """
+    # Combine base key and suffix
+    combined_key = f"{base_key}:{suffix}" if suffix else base_key
+
+    # Generate hash from the combined key
+    hash_bytes = hashlib.sha256(combined_key.encode("utf-8")).digest()
+
+    # Use first 16 bytes to create UUID
+    # Set version bits (4) and variant bits to make it a valid UUID v4
+    uuid_bytes = bytearray(hash_bytes[:16])
+
+    # Set version to 4 (0100 in binary)
+    uuid_bytes[6] = (uuid_bytes[6] & 0x0F) | 0x40
+
+    # Set variant bits (10 in binary)
+    uuid_bytes[8] = (uuid_bytes[8] & 0x3F) | 0x80
+
+    # Create UUID from bytes
+    return str(uuid.UUID(bytes=bytes(uuid_bytes)))
+
+
+def sort_keys(obj: dict) -> dict:
+    """Recursively sorts object keys to ensure consistent JSON stringification.
+
+    Args:
+        obj: The object to sort
+
+    Returns:
+        A new object with sorted keys
+
+    Examples:
+        >>> sort_keys({"b": 1, "a": 2})
+        {'a': 2, 'b': 1}
+
+        >>> sort_keys({"b": {"d": 1, "c": 2}, "a": 3})
+        {'a': 3, 'b': {'c': 2, 'd': 1}}
+
+    """
+    if not obj or not isinstance(obj, dict | list):
+        return obj
+
+    if isinstance(obj, list):
+        return [sort_keys(item) for item in obj]
+
+    return {key: sort_keys(obj[key]) for key in sorted(obj.keys())}

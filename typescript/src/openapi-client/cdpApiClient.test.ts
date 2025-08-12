@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, Mocked } from "vitest";
 import Axios, { AxiosInstance } from "axios";
 import { configure, cdpApiClient, CdpOptions } from "./cdpApiClient.js"; // Adjust import path as needed
-import { HttpErrorType } from "./errors.js";
 import { withAuth } from "../auth/hooks/axios/index.js";
 import { ErrorType } from "./generated/coinbaseDeveloperPlatformAPIs.schemas.js";
 
 vi.mock("axios");
+vi.mock("axios-retry");
 vi.mock("../auth/hooks/axios");
 
 describe("cdpApiClient", () => {
@@ -222,7 +222,7 @@ describe("cdpApiClient", () => {
         }),
       ).rejects.toMatchObject({
         statusCode: 401,
-        errorType: HttpErrorType.unauthorized,
+        errorType: "unauthorized",
         errorMessage: "Unauthorized.",
       });
     });
@@ -247,7 +247,7 @@ describe("cdpApiClient", () => {
         }),
       ).rejects.toMatchObject({
         statusCode: 404,
-        errorType: HttpErrorType.not_found,
+        errorType: "not_found",
         errorMessage: "API not found.",
       });
     });
@@ -272,7 +272,7 @@ describe("cdpApiClient", () => {
         }),
       ).rejects.toMatchObject({
         statusCode: 502,
-        errorType: HttpErrorType.bad_gateway,
+        errorType: "bad_gateway",
         errorMessage: "Bad gateway.",
       });
     });
@@ -297,16 +297,16 @@ describe("cdpApiClient", () => {
         }),
       ).rejects.toMatchObject({
         statusCode: 503,
-        errorType: HttpErrorType.service_unavailable,
+        errorType: "service_unavailable",
         errorMessage: "Service unavailable. Please try again later.",
       });
     });
 
-    it("should handle unexpected status code error", async () => {
+    it("should handle unexpected status code error with no response data", async () => {
       const axiosError = {
         response: {
           status: 418, // I'm a teapot
-          data: {},
+          data: null,
         },
         request: {},
         isAxiosError: true,
@@ -322,26 +322,113 @@ describe("cdpApiClient", () => {
         }),
       ).rejects.toMatchObject({
         statusCode: 418,
-        errorType: HttpErrorType.unexpected_error,
+        errorType: "unexpected_error",
         errorMessage: "An unexpected error occurred.",
       });
     });
 
-    it("should handle network error with no response by rethrowing the error", async () => {
+    it("should handle unexpected status code error with string response data", async () => {
       const axiosError = {
+        response: {
+          status: 418,
+          data: "Custom error message from server",
+        },
         request: {},
-        response: undefined,
         isAxiosError: true,
       };
 
       (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
       (Axios.isAxiosError as any).mockReturnValue(true);
-      await expect(() =>
+
+      await expect(
         cdpApiClient({
           url: "/test-endpoint",
           method: "GET",
         }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(`[UnknownApiError]`);
+      ).rejects.toMatchObject({
+        statusCode: 418,
+        errorType: "unexpected_error",
+        errorMessage: 'An unexpected error occurred: "Custom error message from server"',
+      });
+    });
+
+    it("should handle unexpected status code error with object response data", async () => {
+      const axiosError = {
+        response: {
+          status: 418,
+          data: { error: "Something went wrong", code: "ERR_001" },
+        },
+        request: {},
+        isAxiosError: true,
+      };
+
+      (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
+      (Axios.isAxiosError as any).mockReturnValue(true);
+
+      await expect(
+        cdpApiClient({
+          url: "/test-endpoint",
+          method: "GET",
+        }),
+      ).rejects.toMatchObject({
+        statusCode: 418,
+        errorType: "unexpected_error",
+        errorMessage:
+          'An unexpected error occurred: {"error":"Something went wrong","code":"ERR_001"}',
+      });
+    });
+
+    it("should handle unexpected status code error with circular reference in response data", async () => {
+      // Create object with circular reference
+      const circularObj: any = { error: "test error" };
+      circularObj.self = circularObj;
+
+      const axiosError = {
+        response: {
+          status: 418,
+          data: circularObj,
+        },
+        request: {},
+        isAxiosError: true,
+      };
+
+      (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
+      (Axios.isAxiosError as any).mockReturnValue(true);
+
+      await expect(
+        cdpApiClient({
+          url: "/test-endpoint",
+          method: "GET",
+        }),
+      ).rejects.toMatchObject({
+        statusCode: 418,
+        errorType: "unexpected_error",
+        errorMessage: "An unexpected error occurred: [object Object]",
+      });
+    });
+
+    it("should handle network error with no response by throwing NetworkError", async () => {
+      const axiosError = {
+        request: {},
+        response: undefined,
+        isAxiosError: true,
+        message: "Network Error",
+      };
+
+      (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
+      (Axios.isAxiosError as any).mockReturnValue(true);
+
+      await expect(
+        cdpApiClient({
+          url: "/test-endpoint",
+          method: "GET",
+        }),
+      ).rejects.toMatchObject({
+        name: "NetworkError",
+        statusCode: 0,
+        errorType: "network_connection_failed",
+        errorMessage: "Network error occurred. Please check your connection and try again.",
+      });
     });
 
     it("should handle non-Axios errors by rethrowing the error", async () => {
@@ -398,6 +485,143 @@ describe("cdpApiClient", () => {
         },
       });
       expect(result).toEqual(responseData);
+    });
+
+    it("should handle network connection refused error", async () => {
+      const axiosError = {
+        request: {},
+        response: undefined,
+        isAxiosError: true,
+        code: "ECONNREFUSED",
+        message: "connect ECONNREFUSED 127.0.0.1:443",
+      };
+
+      (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
+      (Axios.isAxiosError as any).mockReturnValue(true);
+
+      await expect(
+        cdpApiClient({
+          url: "/test-endpoint",
+          method: "GET",
+        }),
+      ).rejects.toMatchObject({
+        name: "NetworkError",
+        statusCode: 0,
+        errorType: "network_connection_failed",
+        errorMessage: "Unable to connect to CDP service. The service may be unavailable.",
+        networkDetails: {
+          code: "ECONNREFUSED",
+          message: "connect ECONNREFUSED 127.0.0.1:443",
+          retryable: true,
+        },
+      });
+    });
+
+    it("should handle network timeout error", async () => {
+      const axiosError = {
+        request: {},
+        response: undefined,
+        isAxiosError: true,
+        code: "ETIMEDOUT",
+        message: "Request timeout",
+      };
+
+      (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
+      (Axios.isAxiosError as any).mockReturnValue(true);
+
+      await expect(
+        cdpApiClient({
+          url: "/test-endpoint",
+          method: "GET",
+        }),
+      ).rejects.toMatchObject({
+        name: "NetworkError",
+        statusCode: 0,
+        errorType: "network_timeout",
+        errorMessage: "Request timed out. Please try again.",
+      });
+    });
+
+    it("should handle IP blocklist error (403 with gateway message)", async () => {
+      const axiosError = {
+        response: {
+          status: 403,
+          data: "Forbidden: Your IP address is blocked",
+        },
+        request: {},
+        isAxiosError: true,
+      };
+
+      (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
+      (Axios.isAxiosError as any).mockReturnValue(true);
+
+      await expect(
+        cdpApiClient({
+          url: "/test-endpoint",
+          method: "GET",
+        }),
+      ).rejects.toMatchObject({
+        name: "NetworkError",
+        statusCode: 0,
+        errorType: "network_ip_blocked",
+        errorMessage: "Access denied. Your IP address may be blocked or restricted.",
+        networkDetails: {
+          code: "IP_BLOCKED",
+          message: "Forbidden: Your IP address is blocked",
+          retryable: false,
+        },
+      });
+    });
+
+    it("should handle regular 403 error without gateway message", async () => {
+      const axiosError = {
+        response: {
+          status: 403,
+          data: { someField: "someValue" },
+        },
+        request: {},
+        isAxiosError: true,
+      };
+
+      (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
+      (Axios.isAxiosError as any).mockReturnValue(true);
+
+      await expect(
+        cdpApiClient({
+          url: "/test-endpoint",
+          method: "GET",
+        }),
+      ).rejects.toMatchObject({
+        statusCode: 403,
+        errorType: "unauthorized",
+        errorMessage: "Forbidden. You don't have permission to access this resource.",
+      });
+    });
+
+    it("should handle network error with no message or code", async () => {
+      const axiosError = {
+        request: {},
+        response: undefined,
+        isAxiosError: true,
+        // No message or code properties
+      };
+
+      (mockAxiosInstance as any).mockRejectedValueOnce(axiosError);
+      (Axios.isAxiosError as any).mockReturnValue(true);
+
+      await expect(
+        cdpApiClient({
+          url: "/test-endpoint",
+          method: "GET",
+        }),
+      ).rejects.toMatchObject({
+        name: "NetworkError",
+        statusCode: 0,
+        errorType: "unknown",
+        networkDetails: {
+          retryable: true,
+        },
+      });
     });
   });
 });

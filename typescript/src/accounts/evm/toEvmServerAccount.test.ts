@@ -9,7 +9,8 @@ import { CdpOpenApiClientType, PaymentMethod, Transfer } from "../../openapi-cli
 import { TransferOptions } from "../../actions/evm/transfer/types.js";
 import { sendSwapTransaction } from "../../actions/evm/swap/sendSwapTransaction.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
-import { SwapOptions } from "../../actions/evm/types.js";
+import { AccountSwapOptions } from "../../actions/evm/swap/types.js";
+import { useSpendPermission } from "../../actions/evm/spend-permissions/account.use.js";
 
 vi.mock("viem", async () => {
   const actual = await vi.importActual("viem");
@@ -60,6 +61,34 @@ vi.mock("../../actions/evm/swap/createSwapQuote.js", () => ({
   }),
 }));
 
+vi.mock("../../actions/evm/spend-permissions/account.use.js", () => ({
+  useSpendPermission: vi.fn().mockResolvedValue({ transactionHash: "0xmocktransactionhash" }),
+}));
+
+vi.mock("./resolveViemClients.js", () => ({
+  resolveViemClients: vi.fn().mockResolvedValue({
+    publicClient: {
+      waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: "success" }),
+    },
+    walletClient: {
+      sendTransaction: vi.fn().mockResolvedValue("0xtransactionhash"),
+    },
+    chain: {
+      id: 8453, // base chain ID
+      name: "Base",
+    },
+  }),
+}));
+
+vi.mock("./toNetworkScopedEvmServerAccount.js", () => ({
+  toNetworkScopedEvmServerAccount: vi.fn().mockImplementation(async options => ({
+    ...options.account,
+    network: options.network,
+    sendTransaction: options.account.sendTransaction,
+    waitForTransactionReceipt: vi.fn().mockResolvedValue({ status: "success" }),
+  })),
+}));
+
 describe("toEvmServerAccount", () => {
   let mockApiClient: CdpOpenApiClientType;
   let mockAccount: EvmAccount;
@@ -69,7 +98,7 @@ describe("toEvmServerAccount", () => {
   let mockTransfer: Transfer;
 
   beforeEach(() => {
-    mockAddress = "0x123456789abcdef" as Address;
+    mockAddress = "0x0000000000000000000000000000000000000000" as Address;
     mockPaymentMethods = [
       {
         id: "0xmockpaymentmethodid",
@@ -147,6 +176,8 @@ describe("toEvmServerAccount", () => {
       transfer: expect.any(Function),
       type: "evm-server",
       waitForFundOperationReceipt: expect.any(Function),
+      useNetwork: expect.any(Function),
+      useSpendPermission: expect.any(Function),
     });
   });
 
@@ -184,31 +215,91 @@ describe("toEvmServerAccount", () => {
     });
   });
 
-  it("should call apiClient.signEvmTypedData when signTypedData is called", async () => {
-    const message = {
-      domain: {
-        name: "EIP712Domain",
-        chainId: 1,
-        verifyingContract: "0x0000000000000000000000000000000000000000" as `0x${string}`,
-      },
-      types: {
-        EIP712Domain: [
-          { name: "name", type: "string" },
-          { name: "chainId", type: "uint256" },
-          { name: "verifyingContract", type: "address" },
-        ],
-      },
-      primaryType: "EIP712Domain",
-      message: {
-        name: "EIP712Domain",
-        chainId: 1,
-        verifyingContract: "0x0000000000000000000000000000000000000000",
-      },
-    };
+  describe("signTypedData", () => {
+    it("should call apiClient.signEvmTypedData when signTypedData is called", async () => {
+      const message = {
+        domain: {
+          name: "EIP712Domain",
+          chainId: 1n,
+          verifyingContract: "0x0000000000000000000000000000000000000000" as Address,
+        },
+        types: {
+          EIP712Domain: [
+            { name: "name", type: "string" },
+            { name: "chainId", type: "uint256" },
+            { name: "verifyingContract", type: "address" },
+          ],
+        },
+        primaryType: "EIP712Domain",
+      } as const;
 
-    await serverAccount.signTypedData(message);
+      await serverAccount.signTypedData(message);
 
-    expect(mockApiClient.signEvmTypedData).toHaveBeenCalledWith(mockAddress, message);
+      expect(mockApiClient.signEvmTypedData).toHaveBeenCalledWith(mockAddress, message);
+    });
+
+    it("should include the EIP712Domain type if it is not provided", async () => {
+      const message = {
+        domain: {
+          name: "EIP712Domain",
+          chainId: 1,
+          verifyingContract: "0x0000000000000000000000000000000000000000" as Address,
+        },
+        types: {},
+        primaryType: "EIP712Domain",
+      } as const;
+
+      await serverAccount.signTypedData(message);
+
+      expect(mockApiClient.signEvmTypedData).toHaveBeenCalledWith(mockAddress, {
+        ...message,
+        types: {
+          EIP712Domain: [
+            { name: "name", type: "string" },
+            { name: "chainId", type: "uint256" },
+            { name: "verifyingContract", type: "address" },
+          ],
+        },
+      });
+    });
+  });
+
+  describe("useNetwork", () => {
+    it("should create a network-scoped account", async () => {
+      const mockAccount = {
+        address: mockAddress,
+        name: "test-account",
+        policies: [],
+      };
+      const mockEvmServerAccount = toEvmServerAccount(mockApiClient, {
+        account: mockAccount,
+      });
+
+      const networkAccount = await mockEvmServerAccount.useNetwork("base");
+
+      expect(networkAccount.network).toBe("base");
+      expect(networkAccount.address).toBe(mockEvmServerAccount.address);
+      expect(networkAccount.name).toBe(mockEvmServerAccount.name);
+    });
+
+    it("should support different networks", async () => {
+      const mockAccount = {
+        address: mockAddress,
+        name: "test-account",
+        policies: [],
+      };
+      const mockEvmServerAccount = toEvmServerAccount(mockApiClient, {
+        account: mockAccount,
+      });
+
+      const baseAccount = await mockEvmServerAccount.useNetwork("base");
+      const sepoliaAccount = await mockEvmServerAccount.useNetwork("base-sepolia");
+      const customAccount = await mockEvmServerAccount.useNetwork("https://custom-rpc.example.com");
+
+      expect(baseAccount.network).toBe("base");
+      expect(sepoliaAccount.network).toBe("base-sepolia");
+      expect(customAccount.network).toBe("https://custom-rpc.example.com");
+    });
   });
 
   it("should call transfer action when transfer is called", async () => {
@@ -231,12 +322,12 @@ describe("toEvmServerAccount", () => {
 
   it("should call sendSwapTransaction when swap is called", async () => {
     const swapOptions = {
-      network: "base",
+      network: "base" as const,
       toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" as Address,
       fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
       fromAmount: BigInt("1000000000000000000"),
       taker: mockAddress,
-    } as SwapOptions;
+    } as AccountSwapOptions;
 
     const result = await serverAccount.swap(swapOptions);
 
@@ -250,8 +341,8 @@ describe("toEvmServerAccount", () => {
 
   it("should call sendSwapTransaction with pre-created swap quote", async () => {
     const mockSwapQuote = {
-      liquidityAvailable: true,
-      network: "base",
+      liquidityAvailable: true as const,
+      network: "base" as const,
       toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" as Address,
       fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
       fromAmount: BigInt("1000000000000000000"),
@@ -272,17 +363,17 @@ describe("toEvmServerAccount", () => {
       transaction: {
         to: "0x000000000022D473030F116dDEE9F6B43aC78BA3" as Address,
         data: "0x12345678" as Hex,
-        gas: "300000",
-        value: "0",
+        gas: BigInt("300000"),
+        value: BigInt("0"),
+        gasPrice: BigInt("1500000000"),
       },
       permit2: undefined,
       execute: vi.fn(),
     };
 
     const swapOptions = {
-      network: "base", // Network is still required for backward compatibility
       swapQuote: mockSwapQuote,
-    } as SwapOptions;
+    };
 
     const result = await serverAccount.swap(swapOptions);
 
@@ -297,7 +388,7 @@ describe("toEvmServerAccount", () => {
 
   it("should call createSwapQuote when quoteSwap is called", async () => {
     const quoteOptions = {
-      network: "base",
+      network: "base" as const,
       fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" as Address,
       toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" as Address,
       fromAmount: BigInt("1000000000000000000"),
@@ -396,5 +487,39 @@ describe("toEvmServerAccount", () => {
     });
 
     expect(mockApiClient.getPaymentTransfer).toHaveBeenCalledWith("0xmocktransferid");
+  });
+
+  it("should call useSpendPermission action when useSpendPermission is called", async () => {
+    await serverAccount.useSpendPermission({
+      spendPermission: {
+        account: mockAddress,
+        spender: mockAddress,
+        token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        allowance: parseUnits("0.000001", 6),
+        period: 1000,
+        start: 0,
+        end: 1000,
+        salt: 0n,
+        extraData: "0x",
+      },
+      value: parseUnits("0.000001", 6),
+      network: "base-sepolia",
+    });
+
+    expect(useSpendPermission).toHaveBeenCalledWith(mockApiClient, mockAddress, {
+      spendPermission: {
+        account: mockAddress,
+        spender: mockAddress,
+        token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        allowance: parseUnits("0.000001", 6),
+        period: 1000,
+        start: 0,
+        end: 1000,
+        salt: 0n,
+        extraData: "0x",
+      },
+      value: parseUnits("0.000001", 6),
+      network: "base-sepolia",
+    });
   });
 });

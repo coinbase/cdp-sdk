@@ -3,8 +3,8 @@
 # SDK_DEFAULT_SOURCE (str): Denotes the default source for the Python SDK.
 SDK_DEFAULT_SOURCE = "sdk"
 
-"""The public RSA key used to encrypt the private key when importing an EVM account."""
-ImportEvmAccountPublicRSAKey = """-----BEGIN PUBLIC KEY-----
+"""The public RSA key used to encrypt the private key when importing an EVM or Solana account."""
+ImportAccountPublicRSAKey = """-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA2Fxydgm/ryYk0IexQIuL
 9DKyiIk2WmS36AZ83a9Z0QX53qdveg08b05g1Qr+o+COoYOT/FDi8anRGAs7rIyS
 uigrjHR6VrmFjnGrrTr3MINwC9cYQFHwET8YVGRq+BB3iFTB1kIb9XJ/vT2sk1xP

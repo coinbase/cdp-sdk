@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CdpOpenApiClientType } from "../../../openapi-client/index.js";
 import { Address } from "../../../types/misc.js";
 import { parseEther } from "viem";
-import { quoteFund, QuoteFundOptions } from "./quoteFund.js";
+import { quoteFund, EvmQuoteFundOptions } from "./quoteFund.js";
 
 describe("quoteFund", () => {
   const address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" as Address;
@@ -46,7 +46,7 @@ describe("quoteFund", () => {
     updatedAt: "2021-01-01T00:00:00.000Z",
   };
 
-  const mockTransfer = {
+  const mockBaseTransfer = {
     id: "0xmocktransferid",
     sourceType: "payment_method",
     source: {
@@ -74,13 +74,13 @@ describe("quoteFund", () => {
     vi.clearAllMocks();
   });
 
-  it("should get quote to fund ETH", async () => {
+  it("should get quote to fund ETH on Base", async () => {
     const mockApiClient = {
       getPaymentMethods: vi.fn().mockResolvedValue(mockPaymentMethods),
       createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockEthTransfer }),
     } as unknown as CdpOpenApiClientType;
 
-    const quoteFundArgs: QuoteFundOptions = {
+    const quoteFundArgs: EvmQuoteFundOptions = {
       address: address,
       amount: parseEther("1"),
       token: "eth",
@@ -117,13 +117,56 @@ describe("quoteFund", () => {
     expect(result.fees[0].currency).toEqual("usd");
   });
 
-  it("should get quote to fund USDC", async () => {
+  it("should get quote to fund ETH on Ethereum", async () => {
     const mockApiClient = {
       getPaymentMethods: vi.fn().mockResolvedValue(mockPaymentMethods),
-      createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockTransfer }),
+      createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockEthTransfer }),
     } as unknown as CdpOpenApiClientType;
 
-    const quoteFundArgs: QuoteFundOptions = {
+    const quoteFundArgs: EvmQuoteFundOptions = {
+      address: address,
+      amount: parseEther("1"),
+      token: "eth",
+      network: "ethereum",
+    };
+
+    const result = await quoteFund(mockApiClient, quoteFundArgs);
+
+    expect(mockApiClient.getPaymentMethods).toHaveBeenCalled();
+
+    expect(mockApiClient.createPaymentTransferQuote).toHaveBeenCalledWith({
+      sourceType: "payment_method",
+      source: {
+        id: "0xmockpaymentmethodid",
+      },
+      targetType: "crypto_rail",
+      target: {
+        network: "ethereum",
+        address: address,
+        currency: "eth",
+      },
+      amount: "1",
+      currency: "eth",
+    });
+
+    expect(result.quoteId).toEqual("0xmocktransferid");
+    expect(result.network).toEqual("ethereum");
+    expect(result.fiatAmount).toEqual("1000");
+    expect(result.fiatCurrency).toEqual("usd");
+    expect(result.token).toEqual("eth");
+    expect(result.tokenAmount).toEqual("1");
+    expect(result.fees[0].type).toEqual("exchange_fee");
+    expect(result.fees[0].amount).toEqual("1");
+    expect(result.fees[0].currency).toEqual("usd");
+  });
+
+  it("should get quote to fund USDC on Base", async () => {
+    const mockApiClient = {
+      getPaymentMethods: vi.fn().mockResolvedValue(mockPaymentMethods),
+      createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockBaseTransfer }),
+    } as unknown as CdpOpenApiClientType;
+
+    const quoteFundArgs: EvmQuoteFundOptions = {
       address: address,
       amount: 1000000n, // 1 USDC
       token: "usdc",
@@ -158,13 +201,54 @@ describe("quoteFund", () => {
     expect(result.fees).toHaveLength(0);
   });
 
+  it("should get quote to fund USDC on Ethereum", async () => {
+    const mockApiClient = {
+      getPaymentMethods: vi.fn().mockResolvedValue(mockPaymentMethods),
+      createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockBaseTransfer }),
+    } as unknown as CdpOpenApiClientType;
+
+    const quoteFundArgs: EvmQuoteFundOptions = {
+      address: address,
+      amount: 1000000n, // 1 USDC
+      token: "usdc",
+      network: "ethereum",
+    };
+
+    const result = await quoteFund(mockApiClient, quoteFundArgs);
+
+    expect(mockApiClient.getPaymentMethods).toHaveBeenCalled();
+
+    expect(mockApiClient.createPaymentTransferQuote).toHaveBeenCalledWith({
+      sourceType: "payment_method",
+      source: {
+        id: "0xmockpaymentmethodid",
+      },
+      targetType: "crypto_rail",
+      target: {
+        network: "ethereum",
+        address: address,
+        currency: "usdc",
+      },
+      amount: "1",
+      currency: "usdc",
+    });
+
+    expect(result.quoteId).toEqual("0xmocktransferid");
+    expect(result.network).toEqual("ethereum");
+    expect(result.fiatAmount).toEqual("1");
+    expect(result.fiatCurrency).toEqual("usd");
+    expect(result.token).toEqual("usdc");
+    expect(result.tokenAmount).toEqual("1");
+    expect(result.fees).toHaveLength(0);
+  });
+
   it("should throw error when no payment methods available", async () => {
     const mockApiClient = {
       getPaymentMethods: vi.fn().mockResolvedValue([]),
       createPaymentTransferQuote: vi.fn(),
     } as unknown as CdpOpenApiClientType;
 
-    const quoteFundArgs: QuoteFundOptions = {
+    const quoteFundArgs: EvmQuoteFundOptions = {
       address: address,
       amount: 1000000000000000000n, // 1 ETH
       token: "eth",
