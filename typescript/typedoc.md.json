@@ -11,8 +11,8 @@
     "./src/auth/**"
   ],
   "entryPointStrategy": "resolve",
-  "out": "./docs",
-  "plugin": [],
+  "out": "./docs-md",
+  "plugin": ["typedoc-plugin-markdown"],
   "excludePrivate": true,
   "excludeInternal": true,
   "excludeProtected": false,
@@ -69,5 +69,6 @@
   "mergeReadme": true,
   "hidePageHeader": true,
   "hideBreadcrumbs": true,
-  "useCodeBlocks": true
+  "useCodeBlocks": true,
+  "publicPath": "/sdks/cdp-sdks-v2/typescript"
 }
