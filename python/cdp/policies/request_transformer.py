@@ -16,12 +16,20 @@ from cdp.openapi_client.models.evm_typed_string_condition import EvmTypedStringC
 from cdp.openapi_client.models.known_abi_type import KnownAbiType
 from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterion
 from cdp.openapi_client.models.net_usd_change_criterion import NetUSDChangeCriterion
+from cdp.openapi_client.models.prepare_user_operation_criteria_inner import (
+    PrepareUserOperationCriteriaInner,
+)
+from cdp.openapi_client.models.prepare_user_operation_rule import PrepareUserOperationRule
 from cdp.openapi_client.models.rule import Rule
 from cdp.openapi_client.models.send_evm_transaction_criteria_inner import (
     SendEvmTransactionCriteriaInner,
 )
 from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransactionRule
 from cdp.openapi_client.models.send_sol_transaction_rule import SendSolTransactionRule
+from cdp.openapi_client.models.send_user_operation_criteria_inner import (
+    SendUserOperationCriteriaInner,
+)
+from cdp.openapi_client.models.send_user_operation_rule import SendUserOperationRule
 from cdp.openapi_client.models.sign_evm_hash_rule import SignEvmHashRule
 from cdp.openapi_client.models.sign_evm_message_criteria_inner import SignEvmMessageCriteriaInner
 from cdp.openapi_client.models.sign_evm_message_rule import SignEvmMessageRule
@@ -302,6 +310,113 @@ openapi_criterion_mapping = {
             )
         ),
     },
+    "prepareUserOperation": {
+        "ethValue": lambda c: PrepareUserOperationCriteriaInner(
+            actual_instance=EthValueCriterion(
+                eth_value=c.ethValue,
+                operator=c.operator,
+                type="ethValue",
+            )
+        ),
+        "evmAddress": lambda c: PrepareUserOperationCriteriaInner(
+            actual_instance=EvmAddressCriterion(
+                addresses=c.addresses,
+                operator=c.operator,
+                type="evmAddress",
+            )
+        ),
+        "evmNetwork": lambda c: PrepareUserOperationCriteriaInner(
+            actual_instance=EvmNetworkCriterion(
+                networks=c.networks,
+                operator=c.operator,
+                type="evmNetwork",
+            )
+        ),
+        "evmData": lambda c: PrepareUserOperationCriteriaInner(
+            actual_instance=EvmDataCriterion(
+                type="evmData",
+                abi=EvmDataCriterionAbi(
+                    actual_instance=(KnownAbiType(c.abi) if isinstance(c.abi, str) else c.abi)
+                ),
+                conditions=[
+                    OpenAPIEvmDataCondition(
+                        function=cond.function,
+                        params=[
+                            EvmDataConditionParamsInner(
+                                actual_instance=(
+                                    EvmDataParameterConditionList(
+                                        name=param.name,
+                                        operator=param.operator,
+                                        values=param.values,
+                                    )
+                                    if hasattr(param, "values")
+                                    else EvmDataParameterCondition(
+                                        name=param.name,
+                                        operator=param.operator,
+                                        value=param.value,
+                                    )
+                                )
+                            )
+                            for param in cond.params
+                        ]
+                        if cond.params
+                        else None,
+                    )
+                    for cond in c.conditions
+                ],
+            )
+        ),
+    },
+    "sendUserOperation": {
+        "ethValue": lambda c: SendUserOperationCriteriaInner(
+            actual_instance=EthValueCriterion(
+                eth_value=c.ethValue,
+                operator=c.operator,
+                type="ethValue",
+            )
+        ),
+        "evmAddress": lambda c: SendUserOperationCriteriaInner(
+            actual_instance=EvmAddressCriterion(
+                addresses=c.addresses,
+                operator=c.operator,
+                type="evmAddress",
+            )
+        ),
+        "evmData": lambda c: SendUserOperationCriteriaInner(
+            actual_instance=EvmDataCriterion(
+                type="evmData",
+                abi=EvmDataCriterionAbi(
+                    actual_instance=(KnownAbiType(c.abi) if isinstance(c.abi, str) else c.abi)
+                ),
+                conditions=[
+                    OpenAPIEvmDataCondition(
+                        function=cond.function,
+                        params=[
+                            EvmDataConditionParamsInner(
+                                actual_instance=(
+                                    EvmDataParameterConditionList(
+                                        name=param.name,
+                                        operator=param.operator,
+                                        values=param.values,
+                                    )
+                                    if hasattr(param, "values")
+                                    else EvmDataParameterCondition(
+                                        name=param.name,
+                                        operator=param.operator,
+                                        value=param.value,
+                                    )
+                                )
+                            )
+                            for param in cond.params
+                        ]
+                        if cond.params
+                        else None,
+                    )
+                    for cond in c.conditions
+                ],
+            )
+        ),
+    },
 }
 
 # OpenAPI rule constructor mapping
@@ -313,6 +428,8 @@ openapi_rule_mapping = {
     "signEvmTypedData": SignEvmTypedDataRule,
     "signSolTransaction": SignSolTransactionRule,
     "sendSolTransaction": SendSolTransactionRule,
+    "prepareUserOperation": PrepareUserOperationRule,
+    "sendUserOperation": SendUserOperationRule,
 }
 
 

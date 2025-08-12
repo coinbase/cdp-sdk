@@ -10,8 +10,10 @@ from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.policies.request_transformer import map_request_rules_to_openapi_format
 from cdp.policies.types import (
     CreatePolicyOptions,
+    EvmNetworkCriterion,
     MintAddressCriterion,
     NetUSDChangeCriterion,
+    PrepareUserOperationRule,
     SendEvmTransactionRule,
     SendSolanaTransactionRule,
     SignEvmTransactionRule,
@@ -352,6 +354,87 @@ async def test_create_policy_with_netusdchange_criteria(
                         type="netUSDChange",
                         changeCents=10000,
                         operator=">",
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_evmnetwork_criteria(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with evmNetwork criterion."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="evmnetwork",
+        rules=[
+            PrepareUserOperationRule(
+                action="reject",
+                operation="prepareUserOperation",
+                criteria=[
+                    EvmNetworkCriterion(
+                        type="evmNetwork",
+                        networks=[
+                            "base-sepolia",
+                            "base",
+                            "arbitrum",
+                            "optimism",
+                            "zora",
+                            "polygon",
+                            "bnb",
+                            "avalanche",
+                            "ethereum",
+                            "ethereum-sepolia",
+                        ],
+                        operator="in",
+                    ),
+                ],
+            ),
+            SendEvmTransactionRule(
+                action="reject",
+                operation="sendEvmTransaction",
+                criteria=[
+                    EvmNetworkCriterion(
+                        type="evmNetwork",
+                        networks=[
+                            "base",
+                            "base-sepolia",
+                            "ethereum",
+                            "ethereum-sepolia",
+                            "avalanche",
+                            "polygon",
+                            "optimism",
+                            "arbitrum",
+                        ],
+                        operator="in",
                     ),
                 ],
             ),
