@@ -1877,8 +1877,6 @@ describe("CDP Client E2E Tests", () => {
     });
   });
 
-  // Skipping due to flakiness where this test is run concurrently with other tests,
-  // causing other unrelated tests to fail due to policy violations.
   describe("Policy Evaluation", () => {
     const policyViolation = {
       statusCode: 403,
@@ -1887,8 +1885,8 @@ describe("CDP Client E2E Tests", () => {
     let policy: Policy;
 
     // Use a pool of accounts to prevent linear account growth
-    const testEvmAccountNames = Array.from({ length: 10 }, (_, i) => `EVM E2E Account ${i + 1}`)
-    const testSolAccountNames = Array.from({ length: 10 }, (_, i) => `SOL E2E Account ${i + 1}`)
+    const testEvmAccountNames = Array.from({ length: 10 }, (_, i) => `EVME2EAccount${i + 1}`);
+    const testSolAccountNames = Array.from({ length: 10 }, (_, i) => `SOLE2EAccount${i + 1}`);
 
     let policyTestAccount: typeof testAccount;
     let policySolanaTestAccount: typeof testSolanaAccount;
