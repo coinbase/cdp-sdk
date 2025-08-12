@@ -4,6 +4,7 @@ from cdp.__version__ import __version__
 from cdp.analytics import Analytics, wrap_class_with_error_tracking
 from cdp.api_clients import ApiClients
 from cdp.constants import SDK_DEFAULT_SOURCE
+from cdp.end_user_client import EndUserClient
 from cdp.evm_client import EvmClient
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.policies_client import PoliciesClient
@@ -91,6 +92,7 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
         self._evm = EvmClient(self.api_clients)
         self._solana = SolanaClient(self.api_clients)
         self._policies = PoliciesClient(self.api_clients)
+        self._end_user = EndUserClient(self.api_clients)
         self._closed = False
 
         if (
@@ -122,6 +124,12 @@ For more information, see: https://github.com/coinbase/cdp-sdk/blob/main/python/
         """Get the PoliciesClient instance."""
         self._check_closed()
         return self._policies
+
+    @property
+    def end_user(self) -> EndUserClient:
+        """Get the EndUserClient instance."""
+        self._check_closed()
+        return self._end_user
 
     def _check_closed(self) -> None:
         """Check if the client has been closed and raise an appropriate error."""
