@@ -1166,15 +1166,13 @@ async def test_get_user_operation():
 @pytest.mark.asyncio
 async def test_list_token_balances(evm_token_balances_model_factory):
     """Test listing EVM token balances."""
-    mock_evm_token_balances_api = AsyncMock()
+    mock_onchain_data_api = AsyncMock()
     mock_api_clients = AsyncMock()
-    mock_api_clients.evm_token_balances = mock_evm_token_balances_api
+    mock_api_clients.onchain_data = mock_onchain_data_api
 
     mock_token_balances = evm_token_balances_model_factory()
 
-    mock_evm_token_balances_api.list_evm_token_balances = AsyncMock(
-        return_value=mock_token_balances
-    )
+    mock_onchain_data_api.list_data_token_balances = AsyncMock(return_value=mock_token_balances)
 
     expected_result = ListTokenBalancesResult(
         balances=[
@@ -1198,7 +1196,7 @@ async def test_list_token_balances(evm_token_balances_model_factory):
 
     result = await client.list_token_balances(address=test_address, network=test_network)
 
-    mock_evm_token_balances_api.list_evm_token_balances.assert_called_once_with(
+    mock_onchain_data_api.list_data_token_balances.assert_called_once_with(
         address=test_address, network=test_network, page_size=None, page_token=None
     )
 

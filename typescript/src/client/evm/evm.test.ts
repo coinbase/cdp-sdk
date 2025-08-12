@@ -60,6 +60,7 @@ vi.mock("../../openapi-client", () => {
       listEvmAccounts: vi.fn(),
       listEvmSmartAccounts: vi.fn(),
       listEvmTokenBalances: vi.fn(),
+      listDataTokenBalances: vi.fn(),
       prepareUserOperation: vi.fn(),
       requestEvmFaucet: vi.fn(),
       sendEvmTransaction: vi.fn(),
@@ -1195,10 +1196,10 @@ describe("EvmClient", () => {
     const clientTokenBalances = [clientTokenBalance1, clientTokenBalance2, clientTokenBalance3];
 
     it("should list token balances", async () => {
-      const listEvmTokenBalancesMock = CdpOpenApiClient.listEvmTokenBalances as MockedFunction<
-        typeof CdpOpenApiClient.listEvmTokenBalances
+      const listDataTokenBalancesMock = CdpOpenApiClient.listDataTokenBalances as MockedFunction<
+        typeof CdpOpenApiClient.listDataTokenBalances
       >;
-      listEvmTokenBalancesMock.mockResolvedValue({
+      listDataTokenBalancesMock.mockResolvedValue({
         balances: serverTokenBalances,
       });
 
@@ -1207,7 +1208,7 @@ describe("EvmClient", () => {
         network: "base-sepolia",
       });
 
-      expect(CdpOpenApiClient.listEvmTokenBalances).toHaveBeenCalledWith(
+      expect(CdpOpenApiClient.listDataTokenBalances).toHaveBeenCalledWith(
         "base-sepolia",
         "0xa12539f14e2fc01c4f9360deb0745528b3946048",
         {
