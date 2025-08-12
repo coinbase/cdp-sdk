@@ -514,7 +514,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
         )
 
         return await list_token_balances(
-            self.__api_clients.evm_token_balances,
+            self.__api_clients.onchain_data,
             self.address,
             network,
             page_size,

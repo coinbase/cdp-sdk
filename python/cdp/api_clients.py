@@ -4,6 +4,7 @@ from cdp.openapi_client.api.evm_smart_accounts_api import EVMSmartAccountsApi
 from cdp.openapi_client.api.evm_swaps_api import EVMSwapsApi
 from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
+from cdp.openapi_client.api.onchain_data_api import OnchainDataApi
 from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
@@ -44,6 +45,7 @@ class ApiClients:
         self._evm_swaps: EVMSwapsApi | None = None
         self._evm_token_balances: EVMTokenBalancesApi | None = None
         self._faucets: FaucetsApi | None = None
+        self._onchain_data: OnchainDataApi | None = None
         self._solana_accounts: SolanaAccountsApi | None = None
         self._solana_token_balances: SolanaTokenBalancesApi | None = None
         self._policies: PolicyEngineApi | None = None
@@ -154,6 +156,22 @@ class ApiClients:
         if self._faucets is None:
             self._faucets = FaucetsApi(api_client=self._cdp_client)
         return self._faucets
+
+    @property
+    def onchain_data(self) -> OnchainDataApi:
+        """Get the OnchainDataApi client instance.
+
+        Returns:
+            OnchainDataApi: The OnchainDataApi client instance.
+
+        Note:
+            This property lazily initializes the OnchainDataApi client on first access.
+
+        """
+        self._check_closed()
+        if self._onchain_data is None:
+            self._onchain_data = OnchainDataApi(api_client=self._cdp_client)
+        return self._onchain_data
 
     @property
     def solana_accounts(self) -> SolanaAccountsApi:

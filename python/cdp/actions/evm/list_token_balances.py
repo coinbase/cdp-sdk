@@ -4,11 +4,11 @@ from cdp.evm_token_balances import (
     EvmTokenBalance,
     ListTokenBalancesResult,
 )
-from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
+from cdp.openapi_client.api.onchain_data_api import OnchainDataApi
 
 
 async def list_token_balances(
-    evm_token_balances: EVMTokenBalancesApi,
+    onchain_data: OnchainDataApi,
     address: str,
     network: str,
     page_size: int | None = None,
@@ -17,7 +17,7 @@ async def list_token_balances(
     """List the token balances for an address on a given network.
 
     Args:
-        evm_token_balances (EVMTokenBalancesApi): The EVM token balances API.
+        onchain_data (OnchainDataApi): The onchain data API.
         address (str): The address to list the token balances for.
         network (str): The network to list the token balances for.
         page_size (int, optional): The number of token balances to return per page. Defaults to None.
@@ -27,7 +27,7 @@ async def list_token_balances(
         ListTokenBalancesResult: The token balances for the address.
 
     """
-    response = await evm_token_balances.list_evm_token_balances(
+    response = await onchain_data.list_data_token_balances(
         address=address, network=network, page_size=page_size, page_token=page_token
     )
     return ListTokenBalancesResult(
