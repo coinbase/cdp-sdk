@@ -12,7 +12,7 @@
     "check:auth-crypto-imports": "tsx scripts/check-auth-crypto-imports.ts",
     "clean": "rm -rf src/_esm src/_cjs src/_types",
     "docs": "typedoc --options ./typedoc.json",
-    "docs:md": "typedoc --plugin typedoc-plugin-markdown --out ./docs-md",
+    "docs:md": "typedoc --options ./typedoc.json --plugin typedoc-plugin-markdown --out ./docs-md",
     "format": "prettier -c .prettierrc --write \"**/*.{ts,js,cjs,json,md}\" && tsx scripts/sort-msw-index.ts",
     "format:check": "prettier -c .prettierrc --check \"**/*.{ts,js,cjs,json,md}\"",
     "lint": "eslint -c .eslintrc.json \"src/**/*.ts\"",

@@ -63,5 +63,12 @@
     "notExported": true,
     "invalidLink": true,
     "notDocumented": false
-  }
+  },
+  "fileExtension": ".mdx",
+  "entryFileName": "index",
+  "mergeReadme": true,
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "useCodeBlocks": true,
+  "useHTMLEncodedBrackets": true
 }
