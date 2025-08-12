@@ -547,7 +547,7 @@ class EvmClient:
         track_action(action="list_token_balances", properties={"network": network})
 
         return await list_token_balances(
-            self.api_clients.evm_token_balances,
+            self.api_clients.onchain_data,
             address,
             network,
             page_size,
