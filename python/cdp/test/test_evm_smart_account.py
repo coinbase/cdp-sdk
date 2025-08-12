@@ -87,9 +87,7 @@ async def test_list_token_balances(smart_account_factory, evm_token_balances_mod
 
     mock_token_balances = evm_token_balances_model_factory()
 
-    mock_onchain_data_api.list_data_token_balances = AsyncMock(
-        return_value=mock_token_balances
-    )
+    mock_onchain_data_api.list_data_token_balances = AsyncMock(return_value=mock_token_balances)
 
     expected_result = ListTokenBalancesResult(
         balances=[
