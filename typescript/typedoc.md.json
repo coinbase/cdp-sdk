@@ -2,13 +2,20 @@
   "entryPoints": [
     "./src/client/cdp.ts",
     "./src/client/evm/**",
-    "./src/client/solana/**",
-    "./src/client/policies/**",
+    "./src/client/solana/solana.ts",
+    "./src/client/solana/solana.types.ts",
+    "./src/client/policies/policies.ts",
+    "./src/client/policies/policies.types.ts",
     "./src/accounts/evm/types.ts",
     "./src/accounts/solana/types.ts",
     "./src/actions/evm/types.ts",
     "./src/actions/solana/types.ts",
-    "./src/auth/**"
+    "./src/auth/hooks/axios/withAuth.ts",
+    "./src/auth/utils/hash.ts",
+    "./src/auth/utils/http.ts",
+    "./src/auth/utils/jwt.ts",
+    "./src/auth/utils/ws.ts",
+    "./src/auth/errors.ts"
   ],
   "entryPointStrategy": "resolve",
   "out": "./docs-md",
@@ -70,5 +77,6 @@
   "hidePageHeader": true,
   "hideBreadcrumbs": true,
   "useCodeBlocks": true,
-  "publicPath": "/sdks/cdp-sdks-v2/typescript"
+  "publicPath": "/sdks/cdp-sdks-v2/typescript",
+  "router": "module"
 }
