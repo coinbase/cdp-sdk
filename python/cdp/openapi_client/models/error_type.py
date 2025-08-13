@@ -53,6 +53,10 @@ class ErrorType(str, Enum):
     GUEST_TRANSACTION_LIMIT = 'guest_transaction_limit'
     GUEST_TRANSACTION_COUNT = 'guest_transaction_count'
     PHONE_NUMBER_VERIFICATION_EXPIRED = 'phone_number_verification_expired'
+    DOCUMENT_VERIFICATION_FAILED = 'document_verification_failed'
+    RECIPIENT_ALLOWLIST_VIOLATION = 'recipient_allowlist_violation'
+    RECIPIENT_ALLOWLIST_PENDING = 'recipient_allowlist_pending'
+    TRAVEL_RULES_RECIPIENT_VIOLATION = 'travel_rules_recipient_violation'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
