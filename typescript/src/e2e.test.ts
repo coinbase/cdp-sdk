@@ -802,6 +802,11 @@ describe("CDP Client E2E Tests", () => {
   });
 
   it("should list evm token balances", async () => {
+    if (process.env.CDP_E2E_SKIP_EVM_TOKEN_BALANCES === "true") {
+      console.log("Skipping token balances test as per environment variable");
+      return;
+    }
+
     const address = "0x5b76f5B8fc9D700624F78208132f91AD4e61a1f0";
 
     const firstPage = await cdp.evm.listTokenBalances({
@@ -975,6 +980,11 @@ describe("CDP Client E2E Tests", () => {
 
     describe("list token balances", () => {
       it("should list token balances", async () => {
+        if (process.env.CDP_E2E_SKIP_EVM_TOKEN_BALANCES === "true") {
+          console.log("Skipping token balances test as per environment variable");
+          return;
+        }
+
         const balances = await testAccount.listTokenBalances({
           network: "base-sepolia",
         });
@@ -1102,6 +1112,11 @@ describe("CDP Client E2E Tests", () => {
 
     describe("list token balances", () => {
       it("should list token balances", async () => {
+        if (process.env.CDP_E2E_SKIP_EVM_TOKEN_BALANCES === "true") {
+          console.log("Skipping token balances test as per environment variable");
+          return;
+        }
+
         const balances = await testSmartAccount.listTokenBalances({
           network: "base-sepolia",
         });
