@@ -509,6 +509,10 @@ async def test_evm_request_faucet_for_account(cdp_client):
 @pytest.mark.asyncio
 async def test_list_evm_token_balances_for_account(cdp_client):
     """Test listing evm token balances for a server account."""
+    if os.getenv("CDP_E2E_SKIP_EVM_TOKEN_BALANCES"):
+        print("Skipping EVM token balances test due to environment variable.")
+        return
+
     account = await cdp_client.evm.get_or_create_account(name=test_account_name)
     assert account is not None
 
@@ -538,6 +542,10 @@ async def test_evm_request_faucet_for_smart_account(cdp_client):
 @pytest.mark.asyncio
 async def test_list_evm_token_balances_for_smart_account(cdp_client):
     """Test listing evm token balances for a smart account."""
+    if os.getenv("CDP_E2E_SKIP_EVM_TOKEN_BALANCES"):
+        print("Skipping EVM token balances test due to environment variable.")
+        return
+
     account = await cdp_client.evm.get_or_create_account(name="E2ESmartAccount")
     assert account is not None
 
@@ -554,6 +562,10 @@ async def test_list_evm_token_balances_for_smart_account(cdp_client):
 @pytest.mark.asyncio
 async def test_list_evm_token_balances(cdp_client):
     """Test listing evm token balances."""
+    if os.getenv("CDP_E2E_SKIP_EVM_TOKEN_BALANCES"):
+        print("Skipping EVM token balances test due to environment variable.")
+        return
+
     address = "0x5b76f5B8fc9D700624F78208132f91AD4e61a1f0"
 
     first_page = await cdp_client.evm.list_token_balances(
@@ -2155,6 +2167,10 @@ async def test_use_network_evm_smart_account(cdp_client):
     assert network_smart_account.policies == orig_policies
     assert network_smart_account.owner == owner
     assert network_smart_account.network == network
+
+    if os.getenv("CDP_E2E_SKIP_EVM_TOKEN_BALANCES"):
+        print("Skipping EVM token balances test due to environment variable.")
+        return
 
     balances = await network_smart_account.list_token_balances()
     assert balances is not None
