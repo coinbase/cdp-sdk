@@ -76,6 +76,7 @@
   "mergeReadme": true,
   "hidePageHeader": true,
   "hideBreadcrumbs": true,
+  "hidePageTitle": true,
   "useCodeBlocks": true,
   "publicPath": "/sdks/cdp-sdks-v2/typescript",
   "router": "module",
