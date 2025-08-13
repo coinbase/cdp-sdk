@@ -8,7 +8,7 @@ from web3 import Web3
 from cdp.errors import UserInputValidationError
 
 # Supported networks for swap
-SUPPORTED_SWAP_NETWORKS = ["base", "ethereum"]
+SUPPORTED_SWAP_NETWORKS = ["base", "ethereum", "arbitrum", "optimism"]
 
 
 class SwapUnavailableResult(BaseModel):
