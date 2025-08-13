@@ -1,5 +1,0 @@
----
-"@coinbase/cdp-sdk": minor
----
-
-Migrated listTokenBalances to use new data endpoint with significantly improved performance: <1sec data freshness, <500ms query latency, and 100% token balance completeness across all addresses on Base and Base Sepolia networks
