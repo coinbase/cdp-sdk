@@ -235,7 +235,7 @@ async def main():
         print('Please uncomment the code below to execute the swap.')
         
         # Uncomment below to execute actual swap (requires sufficient balance and allowances)
-        
+        """
         try:
             result = await network_account.swap(
                 AccountSwapOptions( # TODO revise
@@ -264,9 +264,7 @@ async def main():
                 print(f"Transaction Explorer: https://arbiscan.io/tx/{result.transaction_hash}")
         except Exception as error:
             print(f"Failed to swap on {NETWORK}: {error}")
-        
-
-        # recomment to here
+        """
 
         # Example 3. account.quote_swap() + execute
         # This demonstrates the quote-then-execute pattern for more control.
@@ -302,7 +300,7 @@ async def main():
             print('Please uncomment the code below to execute the swap.')
             
             # Uncomment to actually execute:
-            
+            """
             result = await swap_quote.execute()
             print(f"Transaction Hash: {result.transaction_hash}")
             print(f"Waiting for confirmation...")
@@ -319,8 +317,7 @@ async def main():
                 print(f"Transaction Explorer: https://explorer.optimism.io/tx/{result.transaction_hash}")
             elif NETWORK == 'arbitrum':
                 print(f"Transaction Explorer: https://arbiscan.io/tx/{result.transaction_hash}")
-            
-            # recomment to here
+            """
             
         except Exception as error:
             print(f"Quote and execute pattern failed on {NETWORK}: {error}")

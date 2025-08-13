@@ -32,7 +32,7 @@ from web3 import Web3
 load_dotenv()
 
 # Network configuration
-NETWORK = "arbitrum"  # "optimism" or "arbitrum" for this example
+NETWORK = "optimism"  # "optimism" or "arbitrum" for this example
 
 # Token definitions for different networks
 TOKENS = {
@@ -218,7 +218,7 @@ async def main():
         print('Please uncomment the code below to execute the swap.')
         
         # Uncomment below to execute actual smart account swap (requires sufficient balance and allowances)
-        
+        """
         try:
             result = await network_smart_account.swap(
                 SmartAccountSwapOptions(
@@ -246,9 +246,7 @@ async def main():
                 print(f"Transaction Explorer: https://arbiscan.io/tx/{result.user_op_hash}")
         except Exception as error:
             print(f"Failed to swap with smart account on {NETWORK}: {error}")
-        
-
-        # recomment to here
+        """
 
         # Example 3. smart_account.quote_swap() + execute
         # This demonstrates the quote-then-execute pattern for smart accounts with more control.
@@ -284,7 +282,7 @@ async def main():
             print('Please uncomment the code below to execute the swap.')
             
             # Uncomment to actually execute:
-            
+            """
             print(f"✅ Conditions met, executing smart account swap...")
             result = await swap_quote.execute()
             print(f"User Operation Hash: {result.user_op_hash}")
@@ -301,9 +299,7 @@ async def main():
                 print(f"Transaction Explorer: https://explorer.optimism.io/tx/{result.user_op_hash}")
             elif NETWORK == 'arbitrum':
                 print(f"Transaction Explorer: https://arbiscan.io/tx/{result.user_op_hash}")
-            
-
-            # recomment to here
+            """
             
         except Exception as error:
             print(f"Smart account quote and execute pattern failed on {NETWORK}: {error}")
