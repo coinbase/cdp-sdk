@@ -1,5 +1,15 @@
 # CDP SDK Changelog
 
+## 1.35.0
+
+### Minor Changes
+
+- [#379](https://github.com/coinbase/cdp-sdk/pull/379) [`3e5a0ba`](https://github.com/coinbase/cdp-sdk/commit/3e5a0ba7f3be43ad9a142bd91e9e26043d2eab19) Thanks [@sabrinahirani](https://github.com/sabrinahirani)! - Added support for swaps on optimism and arbitrum with code examples
+
+- [#394](https://github.com/coinbase/cdp-sdk/pull/394) [`726b392`](https://github.com/coinbase/cdp-sdk/commit/726b3921b6e871539e1c9d708af255f5ba8178e4) Thanks [@rebelArtists](https://github.com/rebelArtists)! - Migrated listTokenBalances to use new data endpoint with significantly improved performance: <1sec data freshness, <500ms query latency, and 100% token balance completeness across all addresses on Base and Base Sepolia networks
+
+- [#387](https://github.com/coinbase/cdp-sdk/pull/387) [`bae7b30`](https://github.com/coinbase/cdp-sdk/commit/bae7b30d97d44418ab4b18a06020c79f532add5b) Thanks [@sammccord](https://github.com/sammccord)! - Added additional network support for sendEvmTransaction and prepareUserOperation evmNetwork policy criteria
+
 ## 1.34.1
 
 ### Patch Changes
