@@ -78,5 +78,10 @@
   "hideBreadcrumbs": true,
   "useCodeBlocks": true,
   "publicPath": "/sdks/cdp-sdks-v2/typescript",
-  "router": "module"
+  "router": "module",
+  "expandObjects": true,
+  "expandParameters": true,
+  "parametersFormat": "table",
+  "interfacePropertiesFormat": "table",
+  "classPropertiesFormat": "table"
 }
