@@ -137,6 +137,10 @@ export const ErrorType = {
   guest_transaction_limit: "guest_transaction_limit",
   guest_transaction_count: "guest_transaction_count",
   phone_number_verification_expired: "phone_number_verification_expired",
+  document_verification_failed: "document_verification_failed",
+  recipient_allowlist_violation: "recipient_allowlist_violation",
+  recipient_allowlist_pending: "recipient_allowlist_pending",
+  travel_rules_recipient_violation: "travel_rules_recipient_violation",
 } as const;
 
 /**
@@ -443,6 +447,8 @@ export interface SpendPermissionResponseObject {
   revokedAt?: string;
   /** The UTC ISO 8601 timestamp when the permission was created. */
   createdAt: string;
+  /** The network the spend permission is on. */
+  network: SpendPermissionNetwork;
 }
 
 export interface RevokeSpendPermissionRequest {

@@ -4852,6 +4852,22 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Invalid fiat rail.
+                document_verification_failed:
+                  value:
+                    errorType: document_verification_failed
+                    errorMessage: The user has not verified their identity for their coinbase.com account.
+                recipient_allowlist_violation:
+                  value:
+                    errorType: recipient_allowlist_violation
+                    errorMessage: The user is not allowed to receive funds at this address, according to their coinbase account allowlist.
+                recipient_allowlist_pending:
+                  value:
+                    errorType: recipient_allowlist_pending
+                    errorMessage: The user is not allowed to receive funds at this address, because changes to their coinbase account allowlist are pending.
+                travel_rules_recipient_violation:
+                  value:
+                    errorType: travel_rules_recipient_violation
+                    errorMessage: The user is not allowed to receive funds at this address, because it violates travel rules.
         '401':
           description: Unauthorized.
           content:
@@ -5381,6 +5397,10 @@ components:
         - guest_transaction_limit
         - guest_transaction_count
         - phone_number_verification_expired
+        - document_verification_failed
+        - recipient_allowlist_violation
+        - recipient_allowlist_pending
+        - travel_rules_recipient_violation
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -5681,6 +5701,23 @@ components:
           **Steps to resolve:**
           1. Re-verify the user's phone number via OTP.
           2. Retry the request with the phoneNumberVerifiedAt field set to new verification timestamp.
+        document_verification_failed: |-
+          This error occurs when the user has not verified their identity for their coinbase.com account.
+          **Steps to resolve:**
+          1. Verify your coinbase account identity with valid documents at https://www.coinbase.com/settings/account-levels.
+        recipient_allowlist_violation: |-
+          This error occurs when the user is not allowed to receive funds at this address, according to their coinbase account allowlist.
+          **Steps to resolve:**
+          1. Either disable the allowlist or add the wallet address at https://www.coinbase.com/settings/allowlist
+          2. Wait approximately 2 days for updates to take effect.
+        recipient_allowlist_pending: |-
+          This error occurs when the user is not allowed to receive funds at this address, because changes to their coinbase account allowlist are pending.
+          **Steps to resolve:**
+          1. Wait approximately 2 days for updates to take effect.
+        travel_rules_recipient_violation: |-
+          This error occurs when the user is not allowed to receive funds at this address, because it violates travel rules.
+          **Steps to resolve:**
+          1. Ensure your desired transfer is not blocked by local travel regulations.
     Error:
       description: An error response including the code for the type of error and a human-readable message describing the error.
       type: object
@@ -6202,11 +6239,15 @@ components:
           description: The UTC ISO 8601 timestamp when the permission was created.
           example: '2025-03-25T12:00:00Z'
           format: date-time
+        network:
+          $ref: '#/components/schemas/SpendPermissionNetwork'
+          description: The network the spend permission is on.
       required:
         - permission
         - permissionHash
         - revoked
         - createdAt
+        - network
     RevokeSpendPermissionRequest:
       type: object
       properties:
