@@ -727,6 +727,143 @@ async def test_use_network(server_account_model_factory):
 
 
 @pytest.mark.asyncio
+async def test_use_network_with_rpc_url_base(server_account_model_factory, capsys):
+    """Test creating a network-scoped account using the use_network method with a custom RPC URL."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    network = "https://mainnet.base.org"
+
+    server_account_model = server_account_model_factory(address, name)
+    from unittest.mock import AsyncMock, MagicMock
+
+    from cdp.evm_server_account import EvmServerAccount
+
+    # Create proper mock API clients
+    mock_api_clients = AsyncMock()
+    mock_evm_accounts_api = AsyncMock()
+
+    # Create a mock response object with the transaction_hash attribute
+    mock_response = SendEvmTransaction200Response(transaction_hash="0x1234567890abcdef")
+    mock_evm_accounts_api.send_evm_transaction = AsyncMock(return_value=mock_response)
+
+    # Create a mock signed transaction response for sign_evm_transaction
+    mock_signed_tx = MagicMock()
+    mock_signed_tx.signed_transaction = (
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    )
+    mock_evm_accounts_api.sign_evm_transaction = AsyncMock(return_value=mock_signed_tx)
+
+    account = EvmServerAccount(server_account_model, mock_evm_accounts_api, mock_api_clients)
+
+    # Test the use_network method
+    network_account = asyncio.get_event_loop().run_until_complete(
+        account.__experimental_use_network__(network)
+    )
+
+    assert network_account.network == "base"
+
+    # Test that send_transaction works and returns the expected result
+    send_transaction_result = await network_account.send_transaction(
+        transaction=TransactionRequestEIP1559(
+            to="0x1234567890123456789012345678901234567890", value=1000000000000000000
+        )
+    )
+
+    # Verify the result is returned correctly
+    assert send_transaction_result == "0x1234567890abcdef"
+
+    # Verify the confirmation message was printed
+    captured = capsys.readouterr()
+    expected_message = (
+        "Transaction sent! Network: base RPC: https://mainnet.base.org Hash: 0x1234567890abcdef"
+    )
+    assert (
+        expected_message in captured.out
+    ), f"Expected confirmation message not found in output: {captured.out}"
+
+
+@pytest.mark.asyncio
+async def test_use_network_with_rpc_url_custom(server_account_model_factory, capsys):
+    """Test creating a network-scoped account using the use_network method with a custom RPC URL."""
+    address = "0x1234567890123456789012345678901234567890"
+    name = "test-account"
+    network = "https://polygon-rpc.com"
+
+    server_account_model = server_account_model_factory(address, name)
+    from unittest.mock import AsyncMock, MagicMock, patch
+
+    from cdp.evm_server_account import EvmServerAccount
+
+    # Create proper mock API clients
+    mock_api_clients = AsyncMock()
+    mock_evm_accounts_api = AsyncMock()
+
+    # Create a mock signed transaction response for sign_evm_transaction
+    mock_signed_tx = MagicMock()
+    # Create a properly sized signed transaction (65 bytes: 32 for r, 32 for s, 1 for v)
+    # Need exactly 130 characters: 65 bytes * 2 for hex representation
+    mock_signed_tx.signed_transaction = "0x" + "1234567890abcdef" * 8 + "1b"
+    mock_evm_accounts_api.sign_evm_transaction = AsyncMock(return_value=mock_signed_tx)
+
+    account = EvmServerAccount(server_account_model, mock_evm_accounts_api, mock_api_clients)
+
+    # Mock the web3 object that will be created in the network-scoped account
+    mock_web3 = MagicMock()
+    mock_web3.eth.send_transaction.return_value = b"\x12\x34\x56\x78\x90\xab\xcd\xef"
+    mock_web3.toHex.return_value = "0x1234567890abcdef"
+    mock_web3.eth.chain_id = 137  # Polygon mainnet chain ID
+    mock_web3.eth.get_transaction_count.return_value = 0  # Mock nonce
+
+    # Mock fill_transaction to return a proper transaction dictionary instead of a MagicMock
+    def mock_fill_transaction(tx_dict):
+        filled_tx = tx_dict.copy()
+        filled_tx.update(
+            {
+                "type": "0x2",  # EIP-1559 transaction type
+                "chainId": 137,
+                "nonce": 0,
+                "maxFeePerGas": 2000000000,  # 2 gwei
+                "maxPriorityFeePerGas": 1000000000,  # 1 gwei
+                "gas": 21000,
+            }
+        )
+        return filled_tx
+
+    mock_web3.eth.fill_transaction.side_effect = mock_fill_transaction
+
+    # Mock web3 account creation
+    mock_web3_account = MagicMock()
+    mock_web3_account.address = address
+
+    # Test the use_network method with Web3 mock
+    with patch("cdp.network_scoped_evm_server_account.Web3") as mock_web3_class:
+        mock_web3_class.return_value = mock_web3
+        network_account = await account.__experimental_use_network__(network)
+
+    # Mock the _get_web3_account method directly to return our mock account
+    network_account._get_web3_account = AsyncMock(return_value=mock_web3_account)
+
+    # Test that send_transaction works and returns the expected result
+    send_transaction_result = await network_account.send_transaction(
+        transaction=TransactionRequestEIP1559(
+            to="0x1234567890123456789012345678901234567890", value=1000000000000000000
+        ).as_dict()
+    )
+
+    # Verify the result is returned correctly
+    assert send_transaction_result == "0x1234567890abcdef"
+
+    # Verify the confirmation message was printed
+    captured = capsys.readouterr()
+    expected_message = (
+        "Transaction sent! Network: polygon RPC: https://polygon-rpc.com Hash: 0x1234567890abcdef"
+    )
+    assert (
+        expected_message in captured.out
+    ), f"Expected confirmation message not found in output: {captured.out}"
+
+
+@pytest.mark.asyncio
 async def test_fund_transfer_usdc_on_base(
     server_account_model_factory, payment_transfer_model_factory, payment_method_model_factory
 ):

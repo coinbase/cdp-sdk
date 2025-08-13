@@ -1,5 +1,7 @@
 """Network configuration for EVM chains."""
 
+from web3 import Web3
+
 # Network to chain ID mapping
 NETWORK_TO_CHAIN_ID: dict[str, int] = {
     # Ethereum networks
@@ -54,6 +56,32 @@ def get_network_name(chain_id: int) -> str | None:
 
     """
     return CHAIN_ID_TO_NETWORK.get(chain_id)
+
+
+def resolve_chain_id_from_rpc_url(rpc_url: str) -> int:
+    """Resolve chain ID from an RPC URL by making a call to the endpoint.
+
+    Args:
+        rpc_url: The RPC URL to resolve
+
+    Returns:
+        Chain ID for the network
+
+    Raises:
+        ValueError: If the RPC URL is invalid or the chain ID cannot be resolved
+        Exception: If there's an error connecting to the RPC endpoint
+
+    """
+    try:
+        # Create a temporary web3 instance to get the chain ID
+        w3 = Web3(Web3.HTTPProvider(rpc_url))
+
+        # Get the chain ID
+        chain_id = w3.eth.chain_id
+
+        return chain_id
+    except Exception as e:
+        raise ValueError(f"Failed to resolve chain ID from RPC URL {rpc_url}: {e!s}") from e
 
 
 def is_supported_network(network: str) -> bool:

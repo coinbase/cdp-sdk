@@ -2416,3 +2416,38 @@ def generate_random_name():
 
     last_char = chars[floor(random.random() * len(chars))]
     return first_char + middle_part + last_char
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_use_network_with_rpc_url_base(cdp_client):
+    """Test creating a network-scoped account using the use_network method with a managed network RPC URL and verifying wait_for_transaction_receipt uses it."""
+    from unittest.mock import MagicMock, patch
+
+    rpc_url = os.getenv("CDP_E2E_BASE_SEPOLIA_RPC_URL")
+    if not rpc_url:
+        pytest.skip("CDP_E2E_BASE_SEPOLIA_RPC_URL is not set")
+
+    # Create an account
+    account = await cdp_client.evm.get_or_create_account(name=test_account_name)
+
+    # Use the use_network method with a managed network RPC URL (base-sepolia)
+    network_account = await account.__experimental_use_network__(rpc_url)
+
+    # Assert network scoping reflects custom RPC and resolved network
+    assert network_account.rpc_url == rpc_url
+    assert network_account.network == "base-sepolia"
+
+    # Mock Web3 to verify the RPC URL is used by wait_for_transaction_receipt
+    with patch("cdp.network_scoped_evm_server_account.Web3") as mock_web3:
+        mock_web3_instance = MagicMock()
+        mock_web3.return_value = mock_web3_instance
+        mock_web3_instance.eth.wait_for_transaction_receipt.return_value = {"status": 1}
+
+        receipt = await network_account.wait_for_transaction_receipt("0x123")
+        assert receipt is not None
+        assert receipt["status"] == 1
+
+        # Verify HTTPProvider and Web3 were initialized with the provided RPC URL
+        mock_web3.HTTPProvider.assert_called_once_with(rpc_url)
+        mock_web3.assert_called_once_with(mock_web3.HTTPProvider.return_value)
