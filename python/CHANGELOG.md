@@ -2,6 +2,19 @@
 
 <!-- towncrier release notes start -->
 
+## [1.30.0] - 2025-08-13
+
+### Features
+
+- Added access token validation to SDK ([#389](https://github.com/coinbase/cdp-sdk/pull/389))
+- Migrated listTokenBalances to use new data endpoint with significantly improved performance: <1sec data freshness, <500ms query latency, and 100% token balance completeness across all addresses on Base and Base Sepolia networks ([#394](https://github.com/coinbase/cdp-sdk/pull/394))
+- Added additional network support for sendEvmTransaction and prepareUserOperation evmNetwork policy criteria ([#1446](https://github.com/coinbase/cdp-sdk/pull/1446))
+
+### Misc
+
+- [#388](https://github.com/coinbase/cdp-sdk/pull/388)
+
+
 ## [1.29.1] - 2025-08-09
 
 ### Bugfixes
