@@ -19,7 +19,7 @@
   ],
   "entryPointStrategy": "resolve",
   "out": "./docs-md",
-  "plugin": ["typedoc-plugin-markdown"],
+  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter"],
   "excludePrivate": true,
   "excludeInternal": true,
   "excludeProtected": false,
@@ -82,7 +82,7 @@
   "router": "module",
   "expandObjects": true,
   "expandParameters": true,
-  "parametersFormat": "table",
-  "interfacePropertiesFormat": "table",
-  "classPropertiesFormat": "table"
+  "readmeFrontmatter": {
+    "title": "Introduction"
+  }
 }
