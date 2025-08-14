@@ -20,6 +20,7 @@ import type {
   EvmSmartAccount,
   KnownEvmNetworks,
   NetworkScopedEvmSmartAccount,
+  DistributedOmit,
 } from "./types.js";
 import type { EvmFundOptions } from "../../actions/evm/fund/fund.js";
 import type { EvmQuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
@@ -250,7 +251,9 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
 
   if (isMethodSupportedOnNetwork("quoteSwap", options.network)) {
     Object.assign(account, {
-      quoteSwap: async (quoteSwapOptions: SmartAccountQuoteSwapOptions) => {
+      quoteSwap: async (
+        quoteSwapOptions: DistributedOmit<SmartAccountQuoteSwapOptions, "network">,
+      ) => {
         Analytics.trackAction({
           action: "quote_swap",
           accountType: "evm_smart",
@@ -273,7 +276,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
 
   if (isMethodSupportedOnNetwork("swap", options.network)) {
     Object.assign(account, {
-      swap: async (swapOptions: SmartAccountSwapOptions) => {
+      swap: async (swapOptions: DistributedOmit<SmartAccountSwapOptions, "network">) => {
         Analytics.trackAction({
           action: "swap",
           accountType: "evm_smart",
@@ -283,12 +286,20 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
           },
         });
 
+        /*
+         * For network-scoped accounts, we need to add the network parameter
+         * for inline swaps while preserving quote-based swaps as-is
+         */
+        const swapOptionsWithNetwork =
+          "swapQuote" in swapOptions
+            ? swapOptions // Quote-based swap, pass through
+            : { ...swapOptions, network: options.network as SmartAccountSwapNetwork }; // Inline swap, add network
+
         return sendSwapOperation(apiClient, {
-          ...swapOptions,
+          ...swapOptionsWithNetwork,
           smartAccount: options.smartAccount,
           taker: options.smartAccount.address,
           signerAddress: options.owner.address,
-          network: options.network as SmartAccountSwapNetwork,
           paymasterUrl: swapOptions.paymasterUrl ?? paymasterUrl,
         });
       },

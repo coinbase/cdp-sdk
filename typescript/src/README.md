@@ -601,14 +601,16 @@ All approaches handle Permit2 signatures automatically for ERC20 token swaps. Ma
 To help you get started with token swaps in your application, we provide the following fully-working examples demonstrating different scenarios:
 
 **Regular account (EOA) swap examples:**
-- [Execute a swap transaction using account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.swap.ts) - All-in-one regular account swap execution
-- [Quote swap using account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.quoteSwap.ts) - Account convenience method for creating quotes
-- [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/account.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
+- [Execute a swap transaction using account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/account.swap.ts) - All-in-one regular account swap execution
+- [Quote swap using account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/account.quoteSwap.ts) - Account convenience method for creating quotes
+- [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/account.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
+- [Swap with network hoisting](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/account.swapWithNetworkHoisting.ts) - All-in-one swap and two-step approach swap for EVM chains
 
 **Smart account swap examples:**
-- [Execute a swap transaction using smart account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.swap.ts) - All-in-one smart account swap execution with user operations and optional paymaster support
-- [Quote swap using smart account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.quoteSwap.ts) - Smart account convenience method for creating quotes
-- [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smartAccount.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
+- [Execute a swap transaction using smart account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smart-accounts/swap.ts) - All-in-one smart account swap execution with user operations and optional paymaster support
+- [Quote swap using smart account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smart-accounts/smartAccount.quoteSwap.ts) - Smart account convenience method for creating quotes
+- [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smart-accounts/smartAccount.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
+- [Smart account swap with network hoisting](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/smartAccount.swapWithNetworkHoisting.ts) - All-in-one smart account swap and two-step approach smart account swap for EVM chains
 
 **BYO wallet (viem) regular account (EOA) swap examples:**
 - [Execute a swap transaction using viem account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.account.swap.ts) - All-in-one swap execution with viem wallets

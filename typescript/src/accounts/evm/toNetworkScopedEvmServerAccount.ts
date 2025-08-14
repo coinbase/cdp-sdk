@@ -7,7 +7,7 @@ import { resolveViemClients } from "./resolveViemClients.js";
 import { transferWithViem } from "../../actions/evm/transfer/transferWithViem.js";
 import { Analytics } from "../../analytics.js";
 
-import type { EvmServerAccount, NetworkScopedEvmServerAccount } from "./types.js";
+import type { EvmServerAccount, NetworkScopedEvmServerAccount, DistributedOmit } from "./types.js";
 import type { EvmFundOptions } from "../../actions/evm/fund/fund.js";
 import type { EvmQuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
 import type { ListTokenBalancesOptions } from "../../actions/evm/listTokenBalances.js";
@@ -20,6 +20,7 @@ import type { UseSpendPermissionOptions } from "../../actions/evm/spend-permissi
 import type { AccountQuoteSwapOptions, AccountSwapOptions } from "../../actions/evm/swap/types.js";
 import type { TransferOptions } from "../../actions/evm/transfer/types.js";
 import type { WaitForFundOperationOptions } from "../../actions/waitForFundOperationReceipt.js";
+import type { EvmSwapsNetwork } from "../../openapi-client/generated/coinbaseDeveloperPlatformAPIs.schemas.js";
 import type {
   ListEvmTokenBalancesNetwork,
   SendEvmTransactionBodyNetwork,
@@ -226,7 +227,7 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
 
   if (isMethodSupportedOnNetwork("quoteSwap", resolvedNetworkName)) {
     Object.assign(account, {
-      quoteSwap: async (quoteSwapOptions: AccountQuoteSwapOptions) => {
+      quoteSwap: async (quoteSwapOptions: DistributedOmit<AccountQuoteSwapOptions, "network">) => {
         Analytics.trackAction({
           action: "quote_swap",
           accountType: "evm_server",
@@ -235,14 +236,17 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
           },
         });
 
-        return options.account.quoteSwap(quoteSwapOptions);
+        return options.account.quoteSwap({
+          ...quoteSwapOptions,
+          network: options.network as EvmSwapsNetwork,
+        });
       },
     });
   }
 
   if (isMethodSupportedOnNetwork("swap", resolvedNetworkName)) {
     Object.assign(account, {
-      swap: async (swapOptions: AccountSwapOptions) => {
+      swap: async (swapOptions: DistributedOmit<AccountSwapOptions, "network">) => {
         Analytics.trackAction({
           action: "swap",
           accountType: "evm_server",
@@ -251,7 +255,16 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
           },
         });
 
-        return options.account.swap(swapOptions);
+        /*
+         * For network-scoped accounts, we need to add the network parameter
+         * for inline swaps while preserving quote-based swaps as-is
+         */
+        const swapOptionsWithNetwork =
+          "swapQuote" in swapOptions
+            ? swapOptions // Quote-based swap, pass through
+            : { ...swapOptions, network: options.network as EvmSwapsNetwork }; // Inline swap, add network
+
+        return options.account.swap(swapOptionsWithNetwork as AccountSwapOptions);
       },
     });
   }

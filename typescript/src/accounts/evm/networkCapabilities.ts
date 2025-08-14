@@ -76,8 +76,8 @@ export const NETWORK_CAPABILITIES = {
     waitForFundOperationReceipt: false,
     transfer: false,
     sendTransaction: true, // Always available (uses wallet client for non-base networks)
-    quoteSwap: false,
-    swap: false,
+    quoteSwap: true,
+    swap: true,
     useSpendPermission: true,
   },
   "optimism-sepolia": {
@@ -100,8 +100,8 @@ export const NETWORK_CAPABILITIES = {
     waitForFundOperationReceipt: false,
     transfer: false,
     sendTransaction: true, // Always available (uses wallet client for non-base networks)
-    quoteSwap: false,
-    swap: false,
+    quoteSwap: true,
+    swap: true,
     useSpendPermission: true,
   },
   "arbitrum-sepolia": {
