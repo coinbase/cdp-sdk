@@ -1,0 +1,11 @@
+# SignEvmTransaction200Response
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**signed_transaction** | **String** | The RLP-encoded signed transaction, as a 0x-prefixed hex string. | 
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+
