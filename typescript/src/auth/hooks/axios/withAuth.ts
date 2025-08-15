@@ -1,3 +1,7 @@
+/**
+ * @module Axios
+ */
+
 import { AxiosInstance, AxiosHeaders } from "axios";
 
 import { convertBigIntsToStrings } from "../../../utils/bigint.js";

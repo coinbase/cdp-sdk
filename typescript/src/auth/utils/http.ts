@@ -1,3 +1,7 @@
+/**
+ * @module HTTP
+ */
+
 import { generateWalletJwt, generateJwt } from "./jwt.js";
 import { version } from "../../version.js";
 

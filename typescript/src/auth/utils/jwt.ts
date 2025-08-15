@@ -1,3 +1,7 @@
+/**
+ * @module JWT
+ */
+
 import { SignJWT, importPKCS8, importJWK, JWTPayload } from "jose";
 import { getRandomValues } from "uncrypto";
 

@@ -7,10 +7,10 @@
     "./src/auth/utils/ws.ts",
     "./src/auth/errors.ts"
   ],
-  "entryPointStrategy": "expand",
+  "entryPointStrategy": "resolve",
   "out": "./docs-md/auth",
   "flattenOutputFiles": true,
-  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter", "./ts-frontmatter.mjs"],
+  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter"],
   "excludePrivate": true,
   "excludeInternal": true,
   "excludeProtected": false,
@@ -53,7 +53,5 @@
   "publicPath": "/sdks/cdp-sdks-v2/typescript/auth",
   "expandObjects": true,
   "expandParameters": true,
-  "outputFileStrategy": "members",
-  "membersWithOwnFile": ["Class", "Function", "Interface", "TypeAlias", "Enum"],
-  "router": "kind"
+  "router": "module"
 }

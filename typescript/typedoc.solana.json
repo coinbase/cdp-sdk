@@ -8,7 +8,7 @@
   "entryPointStrategy": "resolve",
   "flattenOutputFiles": true,
   "out": "./docs-md/solana",
-  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter", "./ts-frontmatter.mjs"],
+  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter"],
   "excludePrivate": true,
   "excludeInternal": true,
   "excludeProtected": false,
