@@ -1,0 +1,59 @@
+{
+  "entryPoints": [
+    "./src/auth/hooks/axios/withAuth.ts",
+    "./src/auth/utils/hash.ts",
+    "./src/auth/utils/http.ts",
+    "./src/auth/utils/jwt.ts",
+    "./src/auth/utils/ws.ts",
+    "./src/auth/errors.ts"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "./docs-md/auth",
+  "flattenOutputFiles": true,
+  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter", "./ts-frontmatter.mjs"],
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "excludeProtected": false,
+  "readme": "./src/auth/README.md",
+  "name": "Overview",
+  "includeVersion": true,
+  "sort": ["kind"],
+  "kindSortOrder": [
+    "Function",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Enum",
+    "Variable"
+  ],
+  "categorizeByGroup": true,
+  "exclude": [
+    "**/tests/**/*",
+    "**/*.test.ts",
+    "**/node_modules/**/*",
+    "**/_cjs/**/*",
+    "**/_esm/**/*",
+    "**/_types/**/*",
+    "**/openapi-client/**/*"
+  ],
+  "skipErrorChecking": false,
+  "treatWarningsAsErrors": false,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "fileExtension": ".mdx",
+  "entryFileName": "Overview",
+  "mergeReadme": true,
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "hidePageTitle": true,
+  "useCodeBlocks": true,
+  "publicPath": "/sdks/cdp-sdks-v2/typescript/auth",
+  "expandObjects": true,
+  "expandParameters": true,
+  "outputFileStrategy": "members",
+  "membersWithOwnFile": ["Class", "Function", "Interface", "TypeAlias", "Enum"],
+  "router": "kind"
+}

@@ -132,7 +132,6 @@ const account = await cdp.solana.createAccount();
 ```
 
 #### Import a Solana account as follows:
-
 ```typescript
 const account = await cdp.solana.importAccount({
   privateKey: "3MLZ...Uko8zz",
@@ -187,12 +186,11 @@ const account = await cdp.solana.getOrCreateAccount({
 ```
 
 #### Get or Create a Smart Account as follows:
-
 ```typescript
 const owner = await cdp.evm.createAccount();
 const account = await cdp.evm.getOrCreateSmartAccount({
   name: "Account1",
-  owner,
+  owner
 });
 ```
 
@@ -203,8 +201,8 @@ const account = await cdp.evm.getOrCreateSmartAccount({
 ```typescript
 const account = await cdp.evm.createAccount({
   name: "AccountWithPolicy",
-  accountPolicy: "abcdef12-3456-7890-1234-567890123456",
-});
+  accountPolicy: "abcdef12-3456-7890-1234-567890123456"
+})
 ```
 
 #### Create a Solana account with policy as follows:
@@ -212,8 +210,8 @@ const account = await cdp.evm.createAccount({
 ```typescript
 const account = await cdp.solana.createAccount({
   name: "AccountWithPolicy",
-  accountPolicy: "abcdef12-3456-7890-1234-567890123456",
-});
+  accountPolicy: "abcdef12-3456-7890-1234-567890123456"
+})
 ```
 
 ### Updating EVM or Solana accounts
@@ -384,16 +382,16 @@ transaction.add(
     fromPubkey: new PublicKey(account.address),
     toPubkey: new PublicKey("3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE"),
     lamports: 10000,
-  }),
+  })
 );
 
 // A more recent blockhash is set in the backend by CDP
 transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
 transaction.feePayer = new PublicKey(account.address);
 
-const serializedTx = Buffer.from(transaction.serialize({ requireAllSignatures: false })).toString(
-  "base64",
-);
+const serializedTx = Buffer.from(
+  transaction.serialize({ requireAllSignatures: false })
+).toString("base64");
 
 console.log("Transaction serialized successfully");
 
@@ -403,7 +401,7 @@ const txResult = await cdp.solana.sendTransaction({
 });
 
 console.log(
-  `Transaction confirmed! Explorer link: https://explorer.solana.com/tx/${txResult.signature}?cluster=devnet`,
+  `Transaction confirmed! Explorer link: https://explorer.solana.com/tx/${txResult.signature}?cluster=devnet`
 );
 ```
 
@@ -464,7 +462,6 @@ The SDK provides three approaches for performing token swaps:
 The simplest approach for performing swaps. Creates and executes the swap in a single line of code:
 
 **Regular Account (EOA):**
-
 ```typescript
 // Retrieve an existing EVM account with funds already in it
 const account = await cdp.evm.getOrCreateAccount({ name: "MyExistingFundedAccount" });
@@ -482,14 +479,10 @@ console.log(`Swap executed: ${transactionHash}`);
 ```
 
 **Smart Account:**
-
 ```typescript
 // Create or retrieve a smart account with funds already in it
 const owner = await cdp.evm.getOrCreateAccount({ name: "MyOwnerAccount" });
-const smartAccount = await cdp.evm.getOrCreateSmartAccount({
-  name: "MyExistingFundedSmartAccount",
-  owner,
-});
+const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MyExistingFundedSmartAccount", owner });
 
 // Execute a swap directly on a smart account in one line
 const { userOpHash } = await smartAccount.swap({
@@ -518,7 +511,7 @@ const swapPrice = await cdp.evm.getSwapPrice({
   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
   fromAmount: BigInt("1000000000000000000"), // 1 WETH in wei
-  taker: "0x1234567890123456789012345678901234567890",
+  taker: "0x1234567890123456789012345678901234567890"
 });
 
 if (swapPrice.liquidityAvailable) {
@@ -536,7 +529,6 @@ Use `account.quoteSwap()` / `smartAccount.quoteSwap()` when you need full contro
 **Important:** `quoteSwap()` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `getSwapPrice` to prevent abuse.
 
 **Regular Account (EOA):**
-
 ```typescript
 // Retrieve an existing EVM account with funds already in it
 const account = await cdp.evm.getOrCreateAccount({ name: "MyExistingFundedAccount" });
@@ -561,14 +553,10 @@ const { transactionHash } = await swapQuote.execute();
 ```
 
 **Smart Account:**
-
 ```typescript
 // Create or retrieve a smart account with funds already in it
 const owner = await cdp.evm.getOrCreateAccount({ name: "MyOwnerAccount" });
-const smartAccount = await cdp.evm.getOrCreateSmartAccount({
-  name: "MyExistingFundedSmartAccount",
-  owner,
-});
+const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MyExistingFundedSmartAccount", owner });
 
 // Step 1: Create a swap quote with full transaction details for smart account
 const swapQuote = await smartAccount.quoteSwap({
@@ -613,26 +601,22 @@ All approaches handle Permit2 signatures automatically for ERC20 token swaps. Ma
 To help you get started with token swaps in your application, we provide the following fully-working examples demonstrating different scenarios:
 
 **Regular account (EOA) swap examples:**
-
 - [Execute a swap transaction using account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/account.swap.ts) - All-in-one regular account swap execution
 - [Quote swap using account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/account.quoteSwap.ts) - Account convenience method for creating quotes
 - [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/account.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
 - [Swap with network hoisting](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/account.swapWithNetworkHoisting.ts) - All-in-one swap and two-step approach swap for EVM chains
 
 **Smart account swap examples:**
-
 - [Execute a swap transaction using smart account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smart-accounts/swap.ts) - All-in-one smart account swap execution with user operations and optional paymaster support
 - [Quote swap using smart account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smart-accounts/smartAccount.quoteSwap.ts) - Smart account convenience method for creating quotes
 - [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/smart-accounts/smartAccount.quoteSwapAndExecute.ts) - Detailed two-step approach with analysis
 - [Smart account swap with network hoisting](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/swaps/smartAccount.swapWithNetworkHoisting.ts) - All-in-one smart account swap and two-step approach smart account swap for EVM chains
 
 **BYO wallet (viem) regular account (EOA) swap examples:**
-
 - [Execute a swap transaction using viem account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.account.swap.ts) - All-in-one swap execution with viem wallets
 - [Two-step quote and execute process using viem account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.account.quoteSwapAndExecute.ts) - Detailed two-step approach with viem wallets
 
 **BYO wallet (viem + account abstraction) smart account swap examples:**
-
 - [Execute a swap transaction using viem smart account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.smartAccount.swap.ts) - All-in-one smart account swap with custom bundler/paymaster setup
 - [Two-step quote and execute process using viem smart account](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/evm/viem.smartAccount.quoteSwapAndExecute.ts) - Advanced account abstraction integration
 
@@ -751,7 +735,6 @@ await sender.transfer({
   network: "base-sepolia",
 });
 ```
-
 #### Solana
 
 For complete examples, check out [solana/account.transfer.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/account.transfer.ts).
@@ -1102,178 +1085,17 @@ When your end user has signed in with an [Embedded Wallet](https://docs.cdp.coin
 ```typescript
 try {
   const endUser = await cdp.endUser.validateAccessToken({
-    accessToken,
+      accessToken,
   });
-  console.log(endUser);
-} catch (e) {
+  console.log(endUser)
+} catch(e) {
   // the access token is not valid or expired
 }
 ```
 
 ## Authentication tools
 
-This SDK also contains simple tools for authenticating REST API requests to the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/).
-
-### Overview
-
-The following methods can be used to authenticate your requests to the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). Choose the method that best suits your needs:
-
-| Method | Difficulty | Description |
-| :-- | :-- | :-- |
-| [Use an Axios request client](#use-an-axios-request-interceptor) | Easy | Use an [Axios](https://axios-http.com/docs/intro) client with a pre-configured interceptor that automatically handles authentication for all requests. |
-| [Generate your authorization headers](#generate-your-authorization-headers) | Intermediate | Generate authentication headers and apply them to your preferred HTTP client. |
-| [Generate a JWT](#generate-a-jwt) | Advanced | Generate a JWT token, manually create your authentication headers, and apply them to your preferred HTTP client. |
-
-Visit the [CDP Authentication docs](https://docs.cdp.coinbase.com/api-v2/docs/authentication) for more details.
-
-### Generate a JWT
-
-The following example shows how to generate a JWT token, which can then be injected manually into your `Authorization` header to authenticate REST API requests to the [CDP APIs](https://docs.cdp.coinbase.com/api-v2/docs/welcome) using the HTTP request library of your choice.
-
-**Step 1**: Install the required package:
-
-```bash
-npm install @coinbase/cdp-sdk
-```
-
-**Step 2**: Generate a JWT:
-
-```typescript
-import { generateJwt } from "@coinbase/cdp-sdk/auth";
-
-// For REST (HTTP) requests
-const jwt = await generateJwt({
-  apiKeyId: "YOUR_API_KEY_ID",
-  apiKeySecret: "YOUR_API_KEY_SECRET",
-  requestMethod: "GET",
-  requestHost: "api.cdp.coinbase.com",
-  requestPath: "/platform/v2/evm/accounts",
-  expiresIn: 120, // optional (defaults to 120 seconds)
-});
-
-console.log(jwt);
-
-// For websocket connections
-const websocketJwt = await generateJwt({
-  apiKeyId: "YOUR_API_KEY_ID",
-  apiKeySecret: "YOUR_API_KEY_SECRET",
-  requestMethod: null,
-  requestHost: null,
-  requestPath: null,
-  expiresIn: 120, // optional (defaults to 120 seconds)
-});
-
-console.log(websocketJwt);
-```
-
-For information about the above parameters, please refer to the [Authentication parameters](#authentication-parameters) section.
-
-**Step 3**: Use your JWT (Bearer token) in the `Authorization` header of your HTTP request:
-
-```bash
-curl -L 'https://api.cdp.coinbase.com/platform/v2/evm/accounts' \
-  -H 'Content-Type: application/json' \
-  -H 'Accept: application/json' \
-  -H 'Authorization: Bearer $jwt'
-```
-
-### Generate your authorization headers
-
-The following example shows how to generate the required authentication headers for authenticating a request to the [CDP REST APIs](https://docs.cdp.coinbase.com/api-v2/docs/welcome), using the HTTP request library of your choice.
-
-**Step 1**: Install the required package:
-
-```bash
-npm install @coinbase/cdp-sdk
-```
-
-**Step 2**: Generate authorization headers:
-
-```typescript
-import { getAuthHeaders } from "@coinbase/cdp-sdk/auth";
-
-const headers = await getAuthHeaders({
-  apiKeyId: "YOUR_API_KEY_ID",
-  apiKeySecret: "YOUR_API_KEY_SECRET",
-  walletSecret: "YOUR_WALLET_SECRET",
-  requestMethod: "POST",
-  requestHost: "api.cdp.coinbase.com",
-  requestPath: "/platform/v2/evm/accounts",
-  requestBody: {
-    name: "MyAccount",
-  },
-  expiresIn: 120, // optional (defaults to 120 seconds)
-});
-
-console.log(headers);
-```
-
-For information about the above parameters, please refer to the [Authentication parameters](#authentication-parameters) section.
-
-### Use an Axios request interceptor
-
-**Step 1**: Install the required packages:
-
-```bash
-npm install @coinbase/cdp-sdk axios
-```
-
-**Step 2**: Create an authenticated Axios client:
-
-The following example shows how to use an [Axios](https://axios-http.com/docs/intro) HTTP client with a pre-configured interceptor to authenticate your requests to the CDP REST APIs. This client will automatically add the appropriate authentication headers to each request.
-
-```typescript
-import axios from "axios";
-import { axiosHooks } from "@coinbase/cdp-sdk/auth";
-
-// Create an Axios instance
-const axiosClient = axios.create({
-  baseURL: "https://api.cdp.coinbase.com",
-});
-
-// Add authentication to the client
-axiosHooks.withAuth(axiosClient, {
-  apiKeyId: "YOUR_API_KEY_ID",
-  apiKeySecret: "YOUR_API_KEY_SECRET",
-  walletSecret: "YOUR_WALLET_SECRET",
-});
-
-// Make authenticated requests (example)
-// The appropriate authentication headers will be automatically added to the request
-try {
-  const response = await axiosClient.post("/platform/v2/evm/accounts", {
-    name: "MyAccount",
-  });
-  console.log(response.data);
-} catch (error) {
-  console.error("Request failed:", error);
-}
-```
-
-The Axios interceptor will automatically:
-
-- Generate a JWT for each request
-- Add the JWT to the `Authorization` header
-- Set the appropriate `Content-Type` header
-- Add wallet authentication when required
-
-For information about the above parameters, please refer to the [Authentication parameters](#authentication-parameters) section.
-
-### Authentication parameters
-
-The following table provides more context of many of the authentication parameters used in the examples above:
-
-| Parameter | Required | Description |
-| :-- | :-- | :-- |
-| `apiKeyId` | true | The unique identifier for your API key. Supported formats are:<br/>- `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`<br/>- `organizations/{orgId}/apiKeys/{keyId}` |
-| `apiKeySecret` | true | Your API key secret. Supported formats are:<br/>- Edwards key (Ed25519): `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==`<br/>- Elliptic Curve key (ES256): `-----BEGIN EC PRIVATE KEY-----\n...\n...\n...==\n-----END EC PRIVATE KEY-----\n` |
-| `requestMethod` | true\* | The HTTP method for the API request you're authenticating (ie, `GET`, `POST`, `PUT`, `DELETE`). Can be `null` for JWTs intended for websocket connections. |
-| `requestHost` | true\* | The API host you're calling (ie, `api.cdp.coinbase.com`). Can be `null` for JWTs intended for websocket connections. |
-| `requestPath` | true\* | The path of the specific API endpoint you're calling (ie, `/platform/v1/wallets`). Can be `null` for JWTs intended for websocket connections. |
-| `requestBody` | false | Optional request body data. |
-| `expiresIn` | false | The JWT expiration time in seconds. After this time, the JWT will no longer be valid, and a new one must be generated. Defaults to `120` (ie, 2 minutes) if not specified. |
-
-\* Either all three request parameters (`requestMethod`, `requestHost`, and `requestPath`) must be provided for REST API requests, or all three must be `null` for JWTs intended for websocket connections.
+This SDK also contains simple tools for authenticating REST API requests to the [Coinbase Developer Platform (CDP)](https://docs.cdp.coinbase.com/). See the [Auth README](src/auth/README.md) for more details.
 
 ## Error Reporting
 
