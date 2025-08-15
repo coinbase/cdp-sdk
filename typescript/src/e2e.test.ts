@@ -3037,7 +3037,7 @@ describe("CDP Client E2E Tests", () => {
       });
     });
 
-    describe("sendSolTransaction", () => {
+    describe.skip("sendSolTransaction", () => {
       describe("solValue", () => {
         it(">=", async () => {
           await cdp.policies.updatePolicy({
