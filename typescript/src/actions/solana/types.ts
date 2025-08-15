@@ -1,3 +1,7 @@
+/**
+ * @module Actions
+ */
+
 import { TransferOptions } from "./transfer.js";
 import {
   RequestFaucetOptions,

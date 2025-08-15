@@ -1,3 +1,7 @@
+/**
+ * @module Types
+ */
+
 import type {
   EvmAccount as Account,
   EvmServerAccount as ServerAccount,

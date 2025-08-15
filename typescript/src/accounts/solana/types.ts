@@ -1,3 +1,7 @@
+/**
+ * @module Accounts
+ */
+
 import { AccountActions } from "../../actions/solana/types.js";
 import { SolanaAccount as OpenAPISolanaAccount } from "../../openapi-client/index.js";
 import { Prettify } from "../../types/utils.js";
