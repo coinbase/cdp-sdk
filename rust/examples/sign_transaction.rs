@@ -1,11 +1,13 @@
+use std::env;
+
 use cdp_sdk::{CdpClient, CdpClientOptions};
 use openapi_client::models::SignEvmTransactionRequest;
-use reqwest::Response;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize the CDP client with configuration
     // You can either set environment variables or pass them as options
+
     let client = CdpClient::new(CdpClientOptions {
         api_key_id: Some("your-api-key-id".to_string()),
         api_key_secret: Some("your-api-key-secret".to_string()),

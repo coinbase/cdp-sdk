@@ -20,3 +20,11 @@ thiserror = "1.0"
 urlencoding = "2.1"
 async-trait = "0.1"
 http = "1.0"
+
+[[example]]
+name = "sign_transaction"
+path = "examples/sign_transaction.rs"
+
+[[example]]
+name = "comprehensive_api_usage"
+path = "examples/comprehensive_api_usage.rs"
