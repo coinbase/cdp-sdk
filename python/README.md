@@ -930,14 +930,16 @@ All approaches handle Permit2 signatures automatically for ERC20 token swaps. Ma
 To help you get started with token swaps in your application, we provide the following fully-working examples demonstrating different scenarios:
 
 **Regular account (EOA) swap examples:**
-- [Execute a swap transaction using account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.swap.py) - All-in-one regular account swap execution
-- [Quote swap using account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.quote_swap.py) - Account convenience method for creating quotes
-- [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/account.quote_swap_and_execute.py) - Detailed two-step approach with analysis
+- [Execute a swap transaction using account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/swaps/account.swap.py) - All-in-one regular account swap execution
+- [Quote swap using account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/swaps/account.quote_swap.py) - Account convenience method for creating quotes
+- [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/swaps/account.quote_swap_and_execute.py) - Detailed two-step approach with analysis
+- [Swap with network hoisting](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/swaps/account.swap_with_network_hoisting.py) - All-in-one swap and two-step approach swap for EVM chains
 
 **Smart account swap examples:**
-- [Execute a swap transaction using smart account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart_account.swap.py) - All-in-one smart account swap execution with user operations and optional paymaster support
-- [Quote swap using smart account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart_account.quote_swap.py) - Smart account convenience method for creating quotes
-- [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart_account.quote_swap_and_execute.py) - Detailed two-step approach with analysis
+- [Execute a swap transaction using smart account (RECOMMENDED)](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart-accounts/swap.py) - All-in-one smart account swap execution with user operations and optional paymaster support
+- [Quote swap using smart account convenience method](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart-accounts/smart_account.quote_swap.py) - Smart account convenience method for creating quotes
+- [Two-step quote and execute process](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/smart-accounts/smart_account.quote_swap_and_execute.py) - Detailed two-step approach with analysis
+- [Smart account swap with network hoisting](https://github.com/coinbase/cdp-sdk/blob/main/examples/python/evm/swaps/smart_account.swap_with_network_hoisting.py) - All-in-one smart account swap and two-step approach smart account swap for EVM chains
 
 ### EVM Smart Accounts
 

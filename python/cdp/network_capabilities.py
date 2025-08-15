@@ -121,8 +121,8 @@ NETWORK_CAPABILITIES = {
         "wait_for_fund_operation_receipt": False,
         "transfer": True,
         "send_transaction": True,
-        "quote_swap": False,
-        "swap": False,
+        "quote_swap": True,
+        "swap": True,
     },
     "arbitrum-sepolia": {
         "list_token_balances": False,
@@ -143,8 +143,8 @@ NETWORK_CAPABILITIES = {
         "wait_for_fund_operation_receipt": False,
         "transfer": True,
         "send_transaction": True,
-        "quote_swap": False,
-        "swap": False,
+        "quote_swap": True,
+        "swap": True,
     },
     "optimism-sepolia": {
         "list_token_balances": False,
