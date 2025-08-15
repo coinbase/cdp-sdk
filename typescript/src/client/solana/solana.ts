@@ -1,3 +1,7 @@
+/**
+ * @module Client
+ */
+
 import { constants, publicEncrypt } from "crypto";
 
 import bs58 from "bs58";

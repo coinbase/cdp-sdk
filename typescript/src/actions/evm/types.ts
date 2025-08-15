@@ -1,3 +1,7 @@
+/**
+ * @module Actions
+ */
+
 import { FundOperationResult } from "../types.js";
 import {
   WaitForFundOperationOptions,

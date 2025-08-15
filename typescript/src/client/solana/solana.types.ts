@@ -1,3 +1,7 @@
+/**
+ * @module Types
+ */
+
 import { Account, SolanaAccount } from "../../accounts/solana/types.js";
 import {
   ListSolanaTokenBalancesNetwork,

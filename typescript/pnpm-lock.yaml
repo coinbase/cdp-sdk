@@ -76,6 +76,9 @@ importers:
       typedoc:
         specifier: ^0.28.7
         version: 0.28.7(typescript@5.8.2)
+      typedoc-plugin-frontmatter:
+        specifier: ^1.3.0
+        version: 1.3.0(typedoc-plugin-markdown@4.8.0(typedoc@0.28.7(typescript@5.8.2)))
       typedoc-plugin-markdown:
         specifier: ^4.8.0
         version: 4.8.0(typedoc@0.28.7(typescript@5.8.2))
@@ -3234,6 +3237,11 @@ packages:
     resolution: {integrity: sha512-3KS2b+kL7fsuk/eJZ7EQdnEmQoaho/r6KUef7hxvltNA5DR8NAUM+8wJMbJyZ4G9/7i3v5zPBIMN5aybAh2/Jg==}
     engines: {node: '>= 0.4'}
 
+  typedoc-plugin-frontmatter@1.3.0:
+    resolution: {integrity: sha512-xYQFMAecMlsRUjmf9oM/Sq2FVz4zlgcbIeVFNLdO118CHTN06gIKJNSlyExh9+Xl8sK0YhIvoQwViUURxritWA==}
+    peerDependencies:
+      typedoc-plugin-markdown: '>=4.5.0'
+
   typedoc-plugin-markdown@4.8.0:
     resolution: {integrity: sha512-BQqXnT9PETe6WEFf8bcsvvGEGQHbwTo/BFyY+RUIsSB05Y0Wn56iF+fK1PY2OKJJIhV4kp4dp7osaP9Bm5a0Zw==}
     engines: {node: '>= 18'}
@@ -6383,7 +6391,7 @@ snapshots:
 
   openapi3-ts@4.4.0:
     dependencies:
-      yaml: 2.7.0
+      yaml: 2.8.0
 
   optionator@0.9.4:
     dependencies:
@@ -7016,6 +7024,11 @@ snapshots:
       is-typed-array: 1.1.15
       possible-typed-array-names: 1.1.0
       reflect.getprototypeof: 1.0.10
+
+  typedoc-plugin-frontmatter@1.3.0(typedoc-plugin-markdown@4.8.0(typedoc@0.28.7(typescript@5.8.2))):
+    dependencies:
+      typedoc-plugin-markdown: 4.8.0(typedoc@0.28.7(typescript@5.8.2))
+      yaml: 2.8.0
 
   typedoc-plugin-markdown@4.8.0(typedoc@0.27.9(typescript@5.8.2)):
     dependencies:

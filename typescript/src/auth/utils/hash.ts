@@ -1,3 +1,7 @@
+/**
+ * @module Hash
+ */
+
 import { subtle } from "uncrypto";
 
 /**

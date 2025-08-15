@@ -1,3 +1,7 @@
+/**
+ * @module Client
+ */
+
 import { constants, publicEncrypt } from "crypto";
 
 import { type Address, getTypesForEIP712Domain } from "viem";

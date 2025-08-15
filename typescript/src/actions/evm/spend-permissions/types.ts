@@ -7,7 +7,7 @@ import type { SpendPermission } from "../../../spend-permissions/types.js";
 export type UseSpendPermissionOptions = {
   /** The spend permission to use */
   spendPermission: SpendPermission;
-  /** The amount to spend (must be <= allowance) */
+  /** The amount to spend (must be &le; allowance) */
   value: bigint;
   /** The network to execute the transaction on */
   network: SpendPermissionNetwork;

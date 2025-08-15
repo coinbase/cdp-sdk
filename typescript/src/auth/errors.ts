@@ -1,4 +1,8 @@
 /**
+ * @module Errors
+ */
+
+/**
  * A class of errors for capturing stack traces.
  */
 class BaseError extends Error {

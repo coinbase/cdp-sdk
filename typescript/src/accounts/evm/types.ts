@@ -1,3 +1,7 @@
+/**
+ * @module Accounts
+ */
+
 import {
   ListTokenBalancesNetworks,
   RequestFaucetNetworks,
@@ -59,8 +63,8 @@ import type {
   WaitForTransactionReceiptParameters,
 } from "viem";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type DistributedOmit<T, K extends PropertyKey> = T extends any ? Omit<T, K> : never;
+/** @internal */
+export type DistributedOmit<T, K extends PropertyKey> = T extends any ? Omit<T, K> : never; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /**
  * Base type for any Ethereum account with signing capabilities.
@@ -88,6 +92,8 @@ export type EvmAccount = {
 
 /**
  * Known EVM networks supported by the SDK.
+ *
+ * @internal
  */
 export type KnownEvmNetworks =
   | "base"
@@ -104,6 +110,8 @@ export type KnownEvmNetworks =
 
 /**
  * Network input that accepts known networks or RPC URLs
+ *
+ * @internal
  */
 export type NetworkOrRpcUrl = KnownEvmNetworks | (string & {});
 
@@ -174,6 +182,8 @@ export type EvmSmartAccount = Prettify<EvmSmartAccountProperties & SmartAccountA
 
 /**
  * Helper type for network-specific smart account actions
+ *
+ * @internal
  */
 export type NetworkSpecificSmartAccountActions<Network extends string> = Prettify<
   // Always include sendUserOperation, waitForUserOperation and getUserOperation
@@ -257,6 +267,8 @@ export type NetworkSpecificSmartAccountActions<Network extends string> = Prettif
 
 /**
  * A network-scoped smart account
+ *
+ * @internal
  */
 export type NetworkScopedEvmSmartAccount<Network extends string = string> = Prettify<
   Omit<EvmSmartAccountProperties, "useNetwork"> &
@@ -274,6 +286,8 @@ type EmptyObject = {};
 
 /**
  * Conditional account actions based on network
+ *
+ * @internal
  */
 export type NetworkSpecificAccountActions<Network extends string> = Prettify<
   // Always include sendTransaction, transfer and waitForTransactionReceipt
@@ -349,6 +363,8 @@ export type NetworkSpecificAccountActions<Network extends string> = Prettify<
 
 /**
  * A network-scoped server-managed ethereum account
+ *
+ * @internal
  */
 export type NetworkScopedEvmServerAccount<Network extends string = string> = Prettify<
   Omit<EvmServerAccount, keyof AccountActions | "useNetwork"> &
