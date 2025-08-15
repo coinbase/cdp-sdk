@@ -9,7 +9,10 @@ import { faker } from "@faker-js/faker";
 
 import { HttpResponse, delay, http } from "msw";
 
-import { EvmUserOperationNetwork } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
+import {
+  EvmUserOperationNetwork,
+  SpendPermissionNetwork,
+} from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 import type {
   EvmSmartAccount,
   EvmUserOperation,
@@ -383,6 +386,7 @@ export const getListSpendPermissionsResponseMock = (): ListSpendPermissions200 =
         undefined,
       ]),
       createdAt: `${faker.date.past().toISOString().split(".")[0]}Z`,
+      network: faker.helpers.arrayElement(Object.values(SpendPermissionNetwork)),
     })),
   },
   ...{ nextPageToken: faker.helpers.arrayElement([faker.string.alpha(20), undefined]) },

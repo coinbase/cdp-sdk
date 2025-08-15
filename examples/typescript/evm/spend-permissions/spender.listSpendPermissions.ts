@@ -5,6 +5,8 @@
 import { CdpClient, parseUnits } from "@coinbase/cdp-sdk";
 import "dotenv/config";
 
+import { safePrettyPrint } from "../../safePrettyPrint.js";
+
 const cdp = new CdpClient();
 
 const spender = await cdp.evm.getOrCreateSmartAccount({
@@ -53,8 +55,4 @@ const permissionsForSpender = allPermissions.spendPermissions.filter(
 console.log(
   `Permissions for spender ${spender.address} granted by ${account.address}:`
 );
-prettyPrint(permissionsForSpender);
-
-function prettyPrint(obj: object) {
-  return console.log(JSON.stringify(obj, null, 2));
-}
+safePrettyPrint(permissionsForSpender);

@@ -43,7 +43,8 @@ class TestListSpendPermissions200Response(unittest.TestCase):
                         permission_hash = '0x62bc94756bb6221a7913beab6024171fc60d3380fdc06759bfac76e8ccb3f63d', 
                         revoked = False, 
                         revoked_at = '2025-03-25T12:00Z', 
-                        created_at = '2025-03-25T12:00Z', )
+                        created_at = '2025-03-25T12:00Z', 
+                        network = 'base', )
                     ]
             )
         else:
@@ -54,7 +55,8 @@ class TestListSpendPermissions200Response(unittest.TestCase):
                         permission_hash = '0x62bc94756bb6221a7913beab6024171fc60d3380fdc06759bfac76e8ccb3f63d', 
                         revoked = False, 
                         revoked_at = '2025-03-25T12:00Z', 
-                        created_at = '2025-03-25T12:00Z', )
+                        created_at = '2025-03-25T12:00Z', 
+                        network = 'base', )
                     ],
         )
         """
