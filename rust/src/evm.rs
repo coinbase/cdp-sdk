@@ -1,7 +1,7 @@
 use crate::client::CdpClient;
 use crate::error::{CdpError, Result};
-use openapi_client::apis::evm_accounts_api;
-use openapi_client::models::{
+use crate::apis::evm_accounts_api;
+use crate::models::{
     CreateEvmAccountRequest, EvmAccount, SignEvmTransactionRequest, ImportEvmAccountRequest,
     ExportEvmAccountRequest, UpdateEvmAccountRequest, SignEvmHashRequest, SignEvmMessageRequest,
     SendEvmTransactionRequest
@@ -22,7 +22,7 @@ impl<'a> EvmApi<'a> {
         &self,
         page_size: Option<i32>,
         page_token: Option<String>,
-    ) -> Result<openapi_client::models::ListEvmAccounts200Response> {
+    ) -> Result<crate::models::ListEvmAccounts200Response> {
         let config = self.client.openapi_config();
         let params = evm_accounts_api::ListEvmAccountsParams {
             page_size,
@@ -98,7 +98,7 @@ impl<'a> EvmApi<'a> {
         &self,
         address: String,
         request: ExportEvmAccountRequest,
-    ) -> Result<openapi_client::models::ExportEvmAccount200Response> {
+    ) -> Result<crate::models::ExportEvmAccount200Response> {
         let config = self.client.openapi_config();
         let params = evm_accounts_api::ExportEvmAccountParams {
             x_wallet_auth: "".to_string(), // Will be replaced by middleware
@@ -116,7 +116,7 @@ impl<'a> EvmApi<'a> {
         &self,
         name: String,
         request: ExportEvmAccountRequest,
-    ) -> Result<openapi_client::models::ExportEvmAccount200Response> {
+    ) -> Result<crate::models::ExportEvmAccount200Response> {
         let config = self.client.openapi_config();
         let params = evm_accounts_api::ExportEvmAccountByNameParams {
             x_wallet_auth: "".to_string(), // Will be replaced by middleware
@@ -151,7 +151,7 @@ impl<'a> EvmApi<'a> {
         &self,
         address: String,
         request: SignEvmHashRequest,
-    ) -> Result<openapi_client::models::SignEvmHash200Response> {
+    ) -> Result<crate::models::SignEvmHash200Response> {
         let config = self.client.openapi_config();
         let params = evm_accounts_api::SignEvmHashParams {
             x_wallet_auth: "".to_string(), // Will be replaced by middleware
@@ -169,7 +169,7 @@ impl<'a> EvmApi<'a> {
         &self,
         address: String,
         request: SignEvmMessageRequest,
-    ) -> Result<openapi_client::models::SignEvmMessage200Response> {
+    ) -> Result<crate::models::SignEvmMessage200Response> {
         let config = self.client.openapi_config();
         let params = evm_accounts_api::SignEvmMessageParams {
             x_wallet_auth: "".to_string(), // Will be replaced by middleware
@@ -186,8 +186,8 @@ impl<'a> EvmApi<'a> {
     pub async fn sign_typed_data(
         &self,
         address: String,
-        eip712_message: openapi_client::models::Eip712Message,
-    ) -> Result<openapi_client::models::SignEvmTypedData200Response> {
+        eip712_message: crate::models::Eip712Message,
+    ) -> Result<crate::models::SignEvmTypedData200Response> {
         let config = self.client.openapi_config();
         let params = evm_accounts_api::SignEvmTypedDataParams {
             x_wallet_auth: "".to_string(), // Will be replaced by middleware
@@ -205,7 +205,7 @@ impl<'a> EvmApi<'a> {
         &self,
         address: String,
         request: SendEvmTransactionRequest,
-    ) -> Result<openapi_client::models::SendEvmTransaction200Response> {
+    ) -> Result<crate::models::SendEvmTransaction200Response> {
         let config = self.client.openapi_config();
         let params = evm_accounts_api::SendEvmTransactionParams {
             x_wallet_auth: "".to_string(), // Will be replaced by middleware
@@ -223,9 +223,9 @@ impl<'a> EvmApi<'a> {
         &self,
         address: String,
         request: SignEvmTransactionRequest,
-    ) -> Result<openapi_client::models::SignEvmTransaction200Response> {
+    ) -> Result<crate::models::SignEvmTransaction200Response> {
         let config = self.client.openapi_config();
-        evm_accounts_api::sign_evm_transaction(&config, openapi_client::apis::evm_accounts_api::SignEvmTransactionParams {
+        evm_accounts_api::sign_evm_transaction(&config, crate::apis::evm_accounts_api::SignEvmTransactionParams {
             x_wallet_auth: "".to_string(),
             x_idempotency_key: None,
             address,

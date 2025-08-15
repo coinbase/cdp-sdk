@@ -18,8 +18,12 @@ help:
 # Generate Rust client from OpenAPI specification
 client:
 	@echo "Generating Rust client from OpenAPI spec..."
-	rm -rf cdp-sdk
-	openapi-generator generate -i ../openapi.yaml -g rust -o ./openapi-client --additional-properties=packageName=openapi-client,supportAsync=true,useSingleRequestParameter=true,supportMiddleware=true
+	rm -rf ./src/apis
+	rm -rf ./src/models
+	openapi-generator generate -i ../openapi.yaml -g rust -o ./tmp --additional-properties=packageName=openapi-client,supportAsync=true,useSingleRequestParameter=true,supportMiddleware=true
+	mv ./tmp/src/apis ./src/
+	mv ./tmp/src/models ./src/
+	rm -rf tmp
 	@echo "Client generation complete!"
 
 # Clean generated files and build artifacts
@@ -95,3 +99,6 @@ verify: check test lint format-check
 # Prepare for release (format, lint-fix, test, build)
 prepare: format lint-fix test build
 	@echo "Preparation complete!"
+
+check-openapi:
+	@make -C .. check-openapi || echo "NOTE: THERE IS A NEW OPENAPI FILE AVAILABLE. RUN 'make update-openapi' IN THE ROOT DIRECTORY TO UPDATE IT."

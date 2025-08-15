@@ -1,7 +1,7 @@
 use std::env;
 
 use cdp_sdk::{CdpClient, CdpClientOptions};
-use openapi_client::models::SignEvmTransactionRequest;
+use cdp_sdk::models::SignEvmTransactionRequest;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

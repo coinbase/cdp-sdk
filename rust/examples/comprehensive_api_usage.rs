@@ -1,5 +1,5 @@
 use cdp_sdk::{CdpClient, CdpClientOptions};
-use openapi_client::models::{SignEvmTransactionRequest, CreateEvmAccountRequest, CreateSolanaAccountRequest, SignSolanaTransactionRequest};
+use cdp_sdk::models::{SignEvmTransactionRequest, CreateEvmAccountRequest, CreateSolanaAccountRequest, SignSolanaTransactionRequest};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -17,9 +17,9 @@ use super::{Error, configuration};
 /// struct for passing parameters to the method [`create_evm_account`]
 #[derive(Clone, Debug)]
 pub struct CreateEvmAccountParams {
-    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.
+    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
     pub x_wallet_auth: String,
-    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
     pub x_idempotency_key: Option<String>,
     pub create_evm_account_request: Option<models::CreateEvmAccountRequest>
 }
@@ -27,11 +27,11 @@ pub struct CreateEvmAccountParams {
 /// struct for passing parameters to the method [`export_evm_account`]
 #[derive(Clone, Debug)]
 pub struct ExportEvmAccountParams {
-    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.
+    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
     pub x_wallet_auth: String,
     /// The 0x-prefixed address of the EVM account. The address does not need to be checksummed.
     pub address: String,
-    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
     pub x_idempotency_key: Option<String>,
     pub export_evm_account_request: Option<models::ExportEvmAccountRequest>
 }
@@ -39,11 +39,11 @@ pub struct ExportEvmAccountParams {
 /// struct for passing parameters to the method [`export_evm_account_by_name`]
 #[derive(Clone, Debug)]
 pub struct ExportEvmAccountByNameParams {
-    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.
+    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
     pub x_wallet_auth: String,
     /// The name of the EVM account.
     pub name: String,
-    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
     pub x_idempotency_key: Option<String>,
     pub export_evm_account_request: Option<models::ExportEvmAccountRequest>
 }
@@ -65,9 +65,9 @@ pub struct GetEvmAccountByNameParams {
 /// struct for passing parameters to the method [`import_evm_account`]
 #[derive(Clone, Debug)]
 pub struct ImportEvmAccountParams {
-    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.
+    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
     pub x_wallet_auth: String,
-    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
     pub x_idempotency_key: Option<String>,
     pub import_evm_account_request: Option<models::ImportEvmAccountRequest>
 }
@@ -84,11 +84,11 @@ pub struct ListEvmAccountsParams {
 /// struct for passing parameters to the method [`send_evm_transaction`]
 #[derive(Clone, Debug)]
 pub struct SendEvmTransactionParams {
-    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.
+    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
     pub x_wallet_auth: String,
     /// The 0x-prefixed address of the Ethereum account.
     pub address: String,
-    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
     pub x_idempotency_key: Option<String>,
     pub send_evm_transaction_request: Option<models::SendEvmTransactionRequest>
 }
@@ -96,11 +96,11 @@ pub struct SendEvmTransactionParams {
 /// struct for passing parameters to the method [`sign_evm_hash`]
 #[derive(Clone, Debug)]
 pub struct SignEvmHashParams {
-    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.
+    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
     pub x_wallet_auth: String,
     /// The 0x-prefixed address of the EVM account.
     pub address: String,
-    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
     pub x_idempotency_key: Option<String>,
     pub sign_evm_hash_request: Option<models::SignEvmHashRequest>
 }
@@ -108,11 +108,11 @@ pub struct SignEvmHashParams {
 /// struct for passing parameters to the method [`sign_evm_message`]
 #[derive(Clone, Debug)]
 pub struct SignEvmMessageParams {
-    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.
+    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
     pub x_wallet_auth: String,
     /// The 0x-prefixed address of the EVM account.
     pub address: String,
-    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
     pub x_idempotency_key: Option<String>,
     pub sign_evm_message_request: Option<models::SignEvmMessageRequest>
 }
@@ -120,11 +120,11 @@ pub struct SignEvmMessageParams {
 /// struct for passing parameters to the method [`sign_evm_transaction`]
 #[derive(Clone, Debug)]
 pub struct SignEvmTransactionParams {
-    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.
+    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
     pub x_wallet_auth: String,
     /// The 0x-prefixed address of the EVM account.
     pub address: String,
-    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
     pub x_idempotency_key: Option<String>,
     pub sign_evm_transaction_request: Option<models::SignEvmTransactionRequest>
 }
@@ -132,11 +132,11 @@ pub struct SignEvmTransactionParams {
 /// struct for passing parameters to the method [`sign_evm_typed_data`]
 #[derive(Clone, Debug)]
 pub struct SignEvmTypedDataParams {
-    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.
+    /// A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
     pub x_wallet_auth: String,
     /// The 0x-prefixed address of the EVM account.
     pub address: String,
-    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
     pub x_idempotency_key: Option<String>,
     pub eip712_message: Option<models::Eip712Message>
 }
@@ -146,7 +146,7 @@ pub struct SignEvmTypedDataParams {
 pub struct UpdateEvmAccountParams {
     /// The 0x-prefixed address of the EVM account. The address does not need to be checksummed.
     pub address: String,
-    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+    /// An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. 
     pub x_idempotency_key: Option<String>,
     pub update_evm_account_request: Option<models::UpdateEvmAccountRequest>
 }
@@ -758,3 +758,4 @@ pub async fn update_evm_account(configuration: &configuration::Configuration, pa
         Err(Error::ResponseError(ResponseContent { status, content, entity }))
     }
 }
+

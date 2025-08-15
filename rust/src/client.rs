@@ -137,8 +137,8 @@ impl CdpClient {
     }
 
     /// Create a new openapi client configuration using this client's settings
-    pub fn openapi_config(&self) -> openapi_client::apis::configuration::Configuration {
-        let mut config = openapi_client::apis::configuration::Configuration::new();
+    pub fn openapi_config(&self) -> crate::apis::configuration::Configuration {
+        let mut config = crate::apis::configuration::Configuration::new();
         config.client = self.client.clone();
         config
     }

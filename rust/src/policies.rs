@@ -1,7 +1,7 @@
 use crate::client::CdpClient;
 use crate::error::{CdpError, Result};
-use openapi_client::apis::policy_engine_api;
-use openapi_client::models::{CreatePolicyRequest, UpdatePolicyRequest};
+use crate::apis::policy_engine_api;
+use crate::models::{CreatePolicyRequest, UpdatePolicyRequest};
 
 /// High-level Policies API wrapper that provides easy access to policy management operations
 pub struct PoliciesApi<'a> {
@@ -19,7 +19,7 @@ impl<'a> PoliciesApi<'a> {
         page_size: Option<i32>,
         page_token: Option<String>,
         scope: Option<String>,
-    ) -> Result<openapi_client::models::ListPolicies200Response> {
+    ) -> Result<crate::models::ListPolicies200Response> {
         let config = self.client.openapi_config();
         let params = policy_engine_api::ListPoliciesParams {
             page_size,
@@ -50,7 +50,7 @@ impl<'a> PoliciesApi<'a> {
     pub async fn get_policy(
         &self,
         policy_id: String,
-    ) -> Result<openapi_client::models::Policy> {
+    ) -> Result<crate::models::Policy> {
         let config = self.client.openapi_config();
         let params = policy_engine_api::GetPolicyByIdParams {
             policy_id,
@@ -64,7 +64,7 @@ impl<'a> PoliciesApi<'a> {
     pub async fn create_policy(
         &self,
         request: CreatePolicyRequest,
-    ) -> Result<openapi_client::models::Policy> {
+    ) -> Result<crate::models::Policy> {
         let config = self.client.openapi_config();
         let params = policy_engine_api::CreatePolicyParams {
             create_policy_request: request,
@@ -80,7 +80,7 @@ impl<'a> PoliciesApi<'a> {
         &self,
         policy_id: String,
         request: UpdatePolicyRequest,
-    ) -> Result<openapi_client::models::Policy> {
+    ) -> Result<crate::models::Policy> {
         let config = self.client.openapi_config();
         let params = policy_engine_api::UpdatePolicyParams {
             policy_id,

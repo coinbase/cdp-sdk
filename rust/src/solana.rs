@@ -1,7 +1,7 @@
 use crate::client::CdpClient;
 use crate::error::{CdpError, Result};
-use openapi_client::apis::solana_accounts_api;
-use openapi_client::models::{
+use crate::apis::solana_accounts_api;
+use crate::models::{
     SolanaAccount, CreateSolanaAccountRequest, SignSolanaTransactionRequest, ImportSolanaAccountRequest,
     UpdateSolanaAccountRequest, SignSolanaMessageRequest
 };
@@ -21,7 +21,7 @@ impl<'a> SolanaApi<'a> {
         &self,
         page_size: Option<i32>,
         page_token: Option<String>,
-    ) -> Result<openapi_client::models::ListSolanaAccounts200Response> {
+    ) -> Result<crate::models::ListSolanaAccounts200Response> {
         let config = self.client.openapi_config();
         let params = solana_accounts_api::ListSolanaAccountsParams {
             page_size,
@@ -96,8 +96,8 @@ impl<'a> SolanaApi<'a> {
     pub async fn export_account(
         &self,
         address: String,
-        request: openapi_client::models::ExportEvmAccountRequest,
-    ) -> Result<openapi_client::models::ExportSolanaAccount200Response> {
+        request: crate::models::ExportEvmAccountRequest,
+    ) -> Result<crate::models::ExportSolanaAccount200Response> {
         let config = self.client.openapi_config();
         let params = solana_accounts_api::ExportSolanaAccountParams {
             x_wallet_auth: "".to_string(), // Will be replaced by middleware
@@ -114,8 +114,8 @@ impl<'a> SolanaApi<'a> {
     pub async fn export_account_by_name(
         &self,
         name: String,
-        request: openapi_client::models::ExportEvmAccountRequest,
-    ) -> Result<openapi_client::models::ExportSolanaAccount200Response> {
+        request: crate::models::ExportEvmAccountRequest,
+    ) -> Result<crate::models::ExportSolanaAccount200Response> {
         let config = self.client.openapi_config();
         let params = solana_accounts_api::ExportSolanaAccountByNameParams {
             x_wallet_auth: "".to_string(), // Will be replaced by middleware
@@ -150,7 +150,7 @@ impl<'a> SolanaApi<'a> {
         &self,
         address: String,
         request: SignSolanaMessageRequest,
-    ) -> Result<openapi_client::models::SignSolanaMessage200Response> {
+    ) -> Result<crate::models::SignSolanaMessage200Response> {
         let config = self.client.openapi_config();
         let params = solana_accounts_api::SignSolanaMessageParams {
             x_wallet_auth: "".to_string(), // Will be replaced by middleware
@@ -168,7 +168,7 @@ impl<'a> SolanaApi<'a> {
         &self,
         address: String,
         request: SignSolanaTransactionRequest,
-    ) -> Result<openapi_client::models::SignSolanaTransaction200Response> {
+    ) -> Result<crate::models::SignSolanaTransaction200Response> {
         let config = self.client.openapi_config();
         let params = solana_accounts_api::SignSolanaTransactionParams {
             x_wallet_auth: "".to_string(), // Will be replaced by middleware
