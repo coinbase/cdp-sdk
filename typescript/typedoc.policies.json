@@ -1,8 +1,7 @@
 {
   "entryPoints": [
     "./src/client/policies/policies.ts",
-    "./src/client/policies/policies.types.ts",
-    "./src/policies/types.ts"
+    "./src/client/policies/policies.types.ts"
   ],
   "entryPointStrategy": "resolve",
   "flattenOutputFiles": true,

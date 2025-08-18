@@ -15,7 +15,7 @@
   "excludeInternal": true,
   "excludeProtected": false,
   "readme": "./src/auth/README.md",
-  "name": "Overview",
+  "name": "index",
   "includeVersion": true,
   "sort": ["kind"],
   "kindSortOrder": [
@@ -44,7 +44,7 @@
     "notDocumented": false
   },
   "fileExtension": ".mdx",
-  "entryFileName": "Overview",
+  "entryFileName": "index",
   "mergeReadme": true,
   "hidePageHeader": true,
   "hideBreadcrumbs": true,
