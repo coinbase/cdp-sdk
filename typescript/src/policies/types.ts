@@ -1,7 +1,3 @@
-/**
- * @module Types
- */
-
 import { z } from "zod";
 
 import {
