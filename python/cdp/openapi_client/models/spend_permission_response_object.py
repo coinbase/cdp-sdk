@@ -22,6 +22,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from cdp.openapi_client.models.spend_permission import SpendPermission
+from cdp.openapi_client.models.spend_permission_network import SpendPermissionNetwork
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -34,7 +35,8 @@ class SpendPermissionResponseObject(BaseModel):
     revoked: StrictBool = Field(description="Whether this permission has been revoked.")
     revoked_at: Optional[datetime] = Field(default=None, description="The UTC ISO 8601 timestamp when the permission was revoked (if applicable).", alias="revokedAt")
     created_at: datetime = Field(description="The UTC ISO 8601 timestamp when the permission was created.", alias="createdAt")
-    __properties: ClassVar[List[str]] = ["permission", "permissionHash", "revoked", "revokedAt", "createdAt"]
+    network: SpendPermissionNetwork
+    __properties: ClassVar[List[str]] = ["permission", "permissionHash", "revoked", "revokedAt", "createdAt", "network"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -94,7 +96,8 @@ class SpendPermissionResponseObject(BaseModel):
             "permissionHash": obj.get("permissionHash"),
             "revoked": obj.get("revoked"),
             "revokedAt": obj.get("revokedAt"),
-            "createdAt": obj.get("createdAt")
+            "createdAt": obj.get("createdAt"),
+            "network": obj.get("network")
         })
         return _obj
 
