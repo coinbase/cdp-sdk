@@ -10,6 +10,7 @@ from cdp.base_node_rpc_url import get_base_node_rpc_url
 from cdp.evm_call_types import ContractCall
 from cdp.evm_smart_account import EvmSmartAccount
 from cdp.network_capabilities import is_method_supported_on_network
+from cdp.network_config import get_network_name, resolve_chain_id_from_rpc_url
 
 
 class NetworkScopedEvmSmartAccount:
@@ -22,12 +23,15 @@ class NetworkScopedEvmSmartAccount:
         self,
         evm_smart_account: EvmSmartAccount,
         network: str,
-        rpc_url: str | None = None,
         owner=None,
     ):
         self._evm_smart_account = evm_smart_account
-        self._network = network
-        self._rpc_url = rpc_url
+        if network and isinstance(network, str) and network.strip().lower().startswith("http"):
+            self._network = get_network_name(resolve_chain_id_from_rpc_url(network))
+            self._rpc_url = network
+        else:
+            self._network = network
+            self._rpc_url = None
         self._owner = owner or (evm_smart_account.owners[0] if evm_smart_account.owners else None)
         self._web3 = None
         self._should_use_api = network in [
@@ -36,8 +40,8 @@ class NetworkScopedEvmSmartAccount:
             "ethereum",
             "ethereum-sepolia",
         ]
-        if rpc_url and not self._should_use_api:
-            self._web3 = Web3(Web3.HTTPProvider(rpc_url))
+        if self._rpc_url and not self._should_use_api:
+            self._web3 = Web3(Web3.HTTPProvider(self._rpc_url))
         self._supported_methods: dict[str, Callable] = {}
         self._init_supported_methods()
 

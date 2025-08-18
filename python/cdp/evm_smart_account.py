@@ -761,7 +761,7 @@ class EvmSmartAccount(BaseModel):
             paymaster_url=paymaster_url,
         )
 
-    async def __experimental_use_network__(self, network: str):
+    async def __experimental_use_network__(self, network: str | None = None):
         """Create a network-scoped version of this smart account.
 
         Args:

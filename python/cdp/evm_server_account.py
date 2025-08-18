@@ -714,9 +714,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
             interval_seconds=interval_seconds,
         )
 
-    async def __experimental_use_network__(
-        self, network: str | None = None, rpc_url: str | None = None
-    ):
+    async def __experimental_use_network__(self, network: str | None = None):
         """Create a network-scoped version of this account.
 
         Args:
@@ -737,7 +735,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
         """
         from cdp.network_scoped_evm_server_account import NetworkScopedEvmServerAccount
 
-        return NetworkScopedEvmServerAccount(self, network, rpc_url)
+        return NetworkScopedEvmServerAccount(self, network)
 
     async def use_spend_permission(
         self,

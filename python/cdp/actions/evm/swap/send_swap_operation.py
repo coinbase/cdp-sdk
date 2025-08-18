@@ -159,7 +159,7 @@ async def send_swap_operation(
             api_clients,
             SignAndWrapTypedDataForSmartAccountOptions(
                 smart_account=smart_account_interface,
-                chain_id=1 if options.network == "ethereum" else 8453,  # Base chain ID
+                chain_id=1 if options.network == "ethereum" else 8453,
                 typed_data=swap_data.permit2_data.eip712,
                 owner_index=0,
                 idempotency_key=permit2_idempotency_key,
