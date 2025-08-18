@@ -4,7 +4,7 @@
     "./src/client/evm/evm.types.ts",
     "./src/accounts/evm/types.ts",
     "./src/actions/evm/types.ts"
-  ],    
+  ],
   "entryPointStrategy": "resolve",
   "flattenOutputFiles": true,
   "out": "./docs-md/evm",
@@ -16,15 +16,7 @@
   "name": "Overview",
   "includeVersion": true,
   "sort": ["kind", "alphabetical"],
-  "kindSortOrder": [
-    "Class",
-    "Interface",
-    "Function",
-    "TypeAlias",
-    "Enum",
-    "Variable",
-    "Module"
-  ],
+  "kindSortOrder": ["Class", "Interface", "Function", "TypeAlias", "Enum", "Variable", "Module"],
   "categorizeByGroup": true,
   "defaultCategory": "Other",
   "categoryOrder": ["Client", "Accounts", "Actions", "Types", "Utilities", "*", "Other"],

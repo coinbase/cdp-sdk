@@ -1,8 +1,5 @@
 {
-  "entryPoints": [
-    "./src/client/policies/policies.ts",
-    "./src/client/policies/policies.types.ts"
-  ],
+  "entryPoints": ["./src/client/policies/policies.ts", "./src/client/policies/policies.types.ts"],
   "entryPointStrategy": "resolve",
   "flattenOutputFiles": true,
   "out": "./docs-md/policies",
@@ -14,15 +11,7 @@
   "name": "Overview",
   "includeVersion": true,
   "sort": ["kind", "alphabetical"],
-  "kindSortOrder": [
-    "Class",
-    "Interface",
-    "Function",
-    "TypeAlias",
-    "Enum",
-    "Variable",
-    "Module"
-  ],
+  "kindSortOrder": ["Class", "Interface", "Function", "TypeAlias", "Enum", "Variable", "Module"],
   "categorizeByGroup": true,
   "defaultCategory": "Other",
   "categoryOrder": ["Client", "Policies", "Types", "Utilities", "*", "Other"],

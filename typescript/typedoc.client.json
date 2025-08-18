@@ -1,7 +1,5 @@
 {
-  "entryPoints": [
-    "./src/client/cdp.ts"
-  ],
+  "entryPoints": ["./src/client/cdp.ts"],
   "entryPointStrategy": "resolve",
   "out": "./docs-md/client",
   "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter", "./ts-frontmatter.mjs"],
@@ -12,15 +10,7 @@
   "name": "CDP Client",
   "includeVersion": true,
   "sort": ["kind", "alphabetical"],
-  "kindSortOrder": [
-    "Class",
-    "Interface",
-    "Function",
-    "TypeAlias",
-    "Enum",
-    "Variable",
-    "Module"
-  ],
+  "kindSortOrder": ["Class", "Interface", "Function", "TypeAlias", "Enum", "Variable", "Module"],
   "categorizeByGroup": true,
   "defaultCategory": "Other",
   "categoryOrder": ["Client", "EndUser", "Types", "Utilities", "*", "Other"],

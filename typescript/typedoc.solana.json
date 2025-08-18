@@ -16,15 +16,7 @@
   "name": "Overview",
   "includeVersion": true,
   "sort": ["kind", "alphabetical"],
-  "kindSortOrder": [
-    "Class",
-    "Interface",
-    "Function",
-    "TypeAlias",
-    "Enum",
-    "Variable",
-    "Module"
-  ],
+  "kindSortOrder": ["Class", "Interface", "Function", "TypeAlias", "Enum", "Variable", "Module"],
   "categorizeByGroup": true,
   "defaultCategory": "Other",
   "categoryOrder": ["Client", "Accounts", "Actions", "Types", "Utilities", "*", "Other"],

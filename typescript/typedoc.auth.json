@@ -18,14 +18,7 @@
   "name": "index",
   "includeVersion": true,
   "sort": ["kind"],
-  "kindSortOrder": [
-    "Function",
-    "Class",
-    "Interface",
-    "TypeAlias",
-    "Enum",
-    "Variable"
-  ],
+  "kindSortOrder": ["Function", "Class", "Interface", "TypeAlias", "Enum", "Variable"],
   "categorizeByGroup": true,
   "exclude": [
     "**/tests/**/*",
