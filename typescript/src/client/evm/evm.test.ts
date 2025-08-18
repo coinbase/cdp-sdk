@@ -654,6 +654,71 @@ describe("EvmClient", () => {
       expect(createEvmSmartAccountMock).toHaveBeenCalledTimes(1);
       expect(toEvmSmartAccountMock).toHaveBeenCalledTimes(2);
     });
+
+    it("should throw UserInputValidationError when owner mismatch", async () => {
+      const mockOwnerAccount: EvmAccount = {
+        address: "0xowner1" as Address,
+        sign: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signMessage: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature" as Hex),
+      };
+
+      const differentOwnerAccount: EvmAccount = {
+        address: "0xowner2" as Address,
+        sign: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signMessage: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature" as Hex),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature" as Hex),
+      };
+
+      const getOrCreateOptions: GetOrCreateSmartAccountOptions = {
+        name: "test-smart-account",
+        owner: differentOwnerAccount, // Using different owner than the existing account
+      };
+
+      const mockOpenApiSmartAccount = {
+        address: "0x456" as Address,
+        owners: [mockOwnerAccount.address],
+        name: "test-smart-account",
+      };
+
+      const mockSmartAccount: EvmSmartAccount = {
+        address: "0x456" as Address,
+        owners: [mockOwnerAccount], // Original owner
+        name: "test-smart-account",
+        type: "evm-smart" as const,
+        transfer: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
+        listTokenBalances: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+        policies: undefined,
+        useNetwork: vi.fn(),
+      };
+
+      const getEvmSmartAccountMock = CdpOpenApiClient.getEvmSmartAccountByName as MockedFunction<
+        typeof CdpOpenApiClient.getEvmSmartAccountByName
+      >;
+      getEvmSmartAccountMock.mockResolvedValue(mockOpenApiSmartAccount);
+
+      const toEvmSmartAccountMock = toEvmSmartAccount as MockedFunction<typeof toEvmSmartAccount>;
+      toEvmSmartAccountMock.mockReturnValue(mockSmartAccount);
+
+      await expect(client.getOrCreateSmartAccount(getOrCreateOptions)).rejects
+        .toThrowErrorMatchingInlineSnapshot(`
+        [UserInputValidationError: Owner mismatch: The provided owner address is not an owner of the smart account. Please use a valid owner for this smart account.
+
+        Smart Account Address: 0x456
+        Smart Account Owners: 0xowner1
+        Provided Owner Address: 0xowner2
+        ]
+      `);
+    });
   });
 
   describe("getUserOperation", () => {

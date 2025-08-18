@@ -1484,6 +1484,16 @@ export class EvmClient implements EvmClientInterface {
       throw new UserInputValidationError("Either address or name must be provided");
     })();
 
+    if (!openApiSmartAccount.owners.includes(options.owner.address)) {
+      throw new UserInputValidationError(
+        `Owner mismatch: The provided owner address is not an owner of the smart account. Please use a valid owner for this smart account.
+
+Smart Account Address: ${openApiSmartAccount.address}
+Smart Account Owners: ${openApiSmartAccount.owners.join(", ")}
+Provided Owner Address: ${options.owner.address}\n`,
+      );
+    }
+
     const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
       smartAccount: openApiSmartAccount,
       owner: options.owner,

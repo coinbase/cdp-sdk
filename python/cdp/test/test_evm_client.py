@@ -561,7 +561,9 @@ async def test_get_or_create_smart_account(smart_account_model_factory, local_ac
     mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
     client = EvmClient(api_clients=mock_api_clients)
 
-    smart_account_model = smart_account_model_factory()
+    test_name = "test-account"
+    owner = local_account_factory()
+    smart_account_model = smart_account_model_factory(owners=[owner.address])
     mock_evm_smart_accounts_api.get_evm_smart_account_by_name = AsyncMock(
         side_effect=[
             ApiError(404, "not_found", "Account not found"),
@@ -571,9 +573,6 @@ async def test_get_or_create_smart_account(smart_account_model_factory, local_ac
     mock_evm_smart_accounts_api.create_evm_smart_account = AsyncMock(
         return_value=smart_account_model
     )
-
-    test_name = "test-account"
-    owner = local_account_factory()
     result = await client.get_or_create_smart_account(name=test_name, owner=owner)
     result2 = await client.get_or_create_smart_account(name=test_name, owner=owner)
 
@@ -1267,3 +1266,50 @@ async def test_create_spend_permission():
     assert len(request.salt) > 10  # Should be a large random number
 
     assert result == mock_user_operation
+
+
+@pytest.mark.asyncio
+async def test_get_or_create_smart_account_owner_mismatch():
+    """Test that get_or_create_smart_account raises an error when owner doesn't match."""
+    from eth_account.signers.base import BaseAccount
+
+    from cdp.errors import UserInputValidationError
+    from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount as EvmSmartAccountModel
+
+    # Mock owner accounts
+    mock_owner_1 = MagicMock(spec=BaseAccount)
+    mock_owner_1.address = "0x1111111111111111111111111111111111111111"
+
+    mock_owner_2 = MagicMock(spec=BaseAccount)
+    mock_owner_2.address = "0x2222222222222222222222222222222222222222"
+
+    # Mock smart account with owner_1 as the existing owner
+    mock_smart_account = EvmSmartAccountModel(
+        address="0x3333333333333333333333333333333333333333",
+        owners=["0x1111111111111111111111111111111111111111"],  # owner_1's address
+        name="test-account",
+        policies=None,
+    )
+
+    mock_api_clients = MagicMock(spec=ApiClients)
+    mock_evm_smart_accounts_api = AsyncMock()
+    mock_api_clients.evm_smart_accounts = mock_evm_smart_accounts_api
+
+    # Mock the API to return the existing smart account
+    mock_evm_smart_accounts_api.get_evm_smart_account_by_name.return_value = mock_smart_account
+
+    client = EvmClient(api_clients=mock_api_clients)
+
+    # Try to get_or_create with a different owner (owner_2)
+    with pytest.raises(UserInputValidationError) as exc_info:
+        await client.get_or_create_smart_account(
+            owner=mock_owner_2,  # Different owner
+            name="test-account",
+        )
+
+    # Check that the error message contains the expected content
+    error_message = str(exc_info.value)
+    assert "Owner mismatch" in error_message
+    assert "Smart Account Address: 0x3333333333333333333333333333333333333333" in error_message
+    assert "Smart Account Owners: 0x1111111111111111111111111111111111111111" in error_message
+    assert "Provided Owner Address: 0x2222222222222222222222222222222222222222" in error_message

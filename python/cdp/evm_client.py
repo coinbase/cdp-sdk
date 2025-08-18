@@ -247,12 +247,12 @@ class EvmClient:
         track_action(action="get_or_create_smart_account", account_type="evm_smart")
 
         try:
-            account = await self.get_smart_account(name=name, owner=owner)
+            account = await self.__get_smart_account_internal(name=name, owner=owner)
             return account
         except ApiError as e:
             if e.http_code == 404:
                 try:
-                    account = await self.create_smart_account(
+                    account = await self.__create_smart_account_internal(
                         name=name,
                         owner=owner,
                         enable_spend_permissions=enable_spend_permissions,
@@ -260,7 +260,7 @@ class EvmClient:
                     return account
                 except ApiError as e:
                     if e.http_code == 409:
-                        account = await self.get_smart_account(name=name, owner=owner)
+                        account = await self.__get_smart_account_internal(name=name, owner=owner)
                         return account
                     raise e
             raise e
@@ -430,16 +430,16 @@ class EvmClient:
         track_action(action="get_or_create_account", account_type="evm_server")
 
         try:
-            account = await self.get_account(name=name)
+            account = await self.__get_account_internal(name=name)
             return account
         except ApiError as e:
             if e.http_code == 404:
                 try:
-                    account = await self.create_account(name=name)
+                    account = await self.__create_account_internal(name=name)
                     return account
                 except ApiError as e:
                     if e.http_code == 409:
-                        account = await self.get_account(name=name)
+                        account = await self.__get_account_internal(name=name)
                         return account
                     raise e
             raise e
@@ -1016,4 +1016,141 @@ class EvmClient:
             slippage_bps,
             signer_address,
             idempotency_key,
+        )
+
+    async def __create_account_internal(
+        self,
+        name: str | None = None,
+        account_policy: str | None = None,
+        idempotency_key: str | None = None,
+    ) -> EvmServerAccount:
+        """Create an account without tracking analytics.
+
+        Used internally by composite operations to avoid double-counting.
+
+        Args:
+            name (str, optional): The name. Defaults to None.
+            account_policy (str, optional): The ID of the account-level policy to apply to the account. Defaults to None.
+            idempotency_key (str, optional): The idempotency key. Defaults to None.
+
+        Returns:
+            EvmServerAccount: The EVM server account.
+
+        """
+        evm_account = await self.api_clients.evm_accounts.create_evm_account(
+            x_idempotency_key=idempotency_key,
+            create_evm_account_request=CreateEvmAccountRequest(
+                name=name,
+                account_policy=account_policy,
+            ),
+        )
+        return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
+
+    async def __get_account_internal(
+        self, address: str | None = None, name: str | None = None
+    ) -> EvmServerAccount:
+        """Get an account without tracking analytics.
+
+        Used internally by composite operations to avoid double-counting.
+
+        Args:
+            address (str, optional): The address of the account.
+            name (str, optional): The name of the account.
+
+        Returns:
+            EvmServerAccount: The EVM server account.
+
+        Raises:
+            UserInputValidationError: If neither address nor name is provided.
+
+        """
+        if address:
+            evm_account = await self.api_clients.evm_accounts.get_evm_account(address)
+        elif name:
+            evm_account = await self.api_clients.evm_accounts.get_evm_account_by_name(name)
+        else:
+            raise UserInputValidationError("Either address or name must be provided")
+        return EvmServerAccount(evm_account, self.api_clients.evm_accounts, self.api_clients)
+
+    async def __create_smart_account_internal(
+        self,
+        owner: BaseAccount,
+        name: str | None = None,
+        enable_spend_permissions: bool = False,
+    ) -> EvmSmartAccount:
+        """Create a smart account without tracking analytics.
+
+        Used internally by composite operations to avoid double-counting.
+
+        Args:
+            owner (BaseAccount): The owner of the smart account.
+            name (str, optional): The name of the smart account.
+            enable_spend_permissions (bool, optional):
+                The flag to enable spend permissions. Defaults to False.
+
+        Returns:
+            EvmSmartAccount: The EVM smart account.
+
+        """
+        owners = [owner.address]
+
+        if enable_spend_permissions:
+            from cdp.spend_permissions import SPEND_PERMISSION_MANAGER_ADDRESS
+
+            owners.append(SPEND_PERMISSION_MANAGER_ADDRESS)
+
+        evm_smart_account = await self.api_clients.evm_smart_accounts.create_evm_smart_account(
+            create_evm_smart_account_request=CreateEvmSmartAccountRequest(owners=owners, name=name),
+        )
+        return EvmSmartAccount(
+            evm_smart_account.address,
+            owner,
+            evm_smart_account.name,
+            evm_smart_account.policies,
+            self.api_clients,
+        )
+
+    async def __get_smart_account_internal(
+        self, address: str | None = None, name: str | None = None, owner: BaseAccount | None = None
+    ) -> EvmSmartAccount:
+        """Get a smart account without tracking analytics.
+
+        Used internally by composite operations to avoid double-counting.
+        Includes owner validation to ensure the provided owner matches the existing account's owners.
+
+        Args:
+            address (str, optional): The address of the smart account.
+            name (str, optional): The name of the smart account. Defaults to None.
+            owner (BaseAccount, optional): The owner of the smart account. Defaults to None.
+
+        Returns:
+            EvmSmartAccount: The EVM smart account.
+
+        Raises:
+            UserInputValidationError: If neither address nor name is provided, or if owner validation fails.
+
+        """
+        if address:
+            evm_smart_account = await self.api_clients.evm_smart_accounts.get_evm_smart_account(
+                address
+            )
+        elif name:
+            evm_smart_account = (
+                await self.api_clients.evm_smart_accounts.get_evm_smart_account_by_name(name)
+            )
+        else:
+            raise UserInputValidationError("Either address or name must be provided")
+
+        # Validate owner if provided
+        if owner and owner.address not in evm_smart_account.owners:
+            raise UserInputValidationError(
+                f"Owner mismatch: The provided owner address is not an owner of the smart account. Please use a valid owner for this smart account.\n\nSmart Account Address: {evm_smart_account.address}\nSmart Account Owners: {', '.join(evm_smart_account.owners)}\nProvided Owner Address: {owner.address}\n"
+            ) from None
+
+        return EvmSmartAccount(
+            evm_smart_account.address,
+            owner,
+            evm_smart_account.name,
+            evm_smart_account.policies,
+            self.api_clients,
         )
