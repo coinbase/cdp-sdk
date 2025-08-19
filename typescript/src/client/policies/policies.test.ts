@@ -639,7 +639,7 @@ describe("PoliciesClient", () => {
 
       const policyToCreate = {
         scope: "account" as const,
-        description: "Set limits on known Solana program instruction data",
+        description: "Set limits on known Solana program instructions",
         rules: [
           {
             action: "accept" as const,
@@ -708,7 +708,7 @@ describe("PoliciesClient", () => {
 
       const policyToCreate = {
         scope: "account" as const,
-        description: "Set limits on custom Solana program instruction data",
+        description: "Set limits on custom Solana program instructions",
         rules: [
           {
             action: "accept" as const,
@@ -804,7 +804,7 @@ describe("PoliciesClient", () => {
 
       const policyToCreate = {
         scope: "account" as const,
-        description: "Set limits on mixed Solana program instruction data",
+        description: "Set limits on mixed Solana program instructions",
         rules: [
           {
             action: "accept" as const,
