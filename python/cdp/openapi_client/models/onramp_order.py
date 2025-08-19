@@ -21,8 +21,8 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from cdp.openapi_client.models.onramp_order_fee import OnrampOrderFee
+from cdp.openapi_client.models.onramp_order_payment_method_type_id import OnrampOrderPaymentMethodTypeId
 from cdp.openapi_client.models.onramp_order_status import OnrampOrderStatus
-from cdp.openapi_client.models.onramp_payment_method_type_id import OnrampPaymentMethodTypeId
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -34,7 +34,7 @@ class OnrampOrder(BaseModel):
     payment_total: StrictStr = Field(description="The total amount of fiat to be paid, inclusive of any fees.", alias="paymentTotal")
     payment_subtotal: StrictStr = Field(description="The amount of fiat to be converted to crypto.", alias="paymentSubtotal")
     payment_currency: StrictStr = Field(description="The fiat currency to be converted to crypto.", alias="paymentCurrency")
-    payment_method: OnrampPaymentMethodTypeId = Field(alias="paymentMethod")
+    payment_method: OnrampOrderPaymentMethodTypeId = Field(alias="paymentMethod")
     purchase_amount: StrictStr = Field(description="The amount of crypto to be purchased.", alias="purchaseAmount")
     purchase_currency: StrictStr = Field(description="The crypto currency to be purchased.", alias="purchaseCurrency")
     fees: List[OnrampOrderFee] = Field(description="The fees associated with the order.")

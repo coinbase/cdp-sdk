@@ -42,6 +42,12 @@ class TestIdlInstructionsInner(unittest.TestCase):
                     cdp.openapi_client.models.idl_instructions_inner_args_inner.Idl_instructions_inner_args_inner(
                         name = 'amount', 
                         type = 'u64', )
+                    ],
+                accounts = [
+                    cdp.openapi_client.models.idl_instructions_inner_accounts_inner.Idl_instructions_inner_accounts_inner(
+                        name = 'mint', 
+                        writable = True, 
+                        signer = False, )
                     ]
             )
         else:

@@ -64,9 +64,6 @@ const policy = await cdp.policies.createPolicy({
 });
 console.log("Created solData policy: ", policy.id);
 
-const retrievedPolicy = await cdp.policies.getPolicyById({ id: policy.id });
-console.log("Policy: ", JSON.stringify(retrievedPolicy, null, 2));
-
 const accountWithSolDataPolicy = await cdp.solana.getOrCreateAccount({
   name: "ZalDevDev1",
 });

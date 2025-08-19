@@ -19,8 +19,9 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from cdp.openapi_client.models.idl_instructions_inner import IdlInstructionsInner
+from cdp.openapi_client.models.idl_metadata import IdlMetadata
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -30,7 +31,9 @@ class Idl(BaseModel):
     """ # noqa: E501
     address: StrictStr = Field(description="The program address.")
     instructions: List[IdlInstructionsInner] = Field(description="List of program instructions.")
-    __properties: ClassVar[List[str]] = ["address", "instructions"]
+    metadata: Optional[IdlMetadata] = None
+    types: Optional[List[Dict[str, Any]]] = Field(default=None, description="Optional type definitions for custom data structures used in the program.")
+    __properties: ClassVar[List[str]] = ["address", "instructions", "metadata", "types"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -78,6 +81,9 @@ class Idl(BaseModel):
                 if _item_instructions:
                     _items.append(_item_instructions.to_dict())
             _dict['instructions'] = _items
+        # override the default output from pydantic by calling `to_dict()` of metadata
+        if self.metadata:
+            _dict['metadata'] = self.metadata.to_dict()
         return _dict
 
     @classmethod
@@ -91,7 +97,9 @@ class Idl(BaseModel):
 
         _obj = cls.model_validate({
             "address": obj.get("address"),
-            "instructions": [IdlInstructionsInner.from_dict(_item) for _item in obj["instructions"]] if obj.get("instructions") is not None else None
+            "instructions": [IdlInstructionsInner.from_dict(_item) for _item in obj["instructions"]] if obj.get("instructions") is not None else None,
+            "metadata": IdlMetadata.from_dict(obj["metadata"]) if obj.get("metadata") is not None else None,
+            "types": obj.get("types")
         })
         return _obj
 

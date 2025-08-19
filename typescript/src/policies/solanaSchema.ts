@@ -244,7 +244,7 @@ export const SolDataCriterionSchema = z.object({
   idls: z.array(z.union([KnownIdlTypeEnum, IdlSchema])),
   /**
    * A list of conditions to apply against the transaction instruction.
-   * Each condition must evaluate to true for this criterion to be met.
+   * Only one condition must evaluate to true for this criterion to be met.
    */
   conditions: z.array(SolDataConditionSchema),
 });

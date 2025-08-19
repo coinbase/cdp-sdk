@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.onramp_payment_method_type_id import OnrampPaymentMethodTypeId
+from cdp.openapi_client.models.onramp_order_payment_method_type_id import OnrampOrderPaymentMethodTypeId
 
-class TestOnrampPaymentMethodTypeId(unittest.TestCase):
-    """OnrampPaymentMethodTypeId unit test stubs"""
+class TestOnrampOrderPaymentMethodTypeId(unittest.TestCase):
+    """OnrampOrderPaymentMethodTypeId unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,9 +26,9 @@ class TestOnrampPaymentMethodTypeId(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def testOnrampPaymentMethodTypeId(self):
-        """Test OnrampPaymentMethodTypeId"""
-        # inst = OnrampPaymentMethodTypeId()
+    def testOnrampOrderPaymentMethodTypeId(self):
+        """Test OnrampOrderPaymentMethodTypeId"""
+        # inst = OnrampOrderPaymentMethodTypeId()
 
 if __name__ == '__main__':
     unittest.main()

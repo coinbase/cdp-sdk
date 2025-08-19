@@ -1687,6 +1687,15 @@ export type IdlInstructionsItemArgsItem = {
   type: string;
 };
 
+export type IdlInstructionsItemAccountsItem = {
+  /** The account name. */
+  name: string;
+  /** Whether the account is writable. */
+  writable?: boolean;
+  /** Whether the account must be a signer. */
+  signer?: boolean;
+};
+
 export type IdlInstructionsItem = {
   /** The instruction name. */
   name: string;
@@ -1698,7 +1707,23 @@ export type IdlInstructionsItem = {
   discriminator: number[];
   /** List of instruction arguments. */
   args: IdlInstructionsItemArgsItem[];
+  /** Optional list of accounts required by the instruction. */
+  accounts?: IdlInstructionsItemAccountsItem[];
 };
+
+/**
+ * Optional metadata about the IDL.
+ */
+export type IdlMetadata = {
+  /** The program name. */
+  name?: string;
+  /** The program version. */
+  version?: string;
+  /** The IDL specification version. */
+  spec?: string;
+};
+
+export type IdlTypesItem = { [key: string]: unknown };
 
 /**
  * IDL Specification following Anchor's IDL format v0.30+.
@@ -1708,6 +1733,10 @@ export interface Idl {
   address: string;
   /** List of program instructions. */
   instructions: IdlInstructionsItem[];
+  /** Optional metadata about the IDL. */
+  metadata?: IdlMetadata;
+  /** Optional type definitions for custom data structures used in the program. */
+  types?: IdlTypesItem[];
 }
 
 /**
@@ -1796,7 +1825,7 @@ export interface SolDataCriterion {
   type: SolDataCriterionType;
   /** List of IDL specifications. Can contain known program names (strings) or custom IDL objects. */
   idls: SolDataCriterionIdlsItem[];
-  /** A list of conditions to apply against the transaction instruction. Each condition must evaluate to true for this criterion to be met. */
+  /** A list of conditions to apply against the transaction instruction. Only one condition must evaluate to true for this criterion to be met. */
   conditions: SolDataCondition[];
 }
 
@@ -2702,13 +2731,13 @@ export interface Transfer {
 }
 
 /**
- * The type of payment method to be used to complete the order.
+ * The type of payment method to be used to complete an onramp order.
  */
-export type OnrampPaymentMethodTypeId =
-  (typeof OnrampPaymentMethodTypeId)[keyof typeof OnrampPaymentMethodTypeId];
+export type OnrampOrderPaymentMethodTypeId =
+  (typeof OnrampOrderPaymentMethodTypeId)[keyof typeof OnrampOrderPaymentMethodTypeId];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const OnrampPaymentMethodTypeId = {
+export const OnrampOrderPaymentMethodTypeId = {
   GUEST_CHECKOUT_APPLE_PAY: "GUEST_CHECKOUT_APPLE_PAY",
 } as const;
 
@@ -2761,7 +2790,7 @@ export interface OnrampOrder {
   paymentSubtotal: string;
   /** The fiat currency to be converted to crypto. */
   paymentCurrency: string;
-  paymentMethod: OnrampPaymentMethodTypeId;
+  paymentMethod: OnrampOrderPaymentMethodTypeId;
   /** The amount of crypto to be purchased. */
   purchaseAmount: string;
   /** The crypto currency to be purchased. */
@@ -3593,7 +3622,7 @@ This value can be used with with [Onramp User Transactions API](https://docs.cdp
   paymentAmount?: string;
   /** The fiat currency to be converted to crypto. */
   paymentCurrency: string;
-  paymentMethod: OnrampPaymentMethodTypeId;
+  paymentMethod: OnrampOrderPaymentMethodTypeId;
   /** The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
 
 Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices. */

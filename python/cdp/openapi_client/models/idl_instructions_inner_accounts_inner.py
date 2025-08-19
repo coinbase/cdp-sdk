@@ -18,23 +18,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
-from cdp.openapi_client.models.idl_instructions_inner_accounts_inner import IdlInstructionsInnerAccountsInner
-from cdp.openapi_client.models.idl_instructions_inner_args_inner import IdlInstructionsInnerArgsInner
 from typing import Optional, Set
 from typing_extensions import Self
 
-class IdlInstructionsInner(BaseModel):
+class IdlInstructionsInnerAccountsInner(BaseModel):
     """
-    IdlInstructionsInner
+    IdlInstructionsInnerAccountsInner
     """ # noqa: E501
-    name: StrictStr = Field(description="The instruction name.")
-    discriminator: Annotated[List[Annotated[int, Field(le=255, strict=True, ge=0)]], Field(min_length=8, max_length=8)] = Field(description="Array of 8 numbers representing the instruction discriminator.")
-    args: List[IdlInstructionsInnerArgsInner] = Field(description="List of instruction arguments.")
-    accounts: Optional[List[IdlInstructionsInnerAccountsInner]] = Field(default=None, description="Optional list of accounts required by the instruction.")
-    __properties: ClassVar[List[str]] = ["name", "discriminator", "args", "accounts"]
+    name: StrictStr = Field(description="The account name.")
+    writable: Optional[StrictBool] = Field(default=None, description="Whether the account is writable.")
+    signer: Optional[StrictBool] = Field(default=None, description="Whether the account must be a signer.")
+    __properties: ClassVar[List[str]] = ["name", "writable", "signer"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -54,7 +50,7 @@ class IdlInstructionsInner(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of IdlInstructionsInner from a JSON string"""
+        """Create an instance of IdlInstructionsInnerAccountsInner from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -75,25 +71,11 @@ class IdlInstructionsInner(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in args (list)
-        _items = []
-        if self.args:
-            for _item_args in self.args:
-                if _item_args:
-                    _items.append(_item_args.to_dict())
-            _dict['args'] = _items
-        # override the default output from pydantic by calling `to_dict()` of each item in accounts (list)
-        _items = []
-        if self.accounts:
-            for _item_accounts in self.accounts:
-                if _item_accounts:
-                    _items.append(_item_accounts.to_dict())
-            _dict['accounts'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of IdlInstructionsInner from a dict"""
+        """Create an instance of IdlInstructionsInnerAccountsInner from a dict"""
         if obj is None:
             return None
 
@@ -102,9 +84,8 @@ class IdlInstructionsInner(BaseModel):
 
         _obj = cls.model_validate({
             "name": obj.get("name"),
-            "discriminator": obj.get("discriminator"),
-            "args": [IdlInstructionsInnerArgsInner.from_dict(_item) for _item in obj["args"]] if obj.get("args") is not None else None,
-            "accounts": [IdlInstructionsInnerAccountsInner.from_dict(_item) for _item in obj["accounts"]] if obj.get("accounts") is not None else None
+            "writable": obj.get("writable"),
+            "signer": obj.get("signer")
         })
         return _obj
 
