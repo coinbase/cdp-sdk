@@ -313,6 +313,11 @@ const (
 	FEETYPENETWORK  OnrampOrderFeeType = "FEE_TYPE_NETWORK"
 )
 
+// Defines values for OnrampOrderPaymentMethodTypeId.
+const (
+	GUESTCHECKOUTAPPLEPAY OnrampOrderPaymentMethodTypeId = "GUEST_CHECKOUT_APPLE_PAY"
+)
+
 // Defines values for OnrampOrderStatus.
 const (
 	ONRAMPORDERSTATUSCOMPLETED      OnrampOrderStatus = "ONRAMP_ORDER_STATUS_COMPLETED"
@@ -325,11 +330,6 @@ const (
 // Defines values for OnrampPaymentLinkType.
 const (
 	PAYMENTLINKTYPEAPPLEPAYBUTTON OnrampPaymentLinkType = "PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON"
-)
-
-// Defines values for OnrampPaymentMethodTypeId.
-const (
-	GUESTCHECKOUTAPPLEPAY OnrampPaymentMethodTypeId = "GUEST_CHECKOUT_APPLE_PAY"
 )
 
 // Defines values for PaymentMethodType.
@@ -1488,6 +1488,18 @@ type Idl struct {
 
 	// Instructions List of program instructions.
 	Instructions []struct {
+		// Accounts Optional list of accounts required by the instruction.
+		Accounts *[]struct {
+			// Name The account name.
+			Name string `json:"name"`
+
+			// Signer Whether the account must be a signer.
+			Signer *bool `json:"signer,omitempty"`
+
+			// Writable Whether the account is writable.
+			Writable *bool `json:"writable,omitempty"`
+		} `json:"accounts,omitempty"`
+
 		// Args List of instruction arguments.
 		Args []struct {
 			// Name The argument name.
@@ -1503,6 +1515,21 @@ type Idl struct {
 		// Name The instruction name.
 		Name string `json:"name"`
 	} `json:"instructions"`
+
+	// Metadata Optional metadata about the IDL.
+	Metadata *struct {
+		// Name The program name.
+		Name *string `json:"name,omitempty"`
+
+		// Spec The IDL specification version.
+		Spec *string `json:"spec,omitempty"`
+
+		// Version The program version.
+		Version *string `json:"version,omitempty"`
+	} `json:"metadata,omitempty"`
+
+	// Types Optional type definitions for custom data structures used in the program.
+	Types *[]map[string]interface{} `json:"types,omitempty"`
 }
 
 // KnownAbiType A reference to an established EIP standard. When referencing a `KnownAbiType` within a policy rule configuring an `EvmDataCriterion`, criteria will only decode function data officially documented in the standard. For more information on supported token standards, see the links below.
@@ -1627,8 +1654,8 @@ type OnrampOrder struct {
 	// PaymentCurrency The fiat currency to be converted to crypto.
 	PaymentCurrency string `json:"paymentCurrency"`
 
-	// PaymentMethod The type of payment method to be used to complete the order.
-	PaymentMethod OnrampPaymentMethodTypeId `json:"paymentMethod"`
+	// PaymentMethod The type of payment method to be used to complete an onramp order.
+	PaymentMethod OnrampOrderPaymentMethodTypeId `json:"paymentMethod"`
 
 	// PaymentSubtotal The amount of fiat to be converted to crypto.
 	PaymentSubtotal string `json:"paymentSubtotal"`
@@ -1667,6 +1694,9 @@ type OnrampOrderFee struct {
 // OnrampOrderFeeType The type of fee.
 type OnrampOrderFeeType string
 
+// OnrampOrderPaymentMethodTypeId The type of payment method to be used to complete an onramp order.
+type OnrampOrderPaymentMethodTypeId string
+
 // OnrampOrderStatus The status of an onramp order.
 type OnrampOrderStatus string
 
@@ -1683,9 +1713,6 @@ type OnrampPaymentLink struct {
 
 // OnrampPaymentLinkType The type of payment link.
 type OnrampPaymentLinkType string
-
-// OnrampPaymentMethodTypeId The type of payment method to be used to complete the order.
-type OnrampPaymentMethodTypeId string
 
 // PaymentMethod The fiat payment method object.
 type PaymentMethod struct {
@@ -2096,7 +2123,7 @@ type SolDataCondition_Params_Item struct {
 
 // SolDataCriterion A schema for specifying criterion for instruction data in a Solana transaction.
 type SolDataCriterion struct {
-	// Conditions A list of conditions to apply against the transaction instruction. Each condition must evaluate to true for this criterion to be met.
+	// Conditions A list of conditions to apply against the transaction instruction. Only one condition must evaluate to true for this criterion to be met.
 	Conditions []SolDataCondition `json:"conditions"`
 
 	// Idls List of IDL specifications. Can contain known program names (strings) or custom IDL objects.
@@ -3139,8 +3166,8 @@ type CreateOnrampOrderJSONBody struct {
 	// PaymentCurrency The fiat currency to be converted to crypto.
 	PaymentCurrency string `json:"paymentCurrency"`
 
-	// PaymentMethod The type of payment method to be used to complete the order.
-	PaymentMethod OnrampPaymentMethodTypeId `json:"paymentMethod"`
+	// PaymentMethod The type of payment method to be used to complete an onramp order.
+	PaymentMethod OnrampOrderPaymentMethodTypeId `json:"paymentMethod"`
 
 	// PhoneNumber The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
 	//
@@ -11661,7 +11688,6 @@ type GetOnrampOrderByIdResponse struct {
 	JSON401 *UnauthorizedError
 	JSON404 *Error
 	JSON429 *RateLimitExceeded
-	JSON500 *InternalServerError
 }
 
 // Status returns HTTPResponse.Status
@@ -15629,13 +15655,6 @@ func ParseGetOnrampOrderByIdResponse(rsp *http.Response) (*GetOnrampOrderByIdRes
 			return nil, err
 		}
 		response.JSON429 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest InternalServerError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
 
 	}
 

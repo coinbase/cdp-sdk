@@ -10,7 +10,9 @@ from pydantic import BaseModel, Field, field_validator
 
 from cdp.errors import UserInputValidationError
 from cdp.openapi_client.models.abi_inner import AbiInner
+from cdp.openapi_client.models.idl import Idl
 from cdp.openapi_client.models.known_abi_type import KnownAbiType
+from cdp.openapi_client.models.known_idl_type import KnownIdlType
 
 """Type representing the action of a policy rule.
 Determines whether matching the rule will cause a request to be rejected or accepted."""
@@ -579,6 +581,70 @@ class MintAddressCriterion(BaseModel):
         return v
 
 
+class SolDataParameterCondition(BaseModel):
+    """Solana data parameter condition for single value comparisons."""
+
+    name: str = Field(
+        ...,
+        description="The parameter name",
+    )
+    operator: Literal[">", ">=", "<", "<=", "=="] = Field(
+        ...,
+        description="The operator to use for the comparison",
+    )
+    value: str = Field(
+        ...,
+        description="The value to compare against",
+    )
+
+
+class SolDataParameterConditionList(BaseModel):
+    """Solana data parameter condition for list value comparisons."""
+
+    name: str = Field(
+        ...,
+        description="The parameter name",
+    )
+    operator: Literal["in", "not in"] = Field(
+        ...,
+        description="The operator to use for the comparison",
+    )
+    values: list[str] = Field(
+        ...,
+        description="The values to compare against",
+    )
+
+
+class SolDataCondition(BaseModel):
+    """Solana data condition."""
+
+    instruction: str = Field(
+        ...,
+        description="The instruction name",
+    )
+    params: list[SolDataParameterCondition | SolDataParameterConditionList] | None = Field(
+        default=None,
+        description="Parameter conditions for the instruction",
+    )
+
+
+class SolDataCriterion(BaseModel):
+    """Type representing a 'solData' criterion for Solana data-based rules."""
+
+    type: Literal["solData"] = Field(
+        "solData",
+        description="The type of criterion, must be 'solData' for Solana data-based rules.",
+    )
+    idls: list[KnownIdlType | Idl] = Field(
+        ...,
+        description="List of IDL specifications. Can contain known program names (strings) or custom IDL objects.",
+    )
+    conditions: list[SolDataCondition] = Field(
+        ...,
+        description="A list of conditions to apply against the transaction instruction. Only one condition must evaluate to true for this criterion to be met.",
+    )
+
+
 class SignSolanaTransactionRule(BaseModel):
     """Type representing a 'signSolTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
 
@@ -596,6 +662,7 @@ class SignSolanaTransactionRule(BaseModel):
         | SplAddressCriterion
         | SplValueCriterion
         | MintAddressCriterion
+        | SolDataCriterion
     ] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
@@ -619,6 +686,7 @@ class SendSolanaTransactionRule(BaseModel):
         | SplAddressCriterion
         | SplValueCriterion
         | MintAddressCriterion
+        | SolDataCriterion
     ] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",

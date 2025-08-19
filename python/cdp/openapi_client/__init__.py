@@ -109,7 +109,9 @@ from cdp.openapi_client.models.get_swap_price_response import GetSwapPriceRespon
 from cdp.openapi_client.models.get_swap_price_response_wrapper import GetSwapPriceResponseWrapper
 from cdp.openapi_client.models.idl import Idl
 from cdp.openapi_client.models.idl_instructions_inner import IdlInstructionsInner
+from cdp.openapi_client.models.idl_instructions_inner_accounts_inner import IdlInstructionsInnerAccountsInner
 from cdp.openapi_client.models.idl_instructions_inner_args_inner import IdlInstructionsInnerArgsInner
+from cdp.openapi_client.models.idl_metadata import IdlMetadata
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.import_solana_account_request import ImportSolanaAccountRequest
 from cdp.openapi_client.models.known_abi_type import KnownAbiType
@@ -133,10 +135,10 @@ from cdp.openapi_client.models.onchain_data_result_schema import OnchainDataResu
 from cdp.openapi_client.models.onchain_data_result_schema_columns_inner import OnchainDataResultSchemaColumnsInner
 from cdp.openapi_client.models.onramp_order import OnrampOrder
 from cdp.openapi_client.models.onramp_order_fee import OnrampOrderFee
+from cdp.openapi_client.models.onramp_order_payment_method_type_id import OnrampOrderPaymentMethodTypeId
 from cdp.openapi_client.models.onramp_order_status import OnrampOrderStatus
 from cdp.openapi_client.models.onramp_payment_link import OnrampPaymentLink
 from cdp.openapi_client.models.onramp_payment_link_type import OnrampPaymentLinkType
-from cdp.openapi_client.models.onramp_payment_method_type_id import OnrampPaymentMethodTypeId
 from cdp.openapi_client.models.payment_method import PaymentMethod
 from cdp.openapi_client.models.payment_method_limits import PaymentMethodLimits
 from cdp.openapi_client.models.payment_method_limits_source_limit import PaymentMethodLimitsSourceLimit

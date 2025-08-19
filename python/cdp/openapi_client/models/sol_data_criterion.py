@@ -31,7 +31,7 @@ class SolDataCriterion(BaseModel):
     """ # noqa: E501
     type: StrictStr = Field(description="The type of criterion to use. This should be `solData`.")
     idls: List[SolDataCriterionIdlsInner] = Field(description="List of IDL specifications. Can contain known program names (strings) or custom IDL objects.")
-    conditions: List[SolDataCondition] = Field(description="A list of conditions to apply against the transaction instruction. Each condition must evaluate to true for this criterion to be met.")
+    conditions: List[SolDataCondition] = Field(description="A list of conditions to apply against the transaction instruction. Only one condition must evaluate to true for this criterion to be met.")
     __properties: ClassVar[List[str]] = ["type", "idls", "conditions"]
 
     @field_validator('type')

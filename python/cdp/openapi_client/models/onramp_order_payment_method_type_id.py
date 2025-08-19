@@ -19,9 +19,9 @@ from enum import Enum
 from typing_extensions import Self
 
 
-class OnrampPaymentMethodTypeId(str, Enum):
+class OnrampOrderPaymentMethodTypeId(str, Enum):
     """
-    The type of payment method to be used to complete the order.
+    The type of payment method to be used to complete an onramp order.
     """
 
     """
@@ -31,7 +31,7 @@ class OnrampPaymentMethodTypeId(str, Enum):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of OnrampPaymentMethodTypeId from a JSON string"""
+        """Create an instance of OnrampOrderPaymentMethodTypeId from a JSON string"""
         return cls(json.loads(json_str))
 
 

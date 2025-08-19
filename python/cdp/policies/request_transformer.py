@@ -13,7 +13,9 @@ from cdp.openapi_client.models.evm_network_criterion import EvmNetworkCriterion
 from cdp.openapi_client.models.evm_typed_address_condition import EvmTypedAddressCondition
 from cdp.openapi_client.models.evm_typed_numerical_condition import EvmTypedNumericalCondition
 from cdp.openapi_client.models.evm_typed_string_condition import EvmTypedStringCondition
+from cdp.openapi_client.models.idl import Idl
 from cdp.openapi_client.models.known_abi_type import KnownAbiType
+from cdp.openapi_client.models.known_idl_type import KnownIdlType
 from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterion
 from cdp.openapi_client.models.net_usd_change_criterion import NetUSDChangeCriterion
 from cdp.openapi_client.models.prepare_user_operation_criteria_inner import (
@@ -58,6 +60,14 @@ from cdp.openapi_client.models.sign_sol_transaction_criteria_inner import (
 )
 from cdp.openapi_client.models.sign_sol_transaction_rule import SignSolTransactionRule
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
+from cdp.openapi_client.models.sol_data_condition import SolDataCondition
+from cdp.openapi_client.models.sol_data_condition_params_inner import SolDataConditionParamsInner
+from cdp.openapi_client.models.sol_data_criterion import SolDataCriterion
+from cdp.openapi_client.models.sol_data_criterion_idls_inner import SolDataCriterionIdlsInner
+from cdp.openapi_client.models.sol_data_parameter_condition import SolDataParameterCondition
+from cdp.openapi_client.models.sol_data_parameter_condition_list import (
+    SolDataParameterConditionList,
+)
 from cdp.openapi_client.models.sol_value_criterion import SolValueCriterion
 from cdp.openapi_client.models.spl_address_criterion import SplAddressCriterion
 from cdp.openapi_client.models.spl_value_criterion import SplValueCriterion
@@ -272,6 +282,50 @@ openapi_criterion_mapping = {
                 type="mintAddress",
             )
         ),
+        "solData": lambda c: SignSolTransactionCriteriaInner(
+            actual_instance=SolDataCriterion(
+                type="solData",
+                idls=[
+                    SolDataCriterionIdlsInner(
+                        actual_instance=(
+                            KnownIdlType(idl)
+                            if isinstance(idl, str)
+                            else Idl(
+                                address=idl.address,
+                                instructions=idl.instructions,
+                            )
+                        )
+                    )
+                    for idl in c.idls
+                ],
+                conditions=[
+                    SolDataCondition(
+                        instruction=cond.instruction,
+                        params=[
+                            SolDataConditionParamsInner(
+                                actual_instance=(
+                                    SolDataParameterConditionList(
+                                        name=param.name,
+                                        operator=param.operator,
+                                        values=param.values,
+                                    )
+                                    if hasattr(param, "values")
+                                    else SolDataParameterCondition(
+                                        name=param.name,
+                                        operator=param.operator,
+                                        value=param.value,
+                                    )
+                                )
+                            )
+                            for param in cond.params
+                        ]
+                        if cond.params
+                        else None,
+                    )
+                    for cond in c.conditions
+                ],
+            )
+        ),
     },
     "sendSolTransaction": {
         "solAddress": lambda c: SignSolTransactionCriteriaInner(
@@ -307,6 +361,50 @@ openapi_criterion_mapping = {
                 addresses=c.addresses,
                 operator=c.operator,
                 type="mintAddress",
+            )
+        ),
+        "solData": lambda c: SignSolTransactionCriteriaInner(
+            actual_instance=SolDataCriterion(
+                type="solData",
+                idls=[
+                    SolDataCriterionIdlsInner(
+                        actual_instance=(
+                            KnownIdlType(idl)
+                            if isinstance(idl, str)
+                            else Idl(
+                                address=idl.address,
+                                instructions=idl.instructions,
+                            )
+                        )
+                    )
+                    for idl in c.idls
+                ],
+                conditions=[
+                    SolDataCondition(
+                        instruction=cond.instruction,
+                        params=[
+                            SolDataConditionParamsInner(
+                                actual_instance=(
+                                    SolDataParameterConditionList(
+                                        name=param.name,
+                                        operator=param.operator,
+                                        values=param.values,
+                                    )
+                                    if hasattr(param, "values")
+                                    else SolDataParameterCondition(
+                                        name=param.name,
+                                        operator=param.operator,
+                                        value=param.value,
+                                    )
+                                )
+                            )
+                            for param in cond.params
+                        ]
+                        if cond.params
+                        else None,
+                    )
+                    for cond in c.conditions
+                ],
             )
         ),
     },

@@ -5,6 +5,8 @@ import pytest
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.cdp_api_client import CdpApiClient
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
+from cdp.openapi_client.models.idl import Idl
+from cdp.openapi_client.models.known_idl_type import KnownIdlType
 from cdp.openapi_client.models.list_policies200_response import ListPolicies200Response
 from cdp.openapi_client.models.update_policy_request import UpdatePolicyRequest
 from cdp.policies.request_transformer import map_request_rules_to_openapi_format
@@ -19,6 +21,10 @@ from cdp.policies.types import (
     SignEvmTransactionRule,
     SignSolanaTransactionRule,
     SolAddressCriterion,
+    SolDataCondition,
+    SolDataCriterion,
+    SolDataParameterCondition,
+    SolDataParameterConditionList,
     SolValueCriterion,
     SplAddressCriterion,
     SplValueCriterion,
@@ -438,6 +444,318 @@ async def test_create_policy_with_evmnetwork_criteria(
                     ),
                 ],
             ),
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_sol_data_known_idls(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with solData criterion using known IDLs."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="Set limits on known Solana program instructions",
+        rules=[
+            SignSolanaTransactionRule(
+                action="accept",
+                operation="signSolTransaction",
+                criteria=[
+                    SolDataCriterion(
+                        type="solData",
+                        idls=[
+                            KnownIdlType.SYSTEMPROGRAM,
+                            KnownIdlType.TOKENPROGRAM,
+                            KnownIdlType.ASSOCIATEDTOKENPROGRAM,
+                        ],
+                        conditions=[
+                            SolDataCondition(
+                                instruction="transfer",
+                                params=[
+                                    SolDataParameterCondition(
+                                        name="lamports",
+                                        operator="<=",
+                                        value="1000000",
+                                    ),
+                                ],
+                            ),
+                            SolDataCondition(
+                                instruction="transfer_checked",
+                                params=[
+                                    SolDataParameterCondition(
+                                        name="amount",
+                                        operator="<=",
+                                        value="100000",
+                                    ),
+                                    SolDataParameterCondition(
+                                        name="decimals",
+                                        operator="==",
+                                        value="6",
+                                    ),
+                                ],
+                            ),
+                            SolDataCondition(
+                                instruction="create",
+                            ),
+                        ],
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_sol_data_custom_idls(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with solData criterion using custom IDLs."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="Set limits on custom Solana program instructions",
+        rules=[
+            SignSolanaTransactionRule(
+                action="accept",
+                operation="signSolTransaction",
+                criteria=[
+                    SolDataCriterion(
+                        type="solData",
+                        idls=[
+                            Idl(
+                                address="11111111111111111111111111111111",
+                                instructions=[
+                                    {
+                                        "name": "transfer",
+                                        "discriminator": [163, 52, 200, 231, 140, 3, 69, 186],
+                                        "args": [
+                                            {
+                                                "name": "lamports",
+                                                "type": "u64",
+                                            },
+                                        ],
+                                    }
+                                ],
+                            ),
+                            Idl(
+                                address="TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                                instructions=[
+                                    {
+                                        "name": "transfer_checked",
+                                        "discriminator": [119, 250, 202, 24, 253, 135, 244, 121],
+                                        "args": [
+                                            {
+                                                "name": "amount",
+                                                "type": "u64",
+                                            },
+                                            {
+                                                "name": "decimals",
+                                                "type": "u8",
+                                            },
+                                        ],
+                                    }
+                                ],
+                            ),
+                        ],
+                        conditions=[
+                            SolDataCondition(
+                                instruction="transfer",
+                                params=[
+                                    SolDataParameterCondition(
+                                        name="lamports",
+                                        operator="<=",
+                                        value="1000000",
+                                    ),
+                                ],
+                            ),
+                            SolDataCondition(
+                                instruction="transfer_checked",
+                                params=[
+                                    SolDataParameterCondition(
+                                        name="amount",
+                                        operator="<=",
+                                        value="100000",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_sol_data_list_parameter_conditions(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with solData criterion using list parameter conditions."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="Set limits on token program instruction data",
+        rules=[
+            SignSolanaTransactionRule(
+                action="accept",
+                operation="signSolTransaction",
+                criteria=[
+                    SolDataCriterion(
+                        type="solData",
+                        idls=[KnownIdlType.TOKENPROGRAM],
+                        conditions=[
+                            SolDataCondition(
+                                instruction="transfer_checked",
+                                params=[
+                                    SolDataParameterConditionList(
+                                        name="decimals",
+                                        operator="in",
+                                        values=["6", "9"],
+                                    ),
+                                    SolDataParameterCondition(
+                                        name="amount",
+                                        operator="<=",
+                                        value="1000000",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_sol_data_no_params(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with solData criterion without parameter conditions."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="Allow instructions without params",
+        rules=[
+            SignSolanaTransactionRule(
+                action="accept",
+                operation="signSolTransaction",
+                criteria=[
+                    SolDataCriterion(
+                        type="solData",
+                        idls=[KnownIdlType.ASSOCIATEDTOKENPROGRAM],
+                        conditions=[
+                            SolDataCondition(
+                                instruction="create",
+                            ),
+                            SolDataCondition(
+                                instruction="create_idempotent",
+                            ),
+                        ],
+                    ),
+                ],
+            )
         ],
     )
 
