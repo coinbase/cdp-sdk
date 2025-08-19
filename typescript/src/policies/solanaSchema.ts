@@ -61,6 +61,86 @@ export const MintAddressOperatorEnum = z.enum(["in", "not in"]);
 export type MintAddressOperator = z.infer<typeof MintAddressOperatorEnum>;
 
 /**
+ * Enum for KnownIdlType values
+ */
+export const KnownIdlTypeEnum = z.enum(["SystemProgram", "TokenProgram", "AssociatedTokenProgram"]);
+/**
+ * Type representing known Solana programs that have established IDL specifications.
+ * These programs can be referenced directly by name in policy rules.
+ */
+export type KnownIdlType = z.infer<typeof KnownIdlTypeEnum>;
+
+/**
+ * Schema for IDL specifications following Anchor's IDL format v0.30+
+ */
+export const IdlSchema = z
+  .object({
+    /** The program address */
+    address: z.string(),
+    /** Array of instruction specifications */
+    instructions: z.array(z.any()),
+  })
+  .passthrough();
+export type Idl = z.infer<typeof IdlSchema>;
+
+/**
+ * Enum for SolDataParameterOperator values
+ */
+export const SolDataParameterOperatorEnum = z.enum([">", ">=", "<", "<=", "=="]);
+/**
+ * Type representing the operators that can be used for Solana data parameter comparisons.
+ */
+export type SolDataParameterOperator = z.infer<typeof SolDataParameterOperatorEnum>;
+
+/**
+ * Enum for SolDataParameterListOperator values
+ */
+export const SolDataParameterListOperatorEnum = z.enum(["in", "not in"]);
+/**
+ * Type representing the operators that can be used for Solana data parameter list comparisons.
+ */
+export type SolDataParameterListOperator = z.infer<typeof SolDataParameterListOperatorEnum>;
+
+/**
+ * Schema for Solana data parameter conditions (single value)
+ */
+export const SolDataParameterConditionSchema = z.object({
+  /** The parameter name */
+  name: z.string(),
+  /** The operator to use for the comparison */
+  operator: SolDataParameterOperatorEnum,
+  /** The value to compare against */
+  value: z.string(),
+});
+export type SolDataParameterCondition = z.infer<typeof SolDataParameterConditionSchema>;
+
+/**
+ * Schema for Solana data parameter conditions (list values)
+ */
+export const SolDataParameterConditionListSchema = z.object({
+  /** The parameter name */
+  name: z.string(),
+  /** The operator to use for the comparison */
+  operator: SolDataParameterListOperatorEnum,
+  /** The values to compare against */
+  values: z.array(z.string()),
+});
+export type SolDataParameterConditionList = z.infer<typeof SolDataParameterConditionListSchema>;
+
+/**
+ * Schema for Solana data conditions
+ */
+export const SolDataConditionSchema = z.object({
+  /** The instruction name */
+  instruction: z.string(),
+  /** Parameter conditions for the instruction */
+  params: z
+    .array(z.union([SolDataParameterConditionSchema, SolDataParameterConditionListSchema]))
+    .optional(),
+});
+export type SolDataCondition = z.infer<typeof SolDataConditionSchema>;
+
+/**
  * Schema for Solana address criterions
  */
 export const SolAddressCriterionSchema = z.object({
@@ -153,6 +233,24 @@ export const MintAddressCriterionSchema = z.object({
 export type MintAddressCriterion = z.infer<typeof MintAddressCriterionSchema>;
 
 /**
+ * Schema for Solana data criterions
+ */
+export const SolDataCriterionSchema = z.object({
+  /** The type of criterion, must be "solData" for Solana data-based rules. */
+  type: z.literal("solData"),
+  /**
+   * List of IDL specifications. Can contain known program names (strings) or custom IDL objects.
+   */
+  idls: z.array(z.union([KnownIdlTypeEnum, IdlSchema])),
+  /**
+   * A list of conditions to apply against the transaction instruction.
+   * Each condition must evaluate to true for this criterion to be met.
+   */
+  conditions: z.array(SolDataConditionSchema),
+});
+export type SolDataCriterion = z.infer<typeof SolDataCriterionSchema>;
+
+/**
  * Schema for criteria used in SignSolTransaction operations
  */
 export const SignSolTransactionCriteriaSchema = z
@@ -163,6 +261,7 @@ export const SignSolTransactionCriteriaSchema = z
       SplAddressCriterionSchema,
       SplValueCriterionSchema,
       MintAddressCriterionSchema,
+      SolDataCriterionSchema,
     ]),
   )
   .max(10)
@@ -184,6 +283,7 @@ export const SendSolTransactionCriteriaSchema = z
       SplAddressCriterionSchema,
       SplValueCriterionSchema,
       MintAddressCriterionSchema,
+      SolDataCriterionSchema,
     ]),
   )
   .max(10)
