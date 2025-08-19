@@ -88,9 +88,9 @@ console.log(
 const fromPubkey = new PublicKey(accountWithSolDataPolicy.address);
 const goodTransferAmount = BigInt(0.001 * LAMPORTS_PER_SOL);
 const transaction = new Transaction().add(
-  // createAnchorSystemTransferInstruction(goodTransferAmount),
+  createAnchorSystemTransferInstruction(goodTransferAmount),
   createAnchorSPLTransferCheckedInstruction(100000, 6),
-  // createAnchorAssociatedTokenAccountCreateInstruction()
+  createAnchorAssociatedTokenAccountCreateInstruction()
 );
 
 transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
@@ -213,8 +213,7 @@ function createAnchorSPLTransferCheckedInstruction(
   amount: number,
   decimals: number
 ): TransactionInstruction {
-  // const testAccount = Keypair.generate().publicKey;
-  const testAccount = new PublicKey(accountWithSolDataPolicy.address);
+  const testAccount = Keypair.generate().publicKey;
   const transferCheckedDiscriminator = Buffer.from([119, 250, 202, 24, 253, 135, 244, 121]);
 
   // Serialize the arguments: amount (u64) + decimals (u8)
