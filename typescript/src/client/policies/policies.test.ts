@@ -631,6 +631,382 @@ describe("PoliciesClient", () => {
       await expect(client.createPolicy({ policy: invalidPolicy })).rejects.toThrow(ZodError);
       expect(createPolicyMock).not.toHaveBeenCalled();
     });
+
+    it("should create a policy with signSolTransaction rule using solData criterion with known IDLs", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      const policyToCreate = {
+        scope: "account" as const,
+        description: "Set limits on known Solana program instructions",
+        rules: [
+          {
+            action: "accept" as const,
+            operation: "signSolTransaction" as const,
+            criteria: [
+              {
+                type: "solData" as const,
+                idls: ["SystemProgram", "TokenProgram", "AssociatedTokenProgram"] as any,
+                conditions: [
+                  {
+                    instruction: "transfer",
+                    params: [
+                      {
+                        name: "lamports",
+                        operator: "<=" as const,
+                        value: "1000000",
+                      },
+                    ],
+                  },
+                  {
+                    instruction: "transfer_checked",
+                    params: [
+                      {
+                        name: "amount",
+                        operator: "<=" as const,
+                        value: "100000",
+                      },
+                      {
+                        name: "decimals",
+                        operator: "==" as const,
+                        value: "6",
+                      },
+                    ],
+                  },
+                  {
+                    instruction: "create",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const expectedSolDataPolicy = {
+        id: "policy-soldata-known-idls",
+        ...policyToCreate,
+        createdAt: "2023-01-01T00:00:00Z",
+        updatedAt: "2023-01-01T00:00:00Z",
+      };
+
+      createPolicyMock.mockResolvedValue(expectedSolDataPolicy);
+
+      const result = await client.createPolicy({
+        policy: policyToCreate as any,
+      });
+
+      expect(result).toEqual(expectedSolDataPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyToCreate, undefined);
+    });
+
+    it("should create a policy with signSolTransaction rule using solData criterion with custom IDLs", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      const policyToCreate = {
+        scope: "account" as const,
+        description: "Set limits on custom Solana program instructions",
+        rules: [
+          {
+            action: "accept" as const,
+            operation: "signSolTransaction" as const,
+            criteria: [
+              {
+                type: "solData" as const,
+                idls: [
+                  {
+                    address: "11111111111111111111111111111111",
+                    instructions: [
+                      {
+                        name: "transfer",
+                        discriminator: [163, 52, 200, 231, 140, 3, 69, 186],
+                        args: [
+                          {
+                            name: "lamports",
+                            type: "u64",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    address: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                    instructions: [
+                      {
+                        name: "transfer_checked",
+                        discriminator: [119, 250, 202, 24, 253, 135, 244, 121],
+                        args: [
+                          {
+                            name: "amount",
+                            type: "u64",
+                          },
+                          {
+                            name: "decimals",
+                            type: "u8",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ] as any,
+                conditions: [
+                  {
+                    instruction: "transfer",
+                    params: [
+                      {
+                        name: "lamports",
+                        operator: "<=" as const,
+                        value: "1000000",
+                      },
+                    ],
+                  },
+                  {
+                    instruction: "transfer_checked",
+                    params: [
+                      {
+                        name: "amount",
+                        operator: "<=" as const,
+                        value: "100000",
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const expectedCustomIdlPolicy = {
+        id: "policy-soldata-custom-idls",
+        ...policyToCreate,
+        createdAt: "2023-01-01T00:00:00Z",
+        updatedAt: "2023-01-01T00:00:00Z",
+      };
+
+      createPolicyMock.mockResolvedValue(expectedCustomIdlPolicy);
+
+      const result = await client.createPolicy({
+        policy: policyToCreate as any,
+      });
+
+      expect(result).toEqual(expectedCustomIdlPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyToCreate, undefined);
+    });
+
+    it("should create a policy with sendSolTransaction rule using solData criterion with mixed IDL types", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      const policyToCreate = {
+        scope: "account" as const,
+        description: "Set limits on mixed Solana program instructions",
+        rules: [
+          {
+            action: "accept" as const,
+            operation: "sendSolTransaction" as const,
+            criteria: [
+              {
+                type: "solData" as const,
+                idls: [
+                  "SystemProgram",
+                  "TokenProgram",
+                  {
+                    address: "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+                    instructions: [
+                      {
+                        name: "create",
+                        discriminator: [24, 30, 200, 40, 5, 28, 7, 119],
+                        args: [],
+                      },
+                    ],
+                  },
+                ] as any,
+                conditions: [
+                  {
+                    instruction: "transfer",
+                    params: [
+                      {
+                        name: "lamports",
+                        operator: ">" as const,
+                        value: "0",
+                      },
+                      {
+                        name: "lamports",
+                        operator: "<=" as const,
+                        value: "5000000",
+                      },
+                    ],
+                  },
+                  {
+                    instruction: "create",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const expectedMixedIdlPolicy = {
+        id: "policy-soldata-mixed-idls",
+        ...policyToCreate,
+        createdAt: "2023-01-01T00:00:00Z",
+        updatedAt: "2023-01-01T00:00:00Z",
+      };
+
+      createPolicyMock.mockResolvedValue(expectedMixedIdlPolicy);
+
+      const result = await client.createPolicy({
+        policy: policyToCreate as any,
+      });
+
+      expect(result).toEqual(expectedMixedIdlPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyToCreate, undefined);
+    });
+
+    it("should create a policy with solData criterion using list parameter conditions", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      const policyToCreate = {
+        scope: "account" as const,
+        description: "Set limits on token program instruction data",
+        rules: [
+          {
+            action: "accept" as const,
+            operation: "signSolTransaction" as const,
+            criteria: [
+              {
+                type: "solData" as const,
+                idls: ["TokenProgram"] as any,
+                conditions: [
+                  {
+                    instruction: "transfer_checked",
+                    params: [
+                      {
+                        name: "decimals",
+                        operator: "in" as const,
+                        values: ["6", "9"],
+                      },
+                      {
+                        name: "amount",
+                        operator: "<=" as const,
+                        value: "1000000",
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const expectedListConditionPolicy = {
+        id: "policy-soldata-list-conditions",
+        ...policyToCreate,
+        createdAt: "2023-01-01T00:00:00Z",
+        updatedAt: "2023-01-01T00:00:00Z",
+      };
+
+      createPolicyMock.mockResolvedValue(expectedListConditionPolicy);
+
+      const result = await client.createPolicy({
+        policy: policyToCreate as any,
+      });
+
+      expect(result).toEqual(expectedListConditionPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyToCreate, undefined);
+    });
+
+    it("should create a policy with solData criterion without parameter conditions", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      const policyToCreate = {
+        scope: "account" as const,
+        description: "Allow instructions without params",
+        rules: [
+          {
+            action: "accept" as const,
+            operation: "signSolTransaction" as const,
+            criteria: [
+              {
+                type: "solData" as const,
+                idls: ["AssociatedTokenProgram"] as any,
+                conditions: [
+                  {
+                    instruction: "create",
+                  },
+                  {
+                    instruction: "create_idempotent",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const expectedNoParamPolicy = {
+        id: "policy-soldata-no-params",
+        ...policyToCreate,
+        createdAt: "2023-01-01T00:00:00Z",
+        updatedAt: "2023-01-01T00:00:00Z",
+      };
+
+      createPolicyMock.mockResolvedValue(expectedNoParamPolicy);
+
+      const result = await client.createPolicy({
+        policy: policyToCreate as any,
+      });
+
+      expect(result).toEqual(expectedNoParamPolicy);
+      expect(createPolicyMock).toHaveBeenCalledWith(policyToCreate, undefined);
+    });
+
+    it("should validate solData policy with invalid IDL structure", async () => {
+      const createPolicyMock = CdpOpenApiClient.createPolicy as MockedFunction<
+        typeof CdpOpenApiClient.createPolicy
+      >;
+
+      const invalidPolicy = {
+        scope: "account" as const,
+        rules: [
+          {
+            action: "accept" as const,
+            operation: "signSolTransaction" as const,
+            criteria: [
+              {
+                type: "solData" as const,
+                idls: [
+                  {
+                    // Missing required 'address' field
+                    instructions: [],
+                  },
+                ],
+                conditions: [
+                  {
+                    instruction: "transfer",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      // @ts-expect-error Intentionally using invalid IDL structure for test
+      await expect(client.createPolicy({ policy: invalidPolicy })).rejects.toThrow(ZodError);
+      expect(createPolicyMock).not.toHaveBeenCalled();
+    });
   });
 
   describe("getPolicyById", () => {

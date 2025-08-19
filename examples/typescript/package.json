@@ -3,6 +3,7 @@
   "type": "module",
   "dependencies": {
     "@coinbase/cdp-sdk": "workspace:*",
+    "@solana/spl-token": "^0.4.13",
     "@solana/web3.js": "^1.98.1",
     "@types/node": "^22.14.1",
     "bs58": "^6.0.0",

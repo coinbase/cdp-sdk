@@ -27,6 +27,10 @@ from cdp.policies.types import (
     SignEvmTypedDataVerifyingContractCriterion as SignEvmTypedDataVerifyingContractCriterionModel,
     SignSolanaTransactionRule as SignSolanaTransactionRuleModel,
     SolAddressCriterion as SolAddressCriterionModel,
+    SolDataCondition as SolDataConditionModel,
+    SolDataCriterion as SolDataCriterionModel,
+    SolDataParameterCondition as SolDataParameterConditionModel,
+    SolDataParameterConditionList as SolDataParameterConditionListModel,
     SolValueCriterion as SolValueCriterionModel,
     SplAddressCriterion as SplAddressCriterionModel,
     SplValueCriterion as SplValueCriterionModel,
@@ -163,6 +167,37 @@ response_criterion_mapping = {
         "mintAddress": lambda c: MintAddressCriterionModel(
             addresses=c.addresses, operator=c.operator
         ),
+        "solData": lambda c: SolDataCriterionModel(
+            idls=[
+                idl.actual_instance if hasattr(idl, "actual_instance") else idl for idl in c.idls
+            ],
+            conditions=[
+                SolDataConditionModel(
+                    instruction=cond.instruction,
+                    params=(
+                        [
+                            (
+                                SolDataParameterConditionListModel(
+                                    name=param.actual_instance.name,
+                                    operator=param.actual_instance.operator,
+                                    values=param.actual_instance.values,
+                                )
+                                if hasattr(param.actual_instance, "values")
+                                else SolDataParameterConditionModel(
+                                    name=param.actual_instance.name,
+                                    operator=param.actual_instance.operator,
+                                    value=param.actual_instance.value,
+                                )
+                            )
+                            for param in cond.params
+                        ]
+                        if cond.params
+                        else None
+                    ),
+                )
+                for cond in c.conditions
+            ],
+        ),
     },
     "sendSolTransaction": {
         "solAddress": lambda c: SolAddressCriterionModel(
@@ -175,6 +210,37 @@ response_criterion_mapping = {
         "splValue": lambda c: SplValueCriterionModel(splValue=c.spl_value, operator=c.operator),
         "mintAddress": lambda c: MintAddressCriterionModel(
             addresses=c.addresses, operator=c.operator
+        ),
+        "solData": lambda c: SolDataCriterionModel(
+            idls=[
+                idl.actual_instance if hasattr(idl, "actual_instance") else idl for idl in c.idls
+            ],
+            conditions=[
+                SolDataConditionModel(
+                    instruction=cond.instruction,
+                    params=(
+                        [
+                            (
+                                SolDataParameterConditionListModel(
+                                    name=param.actual_instance.name,
+                                    operator=param.actual_instance.operator,
+                                    values=param.actual_instance.values,
+                                )
+                                if hasattr(param.actual_instance, "values")
+                                else SolDataParameterConditionModel(
+                                    name=param.actual_instance.name,
+                                    operator=param.actual_instance.operator,
+                                    value=param.actual_instance.value,
+                                )
+                            )
+                            for param in cond.params
+                        ]
+                        if cond.params
+                        else None
+                    ),
+                )
+                for cond in c.conditions
+            ],
         ),
     },
     "prepareUserOperation": {

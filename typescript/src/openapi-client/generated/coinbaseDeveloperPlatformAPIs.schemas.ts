@@ -1665,12 +1665,177 @@ export interface MintAddressCriterion {
   operator: MintAddressCriterionOperator;
 }
 
+/**
+ * A reference to an established Solana program. When referencing a `KnownIdlType` within a policy rule configuring an `SolDataCriterion`, criteria will decode instruction data as documented in the programs. For more information on supported programs, see the links below.
+  - [SystemProgram](https://docs.rs/solana-program/latest/solana_program/system_instruction/enum.SystemInstruction.html).
+  - [TokenProgram](https://docs.rs/spl-token/latest/spl_token/instruction/enum.TokenInstruction.html).
+  - [AssociatedTokenProgram](https://docs.rs/spl-associated-token-account/latest/spl_associated_token_account/instruction/index.html).
+ */
+export type KnownIdlType = (typeof KnownIdlType)[keyof typeof KnownIdlType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const KnownIdlType = {
+  SystemProgram: "SystemProgram",
+  TokenProgram: "TokenProgram",
+  AssociatedTokenProgram: "AssociatedTokenProgram",
+} as const;
+
+export type IdlInstructionsItemArgsItem = {
+  /** The argument name. */
+  name: string;
+  /** The argument type. */
+  type: string;
+};
+
+export type IdlInstructionsItemAccountsItem = {
+  /** The account name. */
+  name: string;
+  /** Whether the account is writable. */
+  writable?: boolean;
+  /** Whether the account must be a signer. */
+  signer?: boolean;
+};
+
+export type IdlInstructionsItem = {
+  /** The instruction name. */
+  name: string;
+  /**
+   * Array of 8 numbers representing the instruction discriminator.
+   * @minItems 8
+   * @maxItems 8
+   */
+  discriminator: number[];
+  /** List of instruction arguments. */
+  args: IdlInstructionsItemArgsItem[];
+  /** Optional list of accounts required by the instruction. */
+  accounts?: IdlInstructionsItemAccountsItem[];
+};
+
+/**
+ * Optional metadata about the IDL.
+ */
+export type IdlMetadata = {
+  /** The program name. */
+  name?: string;
+  /** The program version. */
+  version?: string;
+  /** The IDL specification version. */
+  spec?: string;
+};
+
+export type IdlTypesItem = { [key: string]: unknown };
+
+/**
+ * IDL Specification following Anchor's IDL format v0.30+.
+ */
+export interface Idl {
+  /** The program address. */
+  address: string;
+  /** List of program instructions. */
+  instructions: IdlInstructionsItem[];
+  /** Optional metadata about the IDL. */
+  metadata?: IdlMetadata;
+  /** Optional type definitions for custom data structures used in the program. */
+  types?: IdlTypesItem[];
+}
+
+/**
+ * The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+ */
+export type SolDataParameterConditionOperator =
+  (typeof SolDataParameterConditionOperator)[keyof typeof SolDataParameterConditionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolDataParameterConditionOperator = {
+  ">": ">",
+  ">=": ">=",
+  "<": "<",
+  "<=": "<=",
+  "==": "==",
+} as const;
+
+/**
+ * A single parameter condition to apply against a specific instruction's parameters.
+ */
+export interface SolDataParameterCondition {
+  /** The parameter name. */
+  name: string;
+  /** The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side. */
+  operator: SolDataParameterConditionOperator;
+  /** The value to compare against. */
+  value: string;
+}
+
+/**
+ * The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+ */
+export type SolDataParameterConditionListOperator =
+  (typeof SolDataParameterConditionListOperator)[keyof typeof SolDataParameterConditionListOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolDataParameterConditionListOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * A single parameter condition to apply against a specific instruction's parameters.
+ */
+export interface SolDataParameterConditionList {
+  /** The parameter name. */
+  name: string;
+  /** The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side. */
+  operator: SolDataParameterConditionListOperator;
+  /** The values to compare against. */
+  values: string[];
+}
+
+/**
+ * A list of parameter conditions to apply against a specific instruction's data.
+ */
+export type SolDataConditionParamsItem = SolDataParameterCondition | SolDataParameterConditionList;
+
+/**
+ * A single condition to apply against a specific instruction type and its parameters.
+ */
+export interface SolDataCondition {
+  /** The instruction name. */
+  instruction: string;
+  /** Parameter conditions for the instruction. */
+  params?: SolDataConditionParamsItem[];
+}
+
+/**
+ * The type of criterion to use. This should be `solData`.
+ */
+export type SolDataCriterionType = (typeof SolDataCriterionType)[keyof typeof SolDataCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolDataCriterionType = {
+  solData: "solData",
+} as const;
+
+export type SolDataCriterionIdlsItem = KnownIdlType | Idl;
+
+/**
+ * A schema for specifying criterion for instruction data in a Solana transaction.
+ */
+export interface SolDataCriterion {
+  /** The type of criterion to use. This should be `solData`. */
+  type: SolDataCriterionType;
+  /** List of IDL specifications. Can contain known program names (strings) or custom IDL objects. */
+  idls: SolDataCriterionIdlsItem[];
+  /** A list of conditions to apply against the transaction instruction. Only one condition must evaluate to true for this criterion to be met. */
+  conditions: SolDataCondition[];
+}
+
 export type SignSolTransactionCriteriaItem =
   | SolAddressCriterion
   | SolValueCriterion
   | SplAddressCriterion
   | SplValueCriterion
-  | MintAddressCriterion;
+  | MintAddressCriterion
+  | SolDataCriterion;
 
 /**
  * A schema for specifying criteria for the SignSolTransaction operation.
@@ -1713,7 +1878,8 @@ export type SendSolTransactionCriteriaItem =
   | SolValueCriterion
   | SplAddressCriterion
   | SplValueCriterion
-  | MintAddressCriterion;
+  | MintAddressCriterion
+  | SolDataCriterion;
 
 /**
  * A schema for specifying criteria for the SendSolTransaction operation.
@@ -2565,13 +2731,13 @@ export interface Transfer {
 }
 
 /**
- * The type of payment method to be used to complete the order.
+ * The type of payment method to be used to complete an onramp order.
  */
-export type OnrampPaymentMethodTypeId =
-  (typeof OnrampPaymentMethodTypeId)[keyof typeof OnrampPaymentMethodTypeId];
+export type OnrampOrderPaymentMethodTypeId =
+  (typeof OnrampOrderPaymentMethodTypeId)[keyof typeof OnrampOrderPaymentMethodTypeId];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const OnrampPaymentMethodTypeId = {
+export const OnrampOrderPaymentMethodTypeId = {
   GUEST_CHECKOUT_APPLE_PAY: "GUEST_CHECKOUT_APPLE_PAY",
 } as const;
 
@@ -2624,7 +2790,7 @@ export interface OnrampOrder {
   paymentSubtotal: string;
   /** The fiat currency to be converted to crypto. */
   paymentCurrency: string;
-  paymentMethod: OnrampPaymentMethodTypeId;
+  paymentMethod: OnrampOrderPaymentMethodTypeId;
   /** The amount of crypto to be purchased. */
   purchaseAmount: string;
   /** The crypto currency to be purchased. */
@@ -3456,7 +3622,7 @@ This value can be used with with [Onramp User Transactions API](https://docs.cdp
   paymentAmount?: string;
   /** The fiat currency to be converted to crypto. */
   paymentCurrency: string;
-  paymentMethod: OnrampPaymentMethodTypeId;
+  paymentMethod: OnrampOrderPaymentMethodTypeId;
   /** The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
 
 Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices. */

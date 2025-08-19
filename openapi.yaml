@@ -319,6 +319,8 @@ tags:
       A criterion based on the SPL token value of SPL token transfer instructions in the transaction. The criterion's `splValue` field is compared to the transaction instruction's `value` field, which is the amount of the SPL token being transferred, using the `operator` field.
       #### mintAddress
       A criterion based on the token mint addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### solData
+      A criterion based on Solana transaction instruction data. The criterion uses Interface Definition Language (IDL) specifications to decode and validate instruction data against specific rules. The `idls` field specifies which Solana programs to validate against (either known program names like "SystemProgram" and "TokenProgram", or custom IDL objects), and the `conditions` field defines instruction-specific validation rules including instruction names and parameter constraints.
       ### SendSolTransaction Criteria
       #### solAddress
       A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
@@ -330,6 +332,8 @@ tags:
       A criterion based on the SPL token value of SPL token transfer instructions in the transaction. The criterion's `splValue` field is compared to the transaction instruction's `value` field, which is the amount of the SPL token being transferred, using the `operator` field.
       #### mintAddress
       A criterion based on the token mint addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
+      #### solData
+      A criterion based on Solana transaction instruction data. The criterion uses Interface Definition Language (IDL) specifications to decode and validate instruction data against specific rules. The `idls` field specifies which Solana programs to validate against (either known program names like "SystemProgram" and "TokenProgram", or custom IDL objects), and the `conditions` field defines instruction-specific validation rules including instruction names and parameter constraints.
       ## Restricting Contract Interactions on Ethereum
       Smart contract function restrictions serve as a critical security and governance mechanism in decentralized applications, allowing developers and organizations to implement fine-grained access controls over their protocol interactions.
       One of the primary use cases for function restrictions is protecting high-risk operations from unauthorized access such as:
@@ -5095,7 +5099,7 @@ paths:
                   type: string
                   example: USD
                 paymentMethod:
-                  $ref: '#/components/schemas/OnrampPaymentMethodTypeId'
+                  $ref: '#/components/schemas/OnrampOrderPaymentMethodTypeId'
                 phoneNumber:
                   description: |-
                     The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.
@@ -5229,8 +5233,6 @@ paths:
                     errorMessage: Order with the given ID does not exist.
         '429':
           $ref: '#/components/responses/RateLimitExceeded'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     apiKeyAuth:
@@ -7663,6 +7665,300 @@ components:
         - type
         - addresses
         - operator
+    KnownIdlType:
+      type: string
+      x-audience: public
+      title: KnownIdlType
+      description: |-
+        A reference to an established Solana program. When referencing a `KnownIdlType` within a policy rule configuring an `SolDataCriterion`, criteria will decode instruction data as documented in the programs. For more information on supported programs, see the links below.
+          - [SystemProgram](https://docs.rs/solana-program/latest/solana_program/system_instruction/enum.SystemInstruction.html).
+          - [TokenProgram](https://docs.rs/spl-token/latest/spl_token/instruction/enum.TokenInstruction.html).
+          - [AssociatedTokenProgram](https://docs.rs/spl-associated-token-account/latest/spl_associated_token_account/instruction/index.html).
+      enum:
+        - SystemProgram
+        - TokenProgram
+        - AssociatedTokenProgram
+    Idl:
+      x-audience: public
+      type: object
+      description: IDL Specification following Anchor's IDL format v0.30+.
+      required:
+        - address
+        - instructions
+      properties:
+        address:
+          type: string
+          description: The program address.
+          example: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+        instructions:
+          type: array
+          description: List of program instructions.
+          example:
+            - name: transfer_checked
+              discriminator:
+                - 119
+                - 250
+                - 202
+                - 24
+                - 253
+                - 135
+                - 244
+                - 121
+              accounts:
+                - name: mint
+                  writable: true
+                - name: rent
+              args:
+                - name: amount
+                  type: u64
+                - name: decimals
+                  type: u8
+          items:
+            type: object
+            required:
+              - name
+              - discriminator
+              - args
+            properties:
+              name:
+                type: string
+                description: The instruction name.
+                example: transfer_checked
+              discriminator:
+                type: array
+                description: Array of 8 numbers representing the instruction discriminator.
+                items:
+                  type: integer
+                  minimum: 0
+                  maximum: 255
+                minItems: 8
+                maxItems: 8
+                example:
+                  - 119
+                  - 250
+                  - 202
+                  - 24
+                  - 253
+                  - 135
+                  - 244
+                  - 121
+              args:
+                type: array
+                description: List of instruction arguments.
+                items:
+                  type: object
+                  required:
+                    - name
+                    - type
+                  properties:
+                    name:
+                      type: string
+                      description: The argument name.
+                      example: amount
+                    type:
+                      type: string
+                      description: The argument type.
+                      example: u64
+              accounts:
+                type: array
+                description: Optional list of accounts required by the instruction.
+                items:
+                  type: object
+                  required:
+                    - name
+                  properties:
+                    name:
+                      type: string
+                      description: The account name.
+                      example: mint
+                    writable:
+                      type: boolean
+                      description: Whether the account is writable.
+                      example: true
+                    signer:
+                      type: boolean
+                      description: Whether the account must be a signer.
+                      example: false
+        metadata:
+          type: object
+          description: Optional metadata about the IDL.
+          example:
+            name: system_program
+            version: 0.1.0
+            spec: 0.1.0
+          properties:
+            name:
+              type: string
+              description: The program name.
+              example: system_program
+            version:
+              type: string
+              description: The program version.
+              example: 0.1.0
+            spec:
+              type: string
+              description: The IDL specification version.
+              example: 0.1.0
+        types:
+          type: array
+          description: Optional type definitions for custom data structures used in the program.
+          items:
+            type: object
+          example:
+            - name: MyStruct
+              type: struct
+              fields:
+                - name: id
+                  type: u64
+                - name: owner
+                  type: pubkey
+    SolDataParameterCondition:
+      type: object
+      x-audience: public
+      title: SolDataParameterCondition
+      description: A single parameter condition to apply against a specific instruction's parameters.
+      properties:
+        name:
+          type: string
+          description: The parameter name.
+          example: amount
+        operator:
+          type: string
+          description: The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+          enum:
+            - '>'
+            - '>='
+            - <
+            - <=
+            - '=='
+          example: '=='
+        value:
+          type: string
+          description: The value to compare against.
+          example: '1000000'
+      required:
+        - name
+        - operator
+        - value
+    SolDataParameterConditionList:
+      type: object
+      x-audience: public
+      title: SolDataParameterConditionList
+      description: A single parameter condition to apply against a specific instruction's parameters.
+      properties:
+        name:
+          type: string
+          description: The parameter name.
+          example: amount
+        operator:
+          type: string
+          description: The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+        values:
+          type: array
+          description: The values to compare against.
+          items:
+            type: string
+            description: A single potential value to compare against the resolved `name` value.
+            example: '1000000'
+          example:
+            - '1000000'
+            - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+            - '6'
+      required:
+        - name
+        - operator
+        - values
+    SolDataCondition:
+      type: object
+      x-audience: public
+      description: A single condition to apply against a specific instruction type and its parameters.
+      properties:
+        instruction:
+          type: string
+          description: The instruction name.
+          example: transfer_checked
+        params:
+          type: array
+          description: Parameter conditions for the instruction.
+          items:
+            description: A list of parameter conditions to apply against a specific instruction's data.
+            oneOf:
+              - $ref: '#/components/schemas/SolDataParameterCondition'
+              - $ref: '#/components/schemas/SolDataParameterConditionList'
+          example:
+            - name: amount
+              operator: <=
+              value: '1000000'
+            - name: decimals
+              operator: '=='
+              value: '6'
+            - name: owner
+              operator: in
+              values:
+                - TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+                - So11111111111111111111111111111111111111112
+      required:
+        - instruction
+    SolDataCriterion:
+      x-audience: public
+      type: object
+      description: A schema for specifying criterion for instruction data in a Solana transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `solData`.
+          example: solData
+          enum:
+            - solData
+        idls:
+          type: array
+          description: List of IDL specifications. Can contain known program names (strings) or custom IDL objects.
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/KnownIdlType'
+              - $ref: '#/components/schemas/Idl'
+          example:
+            - SystemProgram
+            - TokenProgram
+            - address: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+              instructions:
+                - name: transfer_checked
+                  discriminator:
+                    - 119
+                    - 250
+                    - 202
+                    - 24
+                    - 253
+                    - 135
+                    - 244
+                    - 121
+                  args:
+                    - name: amount
+                      type: u64
+                    - name: decimals
+                      type: u8
+        conditions:
+          type: array
+          description: A list of conditions to apply against the transaction instruction. Only one condition must evaluate to true for this criterion to be met.
+          items:
+            $ref: '#/components/schemas/SolDataCondition'
+          example:
+            - instruction: transfer_checked
+              params:
+                - name: lamports
+                  operator: <=
+                  value: '1000000'
+                - name: space
+                  operator: '=='
+                  value: '64'
+      required:
+        - type
+        - idls
+        - conditions
     SignSolTransactionCriteria:
       type: array
       x-audience: public
@@ -7674,6 +7970,7 @@ components:
           - $ref: '#/components/schemas/SplAddressCriterion'
           - $ref: '#/components/schemas/SplValueCriterion'
           - $ref: '#/components/schemas/MintAddressCriterion'
+          - $ref: '#/components/schemas/SolDataCriterion'
       example:
         - type: solAddress
           addresses:
@@ -7712,6 +8009,7 @@ components:
           - $ref: '#/components/schemas/SplAddressCriterion'
           - $ref: '#/components/schemas/SplValueCriterion'
           - $ref: '#/components/schemas/MintAddressCriterion'
+          - $ref: '#/components/schemas/SolDataCriterion'
       example:
         - type: solAddress
           addresses:
@@ -8787,9 +9085,9 @@ components:
         createdAt: '2021-01-01T00:00:00Z'
         updatedAt: '2021-01-01T00:00:00Z'
         transactionHash: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
-    OnrampPaymentMethodTypeId:
+    OnrampOrderPaymentMethodTypeId:
       type: string
-      description: The type of payment method to be used to complete the order.
+      description: The type of payment method to be used to complete an onramp order.
       enum:
         - GUEST_CHECKOUT_APPLE_PAY
       example: GUEST_CHECKOUT_APPLE_PAY
@@ -8847,7 +9145,7 @@ components:
           description: The fiat currency to be converted to crypto.
           example: USD
         paymentMethod:
-          $ref: '#/components/schemas/OnrampPaymentMethodTypeId'
+          $ref: '#/components/schemas/OnrampOrderPaymentMethodTypeId'
         purchaseAmount:
           type: string
           description: The amount of crypto to be purchased.
