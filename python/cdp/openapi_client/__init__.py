@@ -107,9 +107,13 @@ from cdp.openapi_client.models.fee import Fee
 from cdp.openapi_client.models.get_onramp_order_by_id200_response import GetOnrampOrderById200Response
 from cdp.openapi_client.models.get_swap_price_response import GetSwapPriceResponse
 from cdp.openapi_client.models.get_swap_price_response_wrapper import GetSwapPriceResponseWrapper
+from cdp.openapi_client.models.idl import Idl
+from cdp.openapi_client.models.idl_instructions_inner import IdlInstructionsInner
+from cdp.openapi_client.models.idl_instructions_inner_args_inner import IdlInstructionsInnerArgsInner
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.import_solana_account_request import ImportSolanaAccountRequest
 from cdp.openapi_client.models.known_abi_type import KnownAbiType
+from cdp.openapi_client.models.known_idl_type import KnownIdlType
 from cdp.openapi_client.models.list_evm_accounts200_response import ListEvmAccounts200Response
 from cdp.openapi_client.models.list_evm_smart_accounts200_response import ListEvmSmartAccounts200Response
 from cdp.openapi_client.models.list_evm_token_balances200_response import ListEvmTokenBalances200Response
@@ -187,6 +191,12 @@ from cdp.openapi_client.models.sign_solana_transaction200_response import SignSo
 from cdp.openapi_client.models.sign_solana_transaction_request import SignSolanaTransactionRequest
 from cdp.openapi_client.models.sms_authentication import SmsAuthentication
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
+from cdp.openapi_client.models.sol_data_condition import SolDataCondition
+from cdp.openapi_client.models.sol_data_condition_params_inner import SolDataConditionParamsInner
+from cdp.openapi_client.models.sol_data_criterion import SolDataCriterion
+from cdp.openapi_client.models.sol_data_criterion_idls_inner import SolDataCriterionIdlsInner
+from cdp.openapi_client.models.sol_data_parameter_condition import SolDataParameterCondition
+from cdp.openapi_client.models.sol_data_parameter_condition_list import SolDataParameterConditionList
 from cdp.openapi_client.models.sol_value_criterion import SolValueCriterion
 from cdp.openapi_client.models.solana_account import SolanaAccount
 from cdp.openapi_client.models.solana_token import SolanaToken
