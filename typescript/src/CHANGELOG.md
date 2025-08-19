@@ -1,5 +1,17 @@
 # CDP SDK Changelog
 
+## 1.36.0
+
+### Minor Changes
+
+- [#412](https://github.com/coinbase/cdp-sdk/pull/412) [`22348cd`](https://github.com/coinbase/cdp-sdk/commit/22348cd05bf214cfb2128569cc6d8bf13de1596f) Thanks [@sddioulde](https://github.com/sddioulde)! - Added solData criterion to policy engine
+
+### Patch Changes
+
+- [#411](https://github.com/coinbase/cdp-sdk/pull/411) [`4ab0bb5`](https://github.com/coinbase/cdp-sdk/commit/4ab0bb5a9c8568d889cb407199c9c02363a26185) Thanks [@0xRAG](https://github.com/0xRAG)! - Added check to validate smart account owner
+
+- [#402](https://github.com/coinbase/cdp-sdk/pull/402) [`d8943db`](https://github.com/coinbase/cdp-sdk/commit/d8943dbebc771a31a9989876bcc6fb985e76df29) Thanks [@github-actions](https://github.com/apps/github-actions)! - Added network in ListSpendPermissions response
+
 ## 1.35.0
 
 ### Minor Changes
