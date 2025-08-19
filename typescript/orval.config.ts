@@ -9,12 +9,7 @@ export default defineConfig({
       clean: true,
       target: "./generated",
       mode: "tags-split",
-      mock: {
-        type: "msw",
-        delay: 0,
-        useExamples: false,
-        indexMockFiles: true,
-      },
+      mock: false,
       override: {
         mutator: {
           path: "./cdpApiClient.ts",
