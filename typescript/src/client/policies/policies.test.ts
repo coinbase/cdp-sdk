@@ -639,7 +639,7 @@ describe("PoliciesClient", () => {
 
       const policyToCreate = {
         scope: "account" as const,
-        description: "Allow Solana programs with known IDLs",
+        description: "Set limits on known Solana program instruction data",
         rules: [
           {
             action: "accept" as const,
@@ -708,7 +708,7 @@ describe("PoliciesClient", () => {
 
       const policyToCreate = {
         scope: "account" as const,
-        description: "Allow Solana programs with custom IDLs",
+        description: "Set limits on custom Solana program instruction data",
         rules: [
           {
             action: "accept" as const,
@@ -804,7 +804,7 @@ describe("PoliciesClient", () => {
 
       const policyToCreate = {
         scope: "account" as const,
-        description: "Allow Solana programs with mixed IDLs",
+        description: "Set limits on mixed Solana program instruction data",
         rules: [
           {
             action: "accept" as const,
@@ -876,7 +876,7 @@ describe("PoliciesClient", () => {
 
       const policyToCreate = {
         scope: "account" as const,
-        description: "Allow token operations with list params",
+        description: "Set limits on token program instruction data",
         rules: [
           {
             action: "accept" as const,
