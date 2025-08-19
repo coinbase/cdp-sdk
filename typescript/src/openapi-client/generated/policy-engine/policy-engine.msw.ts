@@ -9,7 +9,11 @@ import { faker } from "@faker-js/faker";
 
 import { HttpResponse, delay, http } from "msw";
 
-import { AbiStateMutability, KnownAbiType } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
+import {
+  AbiStateMutability,
+  KnownAbiType,
+  KnownIdlType,
+} from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 import type {
   AbiFunction,
   AbiInput,
@@ -23,6 +27,7 @@ import type {
   EvmTypedAddressCondition,
   EvmTypedNumericalCondition,
   EvmTypedStringCondition,
+  Idl,
   ListPolicies200,
   MintAddressCriterion,
   NetUSDChangeCriterion,
@@ -30,6 +35,9 @@ import type {
   SignEvmTypedDataFieldCriterion,
   SignEvmTypedDataVerifyingContractCriterion,
   SolAddressCriterion,
+  SolDataCriterion,
+  SolDataParameterCondition,
+  SolDataParameterConditionList,
   SolValueCriterion,
   SplAddressCriterion,
   SplValueCriterion,
@@ -338,6 +346,79 @@ export const getListPoliciesResponseMintAddressCriterionMock = (
   ...overrideResponse,
 });
 
+export const getListPoliciesResponseIdlMock = (overrideResponse: Partial<Idl> = {}): Idl => ({
+  ...{
+    address: faker.string.alpha(20),
+    instructions: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      name: faker.string.alpha(20),
+      discriminator: Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+      ).map(() => faker.number.int({ min: 0, max: 255 })),
+      args: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+        () => ({ name: faker.string.alpha(20), type: faker.string.alpha(20) }),
+      ),
+    })),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseSolDataParameterConditionMock = (
+  overrideResponse: Partial<SolDataParameterCondition> = {},
+): SolDataParameterCondition => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+    value: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseSolDataParameterConditionListMock = (
+  overrideResponse: Partial<SolDataParameterConditionList> = {},
+): SolDataParameterConditionList => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+    values: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.string.alpha(20),
+    ),
+  },
+  ...overrideResponse,
+});
+
+export const getListPoliciesResponseSolDataCriterionMock = (
+  overrideResponse: Partial<SolDataCriterion> = {},
+): SolDataCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["solData"] as const),
+    idls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.arrayElement([
+        faker.helpers.arrayElements(Object.values(KnownIdlType)),
+        { ...getListPoliciesResponseIdlMock() },
+      ]),
+    ),
+    conditions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        instruction: faker.string.alpha(20),
+        params: faker.helpers.arrayElement([
+          Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+            faker.helpers.arrayElement([
+              { ...getListPoliciesResponseSolDataParameterConditionMock() },
+              { ...getListPoliciesResponseSolDataParameterConditionListMock() },
+            ]),
+          ),
+          undefined,
+        ]),
+      }),
+    ),
+  },
+  ...overrideResponse,
+});
+
 export const getListPoliciesResponseMock = (): ListPolicies200 => ({
   ...{
     policies: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
@@ -422,6 +503,7 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
                     { ...getListPoliciesResponseSplAddressCriterionMock() },
                     { ...getListPoliciesResponseSplValueCriterionMock() },
                     { ...getListPoliciesResponseMintAddressCriterionMock() },
+                    { ...getListPoliciesResponseSolDataCriterionMock() },
                   ]),
                 ),
               },
@@ -438,6 +520,7 @@ export const getListPoliciesResponseMock = (): ListPolicies200 => ({
                     { ...getListPoliciesResponseSplAddressCriterionMock() },
                     { ...getListPoliciesResponseSplValueCriterionMock() },
                     { ...getListPoliciesResponseMintAddressCriterionMock() },
+                    { ...getListPoliciesResponseSolDataCriterionMock() },
                   ]),
                 ),
               },
@@ -787,6 +870,79 @@ export const getCreatePolicyResponseMintAddressCriterionMock = (
   ...overrideResponse,
 });
 
+export const getCreatePolicyResponseIdlMock = (overrideResponse: Partial<Idl> = {}): Idl => ({
+  ...{
+    address: faker.string.alpha(20),
+    instructions: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      name: faker.string.alpha(20),
+      discriminator: Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+      ).map(() => faker.number.int({ min: 0, max: 255 })),
+      args: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+        () => ({ name: faker.string.alpha(20), type: faker.string.alpha(20) }),
+      ),
+    })),
+  },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseSolDataParameterConditionMock = (
+  overrideResponse: Partial<SolDataParameterCondition> = {},
+): SolDataParameterCondition => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+    value: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseSolDataParameterConditionListMock = (
+  overrideResponse: Partial<SolDataParameterConditionList> = {},
+): SolDataParameterConditionList => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+    values: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.string.alpha(20),
+    ),
+  },
+  ...overrideResponse,
+});
+
+export const getCreatePolicyResponseSolDataCriterionMock = (
+  overrideResponse: Partial<SolDataCriterion> = {},
+): SolDataCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["solData"] as const),
+    idls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.arrayElement([
+        faker.helpers.arrayElements(Object.values(KnownIdlType)),
+        { ...getCreatePolicyResponseIdlMock() },
+      ]),
+    ),
+    conditions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        instruction: faker.string.alpha(20),
+        params: faker.helpers.arrayElement([
+          Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+            faker.helpers.arrayElement([
+              { ...getCreatePolicyResponseSolDataParameterConditionMock() },
+              { ...getCreatePolicyResponseSolDataParameterConditionListMock() },
+            ]),
+          ),
+          undefined,
+        ]),
+      }),
+    ),
+  },
+  ...overrideResponse,
+});
+
 export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = {}): Policy => ({
   id: faker.helpers.fromRegExp(
     "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
@@ -865,6 +1021,7 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getCreatePolicyResponseSplAddressCriterionMock() },
             { ...getCreatePolicyResponseSplValueCriterionMock() },
             { ...getCreatePolicyResponseMintAddressCriterionMock() },
+            { ...getCreatePolicyResponseSolDataCriterionMock() },
           ]),
         ),
       },
@@ -881,6 +1038,7 @@ export const getCreatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getCreatePolicyResponseSplAddressCriterionMock() },
             { ...getCreatePolicyResponseSplValueCriterionMock() },
             { ...getCreatePolicyResponseMintAddressCriterionMock() },
+            { ...getCreatePolicyResponseSolDataCriterionMock() },
           ]),
         ),
       },
@@ -1227,6 +1385,79 @@ export const getGetPolicyByIdResponseMintAddressCriterionMock = (
   ...overrideResponse,
 });
 
+export const getGetPolicyByIdResponseIdlMock = (overrideResponse: Partial<Idl> = {}): Idl => ({
+  ...{
+    address: faker.string.alpha(20),
+    instructions: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      name: faker.string.alpha(20),
+      discriminator: Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+      ).map(() => faker.number.int({ min: 0, max: 255 })),
+      args: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+        () => ({ name: faker.string.alpha(20), type: faker.string.alpha(20) }),
+      ),
+    })),
+  },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseSolDataParameterConditionMock = (
+  overrideResponse: Partial<SolDataParameterCondition> = {},
+): SolDataParameterCondition => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+    value: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseSolDataParameterConditionListMock = (
+  overrideResponse: Partial<SolDataParameterConditionList> = {},
+): SolDataParameterConditionList => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+    values: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.string.alpha(20),
+    ),
+  },
+  ...overrideResponse,
+});
+
+export const getGetPolicyByIdResponseSolDataCriterionMock = (
+  overrideResponse: Partial<SolDataCriterion> = {},
+): SolDataCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["solData"] as const),
+    idls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.arrayElement([
+        faker.helpers.arrayElements(Object.values(KnownIdlType)),
+        { ...getGetPolicyByIdResponseIdlMock() },
+      ]),
+    ),
+    conditions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        instruction: faker.string.alpha(20),
+        params: faker.helpers.arrayElement([
+          Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+            faker.helpers.arrayElement([
+              { ...getGetPolicyByIdResponseSolDataParameterConditionMock() },
+              { ...getGetPolicyByIdResponseSolDataParameterConditionListMock() },
+            ]),
+          ),
+          undefined,
+        ]),
+      }),
+    ),
+  },
+  ...overrideResponse,
+});
+
 export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> = {}): Policy => ({
   id: faker.helpers.fromRegExp(
     "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
@@ -1305,6 +1536,7 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
             { ...getGetPolicyByIdResponseSplAddressCriterionMock() },
             { ...getGetPolicyByIdResponseSplValueCriterionMock() },
             { ...getGetPolicyByIdResponseMintAddressCriterionMock() },
+            { ...getGetPolicyByIdResponseSolDataCriterionMock() },
           ]),
         ),
       },
@@ -1321,6 +1553,7 @@ export const getGetPolicyByIdResponseMock = (overrideResponse: Partial<Policy> =
             { ...getGetPolicyByIdResponseSplAddressCriterionMock() },
             { ...getGetPolicyByIdResponseSplValueCriterionMock() },
             { ...getGetPolicyByIdResponseMintAddressCriterionMock() },
+            { ...getGetPolicyByIdResponseSolDataCriterionMock() },
           ]),
         ),
       },
@@ -1667,6 +1900,79 @@ export const getUpdatePolicyResponseMintAddressCriterionMock = (
   ...overrideResponse,
 });
 
+export const getUpdatePolicyResponseIdlMock = (overrideResponse: Partial<Idl> = {}): Idl => ({
+  ...{
+    address: faker.string.alpha(20),
+    instructions: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      name: faker.string.alpha(20),
+      discriminator: Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+      ).map(() => faker.number.int({ min: 0, max: 255 })),
+      args: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+        () => ({ name: faker.string.alpha(20), type: faker.string.alpha(20) }),
+      ),
+    })),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseSolDataParameterConditionMock = (
+  overrideResponse: Partial<SolDataParameterCondition> = {},
+): SolDataParameterCondition => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement([">", ">=", "<", "<=", "=="] as const),
+    value: faker.string.alpha(20),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseSolDataParameterConditionListMock = (
+  overrideResponse: Partial<SolDataParameterConditionList> = {},
+): SolDataParameterConditionList => ({
+  ...{
+    name: faker.string.alpha(20),
+    operator: faker.helpers.arrayElement(["in", "not in"] as const),
+    values: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.string.alpha(20),
+    ),
+  },
+  ...overrideResponse,
+});
+
+export const getUpdatePolicyResponseSolDataCriterionMock = (
+  overrideResponse: Partial<SolDataCriterion> = {},
+): SolDataCriterion => ({
+  ...{
+    type: faker.helpers.arrayElement(["solData"] as const),
+    idls: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+      faker.helpers.arrayElement([
+        faker.helpers.arrayElements(Object.values(KnownIdlType)),
+        { ...getUpdatePolicyResponseIdlMock() },
+      ]),
+    ),
+    conditions: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+      () => ({
+        instruction: faker.string.alpha(20),
+        params: faker.helpers.arrayElement([
+          Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+            faker.helpers.arrayElement([
+              { ...getUpdatePolicyResponseSolDataParameterConditionMock() },
+              { ...getUpdatePolicyResponseSolDataParameterConditionListMock() },
+            ]),
+          ),
+          undefined,
+        ]),
+      }),
+    ),
+  },
+  ...overrideResponse,
+});
+
 export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = {}): Policy => ({
   id: faker.helpers.fromRegExp(
     "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
@@ -1745,6 +2051,7 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getUpdatePolicyResponseSplAddressCriterionMock() },
             { ...getUpdatePolicyResponseSplValueCriterionMock() },
             { ...getUpdatePolicyResponseMintAddressCriterionMock() },
+            { ...getUpdatePolicyResponseSolDataCriterionMock() },
           ]),
         ),
       },
@@ -1761,6 +2068,7 @@ export const getUpdatePolicyResponseMock = (overrideResponse: Partial<Policy> = 
             { ...getUpdatePolicyResponseSplAddressCriterionMock() },
             { ...getUpdatePolicyResponseSplValueCriterionMock() },
             { ...getUpdatePolicyResponseMintAddressCriterionMock() },
+            { ...getUpdatePolicyResponseSolDataCriterionMock() },
           ]),
         ),
       },

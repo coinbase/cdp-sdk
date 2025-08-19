@@ -20,6 +20,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, f
 from typing import Any, List, Optional
 from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterion
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
+from cdp.openapi_client.models.sol_data_criterion import SolDataCriterion
 from cdp.openapi_client.models.sol_value_criterion import SolValueCriterion
 from cdp.openapi_client.models.spl_address_criterion import SplAddressCriterion
 from cdp.openapi_client.models.spl_value_criterion import SplValueCriterion
@@ -27,7 +28,7 @@ from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-SIGNSOLTRANSACTIONCRITERIAINNER_ONE_OF_SCHEMAS = ["MintAddressCriterion", "SolAddressCriterion", "SolValueCriterion", "SplAddressCriterion", "SplValueCriterion"]
+SIGNSOLTRANSACTIONCRITERIAINNER_ONE_OF_SCHEMAS = ["MintAddressCriterion", "SolAddressCriterion", "SolDataCriterion", "SolValueCriterion", "SplAddressCriterion", "SplValueCriterion"]
 
 class SignSolTransactionCriteriaInner(BaseModel):
     """
@@ -43,8 +44,10 @@ class SignSolTransactionCriteriaInner(BaseModel):
     oneof_schema_4_validator: Optional[SplValueCriterion] = None
     # data type: MintAddressCriterion
     oneof_schema_5_validator: Optional[MintAddressCriterion] = None
-    actual_instance: Optional[Union[MintAddressCriterion, SolAddressCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion]] = None
-    one_of_schemas: Set[str] = { "MintAddressCriterion", "SolAddressCriterion", "SolValueCriterion", "SplAddressCriterion", "SplValueCriterion" }
+    # data type: SolDataCriterion
+    oneof_schema_6_validator: Optional[SolDataCriterion] = None
+    actual_instance: Optional[Union[MintAddressCriterion, SolAddressCriterion, SolDataCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion]] = None
+    one_of_schemas: Set[str] = { "MintAddressCriterion", "SolAddressCriterion", "SolDataCriterion", "SolValueCriterion", "SplAddressCriterion", "SplValueCriterion" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -92,12 +95,17 @@ class SignSolTransactionCriteriaInner(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `MintAddressCriterion`")
         else:
             match += 1
+        # validate data type: SolDataCriterion
+        if not isinstance(v, SolDataCriterion):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `SolDataCriterion`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in SignSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, SolAddressCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in SignSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, SolAddressCriterion, SolDataCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in SignSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, SolAddressCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in SignSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, SolAddressCriterion, SolDataCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -142,13 +150,19 @@ class SignSolTransactionCriteriaInner(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into SolDataCriterion
+        try:
+            instance.actual_instance = SolDataCriterion.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into SignSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, SolAddressCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into SignSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, SolAddressCriterion, SolDataCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into SignSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, SolAddressCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into SignSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, SolAddressCriterion, SolDataCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -162,7 +176,7 @@ class SignSolTransactionCriteriaInner(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], MintAddressCriterion, SolAddressCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], MintAddressCriterion, SolAddressCriterion, SolDataCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None
