@@ -238,6 +238,13 @@ const (
 	Erc721  KnownAbiType = "erc721"
 )
 
+// Defines values for KnownIdlType.
+const (
+	AssociatedTokenProgram KnownIdlType = "AssociatedTokenProgram"
+	SystemProgram          KnownIdlType = "SystemProgram"
+	TokenProgram           KnownIdlType = "TokenProgram"
+)
+
 // Defines values for ListEvmTokenBalancesNetwork.
 const (
 	ListEvmTokenBalancesNetworkBase        ListEvmTokenBalancesNetwork = "base"
@@ -474,6 +481,26 @@ const (
 	SolAddress SolAddressCriterionType = "solAddress"
 )
 
+// Defines values for SolDataCriterionType.
+const (
+	SolData SolDataCriterionType = "solData"
+)
+
+// Defines values for SolDataParameterConditionOperator.
+const (
+	SolDataParameterConditionOperatorEmpty      SolDataParameterConditionOperator = ">"
+	SolDataParameterConditionOperatorEqualEqual SolDataParameterConditionOperator = "=="
+	SolDataParameterConditionOperatorN1         SolDataParameterConditionOperator = ">="
+	SolDataParameterConditionOperatorN2         SolDataParameterConditionOperator = "<"
+	SolDataParameterConditionOperatorN3         SolDataParameterConditionOperator = "<="
+)
+
+// Defines values for SolDataParameterConditionListOperator.
+const (
+	SolDataParameterConditionListOperatorIn    SolDataParameterConditionListOperator = "in"
+	SolDataParameterConditionListOperatorNotIn SolDataParameterConditionListOperator = "not in"
+)
+
 // Defines values for SolValueCriterionOperator.
 const (
 	SolValueCriterionOperatorEmpty      SolValueCriterionOperator = ">"
@@ -502,8 +529,8 @@ const (
 
 // Defines values for SplAddressCriterionOperator.
 const (
-	SplAddressCriterionOperatorIn    SplAddressCriterionOperator = "in"
-	SplAddressCriterionOperatorNotIn SplAddressCriterionOperator = "not in"
+	In    SplAddressCriterionOperator = "in"
+	NotIn SplAddressCriterionOperator = "not in"
 )
 
 // Defines values for SplAddressCriterionType.
@@ -551,7 +578,7 @@ const (
 
 // Defines values for X402Version.
 const (
-	N1 X402Version = 1
+	X402VersionN1 X402Version = 1
 )
 
 // Defines values for X402PaymentPayloadNetwork.
@@ -1454,11 +1481,41 @@ type GetSwapPriceResponseWrapper struct {
 	union json.RawMessage
 }
 
+// Idl IDL Specification following Anchor's IDL format v0.30+.
+type Idl struct {
+	// Address The program address.
+	Address string `json:"address"`
+
+	// Instructions List of program instructions.
+	Instructions []struct {
+		// Args List of instruction arguments.
+		Args []struct {
+			// Name The argument name.
+			Name string `json:"name"`
+
+			// Type The argument type.
+			Type string `json:"type"`
+		} `json:"args"`
+
+		// Discriminator Array of 8 numbers representing the instruction discriminator.
+		Discriminator []int `json:"discriminator"`
+
+		// Name The instruction name.
+		Name string `json:"name"`
+	} `json:"instructions"`
+}
+
 // KnownAbiType A reference to an established EIP standard. When referencing a `KnownAbiType` within a policy rule configuring an `EvmDataCriterion`, criteria will only decode function data officially documented in the standard. For more information on supported token standards, see the links below.
 //   - [erc20 - Token Standard](https://eips.ethereum.org/EIPS/eip-20).
 //   - [erc721 - Non-Fungible Token Standard](https://eips.ethereum.org/EIPS/eip-721).
 //   - [erc1155 - Multi Token Standard](https://eips.ethereum.org/EIPS/eip-1155).
 type KnownAbiType string
+
+// KnownIdlType A reference to an established Solana program. When referencing a `KnownIdlType` within a policy rule configuring an `SolDataCriterion`, criteria will decode instruction data as documented in the programs. For more information on supported programs, see the links below.
+//   - [SystemProgram](https://docs.rs/solana-program/latest/solana_program/system_instruction/enum.SystemInstruction.html).
+//   - [TokenProgram](https://docs.rs/spl-token/latest/spl_token/instruction/enum.TokenInstruction.html).
+//   - [AssociatedTokenProgram](https://docs.rs/spl-associated-token-account/latest/spl_associated_token_account/instruction/index.html).
+type KnownIdlType string
 
 // ListEvmTokenBalancesNetwork The name of the supported EVM networks in human-readable format.
 type ListEvmTokenBalancesNetwork string
@@ -2022,6 +2079,70 @@ type SolAddressCriterionOperator string
 
 // SolAddressCriterionType The type of criterion to use. This should be `solAddress`.
 type SolAddressCriterionType string
+
+// SolDataCondition A single condition to apply against a specific instruction type and its parameters.
+type SolDataCondition struct {
+	// Instruction The instruction name.
+	Instruction string `json:"instruction"`
+
+	// Params Parameter conditions for the instruction.
+	Params *[]SolDataCondition_Params_Item `json:"params,omitempty"`
+}
+
+// SolDataCondition_Params_Item A list of parameter conditions to apply against a specific instruction's data.
+type SolDataCondition_Params_Item struct {
+	union json.RawMessage
+}
+
+// SolDataCriterion A schema for specifying criterion for instruction data in a Solana transaction.
+type SolDataCriterion struct {
+	// Conditions A list of conditions to apply against the transaction instruction. Each condition must evaluate to true for this criterion to be met.
+	Conditions []SolDataCondition `json:"conditions"`
+
+	// Idls List of IDL specifications. Can contain known program names (strings) or custom IDL objects.
+	Idls []SolDataCriterion_Idls_Item `json:"idls"`
+
+	// Type The type of criterion to use. This should be `solData`.
+	Type SolDataCriterionType `json:"type"`
+}
+
+// SolDataCriterion_Idls_Item defines model for SolDataCriterion.idls.Item.
+type SolDataCriterion_Idls_Item struct {
+	union json.RawMessage
+}
+
+// SolDataCriterionType The type of criterion to use. This should be `solData`.
+type SolDataCriterionType string
+
+// SolDataParameterCondition A single parameter condition to apply against a specific instruction's parameters.
+type SolDataParameterCondition struct {
+	// Name The parameter name.
+	Name string `json:"name"`
+
+	// Operator The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+	Operator SolDataParameterConditionOperator `json:"operator"`
+
+	// Value The value to compare against.
+	Value string `json:"value"`
+}
+
+// SolDataParameterConditionOperator The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+type SolDataParameterConditionOperator string
+
+// SolDataParameterConditionList A single parameter condition to apply against a specific instruction's parameters.
+type SolDataParameterConditionList struct {
+	// Name The parameter name.
+	Name string `json:"name"`
+
+	// Operator The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+	Operator SolDataParameterConditionListOperator `json:"operator"`
+
+	// Values The values to compare against.
+	Values []string `json:"values"`
+}
+
+// SolDataParameterConditionListOperator The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
+type SolDataParameterConditionListOperator string
 
 // SolValueCriterion The criterion for the SOL value in lamports of a native transfer instruction in a Solana transaction.
 type SolValueCriterion struct {
@@ -4491,6 +4612,32 @@ func (t *SendSolTransactionCriteria_Item) MergeMintAddressCriterion(v MintAddres
 	return err
 }
 
+// AsSolDataCriterion returns the union data inside the SendSolTransactionCriteria_Item as a SolDataCriterion
+func (t SendSolTransactionCriteria_Item) AsSolDataCriterion() (SolDataCriterion, error) {
+	var body SolDataCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolDataCriterion overwrites any union data inside the SendSolTransactionCriteria_Item as the provided SolDataCriterion
+func (t *SendSolTransactionCriteria_Item) FromSolDataCriterion(v SolDataCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolDataCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided SolDataCriterion
+func (t *SendSolTransactionCriteria_Item) MergeSolDataCriterion(v SolDataCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 func (t SendSolTransactionCriteria_Item) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
@@ -5019,12 +5166,162 @@ func (t *SignSolTransactionCriteria_Item) MergeMintAddressCriterion(v MintAddres
 	return err
 }
 
+// AsSolDataCriterion returns the union data inside the SignSolTransactionCriteria_Item as a SolDataCriterion
+func (t SignSolTransactionCriteria_Item) AsSolDataCriterion() (SolDataCriterion, error) {
+	var body SolDataCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolDataCriterion overwrites any union data inside the SignSolTransactionCriteria_Item as the provided SolDataCriterion
+func (t *SignSolTransactionCriteria_Item) FromSolDataCriterion(v SolDataCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolDataCriterion performs a merge with any union data inside the SignSolTransactionCriteria_Item, using the provided SolDataCriterion
+func (t *SignSolTransactionCriteria_Item) MergeSolDataCriterion(v SolDataCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 func (t SignSolTransactionCriteria_Item) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
 func (t *SignSolTransactionCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsSolDataParameterCondition returns the union data inside the SolDataCondition_Params_Item as a SolDataParameterCondition
+func (t SolDataCondition_Params_Item) AsSolDataParameterCondition() (SolDataParameterCondition, error) {
+	var body SolDataParameterCondition
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolDataParameterCondition overwrites any union data inside the SolDataCondition_Params_Item as the provided SolDataParameterCondition
+func (t *SolDataCondition_Params_Item) FromSolDataParameterCondition(v SolDataParameterCondition) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolDataParameterCondition performs a merge with any union data inside the SolDataCondition_Params_Item, using the provided SolDataParameterCondition
+func (t *SolDataCondition_Params_Item) MergeSolDataParameterCondition(v SolDataParameterCondition) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolDataParameterConditionList returns the union data inside the SolDataCondition_Params_Item as a SolDataParameterConditionList
+func (t SolDataCondition_Params_Item) AsSolDataParameterConditionList() (SolDataParameterConditionList, error) {
+	var body SolDataParameterConditionList
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolDataParameterConditionList overwrites any union data inside the SolDataCondition_Params_Item as the provided SolDataParameterConditionList
+func (t *SolDataCondition_Params_Item) FromSolDataParameterConditionList(v SolDataParameterConditionList) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolDataParameterConditionList performs a merge with any union data inside the SolDataCondition_Params_Item, using the provided SolDataParameterConditionList
+func (t *SolDataCondition_Params_Item) MergeSolDataParameterConditionList(v SolDataParameterConditionList) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SolDataCondition_Params_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SolDataCondition_Params_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsKnownIdlType returns the union data inside the SolDataCriterion_Idls_Item as a KnownIdlType
+func (t SolDataCriterion_Idls_Item) AsKnownIdlType() (KnownIdlType, error) {
+	var body KnownIdlType
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromKnownIdlType overwrites any union data inside the SolDataCriterion_Idls_Item as the provided KnownIdlType
+func (t *SolDataCriterion_Idls_Item) FromKnownIdlType(v KnownIdlType) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeKnownIdlType performs a merge with any union data inside the SolDataCriterion_Idls_Item, using the provided KnownIdlType
+func (t *SolDataCriterion_Idls_Item) MergeKnownIdlType(v KnownIdlType) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsIdl returns the union data inside the SolDataCriterion_Idls_Item as a Idl
+func (t SolDataCriterion_Idls_Item) AsIdl() (Idl, error) {
+	var body Idl
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromIdl overwrites any union data inside the SolDataCriterion_Idls_Item as the provided Idl
+func (t *SolDataCriterion_Idls_Item) FromIdl(v Idl) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeIdl performs a merge with any union data inside the SolDataCriterion_Idls_Item, using the provided Idl
+func (t *SolDataCriterion_Idls_Item) MergeIdl(v Idl) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SolDataCriterion_Idls_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SolDataCriterion_Idls_Item) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }

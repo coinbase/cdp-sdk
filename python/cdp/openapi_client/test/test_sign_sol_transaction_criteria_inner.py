@@ -40,7 +40,9 @@ class TestSignSolTransactionCriteriaInner(unittest.TestCase):
                 addresses = [HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT],
                 operator = 'in',
                 sol_value = '1000000000000000000',
-                spl_value = '1000000000000000000'
+                spl_value = '1000000000000000000',
+                idls = [SystemProgram, TokenProgram, {address=TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, instructions=[{name=transfer_checked, discriminator=[119, 250, 202, 24, 253, 135, 244, 121], args=[{name=amount, type=u64}, {name=decimals, type=u8}]}]}],
+                conditions = [{instruction=transfer_checked, params=[{name=lamports, operator=<=, value=1000000}, {name=space, operator===, value=64}]}]
             )
         else:
             return SignSolTransactionCriteriaInner(
@@ -49,6 +51,8 @@ class TestSignSolTransactionCriteriaInner(unittest.TestCase):
                 operator = 'in',
                 sol_value = '1000000000000000000',
                 spl_value = '1000000000000000000',
+                idls = [SystemProgram, TokenProgram, {address=TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, instructions=[{name=transfer_checked, discriminator=[119, 250, 202, 24, 253, 135, 244, 121], args=[{name=amount, type=u64}, {name=decimals, type=u8}]}]}],
+                conditions = [{instruction=transfer_checked, params=[{name=lamports, operator=<=, value=1000000}, {name=space, operator===, value=64}]}],
         )
         """
 
