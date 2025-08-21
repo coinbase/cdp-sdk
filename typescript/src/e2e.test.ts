@@ -3037,7 +3037,7 @@ describe("CDP Client E2E Tests", () => {
       });
     });
 
-    describe.skip("sendSolTransaction", () => {
+    describe("sendSolTransaction", () => {
       describe("solValue", () => {
         it(">=", async () => {
           await cdp.policies.updatePolicy({
@@ -3048,7 +3048,7 @@ describe("CDP Client E2E Tests", () => {
                   operation: "sendSolTransaction",
                   action: "reject",
                   criteria: [
-                    { type: "solValue", operator: ">=", solValue: "1000000000" }, // 1 SOL in lamports
+                    { type: "solValue", operator: ">=", solValue: "1" }, // 1 lamport
                   ],
                 },
               ],
@@ -3064,7 +3064,7 @@ describe("CDP Client E2E Tests", () => {
               transaction: createAndEncodeTransaction(
                 policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
-                1.5 * LAMPORTS_PER_SOL,
+                2,
               ),
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
@@ -3079,7 +3079,7 @@ describe("CDP Client E2E Tests", () => {
                   operation: "sendSolTransaction",
                   action: "reject",
                   criteria: [
-                    { type: "solValue", operator: "<=", solValue: "500000000" }, // 0.5 SOL in lamports
+                    { type: "solValue", operator: "<=", solValue: "2" }, // 2 lamports
                   ],
                 },
               ],
@@ -3095,7 +3095,7 @@ describe("CDP Client E2E Tests", () => {
               transaction: createAndEncodeTransaction(
                 policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
-                0.3 * LAMPORTS_PER_SOL,
+                1,
               ),
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
@@ -3110,7 +3110,7 @@ describe("CDP Client E2E Tests", () => {
                   operation: "sendSolTransaction",
                   action: "reject",
                   criteria: [
-                    { type: "solValue", operator: ">", solValue: "750000000" }, // 0.75 SOL in lamports
+                    { type: "solValue", operator: ">", solValue: "1" }, // 1 lamport
                   ],
                 },
               ],
@@ -3126,7 +3126,7 @@ describe("CDP Client E2E Tests", () => {
               transaction: createAndEncodeTransaction(
                 policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
-                1 * LAMPORTS_PER_SOL,
+                2,
               ),
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
@@ -3141,7 +3141,7 @@ describe("CDP Client E2E Tests", () => {
                   operation: "sendSolTransaction",
                   action: "reject",
                   criteria: [
-                    { type: "solValue", operator: "<", solValue: "2000000000" }, // 2 SOL in lamports
+                    { type: "solValue", operator: "<", solValue: "2" }, // 2 lamports
                   ],
                 },
               ],
@@ -3157,7 +3157,7 @@ describe("CDP Client E2E Tests", () => {
               transaction: createAndEncodeTransaction(
                 policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
-                1 * LAMPORTS_PER_SOL,
+                1,
               ),
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
@@ -3172,7 +3172,7 @@ describe("CDP Client E2E Tests", () => {
                   operation: "sendSolTransaction",
                   action: "reject",
                   criteria: [
-                    { type: "solValue", operator: "==", solValue: "1000000000" }, // 1 SOL in lamports
+                    { type: "solValue", operator: "==", solValue: "1" }, // 1 lamport
                   ],
                 },
               ],
@@ -3188,7 +3188,7 @@ describe("CDP Client E2E Tests", () => {
               transaction: createAndEncodeTransaction(
                 policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
-                1 * LAMPORTS_PER_SOL,
+                1,
               ),
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
@@ -3225,7 +3225,7 @@ describe("CDP Client E2E Tests", () => {
               transaction: createAndEncodeTransaction(
                 policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
-                0.1 * LAMPORTS_PER_SOL,
+                1,
               ),
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
@@ -3260,7 +3260,7 @@ describe("CDP Client E2E Tests", () => {
               transaction: createAndEncodeTransaction(
                 policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
-                0.1 * LAMPORTS_PER_SOL,
+                1,
               ),
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
