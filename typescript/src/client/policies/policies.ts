@@ -1,3 +1,7 @@
+/**
+ * @module Client
+ */
+
 import {
   PoliciesClientInterface,
   CreatePolicyOptions,

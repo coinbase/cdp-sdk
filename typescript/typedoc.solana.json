@@ -1,0 +1,50 @@
+{
+  "entryPoints": [
+    "./src/client/solana/solana.ts",
+    "./src/client/solana/solana.types.ts",
+    "./src/accounts/solana/types.ts",
+    "./src/actions/solana/types.ts"
+  ],
+  "entryPointStrategy": "resolve",
+  "flattenOutputFiles": true,
+  "out": "./docs-md/solana",
+  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter"],
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "excludeProtected": false,
+  "readme": "none",
+  "name": "Overview",
+  "includeVersion": true,
+  "sort": ["kind", "alphabetical"],
+  "kindSortOrder": ["Class", "Interface", "Function", "TypeAlias", "Enum", "Variable", "Module"],
+  "categorizeByGroup": true,
+  "defaultCategory": "Other",
+  "categoryOrder": ["Client", "Accounts", "Actions", "Types", "Utilities", "*", "Other"],
+  "exclude": [
+    "**/tests/**/*",
+    "**/*.test.ts",
+    "**/node_modules/**/*",
+    "**/_cjs/**/*",
+    "**/_esm/**/*",
+    "**/_types/**/*",
+    "**/openapi-client/**/*"
+  ],
+  "skipErrorChecking": false,
+  "treatWarningsAsErrors": false,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "fileExtension": ".mdx",
+  "entryFileName": "index",
+  "mergeReadme": false,
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "hidePageTitle": true,
+  "useCodeBlocks": true,
+  "publicPath": "/sdks/cdp-sdks-v2/typescript/solana",
+  "expandObjects": true,
+  "expandParameters": true,
+  "router": "module"
+}

@@ -1,0 +1,28 @@
+{
+  "entryPoints": [],
+  "out": "./docs-md",
+  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter"],
+  "readme": "./TYPEDOC-README.md",
+  "name": "CDP SDK TypeScript",
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "excludeProtected": false,
+  "skipErrorChecking": true,
+  "treatWarningsAsErrors": false,
+  "fileExtension": ".mdx",
+  "entryFileName": "index",
+  "mergeReadme": true,
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "hidePageTitle": true,
+  "useCodeBlocks": true,
+  "publicPath": "/sdks/cdp-sdks-v2/typescript",
+  "expandObjects": true,
+  "expandParameters": true,
+  "readmeFrontmatter": {
+    "title": "Overview"
+  },
+  "disableSources": true,
+  "hideGenerator": true
+}

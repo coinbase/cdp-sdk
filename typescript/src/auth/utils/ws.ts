@@ -1,3 +1,7 @@
+/**
+ * @module WebSocket
+ */
+
 import { getCorrelationData } from "./http.js";
 import { generateJwt } from "./jwt.js";
 

@@ -1,3 +1,7 @@
+/**
+ * @module Types
+ */
+
 import { OpenApiPoliciesMethods } from "../../openapi-client/index.js";
 import { CreatePolicyBody, Policy, PolicyScope, UpdatePolicyBody } from "../../policies/types.js";
 
