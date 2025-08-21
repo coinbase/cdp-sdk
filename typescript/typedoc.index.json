@@ -2,7 +2,7 @@
   "entryPoints": [],
   "out": "./docs-md",
   "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter"],
-  "readme": "./README.md",
+  "readme": "./TYPEDOC-README.md",
   "name": "CDP SDK TypeScript",
   "includeVersion": true,
   "excludePrivate": true,
@@ -21,7 +21,7 @@
   "expandObjects": true,
   "expandParameters": true,
   "readmeFrontmatter": {
-    "title": "Introduction"
+    "title": "Overview"
   },
   "disableSources": true,
   "hideGenerator": true
