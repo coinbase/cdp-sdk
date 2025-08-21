@@ -1,6 +1,7 @@
 [workspace]
 members = [
-	"rust"
+	"rust",
+	"examples/rust"
 ]
 
 resolver = "2"

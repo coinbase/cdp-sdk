@@ -1,8 +1,11 @@
 use cdp_sdk::{auth::WalletAuth, types, Client, Error, CDP_BASE_URL};
+use dotenv::dotenv;
 use reqwest_middleware::ClientBuilder;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenv().ok();
+
     // Initialize the CDP client
     let wallet_auth = ClientBuilder::new(reqwest::Client::new())
         .with(WalletAuth::default())

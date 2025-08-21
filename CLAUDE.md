@@ -193,7 +193,7 @@ make check-openapi
 ## Configuration Files
 
 - `openapi.yaml` - API specification (auto-updated from CDN)
-- Language-specific configs: `pyproject.toml`, `package.json`, `go.mod`
+- Language-specific configs: `pyproject.toml`, `package.json`, `go.mod`, `Cargo.toml`
 - Linting: ESLint (TS), Ruff (Python), golangci-lint (Go)
 - CI/CD via language-specific workflows
 

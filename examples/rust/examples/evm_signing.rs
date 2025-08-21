@@ -2,10 +2,13 @@ use alloy::consensus::SignableTransaction;
 use alloy::primitives::{address, hex};
 use alloy::{network::TransactionBuilder, primitives::U256, rpc::types::TransactionRequest};
 use cdp_sdk::{auth::WalletAuth, types, Client, CDP_BASE_URL};
+use dotenv::dotenv;
 use reqwest_middleware::ClientBuilder;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenv().ok();
+
     // Initialize the CDP client
     let wallet_auth = WalletAuth::builder().build()?;
     let http_client = ClientBuilder::new(reqwest::Client::new())

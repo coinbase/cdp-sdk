@@ -38,34 +38,6 @@ tokio = { version = "1.0", features = ["full"] }
 alloy = "1.0.24"
 bs58 = "0.5"
 
-[[example]]
-name = "wallet_client"
-path = "examples/wallet_client.rs"
-
-[[example]]
-name = "evm_account_management"
-path = "examples/evm_account_management.rs"
-
-[[example]]
-name = "evm_signing"
-path = "examples/evm_signing.rs"
-
-[[example]]
-name = "smart_account_management"
-path = "examples/smart_account_management.rs"
-
-[[example]]
-name = "solana_account_management"
-path = "examples/solana_account_management.rs"
-
-[[example]]
-name = "solana_signing"
-path = "examples/solana_signing.rs"
-
-[[example]]
-name = "token_balances"
-path = "examples/token_balances.rs"
-
 [build-dependencies]
 prettyplease = "0.2.36"
 progenitor = { git = "https://github.com/sammccord/progenitor", rev = "0fcabc36868bb6971fc32b7878e283fcf2a42bbe"}
