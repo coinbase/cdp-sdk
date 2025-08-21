@@ -2,6 +2,21 @@
 
 <!-- towncrier release notes start -->
 
+## [1.31.0] - 2025-08-19
+
+### Features
+
+- Added solData criterion to policy engine ([#415](https://github.com/coinbase/cdp-sdk/pull/415))
+
+### Bugfixes
+
+- Added check to validate smart account owner ([#411](https://github.com/coinbase/cdp-sdk/pull/411))
+
+### Misc
+
+- [#402](https://github.com/coinbase/cdp-sdk/pull/402)
+
+
 ## [1.30.0] - 2025-08-13
 
 ### Features

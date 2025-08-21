@@ -21,7 +21,7 @@ import json
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from cdp.openapi_client.models.onramp_payment_method_type_id import OnrampPaymentMethodTypeId
+from cdp.openapi_client.models.onramp_order_payment_method_type_id import OnrampOrderPaymentMethodTypeId
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -38,7 +38,7 @@ class CreateOnrampOrderRequest(BaseModel):
     partner_user_ref: StrictStr = Field(description="A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. \"sandbox-user-1234\") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.  This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.", alias="partnerUserRef")
     payment_amount: Optional[StrictStr] = Field(default=None, description="A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using  this parameter, the returned quote will be inclusive of fees i.e. the user will pay this exact amount  of the payment currency.", alias="paymentAmount")
     payment_currency: StrictStr = Field(description="The fiat currency to be converted to crypto.", alias="paymentCurrency")
-    payment_method: OnrampPaymentMethodTypeId = Field(alias="paymentMethod")
+    payment_method: OnrampOrderPaymentMethodTypeId = Field(alias="paymentMethod")
     phone_number: StrictStr = Field(description="The phone number of the user requesting the onramp transaction in E.164 format. This phone number must  be verified by your app (via OTP) before being used with the Onramp API.  Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more details on phone number verification requirements and best practices.", alias="phoneNumber")
     phone_number_verified_at: datetime = Field(description="Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned.", alias="phoneNumberVerifiedAt")
     purchase_amount: Optional[StrictStr] = Field(default=None, description="A string representing the amount of crypto the user wishes to purchase. When using this parameter the  returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase  currency.", alias="purchaseAmount")
