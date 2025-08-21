@@ -200,7 +200,7 @@ impl WalletAuth {
             .map_err(|e| CdpError::Auth(format!("Failed to encode JWT: {}", e)))
     }
 
-    fn generate_wallet_jwt(
+    pub fn generate_wallet_jwt(
         &self,
         method: &str,
         host: &str,
