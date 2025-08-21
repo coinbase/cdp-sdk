@@ -38,6 +38,7 @@ CDP SDK has full-featured client libraries for the following languages. Follow t
 - [TypeScript](./typescript)
 - [Python](./python)
 - [Go](./go)
+- [Rust](./rust)
 
 ## 📚 Documentation
 

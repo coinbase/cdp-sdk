@@ -1,0 +1,74 @@
+[package]
+name = "cdp-sdk"
+version = "0.1.0"
+edition = "2021"
+authors = ["Coinbase Inc."]
+description = "SDK for interacting with the Coinbase Developer Platform Wallet API"
+documentation = "https://docs.rs/cdp-sdk"
+repository = "https://github.com/coinbase/cdp-sdk"
+homepage = "https://docs.cdp.coinbase.com/"
+license = "MIT"
+readme = "README.md"
+keywords = ["cdp", "coinbase", "api", "client", "cryptography"]
+categories = ["api-bindings"]
+
+[dependencies]
+async-trait = "^0.1"
+bon = { version = "3.7.1" }
+chrono = { version = "0.4", features = ["serde"] }
+progenitor-client = { git = "https://github.com/sammccord/progenitor", rev = "0fcabc36868bb6971fc32b7878e283fcf2a42bbe"}
+reqwest = { version = "0.12.4", features = ["json", "stream"] }
+base64 = "0.22"
+rand = "0.9"
+regress = "0.10"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+url = "^2.5"
+uuid = { version = "^1.8", features = ["serde", "v4"] }
+jsonwebtoken = "9.3"
+sha2 = "0.10"
+thiserror = "1.0"
+urlencoding = "2.1"
+http = "1.0"
+hex = "0.4"
+reqwest-middleware = { version = "0.4.2", default-features = false, features = ["json"] }
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["full"] }
+alloy = "1.0.24"
+bs58 = "0.5"
+
+[[example]]
+name = "wallet_client"
+path = "examples/wallet_client.rs"
+
+[[example]]
+name = "evm_account_management"
+path = "examples/evm_account_management.rs"
+
+[[example]]
+name = "evm_signing"
+path = "examples/evm_signing.rs"
+
+[[example]]
+name = "smart_account_management"
+path = "examples/smart_account_management.rs"
+
+[[example]]
+name = "solana_account_management"
+path = "examples/solana_account_management.rs"
+
+[[example]]
+name = "solana_signing"
+path = "examples/solana_signing.rs"
+
+[[example]]
+name = "token_balances"
+path = "examples/token_balances.rs"
+
+[build-dependencies]
+prettyplease = "0.2.36"
+progenitor = { git = "https://github.com/sammccord/progenitor", rev = "0fcabc36868bb6971fc32b7878e283fcf2a42bbe"}
+serde_json = "1.0"
+serde_yaml = "0.9.33"
+syn = "2.0"

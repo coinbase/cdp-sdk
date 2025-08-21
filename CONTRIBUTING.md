@@ -7,6 +7,7 @@
 - [Language-Specific Guides](#language-specific-guides)
   - [Go Development](#go-development)
   - [Python Development](#python-development)
+  - [Rust Development](#rust-development)
   - [TypeScript Development](#typescript-development)
 
 ## Overview
@@ -19,6 +20,7 @@ This repository contains the CDP SDK implementations in multiple programming lan
 cdp-sdk/
 ├── go/         # Go implementation
 ├── python/     # Python implementation
+├── rust/  # Rust implementation
 └── typescript/ # TypeScript implementation
 ```
 
@@ -87,6 +89,49 @@ make docs
 
 # Generate HTML of documentation
 make local-docs
+```
+
+### Rust Development
+
+#### Prerequisites
+
+- Rust 1.70 or higher
+- Cargo
+- Make
+
+#### Setup
+
+```bash
+cd rust
+cargo build
+```
+
+#### Development Commands
+
+```bash
+# Check code and dependencies
+make check
+
+# Format code
+make format
+
+# Run linter
+make lint
+
+# Fix lint errors
+make lint-fix
+
+# Run tests
+make test
+
+# Run end-to-end tests
+make test-e2e
+
+# Build documentation
+make docs
+
+# Generate OpenAPI client (automatically done at build time)
+cargo build
 ```
 
 ### TypeScript Development
