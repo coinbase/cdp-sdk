@@ -12,7 +12,7 @@ This guide covers Rust-specific setup and development for the CDP SDK.
 
 ## Development Setup
 
-The CDP SDK uses Rust 1.70 or higher.
+The CDP SDK uses Rust 1.86 or higher.
 
 You can run the following to check your Rust version:
 
