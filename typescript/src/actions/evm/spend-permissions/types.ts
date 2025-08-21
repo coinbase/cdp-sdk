@@ -1,3 +1,4 @@
+import type { EvmSmartAccount } from "../../../accounts/evm/types.js";
 import type { SpendPermissionNetwork } from "../../../openapi-client/index.js";
 import type { SpendPermission } from "../../../spend-permissions/types.js";
 
@@ -11,4 +12,6 @@ export type UseSpendPermissionOptions = {
   value: bigint;
   /** The network to execute the transaction on */
   network: SpendPermissionNetwork;
+  /** The owner to use for signing the transaction */
+  signer?: EvmSmartAccount["owners"][0];
 };

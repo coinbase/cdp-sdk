@@ -43,6 +43,7 @@ import {
   SignTypedDataOptions,
   UserOperation,
 } from "../../client/evm/evm.types.js";
+import { UserInputValidationError } from "../../errors.js";
 import {
   type CdpOpenApiClientType,
   type EvmSmartAccount as EvmSmartAccountModel,
@@ -58,34 +59,44 @@ import type {
 import type { Address, Hex } from "../../types/misc.js";
 
 /**
- * Options for converting a pre-existing EvmSmartAccount and owner to a EvmSmartAccount
+ * Options for converting a pre-existing EvmSmartAccount and owner(s) to a EvmSmartAccount
  */
 export type ToEvmSmartAccountOptions = {
   /** The pre-existing EvmSmartAccount. */
   smartAccount: EvmSmartAccountModel;
-  /** The owner of the smart account. */
-  owner: EvmAccount;
+  /** The owner of the smart account (for backwards compatibility). */
+  owner?: EvmAccount;
+  /** The owners of the smart account. If provided, takes precedence over `owner`. */
+  owners?: EvmAccount[];
 };
 
 /**
- * Creates a EvmSmartAccount instance from an existing EvmSmartAccount and owner.
+ * Creates a EvmSmartAccount instance from an existing EvmSmartAccount and owner(s).
  * Use this to interact with previously deployed EvmSmartAccounts, rather than creating new ones.
  *
- * The owner must be the original owner of the evm smart account.
+ * The owner(s) must be among the original owners of the evm smart account.
  *
  * @param {CdpOpenApiClientType} apiClient - The API client.
  * @param {ToEvmSmartAccountOptions} options - Configuration options.
  * @param {EvmSmartAccount} options.smartAccount - The deployed evm smart account.
- * @param {EvmAccount} options.owner - The owner which signs for the smart account.
+ * @param {EvmAccount} [options.owner] - The owner which signs for the smart account (for backwards compatibility).
+ * @param {EvmAccount[]} [options.owners] - The owners which can sign for the smart account. Takes precedence over `owner`.
  * @returns {EvmSmartAccount} A configured EvmSmartAccount instance ready for user operation submission.
  */
 export function toEvmSmartAccount(
   apiClient: CdpOpenApiClientType,
   options: ToEvmSmartAccountOptions,
 ): EvmSmartAccount {
+  // Handle backwards compatibility: if owners is provided, use it; otherwise fall back to owner
+  const accountOwners = options.owners || (options.owner ? [options.owner] : []);
+
+  if (accountOwners.length === 0) {
+    throw new UserInputValidationError("At least one owner must be provided");
+  }
+
   const account: EvmSmartAccount = {
     address: options.smartAccount.address as Address,
-    owners: [options.owner],
+    owners: accountOwners,
     policies: options.smartAccount.policies,
     async transfer(transferArgs): Promise<SendUserOperationReturnType> {
       Analytics.trackAction({
@@ -287,7 +298,7 @@ export function toEvmSmartAccount(
 
       return toNetworkScopedEvmSmartAccount(apiClient, {
         smartAccount: account,
-        owner: options.owner,
+        owners: accountOwners,
         network,
       });
     },

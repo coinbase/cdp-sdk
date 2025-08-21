@@ -63,7 +63,9 @@ export interface TransferExecutionStrategy<T extends EvmAccount | EvmSmartAccoun
       value: bigint;
       token: TransferOptions["token"];
       network: TransferOptions["network"];
-    } & (T extends EvmSmartAccount ? { paymasterUrl?: string } : object),
+    } & (T extends EvmSmartAccount
+      ? { paymasterUrl?: string; signer?: EvmSmartAccount["owners"][0] }
+      : object),
   ): Promise<T extends EvmSmartAccount ? SendUserOperationReturnType : TransactionResult>;
 }
 

@@ -27,7 +27,7 @@ export function useSpendPermission(
   account: EvmSmartAccount,
   options: UseSpendPermissionOptions,
 ): Promise<SendUserOperationReturnType> {
-  const { spendPermission, value, network } = options;
+  const { spendPermission, value, network, signer } = options;
 
   const data = encodeFunctionData({
     abi: SPEND_PERMISSION_MANAGER_ABI,
@@ -38,6 +38,7 @@ export function useSpendPermission(
   return sendUserOperation(apiClient, {
     smartAccount: account,
     network: network as EvmUserOperationNetwork,
+    signer,
     calls: [
       {
         to: SPEND_PERMISSION_MANAGER_ADDRESS,

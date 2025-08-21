@@ -49,6 +49,8 @@ export type SendUserOperationOptions<T extends readonly unknown[]> = {
   paymasterUrl?: string;
   /** The idempotency key. */
   idempotencyKey?: string;
+  /** Optional signer to use. If not provided, defaults to the first owner of the smart account. */
+  signer?: EvmSmartAccount["owners"][0];
 };
 
 /**
@@ -148,9 +150,9 @@ export async function sendUserOperation<T extends readonly unknown[]>(
     paymasterUrl,
   });
 
-  const owner = options.smartAccount.owners[0];
+  const signer = options.signer || options.smartAccount.owners[0];
 
-  const signature = await owner.sign({
+  const signature = await signer.sign({
     hash: createOpResponse.userOpHash as Hex,
   });
 
