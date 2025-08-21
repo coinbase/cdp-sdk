@@ -2,7 +2,7 @@
 name = "cdp-sdk"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.85"
+rust-version = "1.86"
 authors = ["Coinbase Inc."]
 description = "SDK for interacting with the Coinbase Developer Platform Wallet API"
 documentation = "https://docs.rs/cdp-sdk"
