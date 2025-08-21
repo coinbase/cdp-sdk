@@ -4,6 +4,14 @@
 [![Documentation](https://docs.rs/cdp-sdk/badge.svg)](https://docs.rs/cdp-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+> [!WARNING]
+> This library is currently in alpha and unpublished, if you'd like to use it, you may specify `cdp-sdk` as a git dependency like so:
+> ```toml
+> [dependencies]
+> cdp-sdk = { git = "https://github.com/coinbase/cdp-sdk" }
+> tokio = { version = "1.0", features = ["full"] }
+> ```
+
 ## Table of Contents
 
 - [CDP SDK](#cdp-sdk)
@@ -50,11 +58,14 @@ Further documentation is also available on the CDP docs website:
 
 ## Installation
 
+> [!WARNING]
+> While this library is unpublished, if you'd like to use it, you must specify `cdp-sdk` as a git dependency.
+
 Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-cdp-sdk = "0.1"
+cdp-sdk = { git = "https://github.com/coinbase/cdp-sdk" }
 tokio = { version = "1.0", features = ["full"] }
 ```
 
@@ -89,9 +100,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let http_client = ClientBuilder::new(reqwest::Client::new())
         .with(wallet_auth)
         .build();
-    
+
     let client = Client::new_with_client(CDP_BASE_URL, http_client);
-    
+
     Ok(())
 }
 ```
@@ -112,13 +123,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .api_key_secret("your-api-key-secret".to_string())
         .wallet_secret("your-wallet-secret".to_string())
         .build()?;
-    
+
     let http_client = ClientBuilder::new(reqwest::Client::new())
         .with(wallet_auth)
         .build();
-    
+
     let client = Client::new_with_client(CDP_BASE_URL, http_client);
-    
+
     Ok(())
 }
 ```
