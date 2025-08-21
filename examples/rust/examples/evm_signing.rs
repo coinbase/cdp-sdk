@@ -36,8 +36,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 1. Sign a hash
     println!("1. Signing a hash...");
-    let test_hash = format!("0x{}", "deadbeef".repeat(16)); // 64-character hex string
-    let hash_body = types::SignEvmHashBody::builder().hash(test_hash);
+    let hash_body = types::SignEvmHashBody::builder()
+        .hash("0x1234567890123456789012345678901234567890123456789012345678901234");
 
     let hash_response = client
         .sign_evm_hash()
@@ -48,7 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     let hash_result = hash_response.into_inner();
-    println!("✅ Hash signature: {}...", &hash_result.signature[..50]);
+    println!("✅ Hash signature: {}...", &hash_result.signature);
 
     // 2. Sign a message
     println!("\n2. Signing a message...");
