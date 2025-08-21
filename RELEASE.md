@@ -65,3 +65,26 @@ Follow these steps to publish a new version of the Python CDP SDK.
 1. Push the tag with `git push origin cdp-sdk@v{NEW_VERSION}`
 1. Delete your release branch
 1. Trigger the [Deploy CDP SDK documentation to GitHub Pages](https://github.com/coinbase/cdp-sdk/actions/workflows/deploy-gh-pages.yml) action. Select `python` as the language to deploy
+
+### Rust
+
+Follow these steps to publish a new version of the Rust CDP SDK.
+
+1. Ensure you are on the `main` branch and have the latest changes
+1. Create a new branch for your changes, e.g. `bump/rust`. The branch name doesn't matter, and you will delete this branch after the release
+1. Calculate the new version by looking at the files in the `rust/changelog.d` folder:
+   - If there is a file ending in `removal.md`, this is a **major** version bump
+   - If there is a file ending in `feature.md`, this is a **minor** version bump
+   - If there is a file ending in `bugfix.md`, this is a **patch** version bump
+   - For example, if the current version is `1.0.0` and there is both a `123.feature.md` and `456.bugfix.md`, the new version will be `1.1.0`
+1. Update the version number in `rust/Cargo.toml`
+1. From the `rust` folder, run `git cliff --unreleased --tag v{NEW_VERSION} --prepend CHANGELOG.md` to update the changelog
+1. Remove all files from `rust/changelog.d/` except `.gitignore`
+1. Add and commit all the changes with the message: `chore(rust): bump cdp-sdk to {NEW_VERSION}`
+1. Push your branch, create a PR and get an approval
+1. Once approved, merge your PR
+1. Once merged, manually trigger the [Publish cdp-sdk (Rust)](https://github.com/coinbase/cdp-sdk/actions/workflows/rust_publish.yml) workflow
+1. Once the workflow has completed, go back to the `main` branch and pull the latest changes
+1. Tag the new version with `git tag -s cdp-sdk-rust@v{NEW_VERSION} -m "Release cdp-sdk (Rust) {NEW_VERSION}"`
+1. Push the tag with `git push origin cdp-sdk-rust@v{NEW_VERSION}`
+1. Delete your release branch

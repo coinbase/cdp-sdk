@@ -13,3 +13,7 @@ To run Python examples, see [python/README.md](./python/README.md).
 ## Go
 
 To run Go examples, see [go/README.md](./go/README.md).
+
+## Rust
+
+To run Rust examples, see [rust/README.md](./rust/README.md).

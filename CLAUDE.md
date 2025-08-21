@@ -11,6 +11,7 @@ This is the Coinbase Developer Platform (CDP) SDK repository containing multi-la
 - `typescript/` - TypeScript/Node.js SDK implementation
 - `python/` - Python SDK implementation
 - `go/` - Go SDK implementation
+- `rust/` - Rust SDK implementation
 - `examples/` - Working examples for all languages
 - `openapi.yaml` - OpenAPI specification for the CDP API
 
@@ -106,6 +107,37 @@ make client
 make docs
 ```
 
+### Rust (`rust/` directory)
+
+```bash
+# Check code
+make check
+
+# Remove generated files and build artifacts
+make clean
+
+# Clean and prepare
+make build
+
+# Run tests
+make test
+
+# Run end-to-end tests
+make test-e2e
+
+# Lint code
+make lint
+
+# Fix linting issues
+make lint-fix
+
+# Format code
+make format
+
+# Generate docs
+make docs
+```
+
 ### Root Level
 
 ```bash
@@ -161,7 +193,7 @@ make check-openapi
 ## Configuration Files
 
 - `openapi.yaml` - API specification (auto-updated from CDN)
-- Language-specific configs: `pyproject.toml`, `package.json`, `go.mod`
+- Language-specific configs: `pyproject.toml`, `package.json`, `go.mod`, `Cargo.toml`
 - Linting: ESLint (TS), Ruff (Python), golangci-lint (Go)
 - CI/CD via language-specific workflows
 

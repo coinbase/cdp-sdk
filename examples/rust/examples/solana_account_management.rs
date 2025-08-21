@@ -1,0 +1,91 @@
+use cdp_sdk::{auth::WalletAuth, types, Client, CDP_BASE_URL};
+use dotenv::dotenv;
+use reqwest_middleware::ClientBuilder;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenv().ok();
+
+    // Initialize the CDP client
+    let wallet_auth = WalletAuth::builder().build()?;
+    let http_client = ClientBuilder::new(reqwest::Client::new())
+        .with(wallet_auth)
+        .build();
+    let client = Client::new_with_client(CDP_BASE_URL, http_client);
+
+    println!("☀️  Solana Account Management Example");
+    println!("====================================\n");
+
+    // 1. Create a new Solana account
+    println!("1. Creating a new Solana account...");
+    let create_body =
+        types::CreateSolanaAccountBody::builder().name(Some("my-solana-account".parse()?));
+
+    let response = client
+        .create_solana_account()
+        .x_wallet_auth("")
+        .body(create_body)
+        .send()
+        .await?;
+
+    let account = response.into_inner();
+    println!("✅ Created Solana account: {}", &*account.address);
+    println!("   Name: {:?}", account.name);
+    println!("   Created: {:?}", account.created_at);
+
+    // 2. Get account by address
+    println!("\n2. Retrieving account by address...");
+    let get_response = client
+        .get_solana_account()
+        .address(&*account.address)
+        .send()
+        .await?;
+
+    let retrieved_account = get_response.into_inner();
+    println!("✅ Retrieved account: {}", &*retrieved_account.address);
+    println!("   Name: {:?}", retrieved_account.name);
+
+    // 3. Get account by name
+    println!("\n3. Retrieving account by name...");
+    let get_by_name_response = client
+        .get_solana_account_by_name()
+        .name("my-solana-account")
+        .send()
+        .await?;
+
+    let account_by_name = get_by_name_response.into_inner();
+    println!("✅ Found account by name: {}", &*account_by_name.address);
+
+    // 4. List all Solana accounts
+    println!("\n4. Listing all Solana accounts...");
+    let list_response = client.list_solana_accounts().page_size(5).send().await?;
+
+    let accounts_list = list_response.into_inner();
+    println!("✅ Found {} Solana accounts:", accounts_list.accounts.len());
+    for (i, acc) in accounts_list.accounts.iter().enumerate() {
+        println!("   {}. {} - {:?}", i + 1, &*acc.address, acc.name);
+    }
+
+    // 5. Update account name
+    println!("\n5. Updating account name...");
+    let update_body =
+        types::UpdateSolanaAccountBody::builder().name(Some("my-updated-solana-account".parse()?));
+
+    let update_response = client
+        .update_solana_account()
+        .address(&*account.address)
+        .body(update_body)
+        .send()
+        .await?;
+
+    let updated_account = update_response.into_inner();
+    println!("✅ Updated account name: {:?}", updated_account.name);
+
+    println!("\n🎉 Solana Account Management Complete!");
+    println!("\n💡 Solana accounts enable:");
+    println!("   • Fast, low-cost transactions");
+    println!("   • SPL token interactions");
+    println!("   • DeFi protocol participation");
+    println!("   • NFT minting and trading");
+    Ok(())
+}

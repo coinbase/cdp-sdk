@@ -1,0 +1,49 @@
+[package]
+name = "rust-examples"
+version = "0.1.0"
+edition = "2021"
+authors = ["Coinbase Inc."]
+description = "SDK for interacting with the Coinbase Developer Platform Wallet API"
+documentation = "https://docs.rs/cdp-sdk"
+repository = "https://github.com/coinbase/cdp-sdk"
+homepage = "https://docs.cdp.coinbase.com/"
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+cdp-sdk = { path = "../../rust" }
+reqwest-middleware = { version = "0.4.2", default-features = false, features = ["json"] }
+reqwest = { version = "0.12.4", features = ["json", "stream"] }
+tokio = { version = "1.0", features = ["full"] }
+alloy = "1.0.24"
+bs58 = "0.5"
+base64 = "0.22"
+dotenv = "0.15.0"
+
+[[example]]
+name = "wallet_client"
+path = "examples/wallet_client.rs"
+
+[[example]]
+name = "evm_account_management"
+path = "examples/evm_account_management.rs"
+
+[[example]]
+name = "evm_signing"
+path = "examples/evm_signing.rs"
+
+[[example]]
+name = "smart_account_management"
+path = "examples/smart_account_management.rs"
+
+[[example]]
+name = "solana_account_management"
+path = "examples/solana_account_management.rs"
+
+[[example]]
+name = "solana_signing"
+path = "examples/solana_signing.rs"
+
+[[example]]
+name = "token_balances"
+path = "examples/token_balances.rs"
