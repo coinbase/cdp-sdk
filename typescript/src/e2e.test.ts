@@ -1913,6 +1913,10 @@ describe("CDP Client E2E Tests", () => {
       policySolanaTestAccount = await cdp.solana.getOrCreateAccount({
         name: testSolAccountNames[Math.floor(Math.random() * testSolAccountNames.length)],
       });
+
+      await ensureSufficientEthBalance(cdp, policyTestAccount);
+      await ensureSufficientSolBalance(cdp, policySolanaTestAccount);
+
       policy = await cdp.policies.createPolicy({
         policy: {
           description: Date.now().toString(),
