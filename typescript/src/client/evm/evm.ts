@@ -295,18 +295,28 @@ export class EvmClient implements EvmClientInterface {
    * Creates a new CDP EVM smart account.
    *
    * @param {CreateSmartAccountOptions} options - Parameters for creating the smart account.
-   * @param {Account} options.owner - The owner of the smart account.
-   * The owner can be any Ethereum account with signing capabilities,
+   * @param {Account} [options.owner] - The owner of the smart account (for backwards compatibility).
+   * @param {Account[]} [options.owners] - The owners of the smart account. If provided, takes precedence over `owner`.
+   * The owners can be any Ethereum accounts with signing capabilities,
    * such as a CDP EVM account or a Viem LocalAccount.
    * @param {string} [options.idempotencyKey] - An idempotency key.
    *
    * @returns A promise that resolves to the newly created smart account.
    *
-   * @example **With a CDP EVM Account as the owner**
+   * @example **With a single CDP EVM Account as the owner**
    *          ```ts
    *          const account = await cdp.evm.createAccount();
    *          const smartAccount = await cdp.evm.createSmartAccount({
    *            owner: account,
+   *          });
+   *          ```
+   *
+   * @example **With multiple owners**
+   *          ```ts
+   *          const account1 = await cdp.evm.createAccount();
+   *          const account2 = await cdp.evm.createAccount();
+   *          const smartAccount = await cdp.evm.createSmartAccount({
+   *            owners: [account1, account2],
    *          });
    *          ```
    *
@@ -1024,8 +1034,8 @@ export class EvmClient implements EvmClientInterface {
    * });
    * ```
    */
-  async sendUserOperation(
-    options: SendUserOperationOptions<unknown[]>,
+  async sendUserOperation<T extends readonly unknown[]>(
+    options: SendUserOperationOptions<T>,
   ): Promise<SendUserOperationReturnType> {
     Analytics.trackAction({
       action: "send_user_operation",
@@ -1040,6 +1050,7 @@ export class EvmClient implements EvmClientInterface {
       calls: options.calls,
       paymasterUrl: options.paymasterUrl,
       idempotencyKey: options.idempotencyKey,
+      signer: options.signer,
     });
   }
 
@@ -1327,9 +1338,16 @@ export class EvmClient implements EvmClientInterface {
       options.idempotencyKey,
     );
 
+    // Handle backwards compatibility: if owners is provided, use it; otherwise fall back to owner
+    const accountOwners = options.owners || (options.owner ? [options.owner] : []);
+
+    if (accountOwners.length === 0) {
+      throw new UserInputValidationError("At least one owner must be provided");
+    }
+
     const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
       smartAccount: openApiSmartAccount,
-      owner: options.owner,
+      owners: accountOwners,
     });
 
     Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
@@ -1447,7 +1465,14 @@ export class EvmClient implements EvmClientInterface {
   private async _createSmartAccountInternal(
     options: CreateSmartAccountOptions,
   ): Promise<SmartAccount> {
-    const owners = [options.owner.address];
+    // Handle backwards compatibility: if owners is provided, use it; otherwise fall back to owner
+    const accountOwners = options.owners || (options.owner ? [options.owner] : []);
+
+    if (accountOwners.length === 0) {
+      throw new UserInputValidationError("At least one owner must be provided");
+    }
+
+    const owners = accountOwners.map(owner => owner.address);
 
     if (options.enableSpendPermissions) {
       owners.push(SPEND_PERMISSION_MANAGER_ADDRESS);
@@ -1463,7 +1488,7 @@ export class EvmClient implements EvmClientInterface {
 
     const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
       smartAccount: openApiSmartAccount,
-      owner: options.owner,
+      owners: accountOwners,
     });
 
     Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);
@@ -1488,19 +1513,29 @@ export class EvmClient implements EvmClientInterface {
       throw new UserInputValidationError("Either address or name must be provided");
     })();
 
-    if (!openApiSmartAccount.owners.includes(options.owner.address)) {
-      throw new UserInputValidationError(
-        `Owner mismatch: The provided owner address is not an owner of the smart account. Please use a valid owner for this smart account.
+    // Handle backwards compatibility: if owners is provided, use it; otherwise fall back to owner
+    const accountOwners = options.owners || (options.owner ? [options.owner] : []);
+
+    if (accountOwners.length === 0) {
+      throw new UserInputValidationError("At least one owner must be provided");
+    }
+
+    // Validate that all provided owners are actually owners of the smart account
+    for (const owner of accountOwners) {
+      if (!openApiSmartAccount.owners.includes(owner.address)) {
+        throw new UserInputValidationError(
+          `Owner mismatch: The provided owner address "${owner.address}" is not an owner of the smart account. Please use valid owners for this smart account.
 
 Smart Account Address: ${openApiSmartAccount.address}
 Smart Account Owners: ${openApiSmartAccount.owners.join(", ")}
-Provided Owner Address: ${options.owner.address}\n`,
-      );
+Provided Owner Addresses: ${accountOwners.map(o => o.address).join(", ")}\n`,
+        );
+      }
     }
 
     const smartAccount = toEvmSmartAccount(CdpOpenApiClient, {
       smartAccount: openApiSmartAccount,
-      owner: options.owner,
+      owners: accountOwners,
     });
 
     Analytics.wrapObjectMethodsWithErrorTracking(smartAccount);

@@ -8,13 +8,14 @@ import type { EvmSmartAccount } from "../../../accounts/evm/types.js";
 import type { EvmUserOperationNetwork } from "../../../openapi-client/index.js";
 
 export const smartAccountTransferStrategy: TransferExecutionStrategy<EvmSmartAccount> = {
-  executeTransfer: async ({ apiClient, from, to, value, token, network, paymasterUrl }) => {
+  executeTransfer: async ({ apiClient, from, to, value, token, network, paymasterUrl, signer }) => {
     const smartAccountNetwork = network as EvmUserOperationNetwork;
 
     if (token === "eth") {
       const result = await sendUserOperation(apiClient, {
         smartAccount: from,
         paymasterUrl,
+        signer,
         network: smartAccountNetwork,
         calls: [
           {
@@ -31,6 +32,7 @@ export const smartAccountTransferStrategy: TransferExecutionStrategy<EvmSmartAcc
       const result = await sendUserOperation(apiClient, {
         smartAccount: from,
         paymasterUrl,
+        signer,
         network: smartAccountNetwork,
         calls: [
           {
