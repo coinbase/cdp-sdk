@@ -31,7 +31,7 @@ export CDP_WALLET_SECRET="YOUR_WALLET_SECRET"
 
 Then, initialize the client:
 
-```typescript
+```typescript lines
 import { CdpClient } from "@coinbase/cdp-sdk";
 
 const cdp = new CdpClient();
@@ -50,7 +50,7 @@ echo "CDP_WALLET_SECRET=YOUR_WALLET_SECRET" >> .env
 
 Then, load the client config from the `.env` file:
 
-```typescript
+```typescript lines
 import { CdpClient } from "@coinbase/cdp-sdk";
 import dotenv from "dotenv";
 
@@ -63,7 +63,7 @@ const cdp = new CdpClient();
 
 Another option is to directly pass the API Key and Wallet Secret to the client:
 
-```typescript
+```typescript lines
 const cdp = new CdpClient({
   apiKeyId: "YOUR_API_KEY_ID",
   apiKeySecret: "YOUR_API_KEY_SECRET",
@@ -75,13 +75,13 @@ const cdp = new CdpClient({
 
 #### Create an EVM account as follows:
 
-```typescript
+```typescript lines
 const account = await cdp.evm.createAccount();
 ```
 
 #### Import an EVM account as follows:
 
-```typescript
+```typescript lines
 const account = await cdp.evm.importAccount({
   privateKey: "0x123456",
   name: "MyAccount",
@@ -90,12 +90,12 @@ const account = await cdp.evm.importAccount({
 
 #### Create a Solana account as follows:
 
-```typescript
+```typescript lines
 const account = await cdp.solana.createAccount();
 ```
 
 #### Import a Solana account as follows:
-```typescript
+```typescript lines
 const account = await cdp.solana.importAccount({
   privateKey: "3MLZ...Uko8zz",
   name: "MyAccount",
@@ -106,7 +106,7 @@ const account = await cdp.solana.importAccount({
 
 #### Export an EVM account as follows:
 
-```typescript
+```typescript lines
 // by name
 const privateKey = await cdp.evm.exportAccount({
   name: "MyAccount",
@@ -120,7 +120,7 @@ const privateKey = await cdp.evm.exportAccount({
 
 #### Export a Solana account as follows:
 
-```typescript
+```typescript lines
 // by name
 const privateKey = await cdp.solana.exportAccount({
   name: "MyAccount",
@@ -134,7 +134,7 @@ const privateKey = await cdp.solana.exportAccount({
 
 #### Get or Create an EVM account as follows:
 
-```typescript
+```typescript lines
 const account = await cdp.evm.getOrCreateAccount({
   name: "Account1",
 });
@@ -142,14 +142,14 @@ const account = await cdp.evm.getOrCreateAccount({
 
 #### Get or Create a Solana account as follows:
 
-```typescript
+```typescript lines
 const account = await cdp.solana.getOrCreateAccount({
   name: "Account1",
 });
 ```
 
 #### Get or Create a Smart Account as follows:
-```typescript
+```typescript lines
 const owner = await cdp.evm.createAccount();
 const account = await cdp.evm.getOrCreateSmartAccount({
   name: "Account1",
@@ -161,7 +161,7 @@ const account = await cdp.evm.getOrCreateSmartAccount({
 
 #### Create an EVM account with policy as follows:
 
-```typescript
+```typescript lines
 const account = await cdp.evm.createAccount({
   name: "AccountWithPolicy",
   accountPolicy: "abcdef12-3456-7890-1234-567890123456"
@@ -170,7 +170,7 @@ const account = await cdp.evm.createAccount({
 
 #### Create a Solana account with policy as follows:
 
-```typescript
+```typescript lines
 const account = await cdp.solana.createAccount({
   name: "AccountWithPolicy",
   accountPolicy: "abcdef12-3456-7890-1234-567890123456"
@@ -181,7 +181,7 @@ const account = await cdp.solana.createAccount({
 
 #### Update an EVM account as follows:
 
-```typescript
+```typescript lines
 const account = await cdp.evm.updateAccount({
   addresss: account.address,
   update: {
@@ -193,7 +193,7 @@ const account = await cdp.evm.updateAccount({
 
 #### Update a Solana account as follows:
 
-```typescript
+```typescript lines
 const account = await cdp.solana.updateAccount({
   addresss: account.address,
   update: {
@@ -209,7 +209,7 @@ You can use the faucet function to request testnet ETH or SOL from the CDP.
 
 #### Request testnet ETH as follows:
 
-```typescript
+```typescript lines
 const faucetResp = await cdp.evm.requestFaucet({
   address: evmAccount.address,
   network: "base-sepolia",
@@ -219,7 +219,7 @@ const faucetResp = await cdp.evm.requestFaucet({
 
 #### Request testnet SOL as follows:
 
-```typescript
+```typescript lines
 const faucetResp = await cdp.solana.requestFaucet({
   address: fromAddress,
   token: "sol",
@@ -232,7 +232,7 @@ const faucetResp = await cdp.solana.requestFaucet({
 
 You can use CDP SDK to send transactions on EVM networks.
 
-```typescript
+```typescript lines
 import { CdpClient } from "@coinbase/cdp-sdk";
 import { parseEther, createPublicClient, http } from "viem";
 import { baseSepolia } from "viem/chains";
@@ -274,7 +274,7 @@ console.log(
 
 CDP SDK is fully viem-compatible, so you can optionally use a `walletClient` to send transactions.
 
-```typescript
+```typescript lines
 import { CdpClient } from "@coinbase/cdp-sdk";
 import { parseEther, createPublicClient, http, createWalletClient, toAccount } from "viem";
 import { baseSepolia } from "viem/chains";
@@ -319,7 +319,7 @@ You can use CDP SDK to send transactions on Solana.
 
 For complete examples, check out [sendTransaction.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/sendTransaction.ts), [sendManyTransactions.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/sendManyTransactions.ts), and [sendManyBatchedTransactions.ts](https://github.com/coinbase/cdp-sdk/blob/main/examples/typescript/solana/sendManyBatchedTransactions.ts).
 
-```typescript
+```typescript lines
 import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";
 
@@ -374,7 +374,7 @@ For EVM, we support Smart Accounts which are account-abstraction (ERC-4337) acco
 
 #### Create an EVM account and a smart account as follows:
 
-```typescript
+```typescript lines
 const evmAccount = await cdp.evm.createAccount();
 const smartAccount = await cdp.evm.createSmartAccount({
   owner: evmAccount,
@@ -383,7 +383,7 @@ const smartAccount = await cdp.evm.createSmartAccount({
 
 #### Sending User Operations
 
-```typescript
+```typescript lines
 const userOperation = await cdp.evm.sendUserOperation({
   smartAccount: smartAccount,
   network: "base-sepolia",
@@ -399,7 +399,7 @@ const userOperation = await cdp.evm.sendUserOperation({
 
 #### In Base Sepolia, all user operations are gasless by default. If you'd like to specify a different paymaster, you can do so as follows:
 
-```typescript
+```typescript lines
 const userOperation = await cdp.sendUserOperation({
   smartAccount: smartAccount,
   network: "base-sepolia",
@@ -425,7 +425,7 @@ The SDK provides three approaches for performing token swaps:
 The simplest approach for performing swaps. Creates and executes the swap in a single line of code:
 
 **Regular Account (EOA):**
-```typescript
+```typescript lines
 // Retrieve an existing EVM account with funds already in it
 const account = await cdp.evm.getOrCreateAccount({ name: "MyExistingFundedAccount" });
 
@@ -442,7 +442,7 @@ console.log(`Swap executed: ${transactionHash}`);
 ```
 
 **Smart Account:**
-```typescript
+```typescript lines
 // Create or retrieve a smart account with funds already in it
 const owner = await cdp.evm.getOrCreateAccount({ name: "MyOwnerAccount" });
 const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MyExistingFundedSmartAccount", owner });
@@ -468,7 +468,7 @@ console.log(`Status: ${receipt.status}`);
 
 Use `getSwapPrice` for quick price estimates and display purposes. This is ideal for showing exchange rates without committing to a swap:
 
-```typescript
+```typescript lines
 const swapPrice = await cdp.evm.getSwapPrice({
   network: "ethereum",
   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
@@ -492,7 +492,7 @@ Use `account.quoteSwap()` / `smartAccount.quoteSwap()` when you need full contro
 **Important:** `quoteSwap()` signals a soft commitment to swap and may reserve funds on-chain. It is rate-limited more strictly than `getSwapPrice` to prevent abuse.
 
 **Regular Account (EOA):**
-```typescript
+```typescript lines
 // Retrieve an existing EVM account with funds already in it
 const account = await cdp.evm.getOrCreateAccount({ name: "MyExistingFundedAccount" });
 
@@ -516,7 +516,7 @@ const { transactionHash } = await swapQuote.execute();
 ```
 
 **Smart Account:**
-```typescript
+```typescript lines
 // Create or retrieve a smart account with funds already in it
 const owner = await cdp.evm.getOrCreateAccount({ name: "MyOwnerAccount" });
 const smartAccount = await cdp.evm.getOrCreateSmartAccount({ name: "MyExistingFundedSmartAccount", owner });
@@ -593,7 +593,7 @@ For complete examples, check out [evm/account.transfer.ts](https://github.com/co
 
 You can transfer tokens between accounts using the `transfer` function:
 
-```typescript
+```typescript lines
 const sender = await cdp.evm.createAccount({ name: "Sender" });
 
 const { transactionHash } = await sender.transfer({
@@ -606,7 +606,7 @@ const { transactionHash } = await sender.transfer({
 
 You can then [wait for the transaction receipt with a viem Public Client](https://viem.sh/docs/actions/public/waitForTransactionReceipt#waitfortransactionreceipt):
 
-```typescript
+```typescript lines
 import { createPublicClient, http } from "viem";
 import { baseSepolia } from "viem/chains";
 
@@ -620,7 +620,7 @@ const receipt = await publicClient.waitForTransactionReceipt({ hash: transaction
 
 Smart Accounts also have a `transfer` function:
 
-```typescript
+```typescript lines
 const sender = await cdp.evm.createSmartAccount({
   owner: privateKeyToAccount(generatePrivateKey()),
 });
@@ -636,7 +636,7 @@ const { userOpHash } = await sender.transfer({
 
 One difference is that the `transfer` function returns the user operation hash, which is different from the transaction hash. You can use the returned user operation hash in a call to `waitForUserOperation` to get the result of the transaction:
 
-```typescript
+```typescript lines
 const receipt = await sender.waitForUserOperation({
   hash: userOpHash,
 });
@@ -652,7 +652,7 @@ if (receipt.status === "complete") {
 
 Using Smart Accounts, you can also specify a paymaster URL:
 
-```typescript
+```typescript lines
 await sender.transfer({
   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
   amount: "0.01",
@@ -664,7 +664,7 @@ await sender.transfer({
 
 Transfer amount must be passed as a bigint. To convert common tokens from whole units, you can use utilities such as [`parseEther`](https://viem.sh/docs/utilities/parseEther#parseether) and [`parseUnits`](https://viem.sh/docs/utilities/parseUnits#parseunits) from viem.
 
-```typescript
+```typescript lines
 await sender.transfer({
   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
   amount: parseUnits("0.01", 6), // USDC has 6 decimals
@@ -675,7 +675,7 @@ await sender.transfer({
 
 You can pass `usdc` or `eth` as the token to transfer, or you can pass a contract address directly:
 
-```typescript
+```typescript lines
 await sender.transfer({
   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
   amount: parseUnits("0.000001", 18), // WETH has 18 decimals. equivalent to calling `parseEther("0.000001")`
@@ -686,7 +686,7 @@ await sender.transfer({
 
 You can also pass another account as the `to` parameter:
 
-```typescript
+```typescript lines
 const sender = await cdp.evm.createAccount({ name: "Sender" });
 
 const receiver = await cdp.evm.createAccount({ name: "Receiver" });
@@ -704,7 +704,7 @@ For complete examples, check out [solana/account.transfer.ts](https://github.com
 
 You can transfer tokens between accounts using the `transfer` function, and wait for the transaction to be confirmed using the `confirmTransaction` function from `@solana/web3.js`:
 
-```typescript
+```typescript lines
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 const sender = await cdp.solana.createAccount();
@@ -740,7 +740,7 @@ if (confirmation.value.err) {
 
 You can also easily send USDC:
 
-```typescript
+```typescript lines
 const { signature } = await sender.transfer({
   to: "3KzDtddx4i53FBkvCzuDmRbaMozTZoJBb1TToWhz3JfE",
   amount: "0.01",
@@ -751,7 +751,7 @@ const { signature } = await sender.transfer({
 
 If you want to use your own Connection, you can pass one to the `network` parameter:
 
-```typescript
+```typescript lines
 import { Connection } from "@solana/web3.js";
 
 const connection = new Connection("YOUR_RPC_URL");
@@ -774,7 +774,7 @@ Here are some examples for actions on EVM accounts.
 
 For example, instead of:
 
-```typescript
+```typescript lines
 const balances = await cdp.evm.listTokenBalances({
   address: account.address,
   network: "base-sepolia",
@@ -783,7 +783,7 @@ const balances = await cdp.evm.listTokenBalances({
 
 You can use the `listTokenBalances` action:
 
-```typescript
+```typescript lines
 const account = await cdp.evm.createAccount();
 const balances = await account.listTokenBalances({ network: "base-sepolia" });
 ```
@@ -809,7 +809,7 @@ EvmSmartAccount supports the following actions:
 
 Here are some examples for actions on Solana accounts.
 
-```typescript
+```typescript lines
 const balances = await cdp.solana.signMessage({
   address: account.address,
   message: "Hello, world!",
@@ -818,7 +818,7 @@ const balances = await cdp.solana.signMessage({
 
 You can use the `signMessage` action:
 
-```typescript
+```typescript lines
 const account = await cdp.solana.createAccount();
 const { signature } = await account.signMessage({
   message: "Hello, world!",
@@ -839,7 +839,7 @@ You can use the policies SDK to manage sets of rules that govern the behavior of
 
 This policy will accept any account sending less than a specific amount of ETH to a specific address.
 
-```typescript
+```typescript lines
 const policy = await cdp.policies.createPolicy({
   policy: {
     scope: "project",
@@ -870,7 +870,7 @@ const policy = await cdp.policies.createPolicy({
 
 This policy will accept any transaction with a value less than or equal to 1 ETH to a specific address.
 
-```typescript
+```typescript lines
 const policy = await cdp.policies.createPolicy({
   policy: {
     scope: "account",
@@ -899,7 +899,7 @@ const policy = await cdp.policies.createPolicy({
 
 ### Create a Solana Allowlist Policy
 
-```typescript
+```typescript lines
 const policy = await cdp.policies.createPolicy({
   policy: {
     scope: "account",
@@ -925,7 +925,7 @@ const policy = await cdp.policies.createPolicy({
 
 You can filter by account:
 
-```typescript
+```typescript lines
 const policy = await cdp.policies.listPolicies({
   scope: "account",
 });
@@ -933,7 +933,7 @@ const policy = await cdp.policies.listPolicies({
 
 You can also filter by project:
 
-```typescript
+```typescript lines
 const policy = await cdp.policies.listPolicies({
   scope: "project",
 });
@@ -941,7 +941,7 @@ const policy = await cdp.policies.listPolicies({
 
 ### Retrieve a Policy
 
-```typescript
+```typescript lines
 const policy = await cdp.policies.getPolicyById({
   id: "__POLICY_ID__",
 });
@@ -951,7 +951,7 @@ const policy = await cdp.policies.getPolicyById({
 
 This policy will update an existing policy to accept transactions to any address except one.
 
-```typescript
+```typescript lines
 const policy = await cdp.policies.updatePolicy({
   id: "__POLICY_ID__",
   policy: {
@@ -977,7 +977,7 @@ const policy = await cdp.policies.updatePolicy({
 
 > [!WARNING] Attempting to delete an account-level policy in-use by at least one account will fail.
 
-```typescript
+```typescript lines
 const policy = await cdp.policies.deletePolicy({
   id: "__POLICY_ID__",
 });
@@ -987,7 +987,7 @@ const policy = await cdp.policies.deletePolicy({
 
 If you're integrating policy editing into your application, you may find it useful to validate policies ahead of time to provide a user with feedback. The `CreatePolicyBodySchema` and `UpdatePolicyBodySchema` can be used to get actionable structured information about any issues with a policy. Read more about [handling ZodErrors](https://zod.dev/ERROR_HANDLING).
 
-```ts
+```typescript lines
 import { CreatePolicyBodySchema, UpdatePolicyBodySchema } from "@coinbase/cdp-sdk";
 
 // Validate a new Policy with many issues, will throw a ZodError with actionable validation errors
@@ -1045,7 +1045,7 @@ You can use the End User SDK to manage the users of your applications.
 
 When your end user has signed in with an [Embedded Wallet](https://docs.cdp.coinbase.com/embedded-wallets/welcome), you can check whether the access token they were granted is valid, and which of your user's it is associated with.
 
-```typescript
+```typescript lines
 try {
   const endUser = await cdp.endUser.validateAccessToken({
       accessToken,
@@ -1120,12 +1120,12 @@ SyntaxError: Unexpected token 'export'
 
 Add a file called `jest.setup.ts` next to your `jest.config` file with the following content:
 
-```typescript
+```typescript lines
 jest.mock("jose", () => {});
 ```
 
 Then, add the following line to your `jest.config` file:
 
-```typescript
+```typescript lines
 setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
 ```

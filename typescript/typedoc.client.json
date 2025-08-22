@@ -40,5 +40,6 @@
   "publicPath": "/sdks/cdp-sdks-v2/typescript/client",
   "expandObjects": true,
   "expandParameters": true,
-  "router": "module"
+  "router": "module",
+  "propertiesFormat": "table"
 }

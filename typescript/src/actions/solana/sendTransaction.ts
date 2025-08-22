@@ -20,7 +20,7 @@ export interface SendTransactionResult {
  * @returns A promise that resolves to the transaction result.
  *
  * @example
- * ```ts
+ * ```typescript lines
  * const signature = await sendTransaction({
  *   network: "solana-devnet",
  *   transaction: "...",

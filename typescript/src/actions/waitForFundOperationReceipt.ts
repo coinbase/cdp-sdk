@@ -54,7 +54,7 @@ export type WaitForFundOperationResult = FailedFundOperation | CompletedFundOper
  * Waits for a fund operation to complete or fail.
  *
  * @example
- * ```ts
+ * ```typescript lines
  * import { waitForFundOperation } from "@coinbase/cdp-sdk";
  *
  * const result = await waitForFundOperation(client, {

@@ -38,7 +38,7 @@ import type { Hex } from "../../../types/misc.js";
  * @throws {Error} If no transaction data is found in the swap result.
  *
  * @example **Sending a swap with pre-created swap quote object**
- * ```ts
+ * ```typescript lines
  * // First create a swap quote
  * const swapQuote = await cdp.evm.createSwapQuote({
  *   network: "base",
@@ -64,7 +64,7 @@ import type { Hex } from "../../../types/misc.js";
  * ```
  *
  * @example **Sending a swap with inline options (all-in-one)**
- * ```ts
+ * ```typescript lines
  * // Send swap operation in one call
  * const result = await sendSwapOperation(client, {
  *   smartAccount: smartAccount,

@@ -54,7 +54,7 @@ export class CdpClient {
    *
    * Or passed as options to the constructor:
    *
-   * ```typescript
+   * ```typescript lines
    * const cdp = new CdpClient({
    *   apiKeyId: "your-api-key-id",
    *   apiKeySecret: "your-api-key-secret",

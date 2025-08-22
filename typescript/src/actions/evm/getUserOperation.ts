@@ -13,7 +13,7 @@ import { Address, Hex } from "../../types/misc.js";
  * @returns A promise that resolves to the user operation.
  *
  * @example
- * ```ts
+ * ```typescript lines
  * const userOp = await getUserOperation(client, {
  *   smartAccount,
  *   userOpHash: "0x1234567890123456789012345678901234567890123456789012345678901234",

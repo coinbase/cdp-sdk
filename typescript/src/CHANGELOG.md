@@ -385,7 +385,7 @@
 
   And configure the `CdpClient` like so:
 
-  ```typescript
+  ```typescript lines
   import { CdpClient } from "@coinbase/cdp-sdk";
 
   const cdp = new CdpClient();
@@ -402,7 +402,7 @@
 
   And configure the `CdpClient` like so:
 
-  ```typescript
+  ```typescript lines
   import { CdpClient } from "@coinbase/cdp-sdk";
   import { config } from "dotenv";
 

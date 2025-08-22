@@ -37,7 +37,7 @@ import type { TransactionRequestEIP1559 } from "viem";
  * @throws {Error} If no transaction data is found in the swap result.
  *
  * @example **Sending a swap with pre-created swap quote object**
- * ```ts
+ * ```typescript lines
  * // First create a swap quote
  * const swapQuote = await cdp.evm.createSwapQuote({
  *   network: "base",
@@ -63,7 +63,7 @@ import type { TransactionRequestEIP1559 } from "viem";
  * ```
  *
  * @example **Sending a swap with inline options (all-in-one)**
- * ```ts
+ * ```typescript lines
  * // Send swap in one call
  * const result = await sendSwapTransaction(client, {
  *   address: account.address,

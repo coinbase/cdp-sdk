@@ -12,7 +12,7 @@ import "dotenv/config";
  * This provides type-safe access to network-specific methods at compile time.
  *
  * USAGE:
- * ```typescript
+ * ```typescript lines
  * const smartAccount = await cdp.evm.createSmartAccount();
  * const networkScopedAccount = await smartAccount.useNetwork("base");
  * ```

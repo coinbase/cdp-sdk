@@ -22,7 +22,7 @@ npm install @coinbase/cdp-sdk
 
 **Step 2**: Generate a JWT:
 
-```typescript
+```typescript lines
 import { generateJwt } from "@coinbase/cdp-sdk/auth";
 
 // For REST (HTTP) requests
@@ -73,7 +73,7 @@ npm install @coinbase/cdp-sdk
 
 **Step 2**: Generate authorization headers:
 
-```typescript
+```typescript lines
 import { getAuthHeaders } from "@coinbase/cdp-sdk/auth";
 
 const headers = await getAuthHeaders({
@@ -106,7 +106,7 @@ npm install @coinbase/cdp-sdk axios
 
 The following example shows how to use an [Axios](https://axios-http.com/docs/intro) HTTP client with a pre-configured interceptor to authenticate your requests to the CDP REST APIs. This client will automatically add the appropriate authentication headers to each request.
 
-```typescript
+```typescript lines
 import axios from "axios";
 import { axiosHooks } from "@coinbase/cdp-sdk/auth";
 

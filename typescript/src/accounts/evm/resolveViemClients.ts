@@ -115,7 +115,7 @@ export type ResolvedViemClients = {
  * @returns Promise resolving to an object containing the chain, publicClient, and walletClient
  *
  * @example
- * ```typescript
+ * ```typescript lines
  * // Using network identifier
  * const clients = await resolveViemClients({
  *   networkOrNodeUrl: "base",

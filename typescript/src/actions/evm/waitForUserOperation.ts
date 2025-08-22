@@ -54,7 +54,7 @@ export type WaitForUserOperationReturnType = FailedOperation | CompletedOperatio
  * Waits for a user operation to complete or fail.
  *
  * @example
- * ```ts
+ * ```typescript lines
  * import { waitForUserOperation } from "@coinbase/cdp-sdk";
  *
  * const result = await waitForUserOperation(client, {

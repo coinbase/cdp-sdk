@@ -61,17 +61,17 @@ export class SolanaClient implements SolanaClientInterface {
    * @returns A promise that resolves to the newly created account.
    *
    * @example **Without arguments**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.solana.createAccount();
    *          ```
    *
    * @example **With a name**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.solana.createAccount({ name: "MyAccount" });
    *          ```
    *
    * @example **With an idempotency key**
-   *          ```ts
+   *          ```typescript lines
    *          const idempotencyKey = uuidv4();
    *
    *          // First call
@@ -101,14 +101,14 @@ export class SolanaClient implements SolanaClientInterface {
    * @returns A promise that resolves to the exported account's full 64-byte private key as a base58 encoded string.
    *
    * @example **With an address**
-   * ```ts
+   * ```typescript lines
    * const privateKey = await cdp.solana.exportAccount({
    *   address: "1234567890123456789012345678901234567890",
    * });
    * ```
    *
    * @example **With a name**
-   * ```ts
+   * ```typescript lines
    * const privateKey = await cdp.solana.exportAccount({
    *   name: "MyAccount",
    * });
@@ -163,14 +163,14 @@ export class SolanaClient implements SolanaClientInterface {
    * @returns A promise that resolves to the imported account.
    *
    * @example **Import with private key only**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.solana.importAccount({
    *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
    *          });
    *          ```
    *
    * @example **Import with name**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.solana.importAccount({
    *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
    *            name: "ImportedAccount",
@@ -178,7 +178,7 @@ export class SolanaClient implements SolanaClientInterface {
    *          ```
    *
    * @example **Import with idempotency key**
-   *          ```ts
+   *          ```typescript lines
    *          const idempotencyKey = uuidv4();
    *
    *          const account = await cdp.solana.importAccount({
@@ -250,14 +250,14 @@ export class SolanaClient implements SolanaClientInterface {
    * @returns A promise that resolves to the account.
    *
    * @example **Get an account by address**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.solana.getAccount({
    *            address: "1234567890123456789012345678901234567890",
    *          });
    *          ```
    *
    * @example **Get an account by name**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.solana.getAccount({
    *            name: "MyAccount",
    *          });
@@ -281,7 +281,7 @@ export class SolanaClient implements SolanaClientInterface {
    * @returns A promise that resolves to the account.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const account = await cdp.solana.getOrCreateAccount({
    *   name: "MyAccount",
    * });
@@ -329,12 +329,12 @@ export class SolanaClient implements SolanaClientInterface {
    * @returns A promise that resolves to an array of Solana account instances.
    *
    * @example **Without arguments**
-   *          ```ts
+   *          ```typescript lines
    *          const accounts = await cdp.solana.listAccounts();
    *          ```
    *
    * @example **With pagination**
-   *          ```ts
+   *          ```typescript lines
    *          let page = await cdp.solana.listAccounts();
    *
    *          while (page.nextPageToken) {
@@ -382,7 +382,7 @@ export class SolanaClient implements SolanaClientInterface {
    * @returns A promise that resolves to the transaction signature.
    *
    * @example
-   *          ```ts
+   *          ```typescript lines
    *          const signature = await cdp.solana.requestFaucet({
    *            address: "1234567890123456789012345678901234567890",
    *            token: "sol",
@@ -409,7 +409,7 @@ export class SolanaClient implements SolanaClientInterface {
    * @returns A promise that resolves to the signature.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * // Create a Solana account
    * const account = await cdp.solana.createAccount();
    *
@@ -440,7 +440,7 @@ export class SolanaClient implements SolanaClientInterface {
    * @returns A promise that resolves to the signature.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * // Create a Solana account
    * const account = await cdp.solana.createAccount();
    *
@@ -484,17 +484,17 @@ export class SolanaClient implements SolanaClientInterface {
    * @returns A promise that resolves to the updated account.
    *
    * @example **With a name**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.sol.updateAccount({ address: "...", update: { name: "New Name" } });
    *          ```
    *
    * @example **With an account policy**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.sol.updateAccount({ address: "...", update: { accountPolicy: "73bcaeeb-d7af-4615-b064-42b5fe83a31e" } });
    *          ```
    *
    * @example **With an idempotency key**
-   *          ```ts
+   *          ```typescript lines
    *          const idempotencyKey = uuidv4();
    *
    *          // First call
@@ -544,7 +544,7 @@ export class SolanaClient implements SolanaClientInterface {
    * @returns A promise that resolves to the transaction result.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const signature = await cdp.solana.sendTransaction({
    *   network: "solana-devnet",
    *   transaction: "...",
@@ -576,7 +576,7 @@ export class SolanaClient implements SolanaClientInterface {
    * @returns A promise that resolves to an array of Solana token balance instances.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const balances = await cdp.solana.listTokenBalances({ address: "...", network: "solana-devnet" });
    * ```
    */

@@ -26,7 +26,7 @@ import type { EvmSmartAccount } from "../../../accounts/evm/types.js";
  * @returns {Promise<CreateSwapQuoteResult | SwapUnavailableResult>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
  *
  * @example **Creating a swap quote**
- * ```ts
+ * ```typescript lines
  * const swapQuote = await createSwapQuote(client, {
  *   network: "ethereum",
  *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC

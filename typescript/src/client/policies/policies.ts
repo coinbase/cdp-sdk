@@ -35,19 +35,19 @@ export class PoliciesClient implements PoliciesClientInterface {
    * @returns {Promise<ListPoliciesResult>} A paginated list of policies
    *
    * @example **List all policies**
-   *          ```ts
+   *          ```typescript lines
    *          const { policies } = await cdp.policies.listPolicies();
    *          ```
    *
    * @example **Filter by scope**
-   *          ```ts
+   *          ```typescript lines
    *          const { policies } = await cdp.policies.listPolicies({
    *            scope: 'project'
    *          });
    *          ```
    *
    * @example **With pagination**
-   *          ```ts
+   *          ```typescript lines
    *          // Get first page
    *          const firstPage = await cdp.policies.listPolicies({
    *            pageSize: 10
@@ -84,7 +84,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    * @throws {ZodError<typeof CreatePolicyBodySchema>} When the policy is invalid
    *
    * @example **Creating a new EVM policy**
-   *          ```ts
+   *          ```typescript lines
    *          const policy = await cdp.policies.createPolicy({
    *            policy: {
    *              scope: "account",
@@ -107,7 +107,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    *
    * @example **Creating a new Solana policy**
-   *          ```ts
+   *          ```typescript lines
    *          const policy = await cdp.policies.createPolicy({
    *            policy: {
    *              scope: "account",
@@ -146,7 +146,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    *
    * @example **With idempotency key**
-   *          ```ts
+   *          ```typescript lines
    *          const idempotencyKey = uuidv4();
    *
    *          // First call creates the policy
@@ -204,7 +204,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    * @returns {Promise<Policy>} The requested policy
    *
    * @example **Retrieving a policy by ID**
-   *          ```ts
+   *          ```typescript lines
    *          const policy = await cdp.policies.getPolicyById({
    *            id: "__ID__"
    *          });
@@ -232,14 +232,14 @@ export class PoliciesClient implements PoliciesClientInterface {
    * @returns {Promise<void>} Void on successful deletion
    *
    * @example **Deleting a policy**
-   *          ```ts
+   *          ```typescript lines
    *          await cdp.policies.deletePolicy({
    *            id: "__ID__"
    *          });
    *          ```
    *
    * @example **With idempotency key**
-   *          ```ts
+   *          ```typescript lines
    *          const idempotencyKey = uuidv4();
    *
    *          // This operation is idempotent with the key
@@ -272,7 +272,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    * @throws {ZodError<typeof UpdatePolicyBodySchema>} When the updated policy is invalid
    *
    * @example **Updating an EVM policy**
-   *          ```ts
+   *          ```typescript lines
    *          const updatedPolicy = await cdp.policies.updatePolicy({
    *            id: "__ID__",
    *            policy: {
@@ -295,7 +295,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    *
    * @example **Updating a Solana policy**
-   *          ```ts
+   *          ```typescript lines
    *          const updatedPolicy = await cdp.policies.updatePolicy({
    *            id: "__ID__",
    *            policy: {
@@ -323,7 +323,7 @@ export class PoliciesClient implements PoliciesClientInterface {
    *          ```
    *
    * @example **With idempotency key**
-   *          ```ts
+   *          ```typescript lines
    *          const idempotencyKey = uuidv4();
    *
    *          // This operation is idempotent with the key

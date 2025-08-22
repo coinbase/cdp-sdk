@@ -20,7 +20,7 @@ export interface SignTransactionResult {
  * @returns A promise that resolves to the signature.
  *
  * @example
- * ```ts
+ * ```typescript lines
  * // Create a Solana account
  * const account = await cdp.solana.createAccount();
  *

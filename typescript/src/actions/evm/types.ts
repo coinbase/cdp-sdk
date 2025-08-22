@@ -49,7 +49,7 @@ export type Actions = {
    * @returns The result of the list token balances.
    *
    * @example
-   * ```typescript
+   * ```typescript lines
    * const balances = await account.listTokenBalances({
    *   network: "base-sepolia",
    * });
@@ -70,7 +70,7 @@ export type Actions = {
    * @returns A promise that resolves to the transaction hash.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const result = await account.requestFaucet({
    *   network: "base-sepolia",
    *   token: "eth",
@@ -92,7 +92,7 @@ export type Actions = {
    * @returns A promise that resolves to a Quote object containing details about the funding operation.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const quote = await account.quoteFund({
    *   network: "base",
    *   token: "usdc",
@@ -115,7 +115,7 @@ export type Actions = {
    * @returns A promise that resolves to the fund operation result containing the transfer details.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const fundOperation = await account.fund({
    *   network: "base",
    *   token: "usdc",
@@ -134,7 +134,7 @@ export type Actions = {
    * @returns A promise that resolves to the completed transfer receipt containing details about the funding operation.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const completedTransfer = await account.waitForFundOperationReceipt({
    *   transferId: "transfer_123",
    * });
@@ -160,7 +160,7 @@ export type AccountActions = Actions & {
    * @returns An object containing the transaction hash.
    *
    * @example
-   * ```typescript
+   * ```typescript lines
    * const { transactionHash } = await sender.transfer({
    *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
    *   amount: 10000n, // equivalent to 0.01 USDC
@@ -171,7 +171,7 @@ export type AccountActions = Actions & {
    *
    * @example
    * **Using parseUnits to specify USDC amount**
-   * ```typescript
+   * ```typescript lines
    * import { parseUnits } from "viem";
    *
    * const { transactionHash } = await sender.transfer({
@@ -184,7 +184,7 @@ export type AccountActions = Actions & {
    *
    * @example
    * **Transfer ETH**
-   * ```typescript
+   * ```typescript lines
    * import { parseEther } from "viem";
    *
    * const { transactionHash } = await sender.transfer({
@@ -197,7 +197,7 @@ export type AccountActions = Actions & {
    *
    * @example
    * **Using a contract address**
-   * ```typescript
+   * ```typescript lines
    * import { parseEther } from "viem";
    *
    * const { transactionHash } = await sender.transfer({
@@ -210,7 +210,7 @@ export type AccountActions = Actions & {
    *
    * @example
    * **Transfer to another account**
-   * ```typescript
+   * ```typescript lines
    * const sender = await cdp.evm.createAccount({ name: "Sender" });
    * const receiver = await cdp.evm.createAccount({ name: "Receiver" });
    *
@@ -233,7 +233,7 @@ export type AccountActions = Actions & {
    *
    * @example
    * **Sending an RLP-encoded transaction**
-   * ```ts
+   * ```typescript lines
    * import { parseEther, serializeTransaction } from "viem";
    * import { baseSepolia } from "viem/chains";
    *
@@ -253,7 +253,7 @@ export type AccountActions = Actions & {
    * ```
    * @example
    * **Sending an EIP-1559 transaction request object**
-   * ```ts
+   * ```typescript lines
    * const { transactionHash } = await account.sendTransaction({
    *   transaction: {
    *     to: "0x4252e0c9A3da5A2700e7d91cb50aEf522D0C6Fe8",
@@ -287,7 +287,7 @@ export type AccountActions = Actions & {
    * @returns A promise that resolves to the swap quote or a response indicating that liquidity is unavailable.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const swapQuote = await account.quoteSwap({
    *   network: "base",
    *   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
@@ -320,7 +320,7 @@ export type AccountActions = Actions & {
    * @throws {Error} If liquidity is not available when using inline options.
    *
    * @example **Using a pre-created swap quote**
-   * ```ts
+   * ```typescript lines
    * // First create a swap quote
    * const swapQuote = await cdp.evm.createSwapQuote({
    *   network: "base",
@@ -345,7 +345,7 @@ export type AccountActions = Actions & {
    * ```
    *
    * @example **Using inline options (all-in-one)**
-   * ```ts
+   * ```typescript lines
    * // Create and execute swap in one call
    * const { transactionHash } = await account.swap({
    *   network: "base",
@@ -373,7 +373,7 @@ export type AccountActions = Actions & {
    * @throws {Error} If the network doesn't support spend permissions via CDP API.
    *
    * @example
-   * ```typescript
+   * ```typescript lines
    * const spendPermission = {
    *   account: "0x1234...", // Smart account that owns the tokens
    *   spender: account.address, // This account that can spend
@@ -411,7 +411,7 @@ export type SmartAccountActions = Actions & {
    * @returns The user operation result.
    *
    * @example
-   * ```typescript
+   * ```typescript lines
    * const { userOpHash } = await sender.transfer({
    *   to: "0x9F663335Cd6Ad02a37B633602E98866CF944124d",
    *   amount: 10000n, // equivalent to 0.01 USDC
@@ -422,7 +422,7 @@ export type SmartAccountActions = Actions & {
    *
    * @example
    * **Using parseUnits to specify USDC amount**
-   * ```typescript
+   * ```typescript lines
    * import { parseUnits } from "viem";
    *
    * const { userOpHash } = await sender.transfer({
@@ -435,7 +435,7 @@ export type SmartAccountActions = Actions & {
    *
    * @example
    * **Transfer ETH**
-   * ```typescript
+   * ```typescript lines
    * import { parseEther } from "viem";
    *
    * const { userOpHash } = await sender.transfer({
@@ -448,7 +448,7 @@ export type SmartAccountActions = Actions & {
    *
    * @example
    * **Using a contract address**
-   * ```typescript
+   * ```typescript lines
    * import { parseEther } from "viem";
    *
    * const { userOpHash } = await sender.transfer({
@@ -461,7 +461,7 @@ export type SmartAccountActions = Actions & {
    *
    * @example
    * **Transfer to another account**
-   * ```typescript
+   * ```typescript lines
    * const sender = await cdp.evm.createAccount({ name: "Sender" });
    * const receiver = await cdp.evm.createAccount({ name: "Receiver" });
    *
@@ -488,7 +488,7 @@ export type SmartAccountActions = Actions & {
    * the user operation hash, and the status of the user operation.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const userOp = await smartAccount.sendUserOperation({
    *   network: "base-sepolia",
    *   calls: [
@@ -515,7 +515,7 @@ export type SmartAccountActions = Actions & {
    * @returns A promise that resolves to the transaction receipt.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * // Send a user operation and get the user operation hash
    * const { userOpHash } = await smartAccount.sendUserOperation({
    *   network: "base-sepolia",
@@ -547,7 +547,7 @@ export type SmartAccountActions = Actions & {
    * @returns A promise that resolves to the user operation.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const userOp = await smartAccount.getUserOperation({
    *   userOpHash: "0x1234567890123456789012345678901234567890",
    * });
@@ -574,7 +574,7 @@ export type SmartAccountActions = Actions & {
    * @returns A promise that resolves to the swap quote or a response indicating that liquidity is unavailable.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const swapQuote = await smartAccount.quoteSwap({
    *   network: "base",
    *   fromToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
@@ -608,7 +608,7 @@ export type SmartAccountActions = Actions & {
    * @throws {Error} If liquidity is not available when using inline options.
    *
    * @example **Using a pre-created swap quote**
-   * ```ts
+   * ```typescript lines
    * // First create a swap quote
    * const swapQuote = await cdp.evm.createSwapQuote({
    *   network: "base",
@@ -634,7 +634,7 @@ export type SmartAccountActions = Actions & {
    * ```
    *
    * @example **Using inline options (all-in-one)**
-   * ```ts
+   * ```typescript lines
    * // Create and execute swap in one call
    * const { userOpHash } = await smartAccount.swap({
    *   network: "base",
@@ -658,7 +658,7 @@ export type SmartAccountActions = Actions & {
    * @returns A promise that resolves to the signature.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const signature = await smartAccount.signTypedData({
    *   network: "base-sepolia",
    *   typedData: {
@@ -696,7 +696,7 @@ export type SmartAccountActions = Actions & {
    * @throws {Error} If the network doesn't support spend permissions via CDP API.
    *
    * @example
-   * ```typescript
+   * ```typescript lines
    * const spendPermission = {
    *   account: "0x1234...", // Smart account that owns the tokens
    *   spender: smartAccount.address, // This smart account that can spend

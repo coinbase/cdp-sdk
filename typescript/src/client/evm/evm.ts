@@ -105,17 +105,17 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the newly created account.
    *
    * @example **Without arguments**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.evm.createAccount();
    *          ```
    *
    * @example **With a name**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.evm.createAccount({ name: "MyAccount" });
    *          ```
    *
    * @example **With an idempotency key**
-   *          ```ts
+   *          ```typescript lines
    *          const idempotencyKey = uuidv4();
    *
    *          // First call
@@ -149,14 +149,14 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the imported account.
    *
    * @example **Without arguments**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.evm.importAccount({
    *            privateKey: "0x123456"
    *          });
    *          ```
    *
    * @example **With a name**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.evm.importAccount({
    *            privateKey: "0x123456",
    *            name: "MyAccount"
@@ -164,7 +164,7 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    *
    * @example **With an idempotency key**
-   *          ```ts
+   *          ```typescript lines
    *          const idempotencyKey = uuidv4();
    *
    *          // First call
@@ -243,14 +243,14 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the exported account’s 32-byte private key as a hex string, without the "0x" prefix.
    *
    * @example **With an address**
-   * ```ts
+   * ```typescript lines
    * const privateKey = await cdp.evm.exportAccount({
    *   address: "0x1234567890123456789012345678901234567890",
    * });
    * ```
    *
    * @example **With a name**
-   * ```ts
+   * ```typescript lines
    * const privateKey = await cdp.evm.exportAccount({
    *   name: "MyAccount",
    * });
@@ -303,7 +303,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the newly created smart account.
    *
    * @example **With a CDP EVM Account as the owner**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.evm.createAccount();
    *          const smartAccount = await cdp.evm.createSmartAccount({
    *            owner: account,
@@ -311,7 +311,7 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    *
    * @example **With a Viem LocalAccount as the owner**
-   *          ```ts
+   *          ```typescript lines
    *          // See https://viem.sh/docs/accounts/local/privateKeyToAccount
    *          const privateKey = generatePrivateKey();
    *          const account = privateKeyToAccount(privateKey);
@@ -321,7 +321,7 @@ export class EvmClient implements EvmClientInterface {
    *          ```
    *
    * @example **With an idempotency key**
-   *          ```ts
+   *          ```typescript lines
    *          const idempotencyKey = uuidv4();
    *
    *          // First call
@@ -355,7 +355,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the spend permission.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const userOperation = await cdp.evm.createSpendPermission({
    *   spendPermission,
    *   network: "base-sepolia",
@@ -413,7 +413,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the user operation.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const userOperation = await cdp.evm.revokeSpendPermission({
    *   address: "0x1234567890123456789012345678901234567890",
    *   permissionHash: "0x1234567890123456789012345678901234567890123456789012345678901234",
@@ -460,14 +460,14 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the account.
    *
    * @example **Get an account by address**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.evm.getAccount({
    *            address: "0x1234567890123456789012345678901234567890",
    *          });
    *          ```
    *
    * @example **Get an account by name**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.evm.getAccount({
    *            name: "MyAccount",
    *          });
@@ -497,7 +497,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the smart account.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const smartAccount = await cdp.evm.getSmartAccount({
    *   address: "0x1234567890123456789012345678901234567890",
    *   owner: account,
@@ -521,7 +521,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the account.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const account = await cdp.evm.getOrCreateAccount({
    *   name: "MyAccount",
    * });
@@ -569,7 +569,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns {Promise<SmartAccount>} A promise that resolves to the retrieved or newly created smart account.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const smartAccount = await cdp.evm.getOrCreateSmartAccount({
    *   name: "MySmartAccount",
    *   owner: account,
@@ -614,7 +614,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns {Promise<GetSwapPriceResult | SwapUnavailableResult>} A promise that resolves to the swap price result or a response indicating that liquidity is unavailable.
    *
    * @example
-   * ```typescript
+   * ```typescript lines
    * const price = await cdp.evm.getSwapPrice({
    *   network: "ethereum-mainnet",
    *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
@@ -645,7 +645,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns {Promise<CreateSwapQuoteResult | SwapUnavailableResult>} A promise that resolves to the swap quote result or a response indicating that liquidity is unavailable.
    *
    * @example
-   * ```typescript
+   * ```typescript lines
    * const swapQuote = await cdp.evm.createSwapQuote({
    *   network: "ethereum",
    *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
@@ -678,7 +678,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the user operation.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const userOp = await cdp.evm.getUserOperation({
    *   smartAccount,
    *   userOpHash: "0x1234567890123456789012345678901234567890123456789012345678901234",
@@ -704,12 +704,12 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to an array of accounts, and a token to paginate through the accounts.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const accounts = await cdp.evm.listAccounts();
    * ```
    *
    * @example **With pagination**
-   *          ```ts
+   *          ```typescript lines
    *          let page = await cdp.evm.listAccounts();
    *
    *          while (page.nextPageToken) {
@@ -753,7 +753,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to an array of token balances, and a token to paginate through the token balances.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const tokenBalances = await cdp.evm.listTokenBalances({
    *   address: "0x1234567890123456789012345678901234567890",
    *   network: "base-sepolia",
@@ -762,7 +762,7 @@ export class EvmClient implements EvmClientInterface {
    *
    * @example
    * **With pagination**
-   * ```ts
+   * ```typescript lines
    * let page = await cdp.evm.listTokenBalances({
    *   address: "0x1234567890123456789012345678901234567890",
    *   network: "base-sepolia",
@@ -798,12 +798,12 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to an array of smart accounts, and a token to paginate through the smart accounts.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const smartAccounts = await cdp.evm.listSmartAccounts();
    * ```
    *
    * @example **With pagination**
-   *          ```ts
+   *          ```typescript lines
    *          let page = await cdp.evm.listSmartAccounts();
    *
    *          while (page.nextPageToken) {
@@ -864,7 +864,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the user operation hash.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const userOp = await cdp.evm.prepareUserOperation({
    *   smartAccount,
    *   network: "base-sepolia",
@@ -920,7 +920,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the transaction hash.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const result = await cdp.evm.requestFaucet({
    *   address: "0x1234567890123456789012345678901234567890",
    *   network: "base-sepolia",
@@ -948,7 +948,7 @@ export class EvmClient implements EvmClientInterface {
    *
    * @example
    * **Sending an RLP-encoded transaction**
-   * ```ts
+   * ```typescript lines
    * import { parseEther, serializeTransaction } from "viem";
    * import { baseSepolia } from "viem/chains";
    *
@@ -969,7 +969,7 @@ export class EvmClient implements EvmClientInterface {
    * ```
    * @example
    * **Sending an EIP-1559 transaction request object**
-   * ```ts
+   * ```typescript lines
    * const { transactionHash } = await cdp.evm.sendTransaction({
    *   address: account.address,
    *   transaction: {
@@ -1010,7 +1010,7 @@ export class EvmClient implements EvmClientInterface {
    * the user operation hash, and the status of the user operation.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const userOp = await cdp.evm.sendUserOperation({
    *   smartAccount,
    *   network: "base-sepolia",
@@ -1054,7 +1054,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the signature.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * // Create a new EVM server account to sign with
    * const ethAccount = await cdp.createEvmServerAccount({});
    *
@@ -1093,7 +1093,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the signature.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * // Create a new EVM server account to sign with
    * const ethAccount = await cdp.createEvmServerAccount({});
    *
@@ -1128,7 +1128,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the signature.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const signature = await cdp.evm.signTypedData({
    *   address: account.address,
    *   domain: {
@@ -1202,7 +1202,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the signature.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * import { parseEther, serializeTransaction } from "viem";
    * import { baseSepolia } from "viem/chains";
    *
@@ -1256,17 +1256,17 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the updated account.
    *
    * @example **With a name**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.evm.updateAccount({ address: "0x...", update: { name: "New Name" } });
    *          ```
    *
    * @example **With an account policy**
-   *          ```ts
+   *          ```typescript lines
    *          const account = await cdp.evm.updateAccount({ address: "0x...", update: { accountPolicy: "73bcaeeb-d7af-4615-b064-42b5fe83a31e" } });
    *          ```
    *
    * @example **With an idempotency key**
-   *          ```ts
+   *          ```typescript lines
    *          const idempotencyKey = uuidv4();
    *
    *          // First call
@@ -1348,7 +1348,7 @@ export class EvmClient implements EvmClientInterface {
    * @returns A promise that resolves to the transaction receipt.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * // Send a user operation and get the user operation hash
    * const { userOpHash } = await cdp.evm.sendUserOperation({
    *   smartAccount,

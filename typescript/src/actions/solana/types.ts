@@ -33,7 +33,7 @@ export type AccountActions = {
    * @returns A promise that resolves to the transaction hash.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * // Create a Solana account
    * const account = await cdp.solana.createAccount();
    *
@@ -56,7 +56,7 @@ export type AccountActions = {
    * @returns A promise that resolves to the signature.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * // Create a Solana account
    * const account = await cdp.solana.createAccount();
    *
@@ -79,7 +79,7 @@ export type AccountActions = {
    * @returns A promise that resolves to the signature.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * // Create a Solana account
    * const account = await cdp.solana.createAccount();
    *
@@ -115,7 +115,7 @@ export type AccountActions = {
    * @returns A promise that resolves to the transaction signature.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * // Create a Solana account
    * const account = await cdp.solana.createAccount();
    *
@@ -152,7 +152,7 @@ export type AccountActions = {
    * @returns A promise that resolves to the transaction signature, which can be used to wait for the transaction result.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * import { LAMPORTS_PER_SOL } from "@solana/web3.js";
    *
    * const account = await cdp.solana.getAccount({ name: "Account" });
@@ -179,7 +179,7 @@ export type AccountActions = {
    * @returns A promise that resolves to a Quote object containing details about the funding operation.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const quote = await account.quoteFund({
    *   token: "usdc",
    *   amount: 1000000n,
@@ -200,7 +200,7 @@ export type AccountActions = {
    * @returns A promise that resolves to the fund operation result containing the transfer details.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const fundOperation = await account.fund({
    *   token: "usdc",
    *   amount: 1000000n,
@@ -218,7 +218,7 @@ export type AccountActions = {
    * @returns A promise that resolves to the completed transfer receipt containing details about the funding operation.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const completedTransfer = await account.waitForFundOperationReceipt({
    *   transferId: "transfer_123",
    * });

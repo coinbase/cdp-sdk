@@ -15,7 +15,7 @@ import { Address } from "../../../types/misc.js";
  * @returns {Promise<GetSwapPriceResult | SwapUnavailableResult>} A promise that resolves to the swap price result or a response indicating that liquidity is unavailable.
  *
  * @example **Getting a swap price**
- * ```ts
+ * ```typescript lines
  * const price = await getSwapPrice(client, {
  *   network: "ethereum-mainnet",
  *   toToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC

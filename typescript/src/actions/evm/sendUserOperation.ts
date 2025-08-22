@@ -26,7 +26,7 @@ export type SendUserOperationOptions<T extends readonly unknown[]> = {
    * - A contract call with `to`, `abi`, `functionName`, and `args`.
    *
    * @example
-   * ```ts
+   * ```typescript lines
    * const calls = [
    *   {
    *     to: "0x1234567890123456789012345678901234567890",
@@ -67,7 +67,7 @@ export type SendUserOperationReturnType = {
  * Sends a user operation to the network.
  *
  * @example
- * ```ts
+ * ```typescript lines
  * import { sendUserOperation } from "@coinbase/cdp-sdk";
  * import { parseEther } from "viem";
  * import { CdpClient } from "@coinbase/cdp-sdk";

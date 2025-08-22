@@ -55,7 +55,7 @@ export interface SignAndWrapTypedDataForSmartAccountResult {
  * @returns A promise that resolves to the signature that can be used with smart contracts.
  *
  * @example
- * ```ts
+ * ```typescript lines
  * const result = await signAndWrapTypedDataForSmartAccount(client, {
  *   smartAccount: smartAccount,
  *   chainId: 1n,

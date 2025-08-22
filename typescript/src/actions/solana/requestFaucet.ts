@@ -13,7 +13,7 @@ import { CdpOpenApiClientType } from "../../openapi-client/index.js";
  * @returns A promise that resolves to the transaction signature.
  *
  * @example
- *          ```ts
+ *          ```typescript lines
  *          const signature = await requestFaucet(cdp.solana, {
  *            address: "1234567890123456789012345678901234567890",
  *            token: "sol",

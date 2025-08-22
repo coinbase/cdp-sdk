@@ -44,7 +44,7 @@ To wrap an openapi client function, follow these conventions:
 1. Name the function but remove `Evm` or `Solana` from the function name.
 2. Take in the underlying request body parameters directly in the function. For example,
 
-```ts
+```typescript lines
 export const signEvmHash = (
   address: string,
   signEvmHashBody: SignEvmHashBody,
@@ -64,7 +64,7 @@ export const signEvmHash = (
 
 becomes
 
-```ts
+```typescript lines
 class EvmClient {
   async signHash(options: SignHashOptions): Promise<SignatureResult> {
     const signature = await CdpOpenApiClient.signEvmHash(
