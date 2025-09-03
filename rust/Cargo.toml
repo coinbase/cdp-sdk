@@ -17,7 +17,7 @@ categories = ["api-bindings"]
 async-trait = "^0.1"
 bon = { version = "3.7.1" }
 chrono = { version = "0.4", features = ["serde"] }
-progenitor-middleware-client = "0.11"
+progenitor-middleware-client = "0.12"
 reqwest = { version = "0.12.4", features = ["json", "stream"] }
 base64 = "0.22"
 rand = "0.9"
@@ -41,7 +41,7 @@ bs58 = "0.5"
 
 [build-dependencies]
 prettyplease = "0.2.36"
-progenitor = { git = "https://github.com/sammccord/progenitor", rev = "d39b62d6fd5d1fc46f97de420375d81991686fe7" , version = "*"}
+progenitor-middleware = "0.12"
 serde_json = "1.0"
 serde_yaml = "0.9.33"
 syn = "2.0"

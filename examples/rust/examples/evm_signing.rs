@@ -22,7 +22,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // First, create an account for signing
     println!("Creating a test account for signing...");
     let create_body =
-        types::CreateEvmAccountBody::builder().name(Some("signing-demo-account".parse()?));
+        types::CreateEvmAccountBody::builder().name(Some("signing-demo-account-4".parse()?));
 
     let response = client
         .create_evm_account()
