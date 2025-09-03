@@ -43,6 +43,14 @@ fn fix_enum_values(value: &mut serde_json::Value) {
 fn main() {
     let src = "../openapi.yaml";
     println!("cargo:rerun-if-changed={}", src);
+
+    // Check if the openapi.yaml file exists. If not, exit successfully.
+    // This can happen during publishing where the file isn't available,
+    // but the api.rs file should already be generated from a previous build.
+    if !Path::new(src).exists() {
+        return;
+    }
+
     let file = File::open(src).unwrap();
     let mut json: serde_json::Value = serde_yaml::from_reader(file).unwrap();
 
