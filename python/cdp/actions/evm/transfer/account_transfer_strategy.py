@@ -64,24 +64,6 @@ class AccountTransferStrategy(TransferExecutionStrategy):
         else:
             erc20_address = get_erc20_address(token, network)
 
-            approve_data = _encode_erc20_function_call(erc20_address, "approve", [to, value])
-
-            approve_tx = TransactionRequestEIP1559(
-                to=erc20_address,
-                data=approve_data,
-            )
-
-            typed_tx = DynamicFeeTransaction.from_dict(approve_tx.as_dict())
-            serialized_tx = serialize_unsigned_transaction(typed_tx)
-
-            await api_clients.evm_accounts.send_evm_transaction(
-                address=from_account.address,
-                send_evm_transaction_request=SendEvmTransactionRequest(
-                    transaction=serialized_tx,
-                    network=network,
-                ),
-            )
-
             transfer_data = _encode_erc20_function_call(erc20_address, "transfer", [to, value])
 
             transfer_tx = TransactionRequestEIP1559(

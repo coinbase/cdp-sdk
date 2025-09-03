@@ -37,14 +37,6 @@ export const smartAccountTransferStrategy: TransferExecutionStrategy<EvmSmartAcc
             to: erc20Address,
             data: encodeFunctionData({
               abi: erc20Abi,
-              functionName: "approve",
-              args: [to, value],
-            }),
-          },
-          {
-            to: erc20Address,
-            data: encodeFunctionData({
-              abi: erc20Abi,
               functionName: "transfer",
               args: [to, value],
             }),
