@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.36.1
+
+### Patch Changes
+
+- [#427](https://github.com/coinbase/cdp-sdk/pull/427) [`f3c2e70`](https://github.com/coinbase/cdp-sdk/commit/f3c2e70dab1b3f7d70c2e906a6cd9137b111338c) Thanks [@0xRAG](https://github.com/0xRAG)! - Removed approval in transfer method for Smart Accounts and EOAs
+
 ## 1.36.0
 
 ### Minor Changes
