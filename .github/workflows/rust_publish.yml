@@ -15,9 +15,9 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
-    environment:
-      name: crates.io
-      url: https://crates.io/crates/cdp-sdk
+    environment: release
+    permissions:
+      id-token: write     # Required for OIDC token exchange
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
@@ -49,5 +49,10 @@ jobs:
       - name: Build
         run: cargo build --release --verbose
 
+      - uses: rust-lang/crates-io-auth-action@v1
+        id: auth
+
       - name: Publish
-        run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
