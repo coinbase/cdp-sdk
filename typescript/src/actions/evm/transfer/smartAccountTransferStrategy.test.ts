@@ -126,12 +126,6 @@ describe("smartAccountTransferStrategy", () => {
 
       expect(encodeFunctionData).toHaveBeenCalledWith({
         abi: erc20Abi,
-        functionName: "approve",
-        args: [toAddress, value],
-      });
-
-      expect(encodeFunctionData).toHaveBeenCalledWith({
-        abi: erc20Abi,
         functionName: "transfer",
         args: [toAddress, value],
       });
@@ -140,10 +134,6 @@ describe("smartAccountTransferStrategy", () => {
         smartAccount: mockSmartAccount,
         network: "base",
         calls: [
-          {
-            to: erc20Address,
-            data: "0xmockedEncodedData",
-          },
           {
             to: erc20Address,
             data: "0xmockedEncodedData",

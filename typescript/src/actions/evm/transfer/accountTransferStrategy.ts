@@ -23,18 +23,6 @@ export const accountTransferStrategy: TransferExecutionStrategy<EvmAccount> = {
 
     const erc20Address = getErc20Address(token, network);
 
-    await apiClient.sendEvmTransaction(from.address, {
-      transaction: serializeEIP1559Transaction({
-        to: erc20Address,
-        data: encodeFunctionData({
-          abi: erc20Abi,
-          functionName: "approve",
-          args: [to, value],
-        }),
-      }),
-      network,
-    });
-
     return apiClient.sendEvmTransaction(from.address, {
       transaction: serializeEIP1559Transaction({
         to: erc20Address,

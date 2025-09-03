@@ -64,7 +64,6 @@ async def test_execute_transfer_erc20():
     mock_api_clients.evm_accounts = AsyncMock()
     mock_api_clients.evm_accounts.send_evm_transaction = AsyncMock(
         side_effect=[
-            SendEvmTransaction200Response(transaction_hash="0xapprove123"),
             SendEvmTransaction200Response(transaction_hash="0xtransfer456"),
         ]
     )
@@ -87,7 +86,7 @@ async def test_execute_transfer_erc20():
     )
 
     # Assert
-    assert mock_api_clients.evm_accounts.send_evm_transaction.call_count == 2
+    assert mock_api_clients.evm_accounts.send_evm_transaction.call_count == 1
 
     assert result == "0xtransfer456"
 

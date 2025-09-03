@@ -59,9 +59,6 @@ class SmartAccountTransferStrategy(TransferExecutionStrategy):
             w3 = Web3()
             contract = w3.eth.contract(abi=ERC20_ABI)
 
-            # Create approve call
-            approve_data = contract.encode_abi("approve", args=[to, value])
-
             # Create transfer call
             transfer_data = contract.encode_abi("transfer", args=[to, value])
 
@@ -71,7 +68,6 @@ class SmartAccountTransferStrategy(TransferExecutionStrategy):
                 address=from_account.address,
                 owner=from_account.owners[0],
                 calls=[
-                    EncodedCall(to=erc20_address, data=approve_data),
                     EncodedCall(to=erc20_address, data=transfer_data),
                 ],
                 network=network,

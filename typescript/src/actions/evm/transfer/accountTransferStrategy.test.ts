@@ -98,13 +98,9 @@ describe("accountTransferStrategy", () => {
       const value = 100000n; // 0.1 USDC (6 decimals)
       const erc20Address = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
-      (mockApiClient.sendEvmTransaction as any)
-        .mockResolvedValueOnce({
-          transactionHash: "0xhash-approve",
-        })
-        .mockResolvedValueOnce({
-          transactionHash: "0xhash-transfer",
-        });
+      (mockApiClient.sendEvmTransaction as any).mockResolvedValueOnce({
+        transactionHash: "0xhash-transfer",
+      });
 
       const result = await accountTransferStrategy.executeTransfer({
         ...mockTransferArgs,
@@ -116,11 +112,6 @@ describe("accountTransferStrategy", () => {
       });
 
       expect(getErc20Address).toHaveBeenCalledWith("usdc", "base");
-      expect(encodeFunctionData).toHaveBeenCalledWith({
-        abi: erc20Abi,
-        functionName: "approve",
-        args: [toAddress, value],
-      });
       expect(serializeEIP1559Transaction).toHaveBeenCalledWith({
         to: erc20Address,
         data: "0xmockedEncodedData",
@@ -148,13 +139,9 @@ describe("accountTransferStrategy", () => {
       const value = 100000n;
       const customTokenAddress = "0x4200000000000000000000000000000000000006" as Hex;
 
-      (mockApiClient.sendEvmTransaction as any)
-        .mockResolvedValueOnce({
-          transactionHash: "0xhash-approve",
-        })
-        .mockResolvedValueOnce({
-          transactionHash: "0xhash-transfer",
-        });
+      (mockApiClient.sendEvmTransaction as any).mockResolvedValueOnce({
+        transactionHash: "0xhash-transfer",
+      });
 
       const result = await accountTransferStrategy.executeTransfer({
         ...mockTransferArgs,
