@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.31.1] - 2025-09-03
+
+### Bugfixes
+
+- Removed approval in transfer method for Smart Accounts and EOAs ([#427](https://github.com/coinbase/cdp-sdk/pull/427))
+
+
 ## [1.31.0] - 2025-08-19
 
 ### Features
