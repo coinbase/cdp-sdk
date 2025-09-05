@@ -1,6 +1,7 @@
 from typing import TypeVar
 
 from eth_typing import HexStr
+from web3 import Web3
 
 from cdp.actions.evm.transfer.types import (
     TransferExecutionStrategy,
@@ -42,6 +43,9 @@ async def transfer(
     """
     # Determine the recipient address
     to_address = to.address if hasattr(to, "address") else to
+
+    # Checksum the address
+    to_address = Web3.to_checksum_address(to_address)
 
     kwargs = {
         "api_clients": api_clients,

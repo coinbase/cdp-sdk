@@ -1,4 +1,4 @@
-# Usage: uv run python evm/smart-accounts/smart_account.transfer.py
+# Usage: uv run python evm/smart-accounts/transfer.py
 
 import asyncio
 from cdp import CdpClient
@@ -11,11 +11,12 @@ load_dotenv()
 
 async def main():
     async with CdpClient() as cdp:
-        private_key = Account.create().key
-        owner = Account.from_key(private_key)
+        owner = await cdp.evm.get_or_create_account("Owner")
 
         # Create smart account with the generated owner
-        sender = await cdp.evm.create_smart_account(owner=owner)
+        sender = await cdp.evm.get_or_create_smart_account(
+        name= "Sender",
+        owner=owner)
 
         # Create receiver account
         receiver = await cdp.evm.get_or_create_account(name="Receiver")
