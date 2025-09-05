@@ -282,7 +282,7 @@ describe("EvmClient", () => {
       );
       expect(toEvmSmartAccount).toHaveBeenCalledWith(CdpOpenApiClient, {
         smartAccount: openApiEvmSmartAccount,
-        owner,
+        owners: [owner],
       });
       expect(result).toBe(smartAccount);
     });
@@ -342,9 +342,87 @@ describe("EvmClient", () => {
       );
       expect(toEvmSmartAccount).toHaveBeenCalledWith(CdpOpenApiClient, {
         smartAccount: openApiEvmSmartAccount,
-        owner,
+        owners: [owner],
       });
       expect(result).toBe(smartAccount);
+    });
+
+    it("should create a smart account with multiple owners", async () => {
+      const owner1: EvmAccount = {
+        address: "0x789",
+        sign: vi.fn().mockResolvedValue("0xsignature"),
+        signMessage: vi.fn().mockResolvedValue("0xsignature"),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature"),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+      };
+
+      const owner2: EvmAccount = {
+        address: "0xabc",
+        sign: vi.fn().mockResolvedValue("0xsignature"),
+        signMessage: vi.fn().mockResolvedValue("0xsignature"),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature"),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+      };
+
+      const name = "test-multi-owner-smart-account";
+      const createOptions = {
+        owners: [owner1, owner2],
+        name,
+      };
+
+      const openApiEvmSmartAccount: OpenApiEvmSmartAccount = {
+        address: "0xdef",
+        owners: [owner1.address, owner2.address],
+      };
+
+      const smartAccount: EvmSmartAccount = {
+        address: "0xdef" as Hex,
+        owners: [owner1, owner2],
+        type: "evm-smart",
+        name,
+        transfer: vi.fn(),
+        listTokenBalances: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+      };
+
+      const createEvmSmartAccountMock = CdpOpenApiClient.createEvmSmartAccount as MockedFunction<
+        typeof CdpOpenApiClient.createEvmSmartAccount
+      >;
+      createEvmSmartAccountMock.mockResolvedValue(openApiEvmSmartAccount);
+
+      const toEvmSmartAccountMock = toEvmSmartAccount as MockedFunction<typeof toEvmSmartAccount>;
+      toEvmSmartAccountMock.mockReturnValue(smartAccount);
+
+      const result = await client.createSmartAccount(createOptions);
+
+      expect(CdpOpenApiClient.createEvmSmartAccount).toHaveBeenCalledWith(
+        {
+          owners: [owner1.address, owner2.address],
+          name,
+        },
+        undefined,
+      );
+      expect(toEvmSmartAccount).toHaveBeenCalledWith(CdpOpenApiClient, {
+        smartAccount: openApiEvmSmartAccount,
+        owners: [owner1, owner2],
+      });
+      expect(result).toBe(smartAccount);
+    });
+
+    it("should throw an error when no owners are provided", async () => {
+      const createOptions = {
+        name: "test-smart-account",
+      };
+
+      await expect(client.createSmartAccount(createOptions)).rejects.toThrow(
+        "At least one owner must be provided",
+      );
     });
   });
 
@@ -538,7 +616,7 @@ describe("EvmClient", () => {
       expect(CdpOpenApiClient.getEvmSmartAccount).toHaveBeenCalledWith(getOptions.address);
       expect(toEvmSmartAccountMock).toHaveBeenCalledWith(CdpOpenApiClient, {
         smartAccount: openApiEvmSmartAccount,
-        owner,
+        owners: [owner],
       });
       expect(result).toBe(smartAccount);
     });
@@ -711,11 +789,11 @@ describe("EvmClient", () => {
 
       await expect(client.getOrCreateSmartAccount(getOrCreateOptions)).rejects
         .toThrowErrorMatchingInlineSnapshot(`
-        [UserInputValidationError: Owner mismatch: The provided owner address is not an owner of the smart account. Please use a valid owner for this smart account.
+        [UserInputValidationError: Owner mismatch: The provided owner address "0xowner2" is not an owner of the smart account. Please use valid owners for this smart account.
 
         Smart Account Address: 0x456
         Smart Account Owners: 0xowner1
-        Provided Owner Address: 0xowner2
+        Provided Owner Addresses: 0xowner2
         ]
       `);
     });
@@ -1044,6 +1122,79 @@ describe("EvmClient", () => {
         network,
         calls,
         paymasterUrl,
+      });
+      expect(result).toEqual({
+        smartAccountAddress: smartAccount.address,
+        status: "broadcast",
+        userOpHash,
+      });
+    });
+
+    it("should send a user operation with custom signer", async () => {
+      const owner1: EvmAccount = {
+        address: "0x789",
+        sign: vi.fn().mockResolvedValue("0xsignature1"),
+        signMessage: vi.fn().mockResolvedValue("0xsignature1"),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature1"),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature1"),
+      };
+
+      const owner2: EvmAccount = {
+        address: "0xabc",
+        sign: vi.fn().mockResolvedValue("0xsignature2"),
+        signMessage: vi.fn().mockResolvedValue("0xsignature2"),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature2"),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature2"),
+      };
+
+      const smartAccount: EvmSmartAccount = {
+        address: "0xdef",
+        owners: [owner1, owner2],
+        type: "evm-smart",
+        transfer: vi.fn(),
+        listTokenBalances: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
+        quoteFund: vi.fn(),
+        fund: vi.fn(),
+        waitForFundOperationReceipt: vi.fn(),
+      };
+
+      const userOpHash = "0xhash";
+      const network: EvmUserOperationNetwork = "base-sepolia";
+      const calls: EvmCall[] = [
+        {
+          to: "0x123",
+          value: BigInt(0),
+          data: "0x",
+        },
+      ];
+      const paymasterUrl = "https://paymaster.url";
+      const sendOptions = {
+        smartAccount,
+        network,
+        calls,
+        paymasterUrl,
+        signer: owner2, // Use the second owner as signer
+      };
+
+      const sendUserOperationMock = sendUserOperation as MockedFunction<typeof sendUserOperation>;
+      sendUserOperationMock.mockResolvedValue({
+        smartAccountAddress: smartAccount.address,
+        status: "broadcast",
+        userOpHash,
+      });
+
+      const result = await client.sendUserOperation(sendOptions);
+
+      expect(sendUserOperation).toHaveBeenCalledWith(CdpOpenApiClient, {
+        smartAccount,
+        network,
+        calls,
+        paymasterUrl,
+        signer: owner2,
       });
       expect(result).toEqual({
         smartAccountAddress: smartAccount.address,
@@ -1467,7 +1618,7 @@ describe("EvmClient", () => {
       );
       expect(toEvmSmartAccount).toHaveBeenCalledWith(CdpOpenApiClient, {
         smartAccount: updatedSmartAccount,
-        owner,
+        owners: [owner],
       });
       expect(result).toBe(smartAccount);
     });
@@ -1531,7 +1682,7 @@ describe("EvmClient", () => {
       );
       expect(toEvmSmartAccount).toHaveBeenCalledWith(CdpOpenApiClient, {
         smartAccount: updatedSmartAccount,
-        owner,
+        owners: [owner],
       });
       expect(result).toBe(smartAccount);
     });
