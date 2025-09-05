@@ -1,6 +1,7 @@
 from typing import TypeVar
 
 from eth_typing import HexStr
+from web3 import Web3
 
 from cdp.actions.evm.transfer.types import (
     TransferExecutionStrategy,
@@ -9,7 +10,6 @@ from cdp.api_clients import ApiClients
 from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_smart_account import EvmSmartAccount
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
-from web3 import Web3
 
 # Type for account
 T = TypeVar("T", bound=EvmServerAccount | EvmSmartAccount)
