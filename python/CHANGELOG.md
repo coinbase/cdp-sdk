@@ -2,6 +2,12 @@
 
 <!-- towncrier release notes start -->
 
+## [1.31.2] - 2025-09-05
+
+### Bugfixes
+
+- Support non-checksum addresses in transfers.
+
 ## [1.31.1] - 2025-09-03
 
 ### Bugfixes
