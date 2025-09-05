@@ -1,6 +1,4 @@
 # Usage: uv run python evm/swaps/create_swap_quote.py
-#!/usr/bin/env python3
-# Usage: uv run python evm/create_swap_quote.py
 
 """
 Example: Create Swap Quote and Execute

@@ -1,6 +1,4 @@
 # Usage: uv run python evm/swaps/account.quote_swap_and_execute.py
-#!/usr/bin/env python3
-# Usage: uv run python evm/account_quote_swap_and_execute.py
 
 """
 Example: Account Quote Swap and Execute

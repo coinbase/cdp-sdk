@@ -1,6 +1,4 @@
 # Usage: uv run python evm/smart-accounts/smart_account.quote_swap_and_execute.py
-#!/usr/bin/env python3
-# Usage: uv run python evm/smart_account.quote_swap_and_execute.py
 
 """
 Example: Smart Account Quote Swap and Execute

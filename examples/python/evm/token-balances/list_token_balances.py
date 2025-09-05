@@ -1,4 +1,4 @@
-# Usage: uv run python evm/tokens/list_token_balances.py
+# Usage: uv run python evm/token-balances/list_token_balances.py
 
 import asyncio
 

@@ -1,4 +1,4 @@
-# Usage: uv run python evm/integrations/web3py/send_transaction_with_web3.py
+# Usage: uv run python evm/ecosystem/web3py/send_transaction_with_web3.py
 
 import asyncio
 
