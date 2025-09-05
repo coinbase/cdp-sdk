@@ -1,7 +1,7 @@
 #[allow(unused_imports)]
-use progenitor_client::{encode_path, ClientHooks, OperationInfo, RequestBuilderExt};
+use progenitor_middleware_client::{encode_path, ClientHooks, OperationInfo, RequestBuilderExt};
 #[allow(unused_imports)]
-pub use progenitor_client::{ByteStream, ClientInfo, Error, ResponseValue};
+pub use progenitor_middleware_client::{ByteStream, ClientInfo, Error, ResponseValue};
 /// Types used as operation parameters and responses.
 #[allow(clippy::all)]
 pub mod types {
@@ -52885,8 +52885,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
@@ -53253,8 +53255,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
@@ -55038,8 +55042,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
@@ -55681,8 +55687,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
@@ -56456,26 +56464,34 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "fromAmount",
                     &from_amount,
                 ))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "fromToken",
                     &from_token,
                 ))
-                .query(&progenitor_client::QueryParam::new("gasPrice", &gas_price))
-                .query(&progenitor_client::QueryParam::new("network", &network))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "gasPrice", &gas_price,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "network", &network,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "signerAddress",
                     &signer_address,
                 ))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "slippageBps",
                     &slippage_bps,
                 ))
-                .query(&progenitor_client::QueryParam::new("taker", &taker))
-                .query(&progenitor_client::QueryParam::new("toToken", &to_token))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "taker", &taker,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "toToken", &to_token,
+                ))
                 .headers(header_map)
                 .build()?;
             let info = OperationInfo {
@@ -56599,8 +56615,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
@@ -56838,7 +56856,9 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("networks", &networks))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "networks", &networks,
+                ))
                 .headers(header_map)
                 .build()?;
             let info = OperationInfo {
@@ -57258,12 +57278,16 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
-                .query(&progenitor_client::QueryParam::new("scope", &scope))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "scope", &scope,
+                ))
                 .headers(header_map)
                 .build()?;
             let info = OperationInfo {
@@ -57762,8 +57786,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
@@ -59304,8 +59330,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
