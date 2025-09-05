@@ -1,5 +1,3 @@
-# Usage: uv run python evm/smart-accounts/smart_account.swap.py
-#!/usr/bin/env python3
 # Usage: uv run python evm/smart_account.swap.py
 
 """

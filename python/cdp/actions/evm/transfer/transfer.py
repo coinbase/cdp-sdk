@@ -9,6 +9,7 @@ from cdp.api_clients import ApiClients
 from cdp.evm_server_account import EvmServerAccount
 from cdp.evm_smart_account import EvmSmartAccount
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
+from web3 import Web3
 
 # Type for account
 T = TypeVar("T", bound=EvmServerAccount | EvmSmartAccount)
@@ -42,6 +43,9 @@ async def transfer(
     """
     # Determine the recipient address
     to_address = to.address if hasattr(to, "address") else to
+
+    # Checksum the address
+    to_address = Web3.to_checksum_address(to_address)
 
     kwargs = {
         "api_clients": api_clients,

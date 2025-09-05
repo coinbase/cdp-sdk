@@ -1,4 +1,4 @@
-# Usage: uv run python evm/smart-accounts/smart_account.update.py
+# Usage: uv run python evm/smart-accounts/update.py
 
 import asyncio
 

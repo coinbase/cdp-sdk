@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.12'",
@@ -245,7 +245,7 @@ wheels = [
 
 [[package]]
 name = "cdp-sdk"
-version = "1.31.0"
+version = "1.31.1"
 source = { editable = "../../python" }
 dependencies = [
     { name = "aiohttp" },
