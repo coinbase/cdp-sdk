@@ -4,8 +4,9 @@
 
 ## [1.31.2] - 2025-09-05
 
-No significant changes.
+### Bugfixes
 
+- Support non-checksum addresses in transfers.
 
 ## [1.31.1] - 2025-09-03
 
