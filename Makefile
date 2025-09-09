@@ -1,4 +1,4 @@
-.PHONY: update-openapi check-openapi-updated help
+.PHONY: update-openapi check-openapi-updated generate-all-clients help
 
 # The timestamp ensures all requests are unique and the latest spec is fetched.
 OPENAPI_URL := https://drla6sbl8l00t.cloudfront.net/openapi.yaml?timestamp=$(shell date +%s)
@@ -7,8 +7,20 @@ OPENAPI_TEMP := openapi.yaml.new
 
 help:
 	@echo "Available commands:"
-	@echo "  make update-openapi  - Download the latest OpenAPI spec from the CDN"
-	@echo "  make check-openapi   - Check if a newer OpenAPI spec is available"
+	@echo "  make update-openapi      - Download the latest OpenAPI spec from the CDN"
+	@echo "  make check-openapi       - Check if a newer OpenAPI spec is available"
+	@echo "  make generate-all-clients - Generate clients for all languages"
+
+generate-all-clients:
+	@echo "Generating TypeScript client..."
+	@cd typescript && npm run orval
+	@echo "Generating Python client..."
+	@cd python && make python-client
+	@echo "Generating Rust client..."
+	@cd rust && make build && make format
+	@echo "Generating Go client..."
+	@cd go && make client
+	@echo "All clients generated successfully!"
 
 update-openapi:
 	@echo "Downloading latest OpenAPI spec from $(OPENAPI_URL)..."

@@ -477,6 +477,7 @@ export const PrepareUserOperationCriteriaSchema = z
       EvmAddressCriterionSchema,
       PrepareUserOperationEvmNetworkCriterionSchema,
       EvmDataCriterionSchema,
+      NetUSDChangeCriterionSchema,
     ]),
   )
   .max(10)
@@ -496,6 +497,7 @@ export const SendUserOperationCriteriaSchema = z
       EthValueCriterionSchema,
       EvmAddressCriterionSchema,
       EvmDataCriterionSchema,
+      NetUSDChangeCriterionSchema,
     ]),
   )
   .max(10)

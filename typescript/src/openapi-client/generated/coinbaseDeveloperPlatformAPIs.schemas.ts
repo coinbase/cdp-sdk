@@ -2099,7 +2099,8 @@ export type PrepareUserOperationCriteriaItem =
   | EthValueCriterion
   | EvmAddressCriterion
   | EvmNetworkCriterion
-  | EvmDataCriterion;
+  | EvmDataCriterion
+  | NetUSDChangeCriterion;
 
 /**
  * A schema for specifying criteria for the PrepareUserOperation operation.
@@ -2140,7 +2141,8 @@ export interface PrepareUserOperationRule {
 export type SendUserOperationCriteriaItem =
   | EthValueCriterion
   | EvmAddressCriterion
-  | EvmDataCriterion;
+  | EvmDataCriterion
+  | NetUSDChangeCriterion;
 
 /**
  * A schema for specifying criteria for the SendUserOperation operation.

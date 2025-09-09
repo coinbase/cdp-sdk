@@ -467,6 +467,13 @@ openapi_criterion_mapping = {
                 type="evmNetwork",
             )
         ),
+        "netUSDChange": lambda c: PrepareUserOperationCriteriaInner(
+            actual_instance=NetUSDChangeCriterion(
+                change_cents=c.changeCents,
+                operator=c.operator,
+                type="netUSDChange",
+            )
+        ),
         "evmData": lambda c: PrepareUserOperationCriteriaInner(
             actual_instance=EvmDataCriterion(
                 type="evmData",
@@ -515,6 +522,13 @@ openapi_criterion_mapping = {
                 addresses=c.addresses,
                 operator=c.operator,
                 type="evmAddress",
+            )
+        ),
+        "netUSDChange": lambda c: SendUserOperationCriteriaInner(
+            actual_instance=NetUSDChangeCriterion(
+                change_cents=c.changeCents,
+                operator=c.operator,
+                type="netUSDChange",
             )
         ),
         "evmData": lambda c: SendUserOperationCriteriaInner(
