@@ -34,6 +34,10 @@ from cdp.policies.types import (
     SolValueCriterion as SolValueCriterionModel,
     SplAddressCriterion as SplAddressCriterionModel,
     SplValueCriterion as SplValueCriterionModel,
+    ProgramIdCriterion as ProgramIdCriterionModel,
+    SolNetworkCriterion as SolNetworkCriterionModel,
+    SolMessageCriterion as SolMessageCriterionModel,
+    SignSolMessageRule as SignSolMessageRuleModel,
 )
 
 # Response criterion mapping per operation
@@ -198,6 +202,9 @@ response_criterion_mapping = {
                 for cond in c.conditions
             ],
         ),
+        "programId": lambda c: ProgramIdCriterionModel(
+            programIds=c.program_ids, operator=c.operator
+        ),
     },
     "sendSolTransaction": {
         "solAddress": lambda c: SolAddressCriterionModel(
@@ -242,6 +249,15 @@ response_criterion_mapping = {
                 for cond in c.conditions
             ],
         ),
+        "programId": lambda c: ProgramIdCriterionModel(
+            programIds=c.program_ids, operator=c.operator
+        ),
+        "solNetwork": lambda c: SolNetworkCriterionModel(
+            networks=c.networks, operator=c.operator
+        ),
+    },
+    "signSolMessage": {
+        "solMessage": lambda c: SolMessageCriterionModel(match=c.match),
     },
     "prepareUserOperation": {
         "ethValue": lambda c: EthValueCriterionModel(ethValue=c.eth_value, operator=c.operator),
@@ -325,6 +341,7 @@ response_rule_mapping = {
     "signEvmTypedData": SignEvmTypedDataRuleModel,
     "signSolTransaction": SignSolanaTransactionRuleModel,
     "sendSolTransaction": SendSolanaTransactionRuleModel,
+    "signSolMessage": SignSolMessageRuleModel,
     "prepareUserOperation": PrepareUserOperationRuleModel,
     "sendUserOperation": SendUserOperationRuleModel,
 }

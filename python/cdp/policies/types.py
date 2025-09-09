@@ -645,6 +645,62 @@ class SolDataCriterion(BaseModel):
     )
 
 
+class ProgramIdCriterion(BaseModel):
+    """Type representing a 'programId' criterion for program ID-based rules."""
+
+    type: Literal["programId"] = Field(
+        "programId",
+        description="The type of criterion, must be 'programId' for program ID-based rules.",
+    )
+    programIds: list[str] = Field(
+        ...,
+        description="Array of Solana program IDs to compare against. Each program ID must be a valid Base58-encoded Solana address (32-44 characters).",
+    )
+    operator: Literal["in", "not in"] = Field(
+        ...,
+        description="The operator to use for evaluating transaction program IDs. 'in' checks if a program ID is in the provided list. 'not in' checks if a program ID is not in the provided list.",
+    )
+
+    @field_validator("programIds")
+    def validate_program_id_format(cls, v):
+        """Validate the program ID format."""
+        sol_address_regex = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
+        for program_id in v:
+            if not sol_address_regex.match(program_id):
+                raise UserInputValidationError(f"Invalid program ID format: {program_id}")
+        return v
+
+
+class SolNetworkCriterion(BaseModel):
+    """Type representing a 'solNetwork' criterion for network-based rules."""
+
+    type: Literal["solNetwork"] = Field(
+        "solNetwork",
+        description="The type of criterion, must be 'solNetwork' for network-based rules.",
+    )
+    networks: list[Literal["solana-devnet", "solana"]] = Field(
+        ...,
+        description="Array of Solana networks to compare against.",
+    )
+    operator: Literal["in", "not in"] = Field(
+        ...,
+        description="The operator to use for evaluating transaction network. 'in' checks if the network is in the provided list. 'not in' checks if the network is not in the provided list.",
+    )
+
+
+class SolMessageCriterion(BaseModel):
+    """Type representing a 'solMessage' criterion for message-based rules."""
+
+    type: Literal["solMessage"] = Field(
+        "solMessage",
+        description="The type of criterion, must be 'solMessage' for message-based rules.",
+    )
+    match: str = Field(
+        ...,
+        description="A regular expression pattern to match against the message.",
+    )
+
+
 class SignSolanaTransactionRule(BaseModel):
     """Type representing a 'signSolTransaction' policy rule that can accept or reject specific operations based on a set of criteria."""
 
@@ -663,6 +719,7 @@ class SignSolanaTransactionRule(BaseModel):
         | SplValueCriterion
         | MintAddressCriterion
         | SolDataCriterion
+        | ProgramIdCriterion
     ] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
@@ -687,7 +744,26 @@ class SendSolanaTransactionRule(BaseModel):
         | SplValueCriterion
         | MintAddressCriterion
         | SolDataCriterion
+        | ProgramIdCriterion
+        | SolNetworkCriterion
     ] = Field(
+        ...,
+        description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
+    )
+
+
+class SignSolMessageRule(BaseModel):
+    """Type representing a 'signSolMessage' policy rule that can accept or reject specific operations based on a set of criteria."""
+
+    action: Action = Field(
+        ...,
+        description="Determines whether matching the rule will cause a request to be rejected or accepted. 'accept' will allow the message signing, 'reject' will block it.",
+    )
+    operation: Literal["signSolMessage"] = Field(
+        "signSolMessage",
+        description="The operation to which this rule applies. Must be 'signSolMessage'.",
+    )
+    criteria: list[SolMessageCriterion] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
     )
@@ -743,6 +819,7 @@ Rule = (
     | SignEvmTypedDataRule
     | SignSolanaTransactionRule
     | SendSolanaTransactionRule
+    | SignSolMessageRule
     | PrepareUserOperationRule
     | SendUserOperationRule
 )
