@@ -12,6 +12,7 @@ export * from "./generated/onramp/onramp.js";
 export * from "./generated/onchain-data/onchain-data.js";
 export * from "./generated/end-user-accounts/end-user-accounts.js";
 export * from "./generated/x402-facilitator/x402-facilitator.js";
+export * from "./generated/sql-api-alpha/sql-api-alpha.js";
 
 import { configure } from "./cdpApiClient.js";
 import * as endUserAccounts from "./generated/end-user-accounts/end-user-accounts.js";
@@ -59,4 +60,3 @@ export const OpenApiPoliciesMethods = {
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
-export * from "./generated/sql-api-alpha/sql-api-alpha";
