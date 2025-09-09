@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.error import Error
+from cdp.openapi_client.models.sol_message_criterion import SolMessageCriterion
 
-class TestError(unittest.TestCase):
-    """Error unit test stubs"""
+class TestSolMessageCriterion(unittest.TestCase):
+    """SolMessageCriterion unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,28 @@ class TestError(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> Error:
-        """Test Error
+    def make_instance(self, include_optional) -> SolMessageCriterion:
+        """Test SolMessageCriterion
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `Error`
+        # uncomment below to create an instance of `SolMessageCriterion`
         """
-        model = Error()
+        model = SolMessageCriterion()
         if include_optional:
-            return Error(
-                error_type = 'invalid_request',
-                error_message = 'Unable to create EVM account',
-                correlation_id = '41deb8d59a9dc9a7-IAD',
-                error_link = 'https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request'
+            return SolMessageCriterion(
+                type = 'solMessage',
+                match = '^hello ([a-z]+)$'
             )
         else:
-            return Error(
-                error_type = 'invalid_request',
-                error_message = 'Unable to create EVM account',
+            return SolMessageCriterion(
+                type = 'solMessage',
+                match = '^hello ([a-z]+)$',
         )
         """
 
-    def testError(self):
-        """Test Error"""
+    def testSolMessageCriterion(self):
+        """Test SolMessageCriterion"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

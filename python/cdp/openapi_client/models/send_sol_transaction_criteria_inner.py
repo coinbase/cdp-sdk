@@ -22,6 +22,7 @@ from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterio
 from cdp.openapi_client.models.program_id_criterion import ProgramIdCriterion
 from cdp.openapi_client.models.sol_address_criterion import SolAddressCriterion
 from cdp.openapi_client.models.sol_data_criterion import SolDataCriterion
+from cdp.openapi_client.models.sol_network_criterion import SolNetworkCriterion
 from cdp.openapi_client.models.sol_value_criterion import SolValueCriterion
 from cdp.openapi_client.models.spl_address_criterion import SplAddressCriterion
 from cdp.openapi_client.models.spl_value_criterion import SplValueCriterion
@@ -29,11 +30,11 @@ from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-SIGNSOLTRANSACTIONCRITERIAINNER_ONE_OF_SCHEMAS = ["MintAddressCriterion", "ProgramIdCriterion", "SolAddressCriterion", "SolDataCriterion", "SolValueCriterion", "SplAddressCriterion", "SplValueCriterion"]
+SENDSOLTRANSACTIONCRITERIAINNER_ONE_OF_SCHEMAS = ["MintAddressCriterion", "ProgramIdCriterion", "SolAddressCriterion", "SolDataCriterion", "SolNetworkCriterion", "SolValueCriterion", "SplAddressCriterion", "SplValueCriterion"]
 
-class SignSolTransactionCriteriaInner(BaseModel):
+class SendSolTransactionCriteriaInner(BaseModel):
     """
-    SignSolTransactionCriteriaInner
+    SendSolTransactionCriteriaInner
     """
     # data type: SolAddressCriterion
     oneof_schema_1_validator: Optional[SolAddressCriterion] = None
@@ -49,8 +50,10 @@ class SignSolTransactionCriteriaInner(BaseModel):
     oneof_schema_6_validator: Optional[SolDataCriterion] = None
     # data type: ProgramIdCriterion
     oneof_schema_7_validator: Optional[ProgramIdCriterion] = None
-    actual_instance: Optional[Union[MintAddressCriterion, ProgramIdCriterion, SolAddressCriterion, SolDataCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion]] = None
-    one_of_schemas: Set[str] = { "MintAddressCriterion", "ProgramIdCriterion", "SolAddressCriterion", "SolDataCriterion", "SolValueCriterion", "SplAddressCriterion", "SplValueCriterion" }
+    # data type: SolNetworkCriterion
+    oneof_schema_8_validator: Optional[SolNetworkCriterion] = None
+    actual_instance: Optional[Union[MintAddressCriterion, ProgramIdCriterion, SolAddressCriterion, SolDataCriterion, SolNetworkCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion]] = None
+    one_of_schemas: Set[str] = { "MintAddressCriterion", "ProgramIdCriterion", "SolAddressCriterion", "SolDataCriterion", "SolNetworkCriterion", "SolValueCriterion", "SplAddressCriterion", "SplValueCriterion" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -70,7 +73,7 @@ class SignSolTransactionCriteriaInner(BaseModel):
 
     @field_validator('actual_instance')
     def actual_instance_must_validate_oneof(cls, v):
-        instance = SignSolTransactionCriteriaInner.model_construct()
+        instance = SendSolTransactionCriteriaInner.model_construct()
         error_messages = []
         match = 0
         # validate data type: SolAddressCriterion
@@ -108,12 +111,17 @@ class SignSolTransactionCriteriaInner(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `ProgramIdCriterion`")
         else:
             match += 1
+        # validate data type: SolNetworkCriterion
+        if not isinstance(v, SolNetworkCriterion):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `SolNetworkCriterion`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in SignSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, ProgramIdCriterion, SolAddressCriterion, SolDataCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in SendSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, ProgramIdCriterion, SolAddressCriterion, SolDataCriterion, SolNetworkCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in SignSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, ProgramIdCriterion, SolAddressCriterion, SolDataCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in SendSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, ProgramIdCriterion, SolAddressCriterion, SolDataCriterion, SolNetworkCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -170,13 +178,19 @@ class SignSolTransactionCriteriaInner(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into SolNetworkCriterion
+        try:
+            instance.actual_instance = SolNetworkCriterion.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into SignSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, ProgramIdCriterion, SolAddressCriterion, SolDataCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into SendSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, ProgramIdCriterion, SolAddressCriterion, SolDataCriterion, SolNetworkCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into SignSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, ProgramIdCriterion, SolAddressCriterion, SolDataCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into SendSolTransactionCriteriaInner with oneOf schemas: MintAddressCriterion, ProgramIdCriterion, SolAddressCriterion, SolDataCriterion, SolNetworkCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -190,7 +204,7 @@ class SignSolTransactionCriteriaInner(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], MintAddressCriterion, ProgramIdCriterion, SolAddressCriterion, SolDataCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], MintAddressCriterion, ProgramIdCriterion, SolAddressCriterion, SolDataCriterion, SolNetworkCriterion, SolValueCriterion, SplAddressCriterion, SplValueCriterion]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

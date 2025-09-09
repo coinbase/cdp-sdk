@@ -20,17 +20,17 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.send_sol_transaction_criteria_inner import SendSolTransactionCriteriaInner
+from cdp.openapi_client.models.sign_sol_message_criteria_inner import SignSolMessageCriteriaInner
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendSolTransactionRule(BaseModel):
+class SignSolMessageRule(BaseModel):
     """
-    SendSolTransactionRule
+    SignSolMessageRule
     """ # noqa: E501
     action: StrictStr = Field(description="Whether matching the rule will cause the request to be rejected or accepted.")
     operation: StrictStr = Field(description="The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.")
-    criteria: List[SendSolTransactionCriteriaInner] = Field(description="A schema for specifying criteria for the SendSolTransaction operation.")
+    criteria: List[SignSolMessageCriteriaInner] = Field(description="A schema for specifying criteria for the SignSolMessage operation.")
     __properties: ClassVar[List[str]] = ["action", "operation", "criteria"]
 
     @field_validator('action')
@@ -43,8 +43,8 @@ class SendSolTransactionRule(BaseModel):
     @field_validator('operation')
     def operation_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['sendSolTransaction']):
-            raise ValueError("must be one of enum values ('sendSolTransaction')")
+        if value not in set(['signSolMessage']):
+            raise ValueError("must be one of enum values ('signSolMessage')")
         return value
 
     model_config = ConfigDict(
@@ -65,7 +65,7 @@ class SendSolTransactionRule(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendSolTransactionRule from a JSON string"""
+        """Create an instance of SignSolMessageRule from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -97,7 +97,7 @@ class SendSolTransactionRule(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendSolTransactionRule from a dict"""
+        """Create an instance of SignSolMessageRule from a dict"""
         if obj is None:
             return None
 
@@ -107,7 +107,7 @@ class SendSolTransactionRule(BaseModel):
         _obj = cls.model_validate({
             "action": obj.get("action"),
             "operation": obj.get("operation"),
-            "criteria": [SendSolTransactionCriteriaInner.from_dict(_item) for _item in obj["criteria"]] if obj.get("criteria") is not None else None
+            "criteria": [SignSolMessageCriteriaInner.from_dict(_item) for _item in obj["criteria"]] if obj.get("criteria") is not None else None
         })
         return _obj
 

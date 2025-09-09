@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from cdp.openapi_client.models.x402_version import X402Version
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,7 +31,8 @@ class X402SupportedPaymentKind(BaseModel):
     x402_version: X402Version = Field(alias="x402Version")
     scheme: StrictStr = Field(description="The scheme of the payment protocol.")
     network: StrictStr = Field(description="The network of the blockchain.")
-    __properties: ClassVar[List[str]] = ["x402Version", "scheme", "network"]
+    extra: Optional[Dict[str, Any]] = Field(default=None, description="The optional additional scheme-specific payment info.")
+    __properties: ClassVar[List[str]] = ["x402Version", "scheme", "network", "extra"]
 
     @field_validator('scheme')
     def scheme_validate_enum(cls, value):
@@ -43,8 +44,8 @@ class X402SupportedPaymentKind(BaseModel):
     @field_validator('network')
     def network_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['base-sepolia', 'base']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'base')")
+        if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana']):
+            raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana')")
         return value
 
     model_config = ConfigDict(
@@ -100,7 +101,8 @@ class X402SupportedPaymentKind(BaseModel):
         _obj = cls.model_validate({
             "x402Version": obj.get("x402Version"),
             "scheme": obj.get("scheme"),
-            "network": obj.get("network")
+            "network": obj.get("network"),
+            "extra": obj.get("extra")
         })
         return _obj
 

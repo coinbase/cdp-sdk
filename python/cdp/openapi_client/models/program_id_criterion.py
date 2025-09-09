@@ -20,31 +20,31 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.send_sol_transaction_criteria_inner import SendSolTransactionCriteriaInner
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendSolTransactionRule(BaseModel):
+class ProgramIdCriterion(BaseModel):
     """
-    SendSolTransactionRule
+    The criterion for the program IDs of a Solana transaction's instructions.
     """ # noqa: E501
-    action: StrictStr = Field(description="Whether matching the rule will cause the request to be rejected or accepted.")
-    operation: StrictStr = Field(description="The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.")
-    criteria: List[SendSolTransactionCriteriaInner] = Field(description="A schema for specifying criteria for the SendSolTransaction operation.")
-    __properties: ClassVar[List[str]] = ["action", "operation", "criteria"]
+    type: StrictStr = Field(description="The type of criterion to use. This should be `programId`.")
+    program_ids: List[Annotated[str, Field(strict=True)]] = Field(description="The Solana program IDs that are compared to the list of program IDs in the transaction's instructions.", alias="programIds")
+    operator: StrictStr = Field(description="The operator to use for the comparison. Each of the program IDs in the transaction's instructions will be on the left-hand side of the operator, and the `programIds` field will be on the right-hand side.")
+    __properties: ClassVar[List[str]] = ["type", "programIds", "operator"]
 
-    @field_validator('action')
-    def action_validate_enum(cls, value):
+    @field_validator('type')
+    def type_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['reject', 'accept']):
-            raise ValueError("must be one of enum values ('reject', 'accept')")
+        if value not in set(['programId']):
+            raise ValueError("must be one of enum values ('programId')")
         return value
 
-    @field_validator('operation')
-    def operation_validate_enum(cls, value):
+    @field_validator('operator')
+    def operator_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['sendSolTransaction']):
-            raise ValueError("must be one of enum values ('sendSolTransaction')")
+        if value not in set(['in', 'not in']):
+            raise ValueError("must be one of enum values ('in', 'not in')")
         return value
 
     model_config = ConfigDict(
@@ -65,7 +65,7 @@ class SendSolTransactionRule(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendSolTransactionRule from a JSON string"""
+        """Create an instance of ProgramIdCriterion from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -86,18 +86,11 @@ class SendSolTransactionRule(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in criteria (list)
-        _items = []
-        if self.criteria:
-            for _item_criteria in self.criteria:
-                if _item_criteria:
-                    _items.append(_item_criteria.to_dict())
-            _dict['criteria'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendSolTransactionRule from a dict"""
+        """Create an instance of ProgramIdCriterion from a dict"""
         if obj is None:
             return None
 
@@ -105,9 +98,9 @@ class SendSolTransactionRule(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "action": obj.get("action"),
-            "operation": obj.get("operation"),
-            "criteria": [SendSolTransactionCriteriaInner.from_dict(_item) for _item in obj["criteria"]] if obj.get("criteria") is not None else None
+            "type": obj.get("type"),
+            "programIds": obj.get("programIds"),
+            "operator": obj.get("operator")
         })
         return _obj
 

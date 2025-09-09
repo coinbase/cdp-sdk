@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.x402_payment_payload_payload import X402PaymentPayloadPayload
+from cdp.openapi_client.models.x402_exact_solana_payload import X402ExactSolanaPayload
 
-class TestX402PaymentPayloadPayload(unittest.TestCase):
-    """X402PaymentPayloadPayload unit test stubs"""
+class TestX402ExactSolanaPayload(unittest.TestCase):
+    """X402ExactSolanaPayload unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,26 @@ class TestX402PaymentPayloadPayload(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> X402PaymentPayloadPayload:
-        """Test X402PaymentPayloadPayload
+    def make_instance(self, include_optional) -> X402ExactSolanaPayload:
+        """Test X402ExactSolanaPayload
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `X402PaymentPayloadPayload`
+        # uncomment below to create an instance of `X402ExactSolanaPayload`
         """
-        model = X402PaymentPayloadPayload()
+        model = X402ExactSolanaPayload()
         if include_optional:
-            return X402PaymentPayloadPayload(
-                signature = '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480',
-                authorization = {"from":"0x742d35Cc6634C0532925a3b844Bc454e4438f44e","to":"0x742d35Cc6634C0532925a3b844Bc454e4438f44e","value":"1000000000000000000","validAfter":"1716150000","validBefore":"1716150000","nonce":"0x1234567890abcdef1234567890abcdef12345678"},
+            return X402ExactSolanaPayload(
                 transaction = 'AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA='
             )
         else:
-            return X402PaymentPayloadPayload(
-                signature = '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480',
-                authorization = {"from":"0x742d35Cc6634C0532925a3b844Bc454e4438f44e","to":"0x742d35Cc6634C0532925a3b844Bc454e4438f44e","value":"1000000000000000000","validAfter":"1716150000","validBefore":"1716150000","nonce":"0x1234567890abcdef1234567890abcdef12345678"},
+            return X402ExactSolanaPayload(
                 transaction = 'AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA=',
         )
         """
 
-    def testX402PaymentPayloadPayload(self):
-        """Test X402PaymentPayloadPayload"""
+    def testX402ExactSolanaPayload(self):
+        """Test X402ExactSolanaPayload"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

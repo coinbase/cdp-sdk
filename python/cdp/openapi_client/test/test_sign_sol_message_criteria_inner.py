@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.error import Error
+from cdp.openapi_client.models.sign_sol_message_criteria_inner import SignSolMessageCriteriaInner
 
-class TestError(unittest.TestCase):
-    """Error unit test stubs"""
+class TestSignSolMessageCriteriaInner(unittest.TestCase):
+    """SignSolMessageCriteriaInner unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,30 +26,28 @@ class TestError(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> Error:
-        """Test Error
+    def make_instance(self, include_optional) -> SignSolMessageCriteriaInner:
+        """Test SignSolMessageCriteriaInner
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `Error`
+        # uncomment below to create an instance of `SignSolMessageCriteriaInner`
         """
-        model = Error()
+        model = SignSolMessageCriteriaInner()
         if include_optional:
-            return Error(
-                error_type = 'invalid_request',
-                error_message = 'Unable to create EVM account',
-                correlation_id = '41deb8d59a9dc9a7-IAD',
-                error_link = 'https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request'
+            return SignSolMessageCriteriaInner(
+                type = 'solMessage',
+                match = '^hello ([a-z]+)$'
             )
         else:
-            return Error(
-                error_type = 'invalid_request',
-                error_message = 'Unable to create EVM account',
+            return SignSolMessageCriteriaInner(
+                type = 'solMessage',
+                match = '^hello ([a-z]+)$',
         )
         """
 
-    def testError(self):
-        """Test Error"""
+    def testSignSolMessageCriteriaInner(self):
+        """Test SignSolMessageCriteriaInner"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

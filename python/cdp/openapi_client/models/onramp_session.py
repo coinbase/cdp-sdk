@@ -18,34 +18,17 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.send_sol_transaction_criteria_inner import SendSolTransactionCriteriaInner
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendSolTransactionRule(BaseModel):
+class OnrampSession(BaseModel):
     """
-    SendSolTransactionRule
+    An onramp session containing a ready-to-use onramp URL.
     """ # noqa: E501
-    action: StrictStr = Field(description="Whether matching the rule will cause the request to be rejected or accepted.")
-    operation: StrictStr = Field(description="The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.")
-    criteria: List[SendSolTransactionCriteriaInner] = Field(description="A schema for specifying criteria for the SendSolTransaction operation.")
-    __properties: ClassVar[List[str]] = ["action", "operation", "criteria"]
-
-    @field_validator('action')
-    def action_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['reject', 'accept']):
-            raise ValueError("must be one of enum values ('reject', 'accept')")
-        return value
-
-    @field_validator('operation')
-    def operation_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['sendSolTransaction']):
-            raise ValueError("must be one of enum values ('sendSolTransaction')")
-        return value
+    onramp_url: StrictStr = Field(description="Ready-to-use onramp URL.", alias="onrampUrl")
+    __properties: ClassVar[List[str]] = ["onrampUrl"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -65,7 +48,7 @@ class SendSolTransactionRule(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendSolTransactionRule from a JSON string"""
+        """Create an instance of OnrampSession from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -86,18 +69,11 @@ class SendSolTransactionRule(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in criteria (list)
-        _items = []
-        if self.criteria:
-            for _item_criteria in self.criteria:
-                if _item_criteria:
-                    _items.append(_item_criteria.to_dict())
-            _dict['criteria'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendSolTransactionRule from a dict"""
+        """Create an instance of OnrampSession from a dict"""
         if obj is None:
             return None
 
@@ -105,9 +81,7 @@ class SendSolTransactionRule(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "action": obj.get("action"),
-            "operation": obj.get("operation"),
-            "criteria": [SendSolTransactionCriteriaInner.from_dict(_item) for _item in obj["criteria"]] if obj.get("criteria") is not None else None
+            "onrampUrl": obj.get("onrampUrl")
         })
         return _obj
 

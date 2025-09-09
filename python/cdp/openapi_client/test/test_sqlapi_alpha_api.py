@@ -15,29 +15,22 @@
 
 import unittest
 
-from cdp.openapi_client.api.onchain_data_api import OnchainDataApi
+from cdp.openapi_client.api.sqlapi_alpha_api import SQLAPIAlphaApi
 
 
-class TestOnchainDataApi(unittest.IsolatedAsyncioTestCase):
-    """OnchainDataApi unit test stubs"""
+class TestSQLAPIAlphaApi(unittest.IsolatedAsyncioTestCase):
+    """SQLAPIAlphaApi unit test stubs"""
 
     async def asyncSetUp(self) -> None:
-        self.api = OnchainDataApi()
+        self.api = SQLAPIAlphaApi()
 
     async def asyncTearDown(self) -> None:
         await self.api.api_client.close()
 
-    async def test_list_data_token_balances(self) -> None:
-        """Test case for list_data_token_balances
+    async def test_run_sql_query(self) -> None:
+        """Test case for run_sql_query
 
-        List EVM token balances
-        """
-        pass
-
-    async def test_list_tokens_for_account(self) -> None:
-        """Test case for list_tokens_for_account
-
-        List token addresses for account
+        Run SQL Query
         """
         pass
 

@@ -18,34 +18,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.send_sol_transaction_criteria_inner import SendSolTransactionCriteriaInner
+from pydantic import BaseModel, ConfigDict
+from typing import Any, ClassVar, Dict, List, Optional
+from cdp.openapi_client.models.onramp_quote import OnrampQuote
+from cdp.openapi_client.models.onramp_session import OnrampSession
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SendSolTransactionRule(BaseModel):
+class CreateOnrampSession201Response(BaseModel):
     """
-    SendSolTransactionRule
+    CreateOnrampSession201Response
     """ # noqa: E501
-    action: StrictStr = Field(description="Whether matching the rule will cause the request to be rejected or accepted.")
-    operation: StrictStr = Field(description="The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.")
-    criteria: List[SendSolTransactionCriteriaInner] = Field(description="A schema for specifying criteria for the SendSolTransaction operation.")
-    __properties: ClassVar[List[str]] = ["action", "operation", "criteria"]
-
-    @field_validator('action')
-    def action_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['reject', 'accept']):
-            raise ValueError("must be one of enum values ('reject', 'accept')")
-        return value
-
-    @field_validator('operation')
-    def operation_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['sendSolTransaction']):
-            raise ValueError("must be one of enum values ('sendSolTransaction')")
-        return value
+    session: OnrampSession
+    quote: Optional[OnrampQuote] = None
+    __properties: ClassVar[List[str]] = ["session", "quote"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -65,7 +51,7 @@ class SendSolTransactionRule(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SendSolTransactionRule from a JSON string"""
+        """Create an instance of CreateOnrampSession201Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -86,18 +72,17 @@ class SendSolTransactionRule(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in criteria (list)
-        _items = []
-        if self.criteria:
-            for _item_criteria in self.criteria:
-                if _item_criteria:
-                    _items.append(_item_criteria.to_dict())
-            _dict['criteria'] = _items
+        # override the default output from pydantic by calling `to_dict()` of session
+        if self.session:
+            _dict['session'] = self.session.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of quote
+        if self.quote:
+            _dict['quote'] = self.quote.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SendSolTransactionRule from a dict"""
+        """Create an instance of CreateOnrampSession201Response from a dict"""
         if obj is None:
             return None
 
@@ -105,9 +90,8 @@ class SendSolTransactionRule(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "action": obj.get("action"),
-            "operation": obj.get("operation"),
-            "criteria": [SendSolTransactionCriteriaInner.from_dict(_item) for _item in obj["criteria"]] if obj.get("criteria") is not None else None
+            "session": OnrampSession.from_dict(obj["session"]) if obj.get("session") is not None else None,
+            "quote": OnrampQuote.from_dict(obj["quote"]) if obj.get("quote") is not None else None
         })
         return _obj
 

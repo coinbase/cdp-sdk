@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.sign_sol_transaction_criteria_inner import SignSolTransactionCriteriaInner
+from cdp.openapi_client.models.send_sol_transaction_criteria_inner import SendSolTransactionCriteriaInner
 
-class TestSignSolTransactionCriteriaInner(unittest.TestCase):
-    """SignSolTransactionCriteriaInner unit test stubs"""
+class TestSendSolTransactionCriteriaInner(unittest.TestCase):
+    """SendSolTransactionCriteriaInner unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,27 +26,16 @@ class TestSignSolTransactionCriteriaInner(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> SignSolTransactionCriteriaInner:
-        """Test SignSolTransactionCriteriaInner
+    def make_instance(self, include_optional) -> SendSolTransactionCriteriaInner:
+        """Test SendSolTransactionCriteriaInner
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `SignSolTransactionCriteriaInner`
+        # uncomment below to create an instance of `SendSolTransactionCriteriaInner`
         """
-        model = SignSolTransactionCriteriaInner()
+        model = SendSolTransactionCriteriaInner()
         if include_optional:
-            return SignSolTransactionCriteriaInner(
-                type = 'solAddress',
-                addresses = [HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT],
-                operator = 'in',
-                sol_value = '1000000000000000000',
-                spl_value = '1000000000000000000',
-                idls = [SystemProgram, TokenProgram, {address=TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, instructions=[{name=transfer_checked, discriminator=[119, 250, 202, 24, 253, 135, 244, 121], args=[{name=amount, type=u64}, {name=decimals, type=u8}]}]}],
-                conditions = [{instruction=transfer_checked, params=[{name=lamports, operator=<=, value=1000000}, {name=space, operator===, value=64}]}],
-                program_ids = [TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, 11111111111111111111111111111112]
-            )
-        else:
-            return SignSolTransactionCriteriaInner(
+            return SendSolTransactionCriteriaInner(
                 type = 'solAddress',
                 addresses = [HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT],
                 operator = 'in',
@@ -55,11 +44,24 @@ class TestSignSolTransactionCriteriaInner(unittest.TestCase):
                 idls = [SystemProgram, TokenProgram, {address=TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, instructions=[{name=transfer_checked, discriminator=[119, 250, 202, 24, 253, 135, 244, 121], args=[{name=amount, type=u64}, {name=decimals, type=u8}]}]}],
                 conditions = [{instruction=transfer_checked, params=[{name=lamports, operator=<=, value=1000000}, {name=space, operator===, value=64}]}],
                 program_ids = [TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, 11111111111111111111111111111112],
+                networks = [solana-devnet, solana]
+            )
+        else:
+            return SendSolTransactionCriteriaInner(
+                type = 'solAddress',
+                addresses = [HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT],
+                operator = 'in',
+                sol_value = '1000000000000000000',
+                spl_value = '1000000000000000000',
+                idls = [SystemProgram, TokenProgram, {address=TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, instructions=[{name=transfer_checked, discriminator=[119, 250, 202, 24, 253, 135, 244, 121], args=[{name=amount, type=u64}, {name=decimals, type=u8}]}]}],
+                conditions = [{instruction=transfer_checked, params=[{name=lamports, operator=<=, value=1000000}, {name=space, operator===, value=64}]}],
+                program_ids = [TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, 11111111111111111111111111111112],
+                networks = [solana-devnet, solana],
         )
         """
 
-    def testSignSolTransactionCriteriaInner(self):
-        """Test SignSolTransactionCriteriaInner"""
+    def testSendSolTransactionCriteriaInner(self):
+        """Test SendSolTransactionCriteriaInner"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 
