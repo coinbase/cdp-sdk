@@ -22,11 +22,15 @@ from cdp.openapi_client.models.prepare_user_operation_criteria_inner import (
     PrepareUserOperationCriteriaInner,
 )
 from cdp.openapi_client.models.prepare_user_operation_rule import PrepareUserOperationRule
+from cdp.openapi_client.models.program_id_criterion import ProgramIdCriterion
 from cdp.openapi_client.models.rule import Rule
 from cdp.openapi_client.models.send_evm_transaction_criteria_inner import (
     SendEvmTransactionCriteriaInner,
 )
 from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransactionRule
+from cdp.openapi_client.models.send_sol_transaction_criteria_inner import (
+    SendSolTransactionCriteriaInner,
+)
 from cdp.openapi_client.models.send_sol_transaction_rule import SendSolTransactionRule
 from cdp.openapi_client.models.send_user_operation_criteria_inner import (
     SendUserOperationCriteriaInner,
@@ -55,6 +59,8 @@ from cdp.openapi_client.models.sign_evm_typed_data_rule import SignEvmTypedDataR
 from cdp.openapi_client.models.sign_evm_typed_data_verifying_contract_criterion import (
     SignEvmTypedDataVerifyingContractCriterion,
 )
+from cdp.openapi_client.models.sign_sol_message_criteria_inner import SignSolMessageCriteriaInner
+from cdp.openapi_client.models.sign_sol_message_rule import SignSolMessageRule
 from cdp.openapi_client.models.sign_sol_transaction_criteria_inner import (
     SignSolTransactionCriteriaInner,
 )
@@ -68,6 +74,8 @@ from cdp.openapi_client.models.sol_data_parameter_condition import SolDataParame
 from cdp.openapi_client.models.sol_data_parameter_condition_list import (
     SolDataParameterConditionList,
 )
+from cdp.openapi_client.models.sol_message_criterion import SolMessageCriterion
+from cdp.openapi_client.models.sol_network_criterion import SolNetworkCriterion
 from cdp.openapi_client.models.sol_value_criterion import SolValueCriterion
 from cdp.openapi_client.models.spl_address_criterion import SplAddressCriterion
 from cdp.openapi_client.models.spl_value_criterion import SplValueCriterion
@@ -326,37 +334,44 @@ openapi_criterion_mapping = {
                 ],
             )
         ),
+        "programId": lambda c: SignSolTransactionCriteriaInner(
+            actual_instance=ProgramIdCriterion(
+                program_ids=c.programIds,
+                operator=c.operator,
+                type="programId",
+            )
+        ),
     },
     "sendSolTransaction": {
-        "solAddress": lambda c: SignSolTransactionCriteriaInner(
+        "solAddress": lambda c: SendSolTransactionCriteriaInner(
             actual_instance=SolAddressCriterion(
                 addresses=c.addresses,
                 operator=c.operator,
                 type="solAddress",
             )
         ),
-        "solValue": lambda c: SignSolTransactionCriteriaInner(
+        "solValue": lambda c: SendSolTransactionCriteriaInner(
             actual_instance=SolValueCriterion(
                 sol_value=c.solValue,
                 operator=c.operator,
                 type="solValue",
             )
         ),
-        "splAddress": lambda c: SignSolTransactionCriteriaInner(
+        "splAddress": lambda c: SendSolTransactionCriteriaInner(
             actual_instance=SplAddressCriterion(
                 addresses=c.addresses,
                 operator=c.operator,
                 type="splAddress",
             )
         ),
-        "splValue": lambda c: SignSolTransactionCriteriaInner(
+        "splValue": lambda c: SendSolTransactionCriteriaInner(
             actual_instance=SplValueCriterion(
                 spl_value=c.splValue,
                 operator=c.operator,
                 type="splValue",
             )
         ),
-        "mintAddress": lambda c: SignSolTransactionCriteriaInner(
+        "mintAddress": lambda c: SendSolTransactionCriteriaInner(
             actual_instance=MintAddressCriterion(
                 addresses=c.addresses,
                 operator=c.operator,
@@ -405,6 +420,28 @@ openapi_criterion_mapping = {
                     )
                     for cond in c.conditions
                 ],
+            )
+        ),
+        "programId": lambda c: SendSolTransactionCriteriaInner(
+            actual_instance=ProgramIdCriterion(
+                program_ids=c.programIds,
+                operator=c.operator,
+                type="programId",
+            )
+        ),
+        "solNetwork": lambda c: SendSolTransactionCriteriaInner(
+            actual_instance=SolNetworkCriterion(
+                networks=c.networks,
+                operator=c.operator,
+                type="solNetwork",
+            )
+        ),
+    },
+    "signSolMessage": {
+        "solMessage": lambda c: SignSolMessageCriteriaInner(
+            actual_instance=SolMessageCriterion(
+                type="solMessage",
+                match=c.match,
             )
         ),
     },
@@ -526,6 +563,7 @@ openapi_rule_mapping = {
     "signEvmTypedData": SignEvmTypedDataRule,
     "signSolTransaction": SignSolTransactionRule,
     "sendSolTransaction": SendSolTransactionRule,
+    "signSolMessage": SignSolMessageRule,
     "prepareUserOperation": PrepareUserOperationRule,
     "sendUserOperation": SendUserOperationRule,
 }

@@ -36,11 +36,11 @@ class TestSupportedX402PaymentKinds200Response(unittest.TestCase):
         model = SupportedX402PaymentKinds200Response()
         if include_optional:
             return SupportedX402PaymentKinds200Response(
-                kinds = [{"x402Version":1,"scheme":"exact","network":"base"},{"x402Version":1,"scheme":"exact","network":"base-sepolia"}]
+                kinds = [{"x402Version":1,"scheme":"exact","network":"base"},{"x402Version":1,"scheme":"exact","network":"base-sepolia"},{"x402Version":1,"scheme":"exact","network":"solana"},{"x402Version":1,"scheme":"exact","network":"solana-devnet"}]
             )
         else:
             return SupportedX402PaymentKinds200Response(
-                kinds = [{"x402Version":1,"scheme":"exact","network":"base"},{"x402Version":1,"scheme":"exact","network":"base-sepolia"}],
+                kinds = [{"x402Version":1,"scheme":"exact","network":"base"},{"x402Version":1,"scheme":"exact","network":"base-sepolia"},{"x402Version":1,"scheme":"exact","network":"solana"},{"x402Version":1,"scheme":"exact","network":"solana-devnet"}],
         )
         """
 

@@ -1756,6 +1756,16 @@ describe("CDP Client E2E Tests", () => {
                   },
                 ],
               },
+              {
+                action: "accept",
+                operation: "signSolMessage",
+                criteria: [
+                  {
+                    type: "solMessage",
+                    match: "^CDP:.*",
+                  },
+                ],
+              },
             ],
           },
         });
@@ -1766,11 +1776,13 @@ describe("CDP Client E2E Tests", () => {
         expect(createdSolanaPolicy.description).toBe("Test Solana policy for e2e tests");
         expect(createdSolanaPolicy.createdAt).toBeDefined();
         expect(createdSolanaPolicy.updatedAt).toBeDefined();
-        expect(createdSolanaPolicy.rules).toHaveLength(2);
+        expect(createdSolanaPolicy.rules).toHaveLength(3);
         expect(createdSolanaPolicy.rules[0].action).toBe("reject");
         expect(createdSolanaPolicy.rules[0].operation).toBe("signSolTransaction");
         expect(createdSolanaPolicy.rules[1].action).toBe("reject");
         expect(createdSolanaPolicy.rules[1].operation).toBe("sendSolTransaction");
+        expect(createdSolanaPolicy.rules[2].action).toBe("accept");
+        expect(createdSolanaPolicy.rules[2].operation).toBe("signSolMessage");
 
         // Save the policy ID for other tests
         testSolanaPolicyId = createdSolanaPolicy.id;
@@ -1785,14 +1797,14 @@ describe("CDP Client E2E Tests", () => {
         expect(policy.id).toBe(testSolanaPolicyId);
         expect(policy.scope).toBe("account");
         expect(policy.description).toBe("Test Solana policy for e2e tests");
-        expect(policy.rules).toHaveLength(2);
+        expect(policy.rules).toHaveLength(3);
       });
 
       it("should update a Solana policy", async () => {
         const updatedPolicy = await cdp.policies.updatePolicy({
           id: testSolanaPolicyId,
           policy: {
-            description: "Updated Solana test policy description",
+            description: "Updated Solana policy with new criteria",
             rules: [
               {
                 action: "reject",
@@ -1810,16 +1822,75 @@ describe("CDP Client E2E Tests", () => {
                   },
                 ],
               },
+              {
+                action: "reject",
+                operation: "sendSolTransaction",
+                criteria: [
+                  {
+                    type: "splValue",
+                    splValue: "500000", // 0.5 USDC (6 decimals)
+                    operator: ">",
+                  },
+                  {
+                    type: "mintAddress",
+                    addresses: ["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"], // USDC mint
+                    operator: "in",
+                  },
+                ],
+              },
+              {
+                action: "accept",
+                operation: "signSolMessage",
+                criteria: [
+                  {
+                    type: "solMessage",
+                    match: "^UPDATED:.*",
+                  },
+                ],
+              },
+              {
+                action: "reject",
+                operation: "signSolTransaction",
+                criteria: [
+                  {
+                    type: "programId",
+                    programIds: [
+                      "11111111111111111111111111111111",
+                      "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                    ],
+                    operator: "in",
+                  },
+                ],
+              },
+              {
+                action: "accept",
+                operation: "sendSolTransaction",
+                criteria: [
+                  {
+                    type: "solNetwork",
+                    networks: ["solana-devnet"],
+                    operator: "in",
+                  },
+                ],
+              },
             ],
           },
         });
 
         expect(updatedPolicy).toBeDefined();
         expect(updatedPolicy.id).toBe(testSolanaPolicyId);
-        expect(updatedPolicy.description).toBe("Updated Solana test policy description");
-        expect(updatedPolicy.rules).toHaveLength(1);
+        expect(updatedPolicy.description).toBe("Updated Solana policy with new criteria");
+        expect(updatedPolicy.rules).toHaveLength(5);
         expect(updatedPolicy.rules[0].action).toBe("reject");
         expect(updatedPolicy.rules[0].operation).toBe("signSolTransaction");
+        expect(updatedPolicy.rules[1].action).toBe("reject");
+        expect(updatedPolicy.rules[1].operation).toBe("sendSolTransaction");
+        expect(updatedPolicy.rules[2].action).toBe("accept");
+        expect(updatedPolicy.rules[2].operation).toBe("signSolMessage");
+        expect(updatedPolicy.rules[3].action).toBe("reject");
+        expect(updatedPolicy.rules[3].operation).toBe("signSolTransaction");
+        expect(updatedPolicy.rules[4].action).toBe("accept");
+        expect(updatedPolicy.rules[4].operation).toBe("sendSolTransaction");
       });
 
       it("should delete a Solana policy", async () => {
@@ -3267,7 +3338,7 @@ describe("CDP Client E2E Tests", () => {
         });
       });
 
-      describe.skip("solNetwork", () => {
+      describe("solNetwork", () => {
         it("in", async () => {
           await cdp.policies.updatePolicy({
             id: policy.id,
@@ -3291,7 +3362,7 @@ describe("CDP Client E2E Tests", () => {
               transaction: createAndEncodeTransaction(
                 policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
-                0.1 * LAMPORTS_PER_SOL,
+                1,
               ),
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
@@ -3305,8 +3376,43 @@ describe("CDP Client E2E Tests", () => {
                 {
                   operation: "sendSolTransaction",
                   action: "reject",
+                  criteria: [{ type: "solNetwork", operator: "not in", networks: ["solana"] }],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: policySolanaTestAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.sendTransaction({
+              network: "solana-devnet",
+              transaction: createAndEncodeTransaction(
+                policySolanaTestAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                1,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+
+      describe("programId", () => {
+        it("in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendSolTransaction",
+                  action: "reject",
                   criteria: [
-                    { type: "solNetwork", operator: "not in", networks: ["solana-mainnet"] },
+                    {
+                      type: "programId",
+                      operator: "in",
+                      programIds: ["11111111111111111111111111111111"],
+                    },
                   ],
                 },
               ],
@@ -3322,10 +3428,109 @@ describe("CDP Client E2E Tests", () => {
               transaction: createAndEncodeTransaction(
                 policySolanaTestAccount.address,
                 "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
-                0.1 * LAMPORTS_PER_SOL,
+                1,
               ),
             }),
           ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("not in", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "sendSolTransaction",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "programId",
+                      operator: "not in",
+                      programIds: ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: policySolanaTestAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.sendTransaction({
+              network: "solana-devnet",
+              transaction: createAndEncodeTransaction(
+                policySolanaTestAccount.address,
+                "EeVPcnRE1mhcY85wAh3uPJG1uFiTNya9dCJjNUPABXzo",
+                1,
+              ),
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+      });
+    });
+
+    describe("signSolMessage", () => {
+      describe("solMessage", () => {
+        it("should reject messages that don't match pattern", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signSolMessage",
+                  action: "reject",
+                  criteria: [
+                    {
+                      type: "solMessage",
+                      match: "^CDP:.*",
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: policySolanaTestAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          await expect(() =>
+            cdp.solana.signMessage({
+              address: policySolanaTestAccount.address,
+              message: "Hello World",
+            }),
+          ).rejects.toThrowError(expect.objectContaining(policyViolation));
+        });
+
+        it("should accept messages that match pattern", async () => {
+          await cdp.policies.updatePolicy({
+            id: policy.id,
+            policy: {
+              rules: [
+                {
+                  operation: "signSolMessage",
+                  action: "accept",
+                  criteria: [
+                    {
+                      type: "solMessage",
+                      match: "^CDP:.*",
+                    },
+                  ],
+                },
+              ],
+            },
+          });
+          await cdp.solana.updateAccount({
+            address: policySolanaTestAccount.address,
+            update: { accountPolicy: policy.id },
+          });
+          const result = await cdp.solana.signMessage({
+            address: policySolanaTestAccount.address,
+            message: "CDP: Hello World",
+          });
+          expect(result).toBeDefined();
+          expect(result.signature).toBeDefined();
         });
       });
     });

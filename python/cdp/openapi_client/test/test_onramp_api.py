@@ -34,6 +34,13 @@ class TestOnrampApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_create_onramp_session(self) -> None:
+        """Test case for create_onramp_session
+
+        Create an onramp session
+        """
+        pass
+
     async def test_get_onramp_order_by_id(self) -> None:
         """Test case for get_onramp_order_by_id
 

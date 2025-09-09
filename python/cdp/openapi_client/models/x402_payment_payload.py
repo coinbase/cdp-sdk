@@ -45,8 +45,8 @@ class X402PaymentPayload(BaseModel):
     @field_validator('network')
     def network_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(['base-sepolia', 'base']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'base')")
+        if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana']):
+            raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana')")
         return value
 
     model_config = ConfigDict(

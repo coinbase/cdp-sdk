@@ -61,6 +61,35 @@ export const MintAddressOperatorEnum = z.enum(["in", "not in"]);
 export type MintAddressOperator = z.infer<typeof MintAddressOperatorEnum>;
 
 /**
+ * Enum for ProgramIdOperator values
+ */
+export const ProgramIdOperatorEnum = z.enum(["in", "not in"]);
+/**
+ * Type representing the operators that can be used for program ID comparisons.
+ * These operators determine how transaction program IDs are evaluated against a list.
+ */
+export type ProgramIdOperator = z.infer<typeof ProgramIdOperatorEnum>;
+
+/**
+ * Enum for SolNetworkOperator values
+ */
+export const SolNetworkOperatorEnum = z.enum(["in", "not in"]);
+/**
+ * Type representing the operators that can be used for Solana network comparisons.
+ * These operators determine how transaction networks are evaluated against a list.
+ */
+export type SolNetworkOperator = z.infer<typeof SolNetworkOperatorEnum>;
+
+/**
+ * Enum for supported Solana networks
+ */
+export const SolNetworkEnum = z.enum(["solana-devnet", "solana"]);
+/**
+ * Type representing the supported Solana networks.
+ */
+export type SolNetwork = z.infer<typeof SolNetworkEnum>;
+
+/**
  * Enum for KnownIdlType values
  */
 export const KnownIdlTypeEnum = z.enum(["SystemProgram", "TokenProgram", "AssociatedTokenProgram"]);
@@ -251,6 +280,58 @@ export const SolDataCriterionSchema = z.object({
 export type SolDataCriterion = z.infer<typeof SolDataCriterionSchema>;
 
 /**
+ * Schema for program ID criterions
+ */
+export const ProgramIdCriterionSchema = z.object({
+  /** The type of criterion, must be "programId" for program ID-based rules. */
+  type: z.literal("programId"),
+  /**
+   * Array of Solana program IDs to compare against.
+   * Each program ID must be a valid Base58-encoded Solana address (32-44 characters).
+   */
+  programIds: z.array(z.string().regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/)),
+  /**
+   * The operator to use for evaluating transaction program IDs.
+   * "in" checks if a program ID is in the provided list.
+   * "not in" checks if a program ID is not in the provided list.
+   */
+  operator: ProgramIdOperatorEnum,
+});
+export type ProgramIdCriterion = z.infer<typeof ProgramIdCriterionSchema>;
+
+/**
+ * Schema for Solana network criterions
+ */
+export const SolNetworkCriterionSchema = z.object({
+  /** The type of criterion, must be "solNetwork" for network-based rules. */
+  type: z.literal("solNetwork"),
+  /**
+   * Array of Solana networks to compare against.
+   */
+  networks: z.array(SolNetworkEnum),
+  /**
+   * The operator to use for evaluating transaction network.
+   * "in" checks if the network is in the provided list.
+   * "not in" checks if the network is not in the provided list.
+   */
+  operator: SolNetworkOperatorEnum,
+});
+export type SolNetworkCriterion = z.infer<typeof SolNetworkCriterionSchema>;
+
+/**
+ * Schema for Solana message criterions
+ */
+export const SolMessageCriterionSchema = z.object({
+  /** The type of criterion, must be "solMessage" for message-based rules. */
+  type: z.literal("solMessage"),
+  /**
+   * A regular expression pattern to match against the message.
+   */
+  match: z.string(),
+});
+export type SolMessageCriterion = z.infer<typeof SolMessageCriterionSchema>;
+
+/**
  * Schema for criteria used in SignSolTransaction operations
  */
 export const SignSolTransactionCriteriaSchema = z
@@ -262,13 +343,14 @@ export const SignSolTransactionCriteriaSchema = z
       SplValueCriterionSchema,
       MintAddressCriterionSchema,
       SolDataCriterionSchema,
+      ProgramIdCriterionSchema,
     ]),
   )
   .max(10)
   .min(1);
 /**
  * Type representing a set of criteria for the signSolTransaction operation.
- * Can contain up to 10 individual criterion objects for Solana addresses, SOL values, SPL addresses, SPL values, and mint addresses.
+ * Can contain up to 10 individual criterion objects for Solana addresses, SOL values, SPL addresses, SPL values, mint addresses, Solana data, and program IDs.
  */
 export type SignSolTransactionCriteria = z.infer<typeof SignSolTransactionCriteriaSchema>;
 
@@ -284,20 +366,26 @@ export const SendSolTransactionCriteriaSchema = z
       SplValueCriterionSchema,
       MintAddressCriterionSchema,
       SolDataCriterionSchema,
+      ProgramIdCriterionSchema,
+      SolNetworkCriterionSchema,
     ]),
   )
   .max(10)
   .min(1);
 /**
  * Type representing a set of criteria for the sendSolTransaction operation.
- * Can contain up to 10 individual criterion objects for Solana addresses, SOL values, SPL addresses, SPL values, and mint addresses.
+ * Can contain up to 10 individual criterion objects for Solana addresses, SOL values, SPL addresses, SPL values, mint addresses, Solana data, program IDs, and network restrictions.
  */
 export type SendSolTransactionCriteria = z.infer<typeof SendSolTransactionCriteriaSchema>;
 
 /**
  * Enum for Solana Operation types
  */
-export const SolOperationEnum = z.enum(["signSolTransaction", "sendSolTransaction"]);
+export const SolOperationEnum = z.enum([
+  "signSolTransaction",
+  "sendSolTransaction",
+  "signSolMessage",
+]);
 /**
  * Type representing the operations that can be governed by a policy.
  * Defines what Solana operations the policy applies to.
@@ -349,3 +437,36 @@ export const SendSolTransactionRuleSchema = z.object({
   criteria: SendSolTransactionCriteriaSchema,
 });
 export type SendSolTransactionRule = z.infer<typeof SendSolTransactionRuleSchema>;
+
+/**
+ * Schema for criteria used in SignSolMessage operations
+ */
+export const SignSolMessageCriteriaSchema = z.array(SolMessageCriterionSchema).max(10).min(1);
+/**
+ * Type representing a set of criteria for the signSolMessage operation.
+ * Can contain up to 10 individual criterion objects for Solana message matching.
+ */
+export type SignSolMessageCriteria = z.infer<typeof SignSolMessageCriteriaSchema>;
+
+/**
+ * Type representing a 'signSolMessage' policy rule that can accept or reject specific operations
+ * based on a set of criteria.
+ */
+export const SignSolMessageRuleSchema = z.object({
+  /**
+   * Determines whether matching the rule will cause a request to be rejected or accepted.
+   * "accept" will allow the message signing, "reject" will block it.
+   */
+  action: ActionEnum,
+  /**
+   * The operation to which this rule applies.
+   * Must be "signSolMessage".
+   */
+  operation: z.literal("signSolMessage"),
+  /**
+   * The set of criteria that must be matched for this rule to apply.
+   * Must be compatible with the specified operation type.
+   */
+  criteria: SignSolMessageCriteriaSchema,
+});
+export type SignSolMessageRule = z.infer<typeof SignSolMessageRuleSchema>;

@@ -41,13 +41,6 @@ class TestOnchainDataApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
-    async def test_run_sql_query(self) -> None:
-        """Test case for run_sql_query
-
-        Run SQL Query
-        """
-        pass
-
 
 if __name__ == '__main__':
     unittest.main()

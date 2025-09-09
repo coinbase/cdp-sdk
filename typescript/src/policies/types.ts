@@ -9,7 +9,11 @@ import {
   SignEvmTypedDataRuleSchema,
   SendUserOperationRuleSchema,
 } from "./evmSchema.js";
-import { SendSolTransactionRuleSchema, SignSolTransactionRuleSchema } from "./solanaSchema.js";
+import {
+  SendSolTransactionRuleSchema,
+  SignSolTransactionRuleSchema,
+  SignSolMessageRuleSchema,
+} from "./solanaSchema.js";
 
 /**
  * A single Policy that can be used to govern the behavior of projects and accounts.
@@ -50,6 +54,7 @@ export const RuleSchema = z.discriminatedUnion("operation", [
   SendEvmTransactionRuleSchema,
   SignSolTransactionRuleSchema,
   SendSolTransactionRuleSchema,
+  SignSolMessageRuleSchema,
   PrepareUserOperationRuleSchema,
   SendUserOperationRuleSchema,
 ]);

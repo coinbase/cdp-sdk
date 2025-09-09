@@ -28,6 +28,7 @@ from cdp.openapi_client.api.onchain_data_api import OnchainDataApi
 from cdp.openapi_client.api.onramp_api import OnrampApi
 from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
+from cdp.openapi_client.api.sqlapi_alpha_api import SQLAPIAlphaApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
 from cdp.openapi_client.api.solana_token_balances_api import SolanaTokenBalancesApi
 from cdp.openapi_client.api.x402_facilitator_api import X402FacilitatorApi
@@ -62,6 +63,8 @@ from cdp.openapi_client.models.create_evm_smart_account_request import CreateEvm
 from cdp.openapi_client.models.create_evm_swap_quote_request import CreateEvmSwapQuoteRequest
 from cdp.openapi_client.models.create_onramp_order201_response import CreateOnrampOrder201Response
 from cdp.openapi_client.models.create_onramp_order_request import CreateOnrampOrderRequest
+from cdp.openapi_client.models.create_onramp_session201_response import CreateOnrampSession201Response
+from cdp.openapi_client.models.create_onramp_session_request import CreateOnrampSessionRequest
 from cdp.openapi_client.models.create_payment_transfer_quote201_response import CreatePaymentTransferQuote201Response
 from cdp.openapi_client.models.create_payment_transfer_quote_request import CreatePaymentTransferQuoteRequest
 from cdp.openapi_client.models.create_policy_request import CreatePolicyRequest
@@ -139,6 +142,9 @@ from cdp.openapi_client.models.onramp_order_payment_method_type_id import Onramp
 from cdp.openapi_client.models.onramp_order_status import OnrampOrderStatus
 from cdp.openapi_client.models.onramp_payment_link import OnrampPaymentLink
 from cdp.openapi_client.models.onramp_payment_link_type import OnrampPaymentLinkType
+from cdp.openapi_client.models.onramp_quote import OnrampQuote
+from cdp.openapi_client.models.onramp_quote_payment_method_type_id import OnrampQuotePaymentMethodTypeId
+from cdp.openapi_client.models.onramp_session import OnrampSession
 from cdp.openapi_client.models.payment_method import PaymentMethod
 from cdp.openapi_client.models.payment_method_limits import PaymentMethodLimits
 from cdp.openapi_client.models.payment_method_limits_source_limit import PaymentMethodLimitsSourceLimit
@@ -149,6 +155,7 @@ from cdp.openapi_client.models.policy import Policy
 from cdp.openapi_client.models.prepare_user_operation_criteria_inner import PrepareUserOperationCriteriaInner
 from cdp.openapi_client.models.prepare_user_operation_request import PrepareUserOperationRequest
 from cdp.openapi_client.models.prepare_user_operation_rule import PrepareUserOperationRule
+from cdp.openapi_client.models.program_id_criterion import ProgramIdCriterion
 from cdp.openapi_client.models.request_evm_faucet200_response import RequestEvmFaucet200Response
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.request_solana_faucet200_response import RequestSolanaFaucet200Response
@@ -159,6 +166,7 @@ from cdp.openapi_client.models.send_evm_transaction200_response import SendEvmTr
 from cdp.openapi_client.models.send_evm_transaction_criteria_inner import SendEvmTransactionCriteriaInner
 from cdp.openapi_client.models.send_evm_transaction_request import SendEvmTransactionRequest
 from cdp.openapi_client.models.send_evm_transaction_rule import SendEvmTransactionRule
+from cdp.openapi_client.models.send_sol_transaction_criteria_inner import SendSolTransactionCriteriaInner
 from cdp.openapi_client.models.send_sol_transaction_rule import SendSolTransactionRule
 from cdp.openapi_client.models.send_solana_transaction200_response import SendSolanaTransaction200Response
 from cdp.openapi_client.models.send_solana_transaction_request import SendSolanaTransactionRequest
@@ -185,6 +193,8 @@ from cdp.openapi_client.models.sign_evm_typed_data_field_criterion_types import 
 from cdp.openapi_client.models.sign_evm_typed_data_field_criterion_types_types_value_inner import SignEvmTypedDataFieldCriterionTypesTypesValueInner
 from cdp.openapi_client.models.sign_evm_typed_data_rule import SignEvmTypedDataRule
 from cdp.openapi_client.models.sign_evm_typed_data_verifying_contract_criterion import SignEvmTypedDataVerifyingContractCriterion
+from cdp.openapi_client.models.sign_sol_message_criteria_inner import SignSolMessageCriteriaInner
+from cdp.openapi_client.models.sign_sol_message_rule import SignSolMessageRule
 from cdp.openapi_client.models.sign_sol_transaction_criteria_inner import SignSolTransactionCriteriaInner
 from cdp.openapi_client.models.sign_sol_transaction_rule import SignSolTransactionRule
 from cdp.openapi_client.models.sign_solana_message200_response import SignSolanaMessage200Response
@@ -199,6 +209,8 @@ from cdp.openapi_client.models.sol_data_criterion import SolDataCriterion
 from cdp.openapi_client.models.sol_data_criterion_idls_inner import SolDataCriterionIdlsInner
 from cdp.openapi_client.models.sol_data_parameter_condition import SolDataParameterCondition
 from cdp.openapi_client.models.sol_data_parameter_condition_list import SolDataParameterConditionList
+from cdp.openapi_client.models.sol_message_criterion import SolMessageCriterion
+from cdp.openapi_client.models.sol_network_criterion import SolNetworkCriterion
 from cdp.openapi_client.models.sol_value_criterion import SolValueCriterion
 from cdp.openapi_client.models.solana_account import SolanaAccount
 from cdp.openapi_client.models.solana_token import SolanaToken
@@ -229,6 +241,7 @@ from cdp.openapi_client.models.verify_x402_payment200_response import VerifyX402
 from cdp.openapi_client.models.verify_x402_payment_request import VerifyX402PaymentRequest
 from cdp.openapi_client.models.x402_exact_evm_payload import X402ExactEvmPayload
 from cdp.openapi_client.models.x402_exact_evm_payload_authorization import X402ExactEvmPayloadAuthorization
+from cdp.openapi_client.models.x402_exact_solana_payload import X402ExactSolanaPayload
 from cdp.openapi_client.models.x402_payment_payload import X402PaymentPayload
 from cdp.openapi_client.models.x402_payment_payload_payload import X402PaymentPayloadPayload
 from cdp.openapi_client.models.x402_payment_requirements import X402PaymentRequirements

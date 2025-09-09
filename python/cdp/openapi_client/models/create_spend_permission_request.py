@@ -27,7 +27,7 @@ from typing_extensions import Self
 
 class CreateSpendPermissionRequest(BaseModel):
     """
-    CreateSpendPermissionRequest
+    Request parameters for creating a Spend Permission.
     """ # noqa: E501
     network: SpendPermissionNetwork
     spender: Annotated[str, Field(strict=True)] = Field(description="Entity that can spend account's tokens. Can be either a Smart Account or an EOA.")

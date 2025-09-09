@@ -332,6 +332,16 @@ const (
 	PAYMENTLINKTYPEAPPLEPAYBUTTON OnrampPaymentLinkType = "PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON"
 )
 
+// Defines values for OnrampQuotePaymentMethodTypeId.
+const (
+	ACH          OnrampQuotePaymentMethodTypeId = "ACH"
+	APPLEPAY     OnrampQuotePaymentMethodTypeId = "APPLE_PAY"
+	CARD         OnrampQuotePaymentMethodTypeId = "CARD"
+	CRYPTOWALLET OnrampQuotePaymentMethodTypeId = "CRYPTO_WALLET"
+	FIATWALLET   OnrampQuotePaymentMethodTypeId = "FIAT_WALLET"
+	PAYPAL       OnrampQuotePaymentMethodTypeId = "PAYPAL"
+)
+
 // Defines values for PaymentMethodType.
 const (
 	Card        PaymentMethodType = "card"
@@ -359,6 +369,17 @@ const (
 // Defines values for PrepareUserOperationRuleOperation.
 const (
 	PrepareUserOperation PrepareUserOperationRuleOperation = "prepareUserOperation"
+)
+
+// Defines values for ProgramIdCriterionOperator.
+const (
+	ProgramIdCriterionOperatorIn    ProgramIdCriterionOperator = "in"
+	ProgramIdCriterionOperatorNotIn ProgramIdCriterionOperator = "not in"
+)
+
+// Defines values for ProgramIdCriterionType.
+const (
+	ProgramId ProgramIdCriterionType = "programId"
 )
 
 // Defines values for SendEvmTransactionRuleAction.
@@ -454,10 +475,21 @@ const (
 	EvmTypedDataVerifyingContract SignEvmTypedDataVerifyingContractCriterionType = "evmTypedDataVerifyingContract"
 )
 
+// Defines values for SignSolMessageRuleAction.
+const (
+	SignSolMessageRuleActionAccept SignSolMessageRuleAction = "accept"
+	SignSolMessageRuleActionReject SignSolMessageRuleAction = "reject"
+)
+
+// Defines values for SignSolMessageRuleOperation.
+const (
+	SignSolMessage SignSolMessageRuleOperation = "signSolMessage"
+)
+
 // Defines values for SignSolTransactionRuleAction.
 const (
-	Accept SignSolTransactionRuleAction = "accept"
-	Reject SignSolTransactionRuleAction = "reject"
+	SignSolTransactionRuleActionAccept SignSolTransactionRuleAction = "accept"
+	SignSolTransactionRuleActionReject SignSolTransactionRuleAction = "reject"
 )
 
 // Defines values for SignSolTransactionRuleOperation.
@@ -499,6 +531,28 @@ const (
 const (
 	SolDataParameterConditionListOperatorIn    SolDataParameterConditionListOperator = "in"
 	SolDataParameterConditionListOperatorNotIn SolDataParameterConditionListOperator = "not in"
+)
+
+// Defines values for SolMessageCriterionType.
+const (
+	SolMessage SolMessageCriterionType = "solMessage"
+)
+
+// Defines values for SolNetworkCriterionNetworks.
+const (
+	SolNetworkCriterionNetworksSolana       SolNetworkCriterionNetworks = "solana"
+	SolNetworkCriterionNetworksSolanaDevnet SolNetworkCriterionNetworks = "solana-devnet"
+)
+
+// Defines values for SolNetworkCriterionOperator.
+const (
+	SolNetworkCriterionOperatorIn    SolNetworkCriterionOperator = "in"
+	SolNetworkCriterionOperatorNotIn SolNetworkCriterionOperator = "not in"
+)
+
+// Defines values for SolNetworkCriterionType.
+const (
+	SolNetwork SolNetworkCriterionType = "solNetwork"
 )
 
 // Defines values for SolValueCriterionOperator.
@@ -583,8 +637,10 @@ const (
 
 // Defines values for X402PaymentPayloadNetwork.
 const (
-	X402PaymentPayloadNetworkBase        X402PaymentPayloadNetwork = "base"
-	X402PaymentPayloadNetworkBaseSepolia X402PaymentPayloadNetwork = "base-sepolia"
+	X402PaymentPayloadNetworkBase         X402PaymentPayloadNetwork = "base"
+	X402PaymentPayloadNetworkBaseSepolia  X402PaymentPayloadNetwork = "base-sepolia"
+	X402PaymentPayloadNetworkSolana       X402PaymentPayloadNetwork = "solana"
+	X402PaymentPayloadNetworkSolanaDevnet X402PaymentPayloadNetwork = "solana-devnet"
 )
 
 // Defines values for X402PaymentPayloadScheme.
@@ -594,8 +650,10 @@ const (
 
 // Defines values for X402PaymentRequirementsNetwork.
 const (
-	X402PaymentRequirementsNetworkBase        X402PaymentRequirementsNetwork = "base"
-	X402PaymentRequirementsNetworkBaseSepolia X402PaymentRequirementsNetwork = "base-sepolia"
+	X402PaymentRequirementsNetworkBase         X402PaymentRequirementsNetwork = "base"
+	X402PaymentRequirementsNetworkBaseSepolia  X402PaymentRequirementsNetwork = "base-sepolia"
+	X402PaymentRequirementsNetworkSolana       X402PaymentRequirementsNetwork = "solana"
+	X402PaymentRequirementsNetworkSolanaDevnet X402PaymentRequirementsNetwork = "solana-devnet"
 )
 
 // Defines values for X402PaymentRequirementsScheme.
@@ -618,12 +676,16 @@ const (
 	X402SettleErrorReasonInvalidPaymentRequirements                          X402SettleErrorReason = "invalid_payment_requirements"
 	X402SettleErrorReasonInvalidScheme                                       X402SettleErrorReason = "invalid_scheme"
 	X402SettleErrorReasonInvalidX402Version                                  X402SettleErrorReason = "invalid_x402_version"
+	X402SettleErrorReasonSettleExactSvmBlockHeightExceeded                   X402SettleErrorReason = "settle_exact_svm_block_height_exceeded"
+	X402SettleErrorReasonSettleExactSvmTransactionConfirmationTimedOut       X402SettleErrorReason = "settle_exact_svm_transaction_confirmation_timed_out"
 )
 
 // Defines values for X402SupportedPaymentKindNetwork.
 const (
-	X402SupportedPaymentKindNetworkBase        X402SupportedPaymentKindNetwork = "base"
-	X402SupportedPaymentKindNetworkBaseSepolia X402SupportedPaymentKindNetwork = "base-sepolia"
+	X402SupportedPaymentKindNetworkBase         X402SupportedPaymentKindNetwork = "base"
+	X402SupportedPaymentKindNetworkBaseSepolia  X402SupportedPaymentKindNetwork = "base-sepolia"
+	X402SupportedPaymentKindNetworkSolana       X402SupportedPaymentKindNetwork = "solana"
+	X402SupportedPaymentKindNetworkSolanaDevnet X402SupportedPaymentKindNetwork = "solana-devnet"
 )
 
 // Defines values for X402SupportedPaymentKindScheme.
@@ -633,20 +695,38 @@ const (
 
 // Defines values for X402VerifyInvalidReason.
 const (
-	X402VerifyInvalidReasonInsufficientFunds                                   X402VerifyInvalidReason = "insufficient_funds"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationFromAddressKyt   X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_from_address_kyt"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationToAddressKyt     X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_to_address_kyt"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationTypedDataMessage X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_typed_data_message"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidAfter       X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_after"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidBefore      X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_before"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValue            X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadSignature                     X402VerifyInvalidReason = "invalid_exact_evm_payload_signature"
-	X402VerifyInvalidReasonInvalidExactEvmPayloadSignatureAddress              X402VerifyInvalidReason = "invalid_exact_evm_payload_signature_address"
-	X402VerifyInvalidReasonInvalidNetwork                                      X402VerifyInvalidReason = "invalid_network"
-	X402VerifyInvalidReasonInvalidPayload                                      X402VerifyInvalidReason = "invalid_payload"
-	X402VerifyInvalidReasonInvalidPaymentRequirements                          X402VerifyInvalidReason = "invalid_payment_requirements"
-	X402VerifyInvalidReasonInvalidScheme                                       X402VerifyInvalidReason = "invalid_scheme"
-	X402VerifyInvalidReasonInvalidX402Version                                  X402VerifyInvalidReason = "invalid_x402_version"
+	X402VerifyInvalidReasonInsufficientFunds                                                           X402VerifyInvalidReason = "insufficient_funds"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationFromAddressKyt                           X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_from_address_kyt"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationToAddressKyt                             X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_to_address_kyt"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationTypedDataMessage                         X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_typed_data_message"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidAfter                               X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_after"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidBefore                              X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_before"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValue                                    X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadSignature                                             X402VerifyInvalidReason = "invalid_exact_evm_payload_signature"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadSignatureAddress                                      X402VerifyInvalidReason = "invalid_exact_evm_payload_signature_address"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransaction                                           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionAmountMismatch                             X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_amount_mismatch"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCannotDeriveReceiverAta                    X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstruction                       X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectAsset         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectPayee         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionNotSplTokenTransferChecked      X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionNotToken2022TransferChecked     X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructions                               X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionsComputeLimitInstruction        X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionsComputePriceInstruction        X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionsComputePriceInstructionTooHigh X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionsLength                         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions_length"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionNotATransferInstruction                    X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_not_a_transfer_instruction"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionReceiverAtaNotFound                        X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_receiver_ata_not_found"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionSenderAtaNotFound                          X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_sender_ata_not_found"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionSimulationFailed                           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_simulation_failed"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionTransferToIncorrectAta                     X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata"
+	X402VerifyInvalidReasonInvalidNetwork                                                              X402VerifyInvalidReason = "invalid_network"
+	X402VerifyInvalidReasonInvalidPayload                                                              X402VerifyInvalidReason = "invalid_payload"
+	X402VerifyInvalidReasonInvalidPaymentRequirements                                                  X402VerifyInvalidReason = "invalid_payment_requirements"
+	X402VerifyInvalidReasonInvalidScheme                                                               X402VerifyInvalidReason = "invalid_scheme"
+	X402VerifyInvalidReasonInvalidX402Version                                                          X402VerifyInvalidReason = "invalid_x402_version"
 )
 
 // Defines values for ListTokensForAccountParamsNetwork.
@@ -706,8 +786,8 @@ const (
 
 // Defines values for SendSolanaTransactionJSONBodyNetwork.
 const (
-	SendSolanaTransactionJSONBodyNetworkSolana       SendSolanaTransactionJSONBodyNetwork = "solana"
-	SendSolanaTransactionJSONBodyNetworkSolanaDevnet SendSolanaTransactionJSONBodyNetwork = "solana-devnet"
+	Solana       SendSolanaTransactionJSONBodyNetwork = "solana"
+	SolanaDevnet SendSolanaTransactionJSONBodyNetwork = "solana-devnet"
 )
 
 // Defines values for RequestSolanaFaucetJSONBodyToken.
@@ -867,7 +947,7 @@ type CommonSwapResponse struct {
 // CommonSwapResponseLiquidityAvailable Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
 type CommonSwapResponseLiquidityAvailable bool
 
-// CreateSpendPermissionRequest defines model for CreateSpendPermissionRequest.
+// CreateSpendPermissionRequest Request parameters for creating a Spend Permission.
 type CreateSpendPermissionRequest struct {
 	// Allowance Maximum allowed value to spend, in atomic units for the specified token, within each period.
 	Allowance string `json:"allowance"`
@@ -1714,6 +1794,42 @@ type OnrampPaymentLink struct {
 // OnrampPaymentLinkType The type of payment link.
 type OnrampPaymentLinkType string
 
+// OnrampQuote Quote information with pricing details for the crypto purchase.
+type OnrampQuote struct {
+	// DestinationNetwork The network to send the crypto on.
+	DestinationNetwork string `json:"destinationNetwork"`
+
+	// ExchangeRate The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat.
+	ExchangeRate string `json:"exchangeRate"`
+
+	// Fees The fees associated with the quote.
+	Fees []OnrampOrderFee `json:"fees"`
+
+	// PaymentCurrency The fiat currency to be converted to crypto.
+	PaymentCurrency string `json:"paymentCurrency"`
+
+	// PaymentSubtotal The amount of fiat to be converted to crypto.
+	PaymentSubtotal string `json:"paymentSubtotal"`
+
+	// PaymentTotal The total amount of fiat to be paid, inclusive of any fees.
+	PaymentTotal string `json:"paymentTotal"`
+
+	// PurchaseAmount The amount of crypto to be purchased.
+	PurchaseAmount string `json:"purchaseAmount"`
+
+	// PurchaseCurrency The crypto currency to be purchased.
+	PurchaseCurrency string `json:"purchaseCurrency"`
+}
+
+// OnrampQuotePaymentMethodTypeId The type of payment method used to generate the onramp quote.
+type OnrampQuotePaymentMethodTypeId string
+
+// OnrampSession An onramp session containing a ready-to-use onramp URL.
+type OnrampSession struct {
+	// OnrampUrl Ready-to-use onramp URL.
+	OnrampUrl string `json:"onrampUrl"`
+}
+
 // PaymentMethod The fiat payment method object.
 type PaymentMethod struct {
 	// Actions The actions for the payment method.
@@ -1813,7 +1929,25 @@ type PrepareUserOperationRuleAction string
 // PrepareUserOperationRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
 type PrepareUserOperationRuleOperation string
 
-// RevokeSpendPermissionRequest defines model for RevokeSpendPermissionRequest.
+// ProgramIdCriterion The criterion for the program IDs of a Solana transaction's instructions.
+type ProgramIdCriterion struct {
+	// Operator The operator to use for the comparison. Each of the program IDs in the transaction's instructions will be on the left-hand side of the operator, and the `programIds` field will be on the right-hand side.
+	Operator ProgramIdCriterionOperator `json:"operator"`
+
+	// ProgramIds The Solana program IDs that are compared to the list of program IDs in the transaction's instructions.
+	ProgramIds []string `json:"programIds"`
+
+	// Type The type of criterion to use. This should be `programId`.
+	Type ProgramIdCriterionType `json:"type"`
+}
+
+// ProgramIdCriterionOperator The operator to use for the comparison. Each of the program IDs in the transaction's instructions will be on the left-hand side of the operator, and the `programIds` field will be on the right-hand side.
+type ProgramIdCriterionOperator string
+
+// ProgramIdCriterionType The type of criterion to use. This should be `programId`.
+type ProgramIdCriterionType string
+
+// RevokeSpendPermissionRequest Request parameters for revoking a Spend Permission.
 type RevokeSpendPermissionRequest struct {
 	// Network The network the spend permission is on.
 	Network SpendPermissionNetwork `json:"network"`
@@ -2051,6 +2185,32 @@ type SignEvmTypedDataVerifyingContractCriterionOperator string
 // SignEvmTypedDataVerifyingContractCriterionType The type of criterion to use. This should be `evmTypedDataVerifyingContract`.
 type SignEvmTypedDataVerifyingContractCriterionType string
 
+// SignSolMessageCriteria A schema for specifying criteria for the SignSolMessage operation.
+type SignSolMessageCriteria = []SignSolMessageCriteria_Item
+
+// SignSolMessageCriteria_Item defines model for SignSolMessageCriteria.Item.
+type SignSolMessageCriteria_Item struct {
+	union json.RawMessage
+}
+
+// SignSolMessageRule defines model for SignSolMessageRule.
+type SignSolMessageRule struct {
+	// Action Whether matching the rule will cause the request to be rejected or accepted.
+	Action SignSolMessageRuleAction `json:"action"`
+
+	// Criteria A schema for specifying criteria for the SignSolMessage operation.
+	Criteria SignSolMessageCriteria `json:"criteria"`
+
+	// Operation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+	Operation SignSolMessageRuleOperation `json:"operation"`
+}
+
+// SignSolMessageRuleAction Whether matching the rule will cause the request to be rejected or accepted.
+type SignSolMessageRuleAction string
+
+// SignSolMessageRuleOperation The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+type SignSolMessageRuleOperation string
+
 // SignSolTransactionCriteria A schema for specifying criteria for the SignSolTransaction operation.
 type SignSolTransactionCriteria = []SignSolTransactionCriteria_Item
 
@@ -2170,6 +2330,39 @@ type SolDataParameterConditionList struct {
 
 // SolDataParameterConditionListOperator The operator to use for the comparison. The value resolved at the `name` will be on the left-hand side of the operator, and the `value` field will be on the right-hand side.
 type SolDataParameterConditionListOperator string
+
+// SolMessageCriterion The criterion for the message of a Solana transaction.
+type SolMessageCriterion struct {
+	// Match A regular expression the field is matched against.
+	Match string `json:"match"`
+
+	// Type The type of criterion to use. This should be `solMessage`.
+	Type SolMessageCriterionType `json:"type"`
+}
+
+// SolMessageCriterionType The type of criterion to use. This should be `solMessage`.
+type SolMessageCriterionType string
+
+// SolNetworkCriterion The criterion for the Solana network of a transaction.
+type SolNetworkCriterion struct {
+	// Networks The Solana networks that the transaction's intended network should be compared to.
+	Networks []SolNetworkCriterionNetworks `json:"networks"`
+
+	// Operator The operator to use for the comparison. The transaction's intended network will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.
+	Operator SolNetworkCriterionOperator `json:"operator"`
+
+	// Type The type of criterion to use. This should be `solNetwork`.
+	Type SolNetworkCriterionType `json:"type"`
+}
+
+// SolNetworkCriterionNetworks The Solana network the transaction is for.
+type SolNetworkCriterionNetworks string
+
+// SolNetworkCriterionOperator The operator to use for the comparison. The transaction's intended network will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.
+type SolNetworkCriterionOperator string
+
+// SolNetworkCriterionType The type of criterion to use. This should be `solNetwork`.
+type SolNetworkCriterionType string
 
 // SolValueCriterion The criterion for the SOL value in lamports of a native transfer instruction in a Solana transaction.
 type SolValueCriterion struct {
@@ -2558,6 +2751,12 @@ type X402ExactEvmPayload struct {
 	Signature string `json:"signature"`
 }
 
+// X402ExactSolanaPayload The x402 protocol exact scheme payload for Solana networks. For more details, please see [Solana Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_svm.md).
+type X402ExactSolanaPayload struct {
+	// Transaction The base64-encoded Solana transaction.
+	Transaction string `json:"transaction"`
+}
+
 // X402PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
 type X402PaymentPayload struct {
 	// Network The network of the blockchain to send payment on.
@@ -2639,6 +2838,9 @@ type X402SettleErrorReason string
 
 // X402SupportedPaymentKind The supported payment kind for the x402 protocol. A kind is comprised of a scheme and a network, which together uniquely identify a way to move money on the x402 protocol. For more details, please see [x402 Schemes](https://github.com/coinbase/x402?tab=readme-ov-file#schemes).
 type X402SupportedPaymentKind struct {
+	// Extra The optional additional scheme-specific payment info.
+	Extra *map[string]interface{} `json:"extra,omitempty"`
+
 	// Network The network of the blockchain.
 	Network X402SupportedPaymentKindNetwork `json:"network"`
 
@@ -3186,6 +3388,40 @@ type CreateOnrampOrderJSONBody struct {
 	PurchaseCurrency string `json:"purchaseCurrency"`
 }
 
+// CreateOnrampSessionJSONBody defines parameters for CreateOnrampSession.
+type CreateOnrampSessionJSONBody struct {
+	// Country The ISO 3166-1 two letter country code (e.g. US).
+	Country *string `json:"country,omitempty"`
+
+	// DestinationAddress The address the purchased crypto will be sent to.
+	DestinationAddress string `json:"destinationAddress"`
+
+	// DestinationNetwork The name of the crypto network the purchased currency will be sent on.
+	//
+	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
+	DestinationNetwork string `json:"destinationNetwork"`
+
+	// PaymentAmount A string representing the amount of fiat the user wishes to pay in exchange for crypto.
+	PaymentAmount *string `json:"paymentAmount,omitempty"`
+
+	// PaymentCurrency The fiat currency to be converted to crypto.
+	PaymentCurrency *string `json:"paymentCurrency,omitempty"`
+
+	// PaymentMethod The type of payment method used to generate the onramp quote.
+	PaymentMethod *OnrampQuotePaymentMethodTypeId `json:"paymentMethod,omitempty"`
+
+	// PurchaseCurrency The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
+	//
+	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
+	PurchaseCurrency string `json:"purchaseCurrency"`
+
+	// RedirectUrl URL to redirect the user to when they successfully complete a transaction. This URL will be  embedded in the returned onramp URL as a query parameter.
+	RedirectUrl *string `json:"redirectUrl,omitempty"`
+
+	// Subdivision The ISO 3166-2 two letter state code (e.g. NY). Only required for US.
+	Subdivision *string `json:"subdivision,omitempty"`
+}
+
 // GetCryptoRailsParams defines parameters for GetCryptoRails.
 type GetCryptoRailsParams struct {
 	// Networks Comma separated list of networks to filter the rails by.
@@ -3570,6 +3806,9 @@ type CreateEvmSwapQuoteJSONRequestBody CreateEvmSwapQuoteJSONBody
 
 // CreateOnrampOrderJSONRequestBody defines body for CreateOnrampOrder for application/json ContentType.
 type CreateOnrampOrderJSONRequestBody CreateOnrampOrderJSONBody
+
+// CreateOnrampSessionJSONRequestBody defines body for CreateOnrampSession for application/json ContentType.
+type CreateOnrampSessionJSONRequestBody CreateOnrampSessionJSONBody
 
 // CreatePaymentTransferQuoteJSONRequestBody defines body for CreatePaymentTransferQuote for application/json ContentType.
 type CreatePaymentTransferQuoteJSONRequestBody CreatePaymentTransferQuoteJSONBody
@@ -4281,6 +4520,32 @@ func (t *Rule) MergeSendSolTransactionRule(v SendSolTransactionRule) error {
 	return err
 }
 
+// AsSignSolMessageRule returns the union data inside the Rule as a SignSolMessageRule
+func (t Rule) AsSignSolMessageRule() (SignSolMessageRule, error) {
+	var body SignSolMessageRule
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSignSolMessageRule overwrites any union data inside the Rule as the provided SignSolMessageRule
+func (t *Rule) FromSignSolMessageRule(v SignSolMessageRule) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSignSolMessageRule performs a merge with any union data inside the Rule, using the provided SignSolMessageRule
+func (t *Rule) MergeSignSolMessageRule(v SignSolMessageRule) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 // AsSignEvmHashRule returns the union data inside the Rule as a SignEvmHashRule
 func (t Rule) AsSignEvmHashRule() (SignEvmHashRule, error) {
 	var body SignEvmHashRule
@@ -4655,6 +4920,58 @@ func (t *SendSolTransactionCriteria_Item) FromSolDataCriterion(v SolDataCriterio
 
 // MergeSolDataCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided SolDataCriterion
 func (t *SendSolTransactionCriteria_Item) MergeSolDataCriterion(v SolDataCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProgramIdCriterion returns the union data inside the SendSolTransactionCriteria_Item as a ProgramIdCriterion
+func (t SendSolTransactionCriteria_Item) AsProgramIdCriterion() (ProgramIdCriterion, error) {
+	var body ProgramIdCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProgramIdCriterion overwrites any union data inside the SendSolTransactionCriteria_Item as the provided ProgramIdCriterion
+func (t *SendSolTransactionCriteria_Item) FromProgramIdCriterion(v ProgramIdCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeProgramIdCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided ProgramIdCriterion
+func (t *SendSolTransactionCriteria_Item) MergeProgramIdCriterion(v ProgramIdCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsSolNetworkCriterion returns the union data inside the SendSolTransactionCriteria_Item as a SolNetworkCriterion
+func (t SendSolTransactionCriteria_Item) AsSolNetworkCriterion() (SolNetworkCriterion, error) {
+	var body SolNetworkCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolNetworkCriterion overwrites any union data inside the SendSolTransactionCriteria_Item as the provided SolNetworkCriterion
+func (t *SendSolTransactionCriteria_Item) FromSolNetworkCriterion(v SolNetworkCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolNetworkCriterion performs a merge with any union data inside the SendSolTransactionCriteria_Item, using the provided SolNetworkCriterion
+func (t *SendSolTransactionCriteria_Item) MergeSolNetworkCriterion(v SolNetworkCriterion) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -5063,6 +5380,42 @@ func (t *SignEvmTypedDataFieldCriterion_Conditions_Item) UnmarshalJSON(b []byte)
 	return err
 }
 
+// AsSolMessageCriterion returns the union data inside the SignSolMessageCriteria_Item as a SolMessageCriterion
+func (t SignSolMessageCriteria_Item) AsSolMessageCriterion() (SolMessageCriterion, error) {
+	var body SolMessageCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromSolMessageCriterion overwrites any union data inside the SignSolMessageCriteria_Item as the provided SolMessageCriterion
+func (t *SignSolMessageCriteria_Item) FromSolMessageCriterion(v SolMessageCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeSolMessageCriterion performs a merge with any union data inside the SignSolMessageCriteria_Item, using the provided SolMessageCriterion
+func (t *SignSolMessageCriteria_Item) MergeSolMessageCriterion(v SolMessageCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t SignSolMessageCriteria_Item) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *SignSolMessageCriteria_Item) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
 // AsSolAddressCriterion returns the union data inside the SignSolTransactionCriteria_Item as a SolAddressCriterion
 func (t SignSolTransactionCriteria_Item) AsSolAddressCriterion() (SolAddressCriterion, error) {
 	var body SolAddressCriterion
@@ -5209,6 +5562,32 @@ func (t *SignSolTransactionCriteria_Item) FromSolDataCriterion(v SolDataCriterio
 
 // MergeSolDataCriterion performs a merge with any union data inside the SignSolTransactionCriteria_Item, using the provided SolDataCriterion
 func (t *SignSolTransactionCriteria_Item) MergeSolDataCriterion(v SolDataCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsProgramIdCriterion returns the union data inside the SignSolTransactionCriteria_Item as a ProgramIdCriterion
+func (t SignSolTransactionCriteria_Item) AsProgramIdCriterion() (ProgramIdCriterion, error) {
+	var body ProgramIdCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromProgramIdCriterion overwrites any union data inside the SignSolTransactionCriteria_Item as the provided ProgramIdCriterion
+func (t *SignSolTransactionCriteria_Item) FromProgramIdCriterion(v ProgramIdCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeProgramIdCriterion performs a merge with any union data inside the SignSolTransactionCriteria_Item, using the provided ProgramIdCriterion
+func (t *SignSolTransactionCriteria_Item) MergeProgramIdCriterion(v ProgramIdCriterion) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -5523,6 +5902,32 @@ func (t *X402PaymentPayload_Payload) MergeX402ExactEvmPayload(v X402ExactEvmPayl
 	return err
 }
 
+// AsX402ExactSolanaPayload returns the union data inside the X402PaymentPayload_Payload as a X402ExactSolanaPayload
+func (t X402PaymentPayload_Payload) AsX402ExactSolanaPayload() (X402ExactSolanaPayload, error) {
+	var body X402ExactSolanaPayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402ExactSolanaPayload overwrites any union data inside the X402PaymentPayload_Payload as the provided X402ExactSolanaPayload
+func (t *X402PaymentPayload_Payload) FromX402ExactSolanaPayload(v X402ExactSolanaPayload) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402ExactSolanaPayload performs a merge with any union data inside the X402PaymentPayload_Payload, using the provided X402ExactSolanaPayload
+func (t *X402PaymentPayload_Payload) MergeX402ExactSolanaPayload(v X402ExactSolanaPayload) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 func (t X402PaymentPayload_Payload) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
@@ -5749,6 +6154,11 @@ type ClientInterface interface {
 
 	// GetOnrampOrderById request
 	GetOnrampOrderById(ctx context.Context, orderId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateOnrampSessionWithBody request with any body
+	CreateOnrampSessionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateOnrampSession(ctx context.Context, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// GetCryptoRails request
 	GetCryptoRails(ctx context.Context, params *GetCryptoRailsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -6507,6 +6917,30 @@ func (c *CDPClient) CreateOnrampOrder(ctx context.Context, body CreateOnrampOrde
 
 func (c *CDPClient) GetOnrampOrderById(ctx context.Context, orderId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetOnrampOrderByIdRequest(c.Server, orderId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateOnrampSessionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOnrampSessionRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateOnrampSession(ctx context.Context, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateOnrampSessionRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -9019,6 +9453,46 @@ func NewGetOnrampOrderByIdRequest(server string, orderId string) (*http.Request,
 	return req, nil
 }
 
+// NewCreateOnrampSessionRequest calls the generic CreateOnrampSession builder with application/json body
+func NewCreateOnrampSessionRequest(server string, body CreateOnrampSessionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateOnrampSessionRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateOnrampSessionRequestWithBody generates requests for CreateOnrampSession with any type of body
+func NewCreateOnrampSessionRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/onramp/sessions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetCryptoRailsRequest generates requests for GetCryptoRails
 func NewGetCryptoRailsRequest(server string, params *GetCryptoRailsParams) (*http.Request, error) {
 	var err error
@@ -10582,6 +11056,11 @@ type ClientWithResponsesInterface interface {
 	// GetOnrampOrderByIdWithResponse request
 	GetOnrampOrderByIdWithResponse(ctx context.Context, orderId string, reqEditors ...RequestEditorFn) (*GetOnrampOrderByIdResponse, error)
 
+	// CreateOnrampSessionWithBodyWithResponse request with any body
+	CreateOnrampSessionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error)
+
+	CreateOnrampSessionWithResponse(ctx context.Context, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error)
+
 	// GetCryptoRailsWithResponse request
 	GetCryptoRailsWithResponse(ctx context.Context, params *GetCryptoRailsParams, reqEditors ...RequestEditorFn) (*GetCryptoRailsResponse, error)
 
@@ -11700,6 +12179,38 @@ func (r GetOnrampOrderByIdResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetOnrampOrderByIdResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateOnrampSessionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *struct {
+		// Quote Quote information with pricing details for the crypto purchase.
+		Quote *OnrampQuote `json:"quote,omitempty"`
+
+		// Session An onramp session containing a ready-to-use onramp URL.
+		Session OnrampSession `json:"session"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON429 *RateLimitExceeded
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateOnrampSessionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateOnrampSessionResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -12942,6 +13453,23 @@ func (c *ClientWithResponses) GetOnrampOrderByIdWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseGetOnrampOrderByIdResponse(rsp)
+}
+
+// CreateOnrampSessionWithBodyWithResponse request with arbitrary body returning *CreateOnrampSessionResponse
+func (c *ClientWithResponses) CreateOnrampSessionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error) {
+	rsp, err := c.CreateOnrampSessionWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateOnrampSessionResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateOnrampSessionWithResponse(ctx context.Context, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error) {
+	rsp, err := c.CreateOnrampSession(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateOnrampSessionResponse(rsp)
 }
 
 // GetCryptoRailsWithResponse request returning *GetCryptoRailsResponse
@@ -15655,6 +16183,66 @@ func ParseGetOnrampOrderByIdResponse(rsp *http.Response) (*GetOnrampOrderByIdRes
 			return nil, err
 		}
 		response.JSON429 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateOnrampSessionResponse parses an HTTP response from a CreateOnrampSessionWithResponse call
+func ParseCreateOnrampSessionResponse(rsp *http.Response) (*CreateOnrampSessionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateOnrampSessionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			// Quote Quote information with pricing details for the crypto purchase.
+			Quote *OnrampQuote `json:"quote,omitempty"`
+
+			// Session An onramp session containing a ready-to-use onramp URL.
+			Session OnrampSession `json:"session"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest RateLimitExceeded
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
 
 	}
 

@@ -1,4 +1,4 @@
-// Usage: pnpm tsx policies/createSplTokenLimitsPolicy.ts
+// Usage: pnpm tsx solana/policies/createSplTokenLimitsPolicy.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
 import "dotenv/config";

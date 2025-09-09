@@ -26,7 +26,7 @@ from typing_extensions import Self
 
 class RevokeSpendPermissionRequest(BaseModel):
     """
-    RevokeSpendPermissionRequest
+    Request parameters for revoking a Spend Permission.
     """ # noqa: E501
     network: SpendPermissionNetwork
     permission_hash: StrictStr = Field(description="The hash of the spend permission to revoke.", alias="permissionHash")

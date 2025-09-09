@@ -11,6 +11,7 @@ from cdp.openapi_client.api.onchain_data_api import OnchainDataApi
 from cdp.openapi_client.api.onramp_api import OnrampApi
 from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
+from cdp.openapi_client.api.sqlapi_alpha_api import SQLAPIAlphaApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
 from cdp.openapi_client.api.solana_token_balances_api import SolanaTokenBalancesApi
 from cdp.openapi_client.api.x402_facilitator_api import X402FacilitatorApi

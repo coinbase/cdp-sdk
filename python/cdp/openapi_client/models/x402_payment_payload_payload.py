@@ -19,11 +19,12 @@ import pprint
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
 from typing import Any, List, Optional
 from cdp.openapi_client.models.x402_exact_evm_payload import X402ExactEvmPayload
+from cdp.openapi_client.models.x402_exact_solana_payload import X402ExactSolanaPayload
 from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-X402PAYMENTPAYLOADPAYLOAD_ONE_OF_SCHEMAS = ["X402ExactEvmPayload"]
+X402PAYMENTPAYLOADPAYLOAD_ONE_OF_SCHEMAS = ["X402ExactEvmPayload", "X402ExactSolanaPayload"]
 
 class X402PaymentPayloadPayload(BaseModel):
     """
@@ -31,8 +32,10 @@ class X402PaymentPayloadPayload(BaseModel):
     """
     # data type: X402ExactEvmPayload
     oneof_schema_1_validator: Optional[X402ExactEvmPayload] = None
-    actual_instance: Optional[Union[X402ExactEvmPayload]] = None
-    one_of_schemas: Set[str] = { "X402ExactEvmPayload" }
+    # data type: X402ExactSolanaPayload
+    oneof_schema_2_validator: Optional[X402ExactSolanaPayload] = None
+    actual_instance: Optional[Union[X402ExactEvmPayload, X402ExactSolanaPayload]] = None
+    one_of_schemas: Set[str] = { "X402ExactEvmPayload", "X402ExactSolanaPayload" }
 
     model_config = ConfigDict(
         validate_assignment=True,
@@ -60,12 +63,17 @@ class X402PaymentPayloadPayload(BaseModel):
             error_messages.append(f"Error! Input type `{type(v)}` is not `X402ExactEvmPayload`")
         else:
             match += 1
+        # validate data type: X402ExactSolanaPayload
+        if not isinstance(v, X402ExactSolanaPayload):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `X402ExactSolanaPayload`")
+        else:
+            match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in X402PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in X402PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in X402PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in X402PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -86,13 +94,19 @@ class X402PaymentPayloadPayload(BaseModel):
             match += 1
         except (ValidationError, ValueError) as e:
             error_messages.append(str(e))
+        # deserialize data into X402ExactSolanaPayload
+        try:
+            instance.actual_instance = X402ExactSolanaPayload.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into X402PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into X402PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into X402PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into X402PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
         else:
             return instance
 
@@ -106,7 +120,7 @@ class X402PaymentPayloadPayload(BaseModel):
         else:
             return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Optional[Union[Dict[str, Any], X402ExactEvmPayload]]:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], X402ExactEvmPayload, X402ExactSolanaPayload]]:
         """Returns the dict representation of the actual instance"""
         if self.actual_instance is None:
             return None

@@ -20,7 +20,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.sign_sol_transaction_criteria_inner import SignSolTransactionCriteriaInner
+from cdp.openapi_client.models.send_sol_transaction_criteria_inner import SendSolTransactionCriteriaInner
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -30,7 +30,7 @@ class SendSolTransactionRule(BaseModel):
     """ # noqa: E501
     action: StrictStr = Field(description="Whether matching the rule will cause the request to be rejected or accepted.")
     operation: StrictStr = Field(description="The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.")
-    criteria: List[SignSolTransactionCriteriaInner] = Field(description="A schema for specifying criteria for the SendSolTransaction operation.")
+    criteria: List[SendSolTransactionCriteriaInner] = Field(description="A schema for specifying criteria for the SendSolTransaction operation.")
     __properties: ClassVar[List[str]] = ["action", "operation", "criteria"]
 
     @field_validator('action')
@@ -107,7 +107,7 @@ class SendSolTransactionRule(BaseModel):
         _obj = cls.model_validate({
             "action": obj.get("action"),
             "operation": obj.get("operation"),
-            "criteria": [SignSolTransactionCriteriaInner.from_dict(_item) for _item in obj["criteria"]] if obj.get("criteria") is not None else None
+            "criteria": [SendSolTransactionCriteriaInner.from_dict(_item) for _item in obj["criteria"]] if obj.get("criteria") is not None else None
         })
         return _obj
 
