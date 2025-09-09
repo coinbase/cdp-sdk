@@ -14,6 +14,7 @@ from cdp.policies.types import (
     MintAddressCriterion as MintAddressCriterionModel,
     NetUSDChangeCriterion as NetUSDChangeCriterionModel,
     PrepareUserOperationRule as PrepareUserOperationRuleModel,
+    ProgramIdCriterion as ProgramIdCriterionModel,
     Rule as RuleType,
     SendEvmTransactionRule as SendEvmTransactionRuleModel,
     SendSolanaTransactionRule as SendSolanaTransactionRuleModel,
@@ -26,18 +27,17 @@ from cdp.policies.types import (
     SignEvmTypedDataTypes as SignEvmTypedDataTypesModel,
     SignEvmTypedDataVerifyingContractCriterion as SignEvmTypedDataVerifyingContractCriterionModel,
     SignSolanaTransactionRule as SignSolanaTransactionRuleModel,
+    SignSolMessageRule as SignSolMessageRuleModel,
     SolAddressCriterion as SolAddressCriterionModel,
     SolDataCondition as SolDataConditionModel,
     SolDataCriterion as SolDataCriterionModel,
     SolDataParameterCondition as SolDataParameterConditionModel,
     SolDataParameterConditionList as SolDataParameterConditionListModel,
+    SolMessageCriterion as SolMessageCriterionModel,
+    SolNetworkCriterion as SolNetworkCriterionModel,
     SolValueCriterion as SolValueCriterionModel,
     SplAddressCriterion as SplAddressCriterionModel,
     SplValueCriterion as SplValueCriterionModel,
-    ProgramIdCriterion as ProgramIdCriterionModel,
-    SolNetworkCriterion as SolNetworkCriterionModel,
-    SolMessageCriterion as SolMessageCriterionModel,
-    SignSolMessageRule as SignSolMessageRuleModel,
 )
 
 # Response criterion mapping per operation
@@ -252,9 +252,7 @@ response_criterion_mapping = {
         "programId": lambda c: ProgramIdCriterionModel(
             programIds=c.program_ids, operator=c.operator
         ),
-        "solNetwork": lambda c: SolNetworkCriterionModel(
-            networks=c.networks, operator=c.operator
-        ),
+        "solNetwork": lambda c: SolNetworkCriterionModel(networks=c.networks, operator=c.operator),
     },
     "signSolMessage": {
         "solMessage": lambda c: SolMessageCriterionModel(match=c.match),
