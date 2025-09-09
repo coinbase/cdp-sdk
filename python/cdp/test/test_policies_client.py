@@ -16,15 +16,19 @@ from cdp.policies.types import (
     MintAddressCriterion,
     NetUSDChangeCriterion,
     PrepareUserOperationRule,
+    ProgramIdCriterion,
     SendEvmTransactionRule,
     SendSolanaTransactionRule,
     SignEvmTransactionRule,
     SignSolanaTransactionRule,
+    SignSolMessageRule,
     SolAddressCriterion,
     SolDataCondition,
     SolDataCriterion,
     SolDataParameterCondition,
     SolDataParameterConditionList,
+    SolMessageCriterion,
+    SolNetworkCriterion,
     SolValueCriterion,
     SplAddressCriterion,
     SplValueCriterion,
@@ -753,6 +757,263 @@ async def test_create_policy_with_sol_data_no_params(
                                 instruction="create_idempotent",
                             ),
                         ],
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_sign_sol_transaction_program_id_criterion(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with signSolTransaction programId criterion."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="Block transactions with specific program IDs",
+        rules=[
+            SignSolanaTransactionRule(
+                action="reject",
+                operation="signSolTransaction",
+                criteria=[
+                    ProgramIdCriterion(
+                        type="programId",
+                        programIds=[
+                            "11111111111111111111111111111112",
+                            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                        ],
+                        operator="in",
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_send_sol_transaction_program_id_criterion(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with sendSolTransaction programId criterion."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="Allow only System Program transactions",
+        rules=[
+            SendSolanaTransactionRule(
+                action="accept",
+                operation="sendSolTransaction",
+                criteria=[
+                    ProgramIdCriterion(
+                        type="programId",
+                        programIds=["11111111111111111111111111111112"],
+                        operator="in",
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_send_sol_transaction_network_criterion(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with sendSolTransaction solNetwork criterion."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="Restrict transactions to devnet only",
+        rules=[
+            SendSolanaTransactionRule(
+                action="accept",
+                operation="sendSolTransaction",
+                criteria=[
+                    SolNetworkCriterion(
+                        type="solNetwork",
+                        networks=["solana-devnet"],
+                        operator="in",
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_sign_sol_message_rule(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with signSolMessage rule."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="Allow only messages starting with hello",
+        rules=[
+            SignSolMessageRule(
+                action="accept",
+                operation="signSolMessage",
+                criteria=[
+                    SolMessageCriterion(
+                        type="solMessage",
+                        match="^hello ([a-z]+)$",
+                    ),
+                ],
+            )
+        ],
+    )
+
+    result = await client.create_policy(create_options)
+
+    mock_policies_api.create_policy.assert_called_once_with(
+        create_policy_request=CreatePolicyRequest(
+            scope=create_options.scope,
+            description=create_options.description,
+            rules=map_request_rules_to_openapi_format(create_options.rules),
+        ),
+        x_idempotency_key=None,
+    )
+    assert result.id is not None
+    assert result.scope == policy_model.scope
+    assert result.description == policy_model.description
+    assert result.rules == policy_model.rules
+    assert result.created_at == policy_model.created_at
+    assert result.updated_at == policy_model.updated_at
+
+
+@pytest.mark.asyncio
+async def test_create_policy_with_multiple_new_criteria(
+    openapi_policy_model_factory, policy_model_factory
+):
+    """Test the creation of a policy with multiple new Solana criteria."""
+    openapi_policy_model = openapi_policy_model_factory()
+    mock_policies_api = AsyncMock()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.policies = mock_policies_api
+    mock_policies_api.create_policy = AsyncMock(return_value=openapi_policy_model)
+
+    policy_model = policy_model_factory()
+    client = PoliciesClient(api_clients=mock_api_clients)
+
+    create_options = CreatePolicyOptions(
+        scope="account",
+        description="Policy with program and network restrictions",
+        rules=[
+            SendSolanaTransactionRule(
+                action="reject",
+                operation="sendSolTransaction",
+                criteria=[
+                    ProgramIdCriterion(
+                        type="programId",
+                        programIds=["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"],
+                        operator="not in",
+                    ),
+                    SolNetworkCriterion(
+                        type="solNetwork",
+                        networks=["solana"],
+                        operator="in",
                     ),
                 ],
             )

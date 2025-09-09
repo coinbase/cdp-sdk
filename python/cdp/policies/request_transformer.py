@@ -61,6 +61,9 @@ from cdp.openapi_client.models.sign_evm_typed_data_verifying_contract_criterion 
 from cdp.openapi_client.models.sign_sol_transaction_criteria_inner import (
     SignSolTransactionCriteriaInner,
 )
+from cdp.openapi_client.models.send_sol_transaction_criteria_inner import (
+    SendSolTransactionCriteriaInner,
+)
 from cdp.openapi_client.models.sign_sol_transaction_rule import SignSolTransactionRule
 from cdp.openapi_client.models.sign_sol_message_criteria_inner import SignSolMessageCriteriaInner
 from cdp.openapi_client.models.sign_sol_message_rule import SignSolMessageRule
@@ -340,35 +343,35 @@ openapi_criterion_mapping = {
         ),
     },
     "sendSolTransaction": {
-        "solAddress": lambda c: SignSolTransactionCriteriaInner(
+        "solAddress": lambda c: SendSolTransactionCriteriaInner(
             actual_instance=SolAddressCriterion(
                 addresses=c.addresses,
                 operator=c.operator,
                 type="solAddress",
             )
         ),
-        "solValue": lambda c: SignSolTransactionCriteriaInner(
+        "solValue": lambda c: SendSolTransactionCriteriaInner(
             actual_instance=SolValueCriterion(
                 sol_value=c.solValue,
                 operator=c.operator,
                 type="solValue",
             )
         ),
-        "splAddress": lambda c: SignSolTransactionCriteriaInner(
+        "splAddress": lambda c: SendSolTransactionCriteriaInner(
             actual_instance=SplAddressCriterion(
                 addresses=c.addresses,
                 operator=c.operator,
                 type="splAddress",
             )
         ),
-        "splValue": lambda c: SignSolTransactionCriteriaInner(
+        "splValue": lambda c: SendSolTransactionCriteriaInner(
             actual_instance=SplValueCriterion(
                 spl_value=c.splValue,
                 operator=c.operator,
                 type="splValue",
             )
         ),
-        "mintAddress": lambda c: SignSolTransactionCriteriaInner(
+        "mintAddress": lambda c: SendSolTransactionCriteriaInner(
             actual_instance=MintAddressCriterion(
                 addresses=c.addresses,
                 operator=c.operator,
@@ -419,14 +422,14 @@ openapi_criterion_mapping = {
                 ],
             )
         ),
-        "programId": lambda c: SignSolTransactionCriteriaInner(
+        "programId": lambda c: SendSolTransactionCriteriaInner(
             actual_instance=ProgramIdCriterion(
                 program_ids=c.programIds,
                 operator=c.operator,
                 type="programId",
             )
         ),
-        "solNetwork": lambda c: SignSolTransactionCriteriaInner(
+        "solNetwork": lambda c: SendSolTransactionCriteriaInner(
             actual_instance=SolNetworkCriterion(
                 networks=c.networks,
                 operator=c.operator,
