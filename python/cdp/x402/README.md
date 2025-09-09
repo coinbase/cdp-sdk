@@ -1,6 +1,6 @@
 # cdp.x402
 
-The CDP SDK's X402 facilitator module for accessing Coinbase's hosted X402 facilitator service. This module is part of the CDP SDK and provides direct integration with Coinbase's facilitator for payment verification and settlement in the x402 Payment Protocol.
+The CDP SDK's x402 facilitator module for accessing Coinbase's hosted x402 facilitator service. This module is part of the CDP SDK and provides direct integration with Coinbase's facilitator for payment verification and settlement in the x402 Payment Protocol.
 
 ## Environment Variables
 
@@ -40,7 +40,7 @@ facilitator = create_facilitator_config("your-cdp-api-key-id", "your-cdp-api-key
 
 #### `create_facilitator_config(api_key_id=None, api_key_secret=None)`
 
-Creates a facilitator configuration for accessing Coinbase's X402 facilitator service.
+Creates a facilitator configuration for accessing Coinbase's x402 facilitator service.
 
 **Parameters:**
 - `api_key_id` (str, optional): The CDP API key ID. If not provided, will use `CDP_API_KEY_ID` environment variable.
@@ -51,7 +51,7 @@ Creates a facilitator configuration for accessing Coinbase's X402 facilitator se
 
 #### `create_cdp_auth_headers(api_key_id, api_key_secret)`
 
-Creates authenticated headers for Coinbase's X402 facilitator service.
+Creates authenticated headers for Coinbase's x402 facilitator service.
 
 **Parameters:**
 - `api_key_id` (str): The CDP API key ID
@@ -62,7 +62,7 @@ Creates authenticated headers for Coinbase's X402 facilitator service.
 
 #### `create_cdp_unauth_headers()`
 
-Creates unauthenticated headers for Coinbase's X402 facilitator service (list endpoint only).
+Creates unauthenticated headers for Coinbase's x402 facilitator service (list endpoint only).
 
 **Returns:**
 - `Callable`: A function that returns headers supporting only the list operation
@@ -71,7 +71,7 @@ Creates unauthenticated headers for Coinbase's X402 facilitator service (list en
 
 #### `FacilitatorConfig`
 
-Configuration object for accessing Coinbase's X402 facilitator service.
+Configuration object for accessing Coinbase's x402 facilitator service.
 
 **Attributes:**
 - `url` (str): The base URL for the facilitator service
@@ -81,8 +81,8 @@ Configuration object for accessing Coinbase's X402 facilitator service.
 
 - `COINBASE_FACILITATOR_BASE_URL`: "https://api.cdp.coinbase.com"
 - `COINBASE_FACILITATOR_V2_ROUTE`: "/platform/v2/x402"
-- `X402_VERSION`: "0.4.3"
+- `x402_VERSION`: "0.4.3"
 
 ## Default Facilitator Instance
 
-The CDP SDK's X402 module exports a default `facilitator` instance created with `create_facilitator_config()` that uses environment variables for configuration. This provides an easy way to access Coinbase's facilitator service without manual configuration.
+The CDP SDK's x402 module exports a default `facilitator` instance created with `create_facilitator_config()` that uses environment variables for configuration. This provides an easy way to access Coinbase's facilitator service without manual configuration.
