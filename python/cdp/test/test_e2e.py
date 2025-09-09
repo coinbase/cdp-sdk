@@ -32,6 +32,7 @@ from cdp.policies.types import (
     EvmNetworkCriterion,
     NetUSDChangeCriterion,
     PrepareUserOperationRule,
+    ProgramIdCriterion,
     SendEvmTransactionRule,
     SendSolanaTransactionRule,
     SendUserOperationRule,
@@ -39,7 +40,10 @@ from cdp.policies.types import (
     SignEvmMessageRule,
     SignEvmTransactionRule,
     SignSolanaTransactionRule,
+    SignSolMessageRule,
     SolAddressCriterion,
+    SolMessageCriterion,
+    SolNetworkCriterion,
     SolValueCriterion,
     UpdatePolicyOptions,
 )
@@ -1568,6 +1572,15 @@ async def test_create_solana_policy_with_combined_rules(cdp_client):
                         ),
                     ],
                 ),
+                SignSolMessageRule(
+                    action="accept",
+                    criteria=[
+                        SolMessageCriterion(
+                            type="solMessage",
+                            match="^CDP:.*",
+                        ),
+                    ],
+                ),
             ],
         )
     )
@@ -1576,7 +1589,7 @@ async def test_create_solana_policy_with_combined_rules(cdp_client):
     assert policy.scope == "account"
     assert policy.description == "E2E Solana Policy with Combined Rules"
     assert policy.rules is not None
-    assert len(policy.rules) == 2
+    assert len(policy.rules) == 3
 
     # Verify first rule - SignSolanaTransactionRule
     assert policy.rules[0].action == "accept"
@@ -1595,6 +1608,14 @@ async def test_create_solana_policy_with_combined_rules(cdp_client):
     assert policy.rules[1].criteria[0].type == "solValue"
     assert policy.rules[1].criteria[0].solValue == "1000000000"
     assert policy.rules[1].criteria[0].operator == "<="
+
+    # Verify third rule - SignSolMessageRule
+    assert policy.rules[2].action == "accept"
+    assert policy.rules[2].operation == "signSolMessage"
+    assert policy.rules[2].criteria is not None
+    assert len(policy.rules[2].criteria) == 1
+    assert policy.rules[2].criteria[0].type == "solMessage"
+    assert policy.rules[2].criteria[0].match == "^CDP:.*"
 
     # Delete the policy
     await cdp_client.policies.delete_policy(id=policy.id)
@@ -1709,7 +1730,7 @@ async def test_solana_policy_crud_operations(cdp_client):
     updated_policy = await cdp_client.policies.update_policy(
         id=original_policy.id,
         policy=UpdatePolicyOptions(
-            description="Updated Solana CRUD Test Policy",
+            description="Updated Solana policy with new criteria",
             rules=[
                 SendSolanaTransactionRule(
                     action="accept",
@@ -1721,11 +1742,34 @@ async def test_solana_policy_crud_operations(cdp_client):
                     ],
                 ),
                 SignSolanaTransactionRule(
+                    action="reject",
+                    criteria=[
+                        ProgramIdCriterion(
+                            type="programId",
+                            programIds=[
+                                "11111111111111111111111111111111",
+                                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                            ],
+                            operator="in",
+                        ),
+                    ],
+                ),
+                SendSolanaTransactionRule(
                     action="accept",
                     criteria=[
-                        SolAddressCriterion(
-                            addresses=["EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"],
+                        SolNetworkCriterion(
+                            type="solNetwork",
+                            networks=["solana-devnet"],
                             operator="in",
+                        ),
+                    ],
+                ),
+                SignSolMessageRule(
+                    action="accept",
+                    criteria=[
+                        SolMessageCriterion(
+                            type="solMessage",
+                            match="^UPDATED:.*",
                         ),
                     ],
                 ),
@@ -1734,10 +1778,12 @@ async def test_solana_policy_crud_operations(cdp_client):
     )
     assert updated_policy is not None
     assert updated_policy.id == original_policy.id
-    assert updated_policy.description == "Updated Solana CRUD Test Policy"
-    assert len(updated_policy.rules) == 2
+    assert updated_policy.description == "Updated Solana policy with new criteria"
+    assert len(updated_policy.rules) == 4
     assert updated_policy.rules[0].operation == "sendSolTransaction"
     assert updated_policy.rules[1].operation == "signSolTransaction"
+    assert updated_policy.rules[2].operation == "sendSolTransaction"
+    assert updated_policy.rules[3].operation == "signSolMessage"
 
     # Test deleting the policy
     await cdp_client.policies.delete_policy(id=original_policy.id)
