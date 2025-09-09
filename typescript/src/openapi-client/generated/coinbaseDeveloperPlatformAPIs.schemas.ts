@@ -376,6 +376,9 @@ export const SpendPermissionNetwork = {
   polygon: "polygon",
 } as const;
 
+/**
+ * Request parameters for creating a Spend Permission.
+ */
 export interface CreateSpendPermissionRequest {
   network: SpendPermissionNetwork;
   /**
@@ -450,6 +453,9 @@ export interface SpendPermissionResponseObject {
   network: SpendPermissionNetwork;
 }
 
+/**
+ * Request parameters for revoking a Spend Permission.
+ */
 export interface RevokeSpendPermissionRequest {
   network: SpendPermissionNetwork;
   /** The hash of the spend permission to revoke. */
@@ -1829,13 +1835,49 @@ export interface SolDataCriterion {
   conditions: SolDataCondition[];
 }
 
+/**
+ * The type of criterion to use. This should be `programId`.
+ */
+export type ProgramIdCriterionType =
+  (typeof ProgramIdCriterionType)[keyof typeof ProgramIdCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ProgramIdCriterionType = {
+  programId: "programId",
+} as const;
+
+/**
+ * The operator to use for the comparison. Each of the program IDs in the transaction's instructions will be on the left-hand side of the operator, and the `programIds` field will be on the right-hand side.
+ */
+export type ProgramIdCriterionOperator =
+  (typeof ProgramIdCriterionOperator)[keyof typeof ProgramIdCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ProgramIdCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * The criterion for the program IDs of a Solana transaction's instructions.
+ */
+export interface ProgramIdCriterion {
+  /** The type of criterion to use. This should be `programId`. */
+  type: ProgramIdCriterionType;
+  /** The Solana program IDs that are compared to the list of program IDs in the transaction's instructions. */
+  programIds: string[];
+  /** The operator to use for the comparison. Each of the program IDs in the transaction's instructions will be on the left-hand side of the operator, and the `programIds` field will be on the right-hand side. */
+  operator: ProgramIdCriterionOperator;
+}
+
 export type SignSolTransactionCriteriaItem =
   | SolAddressCriterion
   | SolValueCriterion
   | SplAddressCriterion
   | SplValueCriterion
   | MintAddressCriterion
-  | SolDataCriterion;
+  | SolDataCriterion
+  | ProgramIdCriterion;
 
 /**
  * A schema for specifying criteria for the SignSolTransaction operation.
@@ -1873,13 +1915,62 @@ export interface SignSolTransactionRule {
   criteria: SignSolTransactionCriteria;
 }
 
+/**
+ * The type of criterion to use. This should be `solNetwork`.
+ */
+export type SolNetworkCriterionType =
+  (typeof SolNetworkCriterionType)[keyof typeof SolNetworkCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolNetworkCriterionType = {
+  solNetwork: "solNetwork",
+} as const;
+
+/**
+ * The Solana network the transaction is for.
+ */
+export type SolNetworkCriterionNetworksItem =
+  (typeof SolNetworkCriterionNetworksItem)[keyof typeof SolNetworkCriterionNetworksItem];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolNetworkCriterionNetworksItem = {
+  "solana-devnet": "solana-devnet",
+  solana: "solana",
+} as const;
+
+/**
+ * The operator to use for the comparison. The transaction's intended network will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.
+ */
+export type SolNetworkCriterionOperator =
+  (typeof SolNetworkCriterionOperator)[keyof typeof SolNetworkCriterionOperator];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolNetworkCriterionOperator = {
+  in: "in",
+  not_in: "not in",
+} as const;
+
+/**
+ * The criterion for the Solana network of a transaction.
+ */
+export interface SolNetworkCriterion {
+  /** The type of criterion to use. This should be `solNetwork`. */
+  type: SolNetworkCriterionType;
+  /** The Solana networks that the transaction's intended network should be compared to. */
+  networks: SolNetworkCriterionNetworksItem[];
+  /** The operator to use for the comparison. The transaction's intended network will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side. */
+  operator: SolNetworkCriterionOperator;
+}
+
 export type SendSolTransactionCriteriaItem =
   | SolAddressCriterion
   | SolValueCriterion
   | SplAddressCriterion
   | SplValueCriterion
   | MintAddressCriterion
-  | SolDataCriterion;
+  | SolDataCriterion
+  | ProgramIdCriterion
+  | SolNetworkCriterion;
 
 /**
  * A schema for specifying criteria for the SendSolTransaction operation.
@@ -1915,6 +2006,63 @@ export interface SendSolTransactionRule {
   /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
   operation: SendSolTransactionRuleOperation;
   criteria: SendSolTransactionCriteria;
+}
+
+/**
+ * The type of criterion to use. This should be `solMessage`.
+ */
+export type SolMessageCriterionType =
+  (typeof SolMessageCriterionType)[keyof typeof SolMessageCriterionType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SolMessageCriterionType = {
+  solMessage: "solMessage",
+} as const;
+
+/**
+ * The criterion for the message of a Solana transaction.
+ */
+export interface SolMessageCriterion {
+  /** The type of criterion to use. This should be `solMessage`. */
+  type: SolMessageCriterionType;
+  /** A regular expression the field is matched against. */
+  match: string;
+}
+
+/**
+ * A schema for specifying criteria for the SignSolMessage operation.
+ */
+export type SignSolMessageCriteria = SolMessageCriterion[];
+
+/**
+ * Whether matching the rule will cause the request to be rejected or accepted.
+ */
+export type SignSolMessageRuleAction =
+  (typeof SignSolMessageRuleAction)[keyof typeof SignSolMessageRuleAction];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignSolMessageRuleAction = {
+  reject: "reject",
+  accept: "accept",
+} as const;
+
+/**
+ * The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+ */
+export type SignSolMessageRuleOperation =
+  (typeof SignSolMessageRuleOperation)[keyof typeof SignSolMessageRuleOperation];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SignSolMessageRuleOperation = {
+  signSolMessage: "signSolMessage",
+} as const;
+
+export interface SignSolMessageRule {
+  /** Whether matching the rule will cause the request to be rejected or accepted. */
+  action: SignSolMessageRuleAction;
+  /** The operation to which the rule applies. Every element of the `criteria` array must match the specified operation. */
+  operation: SignSolMessageRuleOperation;
+  criteria: SignSolMessageCriteria;
 }
 
 /**
@@ -2040,6 +2188,7 @@ export type Rule =
   | SignEvmTypedDataRule
   | SignSolTransactionRule
   | SendSolTransactionRule
+  | SignSolMessageRule
   | SignEvmHashRule
   | PrepareUserOperationRule
   | SendUserOperationRule;
@@ -2299,6 +2448,14 @@ export interface X402ExactEvmPayload {
 }
 
 /**
+ * The x402 protocol exact scheme payload for Solana networks. For more details, please see [Solana Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_svm.md).
+ */
+export interface X402ExactSolanaPayload {
+  /** The base64-encoded Solana transaction. */
+  transaction: string;
+}
+
+/**
  * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
  */
 export type X402PaymentPayloadScheme =
@@ -2319,7 +2476,14 @@ export type X402PaymentPayloadNetwork =
 export const X402PaymentPayloadNetwork = {
   "base-sepolia": "base-sepolia",
   base: "base",
+  "solana-devnet": "solana-devnet",
+  solana: "solana",
 } as const;
+
+/**
+ * The payload of the payment depending on the x402Version, scheme, and network.
+ */
+export type X402PaymentPayloadPayload = X402ExactEvmPayload | X402ExactSolanaPayload;
 
 /**
  * The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
@@ -2331,7 +2495,7 @@ export interface X402PaymentPayload {
   /** The network of the blockchain to send payment on. */
   network: X402PaymentPayloadNetwork;
   /** The payload of the payment depending on the x402Version, scheme, and network. */
-  payload: X402ExactEvmPayload;
+  payload: X402PaymentPayloadPayload;
 }
 
 /**
@@ -2355,6 +2519,8 @@ export type X402PaymentRequirementsNetwork =
 export const X402PaymentRequirementsNetwork = {
   "base-sepolia": "base-sepolia",
   base: "base",
+  "solana-devnet": "solana-devnet",
+  solana: "solana",
 } as const;
 
 /**
@@ -2436,6 +2602,41 @@ export const X402VerifyInvalidReason = {
     "invalid_exact_evm_payload_authorization_to_address_kyt",
   invalid_exact_evm_payload_signature: "invalid_exact_evm_payload_signature",
   invalid_exact_evm_payload_signature_address: "invalid_exact_evm_payload_signature_address",
+  invalid_exact_svm_payload_transaction: "invalid_exact_svm_payload_transaction",
+  invalid_exact_svm_payload_transaction_amount_mismatch:
+    "invalid_exact_svm_payload_transaction_amount_mismatch",
+  invalid_exact_svm_payload_transaction_create_ata_instruction:
+    "invalid_exact_svm_payload_transaction_create_ata_instruction",
+  invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee:
+    "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee",
+  invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset:
+    "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset",
+  invalid_exact_svm_payload_transaction_instructions:
+    "invalid_exact_svm_payload_transaction_instructions",
+  invalid_exact_svm_payload_transaction_instructions_length:
+    "invalid_exact_svm_payload_transaction_instructions_length",
+  invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction:
+    "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction",
+  invalid_exact_svm_payload_transaction_instructions_compute_price_instruction:
+    "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction",
+  invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high:
+    "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high",
+  invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked:
+    "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked",
+  invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked:
+    "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked",
+  invalid_exact_svm_payload_transaction_not_a_transfer_instruction:
+    "invalid_exact_svm_payload_transaction_not_a_transfer_instruction",
+  invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata:
+    "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata",
+  invalid_exact_svm_payload_transaction_receiver_ata_not_found:
+    "invalid_exact_svm_payload_transaction_receiver_ata_not_found",
+  invalid_exact_svm_payload_transaction_sender_ata_not_found:
+    "invalid_exact_svm_payload_transaction_sender_ata_not_found",
+  invalid_exact_svm_payload_transaction_simulation_failed:
+    "invalid_exact_svm_payload_transaction_simulation_failed",
+  invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata:
+    "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata",
 } as const;
 
 /**
@@ -2464,6 +2665,9 @@ export const X402SettleErrorReason = {
   invalid_exact_evm_payload_authorization_to_address_kyt:
     "invalid_exact_evm_payload_authorization_to_address_kyt",
   invalid_exact_evm_payload_signature_address: "invalid_exact_evm_payload_signature_address",
+  settle_exact_svm_block_height_exceeded: "settle_exact_svm_block_height_exceeded",
+  settle_exact_svm_transaction_confirmation_timed_out:
+    "settle_exact_svm_transaction_confirmation_timed_out",
 } as const;
 
 /**
@@ -2487,7 +2691,14 @@ export type X402SupportedPaymentKindNetwork =
 export const X402SupportedPaymentKindNetwork = {
   "base-sepolia": "base-sepolia",
   base: "base",
+  "solana-devnet": "solana-devnet",
+  solana: "solana",
 } as const;
+
+/**
+ * The optional additional scheme-specific payment info.
+ */
+export type X402SupportedPaymentKindExtra = { [key: string]: unknown };
 
 /**
  * The supported payment kind for the x402 protocol. A kind is comprised of a scheme and a network, which together uniquely identify a way to move money on the x402 protocol. For more details, please see [x402 Schemes](https://github.com/coinbase/x402?tab=readme-ov-file#schemes).
@@ -2498,6 +2709,8 @@ export interface X402SupportedPaymentKind {
   scheme: X402SupportedPaymentKindScheme;
   /** The network of the blockchain. */
   network: X402SupportedPaymentKindNetwork;
+  /** The optional additional scheme-specific payment info. */
+  extra?: X402SupportedPaymentKindExtra;
 }
 
 /**
@@ -2832,6 +3045,52 @@ export interface OnrampPaymentLink {
   /** The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your  own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes. */
   url: string;
   paymentLinkType: OnrampPaymentLinkType;
+}
+
+/**
+ * The type of payment method used to generate the onramp quote.
+ */
+export type OnrampQuotePaymentMethodTypeId =
+  (typeof OnrampQuotePaymentMethodTypeId)[keyof typeof OnrampQuotePaymentMethodTypeId];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const OnrampQuotePaymentMethodTypeId = {
+  CARD: "CARD",
+  ACH: "ACH",
+  APPLE_PAY: "APPLE_PAY",
+  PAYPAL: "PAYPAL",
+  FIAT_WALLET: "FIAT_WALLET",
+  CRYPTO_WALLET: "CRYPTO_WALLET",
+} as const;
+
+/**
+ * An onramp session containing a ready-to-use onramp URL.
+ */
+export interface OnrampSession {
+  /** Ready-to-use onramp URL. */
+  onrampUrl: string;
+}
+
+/**
+ * Quote information with pricing details for the crypto purchase.
+ */
+export interface OnrampQuote {
+  /** The total amount of fiat to be paid, inclusive of any fees. */
+  paymentTotal: string;
+  /** The amount of fiat to be converted to crypto. */
+  paymentSubtotal: string;
+  /** The fiat currency to be converted to crypto. */
+  paymentCurrency: string;
+  /** The amount of crypto to be purchased. */
+  purchaseAmount: string;
+  /** The crypto currency to be purchased. */
+  purchaseCurrency: string;
+  /** The network to send the crypto on. */
+  destinationNetwork: string;
+  /** The fees associated with the quote. */
+  fees: OnrampOrderFee[];
+  /** The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat. */
+  exchangeRate: string;
 }
 
 /**
@@ -3644,4 +3903,33 @@ export type CreateOnrampOrder201 = {
 
 export type GetOnrampOrderById200 = {
   order: OnrampOrder;
+};
+
+export type CreateOnrampSessionBody = {
+  /** The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
+
+Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location. */
+  purchaseCurrency: string;
+  /** The name of the crypto network the purchased currency will be sent on.
+
+Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location. */
+  destinationNetwork: string;
+  /** The address the purchased crypto will be sent to. */
+  destinationAddress: string;
+  /** A string representing the amount of fiat the user wishes to pay in exchange for crypto. */
+  paymentAmount?: string;
+  /** The fiat currency to be converted to crypto. */
+  paymentCurrency?: string;
+  paymentMethod?: OnrampQuotePaymentMethodTypeId;
+  /** The ISO 3166-1 two letter country code (e.g. US). */
+  country?: string;
+  /** The ISO 3166-2 two letter state code (e.g. NY). Only required for US. */
+  subdivision?: string;
+  /** URL to redirect the user to when they successfully complete a transaction. This URL will be  embedded in the returned onramp URL as a query parameter. */
+  redirectUrl?: string;
+};
+
+export type CreateOnrampSession201 = {
+  session: OnrampSession;
+  quote?: OnrampQuote;
 };

@@ -8,6 +8,8 @@
 import type {
   CreateOnrampOrder201,
   CreateOnrampOrderBody,
+  CreateOnrampSession201,
+  CreateOnrampSessionBody,
   GetOnrampOrderById200,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
@@ -50,5 +52,41 @@ export const getOnrampOrderById = (
     options,
   );
 };
+/**
+ * Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:
+
+**Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it.
+## Use Cases
+### 1. Basic Session (Minimum Parameters)
+**Required**: `destinationAddress`, `purchaseCurrency`, `destinationNetwork`
+
+**Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response.
+### 2. One-Click Onramp URL
+**Required**: Basic parameters + `paymentAmount`, `paymentCurrency`
+
+**Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response.
+### 3. One-Click Onramp URL with Quote
+**Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`
+
+**Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.
+ * @summary Create an onramp session
+ */
+export const createOnrampSession = (
+  createOnrampSessionBody: CreateOnrampSessionBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<CreateOnrampSession201>(
+    {
+      url: `/v2/onramp/sessions`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createOnrampSessionBody,
+    },
+    options,
+  );
+};
 export type CreateOnrampOrderResult = NonNullable<Awaited<ReturnType<typeof createOnrampOrder>>>;
 export type GetOnrampOrderByIdResult = NonNullable<Awaited<ReturnType<typeof getOnrampOrderById>>>;
+export type CreateOnrampSessionResult = NonNullable<
+  Awaited<ReturnType<typeof createOnrampSession>>
+>;
