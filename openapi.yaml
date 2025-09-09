@@ -100,7 +100,7 @@ tags:
     description: The Faucet APIs enable you to request funds on supported test networks. Faucets are for testing purposes and make development easier by providing a source of funds.
   - name: Onchain Data
     x-audience: public
-    description: Query and analyze blockchain data with high performance and reliability. Features include real-time token balances,  token discovery, transaction history, and flexible onchain SQL querying to explore Base mainnet with  freshness, accuracy, and flexibility like never before.
+    description: Query and analyze blockchain data with high performance and reliability. Features include real-time token balances, token discovery, and transaction history with freshness, accuracy, and completeness like never before.
   - name: Onramp
     x-audience: public
     description: |-
@@ -308,6 +308,9 @@ tags:
       ### SignEvmMessage Criteria
       #### evmMessage
       A criterion based on the intended message to be signed. The `match` field in the criteria is a [RE2](https://github.com/google/re2/wiki/Syntax) compliant regular expression that will be executed against the message in the API request.
+      ### SignSolMessage Criteria
+      #### solMessage
+      A criterion based on the intended message to be signed. The `match` field in the criteria is a [RE2](https://github.com/google/re2/wiki/Syntax) compliant regular expression that will be executed against the message in the API request.
       ### SignSolTransaction Criteria
       #### solAddress
       A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
@@ -321,6 +324,8 @@ tags:
       A criterion based on the token mint addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
       #### solData
       A criterion based on Solana transaction instruction data. The criterion uses Interface Definition Language (IDL) specifications to decode and validate instruction data against specific rules. The `idls` field specifies which Solana programs to validate against (either known program names like "SystemProgram" and "TokenProgram", or custom IDL objects), and the `conditions` field defines instruction-specific validation rules including instruction names and parameter constraints.
+      #### programId
+      A criterion based on the program IDs of a transaction's instructions. The criterion's `programIds` field is compared to the list of program IDs in the transaction's instructions using the `operator` field.
       ### SendSolTransaction Criteria
       #### solAddress
       A criterion based on the recipient addresses of the transaction. The criterion's `address` field is compared to the list of addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
@@ -334,6 +339,14 @@ tags:
       A criterion based on the token mint addresses of SPL token transfer instructions in the transaction. The criterion's `addresses` field is compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array using the `operator` field.
       #### solData
       A criterion based on Solana transaction instruction data. The criterion uses Interface Definition Language (IDL) specifications to decode and validate instruction data against specific rules. The `idls` field specifies which Solana programs to validate against (either known program names like "SystemProgram" and "TokenProgram", or custom IDL objects), and the `conditions` field defines instruction-specific validation rules including instruction names and parameter constraints.
+      #### programId
+      A criterion based on the program IDs of a transaction's instructions. The criterion's `programIds` field is compared to the list of program IDs in the transaction's instructions using the `operator` field.
+      #### solNetwork
+      A criterion based on the intended network of the transaction. The `network` field in the `sendSolanaTransaction` request body is compared to the criterion's `networks` field using the `operator` field.
+      Valid networks for this criterion include:
+        - `solana-devnet`
+        - `solana`
+
       ## Restricting Contract Interactions on Ethereum
       Smart contract function restrictions serve as a critical security and governance mechanism in decentralized applications, allowing developers and organizations to implement fine-grained access controls over their protocol interactions.
       One of the primary use cases for function restrictions is protecting high-risk operations from unauthorized access such as:
@@ -481,6 +494,9 @@ tags:
 
         - For native SOL, `decimals` is 9 (1 SOL = 10^9 lamports).
         - For SPL tokens, `decimals` is defined in the token's mint configuration.
+  - name: SQL API (Alpha)
+    x-audience: public
+    description: The SQL APIs enable you to write performant, high-freshness, and endlessly flexible SQL queries against onchain data.
   - name: x402 Facilitator
     x-audience: public
     description: |-
@@ -4365,7 +4381,7 @@ paths:
           - Query timeout: 30 seconds
           - Maximum JOINs: 5
       tags:
-        - Onchain Data
+        - SQL API (Alpha)
       security:
         - apiKeyAuth: []
       requestBody:
@@ -5233,6 +5249,116 @@ paths:
                     errorMessage: Order with the given ID does not exist.
         '429':
           $ref: '#/components/responses/RateLimitExceeded'
+  /v2/onramp/sessions:
+    post:
+      summary: Create an onramp session
+      description: |-
+        Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:
+
+        **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it.
+        ## Use Cases
+        ### 1. Basic Session (Minimum Parameters)
+        **Required**: `destinationAddress`, `purchaseCurrency`, `destinationNetwork`
+
+        **Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response.
+        ### 2. One-Click Onramp URL
+        **Required**: Basic parameters + `paymentAmount`, `paymentCurrency`
+
+        **Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response.
+        ### 3. One-Click Onramp URL with Quote
+        **Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`
+
+        **Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.
+      operationId: createOnrampSession
+      tags:
+        - Onramp
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                purchaseCurrency:
+                  description: |-
+                    The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
+
+                    Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
+                  type: string
+                  example: USDC
+                destinationNetwork:
+                  description: |-
+                    The name of the crypto network the purchased currency will be sent on.
+
+                    Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
+                  type: string
+                  example: base
+                destinationAddress:
+                  description: The address the purchased crypto will be sent to.
+                  type: string
+                  example: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
+                paymentAmount:
+                  description: A string representing the amount of fiat the user wishes to pay in exchange for crypto.
+                  type: string
+                  example: '100.00'
+                paymentCurrency:
+                  description: The fiat currency to be converted to crypto.
+                  type: string
+                  example: USD
+                paymentMethod:
+                  $ref: '#/components/schemas/OnrampQuotePaymentMethodTypeId'
+                country:
+                  description: The ISO 3166-1 two letter country code (e.g. US).
+                  type: string
+                  example: US
+                subdivision:
+                  description: The ISO 3166-2 two letter state code (e.g. NY). Only required for US.
+                  type: string
+                  example: NY
+                redirectUrl:
+                  description: URL to redirect the user to when they successfully complete a transaction. This URL will be  embedded in the returned onramp URL as a query parameter.
+                  type: string
+                  example: https://yourapp.com/success
+              required:
+                - destinationAddress
+                - purchaseCurrency
+                - destinationNetwork
+      responses:
+        '201':
+          description: Onramp session created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session:
+                    $ref: '#/components/schemas/OnrampSession'
+                  quote:
+                    $ref: '#/components/schemas/OnrampQuote'
+                required:
+                  - session
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Missing required parameters.
+                invalid_destination_address:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: The destination address is not valid for the specified network.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   securitySchemes:
     apiKeyAuth:
@@ -5737,7 +5863,7 @@ components:
         errorLink:
           description: A link to the corresponding error documentation.
           type: string
-          example: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid_request
+          example: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
       required:
         - errorType
         - errorMessage
@@ -5745,7 +5871,7 @@ components:
         errorType: invalid_request
         errorMessage: Invalid request.
         correlationId: 41deb8d59a9dc9a7-IAD
-        errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid_request
+        errorLink: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
     EvmAccount:
       type: object
       properties:
@@ -6039,6 +6165,9 @@ components:
         revert:
           data: '0x123'
           message: reason for failure
+        blockHash: '0x386544b58930c0ec9e8f3ed09fb4cdb76b9ae0a1a37ddcacebe3925b57978e65'
+        blockNumber: 29338819
+        gasUsed: '100000'
     EvmUserOperation:
       type: object
       properties:
@@ -6086,6 +6215,9 @@ components:
             - revert:
                 data: '0x123'
                 message: reason for failure
+              blockHash: '0x386544b58930c0ec9e8f3ed09fb4cdb76b9ae0a1a37ddcacebe3925b57978e65'
+              blockNumber: 29338819
+              gasUsed: '100000'
       required:
         - network
         - userOpHash
@@ -6106,6 +6238,7 @@ components:
       example: base
     CreateSpendPermissionRequest:
       type: object
+      description: Request parameters for creating a Spend Permission.
       properties:
         network:
           $ref: '#/components/schemas/SpendPermissionNetwork'
@@ -6251,6 +6384,7 @@ components:
         - network
     RevokeSpendPermissionRequest:
       type: object
+      description: Request parameters for revoking a Spend Permission.
       properties:
         network:
           $ref: '#/components/schemas/SpendPermissionNetwork'
@@ -7959,6 +8093,39 @@ components:
         - type
         - idls
         - conditions
+    ProgramIdCriterion:
+      x-audience: public
+      type: object
+      title: ProgramIdCriterion
+      description: The criterion for the program IDs of a Solana transaction's instructions.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `programId`.
+          example: programId
+          enum:
+            - programId
+        programIds:
+          type: array
+          description: The Solana program IDs that are compared to the list of program IDs in the transaction's instructions.
+          items:
+            type: string
+            pattern: ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+            description: The Solana program ID that is compared to the list of program IDs in the transaction's instructions.
+          example:
+            - TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+            - '11111111111111111111111111111112'
+        operator:
+          type: string
+          description: The operator to use for the comparison. Each of the program IDs in the transaction's instructions will be on the left-hand side of the operator, and the `programIds` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+      required:
+        - type
+        - programIds
+        - operator
     SignSolTransactionCriteria:
       type: array
       x-audience: public
@@ -7971,6 +8138,7 @@ components:
           - $ref: '#/components/schemas/SplValueCriterion'
           - $ref: '#/components/schemas/MintAddressCriterion'
           - $ref: '#/components/schemas/SolDataCriterion'
+          - $ref: '#/components/schemas/ProgramIdCriterion'
       example:
         - type: solAddress
           addresses:
@@ -7998,6 +8166,42 @@ components:
         - action
         - operation
         - criteria
+    SolNetworkCriterion:
+      x-audience: public
+      type: object
+      title: SolNetworkCriterion
+      description: The criterion for the Solana network of a transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `solNetwork`.
+          example: solNetwork
+          enum:
+            - solNetwork
+        networks:
+          type: array
+          description: The Solana networks that the transaction's intended network should be compared to.
+          items:
+            type: string
+            description: The Solana network the transaction is for.
+            enum:
+              - solana-devnet
+              - solana
+            example: solana-devnet
+          example:
+            - solana-devnet
+            - solana
+        operator:
+          type: string
+          description: The operator to use for the comparison. The transaction's intended network will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.
+          enum:
+            - in
+            - not in
+          example: in
+      required:
+        - type
+        - networks
+        - operator
     SendSolTransactionCriteria:
       x-audience: public
       type: array
@@ -8010,6 +8214,8 @@ components:
           - $ref: '#/components/schemas/SplValueCriterion'
           - $ref: '#/components/schemas/MintAddressCriterion'
           - $ref: '#/components/schemas/SolDataCriterion'
+          - $ref: '#/components/schemas/ProgramIdCriterion'
+          - $ref: '#/components/schemas/SolNetworkCriterion'
       example:
         - type: solAddress
           addresses:
@@ -8037,6 +8243,58 @@ components:
             - sendSolTransaction
         criteria:
           $ref: '#/components/schemas/SendSolTransactionCriteria'
+      required:
+        - action
+        - operation
+        - criteria
+    SolMessageCriterion:
+      x-audience: public
+      type: object
+      title: SolMessageCriterion
+      description: The criterion for the message of a Solana transaction.
+      properties:
+        type:
+          type: string
+          description: The type of criterion to use. This should be `solMessage`.
+          example: solMessage
+          enum:
+            - solMessage
+        match:
+          type: string
+          description: A regular expression the field is matched against.
+          example: ^hello ([a-z]+)$
+      required:
+        - type
+        - match
+    SignSolMessageCriteria:
+      x-audience: public
+      type: array
+      description: A schema for specifying criteria for the SignSolMessage operation.
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/SolMessageCriterion'
+      example:
+        - type: solMessage
+          match: ^hello ([a-z]+)$
+    SignSolMessageRule:
+      x-audience: public
+      title: SignSolMessageRule
+      properties:
+        action:
+          type: string
+          description: Whether matching the rule will cause the request to be rejected or accepted.
+          example: accept
+          enum:
+            - reject
+            - accept
+        operation:
+          type: string
+          description: The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+          example: signSolMessage
+          enum:
+            - signSolMessage
+        criteria:
+          $ref: '#/components/schemas/SignSolMessageCriteria'
       required:
         - action
         - operation
@@ -8152,6 +8410,7 @@ components:
         - $ref: '#/components/schemas/SignEvmTypedDataRule'
         - $ref: '#/components/schemas/SignSolTransactionRule'
         - $ref: '#/components/schemas/SendSolTransactionRule'
+        - $ref: '#/components/schemas/SignSolMessageRule'
         - $ref: '#/components/schemas/SignEvmHashRule'
         - $ref: '#/components/schemas/PrepareUserOperationRule'
         - $ref: '#/components/schemas/SendUserOperationRule'
@@ -8535,6 +8794,19 @@ components:
       required:
         - signature
         - authorization
+    x402ExactSolanaPayload:
+      type: object
+      title: x402ExactSolanaPayload
+      description: The x402 protocol exact scheme payload for Solana networks. For more details, please see [Solana Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_svm.md).
+      properties:
+        transaction:
+          type: string
+          description: The base64-encoded Solana transaction.
+          example: AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA=
+      example:
+        transaction: AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA=
+      required:
+        - transaction
     x402PaymentPayload:
       type: object
       description: The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
@@ -8553,12 +8825,15 @@ components:
           enum:
             - base-sepolia
             - base
+            - solana-devnet
+            - solana
           example: base
         payload:
           type: object
           description: The payload of the payment depending on the x402Version, scheme, and network.
           oneOf:
             - $ref: '#/components/schemas/x402ExactEvmPayload'
+            - $ref: '#/components/schemas/x402ExactSolanaPayload'
           example:
             signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480'
             authorization:
@@ -8602,6 +8877,8 @@ components:
           enum:
             - base-sepolia
             - base
+            - solana-devnet
+            - solana
           example: base
         maxAmountRequired:
           type: string
@@ -8683,6 +8960,24 @@ components:
         - invalid_exact_evm_payload_authorization_to_address_kyt
         - invalid_exact_evm_payload_signature
         - invalid_exact_evm_payload_signature_address
+        - invalid_exact_svm_payload_transaction
+        - invalid_exact_svm_payload_transaction_amount_mismatch
+        - invalid_exact_svm_payload_transaction_create_ata_instruction
+        - invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee
+        - invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset
+        - invalid_exact_svm_payload_transaction_instructions
+        - invalid_exact_svm_payload_transaction_instructions_length
+        - invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction
+        - invalid_exact_svm_payload_transaction_instructions_compute_price_instruction
+        - invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high
+        - invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked
+        - invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked
+        - invalid_exact_svm_payload_transaction_not_a_transfer_instruction
+        - invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata
+        - invalid_exact_svm_payload_transaction_receiver_ata_not_found
+        - invalid_exact_svm_payload_transaction_sender_ata_not_found
+        - invalid_exact_svm_payload_transaction_simulation_failed
+        - invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata
       example: insufficient_funds
     x402SettleErrorReason:
       type: string
@@ -8701,6 +8996,8 @@ components:
         - invalid_exact_evm_payload_authorization_from_address_kyt
         - invalid_exact_evm_payload_authorization_to_address_kyt
         - invalid_exact_evm_payload_signature_address
+        - settle_exact_svm_block_height_exceeded
+        - settle_exact_svm_transaction_confirmation_timed_out
       example: insufficient_funds
     x402SupportedPaymentKind:
       type: object
@@ -8720,7 +9017,15 @@ components:
           enum:
             - base-sepolia
             - base
+            - solana-devnet
+            - solana
           example: base
+        extra:
+          type: object
+          description: The optional additional scheme-specific payment info.
+          additionalProperties: true
+          example:
+            feePayer: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
       required:
         - x402Version
         - scheme
@@ -9229,6 +9534,97 @@ components:
       required:
         - url
         - paymentLinkType
+    OnrampQuotePaymentMethodTypeId:
+      type: string
+      description: The type of payment method used to generate the onramp quote.
+      enum:
+        - CARD
+        - ACH
+        - APPLE_PAY
+        - PAYPAL
+        - FIAT_WALLET
+        - CRYPTO_WALLET
+      example: CARD
+    OnrampSession:
+      type: object
+      description: An onramp session containing a ready-to-use onramp URL.
+      properties:
+        onrampUrl:
+          type: string
+          description: Ready-to-use onramp URL.
+          example: https://pay.coinbase.com/buy?sessionToken=abc123F
+      required:
+        - onrampUrl
+      example:
+        onrampUrl: https://pay.coinbase.com/buy?sessionToken=abc123F
+    OnrampQuote:
+      type: object
+      description: Quote information with pricing details for the crypto purchase.
+      properties:
+        paymentTotal:
+          type: string
+          description: The total amount of fiat to be paid, inclusive of any fees.
+          example: '100.75'
+        paymentSubtotal:
+          type: string
+          description: The amount of fiat to be converted to crypto.
+          example: '100.00'
+        paymentCurrency:
+          type: string
+          description: The fiat currency to be converted to crypto.
+          example: USD
+        purchaseAmount:
+          type: string
+          description: The amount of crypto to be purchased.
+          example: '100.000000'
+        purchaseCurrency:
+          type: string
+          description: The crypto currency to be purchased.
+          example: USDC
+        destinationNetwork:
+          type: string
+          description: The network to send the crypto on.
+          example: base
+        fees:
+          type: array
+          description: The fees associated with the quote.
+          items:
+            $ref: '#/components/schemas/OnrampOrderFee'
+          example:
+            - type: FEE_TYPE_EXCHANGE
+              amount: '0.5'
+              currency: USD
+            - type: FEE_TYPE_NETWORK
+              amount: '0.25'
+              currency: USD
+        exchangeRate:
+          type: string
+          description: The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat.
+          example: '1'
+      required:
+        - paymentTotal
+        - paymentSubtotal
+        - paymentCurrency
+        - purchaseAmount
+        - purchaseCurrency
+        - destinationNetwork
+        - fees
+        - exchangeRate
+      example:
+        paymentTotal: '100.75'
+        paymentSubtotal: '100.00'
+        paymentCurrency: USD
+        purchaseAmount: '100.000000'
+        purchaseCurrency: USDC
+        destinationNetwork: base
+        fees:
+          - type: FEE_TYPE_EXCHANGE
+            amount: '0.5'
+            currency: USD
+          - type: FEE_TYPE_NETWORK
+            amount: '0.25'
+            currency: USD
+        exchangeRate: '1'
   responses:
     InternalServerError:
       description: Internal server error.
@@ -9422,6 +9818,12 @@ components:
                   - x402Version: 1
                     scheme: exact
                     network: base-sepolia
+                  - x402Version: 1
+                    scheme: exact
+                    network: solana
+                  - x402Version: 1
+                    scheme: exact
+                    network: solana-devnet
             required:
               - kinds
     RateLimitExceeded:
