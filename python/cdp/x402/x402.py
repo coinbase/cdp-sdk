@@ -2,12 +2,12 @@ import os
 from collections.abc import Callable
 from typing import TypedDict
 
-from cdp.auth.utils.http import GetAuthHeadersOptions, get_auth_headers
+from cdp.auth.utils.http import GetAuthHeadersOptions, _get_correlation_data, get_auth_headers
 
 COINBASE_FACILITATOR_BASE_URL = "https://api.cdp.coinbase.com"
 COINBASE_FACILITATOR_V2_ROUTE = "/platform/v2/x402"
 
-X402_VERSION = "0.4.3"
+X402_VERSION = "0.6.1"
 
 
 class FacilitatorConfig(TypedDict, total=False):
@@ -24,7 +24,7 @@ class FacilitatorConfig(TypedDict, total=False):
 
 
 def create_cdp_auth_headers(
-    api_key_id: str | None = None, api_key_secret: str | None = None
+    api_key_id: str, api_key_secret: str
 ) -> Callable[[], dict[str, dict[str, str]]]:
     """Create a CDP auth header for the facilitator service.
 
@@ -39,19 +39,10 @@ def create_cdp_auth_headers(
     request_host = COINBASE_FACILITATOR_BASE_URL.replace("https://", "")
 
     async def _create_headers() -> dict[str, dict[str, str]]:
-        # Use provided values or fall back to environment variables
-        final_api_key_id = api_key_id or os.getenv("CDP_API_KEY_ID")
-        final_api_key_secret = api_key_secret or os.getenv("CDP_API_KEY_SECRET")
-
-        if not final_api_key_id or not final_api_key_secret:
-            raise ValueError(
-                "Missing API credentials: CDP_API_KEY_ID and CDP_API_KEY_SECRET must be provided or set as environment variables"
-            )
-
         verify_auth_headers = get_auth_headers(
             GetAuthHeadersOptions(
-                api_key_id=final_api_key_id,
-                api_key_secret=final_api_key_secret,
+                api_key_id=api_key_id,
+                api_key_secret=api_key_secret,
                 request_host=request_host,
                 request_path=f"{COINBASE_FACILITATOR_V2_ROUTE}/verify",
                 request_method="POST",
@@ -62,8 +53,8 @@ def create_cdp_auth_headers(
 
         settle_auth_headers = get_auth_headers(
             GetAuthHeadersOptions(
-                api_key_id=final_api_key_id,
-                api_key_secret=final_api_key_secret,
+                api_key_id=api_key_id,
+                api_key_secret=api_key_secret,
                 request_host=request_host,
                 request_path=f"{COINBASE_FACILITATOR_V2_ROUTE}/settle",
                 request_method="POST",
@@ -72,22 +63,44 @@ def create_cdp_auth_headers(
             )
         )
 
-        list_auth_headers = get_auth_headers(
-            GetAuthHeadersOptions(
-                api_key_id=final_api_key_id,
-                api_key_secret=final_api_key_secret,
-                request_host=request_host,
-                request_path=f"{COINBASE_FACILITATOR_V2_ROUTE}/discovery/resources",
-                request_method="GET",
+        # List endpoint always uses only correlation headers, no JWT auth
+        list_correlation_headers = {
+            "Correlation-Context": _get_correlation_data(
                 source="x402",
                 source_version=X402_VERSION,
             )
-        )
+        }
 
         return {
             "verify": verify_auth_headers,
             "settle": settle_auth_headers,
-            "list": list_auth_headers,
+            "list": list_correlation_headers,
+        }
+
+    return _create_headers
+
+
+def create_cdp_unauth_headers() -> Callable[[], dict[str, dict[str, str]]]:
+    """Create unauthenticated headers for the facilitator service.
+
+    Returns:
+        A function that returns the unauthenticated headers (only supports list operation)
+
+    """
+
+    async def _create_headers() -> dict[str, dict[str, str]]:
+        # Create correlation headers for list endpoint (no authentication needed)
+        correlation_headers = {
+            "Correlation-Context": _get_correlation_data(
+                source="x402",
+                source_version=X402_VERSION,
+            )
+        }
+
+        return {
+            "verify": {},
+            "settle": {},
+            "list": correlation_headers,
         }
 
     return _create_headers
@@ -106,9 +119,18 @@ def create_facilitator_config(
         A facilitator config
 
     """
+    final_api_key_id = api_key_id or os.getenv("CDP_API_KEY_ID")
+    final_api_key_secret = api_key_secret or os.getenv("CDP_API_KEY_SECRET")
+
+    if final_api_key_id and final_api_key_secret:
+        return FacilitatorConfig(
+            url=f"{COINBASE_FACILITATOR_BASE_URL}{COINBASE_FACILITATOR_V2_ROUTE}",
+            create_headers=create_cdp_auth_headers(final_api_key_id, final_api_key_secret),
+        )
+
     return FacilitatorConfig(
         url=f"{COINBASE_FACILITATOR_BASE_URL}{COINBASE_FACILITATOR_V2_ROUTE}",
-        create_headers=create_cdp_auth_headers(api_key_id, api_key_secret),
+        create_headers=create_cdp_unauth_headers(),
     )
 
 
