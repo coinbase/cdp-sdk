@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.32.0] - 2025-09-09
+
+### Features
+
+- Added programId, solNetwork, and solMessage policy criteria ([#435](https://github.com/coinbase/cdp-sdk/pull/435))
+
+
 ## [1.31.2] - 2025-09-05
 
 ### Bugfixes
