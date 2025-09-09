@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.37.0
+
+### Minor Changes
+
+- [#435](https://github.com/coinbase/cdp-sdk/pull/435) [`e03b68d`](https://github.com/coinbase/cdp-sdk/commit/e03b68dcb21352ebbadc4600d87d7e631efaba94) Thanks [@sddioulde](https://github.com/sddioulde)! - Added programId, solNetwork, and solMessage policy criteria
+
 ## 1.36.1
 
 ### Patch Changes
