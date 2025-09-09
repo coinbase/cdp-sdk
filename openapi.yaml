@@ -8335,6 +8335,7 @@ components:
           - $ref: '#/components/schemas/EvmAddressCriterion'
           - $ref: '#/components/schemas/EvmNetworkCriterion'
           - $ref: '#/components/schemas/EvmDataCriterion'
+          - $ref: '#/components/schemas/NetUSDChangeCriterion'
       example:
         - type: ethValue
           ethValue: '1000000'
@@ -8375,6 +8376,7 @@ components:
           - $ref: '#/components/schemas/EthValueCriterion'
           - $ref: '#/components/schemas/EvmAddressCriterion'
           - $ref: '#/components/schemas/EvmDataCriterion'
+          - $ref: '#/components/schemas/NetUSDChangeCriterion'
       example:
         - type: ethValue
           ethValue: '1000000'

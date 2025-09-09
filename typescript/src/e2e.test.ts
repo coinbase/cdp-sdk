@@ -1949,6 +1949,28 @@ describe("CDP Client E2E Tests", () => {
                 },
               ],
             },
+            {
+              action: "reject",
+              operation: "prepareUserOperation",
+              criteria: [
+                {
+                  type: "netUSDChange",
+                  changeCents: 10000,
+                  operator: ">",
+                },
+              ],
+            },
+            {
+              action: "reject",
+              operation: "sendUserOperation",
+              criteria: [
+                {
+                  type: "netUSDChange",
+                  changeCents: 10000,
+                  operator: ">",
+                },
+              ],
+            },
           ],
         };
         createdEvmPolicy = await cdp.policies.createPolicy({

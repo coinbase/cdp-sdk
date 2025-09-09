@@ -20,7 +20,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List
-from cdp.openapi_client.models.send_user_operation_criteria_inner import SendUserOperationCriteriaInner
+from cdp.openapi_client.models.sign_evm_transaction_criteria_inner import SignEvmTransactionCriteriaInner
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -30,7 +30,7 @@ class SendUserOperationRule(BaseModel):
     """ # noqa: E501
     action: StrictStr = Field(description="Whether matching the rule will cause the request to be rejected or accepted.")
     operation: StrictStr = Field(description="The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.")
-    criteria: List[SendUserOperationCriteriaInner] = Field(description="A schema for specifying criteria for the SendUserOperation operation.")
+    criteria: List[SignEvmTransactionCriteriaInner] = Field(description="A schema for specifying criteria for the SendUserOperation operation.")
     __properties: ClassVar[List[str]] = ["action", "operation", "criteria"]
 
     @field_validator('action')
@@ -107,7 +107,7 @@ class SendUserOperationRule(BaseModel):
         _obj = cls.model_validate({
             "action": obj.get("action"),
             "operation": obj.get("operation"),
-            "criteria": [SendUserOperationCriteriaInner.from_dict(_item) for _item in obj["criteria"]] if obj.get("criteria") is not None else None
+            "criteria": [SignEvmTransactionCriteriaInner.from_dict(_item) for _item in obj["criteria"]] if obj.get("criteria") is not None else None
         })
         return _obj
 

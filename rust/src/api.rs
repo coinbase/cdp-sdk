@@ -4126,6 +4126,178 @@ pub mod types {
             Default::default()
         }
     }
+    ///`CreateOnrampSessionBody`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "destinationAddress",
+    ///    "destinationNetwork",
+    ///    "purchaseCurrency"
+    ///  ],
+    ///  "properties": {
+    ///    "country": {
+    ///      "description": "The ISO 3166-1 two letter country code (e.g. US).",
+    ///      "examples": [
+    ///        "US"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "destinationAddress": {
+    ///      "description": "The address the purchased crypto will be sent to.",
+    ///      "examples": [
+    ///        "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "destinationNetwork": {
+    ///      "description": "The name of the crypto network the purchased currency will be sent on.\n\nUse the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.",
+    ///      "examples": [
+    ///        "base"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "paymentAmount": {
+    ///      "description": "A string representing the amount of fiat the user wishes to pay in exchange for crypto.",
+    ///      "examples": [
+    ///        "100.00"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "paymentCurrency": {
+    ///      "description": "The fiat currency to be converted to crypto.",
+    ///      "examples": [
+    ///        "USD"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "paymentMethod": {
+    ///      "$ref": "#/components/schemas/OnrampQuotePaymentMethodTypeId"
+    ///    },
+    ///    "purchaseCurrency": {
+    ///      "description": "The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.\n\nUse the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.",
+    ///      "examples": [
+    ///        "USDC"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "redirectUrl": {
+    ///      "description": "URL to redirect the user to when they successfully complete a transaction. This URL will be  embedded in the returned onramp URL as a query parameter.",
+    ///      "examples": [
+    ///        "https://yourapp.com/success"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "subdivision": {
+    ///      "description": "The ISO 3166-2 two letter state code (e.g. NY). Only required for US.",
+    ///      "examples": [
+    ///        "NY"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct CreateOnrampSessionBody {
+        ///The ISO 3166-1 two letter country code (e.g. US).
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub country: ::std::option::Option<::std::string::String>,
+        ///The address the purchased crypto will be sent to.
+        #[serde(rename = "destinationAddress")]
+        pub destination_address: ::std::string::String,
+        /**The name of the crypto network the purchased currency will be sent on.
+
+        Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.*/
+        #[serde(rename = "destinationNetwork")]
+        pub destination_network: ::std::string::String,
+        ///A string representing the amount of fiat the user wishes to pay in exchange for crypto.
+        #[serde(
+            rename = "paymentAmount",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub payment_amount: ::std::option::Option<::std::string::String>,
+        ///The fiat currency to be converted to crypto.
+        #[serde(
+            rename = "paymentCurrency",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub payment_currency: ::std::option::Option<::std::string::String>,
+        #[serde(
+            rename = "paymentMethod",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub payment_method: ::std::option::Option<OnrampQuotePaymentMethodTypeId>,
+        /**The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.
+
+        Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.*/
+        #[serde(rename = "purchaseCurrency")]
+        pub purchase_currency: ::std::string::String,
+        ///URL to redirect the user to when they successfully complete a transaction. This URL will be  embedded in the returned onramp URL as a query parameter.
+        #[serde(
+            rename = "redirectUrl",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub redirect_url: ::std::option::Option<::std::string::String>,
+        ///The ISO 3166-2 two letter state code (e.g. NY). Only required for US.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub subdivision: ::std::option::Option<::std::string::String>,
+    }
+    impl ::std::convert::From<&CreateOnrampSessionBody> for CreateOnrampSessionBody {
+        fn from(value: &CreateOnrampSessionBody) -> Self {
+            value.clone()
+        }
+    }
+    impl CreateOnrampSessionBody {
+        pub fn builder() -> builder::CreateOnrampSessionBody {
+            Default::default()
+        }
+    }
+    ///`CreateOnrampSessionResponse`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "type": "object",
+    ///  "required": [
+    ///    "session"
+    ///  ],
+    ///  "properties": {
+    ///    "quote": {
+    ///      "$ref": "#/components/schemas/OnrampQuote"
+    ///    },
+    ///    "session": {
+    ///      "$ref": "#/components/schemas/OnrampSession"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct CreateOnrampSessionResponse {
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub quote: ::std::option::Option<OnrampQuote>,
+        pub session: OnrampSession,
+    }
+    impl ::std::convert::From<&CreateOnrampSessionResponse> for CreateOnrampSessionResponse {
+        fn from(value: &CreateOnrampSessionResponse) -> Self {
+            value.clone()
+        }
+    }
+    impl CreateOnrampSessionResponse {
+        pub fn builder() -> builder::CreateOnrampSessionResponse {
+            Default::default()
+        }
+    }
     ///`CreatePaymentTransferQuoteBody`
     ///
     /// <details><summary>JSON schema</summary>
@@ -5112,12 +5284,13 @@ pub mod types {
                 })
         }
     }
-    ///`CreateSpendPermissionRequest`
+    ///Request parameters for creating a Spend Permission.
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
+    ///  "description": "Request parameters for creating a Spend Permission.",
     ///  "type": "object",
     ///  "required": [
     ///    "allowance",
@@ -9098,7 +9271,7 @@ pub mod types {
     ///  "examples": [
     ///    {
     ///      "correlationId": "41deb8d59a9dc9a7-IAD",
-    ///      "errorLink": "https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid_request",
+    ///      "errorLink": "https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request",
     ///      "errorMessage": "Invalid request.",
     ///      "errorType": "invalid_request"
     ///    }
@@ -9119,7 +9292,7 @@ pub mod types {
     ///    "errorLink": {
     ///      "description": "A link to the corresponding error documentation.",
     ///      "examples": [
-    ///        "https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid_request"
+    ///        "https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request"
     ///      ],
     ///      "type": "string"
     ///    },
@@ -12870,6 +13043,9 @@ pub mod types {
     ///      "examples": [
     ///        [
     ///          {
+    ///            "blockHash": "0x386544b58930c0ec9e8f3ed09fb4cdb76b9ae0a1a37ddcacebe3925b57978e65",
+    ///            "blockNumber": 29338819,
+    ///            "gasUsed": "100000",
     ///            "revert": {
     ///              "data": "0x123",
     ///              "message": "reason for failure"
@@ -21181,6 +21357,303 @@ pub mod types {
             value.parse()
         }
     }
+    ///Quote information with pricing details for the crypto purchase.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Quote information with pricing details for the crypto purchase.",
+    ///  "examples": [
+    ///    {
+    ///      "destinationNetwork": "base",
+    ///      "exchangeRate": "1",
+    ///      "fees": [
+    ///        {
+    ///          "amount": "0.5",
+    ///          "currency": "USD",
+    ///          "type": "FEE_TYPE_EXCHANGE"
+    ///        },
+    ///        {
+    ///          "amount": "0.25",
+    ///          "currency": "USD",
+    ///          "type": "FEE_TYPE_NETWORK"
+    ///        }
+    ///      ],
+    ///      "paymentCurrency": "USD",
+    ///      "paymentSubtotal": "100.00",
+    ///      "paymentTotal": "100.75",
+    ///      "purchaseAmount": "100.000000",
+    ///      "purchaseCurrency": "USDC"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "destinationNetwork",
+    ///    "exchangeRate",
+    ///    "fees",
+    ///    "paymentCurrency",
+    ///    "paymentSubtotal",
+    ///    "paymentTotal",
+    ///    "purchaseAmount",
+    ///    "purchaseCurrency"
+    ///  ],
+    ///  "properties": {
+    ///    "destinationNetwork": {
+    ///      "description": "The network to send the crypto on.",
+    ///      "examples": [
+    ///        "base"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "exchangeRate": {
+    ///      "description": "The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat.",
+    ///      "examples": [
+    ///        "1"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "fees": {
+    ///      "description": "The fees associated with the quote.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "amount": "0.5",
+    ///            "currency": "USD",
+    ///            "type": "FEE_TYPE_EXCHANGE"
+    ///          },
+    ///          {
+    ///            "amount": "0.25",
+    ///            "currency": "USD",
+    ///            "type": "FEE_TYPE_NETWORK"
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/OnrampOrderFee"
+    ///      }
+    ///    },
+    ///    "paymentCurrency": {
+    ///      "description": "The fiat currency to be converted to crypto.",
+    ///      "examples": [
+    ///        "USD"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "paymentSubtotal": {
+    ///      "description": "The amount of fiat to be converted to crypto.",
+    ///      "examples": [
+    ///        "100.00"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "paymentTotal": {
+    ///      "description": "The total amount of fiat to be paid, inclusive of any fees.",
+    ///      "examples": [
+    ///        "100.75"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "purchaseAmount": {
+    ///      "description": "The amount of crypto to be purchased.",
+    ///      "examples": [
+    ///        "100.000000"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "purchaseCurrency": {
+    ///      "description": "The crypto currency to be purchased.",
+    ///      "examples": [
+    ///        "USDC"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct OnrampQuote {
+        ///The network to send the crypto on.
+        #[serde(rename = "destinationNetwork")]
+        pub destination_network: ::std::string::String,
+        ///The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat.
+        #[serde(rename = "exchangeRate")]
+        pub exchange_rate: ::std::string::String,
+        ///The fees associated with the quote.
+        pub fees: ::std::vec::Vec<OnrampOrderFee>,
+        ///The fiat currency to be converted to crypto.
+        #[serde(rename = "paymentCurrency")]
+        pub payment_currency: ::std::string::String,
+        ///The amount of fiat to be converted to crypto.
+        #[serde(rename = "paymentSubtotal")]
+        pub payment_subtotal: ::std::string::String,
+        ///The total amount of fiat to be paid, inclusive of any fees.
+        #[serde(rename = "paymentTotal")]
+        pub payment_total: ::std::string::String,
+        ///The amount of crypto to be purchased.
+        #[serde(rename = "purchaseAmount")]
+        pub purchase_amount: ::std::string::String,
+        ///The crypto currency to be purchased.
+        #[serde(rename = "purchaseCurrency")]
+        pub purchase_currency: ::std::string::String,
+    }
+    impl ::std::convert::From<&OnrampQuote> for OnrampQuote {
+        fn from(value: &OnrampQuote) -> Self {
+            value.clone()
+        }
+    }
+    impl OnrampQuote {
+        pub fn builder() -> builder::OnrampQuote {
+            Default::default()
+        }
+    }
+    ///The type of payment method used to generate the onramp quote.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of payment method used to generate the onramp quote.",
+    ///  "examples": [
+    ///    "CARD"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "CARD",
+    ///    "ACH",
+    ///    "APPLE_PAY",
+    ///    "PAYPAL",
+    ///    "FIAT_WALLET",
+    ///    "CRYPTO_WALLET"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum OnrampQuotePaymentMethodTypeId {
+        #[serde(rename = "CARD")]
+        Card,
+        #[serde(rename = "ACH")]
+        Ach,
+        #[serde(rename = "APPLE_PAY")]
+        ApplePay,
+        #[serde(rename = "PAYPAL")]
+        Paypal,
+        #[serde(rename = "FIAT_WALLET")]
+        FiatWallet,
+        #[serde(rename = "CRYPTO_WALLET")]
+        CryptoWallet,
+    }
+    impl ::std::convert::From<&Self> for OnrampQuotePaymentMethodTypeId {
+        fn from(value: &OnrampQuotePaymentMethodTypeId) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for OnrampQuotePaymentMethodTypeId {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Card => f.write_str("CARD"),
+                Self::Ach => f.write_str("ACH"),
+                Self::ApplePay => f.write_str("APPLE_PAY"),
+                Self::Paypal => f.write_str("PAYPAL"),
+                Self::FiatWallet => f.write_str("FIAT_WALLET"),
+                Self::CryptoWallet => f.write_str("CRYPTO_WALLET"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for OnrampQuotePaymentMethodTypeId {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "CARD" => Ok(Self::Card),
+                "ACH" => Ok(Self::Ach),
+                "APPLE_PAY" => Ok(Self::ApplePay),
+                "PAYPAL" => Ok(Self::Paypal),
+                "FIAT_WALLET" => Ok(Self::FiatWallet),
+                "CRYPTO_WALLET" => Ok(Self::CryptoWallet),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for OnrampQuotePaymentMethodTypeId {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for OnrampQuotePaymentMethodTypeId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for OnrampQuotePaymentMethodTypeId {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///An onramp session containing a ready-to-use onramp URL.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "An onramp session containing a ready-to-use onramp URL.",
+    ///  "examples": [
+    ///    {
+    ///      "onrampUrl": "https://pay.coinbase.com/buy?sessionToken=abc123F"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "onrampUrl"
+    ///  ],
+    ///  "properties": {
+    ///    "onrampUrl": {
+    ///      "description": "Ready-to-use onramp URL.",
+    ///      "examples": [
+    ///        "https://pay.coinbase.com/buy?sessionToken=abc123F"
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct OnrampSession {
+        ///Ready-to-use onramp URL.
+        #[serde(rename = "onrampUrl")]
+        pub onramp_url: ::std::string::String,
+    }
+    impl ::std::convert::From<&OnrampSession> for OnrampSession {
+        fn from(value: &OnrampSession) -> Self {
+            value.clone()
+        }
+    }
+    impl OnrampSession {
+        pub fn builder() -> builder::OnrampSession {
+            Default::default()
+        }
+    }
     ///The fiat payment method object.
     ///
     /// <details><summary>JSON schema</summary>
@@ -22480,6 +22953,9 @@ pub mod types {
     ///      },
     ///      {
     ///        "$ref": "#/components/schemas/EvmDataCriterion"
+    ///      },
+    ///      {
+    ///        "$ref": "#/components/schemas/NetUSDChangeCriterion"
     ///      }
     ///    ]
     ///  },
@@ -22533,6 +23009,9 @@ pub mod types {
     ///    },
     ///    {
     ///      "$ref": "#/components/schemas/EvmDataCriterion"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/NetUSDChangeCriterion"
     ///    }
     ///  ]
     ///}
@@ -22545,6 +23024,7 @@ pub mod types {
         EvmAddressCriterion(EvmAddressCriterion),
         EvmNetworkCriterion(EvmNetworkCriterion),
         EvmDataCriterion(EvmDataCriterion),
+        NetUsdChangeCriterion(NetUsdChangeCriterion),
     }
     impl ::std::convert::From<&Self> for PrepareUserOperationCriteriaItem {
         fn from(value: &PrepareUserOperationCriteriaItem) -> Self {
@@ -22569,6 +23049,11 @@ pub mod types {
     impl ::std::convert::From<EvmDataCriterion> for PrepareUserOperationCriteriaItem {
         fn from(value: EvmDataCriterion) -> Self {
             Self::EvmDataCriterion(value)
+        }
+    }
+    impl ::std::convert::From<NetUsdChangeCriterion> for PrepareUserOperationCriteriaItem {
+        fn from(value: NetUsdChangeCriterion) -> Self {
+            Self::NetUsdChangeCriterion(value)
         }
     }
     ///`PrepareUserOperationRule`
@@ -22781,6 +23266,318 @@ pub mod types {
         }
     }
     impl ::std::convert::TryFrom<::std::string::String> for PrepareUserOperationRuleOperation {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The criterion for the program IDs of a Solana transaction's instructions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "ProgramIdCriterion",
+    ///  "description": "The criterion for the program IDs of a Solana transaction's instructions.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "operator",
+    ///    "programIds",
+    ///    "type"
+    ///  ],
+    ///  "properties": {
+    ///    "operator": {
+    ///      "description": "The operator to use for the comparison. Each of the program IDs in the transaction's instructions will be on the left-hand side of the operator, and the `programIds` field will be on the right-hand side.",
+    ///      "examples": [
+    ///        "in"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "in",
+    ///        "not in"
+    ///      ]
+    ///    },
+    ///    "programIds": {
+    ///      "description": "The Solana program IDs that are compared to the list of program IDs in the transaction's instructions.",
+    ///      "examples": [
+    ///        [
+    ///          "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    ///          "11111111111111111111111111111112"
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "description": "The Solana program ID that is compared to the list of program IDs in the transaction's instructions.",
+    ///        "type": "string",
+    ///        "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+    ///      }
+    ///    },
+    ///    "type": {
+    ///      "description": "The type of criterion to use. This should be `programId`.",
+    ///      "examples": [
+    ///        "programId"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "programId"
+    ///      ]
+    ///    }
+    ///  },
+    ///  "x-audience": "public"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct ProgramIdCriterion {
+        ///The operator to use for the comparison. Each of the program IDs in the transaction's instructions will be on the left-hand side of the operator, and the `programIds` field will be on the right-hand side.
+        pub operator: ProgramIdCriterionOperator,
+        ///The Solana program IDs that are compared to the list of program IDs in the transaction's instructions.
+        #[serde(rename = "programIds")]
+        pub program_ids: ::std::vec::Vec<ProgramIdCriterionProgramIdsItem>,
+        ///The type of criterion to use. This should be `programId`.
+        #[serde(rename = "type")]
+        pub type_: ProgramIdCriterionType,
+    }
+    impl ::std::convert::From<&ProgramIdCriterion> for ProgramIdCriterion {
+        fn from(value: &ProgramIdCriterion) -> Self {
+            value.clone()
+        }
+    }
+    impl ProgramIdCriterion {
+        pub fn builder() -> builder::ProgramIdCriterion {
+            Default::default()
+        }
+    }
+    ///The operator to use for the comparison. Each of the program IDs in the transaction's instructions will be on the left-hand side of the operator, and the `programIds` field will be on the right-hand side.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The operator to use for the comparison. Each of the program IDs in the transaction's instructions will be on the left-hand side of the operator, and the `programIds` field will be on the right-hand side.",
+    ///  "examples": [
+    ///    "in"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "in",
+    ///    "not in"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum ProgramIdCriterionOperator {
+        #[serde(rename = "in")]
+        In,
+        #[serde(rename = "not in")]
+        NotIn,
+    }
+    impl ::std::convert::From<&Self> for ProgramIdCriterionOperator {
+        fn from(value: &ProgramIdCriterionOperator) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for ProgramIdCriterionOperator {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::In => f.write_str("in"),
+                Self::NotIn => f.write_str("not in"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for ProgramIdCriterionOperator {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "in" => Ok(Self::In),
+                "not in" => Ok(Self::NotIn),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ProgramIdCriterionOperator {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for ProgramIdCriterionOperator {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for ProgramIdCriterionOperator {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The Solana program ID that is compared to the list of program IDs in the transaction's instructions.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The Solana program ID that is compared to the list of program IDs in the transaction's instructions.",
+    ///  "type": "string",
+    ///  "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct ProgramIdCriterionProgramIdsItem(::std::string::String);
+    impl ::std::ops::Deref for ProgramIdCriterionProgramIdsItem {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<ProgramIdCriterionProgramIdsItem> for ::std::string::String {
+        fn from(value: ProgramIdCriterionProgramIdsItem) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&ProgramIdCriterionProgramIdsItem> for ProgramIdCriterionProgramIdsItem {
+        fn from(value: &ProgramIdCriterionProgramIdsItem) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for ProgramIdCriterionProgramIdsItem {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[1-9A-HJ-NP-Za-km-z]{32,44}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[1-9A-HJ-NP-Za-km-z]{32,44}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ProgramIdCriterionProgramIdsItem {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for ProgramIdCriterionProgramIdsItem {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for ProgramIdCriterionProgramIdsItem {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for ProgramIdCriterionProgramIdsItem {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The type of criterion to use. This should be `programId`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of criterion to use. This should be `programId`.",
+    ///  "examples": [
+    ///    "programId"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "programId"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum ProgramIdCriterionType {
+        #[serde(rename = "programId")]
+        ProgramId,
+    }
+    impl ::std::convert::From<&Self> for ProgramIdCriterionType {
+        fn from(value: &ProgramIdCriterionType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for ProgramIdCriterionType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::ProgramId => f.write_str("programId"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for ProgramIdCriterionType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "programId" => Ok(Self::ProgramId),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for ProgramIdCriterionType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for ProgramIdCriterionType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for ProgramIdCriterionType {
         type Error = self::error::ConversionError;
         fn try_from(
             value: ::std::string::String,
@@ -23483,12 +24280,13 @@ pub mod types {
                 })
         }
     }
-    ///`RevokeSpendPermissionRequest`
+    ///Request parameters for revoking a Spend Permission.
     ///
     /// <details><summary>JSON schema</summary>
     ///
     /// ```json
     ///{
+    ///  "description": "Request parameters for revoking a Spend Permission.",
     ///  "type": "object",
     ///  "required": [
     ///    "network",
@@ -23681,6 +24479,9 @@ pub mod types {
     ///      "$ref": "#/components/schemas/SendSolTransactionRule"
     ///    },
     ///    {
+    ///      "$ref": "#/components/schemas/SignSolMessageRule"
+    ///    },
+    ///    {
     ///      "$ref": "#/components/schemas/SignEvmHashRule"
     ///    },
     ///    {
@@ -23702,6 +24503,7 @@ pub mod types {
         SignEvmTypedDataRule(SignEvmTypedDataRule),
         SignSolTransactionRule(SignSolTransactionRule),
         SendSolTransactionRule(SendSolTransactionRule),
+        SignSolMessageRule(SignSolMessageRule),
         SignEvmHashRule(SignEvmHashRule),
         PrepareUserOperationRule(PrepareUserOperationRule),
         SendUserOperationRule(SendUserOperationRule),
@@ -23739,6 +24541,11 @@ pub mod types {
     impl ::std::convert::From<SendSolTransactionRule> for Rule {
         fn from(value: SendSolTransactionRule) -> Self {
             Self::SendSolTransactionRule(value)
+        }
+    }
+    impl ::std::convert::From<SignSolMessageRule> for Rule {
+        fn from(value: SignSolMessageRule) -> Self {
+            Self::SignSolMessageRule(value)
         }
     }
     impl ::std::convert::From<SignEvmHashRule> for Rule {
@@ -24532,6 +25339,12 @@ pub mod types {
     ///      },
     ///      {
     ///        "$ref": "#/components/schemas/SolDataCriterion"
+    ///      },
+    ///      {
+    ///        "$ref": "#/components/schemas/ProgramIdCriterion"
+    ///      },
+    ///      {
+    ///        "$ref": "#/components/schemas/SolNetworkCriterion"
     ///      }
     ///    ]
     ///  },
@@ -24591,6 +25404,12 @@ pub mod types {
     ///    },
     ///    {
     ///      "$ref": "#/components/schemas/SolDataCriterion"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/ProgramIdCriterion"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/SolNetworkCriterion"
     ///    }
     ///  ]
     ///}
@@ -24605,6 +25424,8 @@ pub mod types {
         SplValueCriterion(SplValueCriterion),
         MintAddressCriterion(MintAddressCriterion),
         SolDataCriterion(SolDataCriterion),
+        ProgramIdCriterion(ProgramIdCriterion),
+        SolNetworkCriterion(SolNetworkCriterion),
     }
     impl ::std::convert::From<&Self> for SendSolTransactionCriteriaItem {
         fn from(value: &SendSolTransactionCriteriaItem) -> Self {
@@ -24639,6 +25460,16 @@ pub mod types {
     impl ::std::convert::From<SolDataCriterion> for SendSolTransactionCriteriaItem {
         fn from(value: SolDataCriterion) -> Self {
             Self::SolDataCriterion(value)
+        }
+    }
+    impl ::std::convert::From<ProgramIdCriterion> for SendSolTransactionCriteriaItem {
+        fn from(value: ProgramIdCriterion) -> Self {
+            Self::ProgramIdCriterion(value)
+        }
+    }
+    impl ::std::convert::From<SolNetworkCriterion> for SendSolTransactionCriteriaItem {
+        fn from(value: SolNetworkCriterion) -> Self {
+            Self::SolNetworkCriterion(value)
         }
     }
     ///`SendSolTransactionRule`
@@ -25269,6 +26100,9 @@ pub mod types {
     ///      },
     ///      {
     ///        "$ref": "#/components/schemas/EvmDataCriterion"
+    ///      },
+    ///      {
+    ///        "$ref": "#/components/schemas/NetUSDChangeCriterion"
     ///      }
     ///    ]
     ///  },
@@ -25319,6 +26153,9 @@ pub mod types {
     ///    },
     ///    {
     ///      "$ref": "#/components/schemas/EvmDataCriterion"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/NetUSDChangeCriterion"
     ///    }
     ///  ]
     ///}
@@ -25330,6 +26167,7 @@ pub mod types {
         EthValueCriterion(EthValueCriterion),
         EvmAddressCriterion(EvmAddressCriterion),
         EvmDataCriterion(EvmDataCriterion),
+        NetUsdChangeCriterion(NetUsdChangeCriterion),
     }
     impl ::std::convert::From<&Self> for SendUserOperationCriteriaItem {
         fn from(value: &SendUserOperationCriteriaItem) -> Self {
@@ -25349,6 +26187,11 @@ pub mod types {
     impl ::std::convert::From<EvmDataCriterion> for SendUserOperationCriteriaItem {
         fn from(value: EvmDataCriterion) -> Self {
             Self::EvmDataCriterion(value)
+        }
+    }
+    impl ::std::convert::From<NetUsdChangeCriterion> for SendUserOperationCriteriaItem {
+        fn from(value: NetUsdChangeCriterion) -> Self {
+            Self::NetUsdChangeCriterion(value)
         }
     }
     ///`SendUserOperationRule`
@@ -28851,6 +29694,274 @@ pub mod types {
                 })
         }
     }
+    ///A schema for specifying criteria for the SignSolMessage operation.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A schema for specifying criteria for the SignSolMessage operation.",
+    ///  "examples": [
+    ///    [
+    ///      {
+    ///        "match": "^hello ([a-z]+)$",
+    ///        "type": "solMessage"
+    ///      }
+    ///    ]
+    ///  ],
+    ///  "type": "array",
+    ///  "items": {
+    ///    "oneOf": [
+    ///      {
+    ///        "$ref": "#/components/schemas/SolMessageCriterion"
+    ///      }
+    ///    ]
+    ///  },
+    ///  "x-audience": "public"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(transparent)]
+    pub struct SignSolMessageCriteria(pub ::std::vec::Vec<SolMessageCriterion>);
+    impl ::std::ops::Deref for SignSolMessageCriteria {
+        type Target = ::std::vec::Vec<SolMessageCriterion>;
+        fn deref(&self) -> &::std::vec::Vec<SolMessageCriterion> {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<SignSolMessageCriteria> for ::std::vec::Vec<SolMessageCriterion> {
+        fn from(value: SignSolMessageCriteria) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&SignSolMessageCriteria> for SignSolMessageCriteria {
+        fn from(value: &SignSolMessageCriteria) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<::std::vec::Vec<SolMessageCriterion>> for SignSolMessageCriteria {
+        fn from(value: ::std::vec::Vec<SolMessageCriterion>) -> Self {
+            Self(value)
+        }
+    }
+    ///`SignSolMessageRule`
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "SignSolMessageRule",
+    ///  "required": [
+    ///    "action",
+    ///    "criteria",
+    ///    "operation"
+    ///  ],
+    ///  "properties": {
+    ///    "action": {
+    ///      "description": "Whether matching the rule will cause the request to be rejected or accepted.",
+    ///      "examples": [
+    ///        "accept"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "reject",
+    ///        "accept"
+    ///      ]
+    ///    },
+    ///    "criteria": {
+    ///      "$ref": "#/components/schemas/SignSolMessageCriteria"
+    ///    },
+    ///    "operation": {
+    ///      "description": "The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.",
+    ///      "examples": [
+    ///        "signSolMessage"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "signSolMessage"
+    ///      ]
+    ///    }
+    ///  },
+    ///  "x-audience": "public"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SignSolMessageRule {
+        ///Whether matching the rule will cause the request to be rejected or accepted.
+        pub action: SignSolMessageRuleAction,
+        pub criteria: SignSolMessageCriteria,
+        ///The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+        pub operation: SignSolMessageRuleOperation,
+    }
+    impl ::std::convert::From<&SignSolMessageRule> for SignSolMessageRule {
+        fn from(value: &SignSolMessageRule) -> Self {
+            value.clone()
+        }
+    }
+    impl SignSolMessageRule {
+        pub fn builder() -> builder::SignSolMessageRule {
+            Default::default()
+        }
+    }
+    ///Whether matching the rule will cause the request to be rejected or accepted.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Whether matching the rule will cause the request to be rejected or accepted.",
+    ///  "examples": [
+    ///    "accept"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "reject",
+    ///    "accept"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SignSolMessageRuleAction {
+        #[serde(rename = "reject")]
+        Reject,
+        #[serde(rename = "accept")]
+        Accept,
+    }
+    impl ::std::convert::From<&Self> for SignSolMessageRuleAction {
+        fn from(value: &SignSolMessageRuleAction) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SignSolMessageRuleAction {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Reject => f.write_str("reject"),
+                Self::Accept => f.write_str("accept"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SignSolMessageRuleAction {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "reject" => Ok(Self::Reject),
+                "accept" => Ok(Self::Accept),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolMessageRuleAction {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SignSolMessageRuleAction {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SignSolMessageRuleAction {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The operation to which the rule applies. Every element of the `criteria` array must match the specified operation.",
+    ///  "examples": [
+    ///    "signSolMessage"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "signSolMessage"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SignSolMessageRuleOperation {
+        #[serde(rename = "signSolMessage")]
+        SignSolMessage,
+    }
+    impl ::std::convert::From<&Self> for SignSolMessageRuleOperation {
+        fn from(value: &SignSolMessageRuleOperation) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SignSolMessageRuleOperation {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::SignSolMessage => f.write_str("signSolMessage"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SignSolMessageRuleOperation {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "signSolMessage" => Ok(Self::SignSolMessage),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SignSolMessageRuleOperation {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SignSolMessageRuleOperation {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SignSolMessageRuleOperation {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
     ///A schema for specifying criteria for the SignSolTransaction operation.
     ///
     /// <details><summary>JSON schema</summary>
@@ -28889,6 +30000,9 @@ pub mod types {
     ///      },
     ///      {
     ///        "$ref": "#/components/schemas/SolDataCriterion"
+    ///      },
+    ///      {
+    ///        "$ref": "#/components/schemas/ProgramIdCriterion"
     ///      }
     ///    ]
     ///  },
@@ -28948,6 +30062,9 @@ pub mod types {
     ///    },
     ///    {
     ///      "$ref": "#/components/schemas/SolDataCriterion"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/ProgramIdCriterion"
     ///    }
     ///  ]
     ///}
@@ -28962,6 +30079,7 @@ pub mod types {
         SplValueCriterion(SplValueCriterion),
         MintAddressCriterion(MintAddressCriterion),
         SolDataCriterion(SolDataCriterion),
+        ProgramIdCriterion(ProgramIdCriterion),
     }
     impl ::std::convert::From<&Self> for SignSolTransactionCriteriaItem {
         fn from(value: &SignSolTransactionCriteriaItem) -> Self {
@@ -28996,6 +30114,11 @@ pub mod types {
     impl ::std::convert::From<SolDataCriterion> for SignSolTransactionCriteriaItem {
         fn from(value: SolDataCriterion) -> Self {
             Self::SolDataCriterion(value)
+        }
+    }
+    impl ::std::convert::From<ProgramIdCriterion> for SignSolTransactionCriteriaItem {
+        fn from(value: ProgramIdCriterion) -> Self {
+            Self::ProgramIdCriterion(value)
         }
     }
     ///`SignSolTransactionRule`
@@ -31035,6 +32158,457 @@ pub mod types {
         }
     }
     impl ::std::convert::TryFrom<::std::string::String> for SolDataParameterConditionOperator {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The criterion for the message of a Solana transaction.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "SolMessageCriterion",
+    ///  "description": "The criterion for the message of a Solana transaction.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "match",
+    ///    "type"
+    ///  ],
+    ///  "properties": {
+    ///    "match": {
+    ///      "description": "A regular expression the field is matched against.",
+    ///      "examples": [
+    ///        "^hello ([a-z]+)$"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "type": {
+    ///      "description": "The type of criterion to use. This should be `solMessage`.",
+    ///      "examples": [
+    ///        "solMessage"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "solMessage"
+    ///      ]
+    ///    }
+    ///  },
+    ///  "x-audience": "public"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SolMessageCriterion {
+        ///A regular expression the field is matched against.
+        #[serde(rename = "match")]
+        pub match_: ::std::string::String,
+        ///The type of criterion to use. This should be `solMessage`.
+        #[serde(rename = "type")]
+        pub type_: SolMessageCriterionType,
+    }
+    impl ::std::convert::From<&SolMessageCriterion> for SolMessageCriterion {
+        fn from(value: &SolMessageCriterion) -> Self {
+            value.clone()
+        }
+    }
+    impl SolMessageCriterion {
+        pub fn builder() -> builder::SolMessageCriterion {
+            Default::default()
+        }
+    }
+    ///The type of criterion to use. This should be `solMessage`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of criterion to use. This should be `solMessage`.",
+    ///  "examples": [
+    ///    "solMessage"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "solMessage"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SolMessageCriterionType {
+        #[serde(rename = "solMessage")]
+        SolMessage,
+    }
+    impl ::std::convert::From<&Self> for SolMessageCriterionType {
+        fn from(value: &SolMessageCriterionType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SolMessageCriterionType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::SolMessage => f.write_str("solMessage"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SolMessageCriterionType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "solMessage" => Ok(Self::SolMessage),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SolMessageCriterionType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SolMessageCriterionType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SolMessageCriterionType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The criterion for the Solana network of a transaction.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "SolNetworkCriterion",
+    ///  "description": "The criterion for the Solana network of a transaction.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "networks",
+    ///    "operator",
+    ///    "type"
+    ///  ],
+    ///  "properties": {
+    ///    "networks": {
+    ///      "description": "The Solana networks that the transaction's intended network should be compared to.",
+    ///      "examples": [
+    ///        [
+    ///          "solana-devnet",
+    ///          "solana"
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "description": "The Solana network the transaction is for.",
+    ///        "examples": [
+    ///          "solana-devnet"
+    ///        ],
+    ///        "type": "string",
+    ///        "enum": [
+    ///          "solana-devnet",
+    ///          "solana"
+    ///        ]
+    ///      }
+    ///    },
+    ///    "operator": {
+    ///      "description": "The operator to use for the comparison. The transaction's intended network will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.",
+    ///      "examples": [
+    ///        "in"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "in",
+    ///        "not in"
+    ///      ]
+    ///    },
+    ///    "type": {
+    ///      "description": "The type of criterion to use. This should be `solNetwork`.",
+    ///      "examples": [
+    ///        "solNetwork"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "solNetwork"
+    ///      ]
+    ///    }
+    ///  },
+    ///  "x-audience": "public"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct SolNetworkCriterion {
+        ///The Solana networks that the transaction's intended network should be compared to.
+        pub networks: ::std::vec::Vec<SolNetworkCriterionNetworksItem>,
+        ///The operator to use for the comparison. The transaction's intended network will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.
+        pub operator: SolNetworkCriterionOperator,
+        ///The type of criterion to use. This should be `solNetwork`.
+        #[serde(rename = "type")]
+        pub type_: SolNetworkCriterionType,
+    }
+    impl ::std::convert::From<&SolNetworkCriterion> for SolNetworkCriterion {
+        fn from(value: &SolNetworkCriterion) -> Self {
+            value.clone()
+        }
+    }
+    impl SolNetworkCriterion {
+        pub fn builder() -> builder::SolNetworkCriterion {
+            Default::default()
+        }
+    }
+    ///The Solana network the transaction is for.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The Solana network the transaction is for.",
+    ///  "examples": [
+    ///    "solana-devnet"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "solana-devnet",
+    ///    "solana"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SolNetworkCriterionNetworksItem {
+        #[serde(rename = "solana-devnet")]
+        SolanaDevnet,
+        #[serde(rename = "solana")]
+        Solana,
+    }
+    impl ::std::convert::From<&Self> for SolNetworkCriterionNetworksItem {
+        fn from(value: &SolNetworkCriterionNetworksItem) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SolNetworkCriterionNetworksItem {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::SolanaDevnet => f.write_str("solana-devnet"),
+                Self::Solana => f.write_str("solana"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SolNetworkCriterionNetworksItem {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "solana-devnet" => Ok(Self::SolanaDevnet),
+                "solana" => Ok(Self::Solana),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SolNetworkCriterionNetworksItem {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SolNetworkCriterionNetworksItem {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SolNetworkCriterionNetworksItem {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The operator to use for the comparison. The transaction's intended network will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The operator to use for the comparison. The transaction's intended network will be on the left-hand side of the operator, and the `networks` field will be on the right-hand side.",
+    ///  "examples": [
+    ///    "in"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "in",
+    ///    "not in"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SolNetworkCriterionOperator {
+        #[serde(rename = "in")]
+        In,
+        #[serde(rename = "not in")]
+        NotIn,
+    }
+    impl ::std::convert::From<&Self> for SolNetworkCriterionOperator {
+        fn from(value: &SolNetworkCriterionOperator) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SolNetworkCriterionOperator {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::In => f.write_str("in"),
+                Self::NotIn => f.write_str("not in"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SolNetworkCriterionOperator {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "in" => Ok(Self::In),
+                "not in" => Ok(Self::NotIn),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SolNetworkCriterionOperator {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SolNetworkCriterionOperator {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SolNetworkCriterionOperator {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The type of criterion to use. This should be `solNetwork`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The type of criterion to use. This should be `solNetwork`.",
+    ///  "examples": [
+    ///    "solNetwork"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "solNetwork"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum SolNetworkCriterionType {
+        #[serde(rename = "solNetwork")]
+        SolNetwork,
+    }
+    impl ::std::convert::From<&Self> for SolNetworkCriterionType {
+        fn from(value: &SolNetworkCriterionType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for SolNetworkCriterionType {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::SolNetwork => f.write_str("solNetwork"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for SolNetworkCriterionType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "solNetwork" => Ok(Self::SolNetwork),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for SolNetworkCriterionType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for SolNetworkCriterionType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for SolNetworkCriterionType {
         type Error = self::error::ConversionError;
         fn try_from(
             value: ::std::string::String,
@@ -33103,6 +34677,16 @@ pub mod types {
     ///          },
     ///          {
     ///            "network": "base-sepolia",
+    ///            "scheme": "exact",
+    ///            "x402Version": 1
+    ///          },
+    ///          {
+    ///            "network": "solana",
+    ///            "scheme": "exact",
+    ///            "x402Version": 1
+    ///          },
+    ///          {
+    ///            "network": "solana-devnet",
     ///            "scheme": "exact",
     ///            "x402Version": 1
     ///          }
@@ -35924,6 +37508,9 @@ pub mod types {
     ///  "description": "The receipt that contains information about the execution of user operation.",
     ///  "examples": [
     ///    {
+    ///      "blockHash": "0x386544b58930c0ec9e8f3ed09fb4cdb76b9ae0a1a37ddcacebe3925b57978e65",
+    ///      "blockNumber": 29338819,
+    ///      "gasUsed": "100000",
     ///      "revert": {
     ///        "data": "0x123",
     ///        "message": "reason for failure"
@@ -36948,6 +38535,50 @@ pub mod types {
                 })
         }
     }
+    ///The x402 protocol exact scheme payload for Solana networks. For more details, please see [Solana Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_svm.md).
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "title": "x402ExactSolanaPayload",
+    ///  "description": "The x402 protocol exact scheme payload for Solana networks. For more details, please see [Solana Exact Scheme Details](https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_svm.md).",
+    ///  "examples": [
+    ///    {
+    ///      "transaction": "AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA="
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "transaction"
+    ///  ],
+    ///  "properties": {
+    ///    "transaction": {
+    ///      "description": "The base64-encoded Solana transaction.",
+    ///      "examples": [
+    ///        "AQABAgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAQECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8CBgMBAQAAAAIBAwQAAAAABgIAAAAAAAYDBQEBAAAGBAgAAAAABgUAAAAA6AMAAAAAAAAGBgUBAQEBBgcEAQAAAAYICgMBAQIDBgkCBgAAAAYKAwABAQEGCwMGAQEBBgwDAAABAQAAAAA="
+    ///      ],
+    ///      "type": "string"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402ExactSolanaPayload {
+        ///The base64-encoded Solana transaction.
+        pub transaction: ::std::string::String,
+    }
+    impl ::std::convert::From<&X402ExactSolanaPayload> for X402ExactSolanaPayload {
+        fn from(value: &X402ExactSolanaPayload) -> Self {
+            value.clone()
+        }
+    }
+    impl X402ExactSolanaPayload {
+        pub fn builder() -> builder::X402ExactSolanaPayload {
+            Default::default()
+        }
+    }
     ///The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
     ///
     /// <details><summary>JSON schema</summary>
@@ -36989,7 +38620,9 @@ pub mod types {
     ///      "type": "string",
     ///      "enum": [
     ///        "base-sepolia",
-    ///        "base"
+    ///        "base",
+    ///        "solana-devnet",
+    ///        "solana"
     ///      ]
     ///    },
     ///    "payload": {
@@ -37011,6 +38644,9 @@ pub mod types {
     ///      "oneOf": [
     ///        {
     ///          "$ref": "#/components/schemas/x402ExactEvmPayload"
+    ///        },
+    ///        {
+    ///          "$ref": "#/components/schemas/x402ExactSolanaPayload"
     ///        }
     ///      ]
     ///    },
@@ -37036,7 +38672,7 @@ pub mod types {
         ///The network of the blockchain to send payment on.
         pub network: X402PaymentPayloadNetwork,
         ///The payload of the payment depending on the x402Version, scheme, and network.
-        pub payload: X402ExactEvmPayload,
+        pub payload: X402PaymentPayloadPayload,
         ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
         pub scheme: X402PaymentPayloadScheme,
         #[serde(rename = "x402Version")]
@@ -37065,7 +38701,9 @@ pub mod types {
     ///  "type": "string",
     ///  "enum": [
     ///    "base-sepolia",
-    ///    "base"
+    ///    "base",
+    ///    "solana-devnet",
+    ///    "solana"
     ///  ]
     ///}
     /// ```
@@ -37087,6 +38725,10 @@ pub mod types {
         BaseSepolia,
         #[serde(rename = "base")]
         Base,
+        #[serde(rename = "solana-devnet")]
+        SolanaDevnet,
+        #[serde(rename = "solana")]
+        Solana,
     }
     impl ::std::convert::From<&Self> for X402PaymentPayloadNetwork {
         fn from(value: &X402PaymentPayloadNetwork) -> Self {
@@ -37098,6 +38740,8 @@ pub mod types {
             match *self {
                 Self::BaseSepolia => f.write_str("base-sepolia"),
                 Self::Base => f.write_str("base"),
+                Self::SolanaDevnet => f.write_str("solana-devnet"),
+                Self::Solana => f.write_str("solana"),
             }
         }
     }
@@ -37107,6 +38751,8 @@ pub mod types {
             match value {
                 "base-sepolia" => Ok(Self::BaseSepolia),
                 "base" => Ok(Self::Base),
+                "solana-devnet" => Ok(Self::SolanaDevnet),
+                "solana" => Ok(Self::Solana),
                 _ => Err("invalid value".into()),
             }
         }
@@ -37131,6 +38777,59 @@ pub mod types {
             value: ::std::string::String,
         ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+    ///The payload of the payment depending on the x402Version, scheme, and network.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The payload of the payment depending on the x402Version, scheme, and network.",
+    ///  "examples": [
+    ///    {
+    ///      "authorization": {
+    ///        "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///        "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///        "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///        "validAfter": "1716150000",
+    ///        "validBefore": "1716150000",
+    ///        "value": "1000000000000000000"
+    ///      },
+    ///      "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "oneOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/x402ExactEvmPayload"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/x402ExactSolanaPayload"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(untagged)]
+    pub enum X402PaymentPayloadPayload {
+        EvmPayload(X402ExactEvmPayload),
+        SolanaPayload(X402ExactSolanaPayload),
+    }
+    impl ::std::convert::From<&Self> for X402PaymentPayloadPayload {
+        fn from(value: &X402PaymentPayloadPayload) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPayload> for X402PaymentPayloadPayload {
+        fn from(value: X402ExactEvmPayload) -> Self {
+            Self::EvmPayload(value)
+        }
+    }
+    impl ::std::convert::From<X402ExactSolanaPayload> for X402PaymentPayloadPayload {
+        fn from(value: X402ExactSolanaPayload) -> Self {
+            Self::SolanaPayload(value)
         }
     }
     ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
@@ -37283,7 +38982,9 @@ pub mod types {
     ///      "type": "string",
     ///      "enum": [
     ///        "base-sepolia",
-    ///        "base"
+    ///        "base",
+    ///        "solana-devnet",
+    ///        "solana"
     ///      ]
     ///    },
     ///    "outputSchema": {
@@ -37482,7 +39183,9 @@ pub mod types {
     ///  "type": "string",
     ///  "enum": [
     ///    "base-sepolia",
-    ///    "base"
+    ///    "base",
+    ///    "solana-devnet",
+    ///    "solana"
     ///  ]
     ///}
     /// ```
@@ -37504,6 +39207,10 @@ pub mod types {
         BaseSepolia,
         #[serde(rename = "base")]
         Base,
+        #[serde(rename = "solana-devnet")]
+        SolanaDevnet,
+        #[serde(rename = "solana")]
+        Solana,
     }
     impl ::std::convert::From<&Self> for X402PaymentRequirementsNetwork {
         fn from(value: &X402PaymentRequirementsNetwork) -> Self {
@@ -37515,6 +39222,8 @@ pub mod types {
             match *self {
                 Self::BaseSepolia => f.write_str("base-sepolia"),
                 Self::Base => f.write_str("base"),
+                Self::SolanaDevnet => f.write_str("solana-devnet"),
+                Self::Solana => f.write_str("solana"),
             }
         }
     }
@@ -37524,6 +39233,8 @@ pub mod types {
             match value {
                 "base-sepolia" => Ok(Self::BaseSepolia),
                 "base" => Ok(Self::Base),
+                "solana-devnet" => Ok(Self::SolanaDevnet),
+                "solana" => Ok(Self::Solana),
                 _ => Err("invalid value".into()),
             }
         }
@@ -37741,7 +39452,9 @@ pub mod types {
     ///    "invalid_exact_evm_payload_authorization_typed_data_message",
     ///    "invalid_exact_evm_payload_authorization_from_address_kyt",
     ///    "invalid_exact_evm_payload_authorization_to_address_kyt",
-    ///    "invalid_exact_evm_payload_signature_address"
+    ///    "invalid_exact_evm_payload_signature_address",
+    ///    "settle_exact_svm_block_height_exceeded",
+    ///    "settle_exact_svm_transaction_confirmation_timed_out"
     ///  ]
     ///}
     /// ```
@@ -37785,6 +39498,10 @@ pub mod types {
         InvalidExactEvmPayloadAuthorizationToAddressKyt,
         #[serde(rename = "invalid_exact_evm_payload_signature_address")]
         InvalidExactEvmPayloadSignatureAddress,
+        #[serde(rename = "settle_exact_svm_block_height_exceeded")]
+        SettleExactSvmBlockHeightExceeded,
+        #[serde(rename = "settle_exact_svm_transaction_confirmation_timed_out")]
+        SettleExactSvmTransactionConfirmationTimedOut,
     }
     impl ::std::convert::From<&Self> for X402SettleErrorReason {
         fn from(value: &X402SettleErrorReason) -> Self {
@@ -37821,6 +39538,12 @@ pub mod types {
                 Self::InvalidExactEvmPayloadSignatureAddress => {
                     f.write_str("invalid_exact_evm_payload_signature_address")
                 }
+                Self::SettleExactSvmBlockHeightExceeded => {
+                    f.write_str("settle_exact_svm_block_height_exceeded")
+                }
+                Self::SettleExactSvmTransactionConfirmationTimedOut => {
+                    f.write_str("settle_exact_svm_transaction_confirmation_timed_out")
+                }
             }
         }
     }
@@ -37854,6 +39577,12 @@ pub mod types {
                 }
                 "invalid_exact_evm_payload_signature_address" => {
                     Ok(Self::InvalidExactEvmPayloadSignatureAddress)
+                }
+                "settle_exact_svm_block_height_exceeded" => {
+                    Ok(Self::SettleExactSvmBlockHeightExceeded)
+                }
+                "settle_exact_svm_transaction_confirmation_timed_out" => {
+                    Ok(Self::SettleExactSvmTransactionConfirmationTimedOut)
                 }
                 _ => Err("invalid value".into()),
             }
@@ -37895,6 +39624,16 @@ pub mod types {
     ///    "x402Version"
     ///  ],
     ///  "properties": {
+    ///    "extra": {
+    ///      "description": "The optional additional scheme-specific payment info.",
+    ///      "examples": [
+    ///        {
+    ///          "feePayer": "HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "additionalProperties": true
+    ///    },
     ///    "network": {
     ///      "description": "The network of the blockchain.",
     ///      "examples": [
@@ -37903,7 +39642,9 @@ pub mod types {
     ///      "type": "string",
     ///      "enum": [
     ///        "base-sepolia",
-    ///        "base"
+    ///        "base",
+    ///        "solana-devnet",
+    ///        "solana"
     ///      ]
     ///    },
     ///    "scheme": {
@@ -37925,6 +39666,9 @@ pub mod types {
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct X402SupportedPaymentKind {
+        ///The optional additional scheme-specific payment info.
+        #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
+        pub extra: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
         ///The network of the blockchain.
         pub network: X402SupportedPaymentKindNetwork,
         ///The scheme of the payment protocol.
@@ -37955,7 +39699,9 @@ pub mod types {
     ///  "type": "string",
     ///  "enum": [
     ///    "base-sepolia",
-    ///    "base"
+    ///    "base",
+    ///    "solana-devnet",
+    ///    "solana"
     ///  ]
     ///}
     /// ```
@@ -37977,6 +39723,10 @@ pub mod types {
         BaseSepolia,
         #[serde(rename = "base")]
         Base,
+        #[serde(rename = "solana-devnet")]
+        SolanaDevnet,
+        #[serde(rename = "solana")]
+        Solana,
     }
     impl ::std::convert::From<&Self> for X402SupportedPaymentKindNetwork {
         fn from(value: &X402SupportedPaymentKindNetwork) -> Self {
@@ -37988,6 +39738,8 @@ pub mod types {
             match *self {
                 Self::BaseSepolia => f.write_str("base-sepolia"),
                 Self::Base => f.write_str("base"),
+                Self::SolanaDevnet => f.write_str("solana-devnet"),
+                Self::Solana => f.write_str("solana"),
             }
         }
     }
@@ -37997,6 +39749,8 @@ pub mod types {
             match value {
                 "base-sepolia" => Ok(Self::BaseSepolia),
                 "base" => Ok(Self::Base),
+                "solana-devnet" => Ok(Self::SolanaDevnet),
+                "solana" => Ok(Self::Solana),
                 _ => Err("invalid value".into()),
             }
         }
@@ -38124,7 +39878,25 @@ pub mod types {
     ///    "invalid_exact_evm_payload_authorization_from_address_kyt",
     ///    "invalid_exact_evm_payload_authorization_to_address_kyt",
     ///    "invalid_exact_evm_payload_signature",
-    ///    "invalid_exact_evm_payload_signature_address"
+    ///    "invalid_exact_evm_payload_signature_address",
+    ///    "invalid_exact_svm_payload_transaction",
+    ///    "invalid_exact_svm_payload_transaction_amount_mismatch",
+    ///    "invalid_exact_svm_payload_transaction_create_ata_instruction",
+    ///    "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee",
+    ///    "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset",
+    ///    "invalid_exact_svm_payload_transaction_instructions",
+    ///    "invalid_exact_svm_payload_transaction_instructions_length",
+    ///    "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction",
+    ///    "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction",
+    ///    "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high",
+    ///    "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked",
+    ///    "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked",
+    ///    "invalid_exact_svm_payload_transaction_not_a_transfer_instruction",
+    ///    "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata",
+    ///    "invalid_exact_svm_payload_transaction_receiver_ata_not_found",
+    ///    "invalid_exact_svm_payload_transaction_sender_ata_not_found",
+    ///    "invalid_exact_svm_payload_transaction_simulation_failed",
+    ///    "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata"
     ///  ]
     ///}
     /// ```
@@ -38170,6 +39942,56 @@ pub mod types {
         InvalidExactEvmPayloadSignature,
         #[serde(rename = "invalid_exact_evm_payload_signature_address")]
         InvalidExactEvmPayloadSignatureAddress,
+        #[serde(rename = "invalid_exact_svm_payload_transaction")]
+        InvalidExactSvmPayloadTransaction,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_amount_mismatch")]
+        InvalidExactSvmPayloadTransactionAmountMismatch,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_create_ata_instruction")]
+        InvalidExactSvmPayloadTransactionCreateAtaInstruction,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee"
+        )]
+        InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectPayee,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset"
+        )]
+        InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectAsset,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_instructions")]
+        InvalidExactSvmPayloadTransactionInstructions,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_instructions_length")]
+        InvalidExactSvmPayloadTransactionInstructionsLength,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction"
+        )]
+        InvalidExactSvmPayloadTransactionInstructionsComputeLimitInstruction,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction"
+        )]
+        InvalidExactSvmPayloadTransactionInstructionsComputePriceInstruction,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high"
+        )]
+        InvalidExactSvmPayloadTransactionInstructionsComputePriceInstructionTooHigh,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked"
+        )]
+        InvalidExactSvmPayloadTransactionInstructionNotSplTokenTransferChecked,
+        #[serde(
+            rename = "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked"
+        )]
+        InvalidExactSvmPayloadTransactionInstructionNotToken2022TransferChecked,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_not_a_transfer_instruction")]
+        InvalidExactSvmPayloadTransactionNotATransferInstruction,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata")]
+        InvalidExactSvmPayloadTransactionCannotDeriveReceiverAta,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_receiver_ata_not_found")]
+        InvalidExactSvmPayloadTransactionReceiverAtaNotFound,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_sender_ata_not_found")]
+        InvalidExactSvmPayloadTransactionSenderAtaNotFound,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_simulation_failed")]
+        InvalidExactSvmPayloadTransactionSimulationFailed,
+        #[serde(rename = "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata")]
+        InvalidExactSvmPayloadTransactionTransferToIncorrectAta,
     }
     impl ::std::convert::From<&Self> for X402VerifyInvalidReason {
         fn from(value: &X402VerifyInvalidReason) -> Self {
@@ -38183,7 +40005,9 @@ pub mod types {
                 Self::InvalidScheme => f.write_str("invalid_scheme"),
                 Self::InvalidNetwork => f.write_str("invalid_network"),
                 Self::InvalidX402Version => f.write_str("invalid_x402_version"),
-                Self::InvalidPaymentRequirements => f.write_str("invalid_payment_requirements"),
+                Self::InvalidPaymentRequirements => {
+                    f.write_str("invalid_payment_requirements")
+                }
                 Self::InvalidPayload => f.write_str("invalid_payload"),
                 Self::InvalidExactEvmPayloadAuthorizationValue => {
                     f.write_str("invalid_exact_evm_payload_authorization_value")
@@ -38195,10 +40019,14 @@ pub mod types {
                     f.write_str("invalid_exact_evm_payload_authorization_valid_before")
                 }
                 Self::InvalidExactEvmPayloadAuthorizationTypedDataMessage => {
-                    f.write_str("invalid_exact_evm_payload_authorization_typed_data_message")
+                    f.write_str(
+                        "invalid_exact_evm_payload_authorization_typed_data_message",
+                    )
                 }
                 Self::InvalidExactEvmPayloadAuthorizationFromAddressKyt => {
-                    f.write_str("invalid_exact_evm_payload_authorization_from_address_kyt")
+                    f.write_str(
+                        "invalid_exact_evm_payload_authorization_from_address_kyt",
+                    )
                 }
                 Self::InvalidExactEvmPayloadAuthorizationToAddressKyt => {
                     f.write_str("invalid_exact_evm_payload_authorization_to_address_kyt")
@@ -38208,6 +40036,90 @@ pub mod types {
                 }
                 Self::InvalidExactEvmPayloadSignatureAddress => {
                     f.write_str("invalid_exact_evm_payload_signature_address")
+                }
+                Self::InvalidExactSvmPayloadTransaction => {
+                    f.write_str("invalid_exact_svm_payload_transaction")
+                }
+                Self::InvalidExactSvmPayloadTransactionAmountMismatch => {
+                    f.write_str("invalid_exact_svm_payload_transaction_amount_mismatch")
+                }
+                Self::InvalidExactSvmPayloadTransactionCreateAtaInstruction => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_create_ata_instruction",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectPayee => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectAsset => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructions => {
+                    f.write_str("invalid_exact_svm_payload_transaction_instructions")
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructionsLength => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_instructions_length",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructionsComputeLimitInstruction => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructionsComputePriceInstruction => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructionsComputePriceInstructionTooHigh => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructionNotSplTokenTransferChecked => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionInstructionNotToken2022TransferChecked => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionNotATransferInstruction => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_not_a_transfer_instruction",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionCannotDeriveReceiverAta => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionReceiverAtaNotFound => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_receiver_ata_not_found",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionSenderAtaNotFound => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_sender_ata_not_found",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionSimulationFailed => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_simulation_failed",
+                    )
+                }
+                Self::InvalidExactSvmPayloadTransactionTransferToIncorrectAta => {
+                    f.write_str(
+                        "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata",
+                    )
                 }
             }
         }
@@ -38240,9 +40152,79 @@ pub mod types {
                 "invalid_exact_evm_payload_authorization_to_address_kyt" => {
                     Ok(Self::InvalidExactEvmPayloadAuthorizationToAddressKyt)
                 }
-                "invalid_exact_evm_payload_signature" => Ok(Self::InvalidExactEvmPayloadSignature),
+                "invalid_exact_evm_payload_signature" => {
+                    Ok(Self::InvalidExactEvmPayloadSignature)
+                }
                 "invalid_exact_evm_payload_signature_address" => {
                     Ok(Self::InvalidExactEvmPayloadSignatureAddress)
+                }
+                "invalid_exact_svm_payload_transaction" => {
+                    Ok(Self::InvalidExactSvmPayloadTransaction)
+                }
+                "invalid_exact_svm_payload_transaction_amount_mismatch" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionAmountMismatch)
+                }
+                "invalid_exact_svm_payload_transaction_create_ata_instruction" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionCreateAtaInstruction)
+                }
+                "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectPayee,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectAsset,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_instructions" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionInstructions)
+                }
+                "invalid_exact_svm_payload_transaction_instructions_length" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionInstructionsLength)
+                }
+                "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionInstructionsComputeLimitInstruction,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionInstructionsComputePriceInstruction,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionInstructionsComputePriceInstructionTooHigh,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionInstructionNotSplTokenTransferChecked,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked" => {
+                    Ok(
+                        Self::InvalidExactSvmPayloadTransactionInstructionNotToken2022TransferChecked,
+                    )
+                }
+                "invalid_exact_svm_payload_transaction_not_a_transfer_instruction" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionNotATransferInstruction)
+                }
+                "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionCannotDeriveReceiverAta)
+                }
+                "invalid_exact_svm_payload_transaction_receiver_ata_not_found" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionReceiverAtaNotFound)
+                }
+                "invalid_exact_svm_payload_transaction_sender_ata_not_found" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionSenderAtaNotFound)
+                }
+                "invalid_exact_svm_payload_transaction_simulation_failed" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionSimulationFailed)
+                }
+                "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata" => {
+                    Ok(Self::InvalidExactSvmPayloadTransactionTransferToIncorrectAta)
                 }
                 _ => Err("invalid value".into()),
             }
@@ -39764,6 +41746,253 @@ pub mod types {
                 Self {
                     order: Ok(value.order),
                     payment_link: Ok(value.payment_link),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct CreateOnrampSessionBody {
+            country: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            destination_address:
+                ::std::result::Result<::std::string::String, ::std::string::String>,
+            destination_network:
+                ::std::result::Result<::std::string::String, ::std::string::String>,
+            payment_amount: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            payment_currency: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            payment_method: ::std::result::Result<
+                ::std::option::Option<super::OnrampQuotePaymentMethodTypeId>,
+                ::std::string::String,
+            >,
+            purchase_currency: ::std::result::Result<::std::string::String, ::std::string::String>,
+            redirect_url: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+            subdivision: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for CreateOnrampSessionBody {
+            fn default() -> Self {
+                Self {
+                    country: Ok(Default::default()),
+                    destination_address: Err(
+                        "no value supplied for destination_address".to_string()
+                    ),
+                    destination_network: Err(
+                        "no value supplied for destination_network".to_string()
+                    ),
+                    payment_amount: Ok(Default::default()),
+                    payment_currency: Ok(Default::default()),
+                    payment_method: Ok(Default::default()),
+                    purchase_currency: Err("no value supplied for purchase_currency".to_string()),
+                    redirect_url: Ok(Default::default()),
+                    subdivision: Ok(Default::default()),
+                }
+            }
+        }
+        impl CreateOnrampSessionBody {
+            pub fn country<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.country = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for country: {}", e));
+                self
+            }
+            pub fn destination_address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.destination_address = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for destination_address: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn destination_network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.destination_network = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for destination_network: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn payment_amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payment_amount = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for payment_amount: {}", e)
+                });
+                self
+            }
+            pub fn payment_currency<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payment_currency = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for payment_currency: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn payment_method<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<super::OnrampQuotePaymentMethodTypeId>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payment_method = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for payment_method: {}", e)
+                });
+                self
+            }
+            pub fn purchase_currency<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.purchase_currency = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for purchase_currency: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn redirect_url<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.redirect_url = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for redirect_url: {}", e)
+                });
+                self
+            }
+            pub fn subdivision<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.subdivision = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for subdivision: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<CreateOnrampSessionBody> for super::CreateOnrampSessionBody {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: CreateOnrampSessionBody,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    country: value.country?,
+                    destination_address: value.destination_address?,
+                    destination_network: value.destination_network?,
+                    payment_amount: value.payment_amount?,
+                    payment_currency: value.payment_currency?,
+                    payment_method: value.payment_method?,
+                    purchase_currency: value.purchase_currency?,
+                    redirect_url: value.redirect_url?,
+                    subdivision: value.subdivision?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::CreateOnrampSessionBody> for CreateOnrampSessionBody {
+            fn from(value: super::CreateOnrampSessionBody) -> Self {
+                Self {
+                    country: Ok(value.country),
+                    destination_address: Ok(value.destination_address),
+                    destination_network: Ok(value.destination_network),
+                    payment_amount: Ok(value.payment_amount),
+                    payment_currency: Ok(value.payment_currency),
+                    payment_method: Ok(value.payment_method),
+                    purchase_currency: Ok(value.purchase_currency),
+                    redirect_url: Ok(value.redirect_url),
+                    subdivision: Ok(value.subdivision),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct CreateOnrampSessionResponse {
+            quote: ::std::result::Result<
+                ::std::option::Option<super::OnrampQuote>,
+                ::std::string::String,
+            >,
+            session: ::std::result::Result<super::OnrampSession, ::std::string::String>,
+        }
+        impl ::std::default::Default for CreateOnrampSessionResponse {
+            fn default() -> Self {
+                Self {
+                    quote: Ok(Default::default()),
+                    session: Err("no value supplied for session".to_string()),
+                }
+            }
+        }
+        impl CreateOnrampSessionResponse {
+            pub fn quote<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::OnrampQuote>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.quote = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for quote: {}", e));
+                self
+            }
+            pub fn session<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::OnrampSession>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.session = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for session: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<CreateOnrampSessionResponse> for super::CreateOnrampSessionResponse {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: CreateOnrampSessionResponse,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    quote: value.quote?,
+                    session: value.session?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::CreateOnrampSessionResponse> for CreateOnrampSessionResponse {
+            fn from(value: super::CreateOnrampSessionResponse) -> Self {
+                Self {
+                    quote: Ok(value.quote),
+                    session: Ok(value.session),
                 }
             }
         }
@@ -45764,6 +47993,202 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct OnrampQuote {
+            destination_network:
+                ::std::result::Result<::std::string::String, ::std::string::String>,
+            exchange_rate: ::std::result::Result<::std::string::String, ::std::string::String>,
+            fees: ::std::result::Result<
+                ::std::vec::Vec<super::OnrampOrderFee>,
+                ::std::string::String,
+            >,
+            payment_currency: ::std::result::Result<::std::string::String, ::std::string::String>,
+            payment_subtotal: ::std::result::Result<::std::string::String, ::std::string::String>,
+            payment_total: ::std::result::Result<::std::string::String, ::std::string::String>,
+            purchase_amount: ::std::result::Result<::std::string::String, ::std::string::String>,
+            purchase_currency: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for OnrampQuote {
+            fn default() -> Self {
+                Self {
+                    destination_network: Err(
+                        "no value supplied for destination_network".to_string()
+                    ),
+                    exchange_rate: Err("no value supplied for exchange_rate".to_string()),
+                    fees: Err("no value supplied for fees".to_string()),
+                    payment_currency: Err("no value supplied for payment_currency".to_string()),
+                    payment_subtotal: Err("no value supplied for payment_subtotal".to_string()),
+                    payment_total: Err("no value supplied for payment_total".to_string()),
+                    purchase_amount: Err("no value supplied for purchase_amount".to_string()),
+                    purchase_currency: Err("no value supplied for purchase_currency".to_string()),
+                }
+            }
+        }
+        impl OnrampQuote {
+            pub fn destination_network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.destination_network = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for destination_network: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn exchange_rate<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.exchange_rate = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for exchange_rate: {}", e)
+                });
+                self
+            }
+            pub fn fees<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::OnrampOrderFee>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.fees = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for fees: {}", e));
+                self
+            }
+            pub fn payment_currency<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payment_currency = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for payment_currency: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn payment_subtotal<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payment_subtotal = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for payment_subtotal: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn payment_total<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payment_total = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for payment_total: {}", e)
+                });
+                self
+            }
+            pub fn purchase_amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.purchase_amount = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for purchase_amount: {}", e)
+                });
+                self
+            }
+            pub fn purchase_currency<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.purchase_currency = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for purchase_currency: {}",
+                        e
+                    )
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<OnrampQuote> for super::OnrampQuote {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: OnrampQuote,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    destination_network: value.destination_network?,
+                    exchange_rate: value.exchange_rate?,
+                    fees: value.fees?,
+                    payment_currency: value.payment_currency?,
+                    payment_subtotal: value.payment_subtotal?,
+                    payment_total: value.payment_total?,
+                    purchase_amount: value.purchase_amount?,
+                    purchase_currency: value.purchase_currency?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::OnrampQuote> for OnrampQuote {
+            fn from(value: super::OnrampQuote) -> Self {
+                Self {
+                    destination_network: Ok(value.destination_network),
+                    exchange_rate: Ok(value.exchange_rate),
+                    fees: Ok(value.fees),
+                    payment_currency: Ok(value.payment_currency),
+                    payment_subtotal: Ok(value.payment_subtotal),
+                    payment_total: Ok(value.payment_total),
+                    purchase_amount: Ok(value.purchase_amount),
+                    purchase_currency: Ok(value.purchase_currency),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct OnrampSession {
+            onramp_url: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for OnrampSession {
+            fn default() -> Self {
+                Self {
+                    onramp_url: Err("no value supplied for onramp_url".to_string()),
+                }
+            }
+        }
+        impl OnrampSession {
+            pub fn onramp_url<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.onramp_url = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for onramp_url: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<OnrampSession> for super::OnrampSession {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: OnrampSession,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    onramp_url: value.onramp_url?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::OnrampSession> for OnrampSession {
+            fn from(value: super::OnrampSession) -> Self {
+                Self {
+                    onramp_url: Ok(value.onramp_url),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct PaymentMethod {
             actions: ::std::result::Result<
                 ::std::vec::Vec<super::PaymentRailAction>,
@@ -46347,6 +48772,80 @@ pub mod types {
                     action: Ok(value.action),
                     criteria: Ok(value.criteria),
                     operation: Ok(value.operation),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct ProgramIdCriterion {
+            operator:
+                ::std::result::Result<super::ProgramIdCriterionOperator, ::std::string::String>,
+            program_ids: ::std::result::Result<
+                ::std::vec::Vec<super::ProgramIdCriterionProgramIdsItem>,
+                ::std::string::String,
+            >,
+            type_: ::std::result::Result<super::ProgramIdCriterionType, ::std::string::String>,
+        }
+        impl ::std::default::Default for ProgramIdCriterion {
+            fn default() -> Self {
+                Self {
+                    operator: Err("no value supplied for operator".to_string()),
+                    program_ids: Err("no value supplied for program_ids".to_string()),
+                    type_: Err("no value supplied for type_".to_string()),
+                }
+            }
+        }
+        impl ProgramIdCriterion {
+            pub fn operator<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::ProgramIdCriterionOperator>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.operator = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for operator: {}", e));
+                self
+            }
+            pub fn program_ids<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::vec::Vec<super::ProgramIdCriterionProgramIdsItem>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.program_ids = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for program_ids: {}", e));
+                self
+            }
+            pub fn type_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::ProgramIdCriterionType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.type_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for type_: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<ProgramIdCriterion> for super::ProgramIdCriterion {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: ProgramIdCriterion,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    operator: value.operator?,
+                    program_ids: value.program_ids?,
+                    type_: value.type_?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::ProgramIdCriterion> for ProgramIdCriterion {
+            fn from(value: super::ProgramIdCriterion) -> Self {
+                Self {
+                    operator: Ok(value.operator),
+                    program_ids: Ok(value.program_ids),
+                    type_: Ok(value.type_),
                 }
             }
         }
@@ -48123,6 +50622,75 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct SignSolMessageRule {
+            action: ::std::result::Result<super::SignSolMessageRuleAction, ::std::string::String>,
+            criteria: ::std::result::Result<super::SignSolMessageCriteria, ::std::string::String>,
+            operation:
+                ::std::result::Result<super::SignSolMessageRuleOperation, ::std::string::String>,
+        }
+        impl ::std::default::Default for SignSolMessageRule {
+            fn default() -> Self {
+                Self {
+                    action: Err("no value supplied for action".to_string()),
+                    criteria: Err("no value supplied for criteria".to_string()),
+                    operation: Err("no value supplied for operation".to_string()),
+                }
+            }
+        }
+        impl SignSolMessageRule {
+            pub fn action<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SignSolMessageRuleAction>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.action = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for action: {}", e));
+                self
+            }
+            pub fn criteria<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SignSolMessageCriteria>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.criteria = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for criteria: {}", e));
+                self
+            }
+            pub fn operation<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SignSolMessageRuleOperation>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.operation = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for operation: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SignSolMessageRule> for super::SignSolMessageRule {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SignSolMessageRule,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    action: value.action?,
+                    criteria: value.criteria?,
+                    operation: value.operation?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SignSolMessageRule> for SignSolMessageRule {
+            fn from(value: super::SignSolMessageRule) -> Self {
+                Self {
+                    action: Ok(value.action),
+                    criteria: Ok(value.criteria),
+                    operation: Ok(value.operation),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct SignSolTransactionRule {
             action:
                 ::std::result::Result<super::SignSolTransactionRuleAction, ::std::string::String>,
@@ -48764,6 +51332,132 @@ pub mod types {
                     name: Ok(value.name),
                     operator: Ok(value.operator),
                     values: Ok(value.values),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SolMessageCriterion {
+            match_: ::std::result::Result<::std::string::String, ::std::string::String>,
+            type_: ::std::result::Result<super::SolMessageCriterionType, ::std::string::String>,
+        }
+        impl ::std::default::Default for SolMessageCriterion {
+            fn default() -> Self {
+                Self {
+                    match_: Err("no value supplied for match_".to_string()),
+                    type_: Err("no value supplied for type_".to_string()),
+                }
+            }
+        }
+        impl SolMessageCriterion {
+            pub fn match_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.match_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for match_: {}", e));
+                self
+            }
+            pub fn type_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SolMessageCriterionType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.type_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for type_: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SolMessageCriterion> for super::SolMessageCriterion {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SolMessageCriterion,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    match_: value.match_?,
+                    type_: value.type_?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SolMessageCriterion> for SolMessageCriterion {
+            fn from(value: super::SolMessageCriterion) -> Self {
+                Self {
+                    match_: Ok(value.match_),
+                    type_: Ok(value.type_),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SolNetworkCriterion {
+            networks: ::std::result::Result<
+                ::std::vec::Vec<super::SolNetworkCriterionNetworksItem>,
+                ::std::string::String,
+            >,
+            operator:
+                ::std::result::Result<super::SolNetworkCriterionOperator, ::std::string::String>,
+            type_: ::std::result::Result<super::SolNetworkCriterionType, ::std::string::String>,
+        }
+        impl ::std::default::Default for SolNetworkCriterion {
+            fn default() -> Self {
+                Self {
+                    networks: Err("no value supplied for networks".to_string()),
+                    operator: Err("no value supplied for operator".to_string()),
+                    type_: Err("no value supplied for type_".to_string()),
+                }
+            }
+        }
+        impl SolNetworkCriterion {
+            pub fn networks<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::SolNetworkCriterionNetworksItem>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.networks = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for networks: {}", e));
+                self
+            }
+            pub fn operator<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SolNetworkCriterionOperator>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.operator = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for operator: {}", e));
+                self
+            }
+            pub fn type_<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::SolNetworkCriterionType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.type_ = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for type_: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<SolNetworkCriterion> for super::SolNetworkCriterion {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: SolNetworkCriterion,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    networks: value.networks?,
+                    operator: value.operator?,
+                    type_: value.type_?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::SolNetworkCriterion> for SolNetworkCriterion {
+            fn from(value: super::SolNetworkCriterion) -> Self {
+                Self {
+                    networks: Ok(value.networks),
+                    operator: Ok(value.operator),
+                    type_: Ok(value.type_),
                 }
             }
         }
@@ -50918,9 +53612,49 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
+        pub struct X402ExactSolanaPayload {
+            transaction: ::std::result::Result<::std::string::String, ::std::string::String>,
+        }
+        impl ::std::default::Default for X402ExactSolanaPayload {
+            fn default() -> Self {
+                Self {
+                    transaction: Err("no value supplied for transaction".to_string()),
+                }
+            }
+        }
+        impl X402ExactSolanaPayload {
+            pub fn transaction<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.transaction = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for transaction: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402ExactSolanaPayload> for super::X402ExactSolanaPayload {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402ExactSolanaPayload,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    transaction: value.transaction?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402ExactSolanaPayload> for X402ExactSolanaPayload {
+            fn from(value: super::X402ExactSolanaPayload) -> Self {
+                Self {
+                    transaction: Ok(value.transaction),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
         pub struct X402PaymentPayload {
             network: ::std::result::Result<super::X402PaymentPayloadNetwork, ::std::string::String>,
-            payload: ::std::result::Result<super::X402ExactEvmPayload, ::std::string::String>,
+            payload: ::std::result::Result<super::X402PaymentPayloadPayload, ::std::string::String>,
             scheme: ::std::result::Result<super::X402PaymentPayloadScheme, ::std::string::String>,
             x402_version: ::std::result::Result<super::X402Version, ::std::string::String>,
         }
@@ -50947,7 +53681,7 @@ pub mod types {
             }
             pub fn payload<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<super::X402ExactEvmPayload>,
+                T: ::std::convert::TryInto<super::X402PaymentPayloadPayload>,
                 T::Error: ::std::fmt::Display,
             {
                 self.payload = value
@@ -51206,6 +53940,10 @@ pub mod types {
         }
         #[derive(Clone, Debug)]
         pub struct X402SupportedPaymentKind {
+            extra: ::std::result::Result<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                ::std::string::String,
+            >,
             network: ::std::result::Result<
                 super::X402SupportedPaymentKindNetwork,
                 ::std::string::String,
@@ -51217,6 +53955,7 @@ pub mod types {
         impl ::std::default::Default for X402SupportedPaymentKind {
             fn default() -> Self {
                 Self {
+                    extra: Ok(Default::default()),
                     network: Err("no value supplied for network".to_string()),
                     scheme: Err("no value supplied for scheme".to_string()),
                     x402_version: Err("no value supplied for x402_version".to_string()),
@@ -51224,6 +53963,18 @@ pub mod types {
             }
         }
         impl X402SupportedPaymentKind {
+            pub fn extra<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.extra = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for extra: {}", e));
+                self
+            }
             pub fn network<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<super::X402SupportedPaymentKindNetwork>,
@@ -51261,6 +54012,7 @@ pub mod types {
                 value: X402SupportedPaymentKind,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
+                    extra: value.extra?,
                     network: value.network?,
                     scheme: value.scheme?,
                     x402_version: value.x402_version?,
@@ -51270,6 +54022,7 @@ pub mod types {
         impl ::std::convert::From<super::X402SupportedPaymentKind> for X402SupportedPaymentKind {
             fn from(value: super::X402SupportedPaymentKind) -> Self {
                 Self {
+                    extra: Ok(value.extra),
                     network: Ok(value.network),
                     scheme: Ok(value.scheme),
                     x402_version: Ok(value.x402_version),
@@ -52190,6 +54943,36 @@ impl Client {
     ```*/
     pub fn get_onramp_order_by_id(&self) -> builder::GetOnrampOrderById<'_> {
         builder::GetOnrampOrderById::new(self)
+    }
+    /**Create an onramp session
+
+    Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:
+
+    **Important**: The returned URL is single-use only. Once a user visits the URL,  no one else can access it.
+    ## Use Cases
+    ### 1. Basic Session (Minimum Parameters)
+    **Required**: `destinationAddress`, `purchaseCurrency`, `destinationNetwork`
+
+    **Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response.
+    ### 2. One-Click Onramp URL
+    **Required**: Basic parameters + `paymentAmount`, `paymentCurrency`
+
+    **Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response.
+    ### 3. One-Click Onramp URL with Quote
+    **Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`
+
+    **Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.
+
+    Sends a `POST` request to `/v2/onramp/sessions`
+
+    ```ignore
+    let response = client.create_onramp_session()
+        .body(body)
+        .send()
+        .await;
+    ```*/
+    pub fn create_onramp_session(&self) -> builder::CreateOnrampSession<'_> {
+        builder::CreateOnrampSession::new(self)
     }
     /**Get the crypto rails
 
@@ -56787,6 +59570,96 @@ pub mod builder {
                     ResponseValue::from_response(response).await?,
                 )),
                 429u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
+    /**Builder for [`Client::create_onramp_session`]
+
+    [`Client::create_onramp_session`]: super::Client::create_onramp_session*/
+    #[derive(Debug, Clone)]
+    pub struct CreateOnrampSession<'a> {
+        client: &'a super::Client,
+        body: Result<types::builder::CreateOnrampSessionBody, String>,
+    }
+    impl<'a> CreateOnrampSession<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self {
+                client: client,
+                body: Ok(::std::default::Default::default()),
+            }
+        }
+        pub fn body<V>(mut self, value: V) -> Self
+        where
+            V: std::convert::TryInto<types::CreateOnrampSessionBody>,
+            <V as std::convert::TryInto<types::CreateOnrampSessionBody>>::Error: std::fmt::Display,
+        {
+            self.body = value.try_into().map(From::from).map_err(|s| {
+                format!(
+                    "conversion to `CreateOnrampSessionBody` for body failed: {}",
+                    s
+                )
+            });
+            self
+        }
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::CreateOnrampSessionBody,
+            ) -> types::builder::CreateOnrampSessionBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/v2/onramp/sessions`
+        pub async fn send(
+            self,
+        ) -> Result<ResponseValue<types::CreateOnrampSessionResponse>, Error<types::Error>>
+        {
+            let Self { client, body } = self;
+            let body = body
+                .and_then(|v| {
+                    types::CreateOnrampSessionBody::try_from(v).map_err(|e| e.to_string())
+                })
+                .map_err(Error::InvalidRequest)?;
+            let url = format!("{}/v2/onramp/sessions", client.baseurl,);
+            let mut header_map = ::reqwest::header::HeaderMap::with_capacity(1usize);
+            header_map.append(
+                ::reqwest::header::HeaderName::from_static("api-version"),
+                ::reqwest::header::HeaderValue::from_static(super::Client::api_version()),
+            );
+            #[allow(unused_mut)]
+            let mut request = client
+                .client
+                .post(url)
+                .header(
+                    ::reqwest::header::ACCEPT,
+                    ::reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .json(&body)
+                .headers(header_map)
+                .build()?;
+            let info = OperationInfo {
+                operation_id: "create_onramp_session",
+            };
+            client.pre(&mut request, &info).await?;
+            let result = client.exec(request, &info).await;
+            client.post(&result, &info).await?;
+            let response = result?;
+            match response.status().as_u16() {
+                201u16 => ResponseValue::from_response(response).await,
+                400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                401u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                429u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                500u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 _ => Err(Error::UnexpectedResponse(response)),

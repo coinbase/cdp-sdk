@@ -1655,6 +1655,26 @@ async def test_create_evm_policy_with_netusdchange(cdp_client):
                         ),
                     ],
                 ),
+                PrepareUserOperationRule(
+                    action="accept",
+                    criteria=[
+                        NetUSDChangeCriterion(
+                            type="netUSDChange",
+                            changeCents=10000,
+                            operator="<",
+                        ),
+                    ],
+                ),
+                SendUserOperationRule(
+                    action="accept",
+                    criteria=[
+                        NetUSDChangeCriterion(
+                            type="netUSDChange",
+                            changeCents=10000,
+                            operator="<",
+                        ),
+                    ],
+                ),
             ],
         )
     )
@@ -1663,7 +1683,7 @@ async def test_create_evm_policy_with_netusdchange(cdp_client):
     assert policy.scope == "account"
     assert policy.description == "E2E EVM Policy with netUSDChange criteria"
     assert policy.rules is not None
-    assert len(policy.rules) == 2
+    assert len(policy.rules) == 4
 
     # Verify first rule - SignEvmTransactionRule
     assert policy.rules[0].action == "accept"
@@ -1682,6 +1702,22 @@ async def test_create_evm_policy_with_netusdchange(cdp_client):
     assert policy.rules[1].criteria[0].type == "netUSDChange"
     assert policy.rules[1].criteria[0].changeCents == 10000
     assert policy.rules[1].criteria[0].operator == "<"
+
+    assert policy.rules[2].action == "accept"
+    assert policy.rules[2].operation == "prepareUserOperation"
+    assert policy.rules[2].criteria is not None
+    assert len(policy.rules[2].criteria) == 1
+    assert policy.rules[2].criteria[0].type == "netUSDChange"
+    assert policy.rules[2].criteria[0].changeCents == 10000
+    assert policy.rules[2].criteria[0].operator == "<"
+
+    assert policy.rules[3].action == "accept"
+    assert policy.rules[3].operation == "sendUserOperation"
+    assert policy.rules[3].criteria is not None
+    assert len(policy.rules[3].criteria) == 1
+    assert policy.rules[3].criteria[0].type == "netUSDChange"
+    assert policy.rules[3].criteria[0].changeCents == 10000
+    assert policy.rules[3].criteria[0].operator == "<"
 
     # Delete the policy
     await cdp_client.policies.delete_policy(id=policy.id)
