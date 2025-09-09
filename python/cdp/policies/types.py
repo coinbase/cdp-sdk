@@ -781,7 +781,11 @@ class PrepareUserOperationRule(BaseModel):
         description="The operation to which this rule applies. Must be 'prepareUserOperation'.",
     )
     criteria: list[
-        EthValueCriterion | EvmAddressCriterion | EvmNetworkCriterion | EvmDataCriterion | NetUSDChangeCriterion
+        EthValueCriterion
+        | EvmAddressCriterion
+        | EvmNetworkCriterion
+        | EvmDataCriterion
+        | NetUSDChangeCriterion
     ] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
@@ -799,7 +803,9 @@ class SendUserOperationRule(BaseModel):
         "sendUserOperation",
         description="The operation to which this rule applies. Must be 'sendUserOperation'.",
     )
-    criteria: list[EthValueCriterion | EvmAddressCriterion | EvmDataCriterion | NetUSDChangeCriterion] = Field(
+    criteria: list[
+        EthValueCriterion | EvmAddressCriterion | EvmDataCriterion | NetUSDChangeCriterion
+    ] = Field(
         ...,
         description="The set of criteria that must be matched for this rule to apply. Must be compatible with the specified operation type.",
     )

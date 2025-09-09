@@ -18,9 +18,6 @@ from cdp.openapi_client.models.known_abi_type import KnownAbiType
 from cdp.openapi_client.models.known_idl_type import KnownIdlType
 from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterion
 from cdp.openapi_client.models.net_usd_change_criterion import NetUSDChangeCriterion
-from cdp.openapi_client.models.sign_evm_transaction_criteria_inner import (
-    SignEvmTransactionCriteriaInner,
-)
 from cdp.openapi_client.models.prepare_user_operation_rule import PrepareUserOperationRule
 from cdp.openapi_client.models.program_id_criterion import ProgramIdCriterion
 from cdp.openapi_client.models.rule import Rule
@@ -32,9 +29,6 @@ from cdp.openapi_client.models.send_sol_transaction_criteria_inner import (
     SendSolTransactionCriteriaInner,
 )
 from cdp.openapi_client.models.send_sol_transaction_rule import SendSolTransactionRule
-from cdp.openapi_client.models.send_evm_transaction_criteria_inner import (
-    SendEvmTransactionCriteriaInner,
-)
 from cdp.openapi_client.models.send_user_operation_rule import SendUserOperationRule
 from cdp.openapi_client.models.sign_evm_hash_rule import SignEvmHashRule
 from cdp.openapi_client.models.sign_evm_message_criteria_inner import SignEvmMessageCriteriaInner
