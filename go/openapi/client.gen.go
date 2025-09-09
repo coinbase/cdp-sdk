@@ -4354,6 +4354,32 @@ func (t *PrepareUserOperationCriteria_Item) MergeEvmDataCriterion(v EvmDataCrite
 	return err
 }
 
+// AsNetUSDChangeCriterion returns the union data inside the PrepareUserOperationCriteria_Item as a NetUSDChangeCriterion
+func (t PrepareUserOperationCriteria_Item) AsNetUSDChangeCriterion() (NetUSDChangeCriterion, error) {
+	var body NetUSDChangeCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNetUSDChangeCriterion overwrites any union data inside the PrepareUserOperationCriteria_Item as the provided NetUSDChangeCriterion
+func (t *PrepareUserOperationCriteria_Item) FromNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNetUSDChangeCriterion performs a merge with any union data inside the PrepareUserOperationCriteria_Item, using the provided NetUSDChangeCriterion
+func (t *PrepareUserOperationCriteria_Item) MergeNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 func (t PrepareUserOperationCriteria_Item) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
@@ -5060,6 +5086,32 @@ func (t *SendUserOperationCriteria_Item) FromEvmDataCriterion(v EvmDataCriterion
 
 // MergeEvmDataCriterion performs a merge with any union data inside the SendUserOperationCriteria_Item, using the provided EvmDataCriterion
 func (t *SendUserOperationCriteria_Item) MergeEvmDataCriterion(v EvmDataCriterion) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsNetUSDChangeCriterion returns the union data inside the SendUserOperationCriteria_Item as a NetUSDChangeCriterion
+func (t SendUserOperationCriteria_Item) AsNetUSDChangeCriterion() (NetUSDChangeCriterion, error) {
+	var body NetUSDChangeCriterion
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromNetUSDChangeCriterion overwrites any union data inside the SendUserOperationCriteria_Item as the provided NetUSDChangeCriterion
+func (t *SendUserOperationCriteria_Item) FromNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeNetUSDChangeCriterion performs a merge with any union data inside the SendUserOperationCriteria_Item, using the provided NetUSDChangeCriterion
+func (t *SendUserOperationCriteria_Item) MergeNetUSDChangeCriterion(v NetUSDChangeCriterion) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err

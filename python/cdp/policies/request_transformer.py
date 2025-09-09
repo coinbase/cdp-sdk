@@ -18,9 +18,6 @@ from cdp.openapi_client.models.known_abi_type import KnownAbiType
 from cdp.openapi_client.models.known_idl_type import KnownIdlType
 from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterion
 from cdp.openapi_client.models.net_usd_change_criterion import NetUSDChangeCriterion
-from cdp.openapi_client.models.prepare_user_operation_criteria_inner import (
-    PrepareUserOperationCriteriaInner,
-)
 from cdp.openapi_client.models.prepare_user_operation_rule import PrepareUserOperationRule
 from cdp.openapi_client.models.program_id_criterion import ProgramIdCriterion
 from cdp.openapi_client.models.rule import Rule
@@ -32,9 +29,6 @@ from cdp.openapi_client.models.send_sol_transaction_criteria_inner import (
     SendSolTransactionCriteriaInner,
 )
 from cdp.openapi_client.models.send_sol_transaction_rule import SendSolTransactionRule
-from cdp.openapi_client.models.send_user_operation_criteria_inner import (
-    SendUserOperationCriteriaInner,
-)
 from cdp.openapi_client.models.send_user_operation_rule import SendUserOperationRule
 from cdp.openapi_client.models.sign_evm_hash_rule import SignEvmHashRule
 from cdp.openapi_client.models.sign_evm_message_criteria_inner import SignEvmMessageCriteriaInner
@@ -446,28 +440,35 @@ openapi_criterion_mapping = {
         ),
     },
     "prepareUserOperation": {
-        "ethValue": lambda c: PrepareUserOperationCriteriaInner(
+        "ethValue": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=EthValueCriterion(
                 eth_value=c.ethValue,
                 operator=c.operator,
                 type="ethValue",
             )
         ),
-        "evmAddress": lambda c: PrepareUserOperationCriteriaInner(
+        "evmAddress": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=EvmAddressCriterion(
                 addresses=c.addresses,
                 operator=c.operator,
                 type="evmAddress",
             )
         ),
-        "evmNetwork": lambda c: PrepareUserOperationCriteriaInner(
+        "evmNetwork": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=EvmNetworkCriterion(
                 networks=c.networks,
                 operator=c.operator,
                 type="evmNetwork",
             )
         ),
-        "evmData": lambda c: PrepareUserOperationCriteriaInner(
+        "netUSDChange": lambda c: SendEvmTransactionCriteriaInner(
+            actual_instance=NetUSDChangeCriterion(
+                change_cents=c.changeCents,
+                operator=c.operator,
+                type="netUSDChange",
+            )
+        ),
+        "evmData": lambda c: SendEvmTransactionCriteriaInner(
             actual_instance=EvmDataCriterion(
                 type="evmData",
                 abi=EvmDataCriterionAbi(
@@ -503,21 +504,28 @@ openapi_criterion_mapping = {
         ),
     },
     "sendUserOperation": {
-        "ethValue": lambda c: SendUserOperationCriteriaInner(
+        "ethValue": lambda c: SignEvmTransactionCriteriaInner(
             actual_instance=EthValueCriterion(
                 eth_value=c.ethValue,
                 operator=c.operator,
                 type="ethValue",
             )
         ),
-        "evmAddress": lambda c: SendUserOperationCriteriaInner(
+        "evmAddress": lambda c: SignEvmTransactionCriteriaInner(
             actual_instance=EvmAddressCriterion(
                 addresses=c.addresses,
                 operator=c.operator,
                 type="evmAddress",
             )
         ),
-        "evmData": lambda c: SendUserOperationCriteriaInner(
+        "netUSDChange": lambda c: SignEvmTransactionCriteriaInner(
+            actual_instance=NetUSDChangeCriterion(
+                change_cents=c.changeCents,
+                operator=c.operator,
+                type="netUSDChange",
+            )
+        ),
+        "evmData": lambda c: SignEvmTransactionCriteriaInner(
             actual_instance=EvmDataCriterion(
                 type="evmData",
                 abi=EvmDataCriterionAbi(
