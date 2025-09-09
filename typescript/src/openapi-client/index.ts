@@ -59,4 +59,3 @@ export const OpenApiPoliciesMethods = {
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
-export * from "./generated/sql-api-alpha/sql-api-alpha";
