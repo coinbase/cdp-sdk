@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.38.0
+
+### Minor Changes
+
+- [#440](https://github.com/coinbase/cdp-sdk/pull/440) [`46ca8e0`](https://github.com/coinbase/cdp-sdk/commit/46ca8e01799416dfb2d202957c94e77b223d2487) Thanks [@sammccord](https://github.com/sammccord)! - Added netUSDChange policy criteria to send+prepareUserOperation
+
 ## 1.37.0
 
 ### Minor Changes
