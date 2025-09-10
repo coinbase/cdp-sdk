@@ -1,6 +1,6 @@
 {
   "private": true,
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.11.1",
   "type": "module",
   "scripts": {
     "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
