@@ -22,7 +22,7 @@
     "@solana/spl-token": "^0.4.13",
     "@solana/web3.js": "^1.98.1",
     "abitype": "1.0.6",
-    "axios": "^1.8.2",
+    "axios": "^1.12.2",
     "axios-retry": "^4.5.0",
     "jose": "^6.0.8",
     "md5": "^2.3.0",
