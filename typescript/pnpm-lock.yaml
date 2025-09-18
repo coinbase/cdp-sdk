@@ -9,7 +9,7 @@ overrides:
 
 patchedDependencies:
   '@orval/core@7.6.0':
-    hash: qxgqicxrxb7ufz56aulwneniri
+    hash: e5bae6293bdd00e6b5ad6884a970c6b485b69ac07177794c1d0d9d339333b7d9
     path: patches/@orval__core@7.6.0.patch
 
 importers:
@@ -4372,7 +4372,7 @@ snapshots:
 
   '@orval/angular@7.6.0(encoding@0.1.13)(openapi-types@12.1.3)':
     dependencies:
-      '@orval/core': 7.6.0(patch_hash=qxgqicxrxb7ufz56aulwneniri)(encoding@0.1.13)(openapi-types@12.1.3)
+      '@orval/core': 7.6.0(patch_hash=e5bae6293bdd00e6b5ad6884a970c6b485b69ac07177794c1d0d9d339333b7d9)(encoding@0.1.13)(openapi-types@12.1.3)
     transitivePeerDependencies:
       - encoding
       - openapi-types
@@ -4380,13 +4380,13 @@ snapshots:
 
   '@orval/axios@7.6.0(encoding@0.1.13)(openapi-types@12.1.3)':
     dependencies:
-      '@orval/core': 7.6.0(patch_hash=qxgqicxrxb7ufz56aulwneniri)(encoding@0.1.13)(openapi-types@12.1.3)
+      '@orval/core': 7.6.0(patch_hash=e5bae6293bdd00e6b5ad6884a970c6b485b69ac07177794c1d0d9d339333b7d9)(encoding@0.1.13)(openapi-types@12.1.3)
     transitivePeerDependencies:
       - encoding
       - openapi-types
       - supports-color
 
-  '@orval/core@7.6.0(patch_hash=qxgqicxrxb7ufz56aulwneniri)(encoding@0.1.13)(openapi-types@12.1.3)':
+  '@orval/core@7.6.0(patch_hash=e5bae6293bdd00e6b5ad6884a970c6b485b69ac07177794c1d0d9d339333b7d9)(encoding@0.1.13)(openapi-types@12.1.3)':
     dependencies:
       '@apidevtools/swagger-parser': 10.1.1(openapi-types@12.1.3)
       '@ibm-cloud/openapi-ruleset': 1.29.2(encoding@0.1.13)
@@ -4413,7 +4413,7 @@ snapshots:
 
   '@orval/fetch@7.6.0(encoding@0.1.13)(openapi-types@12.1.3)':
     dependencies:
-      '@orval/core': 7.6.0(patch_hash=qxgqicxrxb7ufz56aulwneniri)(encoding@0.1.13)(openapi-types@12.1.3)
+      '@orval/core': 7.6.0(patch_hash=e5bae6293bdd00e6b5ad6884a970c6b485b69ac07177794c1d0d9d339333b7d9)(encoding@0.1.13)(openapi-types@12.1.3)
     transitivePeerDependencies:
       - encoding
       - openapi-types
@@ -4421,7 +4421,7 @@ snapshots:
 
   '@orval/hono@7.6.0(encoding@0.1.13)(openapi-types@12.1.3)':
     dependencies:
-      '@orval/core': 7.6.0(patch_hash=qxgqicxrxb7ufz56aulwneniri)(encoding@0.1.13)(openapi-types@12.1.3)
+      '@orval/core': 7.6.0(patch_hash=e5bae6293bdd00e6b5ad6884a970c6b485b69ac07177794c1d0d9d339333b7d9)(encoding@0.1.13)(openapi-types@12.1.3)
       '@orval/zod': 7.6.0(encoding@0.1.13)(openapi-types@12.1.3)
       lodash.uniq: 4.5.0
     transitivePeerDependencies:
@@ -4431,7 +4431,7 @@ snapshots:
 
   '@orval/mock@7.6.0(encoding@0.1.13)(openapi-types@12.1.3)':
     dependencies:
-      '@orval/core': 7.6.0(patch_hash=qxgqicxrxb7ufz56aulwneniri)(encoding@0.1.13)(openapi-types@12.1.3)
+      '@orval/core': 7.6.0(patch_hash=e5bae6293bdd00e6b5ad6884a970c6b485b69ac07177794c1d0d9d339333b7d9)(encoding@0.1.13)(openapi-types@12.1.3)
       openapi3-ts: 4.2.2
     transitivePeerDependencies:
       - encoding
@@ -4440,7 +4440,7 @@ snapshots:
 
   '@orval/query@7.6.0(encoding@0.1.13)(openapi-types@12.1.3)':
     dependencies:
-      '@orval/core': 7.6.0(patch_hash=qxgqicxrxb7ufz56aulwneniri)(encoding@0.1.13)(openapi-types@12.1.3)
+      '@orval/core': 7.6.0(patch_hash=e5bae6293bdd00e6b5ad6884a970c6b485b69ac07177794c1d0d9d339333b7d9)(encoding@0.1.13)(openapi-types@12.1.3)
       '@orval/fetch': 7.6.0(encoding@0.1.13)(openapi-types@12.1.3)
       lodash.omitby: 4.6.0
     transitivePeerDependencies:
@@ -4450,7 +4450,7 @@ snapshots:
 
   '@orval/swr@7.6.0(encoding@0.1.13)(openapi-types@12.1.3)':
     dependencies:
-      '@orval/core': 7.6.0(patch_hash=qxgqicxrxb7ufz56aulwneniri)(encoding@0.1.13)(openapi-types@12.1.3)
+      '@orval/core': 7.6.0(patch_hash=e5bae6293bdd00e6b5ad6884a970c6b485b69ac07177794c1d0d9d339333b7d9)(encoding@0.1.13)(openapi-types@12.1.3)
       '@orval/fetch': 7.6.0(encoding@0.1.13)(openapi-types@12.1.3)
     transitivePeerDependencies:
       - encoding
@@ -4459,7 +4459,7 @@ snapshots:
 
   '@orval/zod@7.6.0(encoding@0.1.13)(openapi-types@12.1.3)':
     dependencies:
-      '@orval/core': 7.6.0(patch_hash=qxgqicxrxb7ufz56aulwneniri)(encoding@0.1.13)(openapi-types@12.1.3)
+      '@orval/core': 7.6.0(patch_hash=e5bae6293bdd00e6b5ad6884a970c6b485b69ac07177794c1d0d9d339333b7d9)(encoding@0.1.13)(openapi-types@12.1.3)
       lodash.uniq: 4.5.0
     transitivePeerDependencies:
       - encoding
@@ -5767,7 +5767,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.30.1(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@4.3.2(eslint-plugin-import@2.31.0)(eslint@8.57.1))(eslint@8.57.1):
+  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.30.1(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@4.3.2)(eslint@8.57.1):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -5789,7 +5789,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.30.1(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@4.3.2(eslint-plugin-import@2.31.0)(eslint@8.57.1))(eslint@8.57.1)
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.30.1(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@4.3.2)(eslint@8.57.1)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -6906,7 +6906,7 @@ snapshots:
       '@apidevtools/swagger-parser': 10.1.1(openapi-types@12.1.3)
       '@orval/angular': 7.6.0(encoding@0.1.13)(openapi-types@12.1.3)
       '@orval/axios': 7.6.0(encoding@0.1.13)(openapi-types@12.1.3)
-      '@orval/core': 7.6.0(patch_hash=qxgqicxrxb7ufz56aulwneniri)(encoding@0.1.13)(openapi-types@12.1.3)
+      '@orval/core': 7.6.0(patch_hash=e5bae6293bdd00e6b5ad6884a970c6b485b69ac07177794c1d0d9d339333b7d9)(encoding@0.1.13)(openapi-types@12.1.3)
       '@orval/fetch': 7.6.0(encoding@0.1.13)(openapi-types@12.1.3)
       '@orval/hono': 7.6.0(encoding@0.1.13)(openapi-types@12.1.3)
       '@orval/mock': 7.6.0(encoding@0.1.13)(openapi-types@12.1.3)
