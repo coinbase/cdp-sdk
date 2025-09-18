@@ -47,7 +47,7 @@ export class APIError extends Error {
     errorMessage: string,
     correlationId?: string,
     errorLink?: string,
-    cause?: Error,
+    cause?: Error | unknown,
   ) {
     super(errorMessage, { cause });
     this.name = "APIError";
