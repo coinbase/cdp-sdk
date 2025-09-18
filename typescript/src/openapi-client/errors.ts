@@ -47,7 +47,7 @@ export class APIError extends Error {
     errorMessage: string,
     correlationId?: string,
     errorLink?: string,
-    cause?: Error,
+    cause?: Error | unknown,
   ) {
     super(errorMessage, { cause });
     this.name = "APIError";
@@ -142,7 +142,7 @@ export class NetworkError extends APIError {
     errorType: HttpErrorType,
     errorMessage: string,
     networkDetails?: { code?: string; message?: string; retryable?: boolean },
-    cause?: Error,
+    cause?: Error | unknown,
   ) {
     super(
       0, // Status code 0 indicates no response was received
