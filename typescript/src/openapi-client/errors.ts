@@ -142,7 +142,7 @@ export class NetworkError extends APIError {
     errorType: HttpErrorType,
     errorMessage: string,
     networkDetails?: { code?: string; message?: string; retryable?: boolean },
-    cause?: Error,
+    cause?: Error | unknown,
   ) {
     super(
       0, // Status code 0 indicates no response was received
