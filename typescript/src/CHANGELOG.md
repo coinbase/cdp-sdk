@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.38.1
+
+### Patch Changes
+
+- [#443](https://github.com/coinbase/cdp-sdk/pull/443) [`cc0df2d`](https://github.com/coinbase/cdp-sdk/commit/cc0df2d5f0f74081fbcc0ece8b31c3620bc472e2) Thanks [@jazz-cb](https://github.com/jazz-cb)! - Update dependencies with critical/high vulnerability
+
 ## 1.38.0
 
 ### Minor Changes
