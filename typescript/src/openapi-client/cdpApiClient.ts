@@ -144,7 +144,7 @@ export const cdpApiClient = async <T>(
           "network_connection_failed",
           "Unable to connect to CDP service. The service may be unavailable.",
           { code: error.code, message: error.message, retryable: true },
-          error.cause,
+          error.cause instanceof Error ? error.cause : undefined,
         );
       } else if (
         errorCode === "etimedout" ||
@@ -155,21 +155,21 @@ export const cdpApiClient = async <T>(
           "network_timeout",
           "Request timed out. Please try again.",
           { code: error.code, message: error.message, retryable: true },
-          error.cause,
+          error.cause instanceof Error ? error.cause : undefined,
         );
       } else if (errorCode === "enotfound" || errorMessage.includes("getaddrinfo")) {
         throw new NetworkError(
           "network_dns_failure",
           "DNS resolution failed. Please check your network connection.",
           { code: error.code, message: error.message, retryable: false },
-          error.cause,
+          error.cause instanceof Error ? error.cause : undefined,
         );
       } else if (errorMessage.includes("network error") || errorMessage.includes("econnreset")) {
         throw new NetworkError(
           "network_connection_failed",
           "Network error occurred. Please check your connection and try again.",
           { code: error.code, message: error.message, retryable: true },
-          error.cause,
+          error.cause instanceof Error ? error.cause : undefined,
         );
       } else {
         // Generic network error
@@ -177,7 +177,7 @@ export const cdpApiClient = async <T>(
           "unknown",
           error.cause instanceof Error ? error.cause.message : error.message,
           { code: error.code, message: error.message, retryable: true },
-          error.cause,
+          error.cause instanceof Error ? error.cause : undefined,
         );
       }
     }
@@ -191,7 +191,7 @@ export const cdpApiClient = async <T>(
           error.response.data.errorMessage,
           error.response.data.correlationId,
           error.response.data.errorLink,
-          error.cause,
+          error.cause instanceof Error ? error.cause : undefined,
         );
       } else {
         const statusCode = error.response.status;
@@ -214,7 +214,7 @@ export const cdpApiClient = async <T>(
               "Unauthorized.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}#unauthorized`,
-              error.cause,
+              error.cause instanceof Error ? error.cause : undefined,
             );
           case 403:
             // Special handling for IP blocklist and other gateway-level 403s
@@ -228,7 +228,7 @@ export const cdpApiClient = async <T>(
                     typeof responseData === "string" ? responseData : JSON.stringify(responseData),
                   retryable: false,
                 },
-                error.cause,
+                error.cause instanceof Error ? error.cause : undefined,
               );
             }
             // Regular 403 forbidden error
@@ -238,7 +238,7 @@ export const cdpApiClient = async <T>(
               "Forbidden. You don't have permission to access this resource.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}#forbidden`,
-              error.cause,
+              error.cause instanceof Error ? error.cause : undefined,
             );
           case 404:
             throw new APIError(
@@ -247,7 +247,7 @@ export const cdpApiClient = async <T>(
               "API not found.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}#not_found`,
-              error.cause,
+              error.cause instanceof Error ? error.cause : undefined,
             );
           case 502:
             throw new APIError(
@@ -256,7 +256,7 @@ export const cdpApiClient = async <T>(
               "Bad gateway.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}`,
-              error.cause,
+              error.cause instanceof Error ? error.cause : undefined,
             );
           case 503:
             throw new APIError(
@@ -265,7 +265,7 @@ export const cdpApiClient = async <T>(
               "Service unavailable. Please try again later.",
               undefined,
               `${ERROR_DOCS_PAGE_URL}`,
-              error.cause,
+              error.cause instanceof Error ? error.cause : undefined,
             );
           default: {
             let errorText = "";
@@ -288,7 +288,7 @@ export const cdpApiClient = async <T>(
               errorMessage,
               undefined,
               `${ERROR_DOCS_PAGE_URL}`,
-              error.cause,
+              error.cause instanceof Error ? error.cause : undefined,
             );
           }
         }
