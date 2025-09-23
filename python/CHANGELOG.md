@@ -2,6 +2,17 @@
 
 <!-- towncrier release notes start -->
 
+## [1.33.0] - 2025-09-23
+
+### Features
+
+- Added netUSDChange policy criteria to send+prepareUserOperation ([#440](https://github.com/coinbase/cdp-sdk/pull/440))
+
+### Bugfixes
+
+- Fixed uvloop compatibility issue ([#448](https://github.com/coinbase/cdp-sdk/pull/448))
+
+
 ## [1.32.0] - 2025-09-09
 
 ### Features
