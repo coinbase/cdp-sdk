@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.38.2
+
+### Patch Changes
+
+- override dependency on bigint-buffer
+
 ## 1.38.1
 
 ### Patch Changes
