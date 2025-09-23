@@ -44,5 +44,16 @@
     "cdp sdk",
     "sdk",
     "api"
-  ]
+  ],
+  "overrides": {
+    "bigint-buffer": "npm:bigint-buffer-fixed@^1.1.6"
+  },
+  "pnpm": {
+    "overrides": {
+      "bigint-buffer": "npm:bigint-buffer-fixed@^1.1.6"
+    },
+    "overrideReasons": {
+      "bigint-buffer": "Overriding until @solana/spl-token fixes their dependency"
+    }
+  }
 }
