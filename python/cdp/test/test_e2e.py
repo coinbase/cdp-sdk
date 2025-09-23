@@ -1107,6 +1107,7 @@ async def test_solana_send_transaction(cdp_client, solana_account):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@retry_on_failure()
 async def test_create_account_policy(cdp_client):
     """Test creating an account policy."""
     policy = await cdp_client.policies.create_policy(
@@ -1233,6 +1234,7 @@ async def test_create_account_policy(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@retry_on_failure()
 async def test_create_project_policy(cdp_client):
     """Test creating a project policy."""
     try:
@@ -1309,6 +1311,7 @@ async def test_create_project_policy(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@retry_on_failure()
 async def test_update_policy(cdp_client):
     """Test updating a policy."""
     policy = await cdp_client.policies.create_policy(
@@ -1730,6 +1733,7 @@ async def test_create_evm_policy_with_netusdchange(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@retry_on_failure()
 async def test_solana_policy_crud_operations(cdp_client):
     """Test complete CRUD operations for Solana policies."""
     # Test creating a Solana policy
@@ -1832,6 +1836,7 @@ async def test_solana_policy_crud_operations(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@retry_on_failure()
 async def test_create_evm_account_with_policy(cdp_client):
     """Test creating an EVM account with a policy."""
     policy = await cdp_client.policies.create_policy(
@@ -1896,6 +1901,7 @@ async def test_update_evm_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+@retry_on_failure()
 async def test_create_solana_account_with_policy(cdp_client):
     """Test creating a Solana account with a policy."""
     policy = await cdp_client.policies.create_policy(
