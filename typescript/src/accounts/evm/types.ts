@@ -5,14 +5,10 @@
 import {
   ListTokenBalancesNetworks,
   RequestFaucetNetworks,
-  QuoteFundNetworks,
-  FundNetworks,
   TransferNetworks,
   QuoteSwapNetworks,
   SwapNetworks,
 } from "./networkCapabilities.js";
-import { EvmFundOptions } from "../../actions/evm/fund/fund.js";
-import { EvmQuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
 import {
   ListTokenBalancesOptions,
   ListTokenBalancesResult,
@@ -38,11 +34,6 @@ import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
-import { FundOperationResult } from "../../actions/types.js";
-import {
-  WaitForFundOperationOptions,
-  WaitForFundOperationResult,
-} from "../../actions/waitForFundOperationReceipt.js";
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 import { SpendPermissionNetwork } from "../../openapi-client/index.js";
 
@@ -220,25 +211,6 @@ export type NetworkSpecificSmartAccountActions<Network extends string> = Prettif
           ) => Promise<RequestFaucetResult>;
         }
       : EmptyObject) &
-    // Conditionally include quoteFund
-    (Network extends QuoteFundNetworks
-      ? {
-          quoteFund: (
-            options: Omit<EvmQuoteFundOptions, "address" | "network">,
-          ) => Promise<EvmQuote>;
-        }
-      : EmptyObject) &
-    // Conditionally include fund
-    (Network extends FundNetworks
-      ? {
-          fund: (
-            options: Omit<EvmFundOptions, "address" | "network">,
-          ) => Promise<FundOperationResult>;
-          waitForFundOperationReceipt: (
-            options: Omit<WaitForFundOperationOptions, "network">,
-          ) => Promise<WaitForFundOperationResult>;
-        }
-      : EmptyObject) &
     // Conditionally include quoteSwap
     (Network extends QuoteSwapNetworks
       ? {
@@ -312,21 +284,6 @@ export type NetworkSpecificAccountActions<Network extends string> = Prettify<
           requestFaucet: (
             options: Omit<RequestFaucetOptions, "address" | "network">,
           ) => Promise<RequestFaucetResult>;
-        }
-      : EmptyObject) &
-    // Conditionally include quoteFund
-    (Network extends QuoteFundNetworks
-      ? {
-          quoteFund: (options: Omit<EvmQuoteFundOptions, "address">) => Promise<EvmQuote>;
-        }
-      : EmptyObject) &
-    // Conditionally include fund
-    (Network extends FundNetworks
-      ? {
-          fund: (options: Omit<EvmFundOptions, "address">) => Promise<FundOperationResult>;
-          waitForFundOperationReceipt: (
-            options: WaitForFundOperationOptions,
-          ) => Promise<WaitForFundOperationResult>;
         }
       : EmptyObject) &
     // Conditionally include transfer

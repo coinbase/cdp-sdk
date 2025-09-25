@@ -11,9 +11,6 @@ export const NETWORK_CAPABILITIES = {
   base: {
     listTokenBalances: true,
     requestFaucet: false,
-    quoteFund: true,
-    fund: true,
-    waitForFundOperationReceipt: true,
     transfer: true,
     sendTransaction: true,
     quoteSwap: true,
@@ -23,9 +20,6 @@ export const NETWORK_CAPABILITIES = {
   "base-sepolia": {
     listTokenBalances: true,
     requestFaucet: true,
-    quoteFund: false,
-    fund: false,
-    waitForFundOperationReceipt: false,
     transfer: true,
     sendTransaction: true,
     quoteSwap: false,
@@ -35,9 +29,6 @@ export const NETWORK_CAPABILITIES = {
   ethereum: {
     listTokenBalances: true,
     requestFaucet: false,
-    quoteFund: false, // Only base is supported for quoteFund
-    fund: false, // Only base is supported for fund
-    waitForFundOperationReceipt: false,
     transfer: true,
     sendTransaction: true,
     quoteSwap: true,
@@ -47,9 +38,6 @@ export const NETWORK_CAPABILITIES = {
   "ethereum-sepolia": {
     listTokenBalances: false,
     requestFaucet: true,
-    quoteFund: false,
-    fund: false,
-    waitForFundOperationReceipt: false,
     transfer: true,
     sendTransaction: true,
     quoteSwap: false,
@@ -59,9 +47,6 @@ export const NETWORK_CAPABILITIES = {
   "ethereum-hoodi": {
     listTokenBalances: false,
     requestFaucet: true,
-    quoteFund: false,
-    fund: false,
-    waitForFundOperationReceipt: false,
     transfer: false,
     sendTransaction: true, // Always available (uses wallet client for non-base networks)
     quoteSwap: false,
@@ -71,9 +56,6 @@ export const NETWORK_CAPABILITIES = {
   optimism: {
     listTokenBalances: false,
     requestFaucet: false,
-    quoteFund: false,
-    fund: false,
-    waitForFundOperationReceipt: false,
     transfer: false,
     sendTransaction: true, // Always available (uses wallet client for non-base networks)
     quoteSwap: true,
@@ -83,9 +65,6 @@ export const NETWORK_CAPABILITIES = {
   "optimism-sepolia": {
     listTokenBalances: false,
     requestFaucet: true,
-    quoteFund: false,
-    fund: false,
-    waitForFundOperationReceipt: false,
     transfer: false,
     sendTransaction: true, // Always available (uses wallet client for non-base networks)
     quoteSwap: false,
@@ -95,9 +74,6 @@ export const NETWORK_CAPABILITIES = {
   arbitrum: {
     listTokenBalances: false,
     requestFaucet: true,
-    quoteFund: false,
-    fund: false,
-    waitForFundOperationReceipt: false,
     transfer: false,
     sendTransaction: true, // Always available (uses wallet client for non-base networks)
     quoteSwap: true,
@@ -107,9 +83,6 @@ export const NETWORK_CAPABILITIES = {
   "arbitrum-sepolia": {
     listTokenBalances: false,
     requestFaucet: true,
-    quoteFund: false,
-    fund: false,
-    waitForFundOperationReceipt: false,
     transfer: false,
     sendTransaction: true, // Always available (uses wallet client for non-base networks)
     quoteSwap: false,
@@ -119,9 +92,6 @@ export const NETWORK_CAPABILITIES = {
   avalanche: {
     listTokenBalances: false,
     requestFaucet: false,
-    quoteFund: false,
-    fund: false,
-    waitForFundOperationReceipt: false,
     transfer: false,
     sendTransaction: true, // Always available (uses wallet client for non-base networks)
     quoteSwap: false,
@@ -131,9 +101,6 @@ export const NETWORK_CAPABILITIES = {
   binance: {
     listTokenBalances: false,
     requestFaucet: false,
-    quoteFund: false,
-    fund: false,
-    waitForFundOperationReceipt: false,
     transfer: false,
     sendTransaction: true, // Always available (uses wallet client for non-base networks)
     quoteSwap: false,
@@ -143,9 +110,6 @@ export const NETWORK_CAPABILITIES = {
   polygon: {
     listTokenBalances: false,
     requestFaucet: false,
-    quoteFund: false,
-    fund: false,
-    waitForFundOperationReceipt: false,
     transfer: false,
     sendTransaction: true, // Always available (uses wallet client for non-base networks)
     quoteSwap: false,
@@ -155,9 +119,6 @@ export const NETWORK_CAPABILITIES = {
   zora: {
     listTokenBalances: false,
     requestFaucet: false,
-    quoteFund: false,
-    fund: false,
-    waitForFundOperationReceipt: false,
     transfer: false,
     sendTransaction: true, // Always available (uses wallet client for non-base networks)
     quoteSwap: false,
@@ -210,8 +171,6 @@ export type NetworksSupporting<M extends MethodName> = {
 // Export specific network types for each method
 export type ListTokenBalancesNetworks = NetworksSupporting<"listTokenBalances">;
 export type RequestFaucetNetworks = NetworksSupporting<"requestFaucet">;
-export type QuoteFundNetworks = NetworksSupporting<"quoteFund">;
-export type FundNetworks = NetworksSupporting<"fund">;
 export type TransferNetworks = NetworksSupporting<"transfer">;
 export type SendTransactionNetworks = NetworksSupporting<"sendTransaction">;
 export type QuoteSwapNetworks = NetworksSupporting<"quoteSwap">;
