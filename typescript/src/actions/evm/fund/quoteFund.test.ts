@@ -7,7 +7,7 @@ import { quoteFund, EvmQuoteFundOptions } from "./quoteFund.js";
 
 /**
  * Tests for the deprecated quoteFund() method.
- * 
+ *
  * @deprecated The quoteFund() method is deprecated and will be removed in a future version.
  * These tests are maintained to ensure backwards compatibility until removal.
  * Consider using alternative funding methods for new implementations.

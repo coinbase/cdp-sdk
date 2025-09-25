@@ -5,7 +5,7 @@ import { wait } from "../utils/wait.js";
 
 /**
  * Tests for the deprecated waitForFundOperationReceipt() method.
- * 
+ *
  * @deprecated The waitForFundOperationReceipt() method is deprecated and will be removed in a future version.
  * These tests are maintained to ensure backwards compatibility until removal.
  * Consider using alternative funding methods for new implementations.

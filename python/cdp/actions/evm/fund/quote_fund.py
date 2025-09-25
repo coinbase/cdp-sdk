@@ -33,8 +33,8 @@ async def quote_fund(
     quote_fund_options: EvmQuoteFundOptions,
 ) -> EvmQuote:
     """Get a quote to fund an EVM account.
-    
-    Deprecated. This function will be removed in a future version. 
+
+    Deprecated. This function will be removed in a future version.
     Please use alternative funding methods.
     """
     payment_methods = await api_clients.payments.get_payment_methods()

@@ -7,7 +7,7 @@ import { fund, EvmFundOptions } from "./fund.js";
 
 /**
  * Tests for the deprecated fund() method.
- * 
+ *
  * @deprecated The fund() method is deprecated and will be removed in a future version.
  * These tests are maintained to ensure backwards compatibility until removal.
  * Consider using alternative funding methods for new implementations.

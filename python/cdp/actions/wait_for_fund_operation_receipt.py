@@ -11,8 +11,8 @@ async def wait_for_fund_operation_receipt(
     interval_seconds: float = 1,
 ) -> Transfer:
     """Wait for a fund operation to be processed.
-    
-    Deprecated. This function will be removed in a future version. 
+
+    Deprecated. This function will be removed in a future version.
     Please use alternative funding methods.
 
     Args:
