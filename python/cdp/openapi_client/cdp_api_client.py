@@ -41,8 +41,7 @@ class CdpApiClient(ApiClient):
             source_version (str): The version of the source package.
 
         """
-        retry_strategy = self._get_retry_strategy(max_network_retries)
-        configuration = Configuration(host=base_path, retries=retry_strategy)
+        configuration = Configuration(host=base_path, retries=max_network_retries)
         super().__init__(configuration)
 
         self.api_key_id = api_key_id
@@ -132,11 +131,11 @@ class CdpApiClient(ApiClient):
                 # Special handling for IP blocklist and other gateway-level 403s
                 response_data = e.body
                 is_gateway_error = False
-                
+
                 if response_data:
                     response_str = str(response_data).lower()
                     is_gateway_error = any(keyword in response_str for keyword in ["forbidden", "ip", "blocked", "gateway"])
-                
+
                 if is_gateway_error:
                     raise NetworkError(
                         error_type=HttpErrorType.NETWORK_IP_BLOCKED,
@@ -148,7 +147,7 @@ class CdpApiClient(ApiClient):
                         },
                         error_link=f"{ERROR_DOCS_PAGE_URL}#network-errors",
                     ) from None
-                
+
                 # Regular 403 forbidden error
                 raise ApiError(
                     http_code=403,
@@ -180,19 +179,19 @@ class CdpApiClient(ApiClient):
 
             # Default to unexpected error
             error_text = ""
-            
+
             if e.body:
                 try:
                     error_text = json.dumps(e.body)
                 except (TypeError, ValueError):
                     error_text = str(e.body)
-            
+
             error_message = (
-                f"An unexpected error occurred: {error_text}" 
-                if error_text 
+                f"An unexpected error occurred: {error_text}"
+                if error_text
                 else "An unexpected error occurred."
             )
-            
+
             raise ApiError(
                 http_code=e.status or 500,
                 error_type=HttpErrorType.UNEXPECTED_ERROR,
@@ -205,7 +204,7 @@ class CdpApiClient(ApiClient):
 
             # Handle network errors
             error_str = str(e).lower()
-            
+
             # Connection refused errors
             if "connection refused" in error_str or "econnrefused" in error_str:
                 raise NetworkError(
@@ -218,7 +217,7 @@ class CdpApiClient(ApiClient):
                     },
                     error_link=f"{ERROR_DOCS_PAGE_URL}#network-errors",
                 ) from None
-            
+
             # Timeout errors
             elif any(timeout_keyword in error_str for timeout_keyword in ["timeout", "timed out", "etimedout", "econnaborted"]):
                 raise NetworkError(
@@ -231,7 +230,7 @@ class CdpApiClient(ApiClient):
                     },
                     error_link=f"{ERROR_DOCS_PAGE_URL}#network-errors",
                 ) from None
-            
+
             # DNS resolution errors
             elif any(dns_keyword in error_str for dns_keyword in ["nodename nor servname provided", "getaddrinfo failed", "name or service not known", "enotfound"]):
                 raise NetworkError(
@@ -244,7 +243,7 @@ class CdpApiClient(ApiClient):
                     },
                     error_link=f"{ERROR_DOCS_PAGE_URL}#network-errors",
                 ) from None
-            
+
             # Generic network errors
             elif any(network_keyword in error_str for network_keyword in ["network", "econnreset", "connection reset", "connection aborted"]):
                 raise NetworkError(
@@ -306,20 +305,3 @@ class CdpApiClient(ApiClient):
                     error_message=f"An unexpected error occurred: {parse_error!s}. Original error message: {e!s}.",
                     error_link=f"{ERROR_DOCS_PAGE_URL}",
                 ) from None
-
-    def _get_retry_strategy(self, max_network_retries: int) -> Retry:
-        """Return the retry strategy for the CDP API Client.
-
-        Args:
-            max_network_retries (int): The maximum number of network retries.
-
-        Returns:
-            Retry: The retry strategy.
-
-        """
-        return Retry(
-            total=max_network_retries,
-            status_forcelist=[500, 502, 503, 504],
-            allowed_methods=["GET", "HEAD", "OPTIONS", "PUT", "DELETE"],
-            backoff_factor=1,  # Exponential backoff factor
-        )
