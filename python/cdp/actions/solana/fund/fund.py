@@ -29,7 +29,11 @@ async def fund(
     address: str,
     fund_options: SolanaFundOptions,
 ) -> FundOperationResult:
-    """Fund a Solana account."""
+    """Fund a Solana account.
+    
+    Deprecated. This function will be removed in a future version. 
+    Please use alternative funding methods.
+    """
     payment_methods = await api_clients.payments.get_payment_methods()
 
     card_payment_method = next(

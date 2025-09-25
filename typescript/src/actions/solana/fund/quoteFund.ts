@@ -20,6 +20,7 @@ export interface SolanaQuoteFundOptions extends BaseQuoteFundOptions {
 /**
  * Gets a quote to fund a Solana account.
  *
+ * @deprecated This method will be removed in a future version. Please use alternative funding methods.
  * @param apiClient - The API client.
  * @param options - The options for getting a quote to fund a Solana account.
  *

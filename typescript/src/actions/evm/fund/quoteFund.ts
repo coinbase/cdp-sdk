@@ -22,6 +22,7 @@ export interface EvmQuoteFundOptions extends BaseQuoteFundOptions {
 /**
  * Gets a quote to fund an EVM account.
  *
+ * @deprecated This method will be removed in a future version. Please use alternative funding methods.
  * @param apiClient - The API client.
  * @param options - The options for getting a quote to fund an EVM account.
  *

@@ -5,7 +5,15 @@ import { Address } from "../../../types/misc.js";
 import { parseUnits } from "viem";
 import { fund, SolanaFundOptions } from "./fund.js";
 
-describe("fund", () => {
+/**
+ * Tests for the deprecated Solana fund() method.
+ * 
+ * @deprecated The fund() method is deprecated and will be removed in a future version.
+ * These tests are maintained to ensure backwards compatibility until removal.
+ * Consider using alternative funding methods for new implementations.
+ */
+
+describe("fund (DEPRECATED)", () => {
   const address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" as Address;
   const mockPaymentMethods = [
     {
