@@ -3,6 +3,7 @@ import { generateKeyPair, exportPKCS8, exportJWK } from "jose";
 import { InvalidWalletSecretFormatError, UndefinedWalletSecretError } from "../errors.js";
 import { generateJwt, JwtOptions, WalletJwtOptions, generateWalletJwt } from "./jwt.js";
 import { authHash } from "./hash.js";
+import { sortKeys } from "../../utils/sortKeys.js";
 
 describe("JWT Authentication", () => {
   let testECPrivateKey: string;
@@ -236,7 +237,7 @@ describe("JWT Authentication", () => {
       `${options.requestMethod} ${options.requestHost}${options.requestPath}`,
     ]);
     expect(payload.reqHash).toEqual(
-      await authHash(Buffer.from(JSON.stringify(options.requestData))),
+      await authHash(Buffer.from(JSON.stringify(sortKeys(options.requestData)))),
     );
     expect(typeof payload.iat).toBe("number");
     expect(typeof payload.nbf).toBe("number");
@@ -272,6 +273,123 @@ describe("JWT Authentication", () => {
     const payload = decodeJwt(token);
 
     expect(payload.reqHash).toBeUndefined();
+  });
+
+  it("should not include reqHash when request data contains only undefined values", async () => {
+    const options = {
+      ...defaultWalletJwtOptions,
+      walletSecret: testWalletSecret,
+      requestData: {
+        name: undefined,
+        accountPolicy: undefined,
+      },
+    };
+
+    const token = await generateWalletJwt(options);
+    const payload = decodeJwt(token);
+
+    expect(payload.reqHash).toBeUndefined();
+  });
+
+  it("should include reqHash when request data contains null values", async () => {
+    const options = {
+      ...defaultWalletJwtOptions,
+      walletSecret: testWalletSecret,
+      requestData: {
+        name: null,
+        accountPolicy: null,
+      },
+    };
+
+    const token = await generateWalletJwt(options);
+    const payload = decodeJwt(token);
+
+    // null values are preserved in JSON.stringify
+    expect(payload.reqHash).toBeDefined();
+    expect(payload.reqHash).toEqual(
+      await authHash(Buffer.from(JSON.stringify(sortKeys(options.requestData)))),
+    );
+  });
+
+  it("should include reqHash when request data contains empty string values", async () => {
+    const options = {
+      ...defaultWalletJwtOptions,
+      walletSecret: testWalletSecret,
+      requestData: {
+        name: undefined,
+        accountPolicy: "",
+      },
+    };
+
+    const token = await generateWalletJwt(options);
+    const payload = decodeJwt(token);
+
+    // empty string values are preserved in JSON.stringify
+    expect(payload.reqHash).toBeDefined();
+    expect(payload.reqHash).toEqual(
+      await authHash(Buffer.from(JSON.stringify(sortKeys(options.requestData)))),
+    );
+  });
+
+  it("should include reqHash when request data has at least one meaningful value", async () => {
+    const options = {
+      ...defaultWalletJwtOptions,
+      walletSecret: testWalletSecret,
+      requestData: {
+        name: "valid-name",
+        accountPolicy: undefined,
+      },
+    };
+
+    const token = await generateWalletJwt(options);
+    const payload = decodeJwt(token);
+
+    expect(payload.reqHash).toBeDefined();
+    expect(payload.reqHash).toEqual(
+      await authHash(Buffer.from(JSON.stringify(sortKeys(options.requestData)))),
+    );
+  });
+
+  it("should include reqHash when request data contains falsy but meaningful values", async () => {
+    const options = {
+      ...defaultWalletJwtOptions,
+      walletSecret: testWalletSecret,
+      requestData: {
+        count: 0, // meaningful: 0 is preserved
+        isValid: false, // meaningful: false is preserved
+        description: null, // meaningful: null is preserved
+      },
+    };
+
+    const token = await generateWalletJwt(options);
+    const payload = decodeJwt(token);
+
+    expect(payload.reqHash).toBeDefined();
+    expect(payload.reqHash).toEqual(
+      await authHash(Buffer.from(JSON.stringify(sortKeys(options.requestData)))),
+    );
+  });
+
+  it("should handle mixed meaningful and meaningless values correctly", async () => {
+    const options = {
+      ...defaultWalletJwtOptions,
+      walletSecret: testWalletSecret,
+      requestData: {
+        name: undefined, // meaningless
+        accountPolicy: null, // meaningful
+        description: "", // meaningful
+        walletId: "test-wallet", // meaningful
+        amount: 100, // meaningful
+      },
+    };
+
+    const token = await generateWalletJwt(options);
+    const payload = decodeJwt(token);
+
+    expect(payload.reqHash).toBeDefined();
+    expect(payload.reqHash).toEqual(
+      await authHash(Buffer.from(JSON.stringify(sortKeys(options.requestData)))),
+    );
   });
 
   it("should use ES256 algorithm for Wallet Auth JWT", async () => {
