@@ -28,7 +28,8 @@
     "md5": "^2.3.0",
     "uncrypto": "^0.1.3",
     "viem": "^2.21.26",
-    "zod": "^3.24.4"
+    "zod": "^3.24.4",
+    "bigint-buffer": "npm:bigint-buffer-fixed@^1.1.6"
   },
   "author": "Coinbase Inc.",
   "repository": "https://github.com/coinbase/cdp-sdk",
@@ -44,16 +45,5 @@
     "cdp sdk",
     "sdk",
     "api"
-  ],
-  "overrides": {
-    "bigint-buffer": "npm:bigint-buffer-fixed@^1.1.6"
-  },
-  "pnpm": {
-    "overrides": {
-      "bigint-buffer": "npm:bigint-buffer-fixed@^1.1.6"
-    },
-    "overrideReasons": {
-      "bigint-buffer": "Overriding until @solana/spl-token fixes their dependency"
-    }
-  }
+  ]
 }
