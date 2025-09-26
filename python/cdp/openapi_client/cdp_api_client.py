@@ -1,8 +1,6 @@
 import json
 from urllib.parse import urlparse
 
-from urllib3.util import Retry
-
 from cdp import __version__
 from cdp.auth.utils.http import GetAuthHeadersOptions, get_auth_headers
 from cdp.openapi_client import rest
