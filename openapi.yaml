@@ -515,8 +515,6 @@ paths:
   /v2/end-users/auth/validate-token:
     post:
       x-audience: public
-      security:
-        - apiKeyAuth: []
       summary: Validate end user access token
       description: |-
         Validates the end user's access token and returns the end user's information. Returns an error if the access token is invalid or expired.
@@ -525,6 +523,8 @@ paths:
       operationId: validateEndUserAccessToken
       tags:
         - End User Accounts
+      security:
+        - apiKeyAuth: []
       requestBody:
         content:
           application/json:
@@ -1462,10 +1462,10 @@ paths:
       summary: Create a Smart Account
       description: Creates a new Smart Account.
       operationId: createEvmSmartAccount
-      security:
-        - apiKeyAuth: []
       tags:
         - EVM Smart Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -1848,10 +1848,10 @@ paths:
       summary: Get a Smart Account by address
       description: Gets a Smart Account by its address.
       operationId: getEvmSmartAccount
-      security:
-        - apiKeyAuth: []
       tags:
         - EVM Smart Accounts
+      security:
+        - apiKeyAuth: []
       parameters:
         - name: address
           description: The 0x-prefixed address of the Smart Account.
@@ -4161,7 +4161,7 @@ paths:
         Faucets are available for SOL.
 
         To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested.
-        These limits are applied at both the CDP User level and the blockchain address level.
+        These limits are applied at both the CDP Project level and the blockchain address level.
         A single blockchain address cannot exceed the specified limits, even if multiple users submit requests to the same address.
 
         | Token | Amount per Faucet Request |Rolling 24-hour window Rate Limits|
@@ -5145,6 +5145,14 @@ paths:
                     Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
                   type: string
                   example: USDC
+                clientIp:
+                  description: The IP address of the end user requesting the onramp transaction.
+                  type: string
+                  example: 127.0.0.1
+                domain:
+                  description: The domain that the Apple Pay button will be rendered on. Required when using the `GUEST_CHECKOUT_APPLE_PAY`  payment method and embedding the payment link in an iframe.
+                  type: string
+                  example: pay.coinbase.com
               required:
                 - paymentCurrency
                 - purchaseCurrency
@@ -5326,6 +5334,10 @@ paths:
                   description: URL to redirect the user to when they successfully complete a transaction. This URL will be  embedded in the returned onramp URL as a query parameter.
                   type: string
                   example: https://yourapp.com/success
+                clientIp:
+                  description: The IP address of the end user requesting the onramp transaction.
+                  type: string
+                  example: 127.0.0.1
               required:
                 - destinationAddress
                 - purchaseCurrency
@@ -5500,6 +5512,7 @@ components:
         - evmAccounts
         - evmSmartAccounts
         - solanaAccounts
+        - createdAt
     ErrorType:
       description: The code that indicates the type of error that occurred. These error codes can be used to determine how to handle the error.
       type: string

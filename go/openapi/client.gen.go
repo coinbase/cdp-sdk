@@ -3340,6 +3340,9 @@ type CreateOnrampOrderJSONBody struct {
 	// AgreementAcceptedAt The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy).
 	AgreementAcceptedAt time.Time `json:"agreementAcceptedAt"`
 
+	// ClientIp The IP address of the end user requesting the onramp transaction.
+	ClientIp *string `json:"clientIp,omitempty"`
+
 	// DestinationAddress The address the purchased crypto will be sent to.
 	DestinationAddress string `json:"destinationAddress"`
 
@@ -3347,6 +3350,9 @@ type CreateOnrampOrderJSONBody struct {
 	//
 	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
 	DestinationNetwork string `json:"destinationNetwork"`
+
+	// Domain The domain that the Apple Pay button will be rendered on. Required when using the `GUEST_CHECKOUT_APPLE_PAY`  payment method and embedding the payment link in an iframe.
+	Domain *string `json:"domain,omitempty"`
 
 	// Email The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API.
 	Email string `json:"email"`
@@ -3390,6 +3396,9 @@ type CreateOnrampOrderJSONBody struct {
 
 // CreateOnrampSessionJSONBody defines parameters for CreateOnrampSession.
 type CreateOnrampSessionJSONBody struct {
+	// ClientIp The IP address of the end user requesting the onramp transaction.
+	ClientIp *string `json:"clientIp,omitempty"`
+
 	// Country The ISO 3166-1 two letter country code (e.g. US).
 	Country *string `json:"country,omitempty"`
 

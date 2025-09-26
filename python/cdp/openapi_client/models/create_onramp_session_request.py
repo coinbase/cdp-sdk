@@ -37,7 +37,8 @@ class CreateOnrampSessionRequest(BaseModel):
     country: Optional[StrictStr] = Field(default=None, description="The ISO 3166-1 two letter country code (e.g. US).")
     subdivision: Optional[StrictStr] = Field(default=None, description="The ISO 3166-2 two letter state code (e.g. NY). Only required for US.")
     redirect_url: Optional[StrictStr] = Field(default=None, description="URL to redirect the user to when they successfully complete a transaction. This URL will be  embedded in the returned onramp URL as a query parameter.", alias="redirectUrl")
-    __properties: ClassVar[List[str]] = ["purchaseCurrency", "destinationNetwork", "destinationAddress", "paymentAmount", "paymentCurrency", "paymentMethod", "country", "subdivision", "redirectUrl"]
+    client_ip: Optional[StrictStr] = Field(default=None, description="The IP address of the end user requesting the onramp transaction.", alias="clientIp")
+    __properties: ClassVar[List[str]] = ["purchaseCurrency", "destinationNetwork", "destinationAddress", "paymentAmount", "paymentCurrency", "paymentMethod", "country", "subdivision", "redirectUrl", "clientIp"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -98,7 +99,8 @@ class CreateOnrampSessionRequest(BaseModel):
             "paymentMethod": obj.get("paymentMethod"),
             "country": obj.get("country"),
             "subdivision": obj.get("subdivision"),
-            "redirectUrl": obj.get("redirectUrl")
+            "redirectUrl": obj.get("redirectUrl"),
+            "clientIp": obj.get("clientIp")
         })
         return _obj
 

@@ -43,7 +43,9 @@ class CreateOnrampOrderRequest(BaseModel):
     phone_number_verified_at: datetime = Field(description="Timestamp of when the user's phone number was verified via OTP. User phone number must be verified  every 60 days. If this timestamp is older than 60 days, an error will be returned.", alias="phoneNumberVerifiedAt")
     purchase_amount: Optional[StrictStr] = Field(default=None, description="A string representing the amount of crypto the user wishes to purchase. When using this parameter the  returned quote will be exclusive of fees i.e. the user will receive this exact amount of the purchase  currency.", alias="purchaseAmount")
     purchase_currency: StrictStr = Field(description="The ticker (e.g. `BTC`, `USDC`, `SOL`) or the Coinbase UUID (e.g. `d85dce9b-5b73-5c3c-8978-522ce1d1c1b4`)  of the crypto asset to be purchased.  Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.", alias="purchaseCurrency")
-    __properties: ClassVar[List[str]] = ["agreementAcceptedAt", "destinationAddress", "destinationNetwork", "email", "isQuote", "partnerOrderRef", "partnerUserRef", "paymentAmount", "paymentCurrency", "paymentMethod", "phoneNumber", "phoneNumberVerifiedAt", "purchaseAmount", "purchaseCurrency"]
+    client_ip: Optional[StrictStr] = Field(default=None, description="The IP address of the end user requesting the onramp transaction.", alias="clientIp")
+    domain: Optional[StrictStr] = Field(default=None, description="The domain that the Apple Pay button will be rendered on. Required when using the `GUEST_CHECKOUT_APPLE_PAY`  payment method and embedding the payment link in an iframe.")
+    __properties: ClassVar[List[str]] = ["agreementAcceptedAt", "destinationAddress", "destinationNetwork", "email", "isQuote", "partnerOrderRef", "partnerUserRef", "paymentAmount", "paymentCurrency", "paymentMethod", "phoneNumber", "phoneNumberVerifiedAt", "purchaseAmount", "purchaseCurrency", "clientIp", "domain"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -109,7 +111,9 @@ class CreateOnrampOrderRequest(BaseModel):
             "phoneNumber": obj.get("phoneNumber"),
             "phoneNumberVerifiedAt": obj.get("phoneNumberVerifiedAt"),
             "purchaseAmount": obj.get("purchaseAmount"),
-            "purchaseCurrency": obj.get("purchaseCurrency")
+            "purchaseCurrency": obj.get("purchaseCurrency"),
+            "clientIp": obj.get("clientIp"),
+            "domain": obj.get("domain")
         })
         return _obj
 

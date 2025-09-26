@@ -3896,6 +3896,10 @@ Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp
 
 Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location. */
   purchaseCurrency: string;
+  /** The IP address of the end user requesting the onramp transaction. */
+  clientIp?: string;
+  /** The domain that the Apple Pay button will be rendered on. Required when using the `GUEST_CHECKOUT_APPLE_PAY`  payment method and embedding the payment link in an iframe. */
+  domain?: string;
 };
 
 export type CreateOnrampOrder201 = {
@@ -3929,6 +3933,8 @@ Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/res
   subdivision?: string;
   /** URL to redirect the user to when they successfully complete a transaction. This URL will be  embedded in the returned onramp URL as a query parameter. */
   redirectUrl?: string;
+  /** The IP address of the end user requesting the onramp transaction. */
+  clientIp?: string;
 };
 
 export type CreateOnrampSession201 = {
