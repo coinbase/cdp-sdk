@@ -3,11 +3,19 @@ import { waitForFundOperationReceipt } from "./waitForFundOperationReceipt.js";
 import { TransferStatus, CdpOpenApiClientType } from "../openapi-client/index.js";
 import { wait } from "../utils/wait.js";
 
+/**
+ * Tests for the deprecated waitForFundOperationReceipt() method.
+ *
+ * @deprecated The waitForFundOperationReceipt() method is deprecated and will be removed in a future version.
+ * These tests are maintained to ensure backwards compatibility until removal.
+ * Consider using our Onramp API instead. See https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/create-an-onramp-order.
+ */
+
 vi.mock("../utils/wait", () => ({
   wait: vi.fn(),
 }));
 
-describe("waitForFundOperationReceipt", () => {
+describe("waitForFundOperationReceipt (DEPRECATED)", () => {
   const mockTransferId = "0xtransferId";
   let mockClient;
 

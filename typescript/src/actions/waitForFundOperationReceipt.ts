@@ -53,6 +53,7 @@ export type WaitForFundOperationResult = FailedFundOperation | CompletedFundOper
 /**
  * Waits for a fund operation to complete or fail.
  *
+ * @deprecated This method will be removed in a future version. Consider using our Onramp API instead. See https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/create-an-onramp-order.
  * @example
  * ```ts
  * import { waitForFundOperation } from "@coinbase/cdp-sdk";

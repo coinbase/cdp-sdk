@@ -12,6 +12,9 @@ async def wait_for_fund_operation_receipt(
 ) -> Transfer:
     """Wait for a fund operation to be processed.
 
+    Deprecated. This function will be removed in a future version.
+    Consider using our Onramp API instead. See https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/create-an-onramp-order.
+
     Args:
         api_clients: The API clients object.
         transfer_id (str): The id of the transfer to wait for.
