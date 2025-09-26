@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.38.3
+
+### Patch Changes
+
+- [#458](https://github.com/coinbase/cdp-sdk/pull/458) [`93410df`](https://github.com/coinbase/cdp-sdk/commit/93410df3e912066eed9fc9d7e6fe92f7c3775050) Thanks [@sddioulde](https://github.com/sddioulde)! - Fixed empty object hash in TS
+
 ## 1.38.2
 
 ### Patch Changes
