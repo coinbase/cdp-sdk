@@ -27,11 +27,6 @@ from cdp.openapi_client.exceptions import ApiException, ApiValueError
 RESTResponseType = aiohttp.ClientResponse
 
 ALLOW_RETRY_METHODS = frozenset({'DELETE', 'GET', 'HEAD', 'OPTIONS', 'PUT', 'TRACE'})
-ALLOW_RETRY_STATUS_CODES = frozenset({503})
-
-async def evaluate_response_callback(response: aiohttp.ClientResponse) -> bool:
-    method = response.request_info.method.upper()
-    return method in ALLOW_RETRY_METHODS or response.status in ALLOW_RETRY_STATUS_CODES
 
 class RESTResponse(io.IOBase):
 
@@ -208,8 +203,7 @@ class RESTClientObject:
                         attempts=self.retries,
                         factor=2.0,
                         start_timeout=0.1,
-                        max_timeout=120.0,
-                        evaluate_response_callback=evaluate_response_callback,
+                        max_timeout=120.0
                     )
                 )
             pool_manager = self.retry_client

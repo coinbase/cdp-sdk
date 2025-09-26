@@ -1,11 +1,6 @@
 // eslint-disable-next-line import/no-named-as-default
 import Axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import axiosRetry, {
-  exponentialDelay,
-  isIdempotentRequestError,
-  isNetworkError,
-  isRetryableError,
-} from "axios-retry";
+import axiosRetry, { exponentialDelay } from "axios-retry";
 
 import { withAuth } from "../auth/hooks/axios/index.js";
 import { ERROR_DOCS_PAGE_URL } from "../constants.js";
@@ -78,22 +73,6 @@ export const configure = (options: CdpOptions) => {
 
   axiosRetry(axiosInstance, {
     retryDelay: exponentialDelay,
-    retryCondition: error => {
-      /*
-       * Retry on network errors or 5xx server errors (including 503)
-       * By default, it uses isNetworkOrIdempotentRequestError
-       * See https://github.com/softonic/axios-retry/blob/dd9b700dfbe51ba2962e70e7822734e3e74613c8/src/index.ts#L140
-       * and https://github.com/softonic/axios-retry/blob/dd9b700dfbe51ba2962e70e7822734e3e74613c8/src/index.ts#L189
-       * We further customize the retry condition to also retry on 503
-       */
-      return (
-        isNetworkError(error) ||
-        isIdempotentRequestError(error) ||
-        (isRetryableError(error) &&
-          error.response?.status !== undefined &&
-          error.response.status === 503)
-      );
-    },
   });
 
   axiosInstance = withAuth(axiosInstance, {
