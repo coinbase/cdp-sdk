@@ -1,6 +1,4 @@
-# Usage: uv run python evm/integrations/web3py/web3_account.quote_swap_and_execute.py
-#!/usr/bin/env python3
-# Usage: uv run python evm/web3_account.quote_swap_and_execute.py
+# Usage: uv run python evm/ecosystem/web3py/web3_account.quote_swap_and_execute.py
 
 """
 Example: Create and Execute a Swap via web3.py
