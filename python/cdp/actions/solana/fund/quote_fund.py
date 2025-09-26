@@ -32,7 +32,7 @@ async def quote_fund(
     """Get a quote to fund a Solana account.
 
     Deprecated. This function will be removed in a future version.
-    Please use alternative funding methods.
+    Consider using our Onramp API instead. See https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/create-an-onramp-order.
     """
     payment_methods = await api_clients.payments.get_payment_methods()
 

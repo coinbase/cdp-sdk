@@ -10,7 +10,7 @@ import { fund, SolanaFundOptions } from "./fund.js";
  *
  * @deprecated The fund() method is deprecated and will be removed in a future version.
  * These tests are maintained to ensure backwards compatibility until removal.
- * Consider using alternative funding methods for new implementations.
+ * Consider using our Onramp API instead. See https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/create-an-onramp-order.
  */
 
 describe("fund (DEPRECATED)", () => {

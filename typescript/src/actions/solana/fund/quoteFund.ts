@@ -20,7 +20,7 @@ export interface SolanaQuoteFundOptions extends BaseQuoteFundOptions {
 /**
  * Gets a quote to fund a Solana account.
  *
- * @deprecated This method will be removed in a future version. Please use alternative funding methods.
+ * @deprecated This method will be removed in a future version. Consider using our Onramp API instead. See https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/create-an-onramp-order.
  * @param apiClient - The API client.
  * @param options - The options for getting a quote to fund a Solana account.
  *
