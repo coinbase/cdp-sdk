@@ -196,7 +196,11 @@ export async function generateWalletJwt(options: WalletJwtOptions): Promise<stri
     uris: [uri],
   };
 
-  if (Object.keys(options.requestData).length > 0) {
+  const shouldIncludeReqHash =
+    typeof options.requestData === "object" &&
+    Object.keys(options.requestData).length > 0 &&
+    Object.values(options.requestData).some(value => value !== undefined);
+  if (shouldIncludeReqHash) {
     const sortedData = sortKeys(options.requestData);
     claims.reqHash = await authHash(Buffer.from(JSON.stringify(sortedData)));
   }
