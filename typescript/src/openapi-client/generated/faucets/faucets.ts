@@ -54,7 +54,7 @@ export const requestEvmFaucet = (
 Faucets are available for SOL.
 
 To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested.
-These limits are applied at both the CDP User level and the blockchain address level.
+These limits are applied at both the CDP Project level and the blockchain address level.
 A single blockchain address cannot exceed the specified limits, even if multiple users submit requests to the same address.
 
 | Token | Amount per Faucet Request |Rolling 24-hour window Rate Limits|

@@ -49,7 +49,9 @@ class TestCreateOnrampOrderRequest(unittest.TestCase):
                 phone_number = '+12055555555',
                 phone_number_verified_at = '2025-04-24T00:00Z',
                 purchase_amount = '10.000000',
-                purchase_currency = 'USDC'
+                purchase_currency = 'USDC',
+                client_ip = '127.0.0.1',
+                domain = 'pay.coinbase.com'
             )
         else:
             return CreateOnrampOrderRequest(
