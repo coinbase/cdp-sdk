@@ -29,7 +29,11 @@ async def quote_fund(
     address: str,
     quote_fund_options: SolanaQuoteFundOptions,
 ) -> SolanaQuote:
-    """Get a quote to fund a Solana account."""
+    """Get a quote to fund a Solana account.
+
+    Deprecated. This function will be removed in a future version.
+    Please use alternative funding methods.
+    """
     payment_methods = await api_clients.payments.get_payment_methods()
 
     card_payment_method = next(

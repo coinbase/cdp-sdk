@@ -21,6 +21,7 @@ export interface EvmFundOptions extends BaseFundOptions {
 /**
  * Funds an EVM account.
  *
+ * @deprecated This method will be removed in a future version. Please use alternative funding methods.
  * @param apiClient - The API client.
  * @param options - The options for funding an EVM account.
  *
