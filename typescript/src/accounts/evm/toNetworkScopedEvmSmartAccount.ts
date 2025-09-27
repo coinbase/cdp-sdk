@@ -44,27 +44,30 @@ import type {
 } from "../../openapi-client/index.js";
 
 /**
- * Options for converting a pre-existing EvmSmartAccount and owner to a NetworkScopedEvmSmartAccount
+ * Options for converting a pre-existing EvmSmartAccount and owner(s) to a NetworkScopedEvmSmartAccount
  */
 export type ToNetworkScopedEvmSmartAccountOptions = {
   /** The pre-existing EvmSmartAccount. */
   smartAccount: EvmSmartAccount;
   /** The network to scope the smart account object to. */
   network: KnownEvmNetworks;
-  /** The owner of the smart account. */
-  owner: EvmAccount;
+  /** The owner of the smart account (for backwards compatibility). */
+  owner?: EvmAccount;
+  /** The owners of the smart account. If provided, takes precedence over `owner`. */
+  owners?: EvmAccount[];
 };
 
 /**
- * Creates a NetworkScopedEvmSmartAccount instance from an existing EvmSmartAccount and owner.
+ * Creates a NetworkScopedEvmSmartAccount instance from an existing EvmSmartAccount and owner(s).
  * Use this to interact with previously deployed EvmSmartAccounts, rather than creating new ones.
  *
- * The owner must be the original owner of the evm smart account.
+ * The owner(s) must be among the original owners of the evm smart account.
  *
  * @param {CdpOpenApiClientType} apiClient - The API client.
  * @param {ToNetworkScopedEvmSmartAccountOptions} options - Configuration options.
  * @param {EvmSmartAccount} options.smartAccount - The deployed evm smart account.
- * @param {EvmAccount} options.owner - The owner which signs for the smart account.
+ * @param {EvmAccount} [options.owner] - The owner which signs for the smart account (for backwards compatibility).
+ * @param {EvmAccount[]} [options.owners] - The owners which can sign for the smart account. Takes precedence over `owner`.
  * @param {KnownEvmNetworks} options.network - The network to scope the smart account to.
  * @returns {NetworkScopedEvmSmartAccount} A configured NetworkScopedEvmSmartAccount instance ready for user operation submission.
  */
@@ -72,6 +75,12 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
   apiClient: CdpOpenApiClientType,
   options: ToNetworkScopedEvmSmartAccountOptions & { network: Network },
 ): Promise<NetworkScopedEvmSmartAccount<Network>> {
+  // Handle backwards compatibility: if owners is provided, use it; otherwise fall back to owner
+  const accountOwners = options.owners || (options.owner ? [options.owner] : []);
+
+  if (accountOwners.length === 0) {
+    throw new Error("At least one owner must be provided");
+  }
   const paymasterUrl = await (async () => {
     if (options.network === "base") {
       return getBaseNodeRpcUrl(options.network);
@@ -82,7 +91,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
   const account = {
     address: options.smartAccount.address,
     network: options.network,
-    owners: [options.owner],
+    owners: accountOwners,
     name: options.smartAccount.name,
     type: "evm-smart",
     sendUserOperation: async (
@@ -266,7 +275,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
         return createSwapQuote(apiClient, {
           ...quoteSwapOptions,
           taker: options.smartAccount.address,
-          signerAddress: options.owner.address,
+          signerAddress: accountOwners[0].address,
           smartAccount: options.smartAccount,
           network: options.network as SmartAccountSwapNetwork,
         });
@@ -299,7 +308,7 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
           ...swapOptionsWithNetwork,
           smartAccount: options.smartAccount,
           taker: options.smartAccount.address,
-          signerAddress: options.owner.address,
+          signerAddress: accountOwners[0].address,
           paymasterUrl: swapOptions.paymasterUrl ?? paymasterUrl,
         });
       },
