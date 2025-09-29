@@ -19,7 +19,9 @@
     }
   },
   "dependencies": {
-    "@solana/spl-token": "^0.4.13",
+    "@solana/kit": "^3.0.3",
+    "@solana-program/token": "^0.6.0",
+    "@solana-program/system": "^0.8.0",
     "@solana/web3.js": "^1.98.1",
     "abitype": "1.0.6",
     "axios": "^1.12.2",
@@ -44,16 +46,5 @@
     "cdp sdk",
     "sdk",
     "api"
-  ],
-  "overrides": {
-    "bigint-buffer": "npm:bigint-buffer-fixed@^1.1.6"
-  },
-  "pnpm": {
-    "overrides": {
-      "bigint-buffer": "npm:bigint-buffer-fixed@^1.1.6"
-    },
-    "overrideReasons": {
-      "bigint-buffer": "Overriding until @solana/spl-token fixes their dependency"
-    }
-  }
+  ]
 }

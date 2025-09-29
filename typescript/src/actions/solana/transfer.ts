@@ -1,18 +1,28 @@
 import {
-  getMint,
-  getAssociatedTokenAddress,
-  getAccount,
-  createAssociatedTokenAccountInstruction,
-  createTransferCheckedInstruction,
-} from "@solana/spl-token";
+  pipe,
+  createTransactionMessage,
+  setTransactionMessageLifetimeUsingBlockhash,
+  appendTransactionMessageInstructions,
+  Instruction,
+  createSolanaRpc,
+  address,
+  compileTransaction,
+  setTransactionMessageFeePayer,
+  createNoopSigner,
+  getBase64EncodedWireTransaction,
+} from "@solana/kit";
+import { Connection } from "@solana/web3.js";
+import { getTransferSolInstruction } from "@solana-program/system";
 import {
-  Connection,
-  PublicKey,
-  SystemProgram,
-  SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
-  Transaction,
-} from "@solana/web3.js";
+  findAssociatedTokenPda,
+  getCreateAssociatedTokenInstructionAsync,
+  getTransferCheckedInstruction,
+  fetchToken,
+  fetchMint,
+  TOKEN_PROGRAM_ADDRESS,
+} from "@solana-program/token";
 
+import { createRpcClient } from "./rpc.js";
 import { sendTransaction } from "./sendTransaction.js";
 import {
   getConnectedNetwork,
@@ -42,7 +52,7 @@ export interface TransferOptions {
    */
   token: "sol" | "usdc" | string;
   /**
-   * The network to use which will be used to create a Connection, otherwise a Connection can be provided.
+   * The network to use which will be used to create an RPC client, otherwise an RPC client can be provided.
    */
   network: Network | Connection;
 }
@@ -61,16 +71,18 @@ export async function transfer(
 ): Promise<SignatureResult> {
   const connection = getOrCreateConnection({ networkOrConnection: options.network });
   const connectedNetwork = await getConnectedNetwork(connection);
+  const rpc = createRpcClient(connectedNetwork);
 
-  const tx =
+  const base64Transaction =
     options.token === "sol"
-      ? await getNativeTransfer({
+      ? await getNativeTransferBase64Transaction({
+          rpc,
           from: options.from,
           to: options.to,
           amount: options.amount,
         })
-      : await getSplTransfer({
-          connection,
+      : await getSplTransferBase64Transaction({
+          rpc,
           from: options.from,
           to: options.to,
           mintAddress:
@@ -78,59 +90,63 @@ export async function transfer(
           amount: options.amount,
         });
 
-  const serializedTx = Buffer.from(tx.serialize({ requireAllSignatures: false })).toString(
-    "base64",
-  );
-
   const signature = await sendTransaction(apiClient, {
     network: connectedNetwork === "mainnet" ? "solana" : "solana-devnet",
-    transaction: serializedTx,
+    transaction: base64Transaction,
   });
 
   return signature;
 }
 
-type GetNativeTransferOptions = Omit<TransferOptions, "token" | "network">;
+type GetNativeTransferOptions = Omit<TransferOptions, "token" | "network"> & {
+  rpc: ReturnType<typeof createSolanaRpc>;
+};
 
 /**
- * Gets the transaction for a native SOL transfer
+ * Gets the transaction for a SOL transfer
  *
- * @param options - The options for the native SOL transfer
+ * @param options - The options for the SOL transfer
  *
+ * @param options.rpc - The Solana RPC client
  * @param options.from - The source address
  * @param options.to - The destination address
- * @param options.amount - The amount to transfer
+ * @param options.amount - The amount in lamports to transfer
  *
- * @returns The native SOL transfer transaction
+ * @returns The SOL transfer transaction
  */
-async function getNativeTransfer({
+export async function getNativeTransferBase64Transaction({
+  rpc,
   from,
   to,
   amount,
-}: GetNativeTransferOptions): Promise<Transaction> {
-  const transaction = new Transaction();
-  transaction.add(
-    SystemProgram.transfer({
-      fromPubkey: new PublicKey(from),
-      toPubkey: new PublicKey(to),
-      lamports: amount,
-    }),
-  );
-  transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
-  transaction.feePayer = new PublicKey(from);
+}: GetNativeTransferOptions): Promise<string> {
+  const fromAddr = address(from);
+  const toAddr = address(to);
 
-  return transaction;
+  const instructions: Instruction[] = [
+    getTransferSolInstruction({
+      source: createNoopSigner(fromAddr),
+      destination: toAddr,
+      amount,
+    }),
+  ];
+
+  const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
+
+  const txMsg = pipe(
+    createTransactionMessage({ version: 0 }),
+    tx => setTransactionMessageFeePayer(fromAddr, tx),
+    tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+    tx => appendTransactionMessageInstructions(instructions, tx),
+  );
+
+  const compiledTransaction = compileTransaction(txMsg);
+  return getBase64EncodedWireTransaction(compiledTransaction);
 }
 
-type GetSplTransferOptions = Omit<TransferOptions, "token" | "network"> & {
-  /**
-   * The mint address of the token
-   */
+type GetSplTokenTransferOptions = Omit<TransferOptions, "network" | "token"> & {
   mintAddress: string;
-  /**
-   * The connection to the Solana network.
-   */
-  connection: Connection;
+  rpc: ReturnType<typeof createSolanaRpc>;
 };
 
 /**
@@ -138,63 +154,78 @@ type GetSplTransferOptions = Omit<TransferOptions, "token" | "network"> & {
  *
  * @param options - The options for the SPL token transfer
  *
- * @param options.connection - The Solana connection
+ * @param options.rpc - The Solana RPC client
  * @param options.from - The source address
  * @param options.to - The destination address
  * @param options.mintAddress - The mint address of the token
- * @param options.amount - The amount to transfer
+ * @param options.amount - The amount in units of the token to transfer
  *
  * @returns The SPL token transfer transaction
  */
-async function getSplTransfer({
-  connection,
+export async function getSplTransferBase64Transaction({
+  rpc,
   from,
   to,
   mintAddress,
   amount,
-}: GetSplTransferOptions): Promise<Transaction> {
-  const fromPubkey = new PublicKey(from);
-  const toPubkey = new PublicKey(to);
-  const mintPubkey = new PublicKey(mintAddress);
+}: GetSplTokenTransferOptions): Promise<string> {
+  const fromAddr = address(from);
+  const toAddr = address(to);
+  const mintAddr = address(mintAddress);
 
-  let mintInfo: Awaited<ReturnType<typeof getMint>>;
-  try {
-    mintInfo = await getMint(connection, mintPubkey);
-  } catch (error) {
-    throw new Error(`Failed to fetch mint info for mint address ${mintAddress}. Error: ${error}`);
+  const mintInfo = await fetchMint(rpc, mintAddr);
+
+  const [sourceAta] = await findAssociatedTokenPda({
+    mint: mintAddr,
+    owner: fromAddr,
+    tokenProgram: TOKEN_PROGRAM_ADDRESS,
+  });
+  const [destAta] = await findAssociatedTokenPda({
+    mint: mintAddr,
+    owner: toAddr,
+    tokenProgram: TOKEN_PROGRAM_ADDRESS,
+  });
+
+  const sourceAcct = await fetchToken(rpc, sourceAta);
+  if (sourceAcct.data.amount < amount) {
+    throw new Error(`Insufficient token balance: have ${sourceAcct.data.amount}, need ${amount}`);
   }
 
-  const sourceAta = await getAssociatedTokenAddress(mintPubkey, fromPubkey);
-  const destinationAta = await getAssociatedTokenAddress(mintPubkey, toPubkey);
+  const instructions: Instruction[] = [];
 
-  const transaction = new Transaction();
-
-  const sourceAccount = await getAccount(connection, sourceAta);
-  if (sourceAccount.amount < amount) {
-    throw new Error(`Insufficient token balance. Have ${sourceAccount.amount}, need ${amount}`);
-  }
-
-  // Check if destination account exists, if not create it
+  // If destination ATA does not exist, add create instruction
   try {
-    await getAccount(connection, destinationAta);
+    await fetchToken(rpc, destAta);
   } catch {
-    transaction.add(
-      createAssociatedTokenAccountInstruction(fromPubkey, destinationAta, toPubkey, mintPubkey),
-    );
+    const createDestIx = await getCreateAssociatedTokenInstructionAsync({
+      payer: createNoopSigner(fromAddr),
+      owner: toAddr,
+      ata: destAta,
+      mint: mintAddr,
+    });
+    instructions.push(createDestIx);
   }
 
-  transaction.add(
-    createTransferCheckedInstruction(
-      sourceAta,
-      mintPubkey,
-      destinationAta,
-      fromPubkey,
+  instructions.push(
+    getTransferCheckedInstruction({
+      source: sourceAta,
+      mint: mintAddr,
+      destination: destAta,
+      authority: fromAddr,
       amount,
-      mintInfo.decimals,
-    ),
+      decimals: mintInfo.data.decimals,
+    }),
   );
-  transaction.recentBlockhash = SYSVAR_RECENT_BLOCKHASHES_PUBKEY.toBase58();
-  transaction.feePayer = new PublicKey(from);
 
-  return transaction;
+  const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
+
+  const txMsg = pipe(
+    createTransactionMessage({ version: 0 }),
+    tx => setTransactionMessageFeePayer(fromAddr, tx),
+    tx => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+    tx => appendTransactionMessageInstructions(instructions, tx),
+  );
+
+  const compiledTransaction = compileTransaction(txMsg);
+  return getBase64EncodedWireTransaction(compiledTransaction);
 }
