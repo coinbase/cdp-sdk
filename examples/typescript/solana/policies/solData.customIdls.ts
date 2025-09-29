@@ -9,7 +9,7 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { ASSOCIATED_TOKEN_PROGRAM_ADDRESS, TOKEN_PROGRAM_ADDRESS } from "@solana-program/token";
 import "dotenv/config";
 
 const cdp = new CdpClient();
@@ -277,7 +277,7 @@ function createAnchorSPLTransferCheckedInstruction(
       { pubkey: testAccount, isSigner: false, isWritable: true },
       { pubkey: testAccount, isSigner: true, isWritable: false },
     ],
-    programId: TOKEN_PROGRAM_ID,
+    programId: new PublicKey(TOKEN_PROGRAM_ADDRESS),
     data: instructionData
   });
 }
@@ -301,7 +301,7 @@ function createAnchorAssociatedTokenAccountCreateInstruction(): TransactionInstr
       { pubkey: testAccount, isSigner: false, isWritable: false },
       { pubkey: testAccount, isSigner: false, isWritable: false },
     ],
-    programId: ASSOCIATED_TOKEN_PROGRAM_ID,
+    programId: new PublicKey(ASSOCIATED_TOKEN_PROGRAM_ADDRESS),
     data: instructionData
   });
 }
