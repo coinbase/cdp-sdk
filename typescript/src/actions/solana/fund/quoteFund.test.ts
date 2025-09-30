@@ -5,7 +5,15 @@ import { Address } from "../../../types/misc.js";
 import { parseUnits } from "viem";
 import { quoteFund, SolanaQuoteFundOptions } from "./quoteFund.js";
 
-describe("quoteFund", () => {
+/**
+ * Tests for the deprecated Solana quoteFund() method.
+ *
+ * @deprecated The quoteFund() method is deprecated and will be removed in a future version.
+ * These tests are maintained to ensure backwards compatibility until removal.
+ * Consider using our Onramp API instead. See https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/create-an-onramp-order.
+ */
+
+describe("quoteFund (DEPRECATED)", () => {
   const address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e" as Address;
   const mockPaymentMethods = [
     {

@@ -21,6 +21,7 @@ export interface EvmFundOptions extends BaseFundOptions {
 /**
  * Funds an EVM account.
  *
+ * @deprecated This method will be removed in a future version. Consider using our Onramp API instead. See https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/create-an-onramp-order.
  * @param apiClient - The API client.
  * @param options - The options for funding an EVM account.
  *

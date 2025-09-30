@@ -29,7 +29,11 @@ async def fund(
     address: str,
     fund_options: SolanaFundOptions,
 ) -> FundOperationResult:
-    """Fund a Solana account."""
+    """Fund a Solana account.
+
+    Deprecated. This function will be removed in a future version.
+    Consider using our Onramp API instead. See https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/create-an-onramp-order.
+    """
     payment_methods = await api_clients.payments.get_payment_methods()
 
     card_payment_method = next(
