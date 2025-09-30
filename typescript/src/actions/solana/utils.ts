@@ -14,7 +14,7 @@ type GetOrCreateConnectionOptions = {
 };
 
 /**
- * Get a connection to the Solana network
+ * Get a connection for the Solana network
  *
  * @param options - The options for the connection
  *
@@ -37,12 +37,10 @@ export function getOrCreateConnection({
 }
 
 /**
- * Get the network of the connected Solana node
+ * Legacy function for compatibility during migration
  *
- * @param connection - The connection to the Solana network
- * @throws {Error} If the network is not mainnet or devnet
- *
- * @returns The network of the connected Solana node
+ * @param connection - The Solana Connection instance
+ * @returns The network type (mainnet or devnet)
  */
 export async function getConnectedNetwork(connection: Connection): Promise<Network> {
   const genesisHash = await connection.getGenesisHash();

@@ -1,21 +1,21 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-import { Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import {
-  getMint,
-  getAssociatedTokenAddress,
-  getAccount,
-  createAssociatedTokenAccountInstruction,
-  createTransferCheckedInstruction,
-} from "@solana/spl-token";
+  fetchMint,
+  fetchToken,
+  findAssociatedTokenPda,
+  getTransferCheckedInstruction,
+  getCreateAssociatedTokenInstructionAsync,
+} from "@solana-program/token";
+import { getTransferSolInstruction } from "@solana-program/system";
 import { transfer } from "./transfer.js";
 import { CdpOpenApiClientType } from "../../openapi-client/index.js";
 import { getOrCreateConnection, getConnectedNetwork } from "./utils.js";
 import { sendTransaction } from "./sendTransaction.js";
 
-const mockSerializedTransaction = "MOCK_SERIALIZED_TX_DATA";
-
 vi.mock("@solana/web3.js", async () => {
+  const mockSerializedTransaction = "MOCK_SERIALIZED_TX_DATA";
   const actual = (await vi.importActual("@solana/web3.js")) as typeof import("@solana/web3.js");
   return {
     ...actual,
@@ -41,33 +41,66 @@ vi.mock("@solana/web3.js", async () => {
   };
 });
 
-vi.mock("@solana/spl-token", async () => {
-  const actual = (await vi.importActual("@solana/web3.js")) as typeof import("@solana/web3.js");
+vi.mock("@solana/kit", () => ({
+  pipe: vi.fn().mockImplementation((initialValue, ...fns) => {
+    return fns.reduce((acc, fn) => fn(acc), initialValue);
+  }),
+  createTransactionMessage: vi.fn().mockReturnValue({}),
+  setTransactionMessageLifetimeUsingBlockhash: vi.fn().mockReturnValue({}),
+  appendTransactionMessageInstructions: vi.fn().mockReturnValue({}),
+  address: vi.fn().mockImplementation(addr => addr),
+  compileTransaction: vi.fn().mockReturnValue({
+    messageBytes: new Uint8Array([1, 2, 3]),
+    signatures: { mockSigner: null },
+  }),
+  setTransactionMessageFeePayer: vi.fn().mockReturnValue({}),
+  createNoopSigner: vi.fn().mockReturnValue({}),
+  getBase64EncodedWireTransaction: vi.fn().mockReturnValue("MOCK_SERIALIZED_TX_DATA"),
+  createSolanaRpc: vi.fn().mockReturnValue({
+    getLatestBlockhash: vi.fn().mockReturnValue({
+      send: vi.fn().mockResolvedValue({
+        value: { blockhash: "mockblockhash123", lastValidBlockHeight: 1000 },
+      }),
+    }),
+  }),
+}));
 
-  return {
-    getMint: vi.fn().mockResolvedValue({ decimals: 6 }),
-    getAssociatedTokenAddress: vi.fn().mockImplementation((mint, owner) => {
-      // Generate deterministic but valid public keys for ATAs
-      // The first ATA is for the sender, the second for the receiver
-      return new actual.PublicKey(
-        owner.toString() === "vYshzifUaxbTTMp8G6Tguw7RiXYfHhip8eQHjKU9g1j"
-          ? "FG4Y3yX4AAchp1HvNZ7LfzFTewF2f6nDif3xQbTYzXXJ" // Source ATA
-          : "EPxDogVYNTp3vbS8nHNXgZGqKiV6iB3yUBnxn5D31CXC", // Destination ATA
-      );
+vi.mock("@solana-program/system", () => ({
+  getTransferSolInstruction: vi.fn().mockReturnValue({
+    programId: "11111111111111111111111111111111",
+    keys: [],
+    data: new Uint8Array([]),
+  }),
+}));
+
+vi.mock("@solana-program/token", () => ({
+  fetchMint: vi.fn().mockResolvedValue({ data: { decimals: 6 } }),
+  findAssociatedTokenPda: vi
+    .fn()
+    .mockImplementation(() => ["FG4Y3yX4AAchp1HvNZ7LfzFTewF2f6nDif3xQbTYzXXJ", 255]),
+  fetchToken: vi.fn().mockResolvedValue({ data: { amount: BigInt(100000000) } }),
+  getCreateAssociatedTokenInstructionAsync: vi.fn().mockResolvedValue({
+    programId: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    keys: [],
+    data: new Uint8Array([]),
+  }),
+  getTransferCheckedInstruction: vi.fn().mockReturnValue({
+    programId: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    keys: [],
+    data: new Uint8Array([]),
+  }),
+  TOKEN_PROGRAM_ADDRESS: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+}));
+
+vi.mock("./rpc.js", () => ({
+  createRpcClient: vi.fn().mockReturnValue({
+    getLatestBlockhash: vi.fn().mockReturnValue({
+      send: vi.fn().mockResolvedValue({
+        value: { blockhash: "mockblockhash123", lastValidBlockHeight: 1000 },
+      }),
     }),
-    getAccount: vi.fn().mockResolvedValue({ amount: BigInt(100000000) }),
-    createAssociatedTokenAccountInstruction: vi.fn().mockReturnValue({
-      programId: new actual.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-      keys: [],
-      data: Buffer.from([]),
-    }),
-    createTransferCheckedInstruction: vi.fn().mockReturnValue({
-      programId: new actual.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-      keys: [],
-      data: Buffer.from([]),
-    }),
-  };
-});
+  }),
+}));
 
 vi.mock("./utils.js", async importActual => ({
   ...(await importActual<typeof import("./utils.js")>()),
@@ -118,6 +151,11 @@ describe("transfer", () => {
       });
 
       expect(result).toEqual({ signature: "mockSignature123" });
+
+      expect(getTransferSolInstruction).toHaveBeenCalledTimes(1);
+      expect(fetchMint).not.toHaveBeenCalled();
+      expect(fetchToken).not.toHaveBeenCalled();
+
       expect(sendTransaction).toHaveBeenCalledTimes(1);
       expect(sendTransaction).toHaveBeenCalledWith(
         mockApiClient,
@@ -143,9 +181,6 @@ describe("transfer", () => {
 
   describe("SPL token transfers", () => {
     it("should transfer USDC successfully on devnet", async () => {
-      // Ensure devnet is used
-      (getConnectedNetwork as any).mockResolvedValue("devnet");
-
       const result = await transfer(mockApiClient, {
         from: testFromAddress,
         to: testToAddress,
@@ -155,14 +190,12 @@ describe("transfer", () => {
       });
 
       expect(result).toEqual({ signature: "mockSignature123" });
-      expect(getMint).toHaveBeenCalledTimes(1);
-      expect(getMint).toHaveBeenCalledWith(
-        connection,
-        new PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"), // Devnet USDC
-      );
-      expect(getAssociatedTokenAddress).toHaveBeenCalledTimes(2);
-      expect(getAccount).toHaveBeenCalledTimes(2);
-      expect(createTransferCheckedInstruction).toHaveBeenCalledTimes(1);
+
+      expect(fetchMint).toHaveBeenCalledTimes(1);
+      expect(findAssociatedTokenPda).toHaveBeenCalledTimes(2); // Source and destination ATAs
+      expect(fetchToken).toHaveBeenCalledTimes(2); // Source balance check + destination existence check
+      expect(getTransferCheckedInstruction).toHaveBeenCalledTimes(1);
+
       expect(sendTransaction).toHaveBeenCalledTimes(1);
       expect(sendTransaction).toHaveBeenCalledWith(
         mockApiClient,
@@ -174,7 +207,6 @@ describe("transfer", () => {
     });
 
     it("should transfer USDC successfully on mainnet", async () => {
-      // Override to use mainnet for this test
       (getConnectedNetwork as any).mockResolvedValue("mainnet");
 
       const result = await transfer(mockApiClient, {
@@ -186,11 +218,12 @@ describe("transfer", () => {
       });
 
       expect(result).toEqual({ signature: "mockSignature123" });
-      expect(getMint).toHaveBeenCalledTimes(1);
-      expect(getMint).toHaveBeenCalledWith(
-        connection,
-        new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"), // Mainnet USDC
-      );
+
+      expect(fetchMint).toHaveBeenCalledTimes(1);
+      expect(findAssociatedTokenPda).toHaveBeenCalledTimes(2);
+      expect(fetchToken).toHaveBeenCalledTimes(2);
+      expect(getTransferCheckedInstruction).toHaveBeenCalledTimes(1);
+
       expect(sendTransaction).toHaveBeenCalledWith(
         mockApiClient,
         expect.objectContaining({
@@ -201,7 +234,6 @@ describe("transfer", () => {
     });
 
     it("should transfer custom SPL token successfully", async () => {
-      // Use a valid Solana public key for the custom token
       const customMintAddress = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 
       const result = await transfer(mockApiClient, {
@@ -213,7 +245,12 @@ describe("transfer", () => {
       });
 
       expect(result).toEqual({ signature: "mockSignature123" });
-      expect(getMint).toHaveBeenCalledWith(connection, new PublicKey(customMintAddress));
+
+      expect(fetchMint).toHaveBeenCalledTimes(1);
+      expect(findAssociatedTokenPda).toHaveBeenCalledTimes(2);
+      expect(fetchToken).toHaveBeenCalledTimes(2);
+      expect(getTransferCheckedInstruction).toHaveBeenCalledTimes(1);
+
       expect(sendTransaction).toHaveBeenCalledWith(
         mockApiClient,
         expect.objectContaining({
@@ -225,22 +262,23 @@ describe("transfer", () => {
 
     it("should create destination ATA if it doesn't exist", async () => {
       // First mock is for checking source account balance
-      (getAccount as any).mockResolvedValueOnce({ amount: BigInt(10000000) });
+      (fetchToken as any).mockResolvedValueOnce({ data: { amount: BigInt(10000000) } });
 
       // Second mock is for checking destination account - should throw to trigger ATA creation
-      (getAccount as any).mockRejectedValueOnce(new Error("Account not found"));
+      (fetchToken as any).mockRejectedValueOnce(new Error("Account not found"));
 
       const result = await transfer(mockApiClient, {
         from: testFromAddress,
         to: testToAddress,
-        amount: BigInt(10 * Math.pow(10, 6)), // 10 USDC
+        amount: BigInt(10 * Math.pow(10, 6)),
         token: "usdc",
         network: connection,
       });
 
       expect(result).toEqual({ signature: "mockSignature123" });
-      expect(getAccount).toHaveBeenCalledTimes(2); // Should be called twice now
-      expect(createAssociatedTokenAccountInstruction).toHaveBeenCalledTimes(1);
+
+      expect(getCreateAssociatedTokenInstructionAsync).toHaveBeenCalledTimes(1);
+
       expect(sendTransaction).toHaveBeenCalledWith(
         mockApiClient,
         expect.objectContaining({
@@ -251,37 +289,31 @@ describe("transfer", () => {
     });
 
     it("should throw error if source account has insufficient balance", async () => {
-      // Mock mint with 6 decimals (USDC standard)
-      (getMint as any).mockResolvedValueOnce({ decimals: 6 });
-
-      // We're trying to transfer 10 USDC (10 * 10^6 = 10000000 units)
-      // But we only have 1 unit in the account
-      (getAccount as any).mockResolvedValueOnce({ amount: BigInt(1) });
+      (fetchToken as any).mockResolvedValueOnce({ data: { amount: BigInt(1) } });
 
       await expect(
         transfer(mockApiClient, {
           from: testFromAddress,
           to: testToAddress,
-          amount: BigInt(10 * Math.pow(10, 6)), // 10 USDC
+          amount: BigInt(10 * Math.pow(10, 6)),
           token: "usdc",
           network: connection,
         }),
-      ).rejects.toThrow("Insufficient token balance. Have 1, need 10000000");
+      ).rejects.toThrow("Insufficient token balance: have 1, need 10000000");
     });
 
     it("should throw error if mint info fetch fails", async () => {
-      // Mock getMint to throw an error
-      (getMint as any).mockRejectedValueOnce(new Error("Mint not found"));
+      (fetchMint as any).mockRejectedValueOnce(new Error("Mint not found"));
 
       await expect(
         transfer(mockApiClient, {
           from: testFromAddress,
           to: testToAddress,
-          amount: BigInt(10 * Math.pow(10, 6)), // 10 USDC
+          amount: BigInt(10 * Math.pow(10, 6)),
           token: "usdc",
           network: connection,
         }),
-      ).rejects.toThrow("Failed to fetch mint info");
+      ).rejects.toThrow("Mint not found");
     });
   });
 });
