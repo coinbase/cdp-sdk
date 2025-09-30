@@ -1,6 +1,4 @@
 # Usage: uv run python evm/swaps/account.swap.py
-#!/usr/bin/env python3
-# Usage: uv run python evm/account_swap.py
 
 """
 Example: Account Swap - All-in-One Pattern
