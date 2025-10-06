@@ -2437,7 +2437,7 @@ def _get_transaction(address: str, to: str | None = None, amount: int | None = N
 
 async def _ensure_sufficient_eth_balance(cdp_client, account):
     """Ensure an account has sufficient ETH balance."""
-    min_required_balance = w3.to_wei(0.000001, "ether")
+    min_required_balance = w3.to_wei(0.00001, "ether")
 
     eth_balance = w3.eth.get_balance(account.address)
 
