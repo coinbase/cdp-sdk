@@ -60,6 +60,6 @@ async def get_connected_network(connection: SolanaClient) -> Network:
 
 def get_usdc_mint_address(network: Network) -> str:
     """Get the USDC mint address for the given connection."""
-    if network == Network.MAINNET:
+    if network == Network.MAINNET.value:
         return USDC_MAINNET_MINT_ADDRESS
     return USDC_DEVNET_MINT_ADDRESS
