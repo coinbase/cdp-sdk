@@ -82,7 +82,7 @@ async function ensureSufficientEthBalance(cdp: CdpClient, account: Account) {
     address: account.address,
   });
 
-  const minRequiredBalance = parseEther("0.000001");
+  const minRequiredBalance = parseEther("0.00001");
   if (ethBalance < minRequiredBalance) {
     logger.log(
       `ETH balance (${formatEther(ethBalance)}) too low for ${account.address}. Requesting funds...`,
