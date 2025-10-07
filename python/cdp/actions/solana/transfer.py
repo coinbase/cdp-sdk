@@ -142,7 +142,7 @@ def get_spl_transfer(
     # Check if destination account exists, if not create it
     try:
         dest_account = connection.get_account_info(destination_ata)
-        if not dest_account:
+        if not dest_account.value:
             from spl.token.instructions import create_associated_token_account
 
             instructions.append(
