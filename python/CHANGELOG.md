@@ -2,6 +2,14 @@
 
 <!-- towncrier release notes start -->
 
+## [1.33.1] - 2025-10-06
+
+### Bugfixes
+
+- Fixed python client retries ([#451](https://github.com/coinbase/cdp-sdk/pull/451))
+- Fixed Solana mainnet USDC sends ([#465](https://github.com/coinbase/cdp-sdk/pull/465))
+
+
 ## [1.33.0] - 2025-09-23
 
 ### Features
