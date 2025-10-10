@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.38.4
+
+### Patch Changes
+
+- [#462](https://github.com/coinbase/cdp-sdk/pull/462) [`8f5f7a4`](https://github.com/coinbase/cdp-sdk/commit/8f5f7a4d17d2e058ce01ea94864c756067c2d47d) Thanks [@sddioulde](https://github.com/sddioulde)! - Removed @solana/spl-token
+
 ## 1.38.3
 
 ### Patch Changes
