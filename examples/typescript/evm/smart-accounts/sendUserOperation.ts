@@ -3,13 +3,11 @@
 import { CdpClient } from "@coinbase/cdp-sdk";
 
 import { parseEther } from "viem";
-import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import "dotenv/config";
 
 const cdp = new CdpClient();
 
-const privateKey = generatePrivateKey();
-const owner = privateKeyToAccount(privateKey);
+const owner = await cdp.evm.getOrCreateAccount({ name: "SmartAccountOwner" });
 
 const smartAccount = await cdp.evm.createSmartAccount({
   owner,
