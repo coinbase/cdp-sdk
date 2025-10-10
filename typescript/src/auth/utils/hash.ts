@@ -12,6 +12,6 @@ import { subtle } from "uncrypto";
  * @returns Promise that resolves to the hex-encoded hash
  */
 export const authHash = async (data: Buffer): Promise<string> => {
-  const hashBuffer = await subtle.digest("SHA-256", data);
+  const hashBuffer = await subtle.digest("SHA-256", new Uint8Array(data));
   return Buffer.from(hashBuffer).toString("hex");
 };
