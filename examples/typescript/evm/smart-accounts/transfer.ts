@@ -1,15 +1,15 @@
-// Usage: pnpm tsx evm/smart-accounts/smartAccount.transfer.ts
+// Usage: pnpm tsx evm/smart-accounts/transfer.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
-import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { createPublicClient, http } from "viem";
 import { baseSepolia } from "viem/chains";
 import "dotenv/config";
 
 const cdp = new CdpClient();
 
+const owner = await cdp.evm.getOrCreateAccount({ name: "SmartAccountOwner" });
 const sender = await cdp.evm.createSmartAccount({
-  owner: privateKeyToAccount(generatePrivateKey()),
+  owner,
 });
 
 const receiver = await cdp.evm.getOrCreateAccount({ name: "Receiver" });
