@@ -12,5 +12,6 @@ Follow these steps to get started:
 To run the example, run:
 
 ```bash
-go run example.go
+go run . send_transaction
+go run . send_user_operation
 ```

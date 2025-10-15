@@ -28,8 +28,8 @@ github.com/cockroachdb/redact v1.1.5 h1:u1PMllDkdFfPWaNGMyLD1+so+aq3uUItthCFqzwP
 github.com/cockroachdb/redact v1.1.5/go.mod h1:BVNblN9mBWFyMyqK1k3AAiSxhvhfK2oOZZ2lK+dpvRg=
 github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 h1:zuQyyAKVxetITBuuhv3BI9cMrmStnpT18zmgmTxunpo=
 github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06/go.mod h1:7nc4anLGjupUW/PeY5qiNYsdNXj7zopG+eqsS7To5IQ=
-github.com/coinbase/cdp-sdk/go v0.0.0-20250423211202-95d53ac847e1 h1:c7KTaCSxQW3Gk8XcRrrDHmQi54WEJJM3hg78M/SUx74=
-github.com/coinbase/cdp-sdk/go v0.0.0-20250423211202-95d53ac847e1/go.mod h1:RFZfx2S+AAmhK97F30sDHXdoiWD9ste/kENAutV4AyM=
+github.com/coinbase/cdp-sdk/go v0.0.0-20251010170447-ce1322c0d66a h1:9OZWPZpipGuSzGPuHqZNGD51qayIh9FBMuXLO1WROnM=
+github.com/coinbase/cdp-sdk/go v0.0.0-20251010170447-ce1322c0d66a/go.mod h1:7SCUyseVQvmT158f23xvVghYF7dYxypj0sw+558F+7g=
 github.com/consensys/bavard v0.1.22 h1:Uw2CGvbXSZWhqK59X0VG/zOjpTFuOMcPLStrp1ihI0A=
 github.com/consensys/bavard v0.1.22/go.mod h1:k/zVjHHC4B+PQy1Pg7fgvG3ALicQw540Crag8qx+dZs=
 github.com/consensys/gnark-crypto v0.14.0 h1:DDBdl4HaBtdQsq/wfMwJvZNE80sHidrK3Nfrefatm0E=
