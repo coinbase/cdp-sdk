@@ -19,8 +19,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// main is an example script that shows how to create an EVM Account and sign a transaction.
-func main() {
+// SendTransactionExample is an example script that shows how to create an EVM Account and sign a transaction.
+func SendTransactionExample() {
 	ctx := context.Background()
 
 	cdp, err := createCDPClient()
@@ -28,7 +28,9 @@ func main() {
 		log.Fatalf("Failed to create CDP client: %v", err)
 	}
 
-	evmAddress, err := createEVMAccount(ctx, cdp)
+	name := "eoa"
+
+	evmAddress, err := getOrCreateEvmAccount(ctx, &name, cdp)
 	if err != nil {
 		log.Printf("Failed to create EVM account: %v", err)
 	}
@@ -83,24 +85,42 @@ func createCDPClient() (*openapi.ClientWithResponses, error) {
 	return cdp, nil
 }
 
-// createEVMAccount creates a new EVM account using the CDP client.
-func createEVMAccount(ctx context.Context, cdp *openapi.ClientWithResponses) (string, error) {
+// getOrCreateEvmAccount creates a new EVM account using the CDP client.
+func getOrCreateEvmAccount(ctx context.Context, accountName *string, cdp *openapi.ClientWithResponses) (string, error) {
 	log.Println("Creating EVM account...")
 
-	response, err := cdp.CreateEvmAccountWithResponse(
+	response, err := cdp.GetEvmAccountByNameWithResponse(
 		ctx,
-		nil,
-		openapi.CreateEvmAccountJSONRequestBody{},
+		*accountName,
 	)
 	if err != nil {
 		return "", err
 	}
 
-	if response.StatusCode() != 201 {
+	if response.StatusCode() == 200 {
+		return response.JSON200.Address, nil
+	}
+
+	if response.StatusCode() != 404 {
+		return "", fmt.Errorf("failed to get EVM account by name: %v", response.StatusCode())
+	}
+
+	createResp, err := cdp.CreateEvmAccountWithResponse(
+		ctx,
+		nil,
+		openapi.CreateEvmAccountJSONRequestBody{
+			Name: accountName,
+		},
+	)
+	if err != nil {
+		return "", err
+	}
+
+	if createResp.StatusCode() != 201 {
 		return "", fmt.Errorf("failed to create EVM account: %v", response.Status())
 	}
 
-	evmAddress := response.JSON201.Address
+	evmAddress := createResp.JSON201.Address
 	log.Printf("EVM account created: %v", evmAddress)
 	return evmAddress, nil
 }
@@ -172,7 +192,7 @@ func createAndSignEVMTransaction(ctx context.Context, cdp *openapi.ClientWithRes
 	}
 
 	if response.StatusCode() != 200 {
-		return "", fmt.Errorf("failed to sign transaction: %v", response.Status())
+		return "", fmt.Errorf("failed to sign transaction: %v", string(response.Body))
 	}
 
 	log.Printf("Signed transaction: %v", response.JSON200.SignedTransaction)
@@ -181,7 +201,7 @@ func createAndSignEVMTransaction(ctx context.Context, cdp *openapi.ClientWithRes
 
 // sendSignedEVMTransaction sends a signed EVM transaction to the network.
 func sendSignedEVMTransaction(ctx context.Context, signedTransaction string) error {
-	log.Println("Sending signed EVM transaction...")
+	log.Printf("sending signed EVM transaction... %s\n", signedTransaction)
 
 	ethClient, err := ethclient.Dial("https://sepolia.base.org")
 	if err != nil {
