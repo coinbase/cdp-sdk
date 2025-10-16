@@ -45,7 +45,8 @@ class OnrampOrder(BaseModel):
     tx_hash: Optional[StrictStr] = Field(default=None, description="The transaction hash of the order (only available once crypto has been sent).", alias="txHash")
     created_at: StrictStr = Field(description="The date and time the order was created.", alias="createdAt")
     updated_at: StrictStr = Field(description="The date and time the order was last updated.", alias="updatedAt")
-    __properties: ClassVar[List[str]] = ["orderId", "paymentTotal", "paymentSubtotal", "paymentCurrency", "paymentMethod", "purchaseAmount", "purchaseCurrency", "fees", "exchangeRate", "destinationAddress", "destinationNetwork", "status", "txHash", "createdAt", "updatedAt"]
+    partner_user_ref: Optional[StrictStr] = Field(default=None, description="The partner user reference ID.", alias="partnerUserRef")
+    __properties: ClassVar[List[str]] = ["orderId", "paymentTotal", "paymentSubtotal", "paymentCurrency", "paymentMethod", "purchaseAmount", "purchaseCurrency", "fees", "exchangeRate", "destinationAddress", "destinationNetwork", "status", "txHash", "createdAt", "updatedAt", "partnerUserRef"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -119,7 +120,8 @@ class OnrampOrder(BaseModel):
             "status": obj.get("status"),
             "txHash": obj.get("txHash"),
             "createdAt": obj.get("createdAt"),
-            "updatedAt": obj.get("updatedAt")
+            "updatedAt": obj.get("updatedAt"),
+            "partnerUserRef": obj.get("partnerUserRef")
         })
         return _obj
 
