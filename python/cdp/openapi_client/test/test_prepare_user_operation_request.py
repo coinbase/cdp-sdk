@@ -41,7 +41,8 @@ class TestPrepareUserOperationRequest(unittest.TestCase):
                     cdp.openapi_client.models.evm_call.EvmCall(
                         to = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 
                         value = '0', 
-                        data = '0xa9059cbb000000000000000000000000fc807d1be4997e5c7b33e4d8d57e60c5b0f02b1a0000000000000000000000000000000000000000000000000000000000000064', )
+                        data = '0xa9059cbb000000000000000000000000fc807d1be4997e5c7b33e4d8d57e60c5b0f02b1a0000000000000000000000000000000000000000000000000000000000000064', 
+                        override_gas_limit = '100000', )
                     ],
                 paymaster_url = 'https://api.developer.coinbase.com/rpc/v1/base/<token>'
             )
@@ -52,7 +53,8 @@ class TestPrepareUserOperationRequest(unittest.TestCase):
                     cdp.openapi_client.models.evm_call.EvmCall(
                         to = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 
                         value = '0', 
-                        data = '0xa9059cbb000000000000000000000000fc807d1be4997e5c7b33e4d8d57e60c5b0f02b1a0000000000000000000000000000000000000000000000000000000000000064', )
+                        data = '0xa9059cbb000000000000000000000000fc807d1be4997e5c7b33e4d8d57e60c5b0f02b1a0000000000000000000000000000000000000000000000000000000000000064', 
+                        override_gas_limit = '100000', )
                     ],
         )
         """

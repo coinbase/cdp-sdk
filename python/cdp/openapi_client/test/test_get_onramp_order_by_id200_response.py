@@ -51,7 +51,8 @@ class TestGetOnrampOrderById200Response(unittest.TestCase):
                     status = 'ONRAMP_ORDER_STATUS_COMPLETED', 
                     tx_hash = '0x363cd3b3d4f49497cf5076150cd709307b90e9fc897fdd623546ea7b9313cecb', 
                     created_at = '2025-04-24T00:00:00Z', 
-                    updated_at = '2025-04-24T00:00:00Z', )
+                    updated_at = '2025-04-24T00:00:00Z', 
+                    partner_user_ref = 'user123', )
             )
         else:
             return GetOnrampOrderById200Response(
@@ -70,7 +71,8 @@ class TestGetOnrampOrderById200Response(unittest.TestCase):
                     status = 'ONRAMP_ORDER_STATUS_COMPLETED', 
                     tx_hash = '0x363cd3b3d4f49497cf5076150cd709307b90e9fc897fdd623546ea7b9313cecb', 
                     created_at = '2025-04-24T00:00:00Z', 
-                    updated_at = '2025-04-24T00:00:00Z', ),
+                    updated_at = '2025-04-24T00:00:00Z', 
+                    partner_user_ref = 'user123', ),
         )
         """
 

@@ -18,20 +18,19 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from cdp.openapi_client.models.payment_method_limits_source_limit import PaymentMethodLimitsSourceLimit
-from cdp.openapi_client.models.payment_method_limits_target_limit import PaymentMethodLimitsTargetLimit
+from cdp.openapi_client.models.end_user import EndUser
 from typing import Optional, Set
 from typing_extensions import Self
 
-class PaymentMethodLimits(BaseModel):
+class ListEndUsers200Response(BaseModel):
     """
-    The limits of the payment method.
+    ListEndUsers200Response
     """ # noqa: E501
-    source_limit: Optional[PaymentMethodLimitsSourceLimit] = Field(default=None, alias="sourceLimit")
-    target_limit: Optional[PaymentMethodLimitsTargetLimit] = Field(default=None, alias="targetLimit")
-    __properties: ClassVar[List[str]] = ["sourceLimit", "targetLimit"]
+    next_page_token: Optional[StrictStr] = Field(default=None, description="The token for the next page of items, if any.", alias="nextPageToken")
+    end_users: List[EndUser] = Field(description="The list of end users.", alias="endUsers")
+    __properties: ClassVar[List[str]] = ["nextPageToken", "endUsers"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -51,7 +50,7 @@ class PaymentMethodLimits(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of PaymentMethodLimits from a JSON string"""
+        """Create an instance of ListEndUsers200Response from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -72,17 +71,18 @@ class PaymentMethodLimits(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of source_limit
-        if self.source_limit:
-            _dict['sourceLimit'] = self.source_limit.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of target_limit
-        if self.target_limit:
-            _dict['targetLimit'] = self.target_limit.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in end_users (list)
+        _items = []
+        if self.end_users:
+            for _item_end_users in self.end_users:
+                if _item_end_users:
+                    _items.append(_item_end_users.to_dict())
+            _dict['endUsers'] = _items
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of PaymentMethodLimits from a dict"""
+        """Create an instance of ListEndUsers200Response from a dict"""
         if obj is None:
             return None
 
@@ -90,8 +90,8 @@ class PaymentMethodLimits(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "sourceLimit": PaymentMethodLimitsSourceLimit.from_dict(obj["sourceLimit"]) if obj.get("sourceLimit") is not None else None,
-            "targetLimit": PaymentMethodLimitsTargetLimit.from_dict(obj["targetLimit"]) if obj.get("targetLimit") is not None else None
+            "nextPageToken": obj.get("nextPageToken"),
+            "endUsers": [EndUser.from_dict(_item) for _item in obj["endUsers"]] if obj.get("endUsers") is not None else None
         })
         return _obj
 
