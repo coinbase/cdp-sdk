@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
@@ -31,7 +31,8 @@ class EvmCall(BaseModel):
     to: Annotated[str, Field(strict=True)] = Field(description="The address the call is directed to.")
     value: StrictStr = Field(description="The amount of ETH to send with the call, in wei.")
     data: Annotated[str, Field(strict=True)] = Field(description="The call data to send. This is the hex-encoded data of the function call consisting of the method selector and the function arguments.")
-    __properties: ClassVar[List[str]] = ["to", "value", "data"]
+    override_gas_limit: Optional[StrictStr] = Field(default=None, description="The override gas limit to use for the call instead of the bundler's estimated gas limit.", alias="overrideGasLimit")
+    __properties: ClassVar[List[str]] = ["to", "value", "data", "overrideGasLimit"]
 
     @field_validator('to')
     def to_validate_regular_expression(cls, value):
@@ -100,7 +101,8 @@ class EvmCall(BaseModel):
         _obj = cls.model_validate({
             "to": obj.get("to"),
             "value": obj.get("value"),
-            "data": obj.get("data")
+            "data": obj.get("data"),
+            "overrideGasLimit": obj.get("overrideGasLimit")
         })
         return _obj
 

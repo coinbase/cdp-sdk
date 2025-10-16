@@ -7,6 +7,8 @@
  */
 import type {
   EndUser,
+  ListEndUsers200,
+  ListEndUsersParams,
   ValidateEndUserAccessTokenBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
@@ -14,6 +16,17 @@ import { cdpApiClient } from "../../cdpApiClient.js";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
+/**
+ * Lists the end users belonging to the developer's CDP Project.
+By default, the response is sorted by creation date in ascending order and paginated to 20 users per page.
+ * @summary List end users
+ */
+export const listEndUsers = (
+  params?: ListEndUsersParams,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<ListEndUsers200>({ url: `/v2/end-users`, method: "GET", params }, options);
+};
 /**
  * Validates the end user's access token and returns the end user's information. Returns an error if the access token is invalid or expired.
 
@@ -34,6 +47,7 @@ export const validateEndUserAccessToken = (
     options,
   );
 };
+export type ListEndUsersResult = NonNullable<Awaited<ReturnType<typeof listEndUsers>>>;
 export type ValidateEndUserAccessTokenResult = NonNullable<
   Awaited<ReturnType<typeof validateEndUserAccessToken>>
 >;

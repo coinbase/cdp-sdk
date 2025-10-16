@@ -28,7 +28,7 @@ class OnchainDataQuery(BaseModel):
     """
     Request to execute a SQL query against indexed blockchain data.
     """ # noqa: E501
-    sql: Annotated[str, Field(min_length=1, strict=True, max_length=10000)] = Field(description="SQL query to execute against the indexed blockchain data.")
+    sql: Annotated[str, Field(min_length=1, strict=True, max_length=50000)] = Field(description="SQL query to execute against the indexed blockchain data.")
     __properties: ClassVar[List[str]] = ["sql"]
 
     model_config = ConfigDict(

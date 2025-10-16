@@ -27,6 +27,13 @@ class TestSQLAPIAlphaApi(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self) -> None:
         await self.api.api_client.close()
 
+    async def test_get_sql_grammar(self) -> None:
+        """Test case for get_sql_grammar
+
+        Get SQL grammar
+        """
+        pass
+
     async def test_run_sql_query(self) -> None:
         """Test case for run_sql_query
 
