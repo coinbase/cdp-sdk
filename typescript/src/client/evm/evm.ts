@@ -892,6 +892,7 @@ export class EvmClient implements EvmClientInterface {
         to: call.to as Address,
         value: call.value.toString(),
         data: call.data as Hex,
+        overrideGasLimit: call.overrideGasLimit,
       })),
       paymasterUrl: options.paymasterUrl,
     });
