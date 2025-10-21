@@ -7,6 +7,7 @@ import {
   RequestFaucetNetworks,
   TransferNetworks,
   SwapNetworks,
+  QuoteSwapNetworks,
 } from "./networkCapabilities.js";
 import {
   ListTokenBalancesOptions,
@@ -22,8 +23,12 @@ import { UseSpendPermissionOptions } from "../../actions/evm/spend-permissions/t
 import {
   AccountSwapOptions,
   AccountSwapResult,
+  AccountQuoteSwapOptions,
+  AccountQuoteSwapResult,
+  SmartAccountQuoteSwapOptions,
   SmartAccountSwapOptions,
   SmartAccountSwapResult,
+  SmartAccountQuoteSwapResult,
 } from "../../actions/evm/swap/types.js";
 import {
   WaitForUserOperationOptions,
@@ -272,10 +277,26 @@ export type NetworkSpecificAccountActions<Network extends string> = Prettify<
           ) => Promise<RequestFaucetResult>;
         }
       : EmptyObject) &
+    // Conditionally include quoteSwap
+    (Network extends QuoteSwapNetworks
+      ? {
+          quoteSwap: (
+            options: Omit<SmartAccountQuoteSwapOptions, "network">,
+          ) => Promise<SmartAccountQuoteSwapResult>;
+        }
+      : EmptyObject) &
     // Conditionally include transfer
     (Network extends TransferNetworks
       ? {
           transfer: (options: TransferOptions) => Promise<{ transactionHash: Hex }>;
+        }
+      : EmptyObject) &
+    // Conditionally include quoteSwap
+    (Network extends QuoteSwapNetworks
+      ? {
+          quoteSwap: (
+            options: DistributedOmit<AccountQuoteSwapOptions, "network">,
+          ) => Promise<AccountQuoteSwapResult>;
         }
       : EmptyObject) &
     // Conditionally include swap
