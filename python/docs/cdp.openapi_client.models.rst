@@ -172,30 +172,6 @@ cdp.openapi\_client.models.create\_swap\_quote\_response\_wrapper module
    :undoc-members:
    :show-inheritance:
 
-cdp.openapi\_client.models.crypto\_rail module
-----------------------------------------------
-
-.. automodule:: cdp.openapi_client.models.crypto_rail
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-cdp.openapi\_client.models.crypto\_rail\_address module
--------------------------------------------------------
-
-.. automodule:: cdp.openapi_client.models.crypto_rail_address
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-cdp.openapi\_client.models.crypto\_rail\_networks\_inner module
----------------------------------------------------------------
-
-.. automodule:: cdp.openapi_client.models.crypto_rail_networks_inner
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 cdp.openapi\_client.models.eip712\_domain module
 ------------------------------------------------
 
