@@ -1129,6 +1129,30 @@ If you discover a security vulnerability within this SDK, please see our [Securi
 
 Common errors and their solutions.
 
+### TypeScript compilation errors with `generateJwt` or `moduleResolution`
+
+If you encounter TypeScript compilation errors when using the CDP SDK, particularly with `generateJwt` or import statements, you may need to update your TypeScript configuration.
+
+**Error symptoms:**
+- Type errors with `generateJwt` function
+- Module resolution errors
+- Import/export type mismatches
+
+**Solution:**
+
+Update your `tsconfig.json` to use a modern module resolution strategy. Change `moduleResolution` from `node` to `node16` or `nodenext`:
+
+```json
+{
+  "compilerOptions": {
+    "moduleResolution": "node16",  // or "nodenext"
+    // ... other options
+  }
+}
+```
+
+The CDP SDK is built as an ESM package and `moduleResolution: "node16"` or `"nodenext"` should be used for proper type resolution. The legacy `"node"` setting doesn't correctly resolve ESM package exports.
+
 ### AggregateError [ETIMEDOUT]
 
 This is an issue in Node.js itself: https://github.com/nodejs/node/issues/54359. While [the fix](https://github.com/nodejs/node/pull/56738) is implemented, the workaround is to set the environment variable:
