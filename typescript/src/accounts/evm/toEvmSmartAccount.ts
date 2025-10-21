@@ -1,7 +1,5 @@
 import { resolveNetworkToChain } from "./networkToChainResolver.js";
 import { toNetworkScopedEvmSmartAccount } from "./toNetworkScopedEvmSmartAccount.js";
-import { fund, EvmFundOptions } from "../../actions/evm/fund/fund.js";
-import { quoteFund, EvmQuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import {
   listTokenBalances,
@@ -30,13 +28,6 @@ import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
-import { EvmQuote } from "../../actions/Quote.js";
-import { FundOperationResult } from "../../actions/types.js";
-import {
-  WaitForFundOperationResult,
-  waitForFundOperationReceipt,
-  WaitForFundOperationOptions,
-} from "../../actions/waitForFundOperationReceipt.js";
 import { Analytics } from "../../analytics.js";
 import {
   GetUserOperationOptions,
@@ -171,44 +162,6 @@ export function toEvmSmartAccount(
         ...options,
         address: account.address,
       });
-    },
-    async quoteFund(options: Omit<EvmQuoteFundOptions, "address">): Promise<EvmQuote> {
-      Analytics.trackAction({
-        action: "quote_fund",
-        accountType: "evm_smart",
-        properties: {
-          network: options.network,
-        },
-      });
-
-      return quoteFund(apiClient, {
-        ...options,
-        address: this.address,
-      });
-    },
-    async fund(options: Omit<EvmFundOptions, "address">): Promise<FundOperationResult> {
-      Analytics.trackAction({
-        action: "fund",
-        accountType: "evm_smart",
-        properties: {
-          network: options.network,
-        },
-      });
-
-      return fund(apiClient, {
-        ...options,
-        address: this.address,
-      });
-    },
-    async waitForFundOperationReceipt(
-      options: WaitForFundOperationOptions,
-    ): Promise<WaitForFundOperationResult> {
-      Analytics.trackAction({
-        action: "wait_for_fund_operation_receipt",
-        accountType: "evm_smart",
-      });
-
-      return waitForFundOperationReceipt(apiClient, options);
     },
     async quoteSwap(options: SmartAccountQuoteSwapOptions): Promise<SmartAccountQuoteSwapResult> {
       Analytics.trackAction({
