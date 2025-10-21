@@ -210,6 +210,14 @@ export type NetworkSpecificSmartAccountActions<Network extends string> = Prettif
           ) => Promise<RequestFaucetResult>;
         }
       : EmptyObject) &
+    // Conditionally include quoteSwap
+    (Network extends QuoteSwapNetworks
+      ? {
+          quoteSwap: (
+            options: DistributedOmit<SmartAccountQuoteSwapOptions, "network">,
+          ) => Promise<SmartAccountQuoteSwapResult>;
+        }
+      : EmptyObject) &
     // Conditionally include swap
     (Network extends SwapNetworks
       ? {
@@ -275,14 +283,6 @@ export type NetworkSpecificAccountActions<Network extends string> = Prettify<
           requestFaucet: (
             options: Omit<RequestFaucetOptions, "address" | "network">,
           ) => Promise<RequestFaucetResult>;
-        }
-      : EmptyObject) &
-    // Conditionally include quoteSwap
-    (Network extends QuoteSwapNetworks
-      ? {
-          quoteSwap: (
-            options: Omit<SmartAccountQuoteSwapOptions, "network">,
-          ) => Promise<SmartAccountQuoteSwapResult>;
         }
       : EmptyObject) &
     // Conditionally include transfer
