@@ -2100,6 +2100,112 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/evm/smart-accounts/{address}/user-operations/prepare-and-send:
+    post:
+      x-audience: public
+      summary: Prepare and send a user operation for EVM Smart Account
+      description: Prepares, signs, and sends a user operation for an EVM Smart Account. This API can be used only if the owner on Smart Account is a CDP EVM Account.
+      operationId: prepareAndSendUserOperation
+      tags:
+        - EVM Smart Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/XWalletAuth'
+        - name: address
+          description: The address of the EVM Smart Account to execute the user operation from.
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^0x[0-9a-fA-F]{40}$
+          example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                network:
+                  $ref: '#/components/schemas/EvmUserOperationNetwork'
+                calls:
+                  type: array
+                  description: The list of calls to make from the Smart Account.
+                  items:
+                    $ref: '#/components/schemas/EvmCall'
+                paymasterUrl:
+                  type: string
+                  description: The URL of the paymaster to use for the user operation.
+                  example: https://api.developer.coinbase.com/rpc/v1/base/<token>
+              required:
+                - network
+                - calls
+      responses:
+        '200':
+          description: The user operation was successfully prepared, signed, and sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvmUserOperation'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Field "network" is required.
+                invalid_signature:
+                  value:
+                    errorType: invalid_signature
+                    errorMessage: Failed to sign user operation.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '403':
+          description: Access to resource forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                forbidden:
+                  value:
+                    errorType: forbidden
+                    errorMessage: Unable to sign transaction for this address.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user Smart Account with the given address not found.
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Max concurrent user operations reached.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/smart-accounts/{address}/user-operations/{userOpHash}:
     get:
       summary: Get a user operation
