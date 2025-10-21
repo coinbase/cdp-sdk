@@ -2,6 +2,7 @@
  * @module Actions
  */
 
+import { SendTransactionResult } from "./sendTransaction.js";
 import { TransferOptions } from "./transfer.js";
 import {
   RequestFaucetOptions,
@@ -10,7 +11,6 @@ import {
   SignMessageOptions,
   SignTransactionOptions,
 } from "../../client/solana/solana.types.js";
-import { SendTransactionResult } from "./sendTransaction.js";
 
 import type { SignTransactionResult } from "./signTransaction.js";
 

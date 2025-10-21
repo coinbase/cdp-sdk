@@ -3,6 +3,7 @@
  */
 
 import { SendUserOperationOptions, SendUserOperationReturnType } from "./sendUserOperation.js";
+import { UseSpendPermissionOptions } from "./spend-permissions/types.js";
 import { KnownEvmNetworks } from "../../accounts/evm/types.js";
 import {
   GetUserOperationOptions,
@@ -10,7 +11,6 @@ import {
   UserOperation,
 } from "../../client/evm/evm.types.js";
 import { Hex } from "../../types/misc.js";
-import { UseSpendPermissionOptions } from "./spend-permissions/types.js";
 
 import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTokenBalances.js";
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";

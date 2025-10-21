@@ -200,7 +200,6 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
     });
   }
 
-
   if (isMethodSupportedOnNetwork("quoteSwap", options.network)) {
     Object.assign(account, {
       quoteSwap: async (
