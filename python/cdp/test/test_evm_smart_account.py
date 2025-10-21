@@ -2,7 +2,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from cdp.actions.quote import EvmQuote
 from cdp.api_clients import ApiClients
 from cdp.evm_call_types import FunctionCall
 from cdp.evm_smart_account import EvmSmartAccount
