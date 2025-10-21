@@ -22,7 +22,6 @@ from cdp.evm_message_types import EIP712Domain
 from cdp.evm_token_balances import ListTokenBalancesResult
 from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount as EvmSmartAccountModel
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
-from cdp.openapi_client.models.transfer import Transfer
 
 # Avoid circular imports
 if TYPE_CHECKING:

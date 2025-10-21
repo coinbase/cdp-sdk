@@ -38,7 +38,6 @@ from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageReq
 from cdp.openapi_client.models.sign_evm_transaction_request import (
     SignEvmTransactionRequest,
 )
-from cdp.openapi_client.models.transfer import Transfer
 
 if TYPE_CHECKING:
     from cdp.spend_permissions import SpendPermissionInput
