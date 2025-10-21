@@ -2,13 +2,6 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from cdp.actions.quote import SolanaQuote
-from cdp.actions.types import FundOperationResult
-from cdp.api_clients import ApiClients
-from cdp.openapi_client.models.create_payment_transfer_quote_request import (
-    CreatePaymentTransferQuoteRequest,
-)
-from cdp.openapi_client.models.fee import Fee
 from cdp.openapi_client.models.request_solana_faucet200_response import (
     RequestSolanaFaucet200Response as RequestSolanaFaucetResponse,
 )
@@ -22,9 +15,6 @@ from cdp.openapi_client.models.sign_solana_transaction200_response import (
 )
 from cdp.openapi_client.models.sign_solana_transaction_request import SignSolanaTransactionRequest
 from cdp.openapi_client.models.solana_account import SolanaAccount as SolanaAccountModel
-from cdp.openapi_client.models.transfer import Transfer
-from cdp.openapi_client.models.transfer_source import TransferSource
-from cdp.openapi_client.models.transfer_target import TransferTarget
 from cdp.solana_account import SolanaAccount
 
 

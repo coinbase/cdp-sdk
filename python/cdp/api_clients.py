@@ -48,7 +48,6 @@ class ApiClients:
         self._solana_accounts: SolanaAccountsApi | None = None
         self._solana_token_balances: SolanaTokenBalancesApi | None = None
         self._policies: PolicyEngineApi | None = None
-        self._payments: PaymentsAlphaApi | None = None
         self._end_user: EndUserAccountsApi | None = None
         self._closed = False
 

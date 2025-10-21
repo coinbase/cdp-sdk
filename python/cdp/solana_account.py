@@ -195,6 +195,7 @@ class SolanaAccount(BaseModel):
             transfer_args,
         )
 
+
 class ListSolanaAccountsResponse(BaseModel):
     """Response model for listing Solana accounts."""
 

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any
 
 from eth_account.signers.base import BaseAccount
 from pydantic import BaseModel, ConfigDict, Field
