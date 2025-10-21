@@ -136,10 +136,6 @@ describe("toNetworkScopedEvmSmartAccount", () => {
         // Should have these methods
         expect(account.listTokenBalances).toBeDefined();
         expect(account.transfer).toBeDefined();
-        expect(account.quoteFund).toBeDefined();
-        expect(account.fund).toBeDefined();
-        expect(account.waitForFundOperationReceipt).toBeDefined();
-        expect(account.quoteSwap).toBeDefined();
         expect(account.swap).toBeDefined();
         expect(account.useSpendPermission).toBeDefined();
 
@@ -182,7 +178,6 @@ describe("toNetworkScopedEvmSmartAccount", () => {
         // Should have these methods
         expect(account.listTokenBalances).toBeDefined();
         expect(account.transfer).toBeDefined();
-        expect(account.quoteSwap).toBeDefined();
         expect(account.swap).toBeDefined();
         expect(account.useSpendPermission).toBeDefined();
 
@@ -229,10 +224,6 @@ describe("toNetworkScopedEvmSmartAccount", () => {
       // TypeScript should know these methods exist
       expect(account).toHaveProperty("listTokenBalances");
       expect(account).toHaveProperty("transfer");
-      expect(account).toHaveProperty("quoteFund");
-      expect(account).toHaveProperty("fund");
-      expect(account).toHaveProperty("waitForFundOperationReceipt");
-      expect(account).toHaveProperty("quoteSwap");
       expect(account).toHaveProperty("swap");
       expect(account).toHaveProperty("useSpendPermission");
     });

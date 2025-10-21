@@ -95,10 +95,10 @@ async function main() {
     // Define the tokens we're working with
     const fromToken = TOKENS.WETH;
     const toToken = TOKENS.USDC;
-    
+
     // Set the amount we want to send
     const fromAmount = parseUnits("0.1", fromToken.decimals); // 0.1 WETH
-    
+
     console.log(`\nInitiating two-step smart account swap: ${formatEther(fromAmount)} ${fromToken.symbol} → ${toToken.symbol}`);
 
     // Handle token allowance check and approval if needed (applicable when sending non-native assets only)
@@ -110,7 +110,7 @@ async function main() {
         fromAmount
       );
     }
-    
+
     // STEP 1: Create the swap quote
     console.log("\n🔍 Step 1: Creating smart account swap quote...");
     const swapQuote = await smartAccount.quoteSwap({
@@ -131,7 +131,7 @@ async function main() {
     // STEP 2: Inspect and validate the swap details
     console.log("\n📊 Step 2: Analyzing smart account swap quote...");
     displaySwapQuoteDetails(swapQuote, fromToken, toToken);
-    
+
     // Validate the swap for any issues
     if (!validateSwapQuote(swapQuote)) {
       console.log("\n❌ Swap validation failed. Aborting execution.");
@@ -140,7 +140,7 @@ async function main() {
 
     // STEP 3: Execute the swap via user operation
     console.log("\n🚀 Step 3: Executing swap via user operation...");
-    
+
     // Option A: Execute using smartAccount.swap() with the pre-created quote (RECOMMENDED)
     console.log("Executing swap using smartAccount.swap() with pre-created quote...");
     const result = await smartAccount.swap({
@@ -164,11 +164,11 @@ async function main() {
 
     console.log("\n🎉 Smart Account Swap User Operation Completed!");
     console.log(`Final status: ${receipt.status}`);
-    
+
     if (receipt.status === "complete") {
       console.log(`Transaction Explorer: https://basescan.org/tx/${receipt.userOpHash}`);
     }
-    
+
   } catch (error) {
     console.error("Error in two-step smart account swap process:", error);
   }
@@ -187,36 +187,36 @@ function displaySwapQuoteDetails(
 ): void {
   console.log("Smart Account Swap Quote Details:");
   console.log("=================================");
-  
+
   const fromAmountFormatted = formatUnits(BigInt(swapQuote.fromAmount), fromToken.decimals);
   const toAmountFormatted = formatUnits(BigInt(swapQuote.toAmount), toToken.decimals);
   const minToAmountFormatted = formatUnits(BigInt(swapQuote.minToAmount), toToken.decimals);
-  
+
   console.log(`📤 Sending: ${fromAmountFormatted} ${fromToken.symbol}`);
   console.log(`📥 Receiving: ${toAmountFormatted} ${toToken.symbol}`);
   console.log(`🔒 Minimum Receive: ${minToAmountFormatted} ${toToken.symbol}`);
-  
+
   // Calculate exchange rate
   const exchangeRate = Number(swapQuote.toAmount) / Number(swapQuote.fromAmount) * 
                       Math.pow(10, fromToken.decimals - toToken.decimals);
   console.log(`💱 Exchange Rate: 1 ${fromToken.symbol} = ${exchangeRate.toFixed(2)} ${toToken.symbol}`);
-  
+
   // Calculate slippage
   const slippagePercent = ((Number(swapQuote.toAmount) - Number(swapQuote.minToAmount)) / 
                           Number(swapQuote.toAmount) * 100);
   console.log(`📉 Max Slippage: ${slippagePercent.toFixed(2)}%`);
-  
+
   // Gas information for user operation
   if (swapQuote.transaction?.gas) {
     console.log(`⛽ Estimated Gas: ${swapQuote.transaction.gas.toLocaleString()}`);
   }
-  
+
   // Fee information
   if (swapQuote.fees?.gasFee) {
     const gasFeeFormatted = formatEther(BigInt(swapQuote.fees.gasFee.amount));
     console.log(`💰 Gas Fee: ${gasFeeFormatted} ${swapQuote.fees.gasFee.token}`);
   }
-  
+
   if (swapQuote.fees?.protocolFee) {
     const protocolFeeFormatted = formatUnits(
       BigInt(swapQuote.fees.protocolFee.amount), 
@@ -224,7 +224,7 @@ function displaySwapQuoteDetails(
     );
     console.log(`🏛️ Protocol Fee: ${protocolFeeFormatted} ${swapQuote.fees.protocolFee.token}`);
   }
-  
+
   // Smart account specific information
   console.log("\nSmart Account Execution Details:");
   console.log("-------------------------------");
@@ -243,9 +243,9 @@ function displaySwapQuoteDetails(
 function validateSwapQuote(swapQuote: any): boolean {
   console.log("\nValidating Smart Account Swap Quote:");
   console.log("===================================");
-  
+
   let isValid = true;
-  
+
   // Check liquidity
   if (!swapQuote.liquidityAvailable) {
     console.log("❌ Insufficient liquidity available");
@@ -253,7 +253,7 @@ function validateSwapQuote(swapQuote: any): boolean {
   } else {
     console.log("✅ Liquidity available");
   }
-  
+
   // Check balance issues
   if (swapQuote.issues?.balance) {
     console.log("❌ Balance Issues:");
@@ -265,7 +265,7 @@ function validateSwapQuote(swapQuote: any): boolean {
   } else {
     console.log("✅ Sufficient balance");
   }
-  
+
   // Check allowance issues
   if (swapQuote.issues?.allowance) {
     console.log("❌ Allowance Issues:");
@@ -277,7 +277,7 @@ function validateSwapQuote(swapQuote: any): boolean {
   } else {
     console.log("✅ Sufficient allowance");
   }
-  
+
   // Check simulation
   if (swapQuote.issues?.simulationIncomplete) {
     console.log("⚠️ WARNING: Simulation incomplete - user operation may fail");
@@ -285,7 +285,7 @@ function validateSwapQuote(swapQuote: any): boolean {
   } else {
     console.log("✅ Simulation complete");
   }
-  
+
   return isValid;
 }
 
@@ -304,18 +304,18 @@ async function handleTokenAllowance(
   fromAmount: bigint
 ): Promise<void> {
   console.log("\n🔐 Checking smart account token allowance...");
-  
+
   // Check allowance before attempting the swap
   const currentAllowance = await getAllowance(
     smartAccount.address as Address, 
     tokenAddress,
     tokenSymbol
   );
-  
+
   // If allowance is insufficient, approve tokens
   if (currentAllowance < fromAmount) {
     console.log(`❌ Allowance insufficient. Current: ${formatEther(currentAllowance)}, Required: ${formatEther(fromAmount)}`);
-    
+
     // Set the allowance to the required amount via user operation
     await approveTokenAllowance(
       smartAccount,
@@ -346,14 +346,14 @@ async function approveTokenAllowance(
   amount: bigint
 ) {
   console.log(`\n📝 Approving token allowance for ${tokenAddress} to spender ${spenderAddress}`);
-  
+
   // Encode the approve function call
   const data = encodeFunctionData({
     abi: erc20Abi,
     functionName: 'approve',
     args: [spenderAddress, amount]
   });
-  
+
   // Send the approve transaction via user operation
   const userOpResult = await smartAccount.sendUserOperation({
     network: NETWORK,
@@ -365,14 +365,14 @@ async function approveTokenAllowance(
       }
     ],
   });
-  
+
   console.log(`Approval user operation hash: ${userOpResult.userOpHash}`);
-  
+
   // Wait for approval user operation to be confirmed
   const receipt = await smartAccount.waitForUserOperation({
     userOpHash: userOpResult.userOpHash,
   });
-  
+
   console.log(`Approval confirmed with status: ${receipt.status} ✅`);
   return receipt;
 }
@@ -396,7 +396,7 @@ async function getAllowance(
       functionName: 'allowance',
       args: [owner, PERMIT2_ADDRESS]
     });
-    
+
     console.log(`Current allowance: ${formatEther(allowance)} ${symbol}`);
     return allowance;
   } catch (error) {

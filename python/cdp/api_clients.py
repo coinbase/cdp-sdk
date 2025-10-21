@@ -5,7 +5,6 @@ from cdp.openapi_client.api.evm_swaps_api import EVMSwapsApi
 from cdp.openapi_client.api.evm_token_balances_api import EVMTokenBalancesApi
 from cdp.openapi_client.api.faucets_api import FaucetsApi
 from cdp.openapi_client.api.onchain_data_api import OnchainDataApi
-from cdp.openapi_client.api.payments_alpha_api import PaymentsAlphaApi
 from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
 from cdp.openapi_client.api.solana_token_balances_api import SolanaTokenBalancesApi
@@ -49,7 +48,6 @@ class ApiClients:
         self._solana_accounts: SolanaAccountsApi | None = None
         self._solana_token_balances: SolanaTokenBalancesApi | None = None
         self._policies: PolicyEngineApi | None = None
-        self._payments: PaymentsAlphaApi | None = None
         self._end_user: EndUserAccountsApi | None = None
         self._closed = False
 
@@ -204,22 +202,6 @@ class ApiClients:
         if self._policies is None:
             self._policies = PolicyEngineApi(api_client=self._cdp_client)
         return self._policies
-
-    @property
-    def payments(self) -> PaymentsAlphaApi:
-        """Get the PaymentsAlphaApi client instance.
-
-        Returns:
-            PaymentsAlphaApi: The PaymentsAlphaApi client instance.
-
-        Note:
-            This property lazily initializes the PaymentsAlphaApi client on first access.
-
-        """
-        self._check_closed()
-        if self._payments is None:
-            self._payments = PaymentsAlphaApi(api_client=self._cdp_client)
-        return self._payments
 
     @property
     def end_user(self) -> EndUserAccountsApi:

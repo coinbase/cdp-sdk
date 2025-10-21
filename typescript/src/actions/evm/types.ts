@@ -2,14 +2,8 @@
  * @module Actions
  */
 
-import { FundOperationResult } from "../types.js";
-import {
-  WaitForFundOperationOptions,
-  WaitForFundOperationResult,
-} from "../waitForFundOperationReceipt.js";
-import { EvmFundOptions } from "./fund/fund.js";
-import { EvmQuoteFundOptions } from "./fund/quoteFund.js";
 import { SendUserOperationOptions, SendUserOperationReturnType } from "./sendUserOperation.js";
+import { UseSpendPermissionOptions } from "./spend-permissions/types.js";
 import { KnownEvmNetworks } from "../../accounts/evm/types.js";
 import {
   GetUserOperationOptions,
@@ -17,8 +11,6 @@ import {
   UserOperation,
 } from "../../client/evm/evm.types.js";
 import { Hex } from "../../types/misc.js";
-import { EvmQuote } from "../Quote.js";
-import { UseSpendPermissionOptions } from "./spend-permissions/types.js";
 
 import type { ListTokenBalancesOptions, ListTokenBalancesResult } from "./listTokenBalances.js";
 import type { RequestFaucetOptions, RequestFaucetResult } from "./requestFaucet.js";
@@ -78,71 +70,6 @@ export type Actions = {
    * ```
    */
   requestFaucet: (options: Omit<RequestFaucetOptions, "address">) => Promise<RequestFaucetResult>;
-
-  /**
-   * Gets a quote to fund an EVM account.
-   *
-   * @param options - The options for the quote fund.
-   * @param options.network - The network to fund the account on.
-   * @param options.token - The token to fund the account with.
-   * @param options.amount - The amount of the token to fund represented as an atomic unit.
-   * It's common to use `parseUnits` utils from viem to convert to atomic units.
-   * Otherwise, you can pass atomic units directly.
-   *
-   * @returns A promise that resolves to a Quote object containing details about the funding operation.
-   *
-   * @example
-   * ```ts
-   * const quote = await account.quoteFund({
-   *   network: "base",
-   *   token: "usdc",
-   *   amount: 1000000n,
-   * });
-   * ```
-   */
-  quoteFund: (options: Omit<EvmQuoteFundOptions, "address">) => Promise<EvmQuote>;
-
-  /**
-   * Funds an EVM account with the specified token amount.
-   *
-   * @param options - The options for the fund operation.
-   * @param options.network - The network to fund the account on.
-   * @param options.token - The token to fund the account with (e.g., 'usdc').
-   * @param options.amount - The amount of the token to fund represented as an atomic unit.
-   * It's common to use `parseUnits` utils from viem to convert to atomic units.
-   * Otherwise, you can pass atomic units directly.
-   *
-   * @returns A promise that resolves to the fund operation result containing the transfer details.
-   *
-   * @example
-   * ```ts
-   * const fundOperation = await account.fund({
-   *   network: "base",
-   *   token: "usdc",
-   *   amount: 1000000n,
-   * });
-   * ```
-   */
-  fund: (options: Omit<EvmFundOptions, "address">) => Promise<FundOperationResult>;
-
-  /**
-   * Waits for a fund operation to complete and returns the transfer receipt.
-   *
-   * @param options - The options for the wait for fund operation.
-   * @param options.transferId - The ID of the transfer to wait for.
-   *
-   * @returns A promise that resolves to the completed transfer receipt containing details about the funding operation.
-   *
-   * @example
-   * ```ts
-   * const completedTransfer = await account.waitForFundOperationReceipt({
-   *   transferId: "transfer_123",
-   * });
-   * ```
-   */
-  waitForFundOperationReceipt(
-    options: WaitForFundOperationOptions,
-  ): Promise<WaitForFundOperationResult>;
 };
 
 export type AccountActions = Actions & {

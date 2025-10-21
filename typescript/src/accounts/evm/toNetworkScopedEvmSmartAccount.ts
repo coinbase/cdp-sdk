@@ -1,7 +1,5 @@
 import { getBaseNodeRpcUrl } from "./getBaseNodeRpcUrl.js";
 import { isMethodSupportedOnNetwork } from "./networkCapabilities.js";
-import { fund } from "../../actions/evm/fund/fund.js";
-import { quoteFund } from "../../actions/evm/fund/quoteFund.js";
 import { getUserOperation } from "../../actions/evm/getUserOperation.js";
 import { listTokenBalances } from "../../actions/evm/listTokenBalances.js";
 import { requestFaucet } from "../../actions/evm/requestFaucet.js";
@@ -12,7 +10,6 @@ import { sendSwapOperation } from "../../actions/evm/swap/sendSwapOperation.js";
 import { smartAccountTransferStrategy } from "../../actions/evm/transfer/smartAccountTransferStrategy.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import { waitForUserOperation } from "../../actions/evm/waitForUserOperation.js";
-import { waitForFundOperationReceipt } from "../../actions/waitForFundOperationReceipt.js";
 import { Analytics } from "../../analytics.js";
 
 import type {
@@ -22,8 +19,6 @@ import type {
   NetworkScopedEvmSmartAccount,
   DistributedOmit,
 } from "./types.js";
-import type { EvmFundOptions } from "../../actions/evm/fund/fund.js";
-import type { EvmQuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
 import type { ListTokenBalancesOptions } from "../../actions/evm/listTokenBalances.js";
 import type { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
 import type { SendUserOperationOptions } from "../../actions/evm/sendUserOperation.js";
@@ -34,7 +29,6 @@ import type {
 } from "../../actions/evm/swap/types.js";
 import type { SmartAccountTransferOptions } from "../../actions/evm/transfer/types.js";
 import type { WaitForUserOperationOptions } from "../../actions/evm/waitForUserOperation.js";
-import type { WaitForFundOperationOptions } from "../../actions/waitForFundOperationReceipt.js";
 import type { GetUserOperationOptions } from "../../client/evm/evm.types.js";
 import type {
   CdpOpenApiClientType,
@@ -202,49 +196,6 @@ export async function toNetworkScopedEvmSmartAccount<Network extends KnownEvmNet
           address: options.smartAccount.address,
           network: options.network as "base-sepolia" | "ethereum-sepolia",
         });
-      },
-    });
-  }
-
-  if (isMethodSupportedOnNetwork("quoteFund", options.network)) {
-    Object.assign(account, {
-      quoteFund: async (quoteOptions: Omit<EvmQuoteFundOptions, "address">) => {
-        Analytics.trackAction({
-          action: "quote_fund",
-          accountType: "evm_smart",
-          properties: {
-            network: options.network,
-            managed: true,
-          },
-        });
-
-        return quoteFund(apiClient, {
-          ...quoteOptions,
-          address: options.smartAccount.address,
-        });
-      },
-    });
-  }
-
-  if (isMethodSupportedOnNetwork("fund", options.network)) {
-    Object.assign(account, {
-      fund: async (fundOptions: Omit<EvmFundOptions, "address">) => {
-        Analytics.trackAction({
-          action: "fund",
-          accountType: "evm_smart",
-          properties: {
-            network: options.network,
-            managed: true,
-          },
-        });
-
-        return fund(apiClient, {
-          ...fundOptions,
-          address: options.smartAccount.address,
-        });
-      },
-      waitForFundOperationReceipt: async (waitOptions: WaitForFundOperationOptions) => {
-        return waitForFundOperationReceipt(apiClient, waitOptions);
       },
     });
   }

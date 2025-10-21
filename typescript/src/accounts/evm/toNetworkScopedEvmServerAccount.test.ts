@@ -121,11 +121,7 @@ describe("toNetworkScopedEvmServerAccount", () => {
 
       // Check that all methods are available
       expect(networkAccount.listTokenBalances).toBeDefined();
-      expect(networkAccount.quoteFund).toBeDefined();
-      expect(networkAccount.fund).toBeDefined();
-      expect(networkAccount.waitForFundOperationReceipt).toBeDefined();
       expect(networkAccount.transfer).toBeDefined();
-      expect(networkAccount.quoteSwap).toBeDefined();
       expect(networkAccount.swap).toBeDefined();
       expect(networkAccount.sendTransaction).toBeDefined();
       expect(networkAccount.waitForTransactionReceipt).toBeDefined();
@@ -230,7 +226,6 @@ describe("toNetworkScopedEvmServerAccount", () => {
 
       // Available methods
       expect(networkAccount.listTokenBalances).toBeDefined();
-      expect(networkAccount.quoteSwap).toBeDefined();
       expect(networkAccount.swap).toBeDefined();
       expect(networkAccount.sendTransaction).toBeDefined();
       expect(networkAccount.waitForTransactionReceipt).toBeDefined();

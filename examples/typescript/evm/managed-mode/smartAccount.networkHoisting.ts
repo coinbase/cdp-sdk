@@ -69,20 +69,6 @@ await baseAccount.transfer({
 
 await baseAccount.listTokenBalances({});
 
-const fundQuote = await baseAccount.quoteFund({
-  token: "usdc",
-  amount: 100n,
-});
-
-const fundResult = await baseAccount.fund({
-  token: "usdc",
-  amount: 100n,
-});
-
-await baseAccount.waitForFundOperationReceipt({
-  transferId: fundResult.id,
-});
-
 const swapQuote = await baseAccount.quoteSwap({
   fromToken: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
   toToken: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH

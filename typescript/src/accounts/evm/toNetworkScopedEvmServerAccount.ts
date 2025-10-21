@@ -8,8 +8,6 @@ import { transferWithViem } from "../../actions/evm/transfer/transferWithViem.js
 import { Analytics } from "../../analytics.js";
 
 import type { EvmServerAccount, NetworkScopedEvmServerAccount, DistributedOmit } from "./types.js";
-import type { EvmFundOptions } from "../../actions/evm/fund/fund.js";
-import type { EvmQuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
 import type { ListTokenBalancesOptions } from "../../actions/evm/listTokenBalances.js";
 import type { RequestFaucetOptions } from "../../actions/evm/requestFaucet.js";
 import type {
@@ -19,7 +17,6 @@ import type {
 import type { UseSpendPermissionOptions } from "../../actions/evm/spend-permissions/types.js";
 import type { AccountQuoteSwapOptions, AccountSwapOptions } from "../../actions/evm/swap/types.js";
 import type { TransferOptions } from "../../actions/evm/transfer/types.js";
-import type { WaitForFundOperationOptions } from "../../actions/waitForFundOperationReceipt.js";
 import type { EvmSwapsNetwork } from "../../openapi-client/generated/coinbaseDeveloperPlatformAPIs.schemas.js";
 import type {
   ListEvmTokenBalancesNetwork,
@@ -174,53 +171,6 @@ export async function toNetworkScopedEvmServerAccount<Network extends string>(
           ...faucetOptions,
           network: chain.id === baseSepolia.id ? "base-sepolia" : "ethereum-sepolia",
         });
-      },
-    });
-  }
-
-  if (isMethodSupportedOnNetwork("quoteFund", resolvedNetworkName)) {
-    Object.assign(account, {
-      quoteFund: async (quoteFundOptions: Omit<EvmQuoteFundOptions, "address">) => {
-        Analytics.trackAction({
-          action: "quote_fund",
-          accountType: "evm_server",
-          properties: {
-            managed: true,
-          },
-        });
-
-        return options.account.quoteFund({
-          ...quoteFundOptions,
-        });
-      },
-    });
-  }
-
-  if (isMethodSupportedOnNetwork("fund", resolvedNetworkName)) {
-    Object.assign(account, {
-      fund: async (fundOptions: Omit<EvmFundOptions, "address">) => {
-        Analytics.trackAction({
-          action: "fund",
-          accountType: "evm_server",
-          properties: {
-            managed: true,
-          },
-        });
-
-        return options.account.fund({
-          ...fundOptions,
-        });
-      },
-      waitForFundOperationReceipt: async (waitOptions: WaitForFundOperationOptions) => {
-        Analytics.trackAction({
-          action: "wait_for_fund_operation_receipt",
-          accountType: "evm_server",
-          properties: {
-            managed: true,
-          },
-        });
-
-        return options.account.waitForFundOperationReceipt(waitOptions);
       },
     });
   }

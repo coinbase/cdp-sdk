@@ -5,7 +5,7 @@ import { Address, Hash, Hex } from "../../types/misc.js";
 import { parseUnits, Transaction } from "viem";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
-import { CdpOpenApiClientType, PaymentMethod, Transfer } from "../../openapi-client/index.js";
+import { CdpOpenApiClientType } from "../../openapi-client/index.js";
 import { TransferOptions } from "../../actions/evm/transfer/types.js";
 import { sendSwapTransaction } from "../../actions/evm/swap/sendSwapTransaction.js";
 import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
@@ -94,52 +94,15 @@ describe("toEvmServerAccount", () => {
   let mockAccount: EvmAccount;
   let mockAddress: Address;
   let serverAccount: EvmServerAccount;
-  let mockPaymentMethods: PaymentMethod[];
-  let mockTransfer: Transfer;
 
   beforeEach(() => {
     mockAddress = "0x0000000000000000000000000000000000000000" as Address;
-    mockPaymentMethods = [
-      {
-        id: "0xmockpaymentmethodid",
-        type: "card",
-        actions: ["source"],
-        currency: "usd",
-      },
-    ];
-
-    mockTransfer = {
-      id: "0xmocktransferid",
-      sourceType: "payment_method",
-      source: {
-        id: "0xmockpaymentmethodid",
-      },
-      targetType: "crypto_rail",
-      target: {
-        network: "base",
-        address: mockAddress,
-        currency: "usdc",
-      },
-      sourceAmount: "0.000001",
-      sourceCurrency: "usd",
-      targetAmount: "0.000001",
-      targetCurrency: "usdc",
-      userAmount: "0.000001",
-      userCurrency: "usd",
-      fees: [],
-      status: "pending",
-      createdAt: "2021-01-01T00:00:00.000Z",
-      updatedAt: "2021-01-01T00:00:00.000Z",
-    };
 
     mockApiClient = {
       signEvmMessage: vi.fn().mockResolvedValue({ signature: "0xmocksignature" }),
       signEvmHash: vi.fn().mockResolvedValue({ signature: "0xmocksignature" }),
       signEvmTransaction: vi.fn().mockResolvedValue({ signedTransaction: "0xmocktransaction" }),
       signEvmTypedData: vi.fn().mockResolvedValue({ signature: "0xmocksignature" }),
-      getPaymentMethods: vi.fn().mockResolvedValue(mockPaymentMethods),
-      createPaymentTransferQuote: vi.fn().mockResolvedValue({ transfer: mockTransfer }),
-      getPaymentTransfer: vi.fn().mockResolvedValue({ ...mockTransfer, status: "completed" }),
     } as unknown as CdpOpenApiClientType;
 
     mockAccount = {
@@ -162,9 +125,7 @@ describe("toEvmServerAccount", () => {
 
     expect(result).toEqual({
       address: mockAddress,
-      fund: expect.any(Function),
       listTokenBalances: expect.any(Function),
-      quoteFund: expect.any(Function),
       requestFaucet: expect.any(Function),
       sendTransaction: expect.any(Function),
       sign: expect.any(Function),
@@ -175,7 +136,6 @@ describe("toEvmServerAccount", () => {
       quoteSwap: expect.any(Function),
       transfer: expect.any(Function),
       type: "evm-server",
-      waitForFundOperationReceipt: expect.any(Function),
       useNetwork: expect.any(Function),
       useSpendPermission: expect.any(Function),
     });
@@ -430,63 +390,6 @@ describe("toEvmServerAccount", () => {
       permit2: undefined,
       execute: expect.any(Function),
     });
-  });
-
-  it("should call apiClient payment APIs when quoteFund is called", async () => {
-    await serverAccount.quoteFund({
-      network: "base",
-      token: "usdc",
-      amount: parseUnits("0.000001", 6),
-    });
-
-    expect(mockApiClient.getPaymentMethods).toHaveBeenCalled();
-    expect(mockApiClient.createPaymentTransferQuote).toHaveBeenCalledWith({
-      sourceType: "payment_method",
-      source: {
-        id: "0xmockpaymentmethodid",
-      },
-      targetType: "crypto_rail",
-      target: {
-        network: "base",
-        address: mockAddress,
-        currency: "usdc",
-      },
-      amount: "0.000001",
-      currency: "usdc",
-    });
-  });
-
-  it("should call apiClient payment APIs when fund is called", async () => {
-    await serverAccount.fund({
-      network: "base",
-      token: "usdc",
-      amount: parseUnits("0.000001", 6),
-    });
-
-    expect(mockApiClient.getPaymentMethods).toHaveBeenCalled();
-    expect(mockApiClient.createPaymentTransferQuote).toHaveBeenCalledWith({
-      sourceType: "payment_method",
-      source: {
-        id: "0xmockpaymentmethodid",
-      },
-      targetType: "crypto_rail",
-      target: {
-        network: "base",
-        address: mockAddress,
-        currency: "usdc",
-      },
-      amount: "0.000001",
-      currency: "usdc",
-      execute: true,
-    });
-  });
-
-  it("should call apiClient getPaymentTransfer when waitForFundOperationReceipt is called", async () => {
-    await serverAccount.waitForFundOperationReceipt({
-      transferId: "0xmocktransferid",
-    });
-
-    expect(mockApiClient.getPaymentTransfer).toHaveBeenCalledWith("0xmocktransferid");
   });
 
   it("should call useSpendPermission action when useSpendPermission is called", async () => {
