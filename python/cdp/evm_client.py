@@ -38,9 +38,6 @@ from cdp.openapi_client.models.evm_call import EvmCall
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation as EvmUserOperationModel
 from cdp.openapi_client.models.export_evm_account_request import ExportEvmAccountRequest
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
-from cdp.openapi_client.models.prepare_and_send_user_operation_request import (
-    PrepareAndSendUserOperationRequest,
-)
 from cdp.openapi_client.models.prepare_user_operation_request import (
     PrepareUserOperationRequest,
 )
@@ -645,11 +642,9 @@ class EvmClient:
 
         return await self.api_clients.evm_smart_accounts.prepare_and_send_user_operation(
             smart_account.address,
-            PrepareAndSendUserOperationRequest(
-                calls=evm_calls,
-                network=network,
-                paymaster_url=paymaster_url,
-            ),
+            calls=evm_calls,
+            network=network,
+            paymaster_url=paymaster_url,
             x_idempotency_key=idempotency_key,
         )
 
