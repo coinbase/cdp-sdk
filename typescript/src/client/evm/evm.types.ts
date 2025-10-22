@@ -104,7 +104,9 @@ export type EvmClientInterface = Omit<
   sendUserOperation: (
     options: SendUserOperationOptions<unknown[]>,
   ) => Promise<SendUserOperationReturnType>;
-  prepareAndSendUserOperation: (options: PrepareAndSendUserOperationOptions) => Promise<PrepareAndSendUserOperationReturnType>;
+  prepareAndSendUserOperation: (
+    options: PrepareAndSendUserOperationOptions,
+  ) => Promise<PrepareAndSendUserOperationReturnType>;
   signHash: (options: SignHashOptions) => Promise<SignatureResult>;
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
   signTypedData: (options: SignTypedDataOptions) => Promise<SignatureResult>;

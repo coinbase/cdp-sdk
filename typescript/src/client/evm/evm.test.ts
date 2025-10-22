@@ -17,7 +17,11 @@ import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote";
 import { sendUserOperation } from "../../actions/evm/sendUserOperation";
 import { waitForUserOperation } from "../../actions/evm/waitForUserOperation";
 import type { EvmAccount, EvmServerAccount, EvmSmartAccount } from "../../accounts/evm/types.js";
-import type { EIP712Message, EvmUserOperationNetwork, ListEvmTokenBalancesNetwork } from "../../openapi-client";
+import type {
+  EIP712Message,
+  EvmUserOperationNetwork,
+  ListEvmTokenBalancesNetwork,
+} from "../../openapi-client";
 import type { WaitOptions } from "../../utils/wait";
 import { Address, Hex } from "../../types/misc";
 
@@ -868,8 +872,18 @@ describe("EvmClient", () => {
         { address: "0x456", owners: [owner.address] },
       ];
       const smartAccounts: ReadonlySmartAccount[] = [
-        { address: "0x123" as Address, owners: [owner.address], type: "evm-smart", policies: undefined },
-        { address: "0x456" as Address, owners: [owner.address], type: "evm-smart", policies: undefined },
+        {
+          address: "0x123" as Address,
+          owners: [owner.address],
+          type: "evm-smart",
+          policies: undefined,
+        },
+        {
+          address: "0x456" as Address,
+          owners: [owner.address],
+          type: "evm-smart",
+          policies: undefined,
+        },
       ];
       const listEvmSmartAccountsMock = CdpOpenApiClient.listEvmSmartAccounts as MockedFunction<
         typeof CdpOpenApiClient.listEvmSmartAccounts
@@ -1101,9 +1115,10 @@ describe("EvmClient", () => {
       const paymasterUrl = "https://paymaster.com";
       const userOpHash = "0xhash";
 
-      const prepareAndSendUserOperationMock = CdpOpenApiClient.prepareAndSendUserOperation as MockedFunction<
-        typeof CdpOpenApiClient.prepareAndSendUserOperation
-      >;
+      const prepareAndSendUserOperationMock =
+        CdpOpenApiClient.prepareAndSendUserOperation as MockedFunction<
+          typeof CdpOpenApiClient.prepareAndSendUserOperation
+        >;
       prepareAndSendUserOperationMock.mockResolvedValue({
         network,
         userOpHash,
@@ -1907,15 +1922,19 @@ describe("EvmClient", () => {
           },
         },
         issues: {
-          allowance: mockResponse.issues.allowance ? {
-            currentAllowance: BigInt(mockResponse.issues.allowance.currentAllowance),
-            spender: mockResponse.issues.allowance.spender as Address,
-          } : undefined,
-          balance: mockResponse.issues.balance ? {
-            token: mockResponse.issues.balance.token as Address,
-            currentBalance: BigInt(mockResponse.issues.balance.currentBalance),
-            requiredBalance: BigInt(mockResponse.issues.balance.requiredBalance),
-          } : undefined,
+          allowance: mockResponse.issues.allowance
+            ? {
+                currentAllowance: BigInt(mockResponse.issues.allowance.currentAllowance),
+                spender: mockResponse.issues.allowance.spender as Address,
+              }
+            : undefined,
+          balance: mockResponse.issues.balance
+            ? {
+                token: mockResponse.issues.balance.token as Address,
+                currentBalance: BigInt(mockResponse.issues.balance.currentBalance),
+                requiredBalance: BigInt(mockResponse.issues.balance.requiredBalance),
+              }
+            : undefined,
           simulationIncomplete: mockResponse.issues.simulationIncomplete,
         },
         minToAmount: BigInt(mockResponse.minToAmount),
@@ -2053,37 +2072,47 @@ describe("EvmClient", () => {
           },
         },
         issues: {
-          allowance: mockResponse.issues.allowance ? {
-            currentAllowance: BigInt(mockResponse.issues.allowance.currentAllowance),
-            spender: mockResponse.issues.allowance.spender as Address,
-          } : undefined,
-          balance: mockResponse.issues.balance ? {
-            token: mockResponse.issues.balance.token as Address,
-            currentBalance: BigInt(mockResponse.issues.balance.currentBalance),
-            requiredBalance: BigInt(mockResponse.issues.balance.requiredBalance),
-          } : undefined,
+          allowance: mockResponse.issues.allowance
+            ? {
+                currentAllowance: BigInt(mockResponse.issues.allowance.currentAllowance),
+                spender: mockResponse.issues.allowance.spender as Address,
+              }
+            : undefined,
+          balance: mockResponse.issues.balance
+            ? {
+                token: mockResponse.issues.balance.token as Address,
+                currentBalance: BigInt(mockResponse.issues.balance.currentBalance),
+                requiredBalance: BigInt(mockResponse.issues.balance.requiredBalance),
+              }
+            : undefined,
           simulationIncomplete: mockResponse.issues.simulationIncomplete,
         },
-        transaction: mockResponse.transaction ? {
-          to: mockResponse.transaction.to as Address,
-          data: mockResponse.transaction.data as Hex,
-          gas: BigInt(mockResponse.transaction.gas),
-          gasPrice: BigInt(mockResponse.transaction.gasPrice),
-          value: BigInt(mockResponse.transaction.value),
-        } : undefined,
-        permit2: mockResponse.permit2 ? {
-          eip712: {
-            domain: {
-              name: mockResponse.permit2.eip712.domain.name as string,
-              version: mockResponse.permit2.eip712.domain.version as string,
-              chainId: mockResponse.permit2.eip712.domain.chainId as number,
-              verifyingContract: mockResponse.permit2.eip712.domain.verifyingContract as `0x${string}`,
-            },
-            primaryType: mockResponse.permit2.eip712.primaryType as EIP712Message["primaryType"],
-            message: mockResponse.permit2.eip712.message as EIP712Message["message"],
-            types: mockResponse.permit2.eip712.types as EIP712Message["types"],
-          },
-        } : undefined,
+        transaction: mockResponse.transaction
+          ? {
+              to: mockResponse.transaction.to as Address,
+              data: mockResponse.transaction.data as Hex,
+              gas: BigInt(mockResponse.transaction.gas),
+              gasPrice: BigInt(mockResponse.transaction.gasPrice),
+              value: BigInt(mockResponse.transaction.value),
+            }
+          : undefined,
+        permit2: mockResponse.permit2
+          ? {
+              eip712: {
+                domain: {
+                  name: mockResponse.permit2.eip712.domain.name as string,
+                  version: mockResponse.permit2.eip712.domain.version as string,
+                  chainId: mockResponse.permit2.eip712.domain.chainId as number,
+                  verifyingContract: mockResponse.permit2.eip712.domain
+                    .verifyingContract as `0x${string}`,
+                },
+                primaryType: mockResponse.permit2.eip712
+                  .primaryType as EIP712Message["primaryType"],
+                message: mockResponse.permit2.eip712.message as EIP712Message["message"],
+                types: mockResponse.permit2.eip712.types as EIP712Message["types"],
+              },
+            }
+          : undefined,
         execute: vi.fn(),
       });
 
@@ -2136,7 +2165,7 @@ describe("EvmClient", () => {
           permit2: undefined,
         });
         expect(result.execute).toBeDefined();
-        expect(typeof result.execute).toBe('function');
+        expect(typeof result.execute).toBe("function");
       }
     });
 

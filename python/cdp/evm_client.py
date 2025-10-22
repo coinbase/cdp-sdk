@@ -41,6 +41,7 @@ from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccoun
 from cdp.openapi_client.models.prepare_user_operation_request import (
     PrepareUserOperationRequest,
 )
+from cdp.openapi_client.models.prepare_and_send_user_operation_request import PrepareAndSendUserOperationRequest
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
 from cdp.openapi_client.models.sign_evm_message_request import SignEvmMessageRequest
 from cdp.openapi_client.models.sign_evm_transaction_request import (
@@ -628,8 +629,7 @@ class EvmClient:
         paymaster_url: str | None = None,
         idempotency_key: str | None = None,
     ) -> EvmUserOperationModel:
-        """Prepare and send a user operation for a smart account.
-        """
+        """Prepare and send a user operation for a smart account."""
         track_action(action="prepare_and_send_user_operation", properties={"network": network})
 
         evm_calls = [

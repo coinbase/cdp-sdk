@@ -937,7 +937,9 @@ export class EvmClient implements EvmClientInterface {
    * });
    * ```
    */
-  async prepareAndSendUserOperation(options: PrepareAndSendUserOperationOptions): Promise<PrepareAndSendUserOperationReturnType> {
+  async prepareAndSendUserOperation(
+    options: PrepareAndSendUserOperationOptions,
+  ): Promise<PrepareAndSendUserOperationReturnType> {
     Analytics.trackAction({
       action: "prepare_and_send_user_operation",
       properties: {
@@ -945,15 +947,18 @@ export class EvmClient implements EvmClientInterface {
       },
     });
 
-    const userOp = await CdpOpenApiClient.prepareAndSendUserOperation(options.smartAccount.address, {
-      network: options.network,
-      calls: options.calls.map(call => ({
-        to: call.to as Address,
-        value: call.value.toString(),
-        data: call.data as Hex,
-      })),
-      paymasterUrl: options.paymasterUrl,
-    });
+    const userOp = await CdpOpenApiClient.prepareAndSendUserOperation(
+      options.smartAccount.address,
+      {
+        network: options.network,
+        calls: options.calls.map(call => ({
+          to: call.to as Address,
+          value: call.value.toString(),
+          data: call.data as Hex,
+        })),
+        paymasterUrl: options.paymasterUrl,
+      },
+    );
 
     return {
       smartAccountAddress: options.smartAccount.address as Address,
@@ -961,7 +966,7 @@ export class EvmClient implements EvmClientInterface {
       status: userOp.status as typeof EvmUserOperationStatus.broadcast,
     };
   }
-  
+
   /**
    * Requests funds from an EVM faucet.
    *
