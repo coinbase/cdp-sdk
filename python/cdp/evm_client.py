@@ -620,6 +620,37 @@ class EvmClient:
             ),
         )
 
+    async def prepare_and_send_user_operation(
+        self,
+        smart_account: EvmSmartAccount,
+        calls: list[EncodedCall],
+        network: str,
+        paymaster_url: str | None = None,
+        idempotency_key: str | None = None,
+    ) -> EvmUserOperationModel:
+        """Prepare and send a user operation for a smart account.
+        """
+        track_action(action="prepare_and_send_user_operation", properties={"network": network})
+
+        evm_calls = [
+            EvmCall(
+                to=call.to,
+                data=call.data if call.data else "0x",
+                value=str(call.value) if call.value else "0",
+            )
+            for call in calls
+        ]
+
+        return await self.api_clients.evm_smart_accounts.prepare_and_send_user_operation(
+            smart_account.address,
+            PrepareAndSendUserOperationRequest(
+                calls=evm_calls,
+                network=network,
+                paymaster_url=paymaster_url,
+            ),
+            x_idempotency_key=idempotency_key,
+        )
+
     async def request_faucet(
         self,
         address: str,

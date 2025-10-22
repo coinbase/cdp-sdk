@@ -64,6 +64,18 @@ export type SendUserOperationReturnType = {
 };
 
 /**
+ * Return type for the prepareAndSendUserOperation function.
+ */
+export type PrepareAndSendUserOperationReturnType = {
+  /** The address of the smart wallet. */
+  smartAccountAddress: Address;
+  /** The status of the user operation. */
+  status: typeof EvmUserOperationStatus.broadcast;
+  /** The hash of the user operation. This is not the transaction hash which is only available after the operation is completed.*/
+  userOpHash: Hex;
+};
+
+/**
  * Sends a user operation to the network.
  *
  * @example
