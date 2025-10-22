@@ -76,6 +76,13 @@ class TestEVMSmartAccountsApi(unittest.IsolatedAsyncioTestCase):
         """
         pass
 
+    async def test_prepare_and_send_user_operation(self) -> None:
+        """Test case for prepare_and_send_user_operation
+
+        Prepare and send a user operation for EVM Smart Account
+        """
+        pass
+
     async def test_prepare_user_operation(self) -> None:
         """Test case for prepare_user_operation
 
