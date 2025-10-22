@@ -3221,8 +3221,6 @@ export type PrepareAndSendUserOperationBody = {
   calls: EvmCall[];
   /** The URL of the paymaster to use for the user operation. */
   paymasterUrl?: string;
-  /** An optional idempotency key. */
-  idempotencyKey?: string;
 };
 
 export type SendUserOperationBody = {
