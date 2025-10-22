@@ -3071,6 +3071,31 @@ type PrepareUserOperationJSONBody struct {
 	PaymasterUrl *string `json:"paymasterUrl,omitempty"`
 }
 
+// PrepareAndSendUserOperationJSONBody defines parameters for PrepareAndSendUserOperation.
+type PrepareAndSendUserOperationJSONBody struct {
+	// Calls The list of calls to make from the Smart Account.
+	Calls []EvmCall `json:"calls"`
+
+	// Network The network the user operation is for.
+	Network EvmUserOperationNetwork `json:"network"`
+
+	// PaymasterUrl The URL of the paymaster to use for the user operation.
+	PaymasterUrl *string `json:"paymasterUrl,omitempty"`
+}
+
+// PrepareAndSendUserOperationParams defines parameters for PrepareAndSendUserOperation.
+type PrepareAndSendUserOperationParams struct {
+	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+}
+
 // SendUserOperationJSONBody defines parameters for SendUserOperation.
 type SendUserOperationJSONBody struct {
 	// Signature The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.
@@ -3568,6 +3593,9 @@ type RevokeSpendPermissionJSONRequestBody = RevokeSpendPermissionRequest
 
 // PrepareUserOperationJSONRequestBody defines body for PrepareUserOperation for application/json ContentType.
 type PrepareUserOperationJSONRequestBody PrepareUserOperationJSONBody
+
+// PrepareAndSendUserOperationJSONRequestBody defines body for PrepareAndSendUserOperation for application/json ContentType.
+type PrepareAndSendUserOperationJSONRequestBody PrepareAndSendUserOperationJSONBody
 
 // SendUserOperationJSONRequestBody defines body for SendUserOperation for application/json ContentType.
 type SendUserOperationJSONRequestBody SendUserOperationJSONBody
@@ -5810,6 +5838,11 @@ type ClientInterface interface {
 
 	PrepareUserOperation(ctx context.Context, address string, body PrepareUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// PrepareAndSendUserOperationWithBody request with any body
+	PrepareAndSendUserOperationWithBody(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PrepareAndSendUserOperation(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, body PrepareAndSendUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetUserOperation request
 	GetUserOperation(ctx context.Context, address string, userOpHash string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -6486,6 +6519,30 @@ func (c *CDPClient) PrepareUserOperationWithBody(ctx context.Context, address st
 
 func (c *CDPClient) PrepareUserOperation(ctx context.Context, address string, body PrepareUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewPrepareUserOperationRequest(c.Server, address, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) PrepareAndSendUserOperationWithBody(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPrepareAndSendUserOperationRequestWithBody(c.Server, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) PrepareAndSendUserOperation(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, body PrepareAndSendUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPrepareAndSendUserOperationRequest(c.Server, address, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -8734,6 +8791,79 @@ func NewPrepareUserOperationRequestWithBody(server string, address string, conte
 	return req, nil
 }
 
+// NewPrepareAndSendUserOperationRequest calls the generic PrepareAndSendUserOperation builder with application/json body
+func NewPrepareAndSendUserOperationRequest(server string, address string, params *PrepareAndSendUserOperationParams, body PrepareAndSendUserOperationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPrepareAndSendUserOperationRequestWithBody(server, address, params, "application/json", bodyReader)
+}
+
+// NewPrepareAndSendUserOperationRequestWithBody generates requests for PrepareAndSendUserOperation with any type of body
+func NewPrepareAndSendUserOperationRequestWithBody(server string, address string, params *PrepareAndSendUserOperationParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/evm/smart-accounts/%s/user-operations/prepare-and-send", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+		if params.XWalletAuth != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewGetUserOperationRequest generates requests for GetUserOperation
 func NewGetUserOperationRequest(server string, address string, userOpHash string) (*http.Request, error) {
 	var err error
@@ -10576,6 +10706,11 @@ type ClientWithResponsesInterface interface {
 
 	PrepareUserOperationWithResponse(ctx context.Context, address string, body PrepareUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*PrepareUserOperationResponse, error)
 
+	// PrepareAndSendUserOperationWithBodyWithResponse request with any body
+	PrepareAndSendUserOperationWithBodyWithResponse(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PrepareAndSendUserOperationResponse, error)
+
+	PrepareAndSendUserOperationWithResponse(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, body PrepareAndSendUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*PrepareAndSendUserOperationResponse, error)
+
 	// GetUserOperationWithResponse request
 	GetUserOperationWithResponse(ctx context.Context, address string, userOpHash string, reqEditors ...RequestEditorFn) (*GetUserOperationResponse, error)
 
@@ -11562,6 +11697,37 @@ func (r PrepareUserOperationResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r PrepareUserOperationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PrepareAndSendUserOperationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EvmUserOperation
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON402      *PaymentMethodRequiredError
+	JSON403      *Error
+	JSON404      *Error
+	JSON429      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r PrepareAndSendUserOperationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PrepareAndSendUserOperationResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -12835,6 +13001,23 @@ func (c *ClientWithResponses) PrepareUserOperationWithResponse(ctx context.Conte
 		return nil, err
 	}
 	return ParsePrepareUserOperationResponse(rsp)
+}
+
+// PrepareAndSendUserOperationWithBodyWithResponse request with arbitrary body returning *PrepareAndSendUserOperationResponse
+func (c *ClientWithResponses) PrepareAndSendUserOperationWithBodyWithResponse(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PrepareAndSendUserOperationResponse, error) {
+	rsp, err := c.PrepareAndSendUserOperationWithBody(ctx, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePrepareAndSendUserOperationResponse(rsp)
+}
+
+func (c *ClientWithResponses) PrepareAndSendUserOperationWithResponse(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, body PrepareAndSendUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*PrepareAndSendUserOperationResponse, error) {
+	rsp, err := c.PrepareAndSendUserOperation(ctx, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePrepareAndSendUserOperationResponse(rsp)
 }
 
 // GetUserOperationWithResponse request returning *GetUserOperationResponse
@@ -15255,6 +15438,95 @@ func ParsePrepareUserOperationResponse(rsp *http.Response) (*PrepareUserOperatio
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePrepareAndSendUserOperationResponse parses an HTTP response from a PrepareAndSendUserOperationWithResponse call
+func ParsePrepareAndSendUserOperationResponse(rsp *http.Response) (*PrepareAndSendUserOperationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PrepareAndSendUserOperationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EvmUserOperation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError

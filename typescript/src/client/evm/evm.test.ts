@@ -17,7 +17,11 @@ import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote";
 import { sendUserOperation } from "../../actions/evm/sendUserOperation";
 import { waitForUserOperation } from "../../actions/evm/waitForUserOperation";
 import type { EvmAccount, EvmServerAccount, EvmSmartAccount } from "../../accounts/evm/types.js";
-import type { EvmUserOperationNetwork, ListEvmTokenBalancesNetwork } from "../../openapi-client";
+import type {
+  EIP712Message,
+  EvmUserOperationNetwork,
+  ListEvmTokenBalancesNetwork,
+} from "../../openapi-client";
 import type { WaitOptions } from "../../utils/wait";
 import { Address, Hex } from "../../types/misc";
 
@@ -40,8 +44,7 @@ import { ImportAccountPublicRSAKey } from "../../constants.js";
 import { decryptWithPrivateKey, generateExportEncryptionKeyPair } from "../../utils/export.js";
 import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
 import { parseEther } from "viem";
-import { SpendPermission } from "../../spend-permissions/types.js";
-import { SpendPermissionInput } from "./evm.types.js";
+import { SpendPermissionInput } from "../../spend-permissions/types.js";
 
 vi.mock("../../openapi-client", () => {
   return {
@@ -62,6 +65,7 @@ vi.mock("../../openapi-client", () => {
       listEvmTokenBalances: vi.fn(),
       listDataTokenBalances: vi.fn(),
       prepareUserOperation: vi.fn(),
+      prepareAndSendUserOperation: vi.fn(),
       requestEvmFaucet: vi.fn(),
       sendEvmTransaction: vi.fn(),
       sendUserOperation: vi.fn(),
@@ -136,15 +140,14 @@ describe("EvmClient", () => {
         sign: vi.fn().mockResolvedValue("0xsignature"),
         signMessage: vi.fn().mockResolvedValue("0xsignature"),
         signTransaction: vi.fn().mockResolvedValue("0xsignature"),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
         signTypedData: vi.fn().mockResolvedValue("0xsignature"),
         type: "evm-server" as const,
         transfer: vi.fn(),
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         listTokenBalances: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
         swap: vi.fn(),
         quoteSwap: vi.fn(),
       };
@@ -195,9 +198,8 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         listTokenBalances: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
         swap: vi.fn(),
         quoteSwap: vi.fn(),
       };
@@ -258,9 +260,12 @@ describe("EvmClient", () => {
         waitForUserOperation: vi.fn(),
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
+        quoteSwap: vi.fn(),
+        swap: vi.fn(),
+        signTypedData: vi.fn(),
+        policies: [],
       };
 
       const createEvmSmartAccountMock = CdpOpenApiClient.createEvmSmartAccount as MockedFunction<
@@ -318,9 +323,12 @@ describe("EvmClient", () => {
         waitForUserOperation: vi.fn(),
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
+        quoteSwap: vi.fn(),
+        swap: vi.fn(),
+        signTypedData: vi.fn(),
+        policies: [],
       };
 
       const createEvmSmartAccountMock = CdpOpenApiClient.createEvmSmartAccount as MockedFunction<
@@ -419,9 +427,8 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         listTokenBalances: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
         swap: vi.fn(),
         quoteSwap: vi.fn(),
       };
@@ -461,9 +468,8 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         listTokenBalances: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
         swap: vi.fn(),
         quoteSwap: vi.fn(),
       };
@@ -520,9 +526,12 @@ describe("EvmClient", () => {
         waitForUserOperation: vi.fn(),
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
+        quoteSwap: vi.fn(),
+        swap: vi.fn(),
+        signTypedData: vi.fn(),
+        policies: [],
       };
 
       const getEvmSmartAccountMock = CdpOpenApiClient.getEvmSmartAccount as MockedFunction<
@@ -560,9 +569,8 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         listTokenBalances: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
         swap: vi.fn(),
         quoteSwap: vi.fn(),
       };
@@ -626,9 +634,12 @@ describe("EvmClient", () => {
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
         listTokenBalances: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        quoteSwap: vi.fn(),
+        swap: vi.fn(),
+        signTypedData: vi.fn(),
+        policies: [],
+        useNetwork: vi.fn(),
       };
 
       const getEvmSmartAccountMock = CdpOpenApiClient.getEvmSmartAccountByName as MockedFunction<
@@ -694,11 +705,12 @@ describe("EvmClient", () => {
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
         listTokenBalances: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
         policies: undefined,
         useNetwork: vi.fn(),
+        useSpendPermission: vi.fn(),
+        signTypedData: vi.fn(),
+        quoteSwap: vi.fn(),
+        swap: vi.fn(),
       };
 
       const getEvmSmartAccountMock = CdpOpenApiClient.getEvmSmartAccountByName as MockedFunction<
@@ -741,9 +753,12 @@ describe("EvmClient", () => {
         waitForUserOperation: vi.fn(),
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        policies: undefined,
+        useNetwork: vi.fn(),
+        useSpendPermission: vi.fn(),
+        signTypedData: vi.fn(),
+        quoteSwap: vi.fn(),
+        swap: vi.fn(),
       };
       const userOpHash = "0xhash";
       const transactionHash = "0xtransactionhash" as Hex;
@@ -792,9 +807,8 @@ describe("EvmClient", () => {
           requestFaucet: vi.fn(),
           sendTransaction: vi.fn(),
           listTokenBalances: vi.fn(),
-          quoteFund: vi.fn(),
-          fund: vi.fn(),
-          waitForFundOperationReceipt: vi.fn(),
+          useSpendPermission: vi.fn(),
+          useNetwork: vi.fn(),
           swap: vi.fn(),
           quoteSwap: vi.fn(),
         },
@@ -809,9 +823,8 @@ describe("EvmClient", () => {
           requestFaucet: vi.fn(),
           sendTransaction: vi.fn(),
           listTokenBalances: vi.fn(),
-          quoteFund: vi.fn(),
-          fund: vi.fn(),
-          waitForFundOperationReceipt: vi.fn(),
+          useSpendPermission: vi.fn(),
+          useNetwork: vi.fn(),
           swap: vi.fn(),
           quoteSwap: vi.fn(),
         },
@@ -859,8 +872,18 @@ describe("EvmClient", () => {
         { address: "0x456", owners: [owner.address] },
       ];
       const smartAccounts: ReadonlySmartAccount[] = [
-        { address: "0x123" as Address, owners: [owner.address], type: "evm-smart" },
-        { address: "0x456" as Address, owners: [owner.address], type: "evm-smart" },
+        {
+          address: "0x123" as Address,
+          owners: [owner.address],
+          type: "evm-smart",
+          policies: undefined,
+        },
+        {
+          address: "0x456" as Address,
+          owners: [owner.address],
+          type: "evm-smart",
+          policies: undefined,
+        },
       ];
       const listEvmSmartAccountsMock = CdpOpenApiClient.listEvmSmartAccounts as MockedFunction<
         typeof CdpOpenApiClient.listEvmSmartAccounts
@@ -902,9 +925,12 @@ describe("EvmClient", () => {
         waitForUserOperation: vi.fn(),
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
+        quoteSwap: vi.fn(),
+        swap: vi.fn(),
+        signTypedData: vi.fn(),
+        policies: [],
       };
 
       const network = "sepolia" as EvmUserOperationNetwork;
@@ -1013,9 +1039,12 @@ describe("EvmClient", () => {
         waitForUserOperation: vi.fn(),
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
+        quoteSwap: vi.fn(),
+        swap: vi.fn(),
+        signTypedData: vi.fn(),
+        policies: [],
       };
 
       const network = "sepolia" as EvmUserOperationNetwork;
@@ -1045,6 +1074,74 @@ describe("EvmClient", () => {
         calls,
         paymasterUrl,
       });
+      expect(result).toEqual({
+        smartAccountAddress: smartAccount.address,
+        status: "broadcast",
+        userOpHash,
+      });
+    });
+  });
+
+  describe("prepareAndSendUserOperation", () => {
+    it("should prepare and send a user operation", async () => {
+      const owner: EvmAccount = {
+        address: "0x789",
+        sign: vi.fn().mockResolvedValue("0xsignature"),
+        signMessage: vi.fn().mockResolvedValue("0xsignature"),
+        signTransaction: vi.fn().mockResolvedValue("0xsignature"),
+        signTypedData: vi.fn().mockResolvedValue("0xsignature"),
+      };
+
+      const smartAccount: EvmSmartAccount = {
+        address: "0xabc",
+        owners: [owner],
+        type: "evm-smart",
+        transfer: vi.fn(),
+        listTokenBalances: vi.fn(),
+        sendUserOperation: vi.fn(),
+        waitForUserOperation: vi.fn(),
+        getUserOperation: vi.fn(),
+        requestFaucet: vi.fn(),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
+        quoteSwap: vi.fn(),
+        swap: vi.fn(),
+        signTypedData: vi.fn(),
+        policies: [],
+      };
+
+      const network = "sepolia" as EvmUserOperationNetwork;
+      const calls = [{ to: "0xdef" as Address, value: BigInt(1), data: "0x123" as Hex }];
+      const paymasterUrl = "https://paymaster.com";
+      const userOpHash = "0xhash";
+
+      const prepareAndSendUserOperationMock =
+        CdpOpenApiClient.prepareAndSendUserOperation as MockedFunction<
+          typeof CdpOpenApiClient.prepareAndSendUserOperation
+        >;
+      prepareAndSendUserOperationMock.mockResolvedValue({
+        network,
+        userOpHash,
+        status: "broadcast",
+        calls: [{ to: "0xdef", value: "1", data: "0x123" }],
+      });
+
+      const result = await client.prepareAndSendUserOperation({
+        smartAccount,
+        network,
+        calls,
+        paymasterUrl,
+      });
+
+      expect(CdpOpenApiClient.prepareAndSendUserOperation).toHaveBeenCalledTimes(1);
+      const callArgs = prepareAndSendUserOperationMock.mock.calls[0];
+      expect(callArgs[0]).toBe(smartAccount.address);
+      expect(callArgs[1]).toEqual({
+        network,
+        calls: [{ to: "0xdef", value: "1", data: "0x123" }],
+        paymasterUrl,
+      });
+      expect(callArgs[2]).toBeUndefined();
       expect(result).toEqual({
         smartAccountAddress: smartAccount.address,
         status: "broadcast",
@@ -1312,9 +1409,8 @@ describe("EvmClient", () => {
         listTokenBalances: vi.fn(),
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
         policies: [updateData.accountPolicy],
         quoteSwap: vi.fn(),
         swap: vi.fn(),
@@ -1331,7 +1427,7 @@ describe("EvmClient", () => {
       toEvmServerAccountMock.mockReturnValue(serverAccount);
 
       const options = {
-        address,
+        address: address as Address,
         update: updateData,
         idempotencyKey: "idem-key-12345",
       };
@@ -1370,9 +1466,9 @@ describe("EvmClient", () => {
         listTokenBalances: vi.fn(),
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useNetwork: vi.fn(),
+        useSpendPermission: vi.fn(),
+        policies: [],
         swap: vi.fn(),
         quoteSwap: vi.fn(),
       };
@@ -1388,7 +1484,7 @@ describe("EvmClient", () => {
       toEvmServerAccountMock.mockReturnValue(serverAccount);
 
       const options = {
-        address,
+        address: address as Address,
         update: updateData,
       };
 
@@ -1435,9 +1531,9 @@ describe("EvmClient", () => {
         waitForUserOperation: vi.fn(),
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        signTypedData: vi.fn(),
+        policies: [],
         useNetwork: vi.fn(),
         quoteSwap: vi.fn(),
         swap: vi.fn(),
@@ -1452,7 +1548,7 @@ describe("EvmClient", () => {
       toEvmSmartAccountMock.mockReturnValue(smartAccount);
 
       const options = {
-        address,
+        address: address as Address,
         update: updateData,
         owner,
         idempotencyKey: "idem-key-12345",
@@ -1500,12 +1596,12 @@ describe("EvmClient", () => {
         waitForUserOperation: vi.fn(),
         getUserOperation: vi.fn(),
         requestFaucet: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
         useNetwork: vi.fn(),
         quoteSwap: vi.fn(),
         swap: vi.fn(),
+        signTypedData: vi.fn(),
+        policies: [],
       };
 
       const updateEvmSmartAccountMock = CdpOpenApiClient.updateEvmSmartAccount as MockedFunction<
@@ -1517,7 +1613,7 @@ describe("EvmClient", () => {
       toEvmSmartAccountMock.mockReturnValue(smartAccount);
 
       const options = {
-        address,
+        address: address as Address,
         update: updateData,
         owner,
       };
@@ -1556,9 +1652,9 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         listTokenBalances: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
+        policies: [],
         swap: vi.fn(),
         quoteSwap: vi.fn(),
       };
@@ -1620,9 +1716,9 @@ describe("EvmClient", () => {
         requestFaucet: vi.fn(),
         sendTransaction: vi.fn(),
         listTokenBalances: vi.fn(),
-        quoteFund: vi.fn(),
-        fund: vi.fn(),
-        waitForFundOperationReceipt: vi.fn(),
+        useSpendPermission: vi.fn(),
+        useNetwork: vi.fn(),
+        policies: [],
         swap: vi.fn(),
         quoteSwap: vi.fn(),
       };
@@ -1811,7 +1907,43 @@ describe("EvmClient", () => {
       };
 
       const getSwapPriceMock = getSwapPrice as MockedFunction<typeof getSwapPrice>;
-      getSwapPriceMock.mockResolvedValue(mockResponse);
+      getSwapPriceMock.mockResolvedValue({
+        liquidityAvailable: true,
+        blockNumber: BigInt(mockResponse.blockNumber),
+        toAmount: BigInt(mockResponse.toAmount),
+        toToken: mockResponse.toToken as Address,
+        fees: {
+          gasFee: {
+            amount: BigInt(mockResponse.fees.gasFee?.amount || "0"),
+            token: mockResponse.fees.gasFee?.token as Address,
+          },
+          protocolFee: {
+            amount: BigInt(mockResponse.fees.protocolFee?.amount || "0"),
+            token: mockResponse.fees.protocolFee?.token as Address,
+          },
+        },
+        issues: {
+          allowance: mockResponse.issues.allowance
+            ? {
+                currentAllowance: BigInt(mockResponse.issues.allowance.currentAllowance),
+                spender: mockResponse.issues.allowance.spender as Address,
+              }
+            : undefined,
+          balance: mockResponse.issues.balance
+            ? {
+                token: mockResponse.issues.balance.token as Address,
+                currentBalance: BigInt(mockResponse.issues.balance.currentBalance),
+                requiredBalance: BigInt(mockResponse.issues.balance.requiredBalance),
+              }
+            : undefined,
+          simulationIncomplete: mockResponse.issues.simulationIncomplete,
+        },
+        minToAmount: BigInt(mockResponse.minToAmount),
+        fromAmount: BigInt(mockResponse.fromAmount),
+        fromToken: mockResponse.fromToken as Address,
+        gas: mockResponse.gas ? BigInt(mockResponse.gas) : undefined,
+        gasPrice: mockResponse.gasPrice ? BigInt(mockResponse.gasPrice) : undefined,
+      });
 
       const result = await client.getSwapPrice({
         network,
@@ -1832,7 +1964,32 @@ describe("EvmClient", () => {
         gasPrice,
         slippageBps,
       });
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual({
+        liquidityAvailable: true,
+        blockNumber: BigInt(mockResponse.blockNumber),
+        toAmount: BigInt(mockResponse.toAmount),
+        toToken: mockResponse.toToken as Address,
+        fees: {
+          gasFee: {
+            amount: BigInt(mockResponse.fees.gasFee?.amount || "0"),
+            token: mockResponse.fees.gasFee?.token as Address,
+          },
+          protocolFee: {
+            amount: BigInt(mockResponse.fees.protocolFee?.amount || "0"),
+            token: mockResponse.fees.protocolFee?.token as Address,
+          },
+        },
+        issues: {
+          allowance: undefined,
+          balance: undefined,
+          simulationIncomplete: false,
+        },
+        minToAmount: BigInt(mockResponse.minToAmount),
+        fromAmount: BigInt(mockResponse.fromAmount),
+        fromToken: mockResponse.fromToken as Address,
+        gas: BigInt(mockResponse.gas!),
+        gasPrice: BigInt(mockResponse.gasPrice!),
+      });
     });
 
     it("should handle unavailable liquidity", async () => {
@@ -1841,7 +1998,9 @@ describe("EvmClient", () => {
       };
 
       const getSwapPriceMock = getSwapPrice as MockedFunction<typeof getSwapPrice>;
-      getSwapPriceMock.mockResolvedValue(mockResponse);
+      getSwapPriceMock.mockResolvedValue({
+        liquidityAvailable: false,
+      });
 
       const result = await client.getSwapPrice({
         network: "ethereum",
@@ -1898,7 +2057,65 @@ describe("EvmClient", () => {
       };
 
       const createSwapQuoteMock = createSwapQuote as MockedFunction<typeof createSwapQuote>;
-      createSwapQuoteMock.mockResolvedValue(mockResponse);
+      createSwapQuoteMock.mockResolvedValue({
+        liquidityAvailable: true,
+        network,
+        toToken,
+        fromToken,
+        fromAmount,
+        toAmount: BigInt(mockResponse.toAmount),
+        minToAmount: BigInt(mockResponse.minToAmount),
+        blockNumber: BigInt(mockResponse.blockNumber),
+        fees: {
+          gasFee: {
+            amount: BigInt(mockResponse.fees.gasFee?.amount || "0"),
+            token: mockResponse.fees.gasFee?.token as Address,
+          },
+        },
+        issues: {
+          allowance: mockResponse.issues.allowance
+            ? {
+                currentAllowance: BigInt(mockResponse.issues.allowance.currentAllowance),
+                spender: mockResponse.issues.allowance.spender as Address,
+              }
+            : undefined,
+          balance: mockResponse.issues.balance
+            ? {
+                token: mockResponse.issues.balance.token as Address,
+                currentBalance: BigInt(mockResponse.issues.balance.currentBalance),
+                requiredBalance: BigInt(mockResponse.issues.balance.requiredBalance),
+              }
+            : undefined,
+          simulationIncomplete: mockResponse.issues.simulationIncomplete,
+        },
+        transaction: mockResponse.transaction
+          ? {
+              to: mockResponse.transaction.to as Address,
+              data: mockResponse.transaction.data as Hex,
+              gas: BigInt(mockResponse.transaction.gas),
+              gasPrice: BigInt(mockResponse.transaction.gasPrice),
+              value: BigInt(mockResponse.transaction.value),
+            }
+          : undefined,
+        permit2: mockResponse.permit2
+          ? {
+              eip712: {
+                domain: {
+                  name: mockResponse.permit2.eip712.domain.name as string,
+                  version: mockResponse.permit2.eip712.domain.version as string,
+                  chainId: mockResponse.permit2.eip712.domain.chainId as number,
+                  verifyingContract: mockResponse.permit2.eip712.domain
+                    .verifyingContract as `0x${string}`,
+                },
+                primaryType: mockResponse.permit2.eip712
+                  .primaryType as EIP712Message["primaryType"],
+                message: mockResponse.permit2.eip712.message as EIP712Message["message"],
+                types: mockResponse.permit2.eip712.types as EIP712Message["types"],
+              },
+            }
+          : undefined,
+        execute: vi.fn(),
+      });
 
       const result = await client.createSwapQuote({
         network,
@@ -1917,7 +2134,40 @@ describe("EvmClient", () => {
         taker,
         slippageBps,
       });
-      expect(result).toEqual(mockResponse);
+      expect(result.liquidityAvailable).toBe(true);
+      if (result.liquidityAvailable) {
+        expect(result).toMatchObject({
+          liquidityAvailable: true,
+          network,
+          toToken,
+          fromToken,
+          fromAmount,
+          toAmount: BigInt(mockResponse.toAmount),
+          minToAmount: BigInt(mockResponse.minToAmount),
+          blockNumber: BigInt(mockResponse.blockNumber),
+          fees: {
+            gasFee: {
+              amount: BigInt(mockResponse.fees.gasFee?.amount || "0"),
+              token: mockResponse.fees.gasFee?.token as Address,
+            },
+          },
+          issues: {
+            allowance: undefined,
+            balance: undefined,
+            simulationIncomplete: false,
+          },
+          transaction: {
+            to: mockResponse.transaction!.to as Address,
+            data: mockResponse.transaction!.data as Hex,
+            gas: BigInt(mockResponse.transaction!.gas),
+            gasPrice: BigInt(mockResponse.transaction!.gasPrice),
+            value: BigInt(mockResponse.transaction!.value),
+          },
+          permit2: undefined,
+        });
+        expect(result.execute).toBeDefined();
+        expect(typeof result.execute).toBe("function");
+      }
     });
 
     it("should handle unavailable liquidity for createSwapQuote", async () => {
@@ -1926,7 +2176,9 @@ describe("EvmClient", () => {
       };
 
       const createSwapQuoteMock = createSwapQuote as MockedFunction<typeof createSwapQuote>;
-      createSwapQuoteMock.mockResolvedValue(mockResponse);
+      createSwapQuoteMock.mockResolvedValue({
+        liquidityAvailable: false,
+      });
 
       const result = await client.createSwapQuote({
         network: "ethereum",

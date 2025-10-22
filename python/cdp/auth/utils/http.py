@@ -107,9 +107,11 @@ def _requires_wallet_auth(method: str, path: str) -> bool:
         True if wallet authentication is required, False otherwise
 
     """
-    return ("/accounts" in path or "/spend-permissions" in path) and (
-        method == "POST" or method == "DELETE" or method == "PUT"
-    )
+    return (
+        "/accounts" in path
+        or "/spend-permissions" in path
+        or "/user-operations/prepare-and-send" in path
+    ) and (method == "POST" or method == "DELETE" or method == "PUT")
 
 
 def _get_correlation_data(source: str | None = None, source_version: str | None = None) -> str:
