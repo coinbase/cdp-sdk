@@ -957,6 +957,7 @@ export class EvmClient implements EvmClientInterface {
           data: call.data as Hex,
         })),
         paymasterUrl: options.paymasterUrl,
+        idempotencyKey: options.idempotencyKey,
       },
     );
 

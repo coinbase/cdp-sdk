@@ -310,6 +310,8 @@ export interface PrepareAndSendUserOperationOptions {
   calls: Calls<EvmCall[]>;
   /** The paymaster URL. */
   paymasterUrl?: string;
+  /** An optional idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**

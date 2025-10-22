@@ -641,8 +641,8 @@ class EvmClient:
         ]
 
         return await self.api_clients.evm_smart_accounts.prepare_and_send_user_operation(
-            smart_account.address,
-            PrepareUserOperationRequest(
+            address=smart_account.address,
+            prepare_user_operation_request=PrepareUserOperationRequest(
                 calls=evm_calls,
                 network=network,
                 paymaster_url=paymaster_url,
