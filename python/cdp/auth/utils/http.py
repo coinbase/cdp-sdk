@@ -107,7 +107,7 @@ def _requires_wallet_auth(method: str, path: str) -> bool:
         True if wallet authentication is required, False otherwise
 
     """
-    return ("/accounts" in path or "/spend-permissions" in path) and (
+    return ("/accounts" in path or "/spend-permissions" in path or "/user-operations/prepare-and-send" in path) and (
         method == "POST" or method == "DELETE" or method == "PUT"
     )
 

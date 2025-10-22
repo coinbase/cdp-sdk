@@ -130,7 +130,7 @@ export async function getAuthHeaders(
  */
 function requiresWalletAuth(requestMethod: string, requestPath: string): boolean {
   return (
-    (requestPath?.includes("/accounts") || requestPath?.includes("/spend-permissions")) &&
+    (requestPath?.includes("/accounts") || requestPath?.includes("/spend-permissions") || requestPath?.includes("/user-operations/prepare-and-send")) &&
     (requestMethod === "POST" || requestMethod === "DELETE" || requestMethod === "PUT")
   );
 }
