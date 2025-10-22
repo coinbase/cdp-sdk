@@ -1133,14 +1133,15 @@ describe("EvmClient", () => {
         paymasterUrl,
       });
 
-      expect(CdpOpenApiClient.prepareAndSendUserOperation).toHaveBeenCalledWith(
-        smartAccount.address,
-        {
-          network,
-          calls: [{ to: "0xdef", value: "1", data: "0x123" }],
-          paymasterUrl,
-        },
-      );
+      expect(CdpOpenApiClient.prepareAndSendUserOperation).toHaveBeenCalledTimes(1);
+      const callArgs = prepareAndSendUserOperationMock.mock.calls[0];
+      expect(callArgs[0]).toBe(smartAccount.address);
+      expect(callArgs[1]).toEqual({
+        network,
+        calls: [{ to: "0xdef", value: "1", data: "0x123" }],
+        paymasterUrl,
+      });
+      expect(callArgs[2]).toBeUndefined();
       expect(result).toEqual({
         smartAccountAddress: smartAccount.address,
         status: "broadcast",
