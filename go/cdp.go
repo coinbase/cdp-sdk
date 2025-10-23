@@ -84,7 +84,9 @@ func walletHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 			return nil
 		}
 
-		if !strings.Contains(req.URL.Path, "/accounts") {
+		if !strings.Contains(req.URL.Path, "/accounts") &&
+			!strings.Contains(req.URL.Path, "/spend-permissions") &&
+			!strings.Contains(req.URL.Path, "/user-operations/prepare-and-send") {
 			return nil
 		}
 
