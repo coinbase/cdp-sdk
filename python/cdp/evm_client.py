@@ -607,7 +607,7 @@ class EvmClient:
                 to=call.to,
                 data=call.data if call.data else "0x",
                 value=str(call.value) if call.value else "0",
-                overrideGasLimit=call.overrideGasLimit if call.overrideGasLimit else None,
+                override_gas_limit=call.override_gas_limit if call.override_gas_limit else None,
             )
             for call in calls
         ]
