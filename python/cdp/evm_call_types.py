@@ -11,7 +11,10 @@ class EncodedCall(BaseModel):
     to: HexAddress = Field(..., description="Target contract address")
     value: Wei | None = Field(None, description="Amount of native currency to send")
     data: HexStr | None = Field(None, description="Encoded call data")
-    overrideGasLimit: StrictStr | None = Field(None, description="The override gas limit to use for the call instead of the bundler's estimated gas limit.")
+    override_gas_limit: StrictStr | None = Field(
+        None,
+        description="The override gas limit to use for the call instead of the bundler's estimated gas limit.",
+    )
 
 
 class FunctionCall(BaseModel):
