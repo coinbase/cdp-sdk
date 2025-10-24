@@ -3,7 +3,7 @@ module example.com/m/v2
 go 1.23.3
 
 require (
-	github.com/coinbase/cdp-sdk/go v0.0.0-20251010170447-ce1322c0d66a
+	github.com/coinbase/cdp-sdk/go v0.0.0-20251024190004-8f3878c202dc
 	github.com/ethereum/go-ethereum v1.15.7
 	github.com/joho/godotenv v1.5.1
 )
