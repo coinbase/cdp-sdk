@@ -8,8 +8,6 @@ import {
 } from "viem";
 
 import { toNetworkScopedEvmServerAccount } from "./toNetworkScopedEvmServerAccount.js";
-import { EvmFundOptions, fund } from "../../actions/evm/fund/fund.js";
-import { EvmQuoteFundOptions, quoteFund } from "../../actions/evm/fund/quoteFund.js";
 import {
   listTokenBalances,
   type ListTokenBalancesResult,
@@ -27,13 +25,6 @@ import { createSwapQuote } from "../../actions/evm/swap/createSwapQuote.js";
 import { sendSwapTransaction } from "../../actions/evm/swap/sendSwapTransaction.js";
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
-import { EvmQuote } from "../../actions/Quote.js";
-import { FundOperationResult } from "../../actions/types.js";
-import {
-  WaitForFundOperationOptions,
-  WaitForFundOperationResult,
-  waitForFundOperationReceipt,
-} from "../../actions/waitForFundOperationReceipt.js";
 import { Analytics } from "../../analytics.js";
 
 import type { EvmServerAccount, NetworkOrRpcUrl } from "./types.js";
@@ -190,44 +181,6 @@ export function toEvmServerAccount(
         ...options,
         address: this.address,
       });
-    },
-    async quoteFund(options: Omit<EvmQuoteFundOptions, "address">): Promise<EvmQuote> {
-      Analytics.trackAction({
-        action: "quote_fund",
-        accountType: "evm_server",
-        properties: {
-          network: options.network,
-        },
-      });
-
-      return quoteFund(apiClient, {
-        ...options,
-        address: this.address,
-      });
-    },
-    async fund(options: Omit<EvmFundOptions, "address">): Promise<FundOperationResult> {
-      Analytics.trackAction({
-        action: "fund",
-        accountType: "evm_server",
-        properties: {
-          network: options.network,
-        },
-      });
-
-      return fund(apiClient, {
-        ...options,
-        address: this.address,
-      });
-    },
-    async waitForFundOperationReceipt(
-      options: WaitForFundOperationOptions,
-    ): Promise<WaitForFundOperationResult> {
-      Analytics.trackAction({
-        action: "wait_for_fund_operation_receipt",
-        accountType: "evm_server",
-      });
-
-      return waitForFundOperationReceipt(apiClient, options);
     },
     async quoteSwap(options: AccountQuoteSwapOptions): Promise<AccountQuoteSwapResult> {
       Analytics.trackAction({

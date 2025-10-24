@@ -2,13 +2,9 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from cdp.actions.quote import SolanaQuote
-from cdp.actions.solana.fund import SolanaFundOptions, SolanaQuoteFundOptions, fund, quote_fund
 from cdp.actions.solana.request_faucet import request_faucet
 from cdp.actions.solana.sign_message import sign_message
 from cdp.actions.solana.sign_transaction import sign_transaction
-from cdp.actions.types import FundOperationResult
-from cdp.actions.wait_for_fund_operation_receipt import wait_for_fund_operation_receipt
 from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
 from cdp.openapi_client.models.request_solana_faucet200_response import (
@@ -21,7 +17,6 @@ from cdp.openapi_client.models.sign_solana_transaction200_response import (
     SignSolanaTransaction200Response as SignSolanaTransactionResponse,
 )
 from cdp.openapi_client.models.solana_account import SolanaAccount as SolanaAccountModel
-from cdp.openapi_client.models.transfer import Transfer
 
 
 class SolanaAccount(BaseModel):
@@ -198,117 +193,6 @@ class SolanaAccount(BaseModel):
         return await transfer(
             self.__api_clients,
             transfer_args,
-        )
-
-    async def quote_fund(
-        self,
-        amount: int,
-        token: Literal["sol", "usdc"],
-    ) -> SolanaQuote:
-        """Quote a fund operation.
-
-        Args:
-            amount: The amount of the token to fund in atomic units (e.g. 1000000 for 1 USDC).
-            token: The token to fund.
-
-        Returns:
-            SolanaQuote: A quote object containing:
-                - quote_id: The ID of the quote
-                - network: The network the quote is for
-                - fiat_amount: The amount in fiat currency
-                - fiat_currency: The fiat currency (e.g. "usd")
-                - token_amount: The amount of tokens to receive
-                - token: The token to receive
-                - fees: List of fees associated with the quote
-
-        """
-        track_action(
-            action="quote_fund",
-            account_type="solana",
-        )
-
-        fund_options = SolanaQuoteFundOptions(
-            amount=amount,
-            token=token,
-        )
-
-        return await quote_fund(
-            api_clients=self.__api_clients,
-            address=self.address,
-            quote_fund_options=fund_options,
-        )
-
-    async def fund(
-        self,
-        amount: int,
-        token: Literal["sol", "usdc"],
-    ) -> FundOperationResult:
-        """Fund a Solana account.
-
-        Args:
-            amount: The amount of the token to fund in atomic units (e.g. 1000000 for 1 USDC).
-            token: The token to fund.
-
-        Returns:
-            FundOperationResult: The result of the fund operation containing:
-                - transfer: A Transfer object with details about the transfer including:
-                    - id: The transfer ID
-                    - status: The status of the transfer (e.g. "pending", "completed", "failed")
-                    - source_amount: The amount in source currency
-                    - source_currency: The source currency
-                    - target_amount: The amount in target currency
-                    - target_currency: The target currency
-                    - fees: List of fees associated with the transfer
-
-        """
-        track_action(
-            action="fund",
-            account_type="solana",
-        )
-
-        fund_options = SolanaFundOptions(
-            amount=amount,
-            token=token,
-        )
-
-        return await fund(
-            api_clients=self.__api_clients,
-            address=self.address,
-            fund_options=fund_options,
-        )
-
-    async def wait_for_fund_operation_receipt(
-        self,
-        transfer_id: str,
-        timeout_seconds: float = 900,
-        interval_seconds: float = 1,
-    ) -> Transfer:
-        """Wait for a fund operation to complete.
-
-        Args:
-            transfer_id: The ID of the transfer to wait for.
-            timeout_seconds: The maximum time to wait for completion in seconds. Defaults to 900 (15 minutes).
-            interval_seconds: The time between status checks in seconds. Defaults to 1.
-
-        Returns:
-            Transfer: The completed transfer object containing:
-                - id: The transfer ID
-                - status: The final status of the transfer ("completed" or "failed")
-                - source_amount: The amount in source currency
-                - source_currency: The source currency
-                - target_amount: The amount in target currency
-                - target_currency: The target currency
-                - fees: List of fees associated with the transfer
-
-        Raises:
-            TimeoutError: If the transfer does not complete within the timeout period.
-
-        """
-        return await wait_for_fund_operation_receipt(
-            api_clients=self.__api_clients,
-            transfer_id=transfer_id,
-            timeout_seconds=timeout_seconds,
-            interval_seconds=interval_seconds,
         )
 
 

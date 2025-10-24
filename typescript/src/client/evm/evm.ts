@@ -25,6 +25,7 @@ import {
   ListServerAccountsOptions,
   ListSmartAccountResult,
   ListSmartAccountsOptions,
+  PrepareAndSendUserOperationOptions,
   PrepareUserOperationOptions,
   ServerAccount,
   SignatureResult,
@@ -58,6 +59,7 @@ import {
 } from "../../actions/evm/requestFaucet.js";
 import { sendTransaction } from "../../actions/evm/sendTransaction.js";
 import {
+  PrepareAndSendUserOperationReturnType,
   sendUserOperation,
   SendUserOperationOptions,
   SendUserOperationReturnType,
@@ -75,6 +77,7 @@ import { UserInputValidationError } from "../../errors.js";
 import { APIError } from "../../openapi-client/errors.js";
 import {
   CdpOpenApiClient,
+  EvmUserOperationStatus,
   EIP712Message as OpenAPIEIP712Message,
 } from "../../openapi-client/index.js";
 import { SPEND_PERMISSION_MANAGER_ADDRESS } from "../../spend-permissions/constants.js";
@@ -906,6 +909,63 @@ export class EvmClient implements EvmClientInterface {
         value: BigInt(call.value),
         data: call.data as Hex,
       })),
+    };
+  }
+
+  /**
+   * Prepares and sends a user operation for a smart account.
+   *
+   * @param {PrepareAndSendUserOperationOptions} options - Parameters for preparing and sending the user operation.
+   * @param {SmartAccount} options.smartAccount - The smart account signing the user operation.
+   * @param {string} options.network - The network to prepare and send the user operation on.
+   * @param {EvmCall[]} options.calls - The calls to include in the user operation.
+   * @param {string} [options.paymasterUrl] - The optional paymaster URL to use for the user operation.
+   *
+   * @returns A promise that resolves to the smart account address, user operation hash, and status of the user operation.
+   *
+   * @example
+   * ```ts
+   * const { userOpHash } = await cdp.evm.prepareAndSendUserOperation({
+   *   smartAccount,
+   *   network: "base-sepolia",
+   *   calls: [
+   *     {
+   *       to: "0x1234567890123456789012345678901234567890",
+   *       value: parseEther("0.000001"),
+   *       data: "0x",
+   *     },
+   *   ],
+   * });
+   * ```
+   */
+  async prepareAndSendUserOperation(
+    options: PrepareAndSendUserOperationOptions,
+  ): Promise<PrepareAndSendUserOperationReturnType> {
+    Analytics.trackAction({
+      action: "prepare_and_send_user_operation",
+      properties: {
+        network: options.network,
+      },
+    });
+
+    const userOp = await CdpOpenApiClient.prepareAndSendUserOperation(
+      options.smartAccount.address,
+      {
+        network: options.network,
+        calls: options.calls.map(call => ({
+          to: call.to as Address,
+          value: call.value.toString(),
+          data: call.data as Hex,
+        })),
+        paymasterUrl: options.paymasterUrl,
+      },
+      options.idempotencyKey,
+    );
+
+    return {
+      smartAccountAddress: options.smartAccount.address as Address,
+      userOpHash: userOp.userOpHash as Hex,
+      status: userOp.status as typeof EvmUserOperationStatus.broadcast,
     };
   }
 

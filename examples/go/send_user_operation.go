@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+
 	"github.com/coinbase/cdp-sdk/go/openapi"
 	"github.com/ethereum/go-ethereum/params"
 )
@@ -99,11 +100,11 @@ func prepareAndSendUserOperation(ctx context.Context, address string, owner stri
 		return "", err
 	}
 
-	// Step 1: Prepare the user operation
-	prepareResponse, err := cdp.PrepareUserOperationWithResponse(
+	response, err := cdp.PrepareAndSendUserOperationWithResponse(
 		ctx,
 		address,
-		openapi.PrepareUserOperationJSONRequestBody{
+		nil,
+		openapi.PrepareAndSendUserOperationJSONRequestBody{
 			Calls: []openapi.EvmCall{
 				{
 					To:    "0x0000000000000000000000000000000000000000",
@@ -115,54 +116,16 @@ func prepareAndSendUserOperation(ctx context.Context, address string, owner stri
 			PaymasterUrl: nil, // Gas for all base-sepolia user operations are covered by CDP.
 		},
 	)
+
 	if err != nil {
 		return "", err
 	}
 
-	if prepareResponse.StatusCode() != 201 {
-		return "", fmt.Errorf("failed to prepare user op: %v", prepareResponse.Status())
+	if response.StatusCode() != 200 {
+		return "", fmt.Errorf("failed to prepare and send user op: %v", response.Status())
 	}
 
-	fmt.Printf("user op prepared successfully: %v", string(prepareResponse.Body))
-	hash := prepareResponse.JSON201.UserOpHash
-
-	// Step 2: Sign the user operation
-	signResponse, err := cdp.SignEvmHashWithResponse(
-		ctx,
-		owner,
-		&openapi.SignEvmHashParams{},
-		openapi.SignEvmHashJSONRequestBody{
-			Hash: hash,
-		})
-	if err != nil {
-		return "", err
-	}
-
-	if signResponse.StatusCode() != 200 {
-		return "", fmt.Errorf("failed to sign user op: %v", signResponse.Status())
-	}
-
-	signature := signResponse.JSON200.Signature
-
-	// Step 3: Send the user operation
-	sendResponse, err := cdp.SendUserOperationWithResponse(
-		ctx,
-		address,
-		hash,
-		openapi.SendUserOperationJSONRequestBody{
-			Signature: signature,
-		})
-	if err != nil {
-		return "", err
-	}
-
-	if sendResponse.StatusCode() != 200 {
-		return "", fmt.Errorf("failed to send user op: %v", sendResponse.Status())
-	}
-
-	fmt.Printf("userOpHash sent: %s\n", string(sendResponse.Body))
-
-	return sendResponse.JSON200.UserOpHash, nil
+	return response.JSON200.UserOpHash, nil
 }
 
 func parseEther(val string) (string, error) {

@@ -198,12 +198,12 @@ const (
 
 // Defines values for EvmUserOperationStatus.
 const (
-	EvmUserOperationStatusBroadcast EvmUserOperationStatus = "broadcast"
-	EvmUserOperationStatusComplete  EvmUserOperationStatus = "complete"
-	EvmUserOperationStatusDropped   EvmUserOperationStatus = "dropped"
-	EvmUserOperationStatusFailed    EvmUserOperationStatus = "failed"
-	EvmUserOperationStatusPending   EvmUserOperationStatus = "pending"
-	EvmUserOperationStatusSigned    EvmUserOperationStatus = "signed"
+	Broadcast EvmUserOperationStatus = "broadcast"
+	Complete  EvmUserOperationStatus = "complete"
+	Dropped   EvmUserOperationStatus = "dropped"
+	Failed    EvmUserOperationStatus = "failed"
+	Pending   EvmUserOperationStatus = "pending"
+	Signed    EvmUserOperationStatus = "signed"
 )
 
 // Defines values for EvmUserOperationNetwork.
@@ -218,12 +218,6 @@ const (
 	EvmUserOperationNetworkOptimism        EvmUserOperationNetwork = "optimism"
 	EvmUserOperationNetworkPolygon         EvmUserOperationNetwork = "polygon"
 	EvmUserOperationNetworkZora            EvmUserOperationNetwork = "zora"
-)
-
-// Defines values for FeeType.
-const (
-	ExchangeFee FeeType = "exchange_fee"
-	NetworkFee  FeeType = "network_fee"
 )
 
 // Defines values for GetSwapPriceResponseLiquidityAvailable.
@@ -340,18 +334,6 @@ const (
 	CRYPTOWALLET OnrampQuotePaymentMethodTypeId = "CRYPTO_WALLET"
 	FIATWALLET   OnrampQuotePaymentMethodTypeId = "FIAT_WALLET"
 	PAYPAL       OnrampQuotePaymentMethodTypeId = "PAYPAL"
-)
-
-// Defines values for PaymentMethodType.
-const (
-	Card        PaymentMethodType = "card"
-	FiatAccount PaymentMethodType = "fiat_account"
-)
-
-// Defines values for PaymentRailAction.
-const (
-	Source PaymentRailAction = "source"
-	Target PaymentRailAction = "target"
 )
 
 // Defines values for PolicyScope.
@@ -611,25 +593,6 @@ const (
 	False SwapUnavailableResponseLiquidityAvailable = false
 )
 
-// Defines values for TransferSourceType.
-const (
-	TransferSourceTypePaymentMethod TransferSourceType = "payment_method"
-)
-
-// Defines values for TransferStatus.
-const (
-	TransferStatusCompleted TransferStatus = "completed"
-	TransferStatusCreated   TransferStatus = "created"
-	TransferStatusFailed    TransferStatus = "failed"
-	TransferStatusPending   TransferStatus = "pending"
-	TransferStatusStarted   TransferStatus = "started"
-)
-
-// Defines values for TransferTargetType.
-const (
-	TransferTargetTypeCryptoRail TransferTargetType = "crypto_rail"
-)
-
 // Defines values for X402Version.
 const (
 	X402VersionN1 X402Version = 1
@@ -735,6 +698,12 @@ const (
 	ListTokensForAccountParamsNetworkBaseSepolia ListTokensForAccountParamsNetwork = "base-sepolia"
 )
 
+// Defines values for ListEndUsersParamsSort.
+const (
+	CreatedAtAsc  ListEndUsersParamsSort = "createdAt=asc"
+	CreatedAtDesc ListEndUsersParamsSort = "createdAt=desc"
+)
+
 // Defines values for SendEvmTransactionJSONBodyNetwork.
 const (
 	SendEvmTransactionJSONBodyNetworkArbitrum        SendEvmTransactionJSONBodyNetwork = "arbitrum"
@@ -760,16 +729,6 @@ const (
 	RequestEvmFaucetJSONBodyTokenEth   RequestEvmFaucetJSONBodyToken = "eth"
 	RequestEvmFaucetJSONBodyTokenEurc  RequestEvmFaucetJSONBodyToken = "eurc"
 	RequestEvmFaucetJSONBodyTokenUsdc  RequestEvmFaucetJSONBodyToken = "usdc"
-)
-
-// Defines values for CreatePaymentTransferQuoteJSONBodySourceType.
-const (
-	CreatePaymentTransferQuoteJSONBodySourceTypePaymentMethod CreatePaymentTransferQuoteJSONBodySourceType = "payment_method"
-)
-
-// Defines values for CreatePaymentTransferQuoteJSONBodyTargetType.
-const (
-	CreatePaymentTransferQuoteJSONBodyTargetTypeCryptoRail CreatePaymentTransferQuoteJSONBodyTargetType = "crypto_rail"
 )
 
 // Defines values for ListPoliciesParamsScope.
@@ -1075,42 +1034,6 @@ type CreateSwapQuoteResponseWrapper struct {
 	union json.RawMessage
 }
 
-// CryptoRail The crypto rails available.
-type CryptoRail struct {
-	// Actions The actions for the crypto rail.
-	Actions []PaymentRailAction `json:"actions"`
-
-	// Currency The currency symbol of the asset.
-	Currency string `json:"currency"`
-
-	// Name The name of the asset.
-	Name string `json:"name"`
-
-	// Networks All available networks of the asset.
-	Networks []struct {
-		// ChainId The chain ID of the network.
-		ChainId *int64 `json:"chainId,omitempty"`
-
-		// ContractAddress The contract address of the asset on the network.
-		ContractAddress *string `json:"contractAddress,omitempty"`
-
-		// Name The name of the network.
-		Name *string `json:"name,omitempty"`
-	} `json:"networks"`
-}
-
-// CryptoRailAddress The crypto rail input object which specifies the symbol, network, and address which is the source or destination wallet address.
-type CryptoRailAddress struct {
-	// Address The address of the payment rail. This is the source or destination wallet address. It is not a contract address.
-	Address string `json:"address"`
-
-	// Currency The symbol of the currency of the payment rail.
-	Currency string `json:"currency"`
-
-	// Network The network of the payment rail.
-	Network string `json:"network"`
-}
-
 // DeveloperJWTAuthentication Information about an end user who authenticates using a JWT issued by the developer.
 type DeveloperJWTAuthentication struct {
 	// Kid The key ID of the JWK used to sign the JWT.
@@ -1272,6 +1195,9 @@ type EvmAddressCriterionType string
 type EvmCall struct {
 	// Data The call data to send. This is the hex-encoded data of the function call consisting of the method selector and the function arguments.
 	Data string `json:"data"`
+
+	// OverrideGasLimit The override gas limit to use for the call instead of the bundler's estimated gas limit.
+	OverrideGasLimit *string `json:"overrideGasLimit,omitempty"`
 
 	// To The address the call is directed to.
 	To string `json:"to"`
@@ -1468,24 +1394,6 @@ type EvmUserOperationStatus string
 
 // EvmUserOperationNetwork The network the user operation is for.
 type EvmUserOperationNetwork string
-
-// Fee The fee for the transfer.
-type Fee struct {
-	// Amount The amount of the fee.
-	Amount string `json:"amount"`
-
-	// Currency The currency of the fee.
-	Currency string `json:"currency"`
-
-	// Description The description of the fee.
-	Description *string `json:"description,omitempty"`
-
-	// Type The type of fee.
-	Type FeeType `json:"type"`
-}
-
-// FeeType The type of fee.
-type FeeType string
 
 // GetSwapPriceResponse defines model for GetSwapPriceResponse.
 type GetSwapPriceResponse struct {
@@ -1731,6 +1639,9 @@ type OnrampOrder struct {
 	// OrderId The ID of the onramp order.
 	OrderId string `json:"orderId"`
 
+	// PartnerUserRef The partner user reference ID.
+	PartnerUserRef *string `json:"partnerUserRef,omitempty"`
+
 	// PaymentCurrency The fiat currency to be converted to crypto.
 	PaymentCurrency string `json:"paymentCurrency"`
 
@@ -1829,54 +1740,6 @@ type OnrampSession struct {
 	// OnrampUrl Ready-to-use onramp URL.
 	OnrampUrl string `json:"onrampUrl"`
 }
-
-// PaymentMethod The fiat payment method object.
-type PaymentMethod struct {
-	// Actions The actions for the payment method.
-	Actions []PaymentRailAction `json:"actions"`
-
-	// Currency The currency of the payment method.
-	Currency string `json:"currency"`
-
-	// Id The ID of the payment method which previously was added.
-	Id string `json:"id"`
-
-	// Limits The limits of the payment method.
-	Limits *struct {
-		// SourceLimit The limit for this payment method being used as a source for transfers.
-		SourceLimit *struct {
-			// Amount The amount of the limit.
-			Amount *string `json:"amount,omitempty"`
-
-			// Currency The currency of the limit.
-			Currency *string `json:"currency,omitempty"`
-		} `json:"sourceLimit,omitempty"`
-
-		// TargetLimit The limit for this payment method being used as a target for transfers.
-		TargetLimit *struct {
-			// Amount The amount of the limit.
-			Amount *string `json:"amount,omitempty"`
-
-			// Currency The currency of the limit.
-			Currency *string `json:"currency,omitempty"`
-		} `json:"targetLimit,omitempty"`
-	} `json:"limits,omitempty"`
-
-	// Type The type of payment method.
-	Type PaymentMethodType `json:"type"`
-}
-
-// PaymentMethodType The type of payment method.
-type PaymentMethodType string
-
-// PaymentMethodRequest The fiat payment method request object.
-type PaymentMethodRequest struct {
-	// Id The ID of the payment method.
-	Id string `json:"id"`
-}
-
-// PaymentRailAction The action of the payment method.
-type PaymentRailAction string
 
 // Policy defines model for Policy.
 type Policy struct {
@@ -2593,86 +2456,6 @@ type TokenFee struct {
 	Token string `json:"token"`
 }
 
-// Transfer The transfer object.
-type Transfer struct {
-	// CreatedAt The UTC date and time in ISO 8601 format the transfer was created.
-	CreatedAt string `json:"createdAt"`
-
-	// Fees The fees for the transfer.
-	Fees []Fee `json:"fees"`
-
-	// Id The ID of the transfer.
-	Id string `json:"id"`
-
-	// Source The source of the transfer.
-	Source Transfer_Source `json:"source"`
-
-	// SourceAmount The amount the source will transfer.
-	SourceAmount string `json:"sourceAmount"`
-
-	// SourceCurrency The currency the source will transfer.
-	SourceCurrency string `json:"sourceCurrency"`
-
-	// SourceType The type of the source of the transfer.
-	SourceType TransferSourceType `json:"sourceType"`
-
-	// Status The status of the transfer.
-	Status TransferStatus `json:"status"`
-
-	// Target The target of the transfer.
-	Target Transfer_Target `json:"target"`
-
-	// TargetAmount The amount the target will receive.
-	TargetAmount string `json:"targetAmount"`
-
-	// TargetCurrency The currency the target will receive.
-	TargetCurrency string `json:"targetCurrency"`
-
-	// TargetType The type of the target of the transfer.
-	TargetType TransferTargetType `json:"targetType"`
-
-	// TransactionHash The transaction hash or transaction signature of the transfer.
-	TransactionHash *string `json:"transactionHash,omitempty"`
-
-	// UpdatedAt The UTC date and time in ISO 8601 format the transfer was updated.
-	UpdatedAt string `json:"updatedAt"`
-
-	// UserAmount The amount the customer put in to transfer.
-	UserAmount string `json:"userAmount"`
-
-	// UserCurrency The currency the customer put in to transfer.
-	UserCurrency string `json:"userCurrency"`
-}
-
-// Transfer_Source The source of the transfer.
-type Transfer_Source struct {
-	union json.RawMessage
-}
-
-// TransferSourceType The type of the source of the transfer.
-type TransferSourceType string
-
-// TransferStatus The status of the transfer.
-type TransferStatus string
-
-// Transfer_Target The target of the transfer.
-type Transfer_Target struct {
-	union json.RawMessage
-}
-
-// TransferTargetType The type of the target of the transfer.
-type TransferTargetType string
-
-// TransferSource The source of the transfer.
-type TransferSource struct {
-	union json.RawMessage
-}
-
-// TransferTarget The target of the transfer.
-type TransferTarget struct {
-	union json.RawMessage
-}
-
 // UserOperationReceipt The receipt that contains information about the execution of user operation.
 type UserOperationReceipt struct {
 	// BlockHash The block hash of the block including the transaction as 0x-prefixed string.
@@ -2953,6 +2736,21 @@ type ListDataTokenBalancesParams struct {
 
 // ListTokensForAccountParamsNetwork defines parameters for ListTokensForAccount.
 type ListTokensForAccountParamsNetwork string
+
+// ListEndUsersParams defines parameters for ListEndUsers.
+type ListEndUsersParams struct {
+	// PageSize The number of end users to return per page.
+	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the desired page of end users. Will be empty if there are no more end users to fetch.
+	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+
+	// Sort Sort end users. Defaults to ascending order (oldest first).
+	Sort *[]ListEndUsersParamsSort `form:"sort,omitempty" json:"sort,omitempty"`
+}
+
+// ListEndUsersParamsSort defines parameters for ListEndUsers.
+type ListEndUsersParamsSort string
 
 // ValidateEndUserAccessTokenJSONBody defines parameters for ValidateEndUserAccessToken.
 type ValidateEndUserAccessTokenJSONBody struct {
@@ -3273,6 +3071,31 @@ type PrepareUserOperationJSONBody struct {
 	PaymasterUrl *string `json:"paymasterUrl,omitempty"`
 }
 
+// PrepareAndSendUserOperationJSONBody defines parameters for PrepareAndSendUserOperation.
+type PrepareAndSendUserOperationJSONBody struct {
+	// Calls The list of calls to make from the Smart Account.
+	Calls []EvmCall `json:"calls"`
+
+	// Network The network the user operation is for.
+	Network EvmUserOperationNetwork `json:"network"`
+
+	// PaymasterUrl The URL of the paymaster to use for the user operation.
+	PaymasterUrl *string `json:"paymasterUrl,omitempty"`
+}
+
+// PrepareAndSendUserOperationParams defines parameters for PrepareAndSendUserOperation.
+type PrepareAndSendUserOperationParams struct {
+	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+}
+
 // SendUserOperationJSONBody defines parameters for SendUserOperation.
 type SendUserOperationJSONBody struct {
 	// Signature The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28.
@@ -3430,42 +3253,6 @@ type CreateOnrampSessionJSONBody struct {
 	// Subdivision The ISO 3166-2 two letter state code (e.g. NY). Only required for US.
 	Subdivision *string `json:"subdivision,omitempty"`
 }
-
-// GetCryptoRailsParams defines parameters for GetCryptoRails.
-type GetCryptoRailsParams struct {
-	// Networks Comma separated list of networks to filter the rails by.
-	Networks *string `form:"networks,omitempty" json:"networks,omitempty"`
-}
-
-// CreatePaymentTransferQuoteJSONBody defines parameters for CreatePaymentTransferQuote.
-type CreatePaymentTransferQuoteJSONBody struct {
-	// Amount The amount of the transfer, which is either for the source currency to buy, or the target currency to receive.
-	Amount string `json:"amount"`
-
-	// Currency The currency of the transfer. This can be specified as the source currency, which would be used to buy, or else the target currency, which is how much will be received.
-	Currency string `json:"currency"`
-
-	// Execute Whether to execute the transfer. If true, the transfer will be committed and executed. If false, the quote will be generated and returned.
-	Execute *bool `json:"execute,omitempty"`
-
-	// Source The source of the transfer.
-	Source TransferSource `json:"source"`
-
-	// SourceType The type of the source of the transfer.
-	SourceType CreatePaymentTransferQuoteJSONBodySourceType `json:"sourceType"`
-
-	// Target The target of the transfer.
-	Target TransferTarget `json:"target"`
-
-	// TargetType The type of the target of the transfer.
-	TargetType CreatePaymentTransferQuoteJSONBodyTargetType `json:"targetType"`
-}
-
-// CreatePaymentTransferQuoteJSONBodySourceType defines parameters for CreatePaymentTransferQuote.
-type CreatePaymentTransferQuoteJSONBodySourceType string
-
-// CreatePaymentTransferQuoteJSONBodyTargetType defines parameters for CreatePaymentTransferQuote.
-type CreatePaymentTransferQuoteJSONBodyTargetType string
 
 // ListPoliciesParams defines parameters for ListPolicies.
 type ListPoliciesParams struct {
@@ -3807,6 +3594,9 @@ type RevokeSpendPermissionJSONRequestBody = RevokeSpendPermissionRequest
 // PrepareUserOperationJSONRequestBody defines body for PrepareUserOperation for application/json ContentType.
 type PrepareUserOperationJSONRequestBody PrepareUserOperationJSONBody
 
+// PrepareAndSendUserOperationJSONRequestBody defines body for PrepareAndSendUserOperation for application/json ContentType.
+type PrepareAndSendUserOperationJSONRequestBody PrepareAndSendUserOperationJSONBody
+
 // SendUserOperationJSONRequestBody defines body for SendUserOperation for application/json ContentType.
 type SendUserOperationJSONRequestBody SendUserOperationJSONBody
 
@@ -3818,9 +3608,6 @@ type CreateOnrampOrderJSONRequestBody CreateOnrampOrderJSONBody
 
 // CreateOnrampSessionJSONRequestBody defines body for CreateOnrampSession for application/json ContentType.
 type CreateOnrampSessionJSONRequestBody CreateOnrampSessionJSONBody
-
-// CreatePaymentTransferQuoteJSONRequestBody defines body for CreatePaymentTransferQuote for application/json ContentType.
-type CreatePaymentTransferQuoteJSONRequestBody CreatePaymentTransferQuoteJSONBody
 
 // CreatePolicyJSONRequestBody defines body for CreatePolicy for application/json ContentType.
 type CreatePolicyJSONRequestBody CreatePolicyJSONBody
@@ -5793,150 +5580,6 @@ func (t *SolDataCriterion_Idls_Item) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-// AsPaymentMethodRequest returns the union data inside the Transfer_Source as a PaymentMethodRequest
-func (t Transfer_Source) AsPaymentMethodRequest() (PaymentMethodRequest, error) {
-	var body PaymentMethodRequest
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromPaymentMethodRequest overwrites any union data inside the Transfer_Source as the provided PaymentMethodRequest
-func (t *Transfer_Source) FromPaymentMethodRequest(v PaymentMethodRequest) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergePaymentMethodRequest performs a merge with any union data inside the Transfer_Source, using the provided PaymentMethodRequest
-func (t *Transfer_Source) MergePaymentMethodRequest(v PaymentMethodRequest) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JsonMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-func (t Transfer_Source) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	return b, err
-}
-
-func (t *Transfer_Source) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	return err
-}
-
-// AsCryptoRailAddress returns the union data inside the Transfer_Target as a CryptoRailAddress
-func (t Transfer_Target) AsCryptoRailAddress() (CryptoRailAddress, error) {
-	var body CryptoRailAddress
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromCryptoRailAddress overwrites any union data inside the Transfer_Target as the provided CryptoRailAddress
-func (t *Transfer_Target) FromCryptoRailAddress(v CryptoRailAddress) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeCryptoRailAddress performs a merge with any union data inside the Transfer_Target, using the provided CryptoRailAddress
-func (t *Transfer_Target) MergeCryptoRailAddress(v CryptoRailAddress) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JsonMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-func (t Transfer_Target) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	return b, err
-}
-
-func (t *Transfer_Target) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	return err
-}
-
-// AsPaymentMethodRequest returns the union data inside the TransferSource as a PaymentMethodRequest
-func (t TransferSource) AsPaymentMethodRequest() (PaymentMethodRequest, error) {
-	var body PaymentMethodRequest
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromPaymentMethodRequest overwrites any union data inside the TransferSource as the provided PaymentMethodRequest
-func (t *TransferSource) FromPaymentMethodRequest(v PaymentMethodRequest) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergePaymentMethodRequest performs a merge with any union data inside the TransferSource, using the provided PaymentMethodRequest
-func (t *TransferSource) MergePaymentMethodRequest(v PaymentMethodRequest) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JsonMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-func (t TransferSource) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	return b, err
-}
-
-func (t *TransferSource) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	return err
-}
-
-// AsCryptoRailAddress returns the union data inside the TransferTarget as a CryptoRailAddress
-func (t TransferTarget) AsCryptoRailAddress() (CryptoRailAddress, error) {
-	var body CryptoRailAddress
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromCryptoRailAddress overwrites any union data inside the TransferTarget as the provided CryptoRailAddress
-func (t *TransferTarget) FromCryptoRailAddress(v CryptoRailAddress) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeCryptoRailAddress performs a merge with any union data inside the TransferTarget, using the provided CryptoRailAddress
-func (t *TransferTarget) MergeCryptoRailAddress(v CryptoRailAddress) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JsonMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-func (t TransferTarget) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	return b, err
-}
-
-func (t *TransferTarget) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	return err
-}
-
 // AsX402ExactEvmPayload returns the union data inside the X402PaymentPayload_Payload as a X402ExactEvmPayload
 func (t X402PaymentPayload_Payload) AsX402ExactEvmPayload() (X402ExactEvmPayload, error) {
 	var body X402ExactEvmPayload
@@ -6078,10 +5721,16 @@ type ClientInterface interface {
 	// ListTokensForAccount request
 	ListTokensForAccount(ctx context.Context, network ListTokensForAccountParamsNetwork, address string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetSQLGrammar request
+	GetSQLGrammar(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// RunSQLQueryWithBody request with any body
 	RunSQLQueryWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	RunSQLQuery(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListEndUsers request
+	ListEndUsers(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ValidateEndUserAccessTokenWithBody request with any body
 	ValidateEndUserAccessTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -6189,6 +5838,11 @@ type ClientInterface interface {
 
 	PrepareUserOperation(ctx context.Context, address string, body PrepareUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// PrepareAndSendUserOperationWithBody request with any body
+	PrepareAndSendUserOperationWithBody(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PrepareAndSendUserOperation(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, body PrepareAndSendUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetUserOperation request
 	GetUserOperation(ctx context.Context, address string, userOpHash string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -6220,23 +5874,6 @@ type ClientInterface interface {
 	CreateOnrampSessionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	CreateOnrampSession(ctx context.Context, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetCryptoRails request
-	GetCryptoRails(ctx context.Context, params *GetCryptoRailsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetPaymentMethods request
-	GetPaymentMethods(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// CreatePaymentTransferQuoteWithBody request with any body
-	CreatePaymentTransferQuoteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	CreatePaymentTransferQuote(ctx context.Context, body CreatePaymentTransferQuoteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetPaymentTransfer request
-	GetPaymentTransfer(ctx context.Context, transferId string, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// ExecutePaymentTransferQuote request
-	ExecutePaymentTransferQuote(ctx context.Context, transferId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListPolicies request
 	ListPolicies(ctx context.Context, params *ListPoliciesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -6352,6 +5989,18 @@ func (c *CDPClient) ListTokensForAccount(ctx context.Context, network ListTokens
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) GetSQLGrammar(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetSQLGrammarRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) RunSQLQueryWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRunSQLQueryRequestWithBody(c.Server, contentType, body)
 	if err != nil {
@@ -6366,6 +6015,18 @@ func (c *CDPClient) RunSQLQueryWithBody(ctx context.Context, contentType string,
 
 func (c *CDPClient) RunSQLQuery(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRunSQLQueryRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) ListEndUsers(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListEndUsersRequest(c.Server, params)
 	if err != nil {
 		return nil, err
 	}
@@ -6868,6 +6529,30 @@ func (c *CDPClient) PrepareUserOperation(ctx context.Context, address string, bo
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) PrepareAndSendUserOperationWithBody(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPrepareAndSendUserOperationRequestWithBody(c.Server, address, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) PrepareAndSendUserOperation(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, body PrepareAndSendUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPrepareAndSendUserOperationRequest(c.Server, address, params, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) GetUserOperation(ctx context.Context, address string, userOpHash string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetUserOperationRequest(c.Server, address, userOpHash)
 	if err != nil {
@@ -7002,78 +6687,6 @@ func (c *CDPClient) CreateOnrampSessionWithBody(ctx context.Context, contentType
 
 func (c *CDPClient) CreateOnrampSession(ctx context.Context, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewCreateOnrampSessionRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) GetCryptoRails(ctx context.Context, params *GetCryptoRailsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetCryptoRailsRequest(c.Server, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) GetPaymentMethods(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetPaymentMethodsRequest(c.Server)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) CreatePaymentTransferQuoteWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreatePaymentTransferQuoteRequestWithBody(c.Server, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) CreatePaymentTransferQuote(ctx context.Context, body CreatePaymentTransferQuoteJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreatePaymentTransferQuoteRequest(c.Server, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) GetPaymentTransfer(ctx context.Context, transferId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetPaymentTransferRequest(c.Server, transferId)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *CDPClient) ExecutePaymentTransferQuote(ctx context.Context, transferId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewExecutePaymentTransferQuoteRequest(c.Server, transferId)
 	if err != nil {
 		return nil, err
 	}
@@ -7612,6 +7225,33 @@ func NewListTokensForAccountRequest(server string, network ListTokensForAccountP
 	return req, nil
 }
 
+// NewGetSQLGrammarRequest generates requests for GetSQLGrammar
+func NewGetSQLGrammarRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/data/query/grammar")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewRunSQLQueryRequest calls the generic RunSQLQuery builder with application/json body
 func NewRunSQLQueryRequest(server string, body RunSQLQueryJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -7648,6 +7288,87 @@ func NewRunSQLQueryRequestWithBody(server string, contentType string, body io.Re
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListEndUsersRequest generates requests for ListEndUsers
+func NewListEndUsersRequest(server string, params *ListEndUsersParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/end-users")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.Sort != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", false, "sort", runtime.ParamLocationQuery, *params.Sort); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -9070,6 +8791,79 @@ func NewPrepareUserOperationRequestWithBody(server string, address string, conte
 	return req, nil
 }
 
+// NewPrepareAndSendUserOperationRequest calls the generic PrepareAndSendUserOperation builder with application/json body
+func NewPrepareAndSendUserOperationRequest(server string, address string, params *PrepareAndSendUserOperationParams, body PrepareAndSendUserOperationJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPrepareAndSendUserOperationRequestWithBody(server, address, params, "application/json", bodyReader)
+}
+
+// NewPrepareAndSendUserOperationRequestWithBody generates requests for PrepareAndSendUserOperation with any type of body
+func NewPrepareAndSendUserOperationRequestWithBody(server string, address string, params *PrepareAndSendUserOperationParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "address", runtime.ParamLocationPath, address)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/evm/smart-accounts/%s/user-operations/prepare-and-send", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XIdempotencyKey != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam0)
+		}
+
+		if params.XWalletAuth != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewGetUserOperationRequest generates requests for GetUserOperation
 func NewGetUserOperationRequest(server string, address string, userOpHash string) (*http.Request, error) {
 	var err error
@@ -9550,190 +9344,6 @@ func NewCreateOnrampSessionRequestWithBody(server string, contentType string, bo
 	}
 
 	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewGetCryptoRailsRequest generates requests for GetCryptoRails
-func NewGetCryptoRailsRequest(server string, params *GetCryptoRailsParams) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/payments/rails/crypto")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.Networks != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "networks", runtime.ParamLocationQuery, *params.Networks); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewGetPaymentMethodsRequest generates requests for GetPaymentMethods
-func NewGetPaymentMethodsRequest(server string) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/payments/rails/payment-methods")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewCreatePaymentTransferQuoteRequest calls the generic CreatePaymentTransferQuote builder with application/json body
-func NewCreatePaymentTransferQuoteRequest(server string, body CreatePaymentTransferQuoteJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreatePaymentTransferQuoteRequestWithBody(server, "application/json", bodyReader)
-}
-
-// NewCreatePaymentTransferQuoteRequestWithBody generates requests for CreatePaymentTransferQuote with any type of body
-func NewCreatePaymentTransferQuoteRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/payments/transfers")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewGetPaymentTransferRequest generates requests for GetPaymentTransfer
-func NewGetPaymentTransferRequest(server string, transferId string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "transferId", runtime.ParamLocationPath, transferId)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/payments/transfers/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewExecutePaymentTransferQuoteRequest generates requests for ExecutePaymentTransferQuote
-func NewExecutePaymentTransferQuoteRequest(server string, transferId string) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "transferId", runtime.ParamLocationPath, transferId)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/v2/payments/transfers/%s/execute", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
 
 	return req, nil
 }
@@ -10979,10 +10589,16 @@ type ClientWithResponsesInterface interface {
 	// ListTokensForAccountWithResponse request
 	ListTokensForAccountWithResponse(ctx context.Context, network ListTokensForAccountParamsNetwork, address string, reqEditors ...RequestEditorFn) (*ListTokensForAccountResponse, error)
 
+	// GetSQLGrammarWithResponse request
+	GetSQLGrammarWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSQLGrammarResponse, error)
+
 	// RunSQLQueryWithBodyWithResponse request with any body
 	RunSQLQueryWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error)
 
 	RunSQLQueryWithResponse(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error)
+
+	// ListEndUsersWithResponse request
+	ListEndUsersWithResponse(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*ListEndUsersResponse, error)
 
 	// ValidateEndUserAccessTokenWithBodyWithResponse request with any body
 	ValidateEndUserAccessTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ValidateEndUserAccessTokenResponse, error)
@@ -11090,6 +10706,11 @@ type ClientWithResponsesInterface interface {
 
 	PrepareUserOperationWithResponse(ctx context.Context, address string, body PrepareUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*PrepareUserOperationResponse, error)
 
+	// PrepareAndSendUserOperationWithBodyWithResponse request with any body
+	PrepareAndSendUserOperationWithBodyWithResponse(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PrepareAndSendUserOperationResponse, error)
+
+	PrepareAndSendUserOperationWithResponse(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, body PrepareAndSendUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*PrepareAndSendUserOperationResponse, error)
+
 	// GetUserOperationWithResponse request
 	GetUserOperationWithResponse(ctx context.Context, address string, userOpHash string, reqEditors ...RequestEditorFn) (*GetUserOperationResponse, error)
 
@@ -11121,23 +10742,6 @@ type ClientWithResponsesInterface interface {
 	CreateOnrampSessionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error)
 
 	CreateOnrampSessionWithResponse(ctx context.Context, body CreateOnrampSessionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateOnrampSessionResponse, error)
-
-	// GetCryptoRailsWithResponse request
-	GetCryptoRailsWithResponse(ctx context.Context, params *GetCryptoRailsParams, reqEditors ...RequestEditorFn) (*GetCryptoRailsResponse, error)
-
-	// GetPaymentMethodsWithResponse request
-	GetPaymentMethodsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPaymentMethodsResponse, error)
-
-	// CreatePaymentTransferQuoteWithBodyWithResponse request with any body
-	CreatePaymentTransferQuoteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePaymentTransferQuoteResponse, error)
-
-	CreatePaymentTransferQuoteWithResponse(ctx context.Context, body CreatePaymentTransferQuoteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePaymentTransferQuoteResponse, error)
-
-	// GetPaymentTransferWithResponse request
-	GetPaymentTransferWithResponse(ctx context.Context, transferId string, reqEditors ...RequestEditorFn) (*GetPaymentTransferResponse, error)
-
-	// ExecutePaymentTransferQuoteWithResponse request
-	ExecutePaymentTransferQuoteWithResponse(ctx context.Context, transferId string, reqEditors ...RequestEditorFn) (*ExecutePaymentTransferQuoteResponse, error)
 
 	// ListPoliciesWithResponse request
 	ListPoliciesWithResponse(ctx context.Context, params *ListPoliciesParams, reqEditors ...RequestEditorFn) (*ListPoliciesResponse, error)
@@ -11288,6 +10892,32 @@ func (r ListTokensForAccountResponse) StatusCode() int {
 	return 0
 }
 
+type GetSQLGrammarResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *string
+	JSON401      *UnauthorizedError
+	JSON429      *Error
+	JSON500      *InternalServerError
+	JSON504      *TimedOutError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetSQLGrammarResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetSQLGrammarResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type RunSQLQueryResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -11310,6 +10940,39 @@ func (r RunSQLQueryResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r RunSQLQueryResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ListEndUsersResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// EndUsers The list of end users.
+		EndUsers []EndUser `json:"endUsers"`
+
+		// NextPageToken The token for the next page of items, if any.
+		NextPageToken *string `json:"nextPageToken,omitempty"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON500 *InternalServerError
+	JSON502 *BadGatewayError
+	JSON503 *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListEndUsersResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListEndUsersResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -12040,6 +11703,37 @@ func (r PrepareUserOperationResponse) StatusCode() int {
 	return 0
 }
 
+type PrepareAndSendUserOperationResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EvmUserOperation
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON402      *PaymentMethodRequiredError
+	JSON403      *Error
+	JSON404      *Error
+	JSON429      *Error
+	JSON500      *InternalServerError
+	JSON502      *BadGatewayError
+	JSON503      *ServiceUnavailableError
+}
+
+// Status returns HTTPResponse.Status
+func (r PrepareAndSendUserOperationResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PrepareAndSendUserOperationResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type GetUserOperationResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -12272,144 +11966,6 @@ func (r CreateOnrampSessionResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r CreateOnrampSessionResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetCryptoRailsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]CryptoRail
-	JSON401      *Error
-	JSON500      *InternalServerError
-	JSON502      *BadGatewayError
-	JSON503      *ServiceUnavailableError
-}
-
-// Status returns HTTPResponse.Status
-func (r GetCryptoRailsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetCryptoRailsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetPaymentMethodsResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *[]PaymentMethod
-	JSON401      *Error
-	JSON500      *InternalServerError
-	JSON502      *BadGatewayError
-	JSON503      *ServiceUnavailableError
-}
-
-// Status returns HTTPResponse.Status
-func (r GetPaymentMethodsResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetPaymentMethodsResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type CreatePaymentTransferQuoteResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON201      *struct {
-		// Transfer The transfer object.
-		Transfer Transfer `json:"transfer"`
-	}
-	JSON400 *Error
-	JSON401 *Error
-	JSON429 *Error
-	JSON500 *InternalServerError
-}
-
-// Status returns HTTPResponse.Status
-func (r CreatePaymentTransferQuoteResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r CreatePaymentTransferQuoteResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetPaymentTransferResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *Transfer
-	JSON400      *Error
-	JSON401      *Error
-	JSON404      *Error
-	JSON500      *InternalServerError
-	JSON502      *BadGatewayError
-	JSON503      *ServiceUnavailableError
-}
-
-// Status returns HTTPResponse.Status
-func (r GetPaymentTransferResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetPaymentTransferResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type ExecutePaymentTransferQuoteResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-	JSON200      *Transfer
-	JSON400      *Error
-	JSON401      *Error
-	JSON404      *Error
-	JSON429      *Error
-	JSON500      *InternalServerError
-	JSON502      *BadGatewayError
-	JSON503      *ServiceUnavailableError
-}
-
-// Status returns HTTPResponse.Status
-func (r ExecutePaymentTransferQuoteResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r ExecutePaymentTransferQuoteResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -13060,6 +12616,15 @@ func (c *ClientWithResponses) ListTokensForAccountWithResponse(ctx context.Conte
 	return ParseListTokensForAccountResponse(rsp)
 }
 
+// GetSQLGrammarWithResponse request returning *GetSQLGrammarResponse
+func (c *ClientWithResponses) GetSQLGrammarWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetSQLGrammarResponse, error) {
+	rsp, err := c.GetSQLGrammar(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetSQLGrammarResponse(rsp)
+}
+
 // RunSQLQueryWithBodyWithResponse request with arbitrary body returning *RunSQLQueryResponse
 func (c *ClientWithResponses) RunSQLQueryWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error) {
 	rsp, err := c.RunSQLQueryWithBody(ctx, contentType, body, reqEditors...)
@@ -13075,6 +12640,15 @@ func (c *ClientWithResponses) RunSQLQueryWithResponse(ctx context.Context, body 
 		return nil, err
 	}
 	return ParseRunSQLQueryResponse(rsp)
+}
+
+// ListEndUsersWithResponse request returning *ListEndUsersResponse
+func (c *ClientWithResponses) ListEndUsersWithResponse(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*ListEndUsersResponse, error) {
+	rsp, err := c.ListEndUsers(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListEndUsersResponse(rsp)
 }
 
 // ValidateEndUserAccessTokenWithBodyWithResponse request with arbitrary body returning *ValidateEndUserAccessTokenResponse
@@ -13429,6 +13003,23 @@ func (c *ClientWithResponses) PrepareUserOperationWithResponse(ctx context.Conte
 	return ParsePrepareUserOperationResponse(rsp)
 }
 
+// PrepareAndSendUserOperationWithBodyWithResponse request with arbitrary body returning *PrepareAndSendUserOperationResponse
+func (c *ClientWithResponses) PrepareAndSendUserOperationWithBodyWithResponse(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PrepareAndSendUserOperationResponse, error) {
+	rsp, err := c.PrepareAndSendUserOperationWithBody(ctx, address, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePrepareAndSendUserOperationResponse(rsp)
+}
+
+func (c *ClientWithResponses) PrepareAndSendUserOperationWithResponse(ctx context.Context, address string, params *PrepareAndSendUserOperationParams, body PrepareAndSendUserOperationJSONRequestBody, reqEditors ...RequestEditorFn) (*PrepareAndSendUserOperationResponse, error) {
+	rsp, err := c.PrepareAndSendUserOperation(ctx, address, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePrepareAndSendUserOperationResponse(rsp)
+}
+
 // GetUserOperationWithResponse request returning *GetUserOperationResponse
 func (c *ClientWithResponses) GetUserOperationWithResponse(ctx context.Context, address string, userOpHash string, reqEditors ...RequestEditorFn) (*GetUserOperationResponse, error) {
 	rsp, err := c.GetUserOperation(ctx, address, userOpHash, reqEditors...)
@@ -13531,59 +13122,6 @@ func (c *ClientWithResponses) CreateOnrampSessionWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseCreateOnrampSessionResponse(rsp)
-}
-
-// GetCryptoRailsWithResponse request returning *GetCryptoRailsResponse
-func (c *ClientWithResponses) GetCryptoRailsWithResponse(ctx context.Context, params *GetCryptoRailsParams, reqEditors ...RequestEditorFn) (*GetCryptoRailsResponse, error) {
-	rsp, err := c.GetCryptoRails(ctx, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetCryptoRailsResponse(rsp)
-}
-
-// GetPaymentMethodsWithResponse request returning *GetPaymentMethodsResponse
-func (c *ClientWithResponses) GetPaymentMethodsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetPaymentMethodsResponse, error) {
-	rsp, err := c.GetPaymentMethods(ctx, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetPaymentMethodsResponse(rsp)
-}
-
-// CreatePaymentTransferQuoteWithBodyWithResponse request with arbitrary body returning *CreatePaymentTransferQuoteResponse
-func (c *ClientWithResponses) CreatePaymentTransferQuoteWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreatePaymentTransferQuoteResponse, error) {
-	rsp, err := c.CreatePaymentTransferQuoteWithBody(ctx, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreatePaymentTransferQuoteResponse(rsp)
-}
-
-func (c *ClientWithResponses) CreatePaymentTransferQuoteWithResponse(ctx context.Context, body CreatePaymentTransferQuoteJSONRequestBody, reqEditors ...RequestEditorFn) (*CreatePaymentTransferQuoteResponse, error) {
-	rsp, err := c.CreatePaymentTransferQuote(ctx, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreatePaymentTransferQuoteResponse(rsp)
-}
-
-// GetPaymentTransferWithResponse request returning *GetPaymentTransferResponse
-func (c *ClientWithResponses) GetPaymentTransferWithResponse(ctx context.Context, transferId string, reqEditors ...RequestEditorFn) (*GetPaymentTransferResponse, error) {
-	rsp, err := c.GetPaymentTransfer(ctx, transferId, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetPaymentTransferResponse(rsp)
-}
-
-// ExecutePaymentTransferQuoteWithResponse request returning *ExecutePaymentTransferQuoteResponse
-func (c *ClientWithResponses) ExecutePaymentTransferQuoteWithResponse(ctx context.Context, transferId string, reqEditors ...RequestEditorFn) (*ExecutePaymentTransferQuoteResponse, error) {
-	rsp, err := c.ExecutePaymentTransferQuote(ctx, transferId, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseExecutePaymentTransferQuoteResponse(rsp)
 }
 
 // ListPoliciesWithResponse request returning *ListPoliciesResponse
@@ -14000,6 +13538,60 @@ func ParseListTokensForAccountResponse(rsp *http.Response) (*ListTokensForAccoun
 	return response, nil
 }
 
+// ParseGetSQLGrammarResponse parses an HTTP response from a GetSQLGrammarWithResponse call
+func ParseGetSQLGrammarResponse(rsp *http.Response) (*GetSQLGrammarResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetSQLGrammarResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest string
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 504:
+		var dest TimedOutError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON504 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseRunSQLQueryResponse parses an HTTP response from a RunSQLQueryWithResponse call
 func ParseRunSQLQueryResponse(rsp *http.Response) (*RunSQLQueryResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -14062,6 +13654,73 @@ func ParseRunSQLQueryResponse(rsp *http.Response) (*RunSQLQueryResponse, error) 
 			return nil, err
 		}
 		response.JSON504 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListEndUsersResponse parses an HTTP response from a ListEndUsersWithResponse call
+func ParseListEndUsersResponse(rsp *http.Response) (*ListEndUsersResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListEndUsersResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// EndUsers The list of end users.
+			EndUsers []EndUser `json:"endUsers"`
+
+			// NextPageToken The token for the next page of items, if any.
+			NextPageToken *string `json:"nextPageToken,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
 
 	}
 
@@ -15806,6 +15465,95 @@ func ParsePrepareUserOperationResponse(rsp *http.Response) (*PrepareUserOperatio
 	return response, nil
 }
 
+// ParsePrepareAndSendUserOperationResponse parses an HTTP response from a PrepareAndSendUserOperationWithResponse call
+func ParsePrepareAndSendUserOperationResponse(rsp *http.Response) (*PrepareAndSendUserOperationResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PrepareAndSendUserOperationResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EvmUserOperation
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
+		var dest BadGatewayError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON502 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
+		var dest ServiceUnavailableError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetUserOperationResponse parses an HTTP response from a GetUserOperationWithResponse call
 func ParseGetUserOperationResponse(rsp *http.Response) (*GetUserOperationResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -16304,314 +16052,6 @@ func ParseCreateOnrampSessionResponse(rsp *http.Response) (*CreateOnrampSessionR
 			return nil, err
 		}
 		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetCryptoRailsResponse parses an HTTP response from a GetCryptoRailsWithResponse call
-func ParseGetCryptoRailsResponse(rsp *http.Response) (*GetCryptoRailsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetCryptoRailsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []CryptoRail
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest InternalServerError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
-		var dest BadGatewayError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON502 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
-		var dest ServiceUnavailableError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON503 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetPaymentMethodsResponse parses an HTTP response from a GetPaymentMethodsWithResponse call
-func ParseGetPaymentMethodsResponse(rsp *http.Response) (*GetPaymentMethodsResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetPaymentMethodsResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest []PaymentMethod
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest InternalServerError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
-		var dest BadGatewayError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON502 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
-		var dest ServiceUnavailableError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON503 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseCreatePaymentTransferQuoteResponse parses an HTTP response from a CreatePaymentTransferQuoteWithResponse call
-func ParseCreatePaymentTransferQuoteResponse(rsp *http.Response) (*CreatePaymentTransferQuoteResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &CreatePaymentTransferQuoteResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
-		var dest struct {
-			// Transfer The transfer object.
-			Transfer Transfer `json:"transfer"`
-		}
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON201 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON429 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest InternalServerError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetPaymentTransferResponse parses an HTTP response from a GetPaymentTransferWithResponse call
-func ParseGetPaymentTransferResponse(rsp *http.Response) (*GetPaymentTransferResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetPaymentTransferResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Transfer
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON404 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest InternalServerError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
-		var dest BadGatewayError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON502 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
-		var dest ServiceUnavailableError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON503 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseExecutePaymentTransferQuoteResponse parses an HTTP response from a ExecutePaymentTransferQuoteWithResponse call
-func ParseExecutePaymentTransferQuoteResponse(rsp *http.Response) (*ExecutePaymentTransferQuoteResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &ExecutePaymentTransferQuoteResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest Transfer
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON401 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON404 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
-		var dest Error
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON429 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
-		var dest InternalServerError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON500 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 502:
-		var dest BadGatewayError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON502 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 503:
-		var dest ServiceUnavailableError
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON503 = &dest
 
 	}
 

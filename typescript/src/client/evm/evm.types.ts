@@ -18,6 +18,7 @@ import type {
   SendTransactionOptions,
 } from "../../actions/evm/sendTransaction.js";
 import type {
+  PrepareAndSendUserOperationReturnType,
   SendUserOperationOptions,
   SendUserOperationReturnType,
 } from "../../actions/evm/sendUserOperation.js";
@@ -61,6 +62,7 @@ export type EvmClientInterface = Omit<
   | "listEvmSmartAccounts" // mapped to listSmartAccounts
   | "listEvmTokenBalances" // mapped to listTokenBalances
   | "prepareUserOperation"
+  | "prepareAndSendUserOperation"
   | "requestEvmFaucet" // mapped to requestFaucet
   | "sendUserOperation"
   | "signEvmHash" // mapped to signHash
@@ -102,6 +104,9 @@ export type EvmClientInterface = Omit<
   sendUserOperation: (
     options: SendUserOperationOptions<unknown[]>,
   ) => Promise<SendUserOperationReturnType>;
+  prepareAndSendUserOperation: (
+    options: PrepareAndSendUserOperationOptions,
+  ) => Promise<PrepareAndSendUserOperationReturnType>;
   signHash: (options: SignHashOptions) => Promise<SignatureResult>;
   signMessage: (options: SignMessageOptions) => Promise<SignatureResult>;
   signTypedData: (options: SignTypedDataOptions) => Promise<SignatureResult>;
@@ -291,6 +296,22 @@ export interface PrepareUserOperationOptions {
   calls: Calls<EvmCall[]>;
   /** The paymaster URL. */
   paymasterUrl?: string;
+}
+
+/**
+ * Options for preparing and sending a user operation.
+ */
+export interface PrepareAndSendUserOperationOptions {
+  /** The smart account. */
+  smartAccount: SmartAccount;
+  /** The network. */
+  network: EvmUserOperationNetwork;
+  /** The calls. */
+  calls: Calls<EvmCall[]>;
+  /** The paymaster URL. */
+  paymasterUrl?: string;
+  /** An optional idempotency key. */
+  idempotencyKey?: string;
 }
 
 /**

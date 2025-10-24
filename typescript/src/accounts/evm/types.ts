@@ -5,14 +5,10 @@
 import {
   ListTokenBalancesNetworks,
   RequestFaucetNetworks,
-  QuoteFundNetworks,
-  FundNetworks,
   TransferNetworks,
-  QuoteSwapNetworks,
   SwapNetworks,
+  QuoteSwapNetworks,
 } from "./networkCapabilities.js";
-import { EvmFundOptions } from "../../actions/evm/fund/fund.js";
-import { EvmQuoteFundOptions } from "../../actions/evm/fund/quoteFund.js";
 import {
   ListTokenBalancesOptions,
   ListTokenBalancesResult,
@@ -25,24 +21,19 @@ import {
 } from "../../actions/evm/sendUserOperation.js";
 import { UseSpendPermissionOptions } from "../../actions/evm/spend-permissions/types.js";
 import {
-  AccountQuoteSwapOptions,
-  AccountQuoteSwapResult,
   AccountSwapOptions,
   AccountSwapResult,
+  AccountQuoteSwapOptions,
+  AccountQuoteSwapResult,
   SmartAccountQuoteSwapOptions,
-  SmartAccountQuoteSwapResult,
   SmartAccountSwapOptions,
   SmartAccountSwapResult,
+  SmartAccountQuoteSwapResult,
 } from "../../actions/evm/swap/types.js";
 import {
   WaitForUserOperationOptions,
   WaitForUserOperationReturnType,
 } from "../../actions/evm/waitForUserOperation.js";
-import { FundOperationResult } from "../../actions/types.js";
-import {
-  WaitForFundOperationOptions,
-  WaitForFundOperationResult,
-} from "../../actions/waitForFundOperationReceipt.js";
 import { GetUserOperationOptions, UserOperation } from "../../client/evm/evm.types.js";
 import { SpendPermissionNetwork } from "../../openapi-client/index.js";
 
@@ -51,7 +42,6 @@ import type {
   TransferOptions,
 } from "../../actions/evm/transfer/types.js";
 import type { AccountActions, SmartAccountActions } from "../../actions/evm/types.js";
-import type { EvmQuote } from "../../actions/Quote.js";
 import type { Address, Hash, Hex } from "../../types/misc.js";
 import type { Prettify } from "../../types/utils.js";
 import type {
@@ -220,30 +210,11 @@ export type NetworkSpecificSmartAccountActions<Network extends string> = Prettif
           ) => Promise<RequestFaucetResult>;
         }
       : EmptyObject) &
-    // Conditionally include quoteFund
-    (Network extends QuoteFundNetworks
-      ? {
-          quoteFund: (
-            options: Omit<EvmQuoteFundOptions, "address" | "network">,
-          ) => Promise<EvmQuote>;
-        }
-      : EmptyObject) &
-    // Conditionally include fund
-    (Network extends FundNetworks
-      ? {
-          fund: (
-            options: Omit<EvmFundOptions, "address" | "network">,
-          ) => Promise<FundOperationResult>;
-          waitForFundOperationReceipt: (
-            options: Omit<WaitForFundOperationOptions, "network">,
-          ) => Promise<WaitForFundOperationResult>;
-        }
-      : EmptyObject) &
     // Conditionally include quoteSwap
     (Network extends QuoteSwapNetworks
       ? {
           quoteSwap: (
-            options: Omit<SmartAccountQuoteSwapOptions, "network">,
+            options: DistributedOmit<SmartAccountQuoteSwapOptions, "network">,
           ) => Promise<SmartAccountQuoteSwapResult>;
         }
       : EmptyObject) &
@@ -312,21 +283,6 @@ export type NetworkSpecificAccountActions<Network extends string> = Prettify<
           requestFaucet: (
             options: Omit<RequestFaucetOptions, "address" | "network">,
           ) => Promise<RequestFaucetResult>;
-        }
-      : EmptyObject) &
-    // Conditionally include quoteFund
-    (Network extends QuoteFundNetworks
-      ? {
-          quoteFund: (options: Omit<EvmQuoteFundOptions, "address">) => Promise<EvmQuote>;
-        }
-      : EmptyObject) &
-    // Conditionally include fund
-    (Network extends FundNetworks
-      ? {
-          fund: (options: Omit<EvmFundOptions, "address">) => Promise<FundOperationResult>;
-          waitForFundOperationReceipt: (
-            options: WaitForFundOperationOptions,
-          ) => Promise<WaitForFundOperationResult>;
         }
       : EmptyObject) &
     // Conditionally include transfer

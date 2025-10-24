@@ -14,6 +14,7 @@ import type {
   ListEvmSmartAccountsParams,
   ListSpendPermissions200,
   ListSpendPermissionsParams,
+  PrepareAndSendUserOperationBody,
   PrepareUserOperationBody,
   RevokeSpendPermissionRequest,
   SendUserOperationBody,
@@ -116,6 +117,25 @@ export const prepareUserOperation = (
       method: "POST",
       headers: { "Content-Type": "application/json" },
       data: prepareUserOperationBody,
+    },
+    options,
+  );
+};
+/**
+ * Prepares, signs, and sends a user operation for an EVM Smart Account. This API can be used only if the owner on Smart Account is a CDP EVM Account.
+ * @summary Prepare and send a user operation for EVM Smart Account
+ */
+export const prepareAndSendUserOperation = (
+  address: string,
+  prepareAndSendUserOperationBody: PrepareAndSendUserOperationBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EvmUserOperation>(
+    {
+      url: `/v2/evm/smart-accounts/${address}/user-operations/prepare-and-send`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: prepareAndSendUserOperationBody,
     },
     options,
   );
@@ -224,6 +244,9 @@ export type UpdateEvmSmartAccountResult = NonNullable<
 >;
 export type PrepareUserOperationResult = NonNullable<
   Awaited<ReturnType<typeof prepareUserOperation>>
+>;
+export type PrepareAndSendUserOperationResult = NonNullable<
+  Awaited<ReturnType<typeof prepareAndSendUserOperation>>
 >;
 export type GetUserOperationResult = NonNullable<Awaited<ReturnType<typeof getUserOperation>>>;
 export type SendUserOperationResult = NonNullable<Awaited<ReturnType<typeof sendUserOperation>>>;

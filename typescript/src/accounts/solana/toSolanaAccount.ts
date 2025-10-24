@@ -1,18 +1,9 @@
 import { Account, SolanaAccount } from "./types.js";
-import { SolanaQuote } from "../../actions/Quote.js";
-import { SolanaFundOptions, fund } from "../../actions/solana/fund/fund.js";
-import { SolanaQuoteFundOptions, quoteFund } from "../../actions/solana/fund/quoteFund.js";
 import { requestFaucet } from "../../actions/solana/requestFaucet.js";
 import { sendTransaction, SendTransactionResult } from "../../actions/solana/sendTransaction.js";
 import { signMessage } from "../../actions/solana/signMessage.js";
 import { signTransaction, SignTransactionResult } from "../../actions/solana/signTransaction.js";
 import { transfer, type TransferOptions } from "../../actions/solana/transfer.js";
-import { FundOperationResult } from "../../actions/types.js";
-import {
-  WaitForFundOperationOptions,
-  WaitForFundOperationResult,
-  waitForFundOperationReceipt,
-} from "../../actions/waitForFundOperationReceipt.js";
 import { Analytics } from "../../analytics.js";
 import {
   RequestFaucetOptions,
@@ -107,38 +98,6 @@ export function toSolanaAccount(
         ...options,
         from: account.address,
       });
-    },
-    async quoteFund(options: Omit<SolanaQuoteFundOptions, "address">): Promise<SolanaQuote> {
-      Analytics.trackAction({
-        action: "quote_fund",
-        accountType: "solana",
-      });
-
-      return quoteFund(apiClient, {
-        ...options,
-        address: account.address,
-      });
-    },
-    async fund(options: Omit<SolanaFundOptions, "address">): Promise<FundOperationResult> {
-      Analytics.trackAction({
-        action: "fund",
-        accountType: "solana",
-      });
-
-      return fund(apiClient, {
-        ...options,
-        address: account.address,
-      });
-    },
-    async waitForFundOperationReceipt(
-      options: WaitForFundOperationOptions,
-    ): Promise<WaitForFundOperationResult> {
-      Analytics.trackAction({
-        action: "wait_for_fund_operation_receipt",
-        accountType: "solana",
-      });
-
-      return waitForFundOperationReceipt(apiClient, options);
     },
   };
 
