@@ -1,7 +1,7 @@
 from typing import Any
 
 from eth_typing import HexAddress
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictStr
 from web3.types import HexStr, Wei
 
 
@@ -11,6 +11,7 @@ class EncodedCall(BaseModel):
     to: HexAddress = Field(..., description="Target contract address")
     value: Wei | None = Field(None, description="Amount of native currency to send")
     data: HexStr | None = Field(None, description="Encoded call data")
+    overrideGasLimit: StrictStr | None = Field(None, description="The override gas limit to use for the call instead of the bundler's estimated gas limit.")
 
 
 class FunctionCall(BaseModel):
