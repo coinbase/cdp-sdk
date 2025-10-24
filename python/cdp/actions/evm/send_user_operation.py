@@ -50,7 +50,7 @@ async def send_user_operation(
                     to=str(call.to),
                     data=data,
                     value=value,
-                    overrideGasLimit=call.overrideGasLimit if call.overrideGasLimit else None,
+                    override_gas_limit=call.override_gas_limit if call.override_gas_limit else None,
                 )
             )
         else:
@@ -61,7 +61,7 @@ async def send_user_operation(
                     to=str(call.to),
                     data=data,
                     value=value,
-                    overrideGasLimit=call.overrideGasLimit if call.overrideGasLimit else None,
+                    override_gas_limit=call.override_gas_limit if call.override_gas_limit else None,
                 )
             )
 
