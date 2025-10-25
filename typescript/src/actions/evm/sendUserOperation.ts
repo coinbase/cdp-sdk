@@ -144,6 +144,7 @@ export async function sendUserOperation<T extends readonly unknown[]>(
           args: call.args,
         }),
         value,
+        overrideGasLimit: call.overrideGasLimit,
       };
     }
 
@@ -151,6 +152,7 @@ export async function sendUserOperation<T extends readonly unknown[]>(
       to: call.to,
       data: call.data ?? "0x",
       value,
+      overrideGasLimit: call.overrideGasLimit,
     };
   });
 
