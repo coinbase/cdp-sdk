@@ -23,6 +23,7 @@ const userOperationResult = await cdp.evm.sendUserOperation({
       to: "0x0000000000000000000000000000000000000000",
       value: parseEther("0.000001"),
       data: "0x",
+      // overrideGasLimit: "3000000", if you want to override the gas limit.
     },
   ],
 });

@@ -11,6 +11,7 @@ export type Call<call = unknown, extraProperties extends Record<string, unknown>
       data?: Hex | undefined;
       to: Address;
       value?: bigint | undefined;
+      overrideGasLimit?: string | undefined;
     })
   | (extraProperties &
       (Omit<GetMulticallContractParameters<call, AbiStateMutability>, "address"> & {
