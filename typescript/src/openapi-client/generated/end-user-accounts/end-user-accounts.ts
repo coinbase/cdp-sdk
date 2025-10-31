@@ -47,7 +47,17 @@ export const validateEndUserAccessToken = (
     options,
   );
 };
+/**
+ * Gets an end user by ID.
+
+This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+ * @summary Get an end user
+ */
+export const getEndUser = (userId: string, options?: SecondParameter<typeof cdpApiClient>) => {
+  return cdpApiClient<EndUser>({ url: `/v2/end-users/${userId}`, method: "GET" }, options);
+};
 export type ListEndUsersResult = NonNullable<Awaited<ReturnType<typeof listEndUsers>>>;
 export type ValidateEndUserAccessTokenResult = NonNullable<
   Awaited<ReturnType<typeof validateEndUserAccessToken>>
 >;
+export type GetEndUserResult = NonNullable<Awaited<ReturnType<typeof getEndUser>>>;

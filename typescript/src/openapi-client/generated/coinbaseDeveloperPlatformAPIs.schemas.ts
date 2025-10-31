@@ -102,6 +102,8 @@ export interface EndUser {
   evmSmartAccounts: string[];
   /** The list of Solana accounts associated with the end user. Currently, only one Solana account is supported per end user. */
   solanaAccounts: string[];
+  /** The date and time when the end user was created, in ISO 8601 format. */
+  createdAt: string;
 }
 
 export interface ListResponse {
@@ -2594,6 +2596,8 @@ export const X402VerifyInvalidReason = {
   invalid_payment_requirements: "invalid_payment_requirements",
   invalid_payload: "invalid_payload",
   invalid_exact_evm_payload_authorization_value: "invalid_exact_evm_payload_authorization_value",
+  invalid_exact_evm_payload_authorization_value_too_low:
+    "invalid_exact_evm_payload_authorization_value_too_low",
   invalid_exact_evm_payload_authorization_valid_after:
     "invalid_exact_evm_payload_authorization_valid_after",
   invalid_exact_evm_payload_authorization_valid_before:
@@ -2641,6 +2645,10 @@ export const X402VerifyInvalidReason = {
     "invalid_exact_svm_payload_transaction_simulation_failed",
   invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata:
     "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata",
+  invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts:
+    "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts",
+  invalid_exact_svm_payload_transaction_fee_payer_transferring_funds:
+    "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds",
 } as const;
 
 /**
@@ -2964,6 +2972,16 @@ export type X402SupportedPaymentKindsResponseResponse = {
 export type RateLimitExceededResponse = Error;
 
 /**
+ * The number of resources to return per page.
+ */
+export type PageSizeParameter = number;
+
+/**
+ * The token for the next page of resources, if any.
+ */
+export type PageTokenParameter = string;
+
+/**
  * A JWT signed using your Wallet Secret, encoded in base64. Refer to the
 [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
 section of our Authentication docs for more details on how to generate your Wallet Token.
@@ -3019,13 +3037,13 @@ export type ValidateEndUserAccessTokenBody = {
 
 export type ListEvmAccountsParams = {
   /**
-   * The number of accounts to return per page.
+   * The number of resources to return per page.
    */
-  pageSize?: number;
+  pageSize?: PageSizeParameter;
   /**
-   * The token for the next page of accounts, if any.
+   * The token for the next page of resources, if any.
    */
-  pageToken?: string;
+  pageToken?: PageTokenParameter;
 };
 
 export type ListEvmAccounts200AllOf = {
@@ -3132,13 +3150,13 @@ export type SignEvmTypedData200 = {
 
 export type ListEvmSmartAccountsParams = {
   /**
-   * The number of accounts to return per page.
+   * The number of resources to return per page.
    */
-  pageSize?: number;
+  pageSize?: PageSizeParameter;
   /**
-   * The token for the next page of accounts, if any.
+   * The token for the next page of resources, if any.
    */
-  pageToken?: string;
+  pageToken?: PageTokenParameter;
 };
 
 export type ListEvmSmartAccounts200AllOf = {
@@ -3299,13 +3317,13 @@ export type CreateEvmSwapQuoteBody = {
 
 export type ListEvmTokenBalancesParams = {
   /**
-   * The number of balances to return per page.
+   * The number of resources to return per page.
    */
-  pageSize?: number;
+  pageSize?: PageSizeParameter;
   /**
-   * The token for the next page of balances. Will be empty if there are no more balances to fetch.
+   * The token for the next page of resources, if any.
    */
-  pageToken?: string;
+  pageToken?: PageTokenParameter;
 };
 
 export type ListEvmTokenBalances200AllOf = {
@@ -3362,13 +3380,13 @@ export type RequestEvmFaucet200 = {
 
 export type ListPoliciesParams = {
   /**
-   * The number of policies to return per page.
+   * The number of resources to return per page.
    */
-  pageSize?: number;
+  pageSize?: PageSizeParameter;
   /**
-   * The token for the next page of policies, if any.
+   * The token for the next page of resources, if any.
    */
-  pageToken?: string;
+  pageToken?: PageTokenParameter;
   /**
    * The scope of the policies to return. If `project`, the response will include exactly one policy, which is the project-level policy. If `account`, the response will include all account-level policies for the developer's CDP Project.
    */
@@ -3428,13 +3446,13 @@ Policy descriptions can consist of alphanumeric characters, spaces, commas, and 
 
 export type ListSolanaAccountsParams = {
   /**
-   * The number of accounts to return per page.
+   * The number of resources to return per page.
    */
-  pageSize?: number;
+  pageSize?: PageSizeParameter;
   /**
-   * The token for the next page of accounts, if any.
+   * The token for the next page of resources, if any.
    */
-  pageToken?: string;
+  pageToken?: PageTokenParameter;
 };
 
 export type ListSolanaAccounts200AllOf = {
@@ -3596,13 +3614,13 @@ export type ListSolanaTokenBalances200 = ListSolanaTokenBalances200AllOf & ListR
 
 export type ListDataTokenBalancesParams = {
   /**
-   * The number of balances to return per page.
+   * The number of resources to return per page.
    */
-  pageSize?: number;
+  pageSize?: PageSizeParameter;
   /**
-   * The token for the next page of balances. Will be empty if there are no more balances to fetch.
+   * The token for the next page of resources, if any.
    */
-  pageToken?: string;
+  pageToken?: PageTokenParameter;
 };
 
 export type ListDataTokenBalances200AllOf = {
