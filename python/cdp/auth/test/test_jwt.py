@@ -134,7 +134,7 @@ def test_generate_jwt_ec(ec_private_key_factory, jwt_options_factory):
     decoded = jwt_lib.decode(token, options={"verify_signature": False})
     assert decoded["sub"] == options.api_key_id
     assert decoded["iss"] == "cdp"
-    assert decoded["aud"] == ["cdp_service"]
+    assert decoded["aud"] == None
     assert isinstance(decoded["nbf"], int)
     assert isinstance(decoded["exp"], int)
     assert decoded["exp"] - decoded["nbf"] == options.expires_in
@@ -173,7 +173,7 @@ def test_generate_websocket_jwt_ec(ec_private_key_factory, websocket_jwt_options
     decoded = jwt_lib.decode(token, options={"verify_signature": False})
     assert decoded["sub"] == options.api_key_id
     assert decoded["iss"] == "cdp"
-    assert decoded["aud"] == ["cdp_service"]
+    assert decoded["aud"] == None
     assert isinstance(decoded["nbf"], int)
     assert isinstance(decoded["exp"], int)
     assert decoded["exp"] - decoded["nbf"] == options.expires_in

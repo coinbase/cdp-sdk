@@ -193,7 +193,7 @@ def generate_jwt(options: JwtOptions) -> str:
         claims = {
             "sub": options.api_key_id,
             "iss": "cdp",
-            "aud": options.audience if options.audience is not None else ["cdp_service"],
+            "aud": options.audience,
             "nbf": now,
             "exp": now + expires_in,
         }
