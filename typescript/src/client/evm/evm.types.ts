@@ -101,8 +101,8 @@ export type EvmClientInterface = Omit<
   prepareUserOperation: (options: PrepareUserOperationOptions) => Promise<UserOperation>;
   requestFaucet: (options: RequestFaucetOptions) => Promise<RequestFaucetResult>;
   sendTransaction: (options: SendTransactionOptions) => Promise<TransactionResult>;
-  sendUserOperation: (
-    options: SendUserOperationOptions<unknown[]>,
+  sendUserOperation: <T extends readonly unknown[]>(
+    options: SendUserOperationOptions<T>,
   ) => Promise<SendUserOperationReturnType>;
   prepareAndSendUserOperation: (
     options: PrepareAndSendUserOperationOptions,
@@ -410,8 +410,10 @@ export interface GetServerAccountOptions {
 export interface GetSmartAccountOptions {
   /** The address of the account. */
   address?: Address;
-  /** The owner of the account. */
-  owner: Account;
+  /** The owner of the account (for backwards compatibility). */
+  owner?: Account;
+  /** The owners of the account. If provided, takes precedence over `owner`. */
+  owners?: Account[];
   /** The name of the account. */
   name?: string;
 }
@@ -430,8 +432,10 @@ export interface GetOrCreateServerAccountOptions {
 export interface GetOrCreateSmartAccountOptions {
   /** The name of the account. */
   name: string;
-  /** The owner of the account. */
-  owner: Account;
+  /** The owner of the account. For backwards compatibility, use a single owner. For multiple owners, use the `owners` property instead. */
+  owner?: Account;
+  /** The owners of the account. If provided, this takes precedence over the `owner` property. */
+  owners?: Account[];
   /** The flag to enable spend permissions. */
   enableSpendPermissions?: boolean;
 }
@@ -477,8 +481,10 @@ export interface UpdateEvmSmartAccountOptions {
   update: UpdateEvmSmartAccount;
   /** The idempotency key. */
   idempotencyKey?: string;
-  /** The owner of the account. */
-  owner: Account;
+  /** The owner of the account (for backwards compatibility). */
+  owner?: Account;
+  /** The owners of the account. If provided, takes precedence over `owner`. */
+  owners?: Account[];
 }
 
 /**
@@ -523,8 +529,10 @@ export interface ListSmartAccountsOptions {
  * Options for creating an EVM smart account.
  */
 export interface CreateSmartAccountOptions {
-  /** The owner of the account. */
-  owner: Account;
+  /** The owner of the account. For backwards compatibility, use a single owner. For multiple owners, use the `owners` property instead. */
+  owner?: Account;
+  /** The owners of the account. If provided, this takes precedence over the `owner` property. */
+  owners?: Account[];
   /** The idempotency key. */
   idempotencyKey?: string;
   /** The name of the account. */
