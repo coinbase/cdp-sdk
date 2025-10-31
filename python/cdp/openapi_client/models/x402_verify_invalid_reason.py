@@ -34,6 +34,7 @@ class X402VerifyInvalidReason(str, Enum):
     INVALID_PAYMENT_REQUIREMENTS = 'invalid_payment_requirements'
     INVALID_PAYLOAD = 'invalid_payload'
     INVALID_EXACT_EVM_PAYLOAD_AUTHORIZATION_VALUE = 'invalid_exact_evm_payload_authorization_value'
+    INVALID_EXACT_EVM_PAYLOAD_AUTHORIZATION_VALUE_TOO_LOW = 'invalid_exact_evm_payload_authorization_value_too_low'
     INVALID_EXACT_EVM_PAYLOAD_AUTHORIZATION_VALID_AFTER = 'invalid_exact_evm_payload_authorization_valid_after'
     INVALID_EXACT_EVM_PAYLOAD_AUTHORIZATION_VALID_BEFORE = 'invalid_exact_evm_payload_authorization_valid_before'
     INVALID_EXACT_EVM_PAYLOAD_AUTHORIZATION_TYPED_DATA_MESSAGE = 'invalid_exact_evm_payload_authorization_typed_data_message'
@@ -59,6 +60,8 @@ class X402VerifyInvalidReason(str, Enum):
     INVALID_EXACT_SVM_PAYLOAD_TRANSACTION_SENDER_ATA_NOT_FOUND = 'invalid_exact_svm_payload_transaction_sender_ata_not_found'
     INVALID_EXACT_SVM_PAYLOAD_TRANSACTION_SIMULATION_FAILED = 'invalid_exact_svm_payload_transaction_simulation_failed'
     INVALID_EXACT_SVM_PAYLOAD_TRANSACTION_TRANSFER_TO_INCORRECT_ATA = 'invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata'
+    INVALID_EXACT_SVM_PAYLOAD_TRANSACTION_FEE_PAYER_INCLUDED_IN_INSTRUCTION_ACCOUNTS = 'invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts'
+    INVALID_EXACT_SVM_PAYLOAD_TRANSACTION_FEE_PAYER_TRANSFERRING_FUNDS = 'invalid_exact_svm_payload_transaction_fee_payer_transferring_funds'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

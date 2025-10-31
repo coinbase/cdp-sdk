@@ -923,8 +923,8 @@ class PolicyEngineApi:
     @validate_call
     async def list_policies(
         self,
-        page_size: Annotated[Optional[StrictInt], Field(description="The number of policies to return per page.")] = None,
-        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of policies, if any.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         scope: Annotated[Optional[StrictStr], Field(description="The scope of the policies to return. If `project`, the response will include exactly one policy, which is the project-level policy. If `account`, the response will include all account-level policies for the developer's CDP Project.")] = None,
         _request_timeout: Union[
             None,
@@ -943,9 +943,9 @@ class PolicyEngineApi:
 
         Lists the policies belonging to the developer's CDP Project. Use the `scope` parameter to filter the policies by scope. The response is paginated, and by default, returns 20 policies per page.
 
-        :param page_size: The number of policies to return per page.
+        :param page_size: The number of resources to return per page.
         :type page_size: int
-        :param page_token: The token for the next page of policies, if any.
+        :param page_token: The token for the next page of resources, if any.
         :type page_token: str
         :param scope: The scope of the policies to return. If `project`, the response will include exactly one policy, which is the project-level policy. If `account`, the response will include all account-level policies for the developer's CDP Project.
         :type scope: str
@@ -1001,8 +1001,8 @@ class PolicyEngineApi:
     @validate_call
     async def list_policies_with_http_info(
         self,
-        page_size: Annotated[Optional[StrictInt], Field(description="The number of policies to return per page.")] = None,
-        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of policies, if any.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         scope: Annotated[Optional[StrictStr], Field(description="The scope of the policies to return. If `project`, the response will include exactly one policy, which is the project-level policy. If `account`, the response will include all account-level policies for the developer's CDP Project.")] = None,
         _request_timeout: Union[
             None,
@@ -1021,9 +1021,9 @@ class PolicyEngineApi:
 
         Lists the policies belonging to the developer's CDP Project. Use the `scope` parameter to filter the policies by scope. The response is paginated, and by default, returns 20 policies per page.
 
-        :param page_size: The number of policies to return per page.
+        :param page_size: The number of resources to return per page.
         :type page_size: int
-        :param page_token: The token for the next page of policies, if any.
+        :param page_token: The token for the next page of resources, if any.
         :type page_token: str
         :param scope: The scope of the policies to return. If `project`, the response will include exactly one policy, which is the project-level policy. If `account`, the response will include all account-level policies for the developer's CDP Project.
         :type scope: str
@@ -1079,8 +1079,8 @@ class PolicyEngineApi:
     @validate_call
     async def list_policies_without_preload_content(
         self,
-        page_size: Annotated[Optional[StrictInt], Field(description="The number of policies to return per page.")] = None,
-        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of policies, if any.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         scope: Annotated[Optional[StrictStr], Field(description="The scope of the policies to return. If `project`, the response will include exactly one policy, which is the project-level policy. If `account`, the response will include all account-level policies for the developer's CDP Project.")] = None,
         _request_timeout: Union[
             None,
@@ -1099,9 +1099,9 @@ class PolicyEngineApi:
 
         Lists the policies belonging to the developer's CDP Project. Use the `scope` parameter to filter the policies by scope. The response is paginated, and by default, returns 20 policies per page.
 
-        :param page_size: The number of policies to return per page.
+        :param page_size: The number of resources to return per page.
         :type page_size: int
-        :param page_token: The token for the next page of policies, if any.
+        :param page_token: The token for the next page of resources, if any.
         :type page_token: str
         :param scope: The scope of the policies to return. If `project`, the response will include exactly one policy, which is the project-level policy. If `account`, the response will include all account-level policies for the developer's CDP Project.
         :type scope: str

@@ -629,6 +629,48 @@ paths:
                     errorMessage: End user not found
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v2/end-users/{userId}:
+    get:
+      x-audience: public
+      summary: Get an end user
+      description: |-
+        Gets an end user by ID.
+
+        This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+      operationId: getEndUser
+      tags:
+        - End User Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user to get.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+          example: e051beeb-7163-4527-a5b6-35e301529ff2
+      responses:
+        '200':
+          description: Successfully got end user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUser'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user with the given ID not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /v2/evm/accounts:
     get:
       x-audience: public
@@ -642,21 +684,8 @@ paths:
       security:
         - apiKeyAuth: []
       parameters:
-        - name: pageSize
-          description: The number of accounts to return per page.
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
-          example: 10
-        - name: pageToken
-          description: The token for the next page of accounts, if any.
-          in: query
-          required: false
-          schema:
-            type: string
-          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
       responses:
         '200':
           description: Successfully listed EVM accounts.
@@ -1458,21 +1487,8 @@ paths:
       security:
         - apiKeyAuth: []
       parameters:
-        - name: pageSize
-          description: The number of accounts to return per page.
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
-          example: 10
-        - name: pageToken
-          description: The token for the next page of accounts, if any.
-          in: query
-          required: false
-          schema:
-            type: string
-          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
       responses:
         '200':
           description: Successfully listed Smart Accounts.
@@ -2891,21 +2907,8 @@ paths:
           schema:
             $ref: '#/components/schemas/ListEvmTokenBalancesNetwork'
           example: base
-        - name: pageSize
-          description: The number of balances to return per page.
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
-          example: 10
-        - name: pageToken
-          description: The token for the next page of balances. Will be empty if there are no more balances to fetch.
-          in: query
-          required: false
-          schema:
-            type: string
-          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
       responses:
         '200':
           description: Successfully listed token balances.
@@ -3092,21 +3095,8 @@ paths:
       security:
         - apiKeyAuth: []
       parameters:
-        - name: pageSize
-          description: The number of policies to return per page.
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
-          example: 10
-        - name: pageToken
-          description: The token for the next page of policies, if any.
-          in: query
-          required: false
-          schema:
-            type: string
-          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
         - name: scope
           description: The scope of the policies to return. If `project`, the response will include exactly one policy, which is the project-level policy. If `account`, the response will include all account-level policies for the developer's CDP Project.
           in: query
@@ -3405,21 +3395,8 @@ paths:
       security:
         - apiKeyAuth: []
       parameters:
-        - name: pageSize
-          description: The number of accounts to return per page.
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
-          example: 10
-        - name: pageToken
-          description: The token for the next page of accounts, if any.
-          in: query
-          required: false
-          schema:
-            type: string
-          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
       responses:
         '200':
           description: Successfully listed Solana accounts.
@@ -4722,21 +4699,8 @@ paths:
           schema:
             $ref: '#/components/schemas/ListEvmTokenBalancesNetwork'
           example: base
-        - name: pageSize
-          description: The number of balances to return per page.
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
-          example: 10
-        - name: pageToken
-          description: The token for the next page of balances. Will be empty if there are no more balances to fetch.
-          in: query
-          required: false
-          schema:
-            type: string
-          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
       responses:
         '200':
           description: Successfully listed token balances.
@@ -5361,6 +5325,11 @@ components:
             example: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
           example:
             - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+        createdAt:
+          type: string
+          format: date-time
+          description: The date and time when the end user was created, in ISO 8601 format.
+          example: '2025-01-15T10:30:00Z'
       required:
         - userId
         - authenticationMethods
@@ -8833,6 +8802,7 @@ components:
         - invalid_payment_requirements
         - invalid_payload
         - invalid_exact_evm_payload_authorization_value
+        - invalid_exact_evm_payload_authorization_value_too_low
         - invalid_exact_evm_payload_authorization_valid_after
         - invalid_exact_evm_payload_authorization_valid_before
         - invalid_exact_evm_payload_authorization_typed_data_message
@@ -8858,6 +8828,8 @@ components:
         - invalid_exact_svm_payload_transaction_sender_ata_not_found
         - invalid_exact_svm_payload_transaction_simulation_failed
         - invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata
+        - invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts
+        - invalid_exact_svm_payload_transaction_fee_payer_transferring_funds
       example: insufficient_funds
     x402SettleErrorReason:
       type: string
@@ -9362,6 +9334,23 @@ components:
                 errorType: rate_limit_exceeded
                 errorMessage: Rate limit exceeded.
   parameters:
+    PageSize:
+      name: pageSize
+      description: The number of resources to return per page.
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 20
+      example: 10
+    PageToken:
+      name: pageToken
+      description: The token for the next page of resources, if any.
+      in: query
+      required: false
+      schema:
+        type: string
+      example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
     XWalletAuth:
       name: X-Wallet-Auth
       in: header
