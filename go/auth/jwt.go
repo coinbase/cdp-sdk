@@ -69,11 +69,9 @@ func GenerateJWT(options JwtOptions) (string, error) {
 		"exp": now.Add(time.Duration(options.ExpiresIn) * time.Second).Unix(),
 	}
 
-	// Use provided audience if available, otherwise default to ["cdp_service"]
+	// Use provided audience if available
 	if len(options.Audience) > 0 {
 		claims["aud"] = options.Audience
-	} else {
-		claims["aud"] = []string{"cdp_service"}
 	}
 
 	// Add the uris claim only for REST API requests, not for websocket connections

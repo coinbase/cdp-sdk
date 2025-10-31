@@ -126,6 +126,7 @@ impl WalletAuth {
         host: &str,
         path: &str,
         expires_in: u64,
+        audience: Option<Vec<String>>,
     ) -> Result<String, CdpError> {
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -135,7 +136,7 @@ impl WalletAuth {
         let claims = Claims {
             sub: self.api_key_id.clone(),
             iss: "cdp".to_string(),
-            aud: vec!["cdp_service".to_string()],
+            aud: audience.unwrap_or_default(),
             exp: now + expires_in,
             iat: now,
             nbf: now,
@@ -312,7 +313,7 @@ impl Middleware for WalletAuth {
 
         // Generate main JWT
         let jwt = self
-            .generate_jwt(&method, host, path, expires_in)
+            .generate_jwt(&method, host, path, expires_in, None)
             .map_err(reqwest_middleware::Error::middleware)?;
 
         // Add authorization header
