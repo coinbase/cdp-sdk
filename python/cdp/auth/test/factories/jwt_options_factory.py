@@ -19,6 +19,7 @@ def jwt_options_factory():
         request_host="https://api.cdp.coinbase.com",
         request_path="/v1/test",
         expires_in=120,
+        audience=None,
     ):
         return JwtOptions(
             api_key_id=api_key_id,
@@ -27,6 +28,7 @@ def jwt_options_factory():
             request_host=request_host,
             request_path=request_path,
             expires_in=expires_in,
+            audience=audience,
         )
 
     return _create_options

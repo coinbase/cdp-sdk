@@ -93,6 +93,7 @@ func TestGenerateJWT(t *testing.T) {
 		options := defaultOptions
 		options.KeySecret = ecKey
 		options.ExpiresIn = 300
+		options.Audience = []string{"custom_audience"}
 
 		token, err := GenerateJWT(options)
 		require.NoError(t, err)
@@ -108,7 +109,7 @@ func TestGenerateJWT(t *testing.T) {
 
 		assert.Equal(t, "cdp", claims["iss"])
 		assert.Equal(t, options.KeyID, claims["sub"])
-		assert.Equal(t, []interface{}{"cdp_service"}, claims["aud"])
+		assert.Equal(t, []interface{}{"custom_audience"}, claims["aud"])
 
 		expectedURI := options.RequestMethod + " " + options.RequestHost + options.RequestPath
 		assert.Equal(t, []interface{}{expectedURI}, claims["uris"])
@@ -150,7 +151,7 @@ func TestGenerateJWT(t *testing.T) {
 		// Check standard claims are present
 		assert.Equal(t, "cdp", claims["iss"])
 		assert.Equal(t, options.KeyID, claims["sub"])
-		assert.Equal(t, []interface{}{"cdp_service"}, claims["aud"])
+		assert.Nil(t, claims["aud"])
 
 		// Check uris claim is NOT present for WebSocket JWTs
 		_, hasUris := claims["uris"]
