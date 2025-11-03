@@ -1,7 +1,7 @@
 #[allow(unused_imports)]
-use progenitor_client::{encode_path, ClientHooks, OperationInfo, RequestBuilderExt};
+use progenitor_middleware_client::{encode_path, ClientHooks, OperationInfo, RequestBuilderExt};
 #[allow(unused_imports)]
-pub use progenitor_client::{ByteStream, ClientInfo, Error, ResponseValue};
+pub use progenitor_middleware_client::{ByteStream, ClientInfo, Error, ResponseValue};
 /// Types used as operation parameters and responses.
 #[allow(clippy::all)]
 pub mod types {
@@ -239,10 +239,7 @@ pub mod types {
     ///      ]
     ///    }
     ///  },
-    ///  "x-audience": "public"
-    ///}
-    /// ```
-    /// </details>
+
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct AbiFunction {
         ///Deprecated. Use pure or view from stateMutability instead.
@@ -3922,6 +3919,13 @@ pub mod types {
     ///      "type": "string",
     ///      "format": "date-time"
     ///    },
+    ///    "clientIp": {
+    ///      "description": "The IP address of the end user requesting the onramp transaction.",
+    ///      "examples": [
+    ///        "127.0.0.1"
+    ///      ],
+    ///      "type": "string"
+    ///    },
     ///    "destinationAddress": {
     ///      "description": "The address the purchased crypto will be sent to.",
     ///      "examples": [
@@ -3933,6 +3937,13 @@ pub mod types {
     ///      "description": "The name of the crypto network the purchased currency will be sent on.\n\nUse the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.",
     ///      "examples": [
     ///        "base"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "domain": {
+    ///      "description": "The domain that the Apple Pay button will be rendered on. Required when using the `GUEST_CHECKOUT_APPLE_PAY`  payment method and embedding the payment link in an iframe.",
+    ///      "examples": [
+    ///        "pay.coinbase.com"
     ///      ],
     ///      "type": "string"
     ///    },
@@ -4017,6 +4028,13 @@ pub mod types {
         ///The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy).
         #[serde(rename = "agreementAcceptedAt")]
         pub agreement_accepted_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        ///The IP address of the end user requesting the onramp transaction.
+        #[serde(
+            rename = "clientIp",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub client_ip: ::std::option::Option<::std::string::String>,
         ///The address the purchased crypto will be sent to.
         #[serde(rename = "destinationAddress")]
         pub destination_address: ::std::string::String,
@@ -4025,6 +4043,9 @@ pub mod types {
         Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.*/
         #[serde(rename = "destinationNetwork")]
         pub destination_network: ::std::string::String,
+        ///The domain that the Apple Pay button will be rendered on. Required when using the `GUEST_CHECKOUT_APPLE_PAY`  payment method and embedding the payment link in an iframe.
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub domain: ::std::option::Option<::std::string::String>,
         ///The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API.
         pub email: ::std::string::String,
         ///If true, this API will return a quote without creating any transaction.
@@ -4139,6 +4160,13 @@ pub mod types {
     ///    "purchaseCurrency"
     ///  ],
     ///  "properties": {
+    ///    "clientIp": {
+    ///      "description": "The IP address of the end user requesting the onramp transaction.",
+    ///      "examples": [
+    ///        "127.0.0.1"
+    ///      ],
+    ///      "type": "string"
+    ///    },
     ///    "country": {
     ///      "description": "The ISO 3166-1 two letter country code (e.g. US).",
     ///      "examples": [
@@ -4204,6 +4232,13 @@ pub mod types {
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct CreateOnrampSessionBody {
+        ///The IP address of the end user requesting the onramp transaction.
+        #[serde(
+            rename = "clientIp",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub client_ip: ::std::option::Option<::std::string::String>,
         ///The ISO 3166-1 two letter country code (e.g. US).
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub country: ::std::option::Option<::std::string::String>,
@@ -8838,6 +8873,7 @@ pub mod types {
     ///  "type": "object",
     ///  "required": [
     ///    "authenticationMethods",
+    ///    "createdAt",
     ///    "evmAccounts",
     ///    "evmSmartAccounts",
     ///    "solanaAccounts",
@@ -8914,6 +8950,8 @@ pub mod types {
     pub struct EndUser {
         #[serde(rename = "authenticationMethods")]
         pub authentication_methods: AuthenticationMethods,
+        #[serde(rename = "createdAt")]
+        pub created_at: ::serde_json::Value,
         ///The list of EVM accounts associated with the end user. Currently, only one EVM account is supported per end user.
         #[serde(rename = "evmAccounts")]
         pub evm_accounts: ::std::vec::Vec<EndUserEvmAccountsItem>,
@@ -41426,10 +41464,18 @@ pub mod types {
                 ::chrono::DateTime<::chrono::offset::Utc>,
                 ::std::string::String,
             >,
+            client_ip: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
             destination_address:
                 ::std::result::Result<::std::string::String, ::std::string::String>,
             destination_network:
                 ::std::result::Result<::std::string::String, ::std::string::String>,
+            domain: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
             email: ::std::result::Result<::std::string::String, ::std::string::String>,
             is_quote: ::std::result::Result<bool, ::std::string::String>,
             partner_order_ref: ::std::result::Result<
@@ -41461,12 +41507,14 @@ pub mod types {
                     agreement_accepted_at: Err(
                         "no value supplied for agreement_accepted_at".to_string()
                     ),
+                    client_ip: Ok(Default::default()),
                     destination_address: Err(
                         "no value supplied for destination_address".to_string()
                     ),
                     destination_network: Err(
                         "no value supplied for destination_network".to_string()
                     ),
+                    domain: Ok(Default::default()),
                     email: Err("no value supplied for email".to_string()),
                     is_quote: Ok(Default::default()),
                     partner_order_ref: Ok(Default::default()),
@@ -41497,6 +41545,16 @@ pub mod types {
                 });
                 self
             }
+            pub fn client_ip<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.client_ip = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for client_ip: {}", e));
+                self
+            }
             pub fn destination_address<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<::std::string::String>,
@@ -41521,6 +41579,16 @@ pub mod types {
                         e
                     )
                 });
+                self
+            }
+            pub fn domain<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.domain = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for domain: {}", e));
                 self
             }
             pub fn email<T>(mut self, value: T) -> Self
@@ -41656,8 +41724,10 @@ pub mod types {
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
                     agreement_accepted_at: value.agreement_accepted_at?,
+                    client_ip: value.client_ip?,
                     destination_address: value.destination_address?,
                     destination_network: value.destination_network?,
+                    domain: value.domain?,
                     email: value.email?,
                     is_quote: value.is_quote?,
                     partner_order_ref: value.partner_order_ref?,
@@ -41676,8 +41746,10 @@ pub mod types {
             fn from(value: super::CreateOnrampOrderBody) -> Self {
                 Self {
                     agreement_accepted_at: Ok(value.agreement_accepted_at),
+                    client_ip: Ok(value.client_ip),
                     destination_address: Ok(value.destination_address),
                     destination_network: Ok(value.destination_network),
+                    domain: Ok(value.domain),
                     email: Ok(value.email),
                     is_quote: Ok(value.is_quote),
                     partner_order_ref: Ok(value.partner_order_ref),
@@ -41751,6 +41823,10 @@ pub mod types {
         }
         #[derive(Clone, Debug)]
         pub struct CreateOnrampSessionBody {
+            client_ip: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
             country: ::std::result::Result<
                 ::std::option::Option<::std::string::String>,
                 ::std::string::String,
@@ -41784,6 +41860,7 @@ pub mod types {
         impl ::std::default::Default for CreateOnrampSessionBody {
             fn default() -> Self {
                 Self {
+                    client_ip: Ok(Default::default()),
                     country: Ok(Default::default()),
                     destination_address: Err(
                         "no value supplied for destination_address".to_string()
@@ -41801,6 +41878,16 @@ pub mod types {
             }
         }
         impl CreateOnrampSessionBody {
+            pub fn client_ip<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.client_ip = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for client_ip: {}", e));
+                self
+            }
             pub fn country<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
@@ -41912,6 +41999,7 @@ pub mod types {
                 value: CreateOnrampSessionBody,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
+                    client_ip: value.client_ip?,
                     country: value.country?,
                     destination_address: value.destination_address?,
                     destination_network: value.destination_network?,
@@ -41927,6 +42015,7 @@ pub mod types {
         impl ::std::convert::From<super::CreateOnrampSessionBody> for CreateOnrampSessionBody {
             fn from(value: super::CreateOnrampSessionBody) -> Self {
                 Self {
+                    client_ip: Ok(value.client_ip),
                     country: Ok(value.country),
                     destination_address: Ok(value.destination_address),
                     destination_network: Ok(value.destination_network),
@@ -43737,6 +43826,7 @@ pub mod types {
         pub struct EndUser {
             authentication_methods:
                 ::std::result::Result<super::AuthenticationMethods, ::std::string::String>,
+            created_at: ::std::result::Result<::serde_json::Value, ::std::string::String>,
             evm_accounts: ::std::result::Result<
                 ::std::vec::Vec<super::EndUserEvmAccountsItem>,
                 ::std::string::String,
@@ -43757,6 +43847,7 @@ pub mod types {
                     authentication_methods: Err(
                         "no value supplied for authentication_methods".to_string()
                     ),
+                    created_at: Err("no value supplied for created_at".to_string()),
                     evm_accounts: Err("no value supplied for evm_accounts".to_string()),
                     evm_smart_accounts: Err("no value supplied for evm_smart_accounts".to_string()),
                     solana_accounts: Err("no value supplied for solana_accounts".to_string()),
@@ -43776,6 +43867,16 @@ pub mod types {
                         e
                     )
                 });
+                self
+            }
+            pub fn created_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::serde_json::Value>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.created_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for created_at: {}", e));
                 self
             }
             pub fn evm_accounts<T>(mut self, value: T) -> Self
@@ -43829,6 +43930,7 @@ pub mod types {
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
                     authentication_methods: value.authentication_methods?,
+                    created_at: value.created_at?,
                     evm_accounts: value.evm_accounts?,
                     evm_smart_accounts: value.evm_smart_accounts?,
                     solana_accounts: value.solana_accounts?,
@@ -43840,6 +43942,7 @@ pub mod types {
             fn from(value: super::EndUser) -> Self {
                 Self {
                     authentication_methods: Ok(value.authentication_methods),
+                    created_at: Ok(value.created_at),
                     evm_accounts: Ok(value.evm_accounts),
                     evm_smart_accounts: Ok(value.evm_smart_accounts),
                     solana_accounts: Ok(value.solana_accounts),
@@ -55476,7 +55579,7 @@ impl Client {
     Faucets are available for SOL.
 
     To prevent abuse, we enforce rate limits within a rolling 24-hour window to control the amount of funds that can be requested.
-    These limits are applied at both the CDP User level and the blockchain address level.
+    These limits are applied at both the CDP Project level and the blockchain address level.
     A single blockchain address cannot exceed the specified limits, even if multiple users submit requests to the same address.
 
     | Token | Amount per Faucet Request |Rolling 24-hour window Rate Limits|
@@ -55668,8 +55771,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
@@ -56036,8 +56141,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
@@ -57821,8 +57928,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
@@ -58464,8 +58573,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
@@ -59239,26 +59350,34 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "fromAmount",
                     &from_amount,
                 ))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "fromToken",
                     &from_token,
                 ))
-                .query(&progenitor_client::QueryParam::new("gasPrice", &gas_price))
-                .query(&progenitor_client::QueryParam::new("network", &network))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "gasPrice", &gas_price,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "network", &network,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "signerAddress",
                     &signer_address,
                 ))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "slippageBps",
                     &slippage_bps,
                 ))
-                .query(&progenitor_client::QueryParam::new("taker", &taker))
-                .query(&progenitor_client::QueryParam::new("toToken", &to_token))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "taker", &taker,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "toToken", &to_token,
+                ))
                 .headers(header_map)
                 .build()?;
             let info = OperationInfo {
@@ -59382,8 +59501,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
@@ -59711,7 +59832,9 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("networks", &networks))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "networks", &networks,
+                ))
                 .headers(header_map)
                 .build()?;
             let info = OperationInfo {
@@ -60131,12 +60254,16 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
-                .query(&progenitor_client::QueryParam::new("scope", &scope))
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "scope", &scope,
+                ))
                 .headers(header_map)
                 .build()?;
             let info = OperationInfo {
@@ -60635,8 +60762,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))
@@ -62177,8 +62306,10 @@ pub mod builder {
                     ::reqwest::header::ACCEPT,
                     ::reqwest::header::HeaderValue::from_static("application/json"),
                 )
-                .query(&progenitor_client::QueryParam::new("pageSize", &page_size))
-                .query(&progenitor_client::QueryParam::new(
+                .query(&progenitor_middleware_client::QueryParam::new(
+                    "pageSize", &page_size,
+                ))
+                .query(&progenitor_middleware_client::QueryParam::new(
                     "pageToken",
                     &page_token,
                 ))

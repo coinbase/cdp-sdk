@@ -33,6 +33,8 @@ cargo build
 
 Fronm the root of the repository, run `make update-openapi` to pull the latest version of the spec.
 
+Then, run `cd rust` and `make generate` to regenerate `api.rs`.
+
 ### No additional wrapping required:
 
 Unlike other SDK implementations, the Rust SDK uses [Progenitor](https://github.com/sammccord/progenitor) to automatically generate type-safe client bindings from the OpenAPI specification at build time. This means:
