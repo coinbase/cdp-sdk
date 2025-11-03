@@ -59,9 +59,9 @@ fn main() {
 
     let spec = serde_json::from_str(&serde_json::to_string_pretty(&json).unwrap()).unwrap();
 
-    let mut settings = progenitor::GenerationSettings::default();
-    settings.with_interface(progenitor::InterfaceStyle::Builder);
-    let mut generator = progenitor::Generator::new(&settings);
+    let mut settings = progenitor_middleware::GenerationSettings::default();
+    settings.with_interface(progenitor_middleware::InterfaceStyle::Builder);
+    let mut generator = progenitor_middleware::Generator::new(&settings);
     let tokens = generator.generate_tokens(&spec).unwrap();
     let ast = syn::parse2(tokens).unwrap();
     let content = prettyplease::unparse(&ast);
