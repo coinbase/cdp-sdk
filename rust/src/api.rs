@@ -239,10 +239,7 @@ pub mod types {
     ///      ]
     ///    }
     ///  },
-    ///  "x-audience": "public"
-    ///}
-    /// ```
-    /// </details>
+
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct AbiFunction {
         ///Deprecated. Use pure or view from stateMutability instead.
