@@ -350,7 +350,7 @@ impl Middleware for WalletAuth {
             println!("Headers: {:?}", req.headers());
         }
 
-        let response = next.rusn(req, extensions).await;
+        let response = next.run(req, extensions).await;
 
         if self.debug {
             if let Ok(ref resp) = response {
