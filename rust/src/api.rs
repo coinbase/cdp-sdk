@@ -20429,7 +20429,7 @@ pub mod types {
         }
     }
     /**Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
-    */
+     */
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -23978,7 +23978,7 @@ pub mod types {
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct RequestEvmFaucetResponse {
         /**The hash of the transaction that requested the funds.
-        **Note:** In rare cases, when gas conditions are unusually high, the transaction may not confirm, and the system may issue a replacement transaction to complete the faucet request. In these rare cases, the `transactionHash` will be out of sync with the actual faucet transaction that was confirmed onchain.*/
+         **Note:** In rare cases, when gas conditions are unusually high, the transaction may not confirm, and the system may issue a replacement transaction to complete the faucet request. In these rare cases, the `transactionHash` will be out of sync with the actual faucet transaction that was confirmed onchain.*/
         #[serde(rename = "transactionHash")]
         pub transaction_hash: ::std::string::String,
     }
