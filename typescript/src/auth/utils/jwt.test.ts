@@ -82,6 +82,17 @@ describe("JWT Authentication", () => {
     expect(token.split(".").length).toBe(3);
   });
 
+  it("should include audience claim when provided", async () => {
+    const options = {
+      ...defaultECOptions,
+      apiKeySecret: testECPrivateKey,
+      audience: ["custom_audience"],
+    };
+    const token = await generateJwt(options);
+    const payload = decodeJwt(token);
+    expect(payload.aud).toEqual(["custom_audience"]);
+  });
+
   it("should include correct claims in the JWT payload for EC key", async () => {
     const options = { ...defaultECOptions, apiKeySecret: testECPrivateKey };
     const token = await generateJwt(options);
@@ -89,7 +100,6 @@ describe("JWT Authentication", () => {
 
     expect(payload.iss).toBe("cdp");
     expect(payload.sub).toBe(options.apiKeyId);
-    expect(payload.aud).toEqual(["cdp_service"]);
     expect(payload.uris).toEqual([
       `${options.requestMethod} ${options.requestHost}${options.requestPath}`,
     ]);
@@ -117,7 +127,7 @@ describe("JWT Authentication", () => {
     const payload = decodeJwt(token);
     expect(payload.iss).toBe("cdp");
     expect(payload.sub).toBe(webSocketOptions.apiKeyId);
-    expect(payload.aud).toEqual(["cdp_service"]);
+    expect(payload.aud).toBeUndefined(); // aud claim should not be present
     expect(payload.uris).toBeUndefined(); // uris claim should not be present
     expect(typeof payload.nbf).toBe("number");
     expect(typeof payload.exp).toBe("number");
