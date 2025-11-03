@@ -41,6 +41,14 @@ fn fix_enum_values(value: &mut serde_json::Value) {
 }
 
 fn main() {
+    // Only generate code if CDP_GENERATE environment variable is set
+    // This prevents the toolchain from automatically regenerating.
+    if std::env::var("CDP_GENERATE").is_err() {
+        println!("cargo:warning=Skipping code generation. Set CDP_GENERATE=1 to generate code.");
+        println!("cargo:warning=Run 'make generate' to generate api.rs from openapi.yaml");
+        return;
+    }
+
     let src = "../openapi.yaml";
     println!("cargo:rerun-if-changed={}", src);
     let file = File::open(src).unwrap();
@@ -62,4 +70,5 @@ fn main() {
     out_file.push("api.rs");
 
     fs::write(out_file, content).unwrap();
+    println!("cargo:warning=Successfully generated api.rs from openapi.yaml");
 }

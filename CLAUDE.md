@@ -110,6 +110,12 @@ make docs
 ### Rust (`rust/` directory)
 
 ```bash
+# Generate api.rs from openapi.yaml
+# Note: This is required when openapi.yaml changes
+# The build.rs script only runs when CDP_GENERATE=1 to avoid
+# automatic generation during development
+make generate
+
 # Check code
 make check
 

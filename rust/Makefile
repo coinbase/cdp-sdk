@@ -1,10 +1,11 @@
 # Makefile for Coinbase CDP Rust SDK
 
-.PHONY: help clean build test test-unit test-e2e lint lint-fix format check docs install
+.PHONY: help clean build test test-unit test-e2e lint lint-fix format check docs install generate
 
 # Default target
 help:
 	@echo "Available targets:"
+	@echo "  generate         - Generate api.rs from openapi.yaml"
 	@echo "  clean            - Remove generated files and build artifacts"
 	@echo "  build            - Build the project"
 	@echo "  test             - Run all tests (unit + integration)"
@@ -23,16 +24,22 @@ clean:
 	cargo clean
 	@echo "Clean complete!"
 
+# Generate api.rs from openapi.yaml
+generate:
+	@echo "Generating api.rs from openapi.yaml..."
+	CDP_GENERATE=1 cargo build && cargo fmt --all
+	@echo "Code generation complete!"
+
 # Build the project
 build:
 	@echo "Building Rust SDK..."
-	cargo build
+	cargo build && cargo fmt --all
 	@echo "Build complete!"
 
 # Build in release mode
 build-release:
 	@echo "Building Rust SDK in release mode..."
-	cargo build --release
+	cargo build --release && cargo fmt --all
 	@echo "Release build complete!"
 
 # Run all tests (unit + integration)
