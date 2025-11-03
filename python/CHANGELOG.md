@@ -2,6 +2,11 @@
 
 <!-- towncrier release notes start -->
 
+## [1.33.2] - 2025-11-03
+
+- Removed default audience claim from JWT generation
+
+
 ## [1.33.1] - 2025-10-06
 
 ### Bugfixes

@@ -1,5 +1,12 @@
 # CDP SDK Changelog
 
+## 1.38.5
+
+### Patch Changes
+
+- [#482](https://github.com/coinbase/cdp-sdk/pull/482) [`71a7184`](https://github.com/coinbase/cdp-sdk/commit/71a71844d8b39628632f59121d0cb61c7e951367) Thanks [@0xRAG](https://github.com/0xRAG)! - Improved error handling by surfacing UserInputValidationErrors, particularly when performing wallet operations that require a wallet secret
+- Removed default audience claim from JWT generation
+
 ## 1.38.4
 
 ### Patch Changes
