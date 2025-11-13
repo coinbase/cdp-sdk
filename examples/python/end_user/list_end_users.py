@@ -10,10 +10,10 @@ load_dotenv()
 async def main():
     async with CdpClient() as cdp:
         try:
-            # List all end users with default pagination (20 per page)
+            # List 10 end users sorted by creation date in descending order
             result = await cdp.end_user.list_end_users(
-                page_size=2,
-                sort=["createdAt=asc"]
+                page_size=10,
+                sort=["createdAt=desc"]
             )
             
             print(f"Found {len(result.end_users)} end users on first page")

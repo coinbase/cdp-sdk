@@ -8,8 +8,8 @@ const cdp = new CdpClient();
 try {
     // List all end users with 10 per page and sorted by creation date in descending order
     const sortedResult = await cdp.endUser.listEndUsers({
-        pageSize: 2,
-        sort: ["createdAt=asc"]
+        pageSize: 10,
+        sort: ["createdAt=desc"]
     });
     
     console.log(`Found ${sortedResult.endUsers.length} end users on first page`);
