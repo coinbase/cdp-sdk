@@ -59,7 +59,7 @@ type ClassConstructor = new (...args: unknown[]) => unknown;
  * A class with prototype methods
  */
 interface ClassWithPrototype {
-  prototype: Record<string, unknown>;
+  prototype: object;
 }
 
 /**
