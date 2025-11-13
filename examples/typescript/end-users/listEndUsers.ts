@@ -1,0 +1,26 @@
+// Usage: pnpm tsx end-users/listEndUsers.ts
+
+import { CdpClient } from "@coinbase/cdp-sdk";
+import "dotenv/config";
+
+const cdp = new CdpClient();
+
+try {
+    // List all end users with 10 per page and sorted by creation date in descending order
+    const sortedResult = await cdp.endUser.listEndUsers({
+        pageSize: 2,
+        sort: ["createdAt=asc"]
+    });
+    
+    console.log(`Found ${sortedResult.endUsers.length} end users on first page`);
+    for (const endUser of sortedResult.endUsers) {
+        console.log(`  - User ID: ${endUser.userId}`);
+        console.log(`    EVM Accounts: ${endUser.evmAccounts}`);
+        console.log(`    EVM Smart Accounts: ${endUser.evmSmartAccounts}`);
+        console.log(`    Solana Accounts: ${endUser.solanaAccounts}`);
+        console.log();
+    }
+} catch (error) {
+    console.error("Error listing end users: ", (error as { errorMessage: string }).errorMessage);
+}
+
