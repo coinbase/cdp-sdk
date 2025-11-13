@@ -50,6 +50,42 @@ type ActionEventData = {
 
 type EventData = ErrorEventData | ActionEventData;
 
+/**
+ * A class constructor type
+ */
+type ClassConstructor = new (...args: unknown[]) => unknown;
+
+/**
+ * A class with prototype methods
+ */
+interface ClassWithPrototype {
+  prototype: Record<string, unknown>;
+}
+
+/**
+ * An object with methods
+ */
+type ObjectWithMethods = Record<string, unknown>;
+
+/**
+ * A function that can be wrapped
+ */
+type WrappableFunction = (...args: unknown[]) => unknown;
+
+/**
+ * A function with a wrapper marker
+ */
+interface WrappedFunction extends WrappableFunction {
+  __wrapped__?: boolean;
+}
+
+/**
+ * A class constructor with a wrapper marker
+ */
+interface WrappedClass extends ClassConstructor {
+  __cdp_wrapped__?: boolean;
+}
+
 // This is a public client id for the analytics service
 const publicClientId = "54f2ee2fb3d2b901a829940d70fbfc13";
 
@@ -155,18 +191,29 @@ function trackAction(params: {
  *
  * @param ClassToWrap - The class whose prototype methods should be wrapped.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function wrapClassWithErrorTracking(ClassToWrap: any): void {
+function wrapClassWithErrorTracking(ClassToWrap: ClassConstructor & ClassWithPrototype): void {
   if (process.env.DISABLE_CDP_ERROR_REPORTING === "true") {
     return;
   }
 
+  const wrappedClass = ClassToWrap as WrappedClass;
+  if (wrappedClass.__cdp_wrapped__) {
+    return;
+  }
+  wrappedClass.__cdp_wrapped__ = true;
+
   const methods = Object.getOwnPropertyNames(ClassToWrap.prototype).filter(
-    name => name !== "constructor" && typeof ClassToWrap.prototype[name] === "function",
+    (name): name is string =>
+      name !== "constructor" && typeof ClassToWrap.prototype[name] === "function",
   );
 
   for (const method of methods) {
-    const originalMethod = ClassToWrap.prototype[method];
+    const originalMethod = ClassToWrap.prototype[method] as WrappedFunction;
+    if (originalMethod.__wrapped__) {
+      continue;
+    }
+    originalMethod.__wrapped__ = true;
+
     ClassToWrap.prototype[method] = async function (...args: unknown[]) {
       try {
         return await originalMethod.apply(this, args);
@@ -197,18 +244,22 @@ function wrapClassWithErrorTracking(ClassToWrap: any): void {
  *
  * @param object - The object whose methods should be wrapped.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function wrapObjectMethodsWithErrorTracking(object: any): void {
+function wrapObjectMethodsWithErrorTracking(object: ObjectWithMethods): void {
   if (process.env.DISABLE_CDP_ERROR_REPORTING === "true") {
     return;
   }
 
   const methods = Object.getOwnPropertyNames(object).filter(
-    name => name !== "constructor" && typeof object[name] === "function",
+    (name): name is string => name !== "constructor" && typeof object[name] === "function",
   );
 
   for (const method of methods) {
-    const originalMethod = object[method];
+    const originalMethod = object[method] as WrappedFunction;
+    if (originalMethod.__wrapped__) {
+      continue;
+    }
+    originalMethod.__wrapped__ = true;
+
     object[method] = async function (...args: unknown[]) {
       try {
         return await originalMethod.apply(this, args);
