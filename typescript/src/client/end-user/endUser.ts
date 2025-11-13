@@ -48,8 +48,6 @@ export class CDPEndUserClient {
       action: "list_end_users",
     });
 
-    // Workaround: The sort parameter needs to be serialized as a comma-separated string
-    // due to OpenAPI spec having style: form, explode: false
     const params = {
       ...options,
       ...(options.sort && { sort: options.sort.join(",") }),

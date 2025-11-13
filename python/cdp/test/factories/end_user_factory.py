@@ -32,7 +32,7 @@ def list_end_users_response_factory():
     ):
         if end_users is None:
             end_users = []
-        
+
         return ListEndUsers200Response(
             end_users=end_users,
             next_page_token=next_page_token,

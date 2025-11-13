@@ -67,17 +67,16 @@ async def test_list_end_users_success(end_user_model_factory, list_end_users_res
     mock_end_user_1 = end_user_model_factory(user_id="user1")
     mock_end_user_2 = end_user_model_factory(user_id="user2")
     mock_response = list_end_users_response_factory(
-        end_users=[mock_end_user_1, mock_end_user_2],
-        next_page_token="next_page_token"
+        end_users=[mock_end_user_1, mock_end_user_2], next_page_token="next_page_token"
     )
-    
+
     mock_api_clients = AsyncMock()
     mock_api_clients.end_user.list_end_users = AsyncMock(return_value=mock_response)
 
     client = EndUserClient(api_clients=mock_api_clients)
 
     result = await client.list_end_users()
-    
+
     assert len(result.end_users) == 2
     assert result.end_users[0].user_id == "user1"
     assert result.end_users[1].user_id == "user2"
@@ -85,30 +84,27 @@ async def test_list_end_users_success(end_user_model_factory, list_end_users_res
 
 
 @pytest.mark.asyncio
-async def test_list_end_users_with_pagination(end_user_model_factory, list_end_users_response_factory):
+async def test_list_end_users_with_pagination(
+    end_user_model_factory, list_end_users_response_factory
+):
     """Test end users listing with pagination parameters."""
     mock_end_user = end_user_model_factory(user_id="user1")
-    mock_response = list_end_users_response_factory(
-        end_users=[mock_end_user],
-        next_page_token=None
-    )
-    
+    mock_response = list_end_users_response_factory(end_users=[mock_end_user], next_page_token=None)
+
     mock_api_clients = AsyncMock()
     mock_api_clients.end_user.list_end_users = AsyncMock(return_value=mock_response)
 
     client = EndUserClient(api_clients=mock_api_clients)
 
     result = await client.list_end_users(page_size=10, page_token="token123")
-    
+
     assert len(result.end_users) == 1
     assert result.end_users[0].user_id == "user1"
     assert result.next_page_token is None
-    
+
     # Verify the method was called with correct parameters
     mock_api_clients.end_user.list_end_users.assert_called_once_with(
-        page_size=10,
-        page_token="token123",
-        sort=None
+        page_size=10, page_token="token123", sort=None
     )
 
 
@@ -116,24 +112,19 @@ async def test_list_end_users_with_pagination(end_user_model_factory, list_end_u
 async def test_list_end_users_with_sort(end_user_model_factory, list_end_users_response_factory):
     """Test end users listing with sort parameter."""
     mock_end_user = end_user_model_factory(user_id="user1")
-    mock_response = list_end_users_response_factory(
-        end_users=[mock_end_user],
-        next_page_token=None
-    )
-    
+    mock_response = list_end_users_response_factory(end_users=[mock_end_user], next_page_token=None)
+
     mock_api_clients = AsyncMock()
     mock_api_clients.end_user.list_end_users = AsyncMock(return_value=mock_response)
 
     client = EndUserClient(api_clients=mock_api_clients)
 
     result = await client.list_end_users(sort=["createdAt=desc"])
-    
+
     assert len(result.end_users) == 1
     assert result.end_users[0].user_id == "user1"
-    
+
     # Verify the method was called with correct parameters
     mock_api_clients.end_user.list_end_users.assert_called_once_with(
-        page_size=None,
-        page_token=None,
-        sort=["createdAt=desc"]
+        page_size=None, page_token=None, sort=["createdAt=desc"]
     )

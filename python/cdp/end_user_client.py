@@ -1,4 +1,3 @@
-from typing import List
 
 from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
@@ -17,7 +16,7 @@ class ListEndUsersResult:
 
     """
 
-    def __init__(self, end_users: List[EndUser], next_page_token: str | None = None):
+    def __init__(self, end_users: list[EndUser], next_page_token: str | None = None):
         self.end_users = end_users
         self.next_page_token = next_page_token
 
@@ -32,7 +31,7 @@ class EndUserClient:
         self,
         page_size: int | None = None,
         page_token: str | None = None,
-        sort: List[str] | None = None,
+        sort: list[str] | None = None,
     ) -> ListEndUsersResult:
         """List end users belonging to the developer's CDP Project.
 
