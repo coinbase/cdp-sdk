@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.38.6
+
+### Patch Changes
+
+- Fixed memory leak in `wrapClassWithErrorTracking` and `wrapObjectMethodsWithErrorTracking` that caused infinite recursion when wrapping classes or objects multiple times. Added `__cdp_wrapped__` and `__wrapped__` protection flags to prevent double-wrapping and ensure wrapper functions capture original method references in closures.
+
 ## 1.38.5
 
 ### Patch Changes
