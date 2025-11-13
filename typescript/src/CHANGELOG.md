@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- Fixed memory leak in `wrapClassWithErrorTracking` and `wrapObjectMethodsWithErrorTracking` that caused infinite recursion when wrapping classes or objects multiple times. Added `__cdp_wrapped__` and `__wrapped__` protection flags to prevent double-wrapping and ensure wrapper functions capture original method references in closures.
+- Identified memory leak in `wrapClassWithErrorTracking` and `wrapObjectMethodsWithErrorTracking` that caused infinite recursion when methods call themselves via `ClassName.prototype[methodName]` or `object[method]`. The bug occurs because wrapping replaces the prototype/object property with the wrapper function, so when the original method accesses `ClassName.prototype[methodName]` or `object[method]`, it calls the wrapper again, creating an infinite loop: wrapper -> originalMethod -> prototype[method] (wrapper) -> ...
 
 ## 1.38.5
 

@@ -5,15 +5,17 @@ import { NetworkError } from "./openapi-client/errors.js";
 /**
  * This test file specifically tests edge cases related to wrapping methods with error tracking.
  *
- * EDGE CASE BEING TESTED:
- * Methods that call themselves via ClassName.prototype[methodName] can cause infinite recursion
- * after wrapping because:
- * 1. After wrapping, ClassName.prototype[methodName] is the wrapper function
- * 2. If the original method calls ClassName.prototype[methodName], it calls the wrapper
- * 3. The wrapper calls originalMethod, which calls prototype[method] (wrapper) again
- * 4. Infinite recursion: wrapper -> originalMethod -> prototype[method] (wrapper) -> ...
+ * THE BUG:
+ * When a method calls itself via ClassName.prototype[methodName] or object[method], wrapping creates
+ * infinite recursion because the wrapper replaces the prototype/object property, so the original method's
+ * self-reference now points to the wrapper, creating a loop: wrapper -> originalMethod -> prototype[method] (wrapper) -> ...
+ * This occurs even though the implementation correctly captures originalMethod before assignment, because
+ * the original method itself accesses the prototype/object property which has been replaced by the wrapper.
  *
- * This bug is reproduced even with the current implementation that captures originalMethod correctly.
+ * TEST CASES:
+ * 1. Bug reproduction: Two tests verify that methods calling via prototype/object cause "Maximum call stack size exceeded"
+ * 2. Double-wrapping behavior: Three tests verify that multiple wraps create deeper wrapper chains but normal methods still work
+ * 3. Normal operation: Three tests verify that methods not calling via prototype work correctly after wrapping
  */
 
 describe("Edge Case: Methods calling themselves via ClassName.prototype[methodName] cause stack overflow", () => {
