@@ -240,11 +240,15 @@ describe("Memory leak prevention - comparing buggy vs fixed implementation", () 
     );
 
     for (const method of methods) {
+        const originalMethod = ClassToWrap.prototype[method];
       // BUG: No check for __wrapped__ flag - allows double wrapping
       // BUG: Calls ClassToWrap.prototype[method] directly, which is now this wrapper
       ClassToWrap.prototype[method] = async function (...args: unknown[]) {
-        // This causes infinite recursion: wrapper -> prototype[method] -> wrapper -> ...
-        return await (ClassToWrap.prototype[method] as any).apply(this, args);
+        try {
+          return await originalMethod.apply(this, args);
+        } catch (error) {
+          throw error;
+        }
       };
     }
   }
@@ -255,17 +259,19 @@ describe("Memory leak prevention - comparing buggy vs fixed implementation", () 
    */
   function wrapObjectBuggyOld(object: any): void {
     const methods = Object.getOwnPropertyNames(object).filter(
-      (name): name is string => name !== "constructor" && typeof object[name] === "function",
-    );
-
-    for (const method of methods) {
-      // BUG: No check for __wrapped__ flag - allows double wrapping
-      // BUG: Calls object[method] directly, which is now this wrapper
-      object[method] = async function (...args: unknown[]) {
-        // This causes infinite recursion: wrapper -> object[method] -> wrapper -> ...
-        return await (object[method] as any).apply(this, args);
-      };
-    }
+        name => name !== "constructor" && typeof object[name] === "function",
+      );
+    
+      for (const method of methods) {
+        const originalMethod = object[method];
+        object[method] = async function (...args: unknown[]) {
+          try {
+            return await originalMethod.apply(this, args);
+          } catch (error) {
+            throw error;
+          }
+        };
+      }
   }
 
   describe("OLD buggy implementation - causes stack overflow", () => {
@@ -297,6 +303,8 @@ describe("Memory leak prevention - comparing buggy vs fixed implementation", () 
 
       // OLD BUGGY: No protection flags, calls object[method] directly
       wrapObjectBuggyOld(testObject);
+      wrapObjectBuggyOld(testObject);
+      wrapObjectBuggyOld(testObject);
 
       // This causes stack overflow
       await expect(testObject.testMethod(4)).rejects.toThrow("Maximum call stack size exceeded");
@@ -311,6 +319,11 @@ describe("Memory leak prevention - comparing buggy vs fixed implementation", () 
 
       // OLD BUGGY: Wrapper calls ClassToWrap.prototype[method] directly
       wrapClassBuggyOld(TestClass);
+      wrapClassBuggyOld(TestClass);
+      wrapClassBuggyOld(TestClass);
+      wrapClassBuggyOld(TestClass);
+      wrapClassBuggyOld(TestClass);
+
 
       const instance = new TestClass();
 
