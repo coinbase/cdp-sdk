@@ -1,13 +1,11 @@
 // Usage: pnpm tsx evm/smart-accounts/getSmartAccount.ts
 
 import { CdpClient } from "@coinbase/cdp-sdk";
-import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import "dotenv/config";
 
 const cdp = new CdpClient();
 
-const privateKey = generatePrivateKey();
-const owner = privateKeyToAccount(privateKey);
+const owner = await cdp.evm.getOrCreateAccount({ name: "SmartAccountOwner" });
 
 let smartAccount = await cdp.evm.createSmartAccount({ owner });
 console.log("Created smart account:", smartAccount.address);
