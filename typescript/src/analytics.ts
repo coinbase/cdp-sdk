@@ -64,8 +64,10 @@ export const Analytics = {
   trackAction,
 };
 
-// Deprecated implementation - kept for test compatibility
-// Shares the same identifier reference as Analytics
+/*
+ * Deprecated implementation - kept for test compatibility
+ * Shares the same identifier reference as Analytics
+ */
 export const AnalyticsDeprecated = {
   get identifier() {
     return Analytics.identifier;
@@ -168,11 +170,29 @@ function trackAction(params: {
   });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getOriginalMethod(method: any): any {
-  return (method as { [ORIGINAL_METHOD]?: unknown })[ORIGINAL_METHOD] || method;
+/**
+ * Gets the original method from a wrapped method, or returns the method itself if it's not wrapped.
+ *
+ * @param method - The method to get the original version of.
+ * @returns The original unwrapped method, or the method itself if it's not wrapped.
+ */
+function getOriginalMethod(
+  method: (this: unknown, ...args: unknown[]) => Promise<unknown>,
+): (this: unknown, ...args: unknown[]) => Promise<unknown> {
+  return (
+    (method as { [ORIGINAL_METHOD]?: (this: unknown, ...args: unknown[]) => Promise<unknown> })[
+      ORIGINAL_METHOD
+    ] || method
+  );
 }
 
+/**
+ * Creates an interceptor function that prevents recursive calls by checking if the instance is already executing.
+ *
+ * @param executingInstances - A WeakSet tracking instances that are currently executing.
+ * @param fallbackMethod - The method to call if recursion is not detected.
+ * @returns A function that intercepts calls and prevents recursion.
+ */
 function createRecursiveInterceptor(
   executingInstances: WeakSet<object>,
   fallbackMethod: (...args: unknown[]) => Promise<unknown>,
@@ -185,6 +205,15 @@ function createRecursiveInterceptor(
   };
 }
 
+/**
+ * Executes a method with recursion protection by tracking executing instances.
+ *
+ * @param executingInstances - A WeakSet tracking instances that are currently executing.
+ * @param originalMethod - The original method to execute.
+ * @param context - The context (this) to bind the method to.
+ * @param args - The arguments to pass to the method.
+ * @returns The result of executing the original method.
+ */
 async function executeWithRecursionProtection<T>(
   executingInstances: WeakSet<object>,
   originalMethod: (this: unknown, ...args: unknown[]) => Promise<T>,
@@ -202,10 +231,13 @@ async function executeWithRecursionProtection<T>(
   }
 }
 
-async function handleMethodError(
-  error: unknown,
-  methodName: string,
-): Promise<void> {
+/**
+ * Handles an error that occurred in a method by sending an analytics event and rethrowing the error.
+ *
+ * @param error - The error that occurred.
+ * @param methodName - The name of the method where the error occurred.
+ */
+async function handleMethodError(error: unknown, methodName: string): Promise<void> {
   if (!shouldTrackError(error)) {
     throw error;
   }
@@ -223,6 +255,16 @@ async function handleMethodError(
   throw error;
 }
 
+/**
+ * Creates a wrapper function that adds error tracking and recursion protection to a method.
+ *
+ * @param originalMethod - The original method to wrap.
+ * @param methodName - The name of the method being wrapped.
+ * @param executingInstances - A WeakSet tracking instances that are currently executing.
+ * @param setMethod - A function to set the method implementation.
+ * @param getMethod - A function to get the current method implementation.
+ * @returns A wrapped version of the method with error tracking and recursion protection.
+ */
 function createErrorTrackingWrapper(
   originalMethod: (this: unknown, ...args: unknown[]) => Promise<unknown>,
   methodName: string,
@@ -232,10 +274,7 @@ function createErrorTrackingWrapper(
 ): (this: unknown, ...args: unknown[]) => Promise<unknown> {
   return async function (this: unknown, ...args: unknown[]) {
     const previousMethod = getMethod();
-    const recursiveInterceptor = createRecursiveInterceptor(
-      executingInstances,
-      previousMethod,
-    );
+    const recursiveInterceptor = createRecursiveInterceptor(executingInstances, previousMethod);
     setMethod(recursiveInterceptor);
 
     try {
@@ -278,8 +317,11 @@ function wrapClassWithErrorTracking(ClassToWrap: any): void {
       originalMethod,
       method,
       executingInstances,
-      (newMethod) => {
-        ClassToWrap.prototype[method] = newMethod as any;
+      newMethod => {
+        ClassToWrap.prototype[method] = newMethod as (
+          this: unknown,
+          ...args: unknown[]
+        ) => Promise<unknown>;
       },
       () => ClassToWrap.prototype[method] as (...args: unknown[]) => Promise<unknown>,
     );
@@ -313,7 +355,7 @@ function wrapObjectMethodsWithErrorTracking(object: any): void {
       originalMethod,
       method,
       executingInstances,
-      (newMethod) => {
+      newMethod => {
         object[method] = newMethod;
       },
       () => object[method] as (...args: unknown[]) => Promise<unknown>,
@@ -325,11 +367,11 @@ function wrapObjectMethodsWithErrorTracking(object: any): void {
 }
 
 /**
+ * Wraps all methods of a class with error tracking.
+ *
  * @deprecated This is the old implementation that has a bug with methods calling themselves via prototype.
  * Use Analytics.wrapClassWithErrorTracking instead.
  * Kept for test compatibility.
- *
- * Wraps all methods of a class with error tracking.
  *
  * @param ClassToWrap - The class whose prototype methods should be wrapped.
  */
@@ -371,11 +413,11 @@ function wrapClassWithErrorTrackingDeprecated(ClassToWrap: any): void {
 }
 
 /**
+ * Wraps all methods of an object with error tracking.
+ *
  * @deprecated This is the old implementation that has a bug with methods calling themselves via object property.
  * Use Analytics.wrapObjectMethodsWithErrorTracking instead.
  * Kept for test compatibility.
- *
- * Wraps all methods of an object with error tracking.
  *
  * @param object - The object whose methods should be wrapped.
  */
