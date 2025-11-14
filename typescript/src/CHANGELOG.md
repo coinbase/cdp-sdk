@@ -1,5 +1,4 @@
 # CDP SDK Changelog
-
 ## 1.38.5
 
 ### Patch Changes
