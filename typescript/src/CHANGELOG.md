@@ -1,11 +1,4 @@
 # CDP SDK Changelog
-
-## 1.38.6
-
-### Patch Changes
-
-- Identified memory leak in `wrapClassWithErrorTracking` and `wrapObjectMethodsWithErrorTracking` that caused infinite recursion when methods call themselves via `ClassName.prototype[methodName]` or `object[method]`. The bug occurs because wrapping replaces the prototype/object property with the wrapper function, so when the original method accesses `ClassName.prototype[methodName]` or `object[method]`, it calls the wrapper again, creating an infinite loop: wrapper -> originalMethod -> prototype[method] (wrapper) -> ...
-
 ## 1.38.5
 
 ### Patch Changes
