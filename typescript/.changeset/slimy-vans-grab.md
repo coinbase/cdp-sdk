@@ -1,5 +1,0 @@
----
-"@coinbase/cdp-sdk": patch
----
-
-Replaced error-tracking wrappers with a WeakSet-based recursion guard to prevent memory leaks from strong references to wrapped instances.
