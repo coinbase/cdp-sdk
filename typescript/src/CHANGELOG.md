@@ -1,4 +1,11 @@
 # CDP SDK Changelog
+
+## 1.38.6
+
+### Patch Changes
+
+- [#492](https://github.com/coinbase/cdp-sdk/pull/492) [`60e6a1a`](https://github.com/coinbase/cdp-sdk/commit/60e6a1a5ae6da6b704c33fd7f72ee334108deb76) Thanks [@0xRAG](https://github.com/0xRAG)! - Replaced error-tracking wrappers with a WeakSet-based recursion guard to prevent memory leaks from strong references to wrapped instances.
+
 ## 1.38.5
 
 ### Patch Changes
