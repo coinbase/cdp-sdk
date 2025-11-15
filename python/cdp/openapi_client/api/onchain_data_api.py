@@ -47,8 +47,8 @@ class OnchainDataApi:
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed.")],
         network: Annotated[ListEvmTokenBalancesNetwork, Field(description="The human-readable network name to get the balances for.")],
-        page_size: Annotated[Optional[StrictInt], Field(description="The number of balances to return per page.")] = None,
-        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of balances. Will be empty if there are no more balances to fetch.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -70,9 +70,9 @@ class OnchainDataApi:
         :type address: str
         :param network: The human-readable network name to get the balances for. (required)
         :type network: ListEvmTokenBalancesNetwork
-        :param page_size: The number of balances to return per page.
+        :param page_size: The number of resources to return per page.
         :type page_size: int
-        :param page_token: The token for the next page of balances. Will be empty if there are no more balances to fetch.
+        :param page_token: The token for the next page of resources, if any.
         :type page_token: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -131,8 +131,8 @@ class OnchainDataApi:
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed.")],
         network: Annotated[ListEvmTokenBalancesNetwork, Field(description="The human-readable network name to get the balances for.")],
-        page_size: Annotated[Optional[StrictInt], Field(description="The number of balances to return per page.")] = None,
-        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of balances. Will be empty if there are no more balances to fetch.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -154,9 +154,9 @@ class OnchainDataApi:
         :type address: str
         :param network: The human-readable network name to get the balances for. (required)
         :type network: ListEvmTokenBalancesNetwork
-        :param page_size: The number of balances to return per page.
+        :param page_size: The number of resources to return per page.
         :type page_size: int
-        :param page_token: The token for the next page of balances. Will be empty if there are no more balances to fetch.
+        :param page_token: The token for the next page of resources, if any.
         :type page_token: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -215,8 +215,8 @@ class OnchainDataApi:
         self,
         address: Annotated[str, Field(strict=True, description="The 0x-prefixed EVM address to get balances for. The address does not need to be checksummed.")],
         network: Annotated[ListEvmTokenBalancesNetwork, Field(description="The human-readable network name to get the balances for.")],
-        page_size: Annotated[Optional[StrictInt], Field(description="The number of balances to return per page.")] = None,
-        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of balances. Will be empty if there are no more balances to fetch.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -238,9 +238,9 @@ class OnchainDataApi:
         :type address: str
         :param network: The human-readable network name to get the balances for. (required)
         :type network: ListEvmTokenBalancesNetwork
-        :param page_size: The number of balances to return per page.
+        :param page_size: The number of resources to return per page.
         :type page_size: int
-        :param page_token: The token for the next page of balances. Will be empty if there are no more balances to fetch.
+        :param page_token: The token for the next page of resources, if any.
         :type page_token: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request

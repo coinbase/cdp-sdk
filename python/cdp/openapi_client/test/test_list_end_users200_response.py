@@ -43,7 +43,8 @@ class TestListEndUsers200Response(unittest.TestCase):
                         authentication_methods = [{"type":"email","email":"user@example.com"},{"type":"sms","phoneNumber":"+12055555555"},{"type":"jwt","sub":"e051beeb-7163-4527-a5b6-35e301529ff2","kid":"NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg"}], 
                         evm_accounts = ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"], 
                         evm_smart_accounts = ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"], 
-                        solana_accounts = ["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"], )
+                        solana_accounts = ["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"], 
+                        created_at = '2025-01-15T10:30Z', )
                     ]
             )
         else:
@@ -54,7 +55,8 @@ class TestListEndUsers200Response(unittest.TestCase):
                         authentication_methods = [{"type":"email","email":"user@example.com"},{"type":"sms","phoneNumber":"+12055555555"},{"type":"jwt","sub":"e051beeb-7163-4527-a5b6-35e301529ff2","kid":"NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg"}], 
                         evm_accounts = ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"], 
                         evm_smart_accounts = ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"], 
-                        solana_accounts = ["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"], )
+                        solana_accounts = ["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"], 
+                        created_at = '2025-01-15T10:30Z', )
                     ],
         )
         """
