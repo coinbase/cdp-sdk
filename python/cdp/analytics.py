@@ -7,6 +7,7 @@ import json
 import os
 import time
 import traceback
+import weakref
 from typing import Any, Literal
 
 from pydantic import BaseModel
@@ -17,6 +18,9 @@ from cdp.openapi_client.errors import ApiError, HttpErrorType, NetworkError
 
 # This is a public client id for the analytics service
 public_client_id = "54f2ee2fb3d2b901a829940d70fbfc13"
+
+# Attribute name to store the original method on wrapped functions
+_ORIGINAL_METHOD = "_cdp_original_method"
 
 
 class ErrorEventData(BaseModel):
@@ -190,6 +194,218 @@ def _run_async_in_sync(coro_func, *args, **kwargs):
         return None
 
 
+def _get_original_method(method):
+    """Get the original method from a wrapped method, or return the method itself if not wrapped.
+
+    Args:
+        method: The method to get the original version of.
+
+    Returns:
+        The original unwrapped method, or the method itself if it's not wrapped.
+
+    """
+    return getattr(method, _ORIGINAL_METHOD, method)
+
+
+def _create_recursive_interceptor(executing_instances, original_method_ref):
+    """Create an interceptor function that prevents recursive calls.
+
+    Args:
+        executing_instances: A WeakSet tracking instances currently executing.
+        original_method_ref: Reference to the original unwrapped method.
+
+    Returns:
+        A function that intercepts calls and prevents recursion.
+
+    """
+
+    async def async_interceptor(self, *args, **kwargs):
+        # Try to check if already executing - if object can't be hashed yet, it's not in the set
+        try:
+            is_executing = self in executing_instances
+        except (AttributeError, TypeError):
+            is_executing = False
+
+        if is_executing:
+            # Return first arg if recursive call detected
+            return args[0] if args else None
+
+        # Call original method directly, not the wrapper
+        try:
+            executing_instances.add(self)
+        except (AttributeError, TypeError):
+            # If we can't add to the set, just execute without recursion protection
+            return await original_method_ref(self, *args, **kwargs)
+
+        try:
+            return await original_method_ref(self, *args, **kwargs)
+        finally:
+            executing_instances.discard(self)
+
+    def sync_interceptor(self, *args, **kwargs):
+        # Try to check if already executing - if object can't be hashed yet, it's not in the set
+        try:
+            is_executing = self in executing_instances
+        except (AttributeError, TypeError):
+            is_executing = False
+
+        if is_executing:
+            # Return first arg if recursive call detected
+            return args[0] if args else None
+
+        # Call original method directly, not the wrapper
+        try:
+            executing_instances.add(self)
+        except (AttributeError, TypeError):
+            # If we can't add to the set, just execute without recursion protection
+            return original_method_ref(self, *args, **kwargs)
+
+        try:
+            return original_method_ref(self, *args, **kwargs)
+        finally:
+            executing_instances.discard(self)
+
+    return (
+        async_interceptor if inspect.iscoroutinefunction(original_method_ref) else sync_interceptor
+    )
+
+
+def _create_error_tracking_wrapper(original_method, method_name, executing_instances, cls_or_obj):
+    """Create a wrapper function with error tracking and recursion protection.
+
+    Args:
+        original_method: The original method to wrap.
+        method_name: The name of the method being wrapped.
+        executing_instances: A WeakSet tracking instances currently executing.
+        cls_or_obj: The class or object to get/set the method on.
+
+    Returns:
+        A wrapped version of the method.
+
+    """
+    # Create the interceptor once with reference to original method
+    recursive_interceptor = _create_recursive_interceptor(executing_instances, original_method)
+
+    if inspect.iscoroutinefunction(original_method):
+
+        @functools.wraps(original_method)
+        async def async_wrapper(self, *args, **kwargs):
+            # Check if already executing - return first arg if so
+            # Handle case where object can't be hashed yet (e.g., during __init__)
+            try:
+                is_executing = self in executing_instances
+            except (AttributeError, TypeError):
+                is_executing = False
+
+            if is_executing:
+                return args[0] if args else None
+
+            # Save current method and temporarily replace with interceptor
+            if inspect.isclass(cls_or_obj):
+                previous_method = getattr(cls_or_obj, method_name)
+                setattr(cls_or_obj, method_name, recursive_interceptor)
+            else:
+                previous_method = getattr(cls_or_obj, method_name)
+                setattr(cls_or_obj, method_name, recursive_interceptor)
+
+            # Mark instance as executing (if possible)
+            try:
+                executing_instances.add(self)
+                added_to_set = True
+            except (AttributeError, TypeError):
+                # Object can't be hashed yet, proceed without recursion protection
+                added_to_set = False
+
+            try:
+                # Execute the original method
+                result = await original_method(self, *args, **kwargs)
+                return result
+            except Exception as error:
+                if not should_track_error(error):
+                    raise error
+
+                event_data = ErrorEventData(
+                    method=method_name,
+                    message=str(error),
+                    stack=traceback.format_exc(),
+                    name="error",
+                )
+
+                with contextlib.suppress(Exception):
+                    await send_event(event_data)
+
+                raise error
+            finally:
+                # Always restore previous method and remove from executing set
+                if added_to_set:
+                    executing_instances.discard(self)
+                if inspect.isclass(cls_or_obj):
+                    setattr(cls_or_obj, method_name, previous_method)
+                else:
+                    setattr(cls_or_obj, method_name, previous_method)
+
+        return async_wrapper
+    else:
+
+        @functools.wraps(original_method)
+        def sync_wrapper(self, *args, **kwargs):
+            # Check if already executing - return first arg if so
+            # Handle case where object can't be hashed yet (e.g., during __init__)
+            try:
+                is_executing = self in executing_instances
+            except (AttributeError, TypeError):
+                is_executing = False
+
+            if is_executing:
+                return args[0] if args else None
+
+            # Save current method and temporarily replace with interceptor
+            if inspect.isclass(cls_or_obj):
+                previous_method = getattr(cls_or_obj, method_name)
+                setattr(cls_or_obj, method_name, recursive_interceptor)
+            else:
+                previous_method = getattr(cls_or_obj, method_name)
+                setattr(cls_or_obj, method_name, recursive_interceptor)
+
+            # Mark instance as executing (if possible)
+            try:
+                executing_instances.add(self)
+                added_to_set = True
+            except (AttributeError, TypeError):
+                # Object can't be hashed yet, proceed without recursion protection
+                added_to_set = False
+
+            try:
+                # Execute the original method
+                result = original_method(self, *args, **kwargs)
+                return result
+            except Exception as error:
+                if not should_track_error(error):
+                    raise error
+
+                event_data = ErrorEventData(
+                    method=method_name,
+                    message=str(error),
+                    stack=traceback.format_exc(),
+                    name="error",
+                )
+
+                with contextlib.suppress(Exception):
+                    _run_async_in_sync(send_event, event_data)
+
+                raise error
+            finally:
+                # Always restore previous method and remove from executing set
+                if added_to_set:
+                    executing_instances.discard(self)
+                if inspect.isclass(cls_or_obj):
+                    setattr(cls_or_obj, method_name, previous_method)
+                else:
+                    setattr(cls_or_obj, method_name, previous_method)
+
+        return sync_wrapper
+
+
 def wrap_with_error_tracking(func):
     """Wrap a method with error tracking.
 
@@ -251,6 +467,43 @@ def wrap_with_error_tracking(func):
 
 def wrap_class_with_error_tracking(cls):
     """Wrap all methods of a class with error tracking.
+
+    Uses WeakSet-based recursion protection to prevent memory leaks and stack overflow
+    when methods call themselves via ClassName.method_name.
+
+    Args:
+        cls: The class to wrap.
+
+    Returns:
+        The class with wrapped methods.
+
+    """
+    if os.getenv("DISABLE_CDP_ERROR_REPORTING") == "true":
+        return cls
+
+    for name, _ in inspect.getmembers(cls, inspect.isfunction):
+        if not name.startswith("__"):
+            current_method = getattr(cls, name)
+            original_method = _get_original_method(current_method)
+            executing_instances = weakref.WeakSet()
+
+            wrapped_method = _create_error_tracking_wrapper(
+                original_method, name, executing_instances, cls
+            )
+
+            # Store original method reference
+            setattr(wrapped_method, _ORIGINAL_METHOD, original_method)
+            setattr(cls, name, wrapped_method)
+
+    return cls
+
+
+def wrap_class_with_error_tracking_deprecated(cls):
+    """Wrap all methods of a class with error tracking (deprecated implementation).
+
+    DEPRECATED: This is the old implementation that has a bug with methods calling themselves
+    via class attributes. Use wrap_class_with_error_tracking instead.
+    Kept for test compatibility.
 
     Args:
         cls: The class to wrap.
