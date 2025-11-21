@@ -1,6 +1,6 @@
 import json
 import os
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -22,12 +22,15 @@ async def test_send_event(mock_client_session_class, mock_send_event):
         mock_response = AsyncMock()
         mock_response.status = 200
         mock_response.text = AsyncMock(return_value="OK")
+        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_response.__aexit__ = AsyncMock(return_value=None)
 
-        mock_post = AsyncMock(return_value=mock_response)
+        # session.post() should be a synchronous method that returns an async context manager
+        mock_post = MagicMock(return_value=mock_response)
         mock_session = AsyncMock()
         mock_session.post = mock_post
         mock_session.__aenter__ = AsyncMock(return_value=mock_session)
-        mock_session.__aexit__ = AsyncMock()
+        mock_session.__aexit__ = AsyncMock(return_value=None)
 
         mock_client_session_class.return_value = mock_session
 
