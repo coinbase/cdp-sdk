@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.33.3] - 2025-11-21
+
+### Bugfixes
+
+- Replaced error-tracking wrappers with a WeakSet-based recursion guard to prevent memory leaks from strong references to wrapped instances. ([#494](https://github.com/coinbase/cdp-sdk/pull/494))
+
+
 ## [1.33.2] - 2025-11-03
 
 - Removed default audience claim from JWT generation
