@@ -1,4 +1,4 @@
-# Usage: uv run python evm/smart_account.swap.py
+# Usage: uv run python evm/smart-accounts/swap.py
 
 """
 This example demonstrates the recommended approach for performing token swaps
