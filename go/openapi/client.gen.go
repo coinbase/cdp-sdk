@@ -665,6 +665,7 @@ const (
 	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidAfter                               X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_after"
 	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidBefore                              X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_before"
 	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValue                                    X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValueTooLow                              X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value_too_low"
 	X402VerifyInvalidReasonInvalidExactEvmPayloadSignature                                             X402VerifyInvalidReason = "invalid_exact_evm_payload_signature"
 	X402VerifyInvalidReasonInvalidExactEvmPayloadSignatureAddress                                      X402VerifyInvalidReason = "invalid_exact_evm_payload_signature_address"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransaction                                           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction"
@@ -673,6 +674,8 @@ const (
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstruction                       X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectAsset         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectPayee         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionFeePayerIncludedInInstructionAccounts      X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionFeePayerTransferringFunds                  X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionNotSplTokenTransferChecked      X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionNotToken2022TransferChecked     X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructions                               X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions"
@@ -1103,6 +1106,9 @@ type EmailAuthenticationType string
 type EndUser struct {
 	// AuthenticationMethods The list of valid authentication methods linked to the end user.
 	AuthenticationMethods AuthenticationMethods `json:"authenticationMethods"`
+
+	// CreatedAt The date and time when the end user was created, in ISO 8601 format.
+	CreatedAt time.Time `json:"createdAt"`
 
 	// EvmAccounts The list of EVM accounts associated with the end user. Currently, only one EVM account is supported per end user.
 	EvmAccounts []string `json:"evmAccounts"`
@@ -2646,6 +2652,12 @@ type X402VerifyInvalidReason string
 // IdempotencyKey defines model for IdempotencyKey.
 type IdempotencyKey = string
 
+// PageSize defines model for PageSize.
+type PageSize = int
+
+// PageToken defines model for PageToken.
+type PageToken = string
+
 // XWalletAuth defines model for XWalletAuth.
 type XWalletAuth = string
 
@@ -2727,11 +2739,11 @@ type X402VerifyResponse struct {
 
 // ListDataTokenBalancesParams defines parameters for ListDataTokenBalances.
 type ListDataTokenBalancesParams struct {
-	// PageSize The number of balances to return per page.
-	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
-	// PageToken The token for the next page of balances. Will be empty if there are no more balances to fetch.
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
 // ListTokensForAccountParamsNetwork defines parameters for ListTokensForAccount.
@@ -2760,11 +2772,11 @@ type ValidateEndUserAccessTokenJSONBody struct {
 
 // ListEvmAccountsParams defines parameters for ListEvmAccounts.
 type ListEvmAccountsParams struct {
-	// PageSize The number of accounts to return per page.
-	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
-	// PageToken The token for the next page of accounts, if any.
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
 // CreateEvmAccountJSONBody defines parameters for CreateEvmAccount.
@@ -2990,11 +3002,11 @@ type RequestEvmFaucetJSONBodyToken string
 
 // ListEvmSmartAccountsParams defines parameters for ListEvmSmartAccounts.
 type ListEvmSmartAccountsParams struct {
-	// PageSize The number of accounts to return per page.
-	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
-	// PageToken The token for the next page of accounts, if any.
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
 // CreateEvmSmartAccountJSONBody defines parameters for CreateEvmSmartAccount.
@@ -3151,11 +3163,11 @@ type GetEvmSwapPriceParams struct {
 
 // ListEvmTokenBalancesParams defines parameters for ListEvmTokenBalances.
 type ListEvmTokenBalancesParams struct {
-	// PageSize The number of balances to return per page.
-	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
-	// PageToken The token for the next page of balances. Will be empty if there are no more balances to fetch.
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
 // CreateOnrampOrderJSONBody defines parameters for CreateOnrampOrder.
@@ -3256,11 +3268,11 @@ type CreateOnrampSessionJSONBody struct {
 
 // ListPoliciesParams defines parameters for ListPolicies.
 type ListPoliciesParams struct {
-	// PageSize The number of policies to return per page.
-	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
-	// PageToken The token for the next page of policies, if any.
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 
 	// Scope The scope of the policies to return. If `project`, the response will include exactly one policy, which is the project-level policy. If `account`, the response will include all account-level policies for the developer's CDP Project.
 	Scope *ListPoliciesParamsScope `form:"scope,omitempty" json:"scope,omitempty"`
@@ -3321,11 +3333,11 @@ type UpdatePolicyParams struct {
 
 // ListSolanaAccountsParams defines parameters for ListSolanaAccounts.
 type ListSolanaAccountsParams struct {
-	// PageSize The number of accounts to return per page.
-	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
-	// PageToken The token for the next page of accounts, if any.
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
 // CreateSolanaAccountJSONBody defines parameters for CreateSolanaAccount.
@@ -5737,6 +5749,9 @@ type ClientInterface interface {
 
 	ValidateEndUserAccessToken(ctx context.Context, body ValidateEndUserAccessTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetEndUser request
+	GetEndUser(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListEvmAccounts request
 	ListEvmAccounts(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -6051,6 +6066,18 @@ func (c *CDPClient) ValidateEndUserAccessTokenWithBody(ctx context.Context, cont
 
 func (c *CDPClient) ValidateEndUserAccessToken(ctx context.Context, body ValidateEndUserAccessTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewValidateEndUserAccessTokenRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetEndUser(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetEndUserRequest(c.Server, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -7409,6 +7436,40 @@ func NewValidateEndUserAccessTokenRequestWithBody(server string, contentType str
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetEndUserRequest generates requests for GetEndUser
+func NewGetEndUserRequest(server string, userId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/end-users/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -10605,6 +10666,9 @@ type ClientWithResponsesInterface interface {
 
 	ValidateEndUserAccessTokenWithResponse(ctx context.Context, body ValidateEndUserAccessTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*ValidateEndUserAccessTokenResponse, error)
 
+	// GetEndUserWithResponse request
+	GetEndUserWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*GetEndUserResponse, error)
+
 	// ListEvmAccountsWithResponse request
 	ListEvmAccountsWithResponse(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*ListEvmAccountsResponse, error)
 
@@ -10999,6 +11063,30 @@ func (r ValidateEndUserAccessTokenResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ValidateEndUserAccessTokenResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetEndUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EndUser
+	JSON404      *Error
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetEndUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetEndUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -12668,6 +12756,15 @@ func (c *ClientWithResponses) ValidateEndUserAccessTokenWithResponse(ctx context
 	return ParseValidateEndUserAccessTokenResponse(rsp)
 }
 
+// GetEndUserWithResponse request returning *GetEndUserResponse
+func (c *ClientWithResponses) GetEndUserWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*GetEndUserResponse, error) {
+	rsp, err := c.GetEndUser(ctx, userId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetEndUserResponse(rsp)
+}
+
 // ListEvmAccountsWithResponse request returning *ListEvmAccountsResponse
 func (c *ClientWithResponses) ListEvmAccountsWithResponse(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*ListEvmAccountsResponse, error) {
 	rsp, err := c.ListEvmAccounts(ctx, params, reqEditors...)
@@ -13761,6 +13858,46 @@ func ParseValidateEndUserAccessTokenResponse(rsp *http.Response) (*ValidateEndUs
 			return nil, err
 		}
 		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetEndUserResponse parses an HTTP response from a GetEndUserWithResponse call
+func ParseGetEndUserResponse(rsp *http.Response) (*GetEndUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetEndUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EndUser
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest Error

@@ -1533,8 +1533,8 @@ class EVMSmartAccountsApi:
     @validate_call
     async def list_evm_smart_accounts(
         self,
-        page_size: Annotated[Optional[StrictInt], Field(description="The number of accounts to return per page.")] = None,
-        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of accounts, if any.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1552,9 +1552,9 @@ class EVMSmartAccountsApi:
 
         Lists the Smart Accounts belonging to the developer's CDP Project. The response is paginated, and by default, returns 20 accounts per page.
 
-        :param page_size: The number of accounts to return per page.
+        :param page_size: The number of resources to return per page.
         :type page_size: int
-        :param page_token: The token for the next page of accounts, if any.
+        :param page_token: The token for the next page of resources, if any.
         :type page_token: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1608,8 +1608,8 @@ class EVMSmartAccountsApi:
     @validate_call
     async def list_evm_smart_accounts_with_http_info(
         self,
-        page_size: Annotated[Optional[StrictInt], Field(description="The number of accounts to return per page.")] = None,
-        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of accounts, if any.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1627,9 +1627,9 @@ class EVMSmartAccountsApi:
 
         Lists the Smart Accounts belonging to the developer's CDP Project. The response is paginated, and by default, returns 20 accounts per page.
 
-        :param page_size: The number of accounts to return per page.
+        :param page_size: The number of resources to return per page.
         :type page_size: int
-        :param page_token: The token for the next page of accounts, if any.
+        :param page_token: The token for the next page of resources, if any.
         :type page_token: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
@@ -1683,8 +1683,8 @@ class EVMSmartAccountsApi:
     @validate_call
     async def list_evm_smart_accounts_without_preload_content(
         self,
-        page_size: Annotated[Optional[StrictInt], Field(description="The number of accounts to return per page.")] = None,
-        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of accounts, if any.")] = None,
+        page_size: Annotated[Optional[StrictInt], Field(description="The number of resources to return per page.")] = None,
+        page_token: Annotated[Optional[StrictStr], Field(description="The token for the next page of resources, if any.")] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1702,9 +1702,9 @@ class EVMSmartAccountsApi:
 
         Lists the Smart Accounts belonging to the developer's CDP Project. The response is paginated, and by default, returns 20 accounts per page.
 
-        :param page_size: The number of accounts to return per page.
+        :param page_size: The number of resources to return per page.
         :type page_size: int
-        :param page_token: The token for the next page of accounts, if any.
+        :param page_token: The token for the next page of resources, if any.
         :type page_token: str
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request

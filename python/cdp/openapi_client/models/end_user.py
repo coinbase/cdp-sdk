@@ -18,6 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
@@ -34,7 +35,8 @@ class EndUser(BaseModel):
     evm_accounts: List[Annotated[str, Field(strict=True)]] = Field(description="The list of EVM accounts associated with the end user. Currently, only one EVM account is supported per end user.", alias="evmAccounts")
     evm_smart_accounts: List[Annotated[str, Field(strict=True)]] = Field(description="The list of EVM smart accounts associated with the end user. Currently, only one EVM smart account is supported per end user.", alias="evmSmartAccounts")
     solana_accounts: List[Annotated[str, Field(strict=True)]] = Field(description="The list of Solana accounts associated with the end user. Currently, only one Solana account is supported per end user.", alias="solanaAccounts")
-    __properties: ClassVar[List[str]] = ["userId", "authenticationMethods", "evmAccounts", "evmSmartAccounts", "solanaAccounts"]
+    created_at: datetime = Field(description="The date and time when the end user was created, in ISO 8601 format.", alias="createdAt")
+    __properties: ClassVar[List[str]] = ["userId", "authenticationMethods", "evmAccounts", "evmSmartAccounts", "solanaAccounts", "createdAt"]
 
     @field_validator('user_id')
     def user_id_validate_regular_expression(cls, value):
@@ -105,7 +107,8 @@ class EndUser(BaseModel):
             "authenticationMethods": [AuthenticationMethod.from_dict(_item) for _item in obj["authenticationMethods"]] if obj.get("authenticationMethods") is not None else None,
             "evmAccounts": obj.get("evmAccounts"),
             "evmSmartAccounts": obj.get("evmSmartAccounts"),
-            "solanaAccounts": obj.get("solanaAccounts")
+            "solanaAccounts": obj.get("solanaAccounts"),
+            "createdAt": obj.get("createdAt")
         })
         return _obj
 
