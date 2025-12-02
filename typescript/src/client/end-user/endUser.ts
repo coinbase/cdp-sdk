@@ -1,4 +1,10 @@
-import { type ValidateAccessTokenOptions, type ListEndUsersOptions } from "./endUser.types.js";
+import { randomUUID } from "crypto";
+
+import {
+  type ValidateAccessTokenOptions,
+  type ListEndUsersOptions,
+  type CreateEndUserOptions,
+} from "./endUser.types.js";
 import { Analytics } from "../../analytics.js";
 import {
   CdpOpenApiClient,
@@ -10,6 +16,47 @@ import {
  * The CDP end user client.
  */
 export class CDPEndUserClient {
+  /**
+   * Creates an end user. An end user is an entity that can own CDP EVM accounts,
+   * EVM smart accounts, and/or Solana accounts.
+   *
+   * @param options - The options for creating an end user.
+   *
+   * @returns A promise that resolves to the created end user.
+   *
+   * @example **Create an end user with an email authentication method**
+   *          ```ts
+   *          const endUser = await cdp.endUser.createEndUser({
+   *            authenticationMethods: [
+   *              { type: "email", email: "user@example.com" }
+   *            ]
+   *          });
+   *          console.log(endUser.userId);
+   *          ```
+   *
+   * @example **Create an end user with an EVM account**
+   *          ```ts
+   *          const endUser = await cdp.endUser.createEndUser({
+   *            authenticationMethods: [
+   *              { type: "email", email: "user@example.com" }
+   *            ],
+   *            evmAccount: { createSmartAccount: true }
+   *          });
+   *          ```
+   */
+  async createEndUser(options: CreateEndUserOptions): Promise<EndUser> {
+    Analytics.trackAction({
+      action: "create_end_user",
+    });
+
+    const userId = options.userId ?? randomUUID();
+
+    return CdpOpenApiClient.createEndUser({
+      ...options,
+      userId,
+    });
+  }
+
   /**
    * Lists end users belonging to the developer's CDP Project.
    * By default, the response is sorted by creation date in ascending order and paginated to 20 users per page.

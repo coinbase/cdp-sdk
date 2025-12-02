@@ -37,9 +37,8 @@ Queries are executed against optimized data structures for high-performance anal
 
 ### Query Limits
 
-  - Maximum result set: 10,000 rows
+  - Maximum result set: 100,000 rows
   - Query timeout: 30 seconds
-  - Maximum JOINs: 5
 
  * @summary Run SQL Query
  */

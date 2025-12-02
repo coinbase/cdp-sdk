@@ -3,12 +3,23 @@ import { describe, it, expect, vi, beforeEach, MockedFunction } from "vitest";
 import { CdpOpenApiClient } from "../../openapi-client";
 
 import { CDPEndUserClient } from "./endUser.js";
-import type { ValidateAccessTokenOptions, ListEndUsersOptions } from "./endUser.types.js";
+import type {
+  ValidateAccessTokenOptions,
+  ListEndUsersOptions,
+  CreateEndUserOptions,
+} from "./endUser.types.js";
 import { APIError } from "../../openapi-client/errors.js";
+
+// Mock crypto.randomUUID to return predictable values in tests.
+const mockRandomUUID = vi.fn();
+vi.mock("crypto", () => ({
+  randomUUID: () => mockRandomUUID(),
+}));
 
 vi.mock("../../openapi-client", () => {
   return {
     CdpOpenApiClient: {
+      createEndUser: vi.fn(),
       validateEndUserAccessToken: vi.fn(),
       listEndUsers: vi.fn(),
     },
@@ -28,11 +39,99 @@ describe("EndUserClient", () => {
         email: "test-user-email",
       },
     ],
+    createdAt: "2024-01-01T00:00:00Z",
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockRandomUUID.mockReturnValue("generated-uuid");
     client = new CDPEndUserClient();
+  });
+
+  describe("createEndUser", () => {
+    it("should create an end user with provided userId", async () => {
+      const createOptions: CreateEndUserOptions = {
+        userId: "custom-user-id",
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+      };
+      (
+        CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
+      ).mockResolvedValue({ ...mockEndUser, userId: "custom-user-id" });
+
+      const result = await client.createEndUser(createOptions);
+
+      expect(CdpOpenApiClient.createEndUser).toHaveBeenCalledWith({
+        userId: "custom-user-id",
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+      });
+      expect(result.userId).toBe("custom-user-id");
+    });
+
+    it("should generate a UUID if userId is not provided", async () => {
+      const createOptions: CreateEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+      };
+      (
+        CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
+      ).mockResolvedValue({ ...mockEndUser, userId: "generated-uuid" });
+
+      const result = await client.createEndUser(createOptions);
+
+      expect(mockRandomUUID).toHaveBeenCalled();
+      expect(CdpOpenApiClient.createEndUser).toHaveBeenCalledWith({
+        userId: "generated-uuid",
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+      });
+      expect(result.userId).toBe("generated-uuid");
+    });
+
+    it("should create an end user with evmAccount option", async () => {
+      const createOptions: CreateEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        evmAccount: { createSmartAccount: true },
+      };
+      (
+        CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
+      ).mockResolvedValue(mockEndUser);
+
+      await client.createEndUser(createOptions);
+
+      expect(CdpOpenApiClient.createEndUser).toHaveBeenCalledWith({
+        userId: "generated-uuid",
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        evmAccount: { createSmartAccount: true },
+      });
+    });
+
+    it("should create an end user with solanaAccount option", async () => {
+      const createOptions: CreateEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        solanaAccount: { createSmartAccount: false },
+      };
+      (
+        CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
+      ).mockResolvedValue(mockEndUser);
+
+      await client.createEndUser(createOptions);
+
+      expect(CdpOpenApiClient.createEndUser).toHaveBeenCalledWith({
+        userId: "generated-uuid",
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        solanaAccount: { createSmartAccount: false },
+      });
+    });
+
+    it("should handle errors when creating an end user", async () => {
+      const createOptions: CreateEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+      };
+      const expectedError = new APIError(400, "invalid_request", "Invalid authentication method");
+      (
+        CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
+      ).mockRejectedValue(expectedError);
+
+      await expect(client.createEndUser(createOptions)).rejects.toThrow(expectedError);
+    });
   });
 
   describe("validateAccessToken", () => {

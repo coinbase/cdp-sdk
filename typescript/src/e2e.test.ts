@@ -208,6 +208,27 @@ describe("CDP Client E2E Tests", () => {
     expect(account.name).toBe(randomName);
   });
 
+  it("should create an end user with EVM smart account and Solana account", async () => {
+    const randomEmail = `test-${Date.now()}@example.com`;
+
+    const endUser = await cdp.endUser.createEndUser({
+      authenticationMethods: [{ type: "email", email: randomEmail }],
+      evmAccount: { createSmartAccount: true },
+      solanaAccount: { createSmartAccount: false },
+    });
+
+    expect(endUser).toBeDefined();
+    expect(endUser.userId).toBeDefined();
+    expect(endUser.authenticationMethods).toHaveLength(1);
+    expect(endUser.authenticationMethods[0].type).toBe("email");
+    expect(endUser.evmAccounts).toHaveLength(1);
+    expect(endUser.evmSmartAccounts).toHaveLength(1);
+    expect(endUser.solanaAccounts).toHaveLength(1);
+    expect(endUser.createdAt).toBeDefined();
+
+    logger.log("Created end user:", safeStringify(endUser));
+  });
+
   it("should import an evm server account from a private key", async () => {
     const privateKey = generatePrivateKey();
     const randomName = generateRandomName();
