@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
 from cdp.openapi_client.models.common_swap_response_fees import CommonSwapResponseFees
 from cdp.openapi_client.models.common_swap_response_issues import CommonSwapResponseIssues
@@ -41,7 +41,7 @@ class CreateSwapQuoteResponse(BaseModel):
     min_to_amount: Annotated[str, Field(strict=True)] = Field(description="The minimum amount of the `toToken` that must be received for the swap to succeed, in atomic units of the `toToken`.  For example, `1000000000000000000` when receiving ETH equates to 1 ETH, `1000000` when receiving USDC equates to 1 USDC, etc. This value is influenced by the `slippageBps` parameter.", alias="minToAmount")
     from_amount: Annotated[str, Field(strict=True)] = Field(description="The amount of the `fromToken` that will be sent in this swap, in atomic units of the `fromToken`. For example, `1000000000000000000` when sending ETH equates to 1 ETH, `1000000` when sending USDC equates to 1 USDC, etc.", alias="fromAmount")
     from_token: Annotated[str, Field(strict=True)] = Field(description="The 0x-prefixed contract address of the token that will be sent.", alias="fromToken")
-    permit2: Optional[CreateSwapQuoteResponseAllOfPermit2]
+    permit2: CreateSwapQuoteResponseAllOfPermit2
     transaction: CreateSwapQuoteResponseAllOfTransaction
     __properties: ClassVar[List[str]] = ["blockNumber", "toAmount", "toToken", "fees", "issues", "liquidityAvailable", "minToAmount", "fromAmount", "fromToken", "permit2", "transaction"]
 
@@ -64,6 +64,13 @@ class CreateSwapQuoteResponse(BaseModel):
         """Validates the regular expression"""
         if not re.match(r"^0x[a-fA-F0-9]{40}$", value):
             raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{40}$/")
+        return value
+
+    @field_validator('liquidity_available')
+    def liquidity_available_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['true']):
+            raise ValueError("must be one of enum values ('true')")
         return value
 
     @field_validator('min_to_amount')
@@ -138,11 +145,6 @@ class CreateSwapQuoteResponse(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of transaction
         if self.transaction:
             _dict['transaction'] = self.transaction.to_dict()
-        # set to None if permit2 (nullable) is None
-        # and model_fields_set contains the field
-        if self.permit2 is None and "permit2" in self.model_fields_set:
-            _dict['permit2'] = None
-
         return _dict
 
     @classmethod

@@ -38,8 +38,8 @@ class TestAbiFunction(unittest.TestCase):
             return AbiFunction(
                 type = 'function',
                 name = 'approve',
-                inputs = [{"name":"spender","type":"address","internalType":"address"}],
-                outputs = {"name":"","type":"bool","internalType":"bool"},
+                inputs = [{name=spender, type=address, internalType=address}],
+                outputs = {name=, type=bool, internalType=bool},
                 constant = False,
                 payable = False,
                 state_mutability = 'view',
@@ -49,8 +49,8 @@ class TestAbiFunction(unittest.TestCase):
             return AbiFunction(
                 type = 'function',
                 name = 'approve',
-                inputs = [{"name":"spender","type":"address","internalType":"address"}],
-                outputs = {"name":"","type":"bool","internalType":"bool"},
+                inputs = [{name=spender, type=address, internalType=address}],
+                outputs = {name=, type=bool, internalType=bool},
                 state_mutability = 'view',
         )
         """

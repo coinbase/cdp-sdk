@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
 from cdp.openapi_client.models.common_swap_response_issues_allowance import CommonSwapResponseIssuesAllowance
 from cdp.openapi_client.models.common_swap_response_issues_balance import CommonSwapResponseIssuesBalance
 from typing import Optional, Set
@@ -29,8 +29,8 @@ class CommonSwapResponseIssues(BaseModel):
     """
     An object containing potential issues discovered during validation that could prevent the swap from being executed successfully.
     """ # noqa: E501
-    allowance: Optional[CommonSwapResponseIssuesAllowance]
-    balance: Optional[CommonSwapResponseIssuesBalance]
+    allowance: CommonSwapResponseIssuesAllowance
+    balance: CommonSwapResponseIssuesBalance
     simulation_incomplete: StrictBool = Field(description="This is set to true when the transaction cannot be validated. This can happen when the taker has an insufficient balance of the `fromToken`. Note that this does not necessarily mean that the trade will revert.", alias="simulationIncomplete")
     __properties: ClassVar[List[str]] = ["allowance", "balance", "simulationIncomplete"]
 
@@ -79,16 +79,6 @@ class CommonSwapResponseIssues(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of balance
         if self.balance:
             _dict['balance'] = self.balance.to_dict()
-        # set to None if allowance (nullable) is None
-        # and model_fields_set contains the field
-        if self.allowance is None and "allowance" in self.model_fields_set:
-            _dict['allowance'] = None
-
-        # set to None if balance (nullable) is None
-        # and model_fields_set contains the field
-        if self.balance is None and "balance" in self.model_fields_set:
-            _dict['balance'] = None
-
         return _dict
 
     @classmethod

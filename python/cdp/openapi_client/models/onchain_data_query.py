@@ -19,8 +19,9 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from cdp.openapi_client.models.query_result_cache_configuration import QueryResultCacheConfiguration
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,8 +29,9 @@ class OnchainDataQuery(BaseModel):
     """
     Request to execute a SQL query against indexed blockchain data.
     """ # noqa: E501
-    sql: Annotated[str, Field(min_length=1, strict=True, max_length=50000)] = Field(description="SQL query to execute against the indexed blockchain data.")
-    __properties: ClassVar[List[str]] = ["sql"]
+    sql: Annotated[str, Field(min_length=1, strict=True, max_length=100000)] = Field(description="SQL query to execute against the indexed blockchain data.")
+    cache: Optional[QueryResultCacheConfiguration] = None
+    __properties: ClassVar[List[str]] = ["sql", "cache"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -70,6 +72,9 @@ class OnchainDataQuery(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of cache
+        if self.cache:
+            _dict['cache'] = self.cache.to_dict()
         return _dict
 
     @classmethod
@@ -82,7 +87,8 @@ class OnchainDataQuery(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "sql": obj.get("sql")
+            "sql": obj.get("sql"),
+            "cache": QueryResultCacheConfiguration.from_dict(obj["cache"]) if obj.get("cache") is not None else None
         })
         return _obj
 

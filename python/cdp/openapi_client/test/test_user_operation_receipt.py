@@ -36,7 +36,7 @@ class TestUserOperationReceipt(unittest.TestCase):
         model = UserOperationReceipt()
         if include_optional:
             return UserOperationReceipt(
-                revert = {"data":"0x123","message":"reason for failure"},
+                revert = {data=0x123, message=reason for failure},
                 transaction_hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
                 block_hash = '0x386544b58930c0ec9e8f3ed09fb4cdb76b9ae0a1a37ddcacebe3925b57978e65',
                 block_number = 29338819,

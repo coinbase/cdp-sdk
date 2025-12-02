@@ -38,13 +38,13 @@ class TestPrepareUserOperationRule(unittest.TestCase):
             return PrepareUserOperationRule(
                 action = 'accept',
                 operation = 'prepareUserOperation',
-                criteria = [{"type":"ethValue","ethValue":"1000000","operator":">="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],"operator":"in"}]
+                criteria = [{type=ethValue, ethValue=1000000, operator=>=}, {type=evmAddress, addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in}]
             )
         else:
             return PrepareUserOperationRule(
                 action = 'accept',
                 operation = 'prepareUserOperation',
-                criteria = [{"type":"ethValue","ethValue":"1000000","operator":">="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],"operator":"in"}],
+                criteria = [{type=ethValue, ethValue=1000000, operator=>=}, {type=evmAddress, addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in}],
         )
         """
 

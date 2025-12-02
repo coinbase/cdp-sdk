@@ -37,14 +37,14 @@ class TestIdl(unittest.TestCase):
         if include_optional:
             return Idl(
                 address = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-                instructions = [{"name":"transfer_checked","discriminator":[119,250,202,24,253,135,244,121],"accounts":[{"name":"mint","writable":true},{"name":"rent"}],"args":[{"name":"amount","type":"u64"},{"name":"decimals","type":"u8"}]}],
-                metadata = {"name":"system_program","version":"0.1.0","spec":"0.1.0"},
-                types = [{"name":"MyStruct","type":"struct","fields":[{"name":"id","type":"u64"},{"name":"owner","type":"pubkey"}]}]
+                instructions = [{name=transfer_checked, discriminator=[119, 250, 202, 24, 253, 135, 244, 121], accounts=[{name=mint, writable=true}, {name=rent}], args=[{name=amount, type=u64}, {name=decimals, type=u8}]}],
+                metadata = {name=system_program, version=0.1.0, spec=0.1.0},
+                types = [{name=MyStruct, type=struct, fields=[{name=id, type=u64}, {name=owner, type=pubkey}]}]
             )
         else:
             return Idl(
                 address = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-                instructions = [{"name":"transfer_checked","discriminator":[119,250,202,24,253,135,244,121],"accounts":[{"name":"mint","writable":true},{"name":"rent"}],"args":[{"name":"amount","type":"u64"},{"name":"decimals","type":"u8"}]}],
+                instructions = [{name=transfer_checked, discriminator=[119, 250, 202, 24, 253, 135, 244, 121], accounts=[{name=mint, writable=true}, {name=rent}], args=[{name=amount, type=u64}, {name=decimals, type=u8}]}],
         )
         """
 

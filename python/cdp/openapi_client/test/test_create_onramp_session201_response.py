@@ -36,12 +36,12 @@ class TestCreateOnrampSession201Response(unittest.TestCase):
         model = CreateOnrampSession201Response()
         if include_optional:
             return CreateOnrampSession201Response(
-                session = {"onrampUrl":"https://pay.coinbase.com/buy?sessionToken=abc123F"},
-                quote = {"paymentTotal":"100.75","paymentSubtotal":"100.00","paymentCurrency":"USD","purchaseAmount":"100.000000","purchaseCurrency":"USDC","destinationNetwork":"base","fees":[{"type":"FEE_TYPE_EXCHANGE","amount":"0.5","currency":"USD"},{"type":"FEE_TYPE_NETWORK","amount":"0.25","currency":"USD"}],"exchangeRate":"1"}
+                session = {onrampUrl=https://pay.coinbase.com/buy?sessionToken=abc123F},
+                quote = {paymentTotal=100.75, paymentSubtotal=100.00, paymentCurrency=USD, purchaseAmount=100.000000, purchaseCurrency=USDC, destinationNetwork=base, fees=[{type=FEE_TYPE_EXCHANGE, amount=0.5, currency=USD}, {type=FEE_TYPE_NETWORK, amount=0.25, currency=USD}], exchangeRate=1}
             )
         else:
             return CreateOnrampSession201Response(
-                session = {"onrampUrl":"https://pay.coinbase.com/buy?sessionToken=abc123F"},
+                session = {onrampUrl=https://pay.coinbase.com/buy?sessionToken=abc123F},
         )
         """
 

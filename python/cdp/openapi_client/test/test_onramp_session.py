@@ -36,11 +36,11 @@ class TestOnrampSession(unittest.TestCase):
         model = OnrampSession()
         if include_optional:
             return OnrampSession(
-                onramp_url = 'https://pay.coinbase.com/buy?sessionToken=abc123F'
+                onramp_url = 'https://example.com'
             )
         else:
             return OnrampSession(
-                onramp_url = 'https://pay.coinbase.com/buy?sessionToken=abc123F',
+                onramp_url = 'https://example.com',
         )
         """
 

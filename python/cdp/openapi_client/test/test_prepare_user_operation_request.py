@@ -44,7 +44,7 @@ class TestPrepareUserOperationRequest(unittest.TestCase):
                         data = '0xa9059cbb000000000000000000000000fc807d1be4997e5c7b33e4d8d57e60c5b0f02b1a0000000000000000000000000000000000000000000000000000000000000064', 
                         override_gas_limit = '100000', )
                     ],
-                paymaster_url = 'https://api.developer.coinbase.com/rpc/v1/base/<token>'
+                paymaster_url = 'https://example.com'
             )
         else:
             return PrepareUserOperationRequest(

@@ -45,7 +45,7 @@ class TestCreateSpendPermissionRequest(unittest.TestCase):
                 end = '281474976710655',
                 salt = '95959551014433038874972658238091428449162862973207257628575040053304171156143',
                 extra_data = '0x',
-                paymaster_url = 'https://paymaster.cdp.coinbase.com'
+                paymaster_url = 'https://example.com'
             )
         else:
             return CreateSpendPermissionRequest(

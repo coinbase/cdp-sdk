@@ -37,13 +37,13 @@ class TestProgramIdCriterion(unittest.TestCase):
         if include_optional:
             return ProgramIdCriterion(
                 type = 'programId',
-                program_ids = ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA","11111111111111111111111111111112"],
+                program_ids = [TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, 11111111111111111111111111111112],
                 operator = 'in'
             )
         else:
             return ProgramIdCriterion(
                 type = 'programId',
-                program_ids = ["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA","11111111111111111111111111111112"],
+                program_ids = [TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, 11111111111111111111111111111112],
                 operator = 'in',
         )
         """

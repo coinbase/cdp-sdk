@@ -37,16 +37,16 @@ class TestEvmSmartAccount(unittest.TestCase):
         if include_optional:
             return EvmSmartAccount(
                 address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                owners = ["0xfc807D1bE4997e5C7B33E4d8D57e60c5b0f02B1a"],
+                owners = [0xfc807D1bE4997e5C7B33E4d8D57e60c5b0f02B1a],
                 name = 'my-smart-account',
-                policies = ["123e4567-e89b-12d3-a456-426614174000"],
-                created_at = '2025-03-25T12:00Z',
-                updated_at = '2025-03-26T12:00Z'
+                policies = [123e4567-e89b-12d3-a456-426614174000],
+                created_at = '2025-03-25T12:00:00Z',
+                updated_at = '2025-03-26T12:00:00Z'
             )
         else:
             return EvmSmartAccount(
                 address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                owners = ["0xfc807D1bE4997e5C7B33E4d8D57e60c5b0f02B1a"],
+                owners = [0xfc807D1bE4997e5C7B33E4d8D57e60c5b0f02B1a],
         )
         """
 

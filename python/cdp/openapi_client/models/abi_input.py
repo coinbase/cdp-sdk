@@ -28,7 +28,7 @@ class AbiInput(BaseModel):
     Generic ABI item type encapsulating all other types besides `function`.
     """ # noqa: E501
     type: StrictStr = Field(description="The type of the ABI item.")
-    additional_properties: Optional[Any] = Field(default=None, description="For additional information on the ABI JSON specification, see [the Solidity documentation](https://docs.soliditylang.org/en/latest/abi-spec.html#json).", alias="additionalProperties")
+    additional_properties: Optional[Any] = Field(default=None, alias="additionalProperties")
     __properties: ClassVar[List[str]] = ["type", "additionalProperties"]
 
     @field_validator('type')

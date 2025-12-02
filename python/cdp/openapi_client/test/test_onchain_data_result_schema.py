@@ -37,7 +37,7 @@ class TestOnchainDataResultSchema(unittest.TestCase):
         if include_optional:
             return OnchainDataResultSchema(
                 columns = [
-                    {"name":"event_signature","type":"String","description":"The signature of the event."}
+                    {name=event_signature, type=String, description=The signature of the event.}
                     ]
             )
         else:

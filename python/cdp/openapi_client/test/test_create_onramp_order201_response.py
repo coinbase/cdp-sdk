@@ -44,7 +44,7 @@ class TestCreateOnrampOrder201Response(unittest.TestCase):
                     payment_method = 'GUEST_CHECKOUT_APPLE_PAY', 
                     purchase_amount = '100.000000', 
                     purchase_currency = 'USDC', 
-                    fees = [{"type":"FEE_TYPE_EXCHANGE","amount":"0.5","currency":"USD"},{"type":"FEE_TYPE_NETWORK","amount":"0.25","currency":"USD"}], 
+                    fees = [{type=FEE_TYPE_EXCHANGE, amount=0.5, currency=USD}, {type=FEE_TYPE_NETWORK, amount=0.25, currency=USD}], 
                     exchange_rate = '1', 
                     destination_address = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F', 
                     destination_network = 'base', 
@@ -54,7 +54,7 @@ class TestCreateOnrampOrder201Response(unittest.TestCase):
                     updated_at = '2025-04-24T00:00:00Z', 
                     partner_user_ref = 'user123', ),
                 payment_link = cdp.openapi_client.models.onramp_payment_link.OnrampPaymentLink(
-                    url = 'https://pay.coinbase.com/v2/api-onramp/apple-pay?sessionToken=MWYwNWQwODktZTZlYy02OTdlLTgzZTYtMTI3NzcyOWJhNjM3', 
+                    url = https://pay.coinbase.com/v2/api-onramp/apple-pay?sessionToken=MWYwNWQwODktZTZlYy02OTdlLTgzZTYtMTI3NzcyOWJhNjM3, 
                     payment_link_type = 'PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON', )
             )
         else:
@@ -67,7 +67,7 @@ class TestCreateOnrampOrder201Response(unittest.TestCase):
                     payment_method = 'GUEST_CHECKOUT_APPLE_PAY', 
                     purchase_amount = '100.000000', 
                     purchase_currency = 'USDC', 
-                    fees = [{"type":"FEE_TYPE_EXCHANGE","amount":"0.5","currency":"USD"},{"type":"FEE_TYPE_NETWORK","amount":"0.25","currency":"USD"}], 
+                    fees = [{type=FEE_TYPE_EXCHANGE, amount=0.5, currency=USD}, {type=FEE_TYPE_NETWORK, amount=0.25, currency=USD}], 
                     exchange_rate = '1', 
                     destination_address = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F', 
                     destination_network = 'base', 

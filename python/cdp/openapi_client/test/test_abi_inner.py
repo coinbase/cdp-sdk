@@ -44,7 +44,7 @@ class TestAbiInner(unittest.TestCase):
                 payable = False,
                 state_mutability = 'view',
                 gas = 0,
-                additional_properties = {type=error, name=ERC20InvalidSpender, inputs=[{name=spender, type=address, internalType=address}]}
+                additional_properties = None
             )
         else:
             return AbiInner(

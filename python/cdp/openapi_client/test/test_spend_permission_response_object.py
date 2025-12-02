@@ -36,19 +36,19 @@ class TestSpendPermissionResponseObject(unittest.TestCase):
         model = SpendPermissionResponseObject()
         if include_optional:
             return SpendPermissionResponseObject(
-                permission = {"account":"0xd53Ee96438383Bb1eff07958D110B81363E9Ab47","spender":"0x9Fb909eA400c2b8D99Be292DADf07e63B814527c","token":"0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE","allowance":"1000000000000000000","period":"86400","start":"0","end":"281474976710655","salt":"0","extraData":"0x"},
+                permission = {account=0xd53Ee96438383Bb1eff07958D110B81363E9Ab47, spender=0x9Fb909eA400c2b8D99Be292DADf07e63B814527c, token=0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE, allowance=1000000000000000000, period=86400, start=0, end=281474976710655, salt=0, extraData=0x},
                 permission_hash = '0x62bc94756bb6221a7913beab6024171fc60d3380fdc06759bfac76e8ccb3f63d',
                 revoked = False,
-                revoked_at = '2025-03-25T12:00Z',
-                created_at = '2025-03-25T12:00Z',
+                revoked_at = '2025-03-25T12:00:00Z',
+                created_at = '2025-03-25T12:00:00Z',
                 network = 'base'
             )
         else:
             return SpendPermissionResponseObject(
-                permission = {"account":"0xd53Ee96438383Bb1eff07958D110B81363E9Ab47","spender":"0x9Fb909eA400c2b8D99Be292DADf07e63B814527c","token":"0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE","allowance":"1000000000000000000","period":"86400","start":"0","end":"281474976710655","salt":"0","extraData":"0x"},
+                permission = {account=0xd53Ee96438383Bb1eff07958D110B81363E9Ab47, spender=0x9Fb909eA400c2b8D99Be292DADf07e63B814527c, token=0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE, allowance=1000000000000000000, period=86400, start=0, end=281474976710655, salt=0, extraData=0x},
                 permission_hash = '0x62bc94756bb6221a7913beab6024171fc60d3380fdc06759bfac76e8ccb3f63d',
                 revoked = False,
-                created_at = '2025-03-25T12:00Z',
+                created_at = '2025-03-25T12:00:00Z',
                 network = 'base',
         )
         """

@@ -37,6 +37,7 @@ class TestOnchainDataResultMetadata(unittest.TestCase):
         if include_optional:
             return OnchainDataResultMetadata(
                 cached = False,
+                execution_timestamp = '2025-01-01T00:00:00.000Z',
                 execution_time_ms = 145,
                 row_count = 2
             )

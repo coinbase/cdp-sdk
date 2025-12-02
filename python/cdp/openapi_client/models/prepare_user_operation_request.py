@@ -18,8 +18,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from cdp.openapi_client.models.evm_call import EvmCall
 from cdp.openapi_client.models.evm_user_operation_network import EvmUserOperationNetwork
 from typing import Optional, Set
@@ -31,8 +32,18 @@ class PrepareUserOperationRequest(BaseModel):
     """ # noqa: E501
     network: EvmUserOperationNetwork
     calls: List[EvmCall] = Field(description="The list of calls to make from the Smart Account.")
-    paymaster_url: Optional[StrictStr] = Field(default=None, description="The URL of the paymaster to use for the user operation.", alias="paymasterUrl")
+    paymaster_url: Optional[Annotated[str, Field(min_length=11, strict=True, max_length=2048)]] = Field(default=None, description="The URL of the paymaster to use for the user operation.", alias="paymasterUrl")
     __properties: ClassVar[List[str]] = ["network", "calls", "paymasterUrl"]
+
+    @field_validator('paymaster_url')
+    def paymaster_url_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^https?:\/\/.*$", value):
+            raise ValueError(r"must validate the regular expression /^https?:\/\/.*$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

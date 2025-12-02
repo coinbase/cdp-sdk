@@ -36,13 +36,13 @@ class TestSolanaTokenBalance(unittest.TestCase):
         model = SolanaTokenBalance()
         if include_optional:
             return SolanaTokenBalance(
-                amount = {"amount":"1250000000","decimals":9},
-                token = {"symbol":"SOL","name":"Solana","mintAddress":"So11111111111111111111111111111111111111111"}
+                amount = {amount=1250000000, decimals=9},
+                token = {symbol=SOL, name=Solana, mintAddress=So11111111111111111111111111111111111111111}
             )
         else:
             return SolanaTokenBalance(
-                amount = {"amount":"1250000000","decimals":9},
-                token = {"symbol":"SOL","name":"Solana","mintAddress":"So11111111111111111111111111111111111111111"},
+                amount = {amount=1250000000, decimals=9},
+                token = {symbol=SOL, name=Solana, mintAddress=So11111111111111111111111111111111111111111},
         )
         """
 

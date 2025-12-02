@@ -39,7 +39,7 @@ class TestAbiParameter(unittest.TestCase):
                 name = 'tokenId',
                 type = 'uint256',
                 internal_type = 'uint256',
-                components = [{"name":"x","type":"uint256"}]
+                components = [{name=x, type=uint256}]
             )
         else:
             return AbiParameter(
