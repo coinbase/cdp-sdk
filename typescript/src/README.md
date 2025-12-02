@@ -1084,7 +1084,6 @@ You can use the End User SDK to manage the users of your applications.
 You can create an end user with authentication methods and optionally create EVM and Solana accounts for them.
 
 ```typescript
-// Create an end user with email authentication and an EVM smart account
 const endUser = await cdp.endUser.createEndUser({
   authenticationMethods: [
     { type: "email", email: "user@example.com" }
