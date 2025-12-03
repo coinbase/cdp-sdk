@@ -34,13 +34,13 @@ export class CDPEndUserClient {
    *          console.log(endUser.userId);
    *          ```
    *
-   * @example **Create an end user with an EVM account**
+   * @example **Create an end user with an EVM EOA account**
    *          ```ts
    *          const endUser = await cdp.endUser.createEndUser({
    *            authenticationMethods: [
    *              { type: "email", email: "user@example.com" }
    *            ],
-   *            evmAccount: { createSmartAccount: true }
+   *            evmAccount: { createSmartAccount: false }
    *          });
    *          ```
    */
