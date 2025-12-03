@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: Coinbase Developer Platform APIs
   description: The Coinbase Developer Platform APIs - leading the world's transition onchain.
@@ -108,9 +108,9 @@ tags:
 
       ## Supported Use Cases
 
-      #### Apple Pay Onramp (iOS apps)
+      #### Apple Pay Onramp
 
-      This use case allows you to offer an Apple Pay onramp experience with debit cards in your mobile app without users needing to create or log into a Coinbase account. Our API returns a `paymentLink` URL that renders an Apple Pay button for you to load in a webview in your app, making the onramp experience feel native to your application.
+      This use case allows you to offer an Apple Pay onramp experience with debit cards in your app without users needing to create or log into a Coinbase account. Our API returns a `paymentLink` URL that renders an Apple Pay button for you to load in a webview or iframe in your app, making the onramp experience feel native to your application.
 
       Refer to our [detailed integration guide](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api) for more information on the limitations and requirements of this use case. See our [onramp mobile demo app](https://github.com/coinbase/onramp-demo-mobile) for a reference implementation.
 
@@ -471,6 +471,9 @@ tags:
   - name: SQL API (Alpha)
     x-audience: public
     description: The SQL APIs enable you to write performant, high-freshness, and endlessly flexible SQL queries against onchain data.
+  - name: Webhooks
+    x-audience: public
+    description: Subscribe to real-time events across CDP products. Monitor onchain activity on Base mainnet, track onramp/offramp transactions, and receive instant notifications for wallet events.
   - name: x402 Facilitator
     x-audience: public
     description: |-
@@ -481,6 +484,184 @@ tags:
       - `POST /v2/x402/settle`: Settle a payment with a supported scheme and network.
 paths:
   /v2/end-users:
+    post:
+      summary: Create an end user
+      description: |-
+        Creates an end user. An end user is an entity that can own CDP EVM accounts, EVM smart accounts, and/or Solana accounts. 1 or more authentication methods must be associated with an end user. By default, no accounts are created unless the optional `evmAccount` and/or `solanaAccount` fields are provided.
+        This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+      operationId: createEndUser
+      tags:
+        - End User Accounts
+      x-audience: public
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  description: |-
+                    A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
+
+                    If `userId` is not provided in the request, the server will generate a random UUID.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+                authenticationMethods:
+                  $ref: '#/components/schemas/AuthenticationMethods'
+                evmAccount:
+                  type: object
+                  description: Configuration for creating an EVM account for the end user.
+                  properties:
+                    createSmartAccount:
+                      type: boolean
+                      description: If true, creates an EVM smart account and a default EVM EOA account as the owner. If false, only a EVM EOA account is created.
+                      default: false
+                      example: true
+                solanaAccount:
+                  type: object
+                  description: Configuration for creating a Solana account for the end user.
+                  properties:
+                    createSmartAccount:
+                      type: boolean
+                      description: Only false is a valid option since currently smart accounts on Solana are not supported.
+                      default: false
+                      example: false
+              required:
+                - authenticationMethods
+            examples:
+              default_behavior:
+                summary: Default (no accounts created)
+                value:
+                  authenticationMethods:
+                    - type: email
+                      email: user@example.com
+              evm_only:
+                summary: EVM account only
+                value:
+                  authenticationMethods:
+                    - type: email
+                      email: user@example.com
+                  evmAccount: {}
+              evm_with_smart_account:
+                summary: EVM only with smart account
+                value:
+                  authenticationMethods:
+                    - type: email
+                      email: user@example.com
+                  evmAccount:
+                    createSmartAccount: true
+              solana_only:
+                summary: Solana account only
+                value:
+                  authenticationMethods:
+                    - type: sms
+                      phoneNumber: '+15555551234'
+                  solanaAccount:
+                    createSmartAccount: false
+              evm_and_solana:
+                summary: Both EVM and Solana accounts
+                value:
+                  authenticationMethods:
+                    - type: sms
+                      phoneNumber: '+15555551234'
+                  evmAccount:
+                    createSmartAccount: true
+                  solanaAccount:
+                    createSmartAccount: false
+      responses:
+        '201':
+          description: Successfully created end user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUser'
+              examples:
+                default_no_accounts:
+                  summary: Default behavior - No accounts created
+                  value:
+                    userId: user-001
+                    authenticationMethods:
+                      - type: email
+                        email: user@example.com
+                    evmAccounts: []
+                    evmSmartAccounts: []
+                    solanaAccounts: []
+                    createdAt: '2025-11-17T10:00:00Z'
+                evm_smart_account_only:
+                  summary: EVM smart account only
+                  value:
+                    userId: user-003
+                    authenticationMethods:
+                      - type: email
+                        email: user@example.com
+                    evmAccounts:
+                      - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                    evmSmartAccounts:
+                      - '0x842d35Cc6634C0532925a3b844Bc454e4438f55f'
+                    solanaAccounts: []
+                    createdAt: '2025-11-17T10:00:00Z'
+                solana_only:
+                  summary: Solana account only
+                  value:
+                    userId: user-004
+                    authenticationMethods:
+                      - type: sms
+                        phoneNumber: '+15555551234'
+                    evmAccounts: []
+                    evmSmartAccounts: []
+                    solanaAccounts:
+                      - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+                    createdAt: '2025-11-17T10:00:00Z'
+                evm_no_smart_account:
+                  summary: EVM without smart account
+                  value:
+                    userId: user-004
+                    authenticationMethods:
+                      - type: email
+                        email: user@example.com
+                    evmAccounts:
+                      - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                    evmSmartAccounts: []
+                    solanaAccounts: []
+                    createdAt: '2025-11-17T10:00:00Z'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: At least one authentication method must be provided.
+                solana_smart_account_not_supported:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: The request contains one or more unsupported options.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     get:
       x-audience: public
       summary: List end users
@@ -629,6 +810,48 @@ paths:
                     errorMessage: End user not found
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v2/end-users/{userId}:
+    get:
+      x-audience: public
+      summary: Get an end user
+      description: |-
+        Gets an end user by ID.
+
+        This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+      operationId: getEndUser
+      tags:
+        - End User Accounts
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the end user to get.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9-]{1,100}$
+          example: e051beeb-7163-4527-a5b6-35e301529ff2
+      responses:
+        '200':
+          description: Successfully got end user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUser'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: End user with the given ID not found.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /v2/evm/accounts:
     get:
       x-audience: public
@@ -642,21 +865,8 @@ paths:
       security:
         - apiKeyAuth: []
       parameters:
-        - name: pageSize
-          description: The number of accounts to return per page.
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
-          example: 10
-        - name: pageToken
-          description: The token for the next page of accounts, if any.
-          in: query
-          required: false
-          schema:
-            type: string
-          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
       responses:
         '200':
           description: Successfully listed EVM accounts.
@@ -1458,21 +1668,8 @@ paths:
       security:
         - apiKeyAuth: []
       parameters:
-        - name: pageSize
-          description: The number of accounts to return per page.
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
-          example: 10
-        - name: pageToken
-          description: The token for the next page of accounts, if any.
-          in: query
-          required: false
-          schema:
-            type: string
-          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
       responses:
         '200':
           description: Successfully listed Smart Accounts.
@@ -2048,7 +2245,8 @@ paths:
                   items:
                     $ref: '#/components/schemas/EvmCall'
                 paymasterUrl:
-                  type: string
+                  allOf:
+                    - $ref: '#/components/schemas/Url'
                   description: The URL of the paymaster to use for the user operation.
                   example: https://api.developer.coinbase.com/rpc/v1/base/<token>
               required:
@@ -2135,7 +2333,8 @@ paths:
                   items:
                     $ref: '#/components/schemas/EvmCall'
                 paymasterUrl:
-                  type: string
+                  allOf:
+                    - $ref: '#/components/schemas/Url'
                   description: The URL of the paymaster to use for the user operation.
                   example: https://api.developer.coinbase.com/rpc/v1/base/<token>
               required:
@@ -2891,21 +3090,8 @@ paths:
           schema:
             $ref: '#/components/schemas/ListEvmTokenBalancesNetwork'
           example: base
-        - name: pageSize
-          description: The number of balances to return per page.
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
-          example: 10
-        - name: pageToken
-          description: The token for the next page of balances. Will be empty if there are no more balances to fetch.
-          in: query
-          required: false
-          schema:
-            type: string
-          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
       responses:
         '200':
           description: Successfully listed token balances.
@@ -3092,21 +3278,8 @@ paths:
       security:
         - apiKeyAuth: []
       parameters:
-        - name: pageSize
-          description: The number of policies to return per page.
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
-          example: 10
-        - name: pageToken
-          description: The token for the next page of policies, if any.
-          in: query
-          required: false
-          schema:
-            type: string
-          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
         - name: scope
           description: The scope of the policies to return. If `project`, the response will include exactly one policy, which is the project-level policy. If `account`, the response will include all account-level policies for the developer's CDP Project.
           in: query
@@ -3405,21 +3578,8 @@ paths:
       security:
         - apiKeyAuth: []
       parameters:
-        - name: pageSize
-          description: The number of accounts to return per page.
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
-          example: 10
-        - name: pageToken
-          description: The token for the next page of accounts, if any.
-          in: query
-          required: false
-          schema:
-            type: string
-          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
       responses:
         '200':
           description: Successfully listed Solana accounts.
@@ -4538,9 +4698,8 @@ paths:
 
         ### Query Limits
 
-          - Maximum result set: 10,000 rows
+          - Maximum result set: 100,000 rows
           - Query timeout: 30 seconds
-          - Maximum JOINs: 5
       tags:
         - SQL API (Alpha)
       security:
@@ -4722,21 +4881,8 @@ paths:
           schema:
             $ref: '#/components/schemas/ListEvmTokenBalancesNetwork'
           example: base
-        - name: pageSize
-          description: The number of balances to return per page.
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
-          example: 10
-        - name: pageToken
-          description: The token for the next page of balances. Will be empty if there are no more balances to fetch.
-          in: query
-          required: false
-          schema:
-            type: string
-          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/PageToken'
       responses:
         '200':
           description: Successfully listed token balances.
@@ -4799,6 +4945,421 @@ paths:
           $ref: '#/components/responses/BadGatewayError'
         '503':
           $ref: '#/components/responses/ServiceUnavailableError'
+  /v2/data/webhooks/subscriptions:
+    get:
+      operationId: listWebhookSubscriptions
+      summary: List webhook subscriptions
+      x-audience: public
+      description: |
+        Retrieve a paginated list of webhook subscriptions for the authenticated project.
+        Returns subscriptions for all CDP product events (onchain, onramp/offramp, wallet, etc.)
+        in descending order by creation time.
+
+        ### Use Cases
+        - Monitor all active webhook subscriptions across CDP products
+        - Audit webhook configurations
+        - Manage subscription lifecycle
+      tags:
+        - Webhooks
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: pageSize
+          description: The number of subscriptions to return per page.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          example: 10
+        - name: pageToken
+          description: The token for the next page of subscriptions, if any.
+          in: query
+          required: false
+          schema:
+            type: string
+          example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==
+      responses:
+        '200':
+          description: Webhook subscriptions retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscriptionListResponse'
+        '400':
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_page_size:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Page size must be between 1 and 100
+                invalid_page_token:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid page token format
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Too many requests. Please try again later.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      operationId: createWebhookSubscription
+      summary: Create webhook subscription
+      x-audience: public
+      description: |
+        Subscribe to real-time events across CDP products using flexible filtering.
+
+        ### Event Types
+
+        **Onchain Events** - Monitor Base mainnet with microsecond precision:
+        - `onchain.activity.detected` - Smart contract events, transfers, swaps, NFT activity
+        - **Requires** `labels` for filtering (e.g., `contract_address`, `event_name`)
+
+        **Onramp/Offramp Events** - Transaction lifecycle notifications:
+        - `onramp.transaction.created`, `onramp.transaction.updated`
+        - `onramp.transaction.success`, `onramp.transaction.failed`
+        - `offramp.transaction.created`, `offramp.transaction.updated`
+        - `offramp.transaction.success`, `offramp.transaction.failed`
+        - **No labels required** - maximum simplicity for transaction monitoring
+
+        **Wallet Events** - Wallet activity notifications:
+        - `wallet.activity.detected`
+
+        ### Webhook Signature Verification
+        All webhooks include cryptographic signatures for security.
+        The signature secret is returned in `metadata.secret` when creating a subscription.
+
+        **Note:** Webhooks are in beta and this interface is subject to change.
+
+        See the [verification guide](https://docs.cdp.coinbase.com/onramp-&-offramp/webhooks#webhook-signature-verification) for implementation details.
+
+        ### Onchain Label Filtering
+
+        For `onchain.activity.detected` events, use `labels` for precise filtering with AND logic (max 20 labels per webhook).
+
+        **Allowed labels** (all in snake_case format):
+        - `network` (required) - Blockchain network
+        - `contract_address` - Smart contract address
+        - `event_name` - Event name (e.g., "Transfer", "Burn")
+        - `event_signature` - Event signature hash
+        - `transaction_from` - Transaction sender address
+        - `transaction_to` - Transaction recipient address
+        - `params.*` - Any event parameter (e.g., `params.from`, `params.to`, `params.sender`, `params.tokenId`)
+
+        **Examples**:
+        - **Liquidity Pool Monitor**: `{"network": "base-mainnet", "contract_address": "0xcd1f9777571493aeacb7eae45cd30a226d3e612d", "event_name": "Burn"}`
+        - **Price Oracle Tracker**: `{"network": "base-mainnet", "contract_address": "0xbac4a9428ea707c51f171ed9890c3c2fa810305d", "event_name": "PriceUpdated"}`
+        - **DeFi Protocol Activity**: `{"network": "base-mainnet", "contract_address": "0x45c6e6a47a711b14d8357d5243f46704904578e3", "event_name": "Deposit"}`
+      tags:
+        - Webhooks
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookSubscriptionRequest'
+            examples:
+              onchain_liquidity_pool:
+                summary: 'Onchain: Monitor liquidity pool burns'
+                value:
+                  description: Liquidity pool burn events.
+                  eventTypes:
+                    - onchain.activity.detected
+                  labels:
+                    network: base-mainnet
+                    contract_address: '0xcd1f9777571493aeacb7eae45cd30a226d3e612d'
+                    event_name: Burn
+                  target:
+                    url: https://api.example.com/webhooks
+                  isEnabled: true
+              onramp_transactions:
+                summary: 'Onramp: Transaction lifecycle'
+                value:
+                  description: Onramp transaction status webhook.
+                  eventTypes:
+                    - onramp.transaction.created
+                    - onramp.transaction.updated
+                    - onramp.transaction.success
+                    - onramp.transaction.failed
+                  labels: {}
+                  target:
+                    url: https://api.example.com/webhooks
+                  isEnabled: true
+              offramp_transactions:
+                summary: 'Offramp: Transaction lifecycle'
+                value:
+                  description: Offramp transaction status webhook.
+                  eventTypes:
+                    - offramp.transaction.created
+                    - offramp.transaction.updated
+                    - offramp.transaction.success
+                    - offramp.transaction.failed
+                  labels: {}
+                  target:
+                    url: https://api.example.com/webhooks
+                  isEnabled: true
+              wallet_outgoing_transactions:
+                summary: 'Wallet: Monitor outgoing transactions'
+                value:
+                  description: Outgoing transactions.
+                  eventTypes:
+                    - wallet.activity.detected
+                  labels:
+                    network: base-mainnet
+                    params.from: '0xB7f5BF799fB265657c628ef4a13f90f83a3a616A'
+                  target:
+                    url: https://api.example.com/webhooks
+                  isEnabled: true
+      responses:
+        '201':
+          description: Webhook subscription created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscriptionResponse'
+        '400':
+          description: Invalid subscription configuration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_url:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Target URL must be a valid HTTPS endpoint
+                invalid_event_types:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Event types must be non-empty and contain valid event type names
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Too many requests. Please try again later.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /v2/data/webhooks/subscriptions/{subscriptionId}:
+    get:
+      operationId: getWebhookSubscription
+      summary: Get webhook subscription details
+      x-audience: public
+      description: |
+        Retrieve detailed information about a specific webhook subscription including
+        configuration, status, creation timestamp, and webhook signature secret.
+
+        ### Response Includes
+        - Subscription configuration and filters
+        - Target URL and custom headers
+        - Webhook signature secret for verification
+        - Creation timestamp and status
+      tags:
+        - Webhooks
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: subscriptionId
+          in: path
+          required: true
+          description: Unique identifier for the webhook subscription.
+          schema:
+            type: string
+            format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: Webhook subscription details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscriptionResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Webhook subscription not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                subscription_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Webhook subscription not found
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Too many requests. Please try again later.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      operationId: updateWebhookSubscription
+      summary: Update webhook subscription
+      x-audience: public
+      description: |
+        Update an existing webhook subscription's configuration including
+        event types, target URL, filtering criteria, and enabled status.
+        All required fields must be provided, even if they are not being changed.
+
+        ### Common Updates
+        - Change target URL or headers
+        - Add/remove event type filters
+        - Update multi-label filtering criteria
+        - Enable/disable subscription
+      tags:
+        - Webhooks
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: subscriptionId
+          in: path
+          required: true
+          description: Unique identifier for the webhook subscription.
+          schema:
+            type: string
+            format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookSubscriptionUpdateRequest'
+      responses:
+        '200':
+          description: Webhook subscription updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscriptionResponse'
+        '400':
+          description: Invalid subscription update configuration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_url:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Target URL must be a valid HTTPS endpoint
+                invalid_event_types:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Event types must be non-empty and contain valid event type names
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Webhook subscription not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                subscription_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Webhook subscription not found
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Too many requests. Please try again later.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      operationId: deleteWebhookSubscription
+      summary: Delete webhook subscription
+      x-audience: public
+      description: |
+        Permanently delete a webhook subscription and stop all event deliveries.
+        This action cannot be undone.
+
+        ### Important Notes
+        - All webhook deliveries will cease immediately
+        - Subscription cannot be recovered after deletion
+        - Consider disabling instead of deleting for temporary pauses
+      tags:
+        - Webhooks
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: subscriptionId
+          in: path
+          required: true
+          description: Unique identifier for the webhook subscription.
+          schema:
+            type: string
+            format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '204':
+          description: Webhook subscription deleted successfully.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Webhook subscription not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                subscription_not_found:
+                  value:
+                    errorType: not_found
+                    errorMessage: Webhook subscription not found
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                rate_limit_exceeded:
+                  value:
+                    errorType: rate_limit_exceeded
+                    errorMessage: Too many requests. Please try again later.
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /v2/x402/verify:
     post:
       x-audience: public
@@ -4918,7 +5479,7 @@ paths:
       description: |-
         Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.
 
-        This API currently only supports the payment method `GUEST_CHECKOUT_APPLE_PAY`, and the `paymentLink` returned will only work in iOS apps. We do not support web integration via iframes at this time.
+        This API currently only supports the payment method `GUEST_CHECKOUT_APPLE_PAY`.
 
         For detailed integration instructions and to get access to this API, refer to the  [Apple Pay Onramp API docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api).
       operationId: createOnrampOrder
@@ -5186,13 +5747,21 @@ paths:
                   type: string
                   example: NY
                 redirectUrl:
-                  description: URL to redirect the user to when they successfully complete a transaction. This URL will be  embedded in the returned onramp URL as a query parameter.
-                  type: string
-                  example: https://yourapp.com/success
+                  allOf:
+                    - $ref: '#/components/schemas/Url'
+                  description: URL to redirect the user to when they successfully complete a transaction. This URL will be embedded in the returned onramp URL as a query parameter.
+                  example: https://example.com/success
                 clientIp:
                   description: The IP address of the end user requesting the onramp transaction.
                   type: string
                   example: 127.0.0.1
+                partnerUserRef:
+                  description: |-
+                    A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+
+                    This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
+                  type: string
+                  example: user-1234
               required:
                 - destinationAddress
                 - purchaseCurrency
@@ -5232,6 +5801,7 @@ paths:
           $ref: '#/components/responses/RateLimitExceeded'
         '500':
           $ref: '#/components/responses/InternalServerError'
+webhooks: {}
 components:
   securitySchemes:
     apiKeyAuth:
@@ -5301,12 +5871,47 @@ components:
         - type
         - sub
         - kid
+    OAuth2ProviderType:
+      type: string
+      description: The type of OAuth2 provider.
+      enum:
+        - google
+        - apple
+        - x
+      example: google
+    OAuth2Authentication:
+      type: object
+      title: OAuth2Authentication
+      description: Information about an end user who authenticates using a third-party provider.
+      properties:
+        type:
+          $ref: '#/components/schemas/OAuth2ProviderType'
+        sub:
+          type: string
+          description: The unique identifier for the end user that is captured in the `sub` claim of the JWT.
+          example: e051beeb-7163-4527-a5b6-35e301529ff2
+        email:
+          type: string
+          description: The email address of the end user contained within the user's ID token, if available from third-party OAuth2 provider's token exchange.
+          example: test.user@gmail.com
+        name:
+          type: string
+          description: The full name of the end user if available from third-party OAuth2 provider's token exchange.
+          example: Test User
+        username:
+          type: string
+          description: The username of the end user if available from third-party OAuth2 provider's token exchange.
+          example: test.user
+      required:
+        - type
+        - sub
     AuthenticationMethod:
       description: Information about how the end user is authenticated.
       oneOf:
         - $ref: '#/components/schemas/EmailAuthentication'
         - $ref: '#/components/schemas/SmsAuthentication'
         - $ref: '#/components/schemas/DeveloperJWTAuthentication'
+        - $ref: '#/components/schemas/OAuth2Authentication'
     AuthenticationMethods:
       type: array
       description: The list of valid authentication methods linked to the end user.
@@ -5320,6 +5925,9 @@ components:
         - type: jwt
           sub: e051beeb-7163-4527-a5b6-35e301529ff2
           kid: NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg
+        - type: google
+          sub: '115346410074741490243'
+          email: test.user@gmail.com
     EndUser:
       type: object
       description: Information about the end user.
@@ -5361,6 +5969,11 @@ components:
             example: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
           example:
             - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+        createdAt:
+          type: string
+          format: date-time
+          description: The date and time when the end user was created, in ISO 8601 format.
+          example: '2025-01-15T10:30:00Z'
       required:
         - userId
         - authenticationMethods
@@ -5410,6 +6023,14 @@ components:
         - recipient_allowlist_violation
         - recipient_allowlist_pending
         - travel_rules_recipient_violation
+        - transfer_amount_out_of_bounds
+        - transfer_recipient_address_invalid
+        - transfer_quote_expired
+        - mfa_already_enrolled
+        - mfa_invalid_code
+        - mfa_flow_expired
+        - mfa_required
+        - mfa_not_enrolled
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -5727,6 +6348,80 @@ components:
           This error occurs when the user is not allowed to receive funds at this address, because it violates travel rules.
           **Steps to resolve:**
           1. Ensure your desired transfer is not blocked by local travel regulations.
+        transfer_amount_out_of_bounds: |-
+          This error occurs when the transfer amount is less than $1 USD equivalent amount or greater than the maximum transfer amount for the account.
+
+          **Steps to resolve:**
+          1. Verify the transfer amount is greater than $1 USD equivalent amount.
+          2. Confirm that the account has sufficient funds to cover the transfer amount.
+        transfer_recipient_address_invalid: |-
+          This error occurs when the recipient address is invalid for the specified network.
+          **Steps to resolve:**
+          1. Verify the network is supported for the transfer.
+          2. Confirm that the recipient address is valid for the specified network.
+        transfer_quote_expired: |-
+          This error occurs when the transfer quote has expired.
+          **Steps to resolve:**
+          1. Create a new quoted transfer and retry the request.
+        mfa_already_enrolled: |-
+          This error occurs when attempting to enroll in an MFA method that the user has already enrolled in.
+
+          **Steps to resolve:**
+          1. Check if the user is already enrolled in the MFA method before initiating enrollment
+          2. To update or reset MFA, remove the existing enrollment first (if supported)
+          3. Use a different MFA method if multiple options are available
+        mfa_invalid_code: |-
+          This error occurs when the MFA code provided is incorrect or has already been used.
+
+          **Steps to resolve:**
+          1. Verify the user entered the correct code from their authenticator app
+          2. Ensure the code is current (TOTP codes expire after 30 seconds)
+          3. Check that the device time is synchronized correctly
+          4. Ask the user to generate a new code and try again
+
+          **Common causes:**
+          - Typing errors in the 6-digit code
+          - Using an expired TOTP code
+          - Device clock drift on user's authenticator app
+          - Attempting to reuse a previously submitted code
+        mfa_flow_expired: |-
+          This error occurs when the MFA enrollment or verification session has expired.
+
+          **Steps to resolve:**
+          1. Restart the MFA enrollment or verification flow
+          2. Complete the flow within the allowed time window (typically 5 minutes)
+          3. Ensure the user doesn't leave the flow idle for extended periods
+
+          **Note:** MFA sessions expire automatically for security purposes.
+        mfa_required: |-
+          This error occurs when attempting to perform a sensitive operation that requires MFA verification, but the user has not completed MFA verification.
+
+          **Steps to resolve:**
+          1. Initiate the MFA verification flow using the `/mfa/verify/{mfaMethod}/init` endpoint
+          2. Prompt the user to enter their MFA code
+          3. Submit the verification using the `/mfa/verify/{mfaMethod}/submit` endpoint
+          4. Use the returned access token with MFA claim for the sensitive operation
+          5. Retry the original request with the new MFA-verified token
+
+          **Operations requiring MFA:**
+          - Transactions Sign/Send
+          - Key export
+          - Account management actions (when configured)
+        mfa_not_enrolled: |-
+          This error occurs when attempting to verify MFA for a user who has not enrolled in any MFA method.
+
+          **Steps to resolve:**
+          1. Check if the user has enrolled in MFA before attempting verification
+          2. Guide the user through MFA enrollment first using the `/mfa/enroll/{mfaMethod}/init` endpoint
+          3. Complete enrollment before requiring MFA verification
+    Url:
+      type: string
+      format: uri
+      minLength: 11
+      maxLength: 2048
+      pattern: ^https?://.*$
+      description: A valid HTTP or HTTPS URL.
+      example: https://example.com
     Error:
       description: An error response including the code for the type of error and a human-readable message describing the error.
       type: object
@@ -5742,8 +6437,9 @@ components:
           type: string
           example: 41deb8d59a9dc9a7-IAD
         errorLink:
+          allOf:
+            - $ref: '#/components/schemas/Url'
           description: A link to the corresponding error documentation.
-          type: string
           example: https://docs.cdp.coinbase.com/api-reference/v2/errors#invalid-request
       required:
         - errorType
@@ -6155,7 +6851,8 @@ components:
           description: Arbitrary data to include in the permission.
           example: 0x
         paymasterUrl:
-          type: string
+          allOf:
+            - $ref: '#/components/schemas/Url'
           description: The paymaster URL of the spend permission.
           example: https://paymaster.cdp.coinbase.com
       required:
@@ -6271,7 +6968,8 @@ components:
           description: The hash of the spend permission to revoke.
           example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
         paymasterUrl:
-          type: string
+          allOf:
+            - $ref: '#/components/schemas/Url'
           description: The paymaster URL of the spend permission.
           example: https://paymaster.cdp.coinbase.com
       required:
@@ -8485,7 +9183,24 @@ components:
           description: SQL query to execute against the indexed blockchain data.
           example: SELECT block_number, transaction_hash FROM base.transactions WHERE block_number > 1000000 LIMIT 10
           minLength: 1
-          maxLength: 50000
+          maxLength: 100000
+        cache:
+          type: object
+          title: Query result cache configuration
+          description: |
+            Enables control over how often queries need to be fully re-executed on the backing store.
+            This can be useful in scenarios where API calls might be made frequently, API latency is critical, and some freshness lag (ex: 750ms, 2s, 5s) is tolerable.
+            By default, each query result is returned from cache so long as the result is from an identical query and less than 500ms old. This freshness tolerance can be modified upwards, to a maximum of 900000ms (i.e. 900s, 15m).
+          example:
+            maxAgeMs: 1000
+          properties:
+            maxAgeMs:
+              type: integer
+              description: The maximum tolerable staleness of the query result cache in milliseconds. If a previous execution result of an identical query is older than this age, the query will be re-executed. If the data is less than this age, the result will be returned from cache.
+              example: 1000
+              default: 500
+              minimum: 500
+              maximum: 900000
     OnchainDataResult:
       type: object
       description: Result of executing a SQL query.
@@ -8565,8 +9280,13 @@ components:
           properties:
             cached:
               type: boolean
-              description: Whether the result was served from cache.
+              description: Whether the result was served from the query result cache.
               example: false
+            executionTimestamp:
+              type: string
+              description: When the query result was executed against the backing store in RFC 3339 format.
+              format: date-time
+              example: '2025-01-01T00:00:00.000Z'
             executionTimeMs:
               type: integer
               description: Query execution time in milliseconds.
@@ -8577,6 +9297,7 @@ components:
               example: 2
           example:
             cached: false
+            executionTimestamp: '2025-01-01T00:00:00.000Z'
             executionTimeMs: 145
             rowCount: 2
     AccountTokenAddressesResponse:
@@ -8603,6 +9324,295 @@ components:
           description: Total number of unique token addresses discovered.
           example: 15
           minimum: 0
+    WebhookTarget:
+      type: object
+      description: |
+        Target configuration for webhook delivery.
+        Specifies the destination URL and any custom headers to include in webhook requests.
+      required:
+        - url
+      properties:
+        url:
+          allOf:
+            - $ref: '#/components/schemas/Url'
+          description: The webhook URL to deliver events to.
+          example: https://api.example.com/webhooks
+        headers:
+          type: object
+          description: Additional headers to include in webhook requests.
+          additionalProperties:
+            type: string
+          example:
+            Authorization: Bearer token123
+            Content-Type: application/json
+      example:
+        url: https://api.example.com/webhooks
+        headers:
+          Authorization: Bearer token123
+          Content-Type: application/json
+    WebhookSubscriptionResponse:
+      type: object
+      description: Response containing webhook subscription details.
+      required:
+        - subscriptionId
+        - eventTypes
+        - isEnabled
+        - target
+        - createdAt
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          description: When the subscription was created.
+          example: '2025-01-15T10:30:00Z'
+        description:
+          type: string
+          description: Description of the webhook subscription.
+          example: Subscription for token transfer events
+        eventTypes:
+          type: array
+          description: |
+            Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+            service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
+          items:
+            type: string
+          example:
+            - onchain.activity.detected
+        isEnabled:
+          type: boolean
+          description: Whether the subscription is enabled.
+          example: true
+        metadata:
+          type: object
+          description: Additional metadata for the subscription.
+          properties:
+            secret:
+              type: string
+              format: uuid
+              description: |
+                Secret for webhook signature validation.
+
+                **Note:** Webhooks are in beta and this interface is subject to change.
+              example: 123e4567-e89b-12d3-a456-426614174000
+          example:
+            secret: 123e4567-e89b-12d3-a456-426614174000
+        subscriptionId:
+          type: string
+          format: uuid
+          description: Unique identifier for the subscription.
+          example: 123e4567-e89b-12d3-a456-426614174000
+        target:
+          $ref: '#/components/schemas/WebhookTarget'
+        labelKey:
+          type: string
+          description: |
+            Label key for filtering events. Present when subscription uses traditional single-label format.
+          example: contract_address
+        labelValue:
+          type: string
+          description: |
+            Label value for filtering events. Present when subscription uses traditional single-label format.
+          example: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+        labels:
+          type: object
+          description: |
+            Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.
+            Present when subscription uses multi-label format.
+          additionalProperties:
+            type: string
+          example:
+            env: dev
+            team: payments
+            contract_address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+      example:
+        subscriptionId: 123e4567-e89b-12d3-a456-426614174000
+        eventTypes:
+          - onchain.activity.detected
+        isEnabled: true
+        labelKey: event_name
+        labelValue: Transfer
+        labels:
+          contract_address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+          event_name: Transfer
+          network: base-mainnet
+          transaction_to: '0xf5042e6ffac5a625d4e7848e0b01373d8eb9e222'
+        description: USDC Transfer events to specific address.
+        createdAt: '2025-11-12T09:19:52.051Z'
+        metadata:
+          secret: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+        target:
+          url: https://api.example.com/webhooks
+    WebhookSubscriptionListResponse:
+      allOf:
+        - type: object
+          description: Response containing a list of webhook subscriptions.
+          required:
+            - subscriptions
+          properties:
+            subscriptions:
+              type: array
+              description: The list of webhook subscriptions.
+              items:
+                $ref: '#/components/schemas/WebhookSubscriptionResponse'
+        - $ref: '#/components/schemas/ListResponse'
+    WebhookSubscriptionRequest:
+      type: object
+      description: |
+        Request to create a new webhook subscription with support for both traditional single-label 
+        and multi-label filtering formats.
+      properties:
+        description:
+          type: string
+          description: Description of the webhook subscription.
+          example: Subscription for token transfer events
+        eventTypes:
+          type: array
+          description: |
+            Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+            service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
+            The subscription will only receive events matching these types AND the label filter(s).
+          items:
+            type: string
+          example:
+            - onchain.activity.detected
+        isEnabled:
+          type: boolean
+          description: Whether the subscription is enabled.
+          example: true
+        target:
+          $ref: '#/components/schemas/WebhookTarget'
+        metadata:
+          type: object
+          description: Additional metadata for the subscription.
+          additionalProperties: true
+          example:
+            custom_field: custom_value
+            webhook_version: v1
+        labelKey:
+          type: string
+          description: |
+            Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair 
+            in addition to the event types. Only events matching both the event types AND this label filter will be delivered.
+            NOTE: Use either (labelKey + labelValue) OR labels, not both.
+          example: contract_address
+        labelValue:
+          type: string
+          description: |
+            Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).
+            Only events with this exact label value will be delivered.
+            NOTE: Use either (labelKey + labelValue) OR labels, not both.
+          example: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+        labels:
+          type: object
+          description: |
+            Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
+            an event contains ALL the key-value pairs specified here. Additional labels on 
+            the event are allowed and will not prevent matching.
+            NOTE: Use either labels OR (labelKey + labelValue), not both.
+          additionalProperties:
+            type: string
+          example:
+            env: dev
+            team: payments
+            contract_address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+      oneOf:
+        - title: Traditional single-label format
+          required:
+            - eventTypes
+            - isEnabled
+            - labelKey
+            - labelValue
+            - target
+          not:
+            required:
+              - labels
+        - title: Multi-label format with total overlap logic
+          required:
+            - eventTypes
+            - isEnabled
+            - labels
+            - target
+          not:
+            anyOf:
+              - required:
+                  - labelKey
+              - required:
+                  - labelValue
+    WebhookSubscriptionUpdateRequest:
+      type: object
+      description: |
+        Request to update an existing webhook subscription. The update format must match 
+        the original subscription format (traditional or multi-label).
+      properties:
+        description:
+          type: string
+          description: Description of the webhook subscription.
+          example: Updated subscription for token transfer events
+        eventTypes:
+          type: array
+          description: |
+            Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+            service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
+          items:
+            type: string
+          example:
+            - onchain.activity.detected
+        isEnabled:
+          type: boolean
+          description: Whether the subscription is enabled.
+          example: false
+        target:
+          $ref: '#/components/schemas/WebhookTarget'
+        metadata:
+          type: object
+          description: Additional metadata for the subscription.
+          additionalProperties: true
+          example:
+            updated_field: updated_value
+            webhook_version: v2
+        labelKey:
+          type: string
+          description: |
+            Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.
+          example: contract_address
+        labelValue:
+          type: string
+          description: |
+            Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.
+          example: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+        labels:
+          type: object
+          description: |
+            Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
+            an event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.
+          additionalProperties:
+            type: string
+          example:
+            env: prod
+            service: api
+      oneOf:
+        - title: Traditional single-label update format
+          required:
+            - eventTypes
+            - isEnabled
+            - labelKey
+            - labelValue
+            - target
+          not:
+            required:
+              - labels
+        - title: Multi-label update format with total overlap logic
+          required:
+            - eventTypes
+            - isEnabled
+            - labels
+            - target
+          not:
+            anyOf:
+              - required:
+                  - labelKey
+              - required:
+                  - labelValue
     X402Version:
       type: integer
       description: The version of the x402 protocol.
@@ -8765,7 +9775,8 @@ components:
           description: The maximum amount required to pay for the resource in atomic units of the payment asset.
           example: '1000000'
         resource:
-          type: string
+          allOf:
+            - $ref: '#/components/schemas/Url'
           description: The URL of the resource to pay for.
           example: https://api.example.com/premium/resource/123
         description:
@@ -8833,6 +9844,7 @@ components:
         - invalid_payment_requirements
         - invalid_payload
         - invalid_exact_evm_payload_authorization_value
+        - invalid_exact_evm_payload_authorization_value_too_low
         - invalid_exact_evm_payload_authorization_valid_after
         - invalid_exact_evm_payload_authorization_valid_before
         - invalid_exact_evm_payload_authorization_typed_data_message
@@ -8858,6 +9870,8 @@ components:
         - invalid_exact_svm_payload_transaction_sender_ata_not_found
         - invalid_exact_svm_payload_transaction_simulation_failed
         - invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata
+        - invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts
+        - invalid_exact_svm_payload_transaction_fee_payer_transferring_funds
       example: insufficient_funds
     x402SettleErrorReason:
       type: string
@@ -9050,8 +10064,9 @@ components:
         Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
       properties:
         url:
-          type: string
-          description: The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your  own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes.
+          allOf:
+            - $ref: '#/components/schemas/Url'
+          description: The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes.
           example: https://pay.coinbase.com/v2/api-onramp/apple-pay?sessionToken=MWYwNWQwODktZTZlYy02OTdlLTgzZTYtMTI3NzcyOWJhNjM3
         paymentLinkType:
           $ref: '#/components/schemas/OnrampPaymentLinkType'
@@ -9074,7 +10089,8 @@ components:
       description: An onramp session containing a ready-to-use onramp URL.
       properties:
         onrampUrl:
-          type: string
+          allOf:
+            - $ref: '#/components/schemas/Url'
           description: Ready-to-use onramp URL.
           example: https://pay.coinbase.com/buy?sessionToken=abc123F
       required:
@@ -9387,3 +10403,20 @@ components:
         minLength: 36
         pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$
       example: 8e03978e-40d5-43e8-bc93-6894a57f9324
+    PageSize:
+      name: pageSize
+      description: The number of resources to return per page.
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 20
+      example: 10
+    PageToken:
+      name: pageToken
+      description: The token for the next page of resources, if any.
+      in: query
+      required: false
+      schema:
+        type: string
+      example: eyJsYXN0X2lkIjogImFiYzEyMyIsICJ0aW1lc3RhbXAiOiAxNzA3ODIzNzAxfQ==

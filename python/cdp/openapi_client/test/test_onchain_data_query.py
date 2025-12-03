@@ -36,7 +36,8 @@ class TestOnchainDataQuery(unittest.TestCase):
         model = OnchainDataQuery()
         if include_optional:
             return OnchainDataQuery(
-                sql = 'SELECT block_number, transaction_hash FROM base.transactions WHERE block_number > 1000000 LIMIT 10'
+                sql = 'SELECT block_number, transaction_hash FROM base.transactions WHERE block_number > 1000000 LIMIT 10',
+                cache = {maxAgeMs=1000}
             )
         else:
             return OnchainDataQuery(

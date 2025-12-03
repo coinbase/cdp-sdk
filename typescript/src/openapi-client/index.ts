@@ -24,12 +24,14 @@ import * as onchainData from "./generated/onchain-data/onchain-data.js";
 import * as policies from "./generated/policy-engine/policy-engine.js";
 import * as solana from "./generated/solana-accounts/solana-accounts.js";
 import * as solanaTokenBalances from "./generated/solana-token-balances/solana-token-balances.js";
+import * as webhooks from "./generated/webhooks/webhooks.js";
 
 export const CdpOpenApiClient = {
   ...evm,
   ...evmSmartAccounts,
   ...evmSwaps,
   ...evmTokenBalances,
+  ...webhooks,
   ...solana,
   ...solanaTokenBalances,
   ...faucets,

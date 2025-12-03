@@ -19,7 +19,7 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List
 from cdp.openapi_client.models.token_fee import TokenFee
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,8 +28,8 @@ class CommonSwapResponseFees(BaseModel):
     """
     The estimated fees for the swap.
     """ # noqa: E501
-    gas_fee: Optional[TokenFee] = Field(description="The estimated gas fee for the swap.", alias="gasFee")
-    protocol_fee: Optional[TokenFee] = Field(description="The estimated protocol fee for the swap.", alias="protocolFee")
+    gas_fee: TokenFee = Field(description="The estimated gas fee for the swap.", alias="gasFee")
+    protocol_fee: TokenFee = Field(description="The estimated protocol fee for the swap.", alias="protocolFee")
     __properties: ClassVar[List[str]] = ["gasFee", "protocolFee"]
 
     model_config = ConfigDict(
@@ -77,16 +77,6 @@ class CommonSwapResponseFees(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of protocol_fee
         if self.protocol_fee:
             _dict['protocolFee'] = self.protocol_fee.to_dict()
-        # set to None if gas_fee (nullable) is None
-        # and model_fields_set contains the field
-        if self.gas_fee is None and "gas_fee" in self.model_fields_set:
-            _dict['gasFee'] = None
-
-        # set to None if protocol_fee (nullable) is None
-        # and model_fields_set contains the field
-        if self.protocol_fee is None and "protocol_fee" in self.model_fields_set:
-            _dict['protocolFee'] = None
-
         return _dict
 
     @classmethod

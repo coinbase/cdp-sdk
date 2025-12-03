@@ -42,7 +42,7 @@ class TestOnrampQuote(unittest.TestCase):
                 purchase_amount = '100.000000',
                 purchase_currency = 'USDC',
                 destination_network = 'base',
-                fees = [{"type":"FEE_TYPE_EXCHANGE","amount":"0.5","currency":"USD"},{"type":"FEE_TYPE_NETWORK","amount":"0.25","currency":"USD"}],
+                fees = [{type=FEE_TYPE_EXCHANGE, amount=0.5, currency=USD}, {type=FEE_TYPE_NETWORK, amount=0.25, currency=USD}],
                 exchange_rate = '1'
             )
         else:
@@ -53,7 +53,7 @@ class TestOnrampQuote(unittest.TestCase):
                 purchase_amount = '100.000000',
                 purchase_currency = 'USDC',
                 destination_network = 'base',
-                fees = [{"type":"FEE_TYPE_EXCHANGE","amount":"0.5","currency":"USD"},{"type":"FEE_TYPE_NETWORK","amount":"0.25","currency":"USD"}],
+                fees = [{type=FEE_TYPE_EXCHANGE, amount=0.5, currency=USD}, {type=FEE_TYPE_NETWORK, amount=0.25, currency=USD}],
                 exchange_rate = '1',
         )
         """

@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
 from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
@@ -29,6 +29,13 @@ class SwapUnavailableResponse(BaseModel):
     """ # noqa: E501
     liquidity_available: StrictBool = Field(description="Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.", alias="liquidityAvailable")
     __properties: ClassVar[List[str]] = ["liquidityAvailable"]
+
+    @field_validator('liquidity_available')
+    def liquidity_available_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['false']):
+            raise ValueError("must be one of enum values ('false')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

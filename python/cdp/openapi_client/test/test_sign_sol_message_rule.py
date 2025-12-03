@@ -38,13 +38,13 @@ class TestSignSolMessageRule(unittest.TestCase):
             return SignSolMessageRule(
                 action = 'accept',
                 operation = 'signSolMessage',
-                criteria = [{"type":"solMessage","match":"^hello ([a-z]+)$"}]
+                criteria = [{type=solMessage, match=^hello ([a-z]+)$}]
             )
         else:
             return SignSolMessageRule(
                 action = 'accept',
                 operation = 'signSolMessage',
-                criteria = [{"type":"solMessage","match":"^hello ([a-z]+)$"}],
+                criteria = [{type=solMessage, match=^hello ([a-z]+)$}],
         )
         """
 

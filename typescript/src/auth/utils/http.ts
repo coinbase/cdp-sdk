@@ -133,7 +133,8 @@ function requiresWalletAuth(requestMethod: string, requestPath: string): boolean
   return (
     (requestPath?.includes("/accounts") ||
       requestPath?.includes("/spend-permissions") ||
-      requestPath?.includes("/user-operations/prepare-and-send")) &&
+      requestPath?.includes("/user-operations/prepare-and-send") ||
+      requestPath?.endsWith("/end-users")) &&
     (requestMethod === "POST" || requestMethod === "DELETE" || requestMethod === "PUT")
   );
 }

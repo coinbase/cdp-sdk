@@ -17,9 +17,9 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from cdp.openapi_client.models.settle_x402_payment200_response import SettleX402Payment200Response
-from cdp.openapi_client.models.supported_x402_payment_kinds200_response import SupportedX402PaymentKinds200Response
-from cdp.openapi_client.models.verify_x402_payment200_response import VerifyX402Payment200Response
+from cdp.openapi_client.models.inline_object import InlineObject
+from cdp.openapi_client.models.inline_object1 import InlineObject1
+from cdp.openapi_client.models.inline_object2 import InlineObject2
 from cdp.openapi_client.models.verify_x402_payment_request import VerifyX402PaymentRequest
 
 from cdp.openapi_client.api_client import ApiClient, RequestSerialized
@@ -56,7 +56,7 @@ class X402FacilitatorApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SettleX402Payment200Response:
+    ) -> InlineObject1:
         """Settle a payment
 
         Settle an x402 protocol payment with a specific scheme and network.
@@ -94,7 +94,7 @@ class X402FacilitatorApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SettleX402Payment200Response",
+            '200': "InlineObject1",
             '400': "Error",
             '500': "Error",
             '502': "Error",
@@ -127,7 +127,7 @@ class X402FacilitatorApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SettleX402Payment200Response]:
+    ) -> ApiResponse[InlineObject1]:
         """Settle a payment
 
         Settle an x402 protocol payment with a specific scheme and network.
@@ -165,7 +165,7 @@ class X402FacilitatorApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SettleX402Payment200Response",
+            '200': "InlineObject1",
             '400': "Error",
             '500': "Error",
             '502': "Error",
@@ -236,7 +236,7 @@ class X402FacilitatorApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SettleX402Payment200Response",
+            '200': "InlineObject1",
             '400': "Error",
             '500': "Error",
             '502': "Error",
@@ -341,7 +341,7 @@ class X402FacilitatorApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> SupportedX402PaymentKinds200Response:
+    ) -> InlineObject2:
         """Get supported payment schemes and networks
 
         Get the supported x402 protocol payment schemes and networks that the facilitator is able to verify and settle payments for.
@@ -376,7 +376,7 @@ class X402FacilitatorApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SupportedX402PaymentKinds200Response",
+            '200': "InlineObject2",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -407,7 +407,7 @@ class X402FacilitatorApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[SupportedX402PaymentKinds200Response]:
+    ) -> ApiResponse[InlineObject2]:
         """Get supported payment schemes and networks
 
         Get the supported x402 protocol payment schemes and networks that the facilitator is able to verify and settle payments for.
@@ -442,7 +442,7 @@ class X402FacilitatorApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SupportedX402PaymentKinds200Response",
+            '200': "InlineObject2",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -508,7 +508,7 @@ class X402FacilitatorApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "SupportedX402PaymentKinds200Response",
+            '200': "InlineObject2",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -597,7 +597,7 @@ class X402FacilitatorApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> VerifyX402Payment200Response:
+    ) -> InlineObject:
         """Verify a payment
 
         Verify an x402 protocol payment with a specific scheme and network.
@@ -635,7 +635,7 @@ class X402FacilitatorApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "VerifyX402Payment200Response",
+            '200': "InlineObject",
             '400': "Error",
             '500': "Error",
             '502': "Error",
@@ -668,7 +668,7 @@ class X402FacilitatorApi:
         _content_type: Optional[StrictStr] = None,
         _headers: Optional[Dict[StrictStr, Any]] = None,
         _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
-    ) -> ApiResponse[VerifyX402Payment200Response]:
+    ) -> ApiResponse[InlineObject]:
         """Verify a payment
 
         Verify an x402 protocol payment with a specific scheme and network.
@@ -706,7 +706,7 @@ class X402FacilitatorApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "VerifyX402Payment200Response",
+            '200': "InlineObject",
             '400': "Error",
             '500': "Error",
             '502': "Error",
@@ -777,7 +777,7 @@ class X402FacilitatorApi:
         )
 
         _response_types_map: Dict[str, Optional[str]] = {
-            '200': "VerifyX402Payment200Response",
+            '200': "InlineObject",
             '400': "Error",
             '500': "Error",
             '502': "Error",

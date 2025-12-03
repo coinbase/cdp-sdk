@@ -37,7 +37,7 @@ class TestEvmDataCondition(unittest.TestCase):
         if include_optional:
             return EvmDataCondition(
                 function = 'transfer',
-                params = [{"name":"value","operator":"<=","value":"10000"},{"name":"to","operator":"in","values":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"]}]
+                params = [{name=value, operator=<=, value=10000}, {name=to, operator=in, values=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e]}]
             )
         else:
             return EvmDataCondition(

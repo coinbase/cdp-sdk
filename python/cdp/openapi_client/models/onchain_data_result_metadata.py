@@ -18,6 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
@@ -27,10 +28,11 @@ class OnchainDataResultMetadata(BaseModel):
     """
     Metadata about query execution.
     """ # noqa: E501
-    cached: Optional[StrictBool] = Field(default=None, description="Whether the result was served from cache.")
+    cached: Optional[StrictBool] = Field(default=None, description="Whether the result was served from the query result cache.")
+    execution_timestamp: Optional[datetime] = Field(default=None, description="When the query result was executed against the backing store in RFC 3339 format.", alias="executionTimestamp")
     execution_time_ms: Optional[StrictInt] = Field(default=None, description="Query execution time in milliseconds.", alias="executionTimeMs")
     row_count: Optional[StrictInt] = Field(default=None, description="Number of rows returned.", alias="rowCount")
-    __properties: ClassVar[List[str]] = ["cached", "executionTimeMs", "rowCount"]
+    __properties: ClassVar[List[str]] = ["cached", "executionTimestamp", "executionTimeMs", "rowCount"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -84,6 +86,7 @@ class OnchainDataResultMetadata(BaseModel):
 
         _obj = cls.model_validate({
             "cached": obj.get("cached"),
+            "executionTimestamp": obj.get("executionTimestamp"),
             "executionTimeMs": obj.get("executionTimeMs"),
             "rowCount": obj.get("rowCount")
         })

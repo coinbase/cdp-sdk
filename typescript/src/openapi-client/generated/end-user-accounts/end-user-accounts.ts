@@ -6,6 +6,7 @@
  * OpenAPI spec version: 2.0.0
  */
 import type {
+  CreateEndUserBody,
   EndUser,
   ListEndUsers200,
   ListEndUsersParams,
@@ -16,6 +17,25 @@ import { cdpApiClient } from "../../cdpApiClient.js";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
+/**
+ * Creates an end user. An end user is an entity that can own CDP EVM accounts, EVM smart accounts, and/or Solana accounts. 1 or more authentication methods must be associated with an end user. By default, no accounts are created unless the optional `evmAccount` and/or `solanaAccount` fields are provided.
+This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+ * @summary Create an end user
+ */
+export const createEndUser = (
+  createEndUserBody: CreateEndUserBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EndUser>(
+    {
+      url: `/v2/end-users`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: createEndUserBody,
+    },
+    options,
+  );
+};
 /**
  * Lists the end users belonging to the developer's CDP Project.
 By default, the response is sorted by creation date in ascending order and paginated to 20 users per page.
@@ -47,7 +67,18 @@ export const validateEndUserAccessToken = (
     options,
   );
 };
+/**
+ * Gets an end user by ID.
+
+This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+ * @summary Get an end user
+ */
+export const getEndUser = (userId: string, options?: SecondParameter<typeof cdpApiClient>) => {
+  return cdpApiClient<EndUser>({ url: `/v2/end-users/${userId}`, method: "GET" }, options);
+};
+export type CreateEndUserResult = NonNullable<Awaited<ReturnType<typeof createEndUser>>>;
 export type ListEndUsersResult = NonNullable<Awaited<ReturnType<typeof listEndUsers>>>;
 export type ValidateEndUserAccessTokenResult = NonNullable<
   Awaited<ReturnType<typeof validateEndUserAccessToken>>
 >;
+export type GetEndUserResult = NonNullable<Awaited<ReturnType<typeof getEndUser>>>;

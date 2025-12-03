@@ -37,7 +37,7 @@ class TestSignEvmTypedDataCriteriaInner(unittest.TestCase):
         if include_optional:
             return SignEvmTypedDataCriteriaInner(
                 type = 'evmTypedDataField',
-                types = {"primaryType":"Mail","types":{"Person":[{"name":"name","type":"string"},{"name":"wallet","type":"address"},{"name":"score","type":"uint256"}],"Mail":[{"name":"from","type":"Person"},{"name":"to","type":"Person"},{"name":"contents","type":"string"}]}},
+                types = {primaryType=Mail, types={Person=[{name=name, type=string}, {name=wallet, type=address}, {name=score, type=uint256}], Mail=[{name=from, type=Person}, {name=to, type=Person}, {name=contents, type=string}]}},
                 conditions = [{addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in, path=to.wallet}, {value=50, operator=>=, path=to.score}, {match=^hello ([a-z]+)$, path=contents}],
                 addresses = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e, 0x1234567890123456789012345678901234567890],
                 operator = 'in'
@@ -45,7 +45,7 @@ class TestSignEvmTypedDataCriteriaInner(unittest.TestCase):
         else:
             return SignEvmTypedDataCriteriaInner(
                 type = 'evmTypedDataField',
-                types = {"primaryType":"Mail","types":{"Person":[{"name":"name","type":"string"},{"name":"wallet","type":"address"},{"name":"score","type":"uint256"}],"Mail":[{"name":"from","type":"Person"},{"name":"to","type":"Person"},{"name":"contents","type":"string"}]}},
+                types = {primaryType=Mail, types={Person=[{name=name, type=string}, {name=wallet, type=address}, {name=score, type=uint256}], Mail=[{name=from, type=Person}, {name=to, type=Person}, {name=contents, type=string}]}},
                 conditions = [{addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in, path=to.wallet}, {value=50, operator=>=, path=to.score}, {match=^hello ([a-z]+)$, path=contents}],
                 addresses = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e, 0x1234567890123456789012345678901234567890],
                 operator = 'in',

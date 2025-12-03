@@ -20,7 +20,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 /**
  * Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.
 
-This API currently only supports the payment method `GUEST_CHECKOUT_APPLE_PAY`, and the `paymentLink` returned will only work in iOS apps. We do not support web integration via iframes at this time.
+This API currently only supports the payment method `GUEST_CHECKOUT_APPLE_PAY`.
 
 For detailed integration instructions and to get access to this API, refer to the  [Apple Pay Onramp API docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/apple-pay-onramp-api).
  * @summary Create an onramp order

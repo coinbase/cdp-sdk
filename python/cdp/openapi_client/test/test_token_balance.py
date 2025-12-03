@@ -36,13 +36,13 @@ class TestTokenBalance(unittest.TestCase):
         model = TokenBalance()
         if include_optional:
             return TokenBalance(
-                amount = {"amount":"125000000000000000000","decimals":18},
-                token = {"network":"base","symbol":"ETH","name":"Ether","contractAddress":"0x1234567890123456789012345678901234567890"}
+                amount = {amount=125000000000000000000, decimals=18},
+                token = {network=base, symbol=ETH, name=Ether, contractAddress=0x1234567890123456789012345678901234567890}
             )
         else:
             return TokenBalance(
-                amount = {"amount":"125000000000000000000","decimals":18},
-                token = {"network":"base","symbol":"ETH","name":"Ether","contractAddress":"0x1234567890123456789012345678901234567890"},
+                amount = {amount=125000000000000000000, decimals=18},
+                token = {network=base, symbol=ETH, name=Ether, contractAddress=0x1234567890123456789012345678901234567890},
         )
         """
 

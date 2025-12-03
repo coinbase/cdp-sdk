@@ -36,14 +36,14 @@ class TestCommonSwapResponseIssues(unittest.TestCase):
         model = CommonSwapResponseIssues()
         if include_optional:
             return CommonSwapResponseIssues(
-                allowance = {"currentAllowance":"1000000000","spender":"0x000000000022D473030F116dDEE9F6B43aC78BA3"},
-                balance = {"token":"0x6B175474E89094C44Da98b954EedeAC495271d0F","currentBalance":"1000000000000000000","requiredBalance":"1000000000000000000"},
+                allowance = {currentAllowance=1000000000, spender=0x000000000022D473030F116dDEE9F6B43aC78BA3},
+                balance = {token=0x6B175474E89094C44Da98b954EedeAC495271d0F, currentBalance=1000000000000000000, requiredBalance=1000000000000000000},
                 simulation_incomplete = False
             )
         else:
             return CommonSwapResponseIssues(
-                allowance = {"currentAllowance":"1000000000","spender":"0x000000000022D473030F116dDEE9F6B43aC78BA3"},
-                balance = {"token":"0x6B175474E89094C44Da98b954EedeAC495271d0F","currentBalance":"1000000000000000000","requiredBalance":"1000000000000000000"},
+                allowance = {currentAllowance=1000000000, spender=0x000000000022D473030F116dDEE9F6B43aC78BA3},
+                balance = {token=0x6B175474E89094C44Da98b954EedeAC495271d0F, currentBalance=1000000000000000000, requiredBalance=1000000000000000000},
                 simulation_incomplete = False,
         )
         """

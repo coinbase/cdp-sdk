@@ -36,12 +36,12 @@ class TestOnrampPaymentLink(unittest.TestCase):
         model = OnrampPaymentLink()
         if include_optional:
             return OnrampPaymentLink(
-                url = 'https://pay.coinbase.com/v2/api-onramp/apple-pay?sessionToken=MWYwNWQwODktZTZlYy02OTdlLTgzZTYtMTI3NzcyOWJhNjM3',
+                url = 'https://example.com',
                 payment_link_type = 'PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON'
             )
         else:
             return OnrampPaymentLink(
-                url = 'https://pay.coinbase.com/v2/api-onramp/apple-pay?sessionToken=MWYwNWQwODktZTZlYy02OTdlLTgzZTYtMTI3NzcyOWJhNjM3',
+                url = 'https://example.com',
                 payment_link_type = 'PAYMENT_LINK_TYPE_APPLE_PAY_BUTTON',
         )
         """

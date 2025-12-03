@@ -36,17 +36,17 @@ class TestEIP712Message(unittest.TestCase):
         model = EIP712Message()
         if include_optional:
             return EIP712Message(
-                domain = {"name":"Permit2","chainId":1,"verifyingContract":"0x000000000022D473030F116dDEE9F6B43aC78BA3"},
-                types = {"EIP712Domain":[{"name":"name","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"PermitTransferFrom":[{"name":"permitted","type":"TokenPermissions"},{"name":"spender","type":"address"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}],"TokenPermissions":[{"name":"token","type":"address"},{"name":"amount","type":"uint256"}]},
+                domain = {name=Permit2, chainId=1, verifyingContract=0x000000000022D473030F116dDEE9F6B43aC78BA3},
+                types = {EIP712Domain=[{name=name, type=string}, {name=chainId, type=uint256}, {name=verifyingContract, type=address}], PermitTransferFrom=[{name=permitted, type=TokenPermissions}, {name=spender, type=address}, {name=nonce, type=uint256}, {name=deadline, type=uint256}], TokenPermissions=[{name=token, type=address}, {name=amount, type=uint256}]},
                 primary_type = 'PermitTransferFrom',
-                message = {"permitted":{"token":"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48","amount":"1000000"},"spender":"0x1111111254EEB25477B68fb85Ed929f73A960582","nonce":"0","deadline":"1716239020"}
+                message = {permitted={token=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, amount=1000000}, spender=0x1111111254EEB25477B68fb85Ed929f73A960582, nonce=0, deadline=1716239020}
             )
         else:
             return EIP712Message(
-                domain = {"name":"Permit2","chainId":1,"verifyingContract":"0x000000000022D473030F116dDEE9F6B43aC78BA3"},
-                types = {"EIP712Domain":[{"name":"name","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"PermitTransferFrom":[{"name":"permitted","type":"TokenPermissions"},{"name":"spender","type":"address"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}],"TokenPermissions":[{"name":"token","type":"address"},{"name":"amount","type":"uint256"}]},
+                domain = {name=Permit2, chainId=1, verifyingContract=0x000000000022D473030F116dDEE9F6B43aC78BA3},
+                types = {EIP712Domain=[{name=name, type=string}, {name=chainId, type=uint256}, {name=verifyingContract, type=address}], PermitTransferFrom=[{name=permitted, type=TokenPermissions}, {name=spender, type=address}, {name=nonce, type=uint256}, {name=deadline, type=uint256}], TokenPermissions=[{name=token, type=address}, {name=amount, type=uint256}]},
                 primary_type = 'PermitTransferFrom',
-                message = {"permitted":{"token":"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48","amount":"1000000"},"spender":"0x1111111254EEB25477B68fb85Ed929f73A960582","nonce":"0","deadline":"1716239020"},
+                message = {permitted={token=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, amount=1000000}, spender=0x1111111254EEB25477B68fb85Ed929f73A960582, nonce=0, deadline=1716239020},
         )
         """
 

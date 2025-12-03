@@ -38,13 +38,13 @@ class TestUpdatePolicyRequest(unittest.TestCase):
             return UpdatePolicyRequest(
                 description = 'Default policy',
                 rules = [
-                    {"action":"accept","operation":"signEvmTransaction","criteria":[{"type":"ethValue","ethValue":"1000000","operator":">="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],"operator":"in"}]}
+                    {action=accept, operation=signEvmTransaction, criteria=[{type=ethValue, ethValue=1000000, operator=>=}, {type=evmAddress, addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in}]}
                     ]
             )
         else:
             return UpdatePolicyRequest(
                 rules = [
-                    {"action":"accept","operation":"signEvmTransaction","criteria":[{"type":"ethValue","ethValue":"1000000","operator":">="},{"type":"evmAddress","addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],"operator":"in"}]}
+                    {action=accept, operation=signEvmTransaction, criteria=[{type=ethValue, ethValue=1000000, operator=>=}, {type=evmAddress, addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in}]}
                     ],
         )
         """

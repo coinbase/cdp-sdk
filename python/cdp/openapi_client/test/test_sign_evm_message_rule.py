@@ -38,13 +38,13 @@ class TestSignEvmMessageRule(unittest.TestCase):
             return SignEvmMessageRule(
                 action = 'accept',
                 operation = 'signEvmMessage',
-                criteria = [{"type":"evmMessage","match":"^hello ([a-z]+)$"}]
+                criteria = [{type=evmMessage, match=^hello ([a-z]+)$}]
             )
         else:
             return SignEvmMessageRule(
                 action = 'accept',
                 operation = 'signEvmMessage',
-                criteria = [{"type":"evmMessage","match":"^hello ([a-z]+)$"}],
+                criteria = [{type=evmMessage, match=^hello ([a-z]+)$}],
         )
         """
 

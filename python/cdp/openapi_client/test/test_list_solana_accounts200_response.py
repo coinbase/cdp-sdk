@@ -41,9 +41,9 @@ class TestListSolanaAccounts200Response(unittest.TestCase):
                     cdp.openapi_client.models.solana_account.SolanaAccount(
                         address = 'HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT', 
                         name = 'my-account', 
-                        policies = ["123e4567-e89b-12d3-a456-426614174000"], 
-                        created_at = '2025-03-25T12:00Z', 
-                        updated_at = '2025-03-26T12:00Z', )
+                        policies = [123e4567-e89b-12d3-a456-426614174000], 
+                        created_at = '2025-03-25T12:00:00Z', 
+                        updated_at = '2025-03-26T12:00:00Z', )
                     ]
             )
         else:
@@ -52,9 +52,9 @@ class TestListSolanaAccounts200Response(unittest.TestCase):
                     cdp.openapi_client.models.solana_account.SolanaAccount(
                         address = 'HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT', 
                         name = 'my-account', 
-                        policies = ["123e4567-e89b-12d3-a456-426614174000"], 
-                        created_at = '2025-03-25T12:00Z', 
-                        updated_at = '2025-03-26T12:00Z', )
+                        policies = [123e4567-e89b-12d3-a456-426614174000], 
+                        created_at = '2025-03-25T12:00:00Z', 
+                        updated_at = '2025-03-26T12:00:00Z', )
                     ],
         )
         """

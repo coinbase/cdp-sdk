@@ -57,6 +57,14 @@ class ErrorType(str, Enum):
     RECIPIENT_ALLOWLIST_VIOLATION = 'recipient_allowlist_violation'
     RECIPIENT_ALLOWLIST_PENDING = 'recipient_allowlist_pending'
     TRAVEL_RULES_RECIPIENT_VIOLATION = 'travel_rules_recipient_violation'
+    TRANSFER_AMOUNT_OUT_OF_BOUNDS = 'transfer_amount_out_of_bounds'
+    TRANSFER_RECIPIENT_ADDRESS_INVALID = 'transfer_recipient_address_invalid'
+    TRANSFER_QUOTE_EXPIRED = 'transfer_quote_expired'
+    MFA_ALREADY_ENROLLED = 'mfa_already_enrolled'
+    MFA_INVALID_CODE = 'mfa_invalid_code'
+    MFA_FLOW_EXPIRED = 'mfa_flow_expired'
+    MFA_REQUIRED = 'mfa_required'
+    MFA_NOT_ENROLLED = 'mfa_not_enrolled'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

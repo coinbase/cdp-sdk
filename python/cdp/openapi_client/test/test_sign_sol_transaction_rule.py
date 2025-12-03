@@ -38,13 +38,13 @@ class TestSignSolTransactionRule(unittest.TestCase):
             return SignSolTransactionRule(
                 action = 'accept',
                 operation = 'signSolTransaction',
-                criteria = [{"type":"solAddress","addresses":["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],"operator":"in"}]
+                criteria = [{type=solAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}]
             )
         else:
             return SignSolTransactionRule(
                 action = 'accept',
                 operation = 'signSolTransaction',
-                criteria = [{"type":"solAddress","addresses":["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],"operator":"in"}],
+                criteria = [{type=solAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}],
         )
         """
 
