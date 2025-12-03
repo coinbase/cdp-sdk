@@ -111,6 +111,7 @@ def _requires_wallet_auth(method: str, path: str) -> bool:
         "/accounts" in path
         or "/spend-permissions" in path
         or "/user-operations/prepare-and-send" in path
+        or (path.endswith("/end-users") and method == "POST")
     ) and (method == "POST" or method == "DELETE" or method == "PUT")
 
 

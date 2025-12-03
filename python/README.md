@@ -19,6 +19,9 @@
   - [EVM Smart Accounts](#evm-smart-accounts)
 - [Account Actions](#account-actions)
 - [Policy Management](#policy-management)
+- [End-user Management](#end-user-management)
+  - [Create End User](#create-end-user)
+  - [Validate Access Token](#validate-access-token)
 - [Authentication Tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
 - [Usage Tracking](#usage-tracking)
@@ -1206,6 +1209,34 @@ We currently support the following policy rules:
 ### End-user Management
 
 You can use the End User SDK to manage the users of your applications.
+
+#### Create End User
+
+Create an end user with authentication methods and optional accounts:
+
+```python
+import asyncio
+from cdp import CdpClient
+from cdp.openapi_client.models.authentication_method import AuthenticationMethod
+from cdp.openapi_client.models.email_authentication import EmailAuthentication
+from cdp.openapi_client.models.create_end_user_request_evm_account import CreateEndUserRequestEvmAccount
+from cdp.openapi_client.models.create_end_user_request_solana_account import CreateEndUserRequestSolanaAccount
+
+async def main():
+    async with CdpClient() as cdp:
+        # Create an end user with email authentication and accounts
+        end_user = await cdp.end_user.create_end_user(
+            authentication_methods=[
+                AuthenticationMethod(EmailAuthentication(type="email", email="user@example.com"))
+            ],
+            evm_account=CreateEndUserRequestEvmAccount(create_smart_account=True),
+            solana_account=CreateEndUserRequestSolanaAccount(create_smart_account=False),
+        )
+
+        print(f"Created end user: {end_user}")
+
+asyncio.run(main())
+```
 
 #### Validate Access Token
 
