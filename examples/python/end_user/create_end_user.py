@@ -14,10 +14,7 @@ load_dotenv()
 
 
 async def main():
-    async with CdpClient(
-        base_path="https://cloud-api-dev.cbhq.net/platform",
-        debugging=True,
-    ) as cdp:
+    async with CdpClient() as cdp:
         try:
             # Create an end user with an email authentication method and an EVM account.
             end_user = await cdp.end_user.create_end_user(
