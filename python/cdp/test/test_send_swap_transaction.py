@@ -85,9 +85,16 @@ def mock_api_clients():
             },
         },
         "issues": {
-            "allowance": {"currentAllowance": "0", "spender": "0x0000000000000000000000000000000000000000"},
-            "balance": {"token": "0x0000000000000000000000000000000000000000", "currentBalance": "0", "requiredBalance": "0"},
-            "simulationIncomplete": False
+            "allowance": {
+                "currentAllowance": "0",
+                "spender": "0x0000000000000000000000000000000000000000",
+            },
+            "balance": {
+                "token": "0x0000000000000000000000000000000000000000",
+                "currentBalance": "0",
+                "requiredBalance": "0",
+            },
+            "simulationIncomplete": False,
         },
         "transaction": {
             "to": "0xdef1c0ded9bec7f1a1670819833240f027b25eff",

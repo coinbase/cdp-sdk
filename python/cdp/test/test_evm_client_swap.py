@@ -87,13 +87,26 @@ class TestGetSwapPrice:
                     "gasPrice": "50000000000",
                     "gas": "200000",
                     "fees": {
-                        "gasFee": {"amount": "1000000000000000", "token": "0x0000000000000000000000000000000000000000"},
-                        "protocolFee": {"amount": "0", "token": "0x0000000000000000000000000000000000000000"},
+                        "gasFee": {
+                            "amount": "1000000000000000",
+                            "token": "0x0000000000000000000000000000000000000000",
+                        },
+                        "protocolFee": {
+                            "amount": "0",
+                            "token": "0x0000000000000000000000000000000000000000",
+                        },
                     },
                     "issues": {
-                        "allowance": {"currentAllowance": "0", "spender": "0x0000000000000000000000000000000000000000"},
-                        "balance": {"token": "0x0000000000000000000000000000000000000000", "currentBalance": "0", "requiredBalance": "0"},
-                        "simulationIncomplete": False
+                        "allowance": {
+                            "currentAllowance": "0",
+                            "spender": "0x0000000000000000000000000000000000000000",
+                        },
+                        "balance": {
+                            "token": "0x0000000000000000000000000000000000000000",
+                            "currentBalance": "0",
+                            "requiredBalance": "0",
+                        },
+                        "simulationIncomplete": False,
                     },
                 }
             ).encode()
@@ -137,13 +150,26 @@ class TestGetSwapPrice:
                     "gasPrice": "50000000000",
                     "gas": "200000",
                     "fees": {
-                        "gasFee": {"amount": "1000000000000000", "token": "0x0000000000000000000000000000000000000000"},
-                        "protocolFee": {"amount": "0", "token": "0x0000000000000000000000000000000000000000"},
+                        "gasFee": {
+                            "amount": "1000000000000000",
+                            "token": "0x0000000000000000000000000000000000000000",
+                        },
+                        "protocolFee": {
+                            "amount": "0",
+                            "token": "0x0000000000000000000000000000000000000000",
+                        },
                     },
                     "issues": {
-                        "allowance": {"currentAllowance": "0", "spender": "0x0000000000000000000000000000000000000000"},
-                        "balance": {"token": "0x0000000000000000000000000000000000000000", "currentBalance": "0", "requiredBalance": "0"},
-                        "simulationIncomplete": False
+                        "allowance": {
+                            "currentAllowance": "0",
+                            "spender": "0x0000000000000000000000000000000000000000",
+                        },
+                        "balance": {
+                            "token": "0x0000000000000000000000000000000000000000",
+                            "currentBalance": "0",
+                            "requiredBalance": "0",
+                        },
+                        "simulationIncomplete": False,
                     },
                 }
             ).encode()
@@ -207,13 +233,26 @@ class TestCreateSwapQuote:
                     "minToAmount": "1980000000",
                     "blockNumber": "123456",
                     "fees": {
-                        "gasFee": {"amount": "1000000000000000", "token": "0x0000000000000000000000000000000000000000"},
-                        "protocolFee": {"amount": "0", "token": "0x0000000000000000000000000000000000000000"},
+                        "gasFee": {
+                            "amount": "1000000000000000",
+                            "token": "0x0000000000000000000000000000000000000000",
+                        },
+                        "protocolFee": {
+                            "amount": "0",
+                            "token": "0x0000000000000000000000000000000000000000",
+                        },
                     },
                     "issues": {
-                        "allowance": {"currentAllowance": "0", "spender": "0x0000000000000000000000000000000000000000"},
-                        "balance": {"token": "0x0000000000000000000000000000000000000000", "currentBalance": "0", "requiredBalance": "0"},
-                        "simulationIncomplete": False
+                        "allowance": {
+                            "currentAllowance": "0",
+                            "spender": "0x0000000000000000000000000000000000000000",
+                        },
+                        "balance": {
+                            "token": "0x0000000000000000000000000000000000000000",
+                            "currentBalance": "0",
+                            "requiredBalance": "0",
+                        },
+                        "simulationIncomplete": False,
                     },
                     "transaction": {
                         "to": "0x1234567890123456789012345678901234567890",
@@ -269,13 +308,26 @@ class TestCreateSwapQuote:
                     "minToAmount": "495000000000000000",
                     "blockNumber": "123457",
                     "fees": {
-                        "gasFee": {"amount": "1000000000000000", "token": "0x0000000000000000000000000000000000000000"},
-                        "protocolFee": {"amount": "0", "token": "0x0000000000000000000000000000000000000000"},
+                        "gasFee": {
+                            "amount": "1000000000000000",
+                            "token": "0x0000000000000000000000000000000000000000",
+                        },
+                        "protocolFee": {
+                            "amount": "0",
+                            "token": "0x0000000000000000000000000000000000000000",
+                        },
                     },
                     "issues": {
-                        "allowance": {"currentAllowance": "0", "spender": "0x0000000000000000000000000000000000000000"},
-                        "balance": {"token": "0x0000000000000000000000000000000000000000", "currentBalance": "0", "requiredBalance": "0"},
-                        "simulationIncomplete": False
+                        "allowance": {
+                            "currentAllowance": "0",
+                            "spender": "0x0000000000000000000000000000000000000000",
+                        },
+                        "balance": {
+                            "token": "0x0000000000000000000000000000000000000000",
+                            "currentBalance": "0",
+                            "requiredBalance": "0",
+                        },
+                        "simulationIncomplete": False,
                     },
                     "transaction": {
                         "to": "0x1234567890123456789012345678901234567890",
@@ -335,13 +387,26 @@ class TestCreateSwapQuote:
                     "minToAmount": "1950000000",  # 2.5% slippage
                     "blockNumber": "123458",
                     "fees": {
-                        "gasFee": {"amount": "1000000000000000", "token": "0x0000000000000000000000000000000000000000"},
-                        "protocolFee": {"amount": "0", "token": "0x0000000000000000000000000000000000000000"},
+                        "gasFee": {
+                            "amount": "1000000000000000",
+                            "token": "0x0000000000000000000000000000000000000000",
+                        },
+                        "protocolFee": {
+                            "amount": "0",
+                            "token": "0x0000000000000000000000000000000000000000",
+                        },
                     },
                     "issues": {
-                        "allowance": {"currentAllowance": "0", "spender": "0x0000000000000000000000000000000000000000"},
-                        "balance": {"token": "0x0000000000000000000000000000000000000000", "currentBalance": "0", "requiredBalance": "0"},
-                        "simulationIncomplete": False
+                        "allowance": {
+                            "currentAllowance": "0",
+                            "spender": "0x0000000000000000000000000000000000000000",
+                        },
+                        "balance": {
+                            "token": "0x0000000000000000000000000000000000000000",
+                            "currentBalance": "0",
+                            "requiredBalance": "0",
+                        },
+                        "simulationIncomplete": False,
                     },
                     "transaction": {
                         "to": "0x1234567890123456789012345678901234567890",
