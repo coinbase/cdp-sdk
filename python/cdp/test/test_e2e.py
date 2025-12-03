@@ -158,7 +158,7 @@ async def test_create_get_and_list_accounts(cdp_client):
 @pytest.mark.asyncio
 async def test_create_end_user_with_accounts(cdp_client):
     """Test creating an end user with EVM smart account and Solana account."""
-    random_email = f"test-{int(time.time())}@example.com"
+    random_email = f"test-{int(time.time())}-{generate_random_name()}@example.com"
 
     end_user = await cdp_client.end_user.create_end_user(
         authentication_methods=[
