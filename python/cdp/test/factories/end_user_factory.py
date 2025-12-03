@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 import pytest
 
 from cdp.openapi_client.models.end_user import AuthenticationMethod, EndUser
@@ -17,6 +19,7 @@ def end_user_model_factory():
             evm_accounts=[],
             solana_accounts=[],
             evm_smart_accounts=[],
+            created_at=datetime.now(timezone.utc),
         )
 
     return _create_end_user_model
