@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.39.0
+
+### Minor Changes
+
+- [#499](https://github.com/coinbase/cdp-sdk/pull/499) [`af70f6e`](https://github.com/coinbase/cdp-sdk/commit/af70f6e64ca6fd3b5349db4e4295c5f726fa9c2d) Thanks [@marcin-cb](https://github.com/marcin-cb)! - Added createEndUser method to EndUser client
+
 ## 1.38.6
 
 ### Patch Changes
