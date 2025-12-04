@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.34.0] - 2025-12-04
+
+### Features
+
+- Added createEndUser method to EndUser client ([#499](https://github.com/coinbase/cdp-sdk/pull/499))
+
+
 ## [1.33.3] - 2025-11-21
 
 ### Bugfixes
