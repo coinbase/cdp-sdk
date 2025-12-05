@@ -1125,13 +1125,16 @@ type EndUser struct {
 	// CreatedAt The date and time when the end user was created, in ISO 8601 format.
 	CreatedAt time.Time `json:"createdAt"`
 
-	// EvmAccounts The list of EVM accounts associated with the end user. Currently, only one EVM account is supported per end user.
+	// EvmAccounts **DEPRECATED**: Use `evmAccountObjects` instead for richer account information. The list of EVM account addresses associated with the end user. End users can have up to 10 EVM accounts.
+	// Deprecated:
 	EvmAccounts []string `json:"evmAccounts"`
 
-	// EvmSmartAccounts The list of EVM smart accounts associated with the end user. Currently, only one EVM smart account is supported per end user.
+	// EvmSmartAccounts **DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.
+	// Deprecated:
 	EvmSmartAccounts []string `json:"evmSmartAccounts"`
 
-	// SolanaAccounts The list of Solana accounts associated with the end user. Currently, only one Solana account is supported per end user.
+	// SolanaAccounts **DEPRECATED**: Use `solanaAccountObjects` instead for richer account information. The list of Solana account addresses associated with the end user. End users can have up to 10 Solana accounts.
+	// Deprecated:
 	SolanaAccounts []string `json:"solanaAccounts"`
 
 	// UserId A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.

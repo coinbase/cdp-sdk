@@ -590,8 +590,11 @@ paths:
                       - type: email
                         email: user@example.com
                     evmAccounts: []
+                    evmAccountObjects: []
                     evmSmartAccounts: []
+                    evmSmartAccountObjects: []
                     solanaAccounts: []
+                    solanaAccountObjects: []
                     createdAt: '2025-11-17T10:00:00Z'
                 evm_smart_account_only:
                   summary: EVM smart account only
@@ -602,9 +605,18 @@ paths:
                         email: user@example.com
                     evmAccounts:
                       - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                    evmAccountObjects:
+                      - address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                        createdAt: '2025-11-17T10:00:00Z'
                     evmSmartAccounts:
                       - '0x842d35Cc6634C0532925a3b844Bc454e4438f55f'
+                    evmSmartAccountObjects:
+                      - address: '0x842d35Cc6634C0532925a3b844Bc454e4438f55f'
+                        ownerAddresses:
+                          - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                        createdAt: '2025-11-17T10:00:00Z'
                     solanaAccounts: []
+                    solanaAccountObjects: []
                     createdAt: '2025-11-17T10:00:00Z'
                 solana_only:
                   summary: Solana account only
@@ -614,9 +626,14 @@ paths:
                       - type: sms
                         phoneNumber: '+15555551234'
                     evmAccounts: []
+                    evmAccountObjects: []
                     evmSmartAccounts: []
+                    evmSmartAccountObjects: []
                     solanaAccounts:
                       - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+                    solanaAccountObjects:
+                      - address: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+                        createdAt: '2025-11-17T10:00:00Z'
                     createdAt: '2025-11-17T10:00:00Z'
                 evm_no_smart_account:
                   summary: EVM without smart account
@@ -627,8 +644,52 @@ paths:
                         email: user@example.com
                     evmAccounts:
                       - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                    evmAccountObjects:
+                      - address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                        createdAt: '2025-11-17T10:00:00Z'
                     evmSmartAccounts: []
+                    evmSmartAccountObjects: []
                     solanaAccounts: []
+                    solanaAccountObjects: []
+                    createdAt: '2025-11-17T10:00:00Z'
+                multiple_accounts:
+                  summary: End user with multiple accounts created
+                  value:
+                    userId: user-005
+                    authenticationMethods:
+                      - type: email
+                        email: user@example.com
+                    evmAccounts:
+                      - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                      - '0x8F2A9B5C3D4E6F7A8B9C0D1E2F3A4B5C6D7E8F9A'
+                      - '0xA1B2C3D4E5F6A7B8C9D0E1F2A3B4C5D6E7F8A9B0'
+                    evmAccountObjects:
+                      - address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                        createdAt: '2025-11-17T10:00:00Z'
+                      - address: '0x8F2A9B5C3D4E6F7A8B9C0D1E2F3A4B5C6D7E8F9A'
+                        createdAt: '2025-11-17T10:05:00Z'
+                      - address: '0xA1B2C3D4E5F6A7B8C9D0E1F2A3B4C5D6E7F8A9B0'
+                        createdAt: '2025-11-17T10:10:00Z'
+                    evmSmartAccounts:
+                      - '0x842d35Cc6634C0532925a3b844Bc454e4438f55f'
+                      - '0x9D3E4F5A6B7C8D9E0F1A2B3C4D5E6F7A8B9C0D1E'
+                    evmSmartAccountObjects:
+                      - address: '0x842d35Cc6634C0532925a3b844Bc454e4438f55f'
+                        ownerAddresses:
+                          - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                        createdAt: '2025-11-17T10:02:00Z'
+                      - address: '0x9D3E4F5A6B7C8D9E0F1A2B3C4D5E6F7A8B9C0D1E'
+                        ownerAddresses:
+                          - '0x8F2A9B5C3D4E6F7A8B9C0D1E2F3A4B5C6D7E8F9A'
+                        createdAt: '2025-11-17T10:07:00Z'
+                    solanaAccounts:
+                      - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+                      - 9ZN8wT6gKxLmJvP4rQnYt7VxKwL3mN9rT8Qx2WzJpK5s
+                    solanaAccountObjects:
+                      - address: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+                        createdAt: '2025-11-17T10:15:00Z'
+                      - address: 9ZN8wT6gKxLmJvP4rQnYt7VxKwL3mN9rT8Qx2WzJpK5s
+                        createdAt: '2025-11-17T10:20:00Z'
                     createdAt: '2025-11-17T10:00:00Z'
         '400':
           description: Invalid request.
@@ -5941,7 +6002,8 @@ components:
           $ref: '#/components/schemas/AuthenticationMethods'
         evmAccounts:
           type: array
-          description: The list of EVM accounts associated with the end user. Currently, only one EVM account is supported per end user.
+          deprecated: true
+          description: '**DEPRECATED**: Use `evmAccountObjects` instead for richer account information. The list of EVM account addresses associated with the end user. End users can have up to 10 EVM accounts.'
           items:
             type: string
             description: The address of the EVM account associated with the end user.
@@ -5951,7 +6013,8 @@ components:
             - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
         evmSmartAccounts:
           type: array
-          description: The list of EVM smart accounts associated with the end user. Currently, only one EVM smart account is supported per end user.
+          deprecated: true
+          description: '**DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.'
           items:
             type: string
             description: The address of the EVM smart account associated with the end user.
@@ -5961,7 +6024,8 @@ components:
             - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
         solanaAccounts:
           type: array
-          description: The list of Solana accounts associated with the end user. Currently, only one Solana account is supported per end user.
+          deprecated: true
+          description: '**DEPRECATED**: Use `solanaAccountObjects` instead for richer account information. The list of Solana account addresses associated with the end user. End users can have up to 10 Solana accounts.'
           items:
             type: string
             description: The base58 encoded address of the Solana account associated with the end user.

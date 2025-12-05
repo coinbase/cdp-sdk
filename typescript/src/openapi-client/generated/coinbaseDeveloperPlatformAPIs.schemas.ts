@@ -124,11 +124,20 @@ export interface EndUser {
    */
   userId: string;
   authenticationMethods: AuthenticationMethods;
-  /** The list of EVM accounts associated with the end user. Currently, only one EVM account is supported per end user. */
+  /**
+   * **DEPRECATED**: Use `evmAccountObjects` instead for richer account information. The list of EVM account addresses associated with the end user. End users can have up to 10 EVM accounts.
+   * @deprecated
+   */
   evmAccounts: string[];
-  /** The list of EVM smart accounts associated with the end user. Currently, only one EVM smart account is supported per end user. */
+  /**
+   * **DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.
+   * @deprecated
+   */
   evmSmartAccounts: string[];
-  /** The list of Solana accounts associated with the end user. Currently, only one Solana account is supported per end user. */
+  /**
+   * **DEPRECATED**: Use `solanaAccountObjects` instead for richer account information. The list of Solana account addresses associated with the end user. End users can have up to 10 Solana accounts.
+   * @deprecated
+   */
   solanaAccounts: string[];
   /** The date and time when the end user was created, in ISO 8601 format. */
   createdAt: string;
