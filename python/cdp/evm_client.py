@@ -590,6 +590,7 @@ class EvmClient:
         calls: list[EncodedCall],
         network: str,
         paymaster_url: str | None = None,
+        data_suffix: str | None = None,
     ) -> EvmUserOperationModel:
         """Prepare a user operation for a smart account.
 
@@ -621,6 +622,7 @@ class EvmClient:
                 calls=evm_calls,
                 network=network,
                 paymaster_url=paymaster_url,
+                data_suffix=data_suffix,
             ),
         )
 

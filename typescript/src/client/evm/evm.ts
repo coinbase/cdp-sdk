@@ -898,6 +898,7 @@ export class EvmClient implements EvmClientInterface {
         overrideGasLimit: call.overrideGasLimit,
       })),
       paymasterUrl: options.paymasterUrl,
+      dataSuffix: options.dataSuffix,
     });
 
     return {
@@ -1101,6 +1102,7 @@ export class EvmClient implements EvmClientInterface {
       calls: options.calls,
       paymasterUrl: options.paymasterUrl,
       idempotencyKey: options.idempotencyKey,
+      dataSuffix: options.dataSuffix,
     });
   }
 
