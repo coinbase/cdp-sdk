@@ -3574,14 +3574,6 @@ export type PrepareAndSendUserOperationBody = {
   paymasterUrl?: Url;
 };
 
-export type PrepareAndSendUserOperationBody = {
-  network: EvmUserOperationNetwork;
-  /** The list of calls to make from the Smart Account. */
-  calls: EvmCall[];
-  /** The URL of the paymaster to use for the user operation. */
-  paymasterUrl?: string;
-};
-
 export type SendUserOperationBody = {
   /** The hex-encoded signature of the user operation. This should be a 65-byte signature consisting of the `r`, `s`, and `v` values of the ECDSA signature. Note that the `v` value should conform to the `personal_sign` standard, which means it should be 27 or 28. */
   signature: string;
