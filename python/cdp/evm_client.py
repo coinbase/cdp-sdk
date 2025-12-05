@@ -599,6 +599,7 @@ class EvmClient:
             calls (list[EncodedCall]): The calls to prepare the user operation for.
             network (str): The network.
             paymaster_url (str, optional): The paymaster URL. Defaults to None.
+            data_suffix (str, optional): Optional data suffix (EIP-8021) to enable transaction attribution. Defaults to None.
 
         Returns:
             EvmUserOperationModel: The user operation model.
