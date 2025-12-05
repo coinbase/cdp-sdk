@@ -38,7 +38,7 @@ class TestSolDataCriterionIdlsInner(unittest.TestCase):
             return SolDataCriterionIdlsInner(
                 address = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
                 instructions = [{name=transfer_checked, discriminator=[119, 250, 202, 24, 253, 135, 244, 121], accounts=[{name=mint, writable=true}, {name=rent}], args=[{name=amount, type=u64}, {name=decimals, type=u8}]}],
-                metadata = {"name":"system_program","version":"0.1.0","spec":"0.1.0"},
+                metadata = {name=system_program, version=0.1.0, spec=0.1.0},
                 types = [{name=MyStruct, type=struct, fields=[{name=id, type=u64}, {name=owner, type=pubkey}]}]
             )
         else:

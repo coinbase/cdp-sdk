@@ -30,6 +30,7 @@ from cdp.openapi_client.api.policy_engine_api import PolicyEngineApi
 from cdp.openapi_client.api.sqlapi_alpha_api import SQLAPIAlphaApi
 from cdp.openapi_client.api.solana_accounts_api import SolanaAccountsApi
 from cdp.openapi_client.api.solana_token_balances_api import SolanaTokenBalancesApi
+from cdp.openapi_client.api.webhooks_api import WebhooksApi
 from cdp.openapi_client.api.x402_facilitator_api import X402FacilitatorApi
 
 # import ApiClient
@@ -57,6 +58,9 @@ from cdp.openapi_client.models.common_swap_response_fees import CommonSwapRespon
 from cdp.openapi_client.models.common_swap_response_issues import CommonSwapResponseIssues
 from cdp.openapi_client.models.common_swap_response_issues_allowance import CommonSwapResponseIssuesAllowance
 from cdp.openapi_client.models.common_swap_response_issues_balance import CommonSwapResponseIssuesBalance
+from cdp.openapi_client.models.create_end_user_request import CreateEndUserRequest
+from cdp.openapi_client.models.create_end_user_request_evm_account import CreateEndUserRequestEvmAccount
+from cdp.openapi_client.models.create_end_user_request_solana_account import CreateEndUserRequestSolanaAccount
 from cdp.openapi_client.models.create_evm_account_request import CreateEvmAccountRequest
 from cdp.openapi_client.models.create_evm_smart_account_request import CreateEvmSmartAccountRequest
 from cdp.openapi_client.models.create_evm_swap_quote_request import CreateEvmSwapQuoteRequest
@@ -110,6 +114,9 @@ from cdp.openapi_client.models.idl_instructions_inner_args_inner import IdlInstr
 from cdp.openapi_client.models.idl_metadata import IdlMetadata
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.import_solana_account_request import ImportSolanaAccountRequest
+from cdp.openapi_client.models.inline_object import InlineObject
+from cdp.openapi_client.models.inline_object1 import InlineObject1
+from cdp.openapi_client.models.inline_object2 import InlineObject2
 from cdp.openapi_client.models.known_abi_type import KnownAbiType
 from cdp.openapi_client.models.known_idl_type import KnownIdlType
 from cdp.openapi_client.models.list_end_users200_response import ListEndUsers200Response
@@ -125,6 +132,8 @@ from cdp.openapi_client.models.list_solana_token_balances_network import ListSol
 from cdp.openapi_client.models.list_spend_permissions200_response import ListSpendPermissions200Response
 from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterion
 from cdp.openapi_client.models.net_usd_change_criterion import NetUSDChangeCriterion
+from cdp.openapi_client.models.o_auth2_authentication import OAuth2Authentication
+from cdp.openapi_client.models.o_auth2_provider_type import OAuth2ProviderType
 from cdp.openapi_client.models.onchain_data_query import OnchainDataQuery
 from cdp.openapi_client.models.onchain_data_result import OnchainDataResult
 from cdp.openapi_client.models.onchain_data_result_metadata import OnchainDataResultMetadata
@@ -140,9 +149,11 @@ from cdp.openapi_client.models.onramp_quote import OnrampQuote
 from cdp.openapi_client.models.onramp_quote_payment_method_type_id import OnrampQuotePaymentMethodTypeId
 from cdp.openapi_client.models.onramp_session import OnrampSession
 from cdp.openapi_client.models.policy import Policy
+from cdp.openapi_client.models.prepare_and_send_user_operation_request import PrepareAndSendUserOperationRequest
 from cdp.openapi_client.models.prepare_user_operation_request import PrepareUserOperationRequest
 from cdp.openapi_client.models.prepare_user_operation_rule import PrepareUserOperationRule
 from cdp.openapi_client.models.program_id_criterion import ProgramIdCriterion
+from cdp.openapi_client.models.query_result_cache_configuration import QueryResultCacheConfiguration
 from cdp.openapi_client.models.request_evm_faucet200_response import RequestEvmFaucet200Response
 from cdp.openapi_client.models.request_evm_faucet_request import RequestEvmFaucetRequest
 from cdp.openapi_client.models.request_solana_faucet200_response import RequestSolanaFaucet200Response
@@ -159,7 +170,6 @@ from cdp.openapi_client.models.send_solana_transaction200_response import SendSo
 from cdp.openapi_client.models.send_solana_transaction_request import SendSolanaTransactionRequest
 from cdp.openapi_client.models.send_user_operation_request import SendUserOperationRequest
 from cdp.openapi_client.models.send_user_operation_rule import SendUserOperationRule
-from cdp.openapi_client.models.settle_x402_payment200_response import SettleX402Payment200Response
 from cdp.openapi_client.models.sign_evm_hash200_response import SignEvmHash200Response
 from cdp.openapi_client.models.sign_evm_hash_request import SignEvmHashRequest
 from cdp.openapi_client.models.sign_evm_hash_rule import SignEvmHashRule
@@ -207,7 +217,6 @@ from cdp.openapi_client.models.spend_permission_network import SpendPermissionNe
 from cdp.openapi_client.models.spend_permission_response_object import SpendPermissionResponseObject
 from cdp.openapi_client.models.spl_address_criterion import SplAddressCriterion
 from cdp.openapi_client.models.spl_value_criterion import SplValueCriterion
-from cdp.openapi_client.models.supported_x402_payment_kinds200_response import SupportedX402PaymentKinds200Response
 from cdp.openapi_client.models.swap_unavailable_response import SwapUnavailableResponse
 from cdp.openapi_client.models.token import Token
 from cdp.openapi_client.models.token_amount import TokenAmount
@@ -220,8 +229,13 @@ from cdp.openapi_client.models.update_solana_account_request import UpdateSolana
 from cdp.openapi_client.models.user_operation_receipt import UserOperationReceipt
 from cdp.openapi_client.models.user_operation_receipt_revert import UserOperationReceiptRevert
 from cdp.openapi_client.models.validate_end_user_access_token_request import ValidateEndUserAccessTokenRequest
-from cdp.openapi_client.models.verify_x402_payment200_response import VerifyX402Payment200Response
 from cdp.openapi_client.models.verify_x402_payment_request import VerifyX402PaymentRequest
+from cdp.openapi_client.models.webhook_subscription_list_response import WebhookSubscriptionListResponse
+from cdp.openapi_client.models.webhook_subscription_request import WebhookSubscriptionRequest
+from cdp.openapi_client.models.webhook_subscription_response import WebhookSubscriptionResponse
+from cdp.openapi_client.models.webhook_subscription_response_metadata import WebhookSubscriptionResponseMetadata
+from cdp.openapi_client.models.webhook_subscription_update_request import WebhookSubscriptionUpdateRequest
+from cdp.openapi_client.models.webhook_target import WebhookTarget
 from cdp.openapi_client.models.x402_exact_evm_payload import X402ExactEvmPayload
 from cdp.openapi_client.models.x402_exact_evm_payload_authorization import X402ExactEvmPayloadAuthorization
 from cdp.openapi_client.models.x402_exact_solana_payload import X402ExactSolanaPayload

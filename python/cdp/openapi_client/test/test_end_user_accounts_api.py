@@ -27,6 +27,20 @@ class TestEndUserAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self) -> None:
         await self.api.api_client.close()
 
+    async def test_create_end_user(self) -> None:
+        """Test case for create_end_user
+
+        Create an end user
+        """
+        pass
+
+    async def test_get_end_user(self) -> None:
+        """Test case for get_end_user
+
+        Get an end user
+        """
+        pass
+
     async def test_list_end_users(self) -> None:
         """Test case for list_end_users
 

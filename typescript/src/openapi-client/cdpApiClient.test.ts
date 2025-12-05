@@ -3,6 +3,7 @@ import Axios, { AxiosInstance } from "axios";
 import { configure, cdpApiClient, CdpOptions } from "./cdpApiClient.js"; // Adjust import path as needed
 import { withAuth } from "../auth/hooks/axios/index.js";
 import { ErrorType } from "./generated/coinbaseDeveloperPlatformAPIs.schemas.js";
+import { UserInputValidationError } from "../errors.js";
 
 vi.mock("axios");
 vi.mock("axios-retry");
@@ -137,6 +138,19 @@ describe("cdpApiClient", () => {
         method: "GET",
       });
       expect(result).toEqual(responseData);
+    });
+
+    it("should throw an error if user input validation fails", async () => {
+      (mockAxiosInstance as any).mockRejectedValueOnce(
+        new UserInputValidationError("User input validation failed."),
+      );
+
+      await expect(
+        cdpApiClient({
+          url: "/test-endpoint",
+          method: "GET",
+        }),
+      ).rejects.toThrow("User input validation failed.");
     });
 
     it("should throw an error if client is not configured", async () => {

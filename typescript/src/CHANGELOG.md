@@ -1,5 +1,24 @@
 # CDP SDK Changelog
 
+## 1.39.0
+
+### Minor Changes
+
+- [#499](https://github.com/coinbase/cdp-sdk/pull/499) [`af70f6e`](https://github.com/coinbase/cdp-sdk/commit/af70f6e64ca6fd3b5349db4e4295c5f726fa9c2d) Thanks [@marcin-cb](https://github.com/marcin-cb)! - Added createEndUser method to EndUser client
+
+## 1.38.6
+
+### Patch Changes
+
+- [#492](https://github.com/coinbase/cdp-sdk/pull/492) [`60e6a1a`](https://github.com/coinbase/cdp-sdk/commit/60e6a1a5ae6da6b704c33fd7f72ee334108deb76) Thanks [@0xRAG](https://github.com/0xRAG)! - Replaced error-tracking wrappers with a WeakSet-based recursion guard to prevent memory leaks from strong references to wrapped instances.
+
+## 1.38.5
+
+### Patch Changes
+
+- [#482](https://github.com/coinbase/cdp-sdk/pull/482) [`71a7184`](https://github.com/coinbase/cdp-sdk/commit/71a71844d8b39628632f59121d0cb61c7e951367) Thanks [@0xRAG](https://github.com/0xRAG)! - Improved error handling by surfacing UserInputValidationErrors, particularly when performing wallet operations that require a wallet secret
+- Removed default audience claim from JWT generation
+
 ## 1.38.4
 
 ### Patch Changes

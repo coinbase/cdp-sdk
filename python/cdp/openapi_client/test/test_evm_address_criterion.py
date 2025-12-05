@@ -37,13 +37,13 @@ class TestEvmAddressCriterion(unittest.TestCase):
         if include_optional:
             return EvmAddressCriterion(
                 type = 'evmAddress',
-                addresses = ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e","0x1234567890123456789012345678901234567890"],
+                addresses = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e, 0x1234567890123456789012345678901234567890],
                 operator = 'in'
             )
         else:
             return EvmAddressCriterion(
                 type = 'evmAddress',
-                addresses = ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e","0x1234567890123456789012345678901234567890"],
+                addresses = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e, 0x1234567890123456789012345678901234567890],
                 operator = 'in',
         )
         """

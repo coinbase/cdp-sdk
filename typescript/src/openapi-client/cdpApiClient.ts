@@ -5,6 +5,7 @@ import axiosRetry, { exponentialDelay } from "axios-retry";
 import { withAuth } from "../auth/hooks/axios/index.js";
 import { ERROR_DOCS_PAGE_URL } from "../constants.js";
 import { isOpenAPIError, APIError, UnknownError, NetworkError } from "./errors.js";
+import { UserInputValidationError } from "../errors.js";
 
 import type { Prettify } from "../types/utils.js";
 
@@ -132,6 +133,10 @@ export const cdpApiClient = async <T>(
     const response = await axiosInstance(configWithIdempotencyKey);
     return response.data as T;
   } catch (error) {
+    if (error instanceof UserInputValidationError) {
+      throw error;
+    }
+
     // eslint-disable-next-line import/no-named-as-default-member
     if (Axios.isAxiosError(error) && !error.response) {
       // Network-level errors (no response received)

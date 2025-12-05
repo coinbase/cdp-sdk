@@ -37,7 +37,7 @@ class TestSolDataCondition(unittest.TestCase):
         if include_optional:
             return SolDataCondition(
                 instruction = 'transfer_checked',
-                params = [{"name":"amount","operator":"<=","value":"1000000"},{"name":"decimals","operator":"==","value":"6"},{"name":"owner","operator":"in","values":["TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA","So11111111111111111111111111111111111111112"]}]
+                params = [{name=amount, operator=<=, value=1000000}, {name=decimals, operator===, value=6}, {name=owner, operator=in, values=[TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA, So11111111111111111111111111111111111111112]}]
             )
         else:
             return SolDataCondition(

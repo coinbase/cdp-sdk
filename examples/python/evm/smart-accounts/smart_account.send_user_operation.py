@@ -20,6 +20,7 @@ async def main():
                     to="0x0000000000000000000000000000000000000000",
                     data="0x",
                     value=0,
+                    # override_gas_limit="1000000", if you want to override the gas limit
                 )
             ],
         )

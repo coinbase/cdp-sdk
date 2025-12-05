@@ -25,9 +25,9 @@ from cdp.openapi_client.models.x402_settle_error_reason import X402SettleErrorRe
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SettleX402Payment200Response(BaseModel):
+class InlineObject1(BaseModel):
     """
-    SettleX402Payment200Response
+    InlineObject1
     """ # noqa: E501
     success: StrictBool = Field(description="Indicates whether the payment settlement is successful.")
     error_reason: Optional[X402SettleErrorReason] = Field(default=None, alias="errorReason")
@@ -68,7 +68,7 @@ class SettleX402Payment200Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SettleX402Payment200Response from a JSON string"""
+        """Create an instance of InlineObject1 from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -93,7 +93,7 @@ class SettleX402Payment200Response(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SettleX402Payment200Response from a dict"""
+        """Create an instance of InlineObject1 from a dict"""
         if obj is None:
             return None
 

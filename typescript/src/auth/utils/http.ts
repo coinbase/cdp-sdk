@@ -3,6 +3,7 @@
  */
 
 import { generateWalletJwt, generateJwt } from "./jwt.js";
+import { UserInputValidationError } from "../../errors.js";
 import { version } from "../../version.js";
 
 /**
@@ -100,7 +101,7 @@ export async function getAuthHeaders(
   // Add wallet auth if needed
   if (requiresWalletAuth(options.requestMethod, options.requestPath)) {
     if (!options.walletSecret) {
-      throw new Error(
+      throw new UserInputValidationError(
         "Wallet Secret not configured. Please set the CDP_WALLET_SECRET environment variable, or pass it as an option to the CdpClient constructor.",
       );
     }
@@ -132,7 +133,8 @@ function requiresWalletAuth(requestMethod: string, requestPath: string): boolean
   return (
     (requestPath?.includes("/accounts") ||
       requestPath?.includes("/spend-permissions") ||
-      requestPath?.includes("/user-operations/prepare-and-send")) &&
+      requestPath?.includes("/user-operations/prepare-and-send") ||
+      requestPath?.endsWith("/end-users")) &&
     (requestMethod === "POST" || requestMethod === "DELETE" || requestMethod === "PUT")
   );
 }

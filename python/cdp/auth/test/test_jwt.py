@@ -134,7 +134,7 @@ def test_generate_jwt_ec(ec_private_key_factory, jwt_options_factory):
     decoded = jwt_lib.decode(token, options={"verify_signature": False})
     assert decoded["sub"] == options.api_key_id
     assert decoded["iss"] == "cdp"
-    assert decoded["aud"] == ["cdp_service"]
+    assert decoded["aud"] is None
     assert isinstance(decoded["nbf"], int)
     assert isinstance(decoded["exp"], int)
     assert decoded["exp"] - decoded["nbf"] == options.expires_in
@@ -142,6 +142,20 @@ def test_generate_jwt_ec(ec_private_key_factory, jwt_options_factory):
     parsed_url = urlparse(f"{options.request_host}{options.request_path}")
     expected_uri = f"{options.request_method} {parsed_url.netloc}{parsed_url.path}"
     assert decoded["uris"] == [expected_uri]
+
+
+def test_generate_jwt_ec_with_audience(ec_private_key_factory, jwt_options_factory):
+    """Test JWT generation with EC key and audience."""
+    # Setup
+    key_data = ec_private_key_factory()
+    options = jwt_options_factory(api_key_secret=key_data, audience=["test-audience"])
+
+    # Execute
+    token = generate_jwt(options)
+
+    # Verify
+    decoded = jwt_lib.decode(token, options={"verify_signature": False})
+    assert decoded["aud"] == ["test-audience"]
 
 
 def test_generate_jwt_ed25519(ed25519_private_key_factory, jwt_options_factory):
@@ -173,7 +187,7 @@ def test_generate_websocket_jwt_ec(ec_private_key_factory, websocket_jwt_options
     decoded = jwt_lib.decode(token, options={"verify_signature": False})
     assert decoded["sub"] == options.api_key_id
     assert decoded["iss"] == "cdp"
-    assert decoded["aud"] == ["cdp_service"]
+    assert decoded["aud"] is None
     assert isinstance(decoded["nbf"], int)
     assert isinstance(decoded["exp"], int)
     assert decoded["exp"] - decoded["nbf"] == options.expires_in

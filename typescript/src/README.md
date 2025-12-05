@@ -17,6 +17,7 @@
   - [Transferring Tokens](#transferring-tokens)
   - [Account Actions](#account-actions)
 - [Policy Management](#policy-management)
+- [End-user Management](#end-user-management)
 - [Authentication tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
 - [Usage Tracking](#usage-tracking)
@@ -1077,6 +1078,22 @@ We currently support the following policy rules:
 ### End-user Management
 
 You can use the End User SDK to manage the users of your applications.
+
+#### Create End User
+
+You can create an end user with authentication methods and optionally create EVM and Solana accounts for them.
+
+```typescript
+const endUser = await cdp.endUser.createEndUser({
+  authenticationMethods: [
+    { type: "email", email: "user@example.com" }
+  ],
+  evmAccount: { createSmartAccount: true },
+  solanaAccount: { createSmartAccount: false },
+});
+
+console.log(endUser);
+```
 
 #### Validate Access Token
 

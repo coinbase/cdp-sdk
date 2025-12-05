@@ -38,13 +38,13 @@ class TestEvmDataParameterConditionList(unittest.TestCase):
             return EvmDataParameterConditionList(
                 name = 'to',
                 operator = 'in',
-                values = ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"]
+                values = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e]
             )
         else:
             return EvmDataParameterConditionList(
                 name = 'to',
                 operator = 'in',
-                values = ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+                values = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e],
         )
         """
 

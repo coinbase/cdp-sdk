@@ -37,7 +37,7 @@ class TestIdlInstructionsInner(unittest.TestCase):
         if include_optional:
             return IdlInstructionsInner(
                 name = 'transfer_checked',
-                discriminator = [119,250,202,24,253,135,244,121],
+                discriminator = [119, 250, 202, 24, 253, 135, 244, 121],
                 args = [
                     cdp.openapi_client.models.idl_instructions_inner_args_inner.Idl_instructions_inner_args_inner(
                         name = 'amount', 
@@ -53,7 +53,7 @@ class TestIdlInstructionsInner(unittest.TestCase):
         else:
             return IdlInstructionsInner(
                 name = 'transfer_checked',
-                discriminator = [119,250,202,24,253,135,244,121],
+                discriminator = [119, 250, 202, 24, 253, 135, 244, 121],
                 args = [
                     cdp.openapi_client.models.idl_instructions_inner_args_inner.Idl_instructions_inner_args_inner(
                         name = 'amount', 

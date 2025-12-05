@@ -59,6 +59,7 @@ verify-env:
 	@echo "Checking Python environment..."
 	@uv --version || (echo "Error: uv is not installed" && exit 1)
 	@python --version || (echo "Error: Python is not available" && exit 1)
+	@pip --version || (echo "Error: pip is not installed" && exit 1)
 
 .PHONY: clean
 clean:

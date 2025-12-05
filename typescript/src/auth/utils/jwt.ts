@@ -138,7 +138,7 @@ export async function generateJwt(options: JwtOptions): Promise<string> {
   const claims: JWTPayload = {
     sub: options.apiKeyId,
     iss: "cdp",
-    aud: options.audience || ["cdp_service"],
+    aud: options.audience,
   };
 
   // Add the uris claim only for REST API requests

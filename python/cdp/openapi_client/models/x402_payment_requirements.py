@@ -31,7 +31,7 @@ class X402PaymentRequirements(BaseModel):
     scheme: StrictStr = Field(description="The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.")
     network: StrictStr = Field(description="The network of the blockchain to send payment on.")
     max_amount_required: StrictStr = Field(description="The maximum amount required to pay for the resource in atomic units of the payment asset.", alias="maxAmountRequired")
-    resource: StrictStr = Field(description="The URL of the resource to pay for.")
+    resource: Annotated[str, Field(min_length=11, strict=True, max_length=2048)] = Field(description="The URL of the resource to pay for.")
     description: StrictStr = Field(description="The description of the resource.")
     mime_type: StrictStr = Field(description="The MIME type of the resource response.", alias="mimeType")
     output_schema: Optional[Dict[str, Any]] = Field(default=None, description="The optional JSON schema describing the resource output.", alias="outputSchema")
@@ -53,6 +53,13 @@ class X402PaymentRequirements(BaseModel):
         """Validates the enum"""
         if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana']):
             raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana')")
+        return value
+
+    @field_validator('resource')
+    def resource_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^https?:\/\/.*$", value):
+            raise ValueError(r"must validate the regular expression /^https?:\/\/.*$/")
         return value
 
     @field_validator('pay_to')

@@ -36,16 +36,18 @@ class TestAuthenticationMethod(unittest.TestCase):
         model = AuthenticationMethod()
         if include_optional:
             return AuthenticationMethod(
-                type = 'email',
-                email = 'user@example.com',
+                type = 'google',
+                email = 'test.user@gmail.com',
                 phone_number = '+12055555555',
                 kid = 'NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg',
-                sub = 'e051beeb-7163-4527-a5b6-35e301529ff2'
+                sub = 'e051beeb-7163-4527-a5b6-35e301529ff2',
+                name = 'Test User',
+                username = 'test.user'
             )
         else:
             return AuthenticationMethod(
-                type = 'email',
-                email = 'user@example.com',
+                type = 'google',
+                email = 'test.user@gmail.com',
                 phone_number = '+12055555555',
                 kid = 'NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg',
                 sub = 'e051beeb-7163-4527-a5b6-35e301529ff2',

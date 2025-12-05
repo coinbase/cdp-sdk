@@ -41,6 +41,14 @@ fn fix_enum_values(value: &mut serde_json::Value) {
 }
 
 fn main() {
+    // Only generate code if CDP_GENERATE environment variable is set
+    // This prevents the toolchain from automatically regenerating.
+    if std::env::var("CDP_GENERATE").is_err() {
+        println!("cargo:warning=Skipping code generation. Set CDP_GENERATE=1 to generate code.");
+        println!("cargo:warning=Run 'make generate' to generate api.rs from openapi.yaml");
+        return;
+    }
+
     let src = "../openapi.yaml";
     println!("cargo:rerun-if-changed={}", src);
     let file = File::open(src).unwrap();
@@ -51,9 +59,9 @@ fn main() {
 
     let spec = serde_json::from_str(&serde_json::to_string_pretty(&json).unwrap()).unwrap();
 
-    let mut settings = progenitor::GenerationSettings::default();
-    settings.with_interface(progenitor::InterfaceStyle::Builder);
-    let mut generator = progenitor::Generator::new(&settings);
+    let mut settings = progenitor_middleware::GenerationSettings::default();
+    settings.with_interface(progenitor_middleware::InterfaceStyle::Builder);
+    let mut generator = progenitor_middleware::Generator::new(&settings);
     let tokens = generator.generate_tokens(&spec).unwrap();
     let ast = syn::parse2(tokens).unwrap();
     let content = prettyplease::unparse(&ast);
@@ -62,4 +70,5 @@ fn main() {
     out_file.push("api.rs");
 
     fs::write(out_file, content).unwrap();
+    println!("cargo:warning=Successfully generated api.rs from openapi.yaml");
 }

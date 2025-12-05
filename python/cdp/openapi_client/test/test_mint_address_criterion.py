@@ -37,13 +37,13 @@ class TestMintAddressCriterion(unittest.TestCase):
         if include_optional:
             return MintAddressCriterion(
                 type = 'mintAddress',
-                addresses = ["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],
+                addresses = [HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT],
                 operator = 'in'
             )
         else:
             return MintAddressCriterion(
                 type = 'mintAddress',
-                addresses = ["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],
+                addresses = [HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT],
                 operator = 'in',
         )
         """

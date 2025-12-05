@@ -37,13 +37,13 @@ class TestSolNetworkCriterion(unittest.TestCase):
         if include_optional:
             return SolNetworkCriterion(
                 type = 'solNetwork',
-                networks = ["solana-devnet","solana"],
+                networks = [solana-devnet, solana],
                 operator = 'in'
             )
         else:
             return SolNetworkCriterion(
                 type = 'solNetwork',
-                networks = ["solana-devnet","solana"],
+                networks = [solana-devnet, solana],
                 operator = 'in',
         )
         """

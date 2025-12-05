@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.verify_x402_payment200_response import VerifyX402Payment200Response
+from cdp.openapi_client.models.inline_object import InlineObject
 
-class TestVerifyX402Payment200Response(unittest.TestCase):
-    """VerifyX402Payment200Response unit test stubs"""
+class TestInlineObject(unittest.TestCase):
+    """InlineObject unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,29 +26,29 @@ class TestVerifyX402Payment200Response(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> VerifyX402Payment200Response:
-        """Test VerifyX402Payment200Response
+    def make_instance(self, include_optional) -> InlineObject:
+        """Test InlineObject
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `VerifyX402Payment200Response`
+        # uncomment below to create an instance of `InlineObject`
         """
-        model = VerifyX402Payment200Response()
+        model = InlineObject()
         if include_optional:
-            return VerifyX402Payment200Response(
+            return InlineObject(
                 is_valid = False,
                 invalid_reason = 'insufficient_funds',
                 payer = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             )
         else:
-            return VerifyX402Payment200Response(
+            return InlineObject(
                 is_valid = False,
                 payer = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
         )
         """
 
-    def testVerifyX402Payment200Response(self):
-        """Test VerifyX402Payment200Response"""
+    def testInlineObject(self):
+        """Test InlineObject"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

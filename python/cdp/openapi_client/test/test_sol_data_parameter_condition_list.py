@@ -38,13 +38,13 @@ class TestSolDataParameterConditionList(unittest.TestCase):
             return SolDataParameterConditionList(
                 name = 'amount',
                 operator = 'in',
-                values = ["1000000","HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT","6"]
+                values = [1000000, HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT, 6]
             )
         else:
             return SolDataParameterConditionList(
                 name = 'amount',
                 operator = 'in',
-                values = ["1000000","HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT","6"],
+                values = [1000000, HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT, 6],
         )
         """
 

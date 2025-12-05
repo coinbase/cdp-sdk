@@ -38,7 +38,7 @@ class CreateSpendPermissionRequest(BaseModel):
     end: StrictStr = Field(description="The expiration time for this spend permission, in Unix seconds.")
     salt: Optional[StrictStr] = Field(default=None, description="An arbitrary salt to differentiate unique spend permissions with otherwise identical data.")
     extra_data: Optional[StrictStr] = Field(default=None, description="Arbitrary data to include in the permission.", alias="extraData")
-    paymaster_url: Optional[StrictStr] = Field(default=None, description="The paymaster URL of the spend permission.", alias="paymasterUrl")
+    paymaster_url: Optional[Annotated[str, Field(min_length=11, strict=True, max_length=2048)]] = Field(default=None, description="The paymaster URL of the spend permission.", alias="paymasterUrl")
     __properties: ClassVar[List[str]] = ["network", "spender", "token", "allowance", "period", "start", "end", "salt", "extraData", "paymasterUrl"]
 
     @field_validator('spender')
@@ -53,6 +53,16 @@ class CreateSpendPermissionRequest(BaseModel):
         """Validates the regular expression"""
         if not re.match(r"^0x[a-fA-F0-9]{40}$", value):
             raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{40}$/")
+        return value
+
+    @field_validator('paymaster_url')
+    def paymaster_url_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^https?:\/\/.*$", value):
+            raise ValueError(r"must validate the regular expression /^https?:\/\/.*$/")
         return value
 
     model_config = ConfigDict(

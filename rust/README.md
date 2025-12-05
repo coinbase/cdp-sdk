@@ -4,14 +4,6 @@
 [![Documentation](https://docs.rs/cdp-sdk/badge.svg)](https://docs.rs/cdp-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> [!WARNING]
-> This library is currently in alpha and unpublished, if you'd like to use it, you may specify `cdp-sdk` as a git dependency like so:
-> ```toml
-> [dependencies]
-> cdp-sdk = { git = "https://github.com/coinbase/cdp-sdk" }
-> tokio = { version = "1.0", features = ["full"] }
-> ```
-
 ## Table of Contents
 
 - [CDP SDK](#cdp-sdk)

@@ -66,36 +66,44 @@ const (
 
 // Defines values for ErrorType.
 const (
-	ErrorTypeAccountLimitExceeded           ErrorType = "account_limit_exceeded"
-	ErrorTypeAlreadyExists                  ErrorType = "already_exists"
-	ErrorTypeBadGateway                     ErrorType = "bad_gateway"
-	ErrorTypeDocumentVerificationFailed     ErrorType = "document_verification_failed"
-	ErrorTypeFaucetLimitExceeded            ErrorType = "faucet_limit_exceeded"
-	ErrorTypeForbidden                      ErrorType = "forbidden"
-	ErrorTypeGuestPermissionDenied          ErrorType = "guest_permission_denied"
-	ErrorTypeGuestRegionForbidden           ErrorType = "guest_region_forbidden"
-	ErrorTypeGuestTransactionCount          ErrorType = "guest_transaction_count"
-	ErrorTypeGuestTransactionLimit          ErrorType = "guest_transaction_limit"
-	ErrorTypeIdempotencyError               ErrorType = "idempotency_error"
-	ErrorTypeInternalServerError            ErrorType = "internal_server_error"
-	ErrorTypeInvalidRequest                 ErrorType = "invalid_request"
-	ErrorTypeInvalidSignature               ErrorType = "invalid_signature"
-	ErrorTypeInvalidSqlQuery                ErrorType = "invalid_sql_query"
-	ErrorTypeMalformedTransaction           ErrorType = "malformed_transaction"
-	ErrorTypeNetworkNotTradable             ErrorType = "network_not_tradable"
-	ErrorTypeNotFound                       ErrorType = "not_found"
-	ErrorTypePaymentMethodRequired          ErrorType = "payment_method_required"
-	ErrorTypePhoneNumberVerificationExpired ErrorType = "phone_number_verification_expired"
-	ErrorTypePolicyInUse                    ErrorType = "policy_in_use"
-	ErrorTypePolicyViolation                ErrorType = "policy_violation"
-	ErrorTypeRateLimitExceeded              ErrorType = "rate_limit_exceeded"
-	ErrorTypeRecipientAllowlistPending      ErrorType = "recipient_allowlist_pending"
-	ErrorTypeRecipientAllowlistViolation    ErrorType = "recipient_allowlist_violation"
-	ErrorTypeRequestCanceled                ErrorType = "request_canceled"
-	ErrorTypeServiceUnavailable             ErrorType = "service_unavailable"
-	ErrorTypeTimedOut                       ErrorType = "timed_out"
-	ErrorTypeTravelRulesRecipientViolation  ErrorType = "travel_rules_recipient_violation"
-	ErrorTypeUnauthorized                   ErrorType = "unauthorized"
+	ErrorTypeAccountLimitExceeded            ErrorType = "account_limit_exceeded"
+	ErrorTypeAlreadyExists                   ErrorType = "already_exists"
+	ErrorTypeBadGateway                      ErrorType = "bad_gateway"
+	ErrorTypeDocumentVerificationFailed      ErrorType = "document_verification_failed"
+	ErrorTypeFaucetLimitExceeded             ErrorType = "faucet_limit_exceeded"
+	ErrorTypeForbidden                       ErrorType = "forbidden"
+	ErrorTypeGuestPermissionDenied           ErrorType = "guest_permission_denied"
+	ErrorTypeGuestRegionForbidden            ErrorType = "guest_region_forbidden"
+	ErrorTypeGuestTransactionCount           ErrorType = "guest_transaction_count"
+	ErrorTypeGuestTransactionLimit           ErrorType = "guest_transaction_limit"
+	ErrorTypeIdempotencyError                ErrorType = "idempotency_error"
+	ErrorTypeInternalServerError             ErrorType = "internal_server_error"
+	ErrorTypeInvalidRequest                  ErrorType = "invalid_request"
+	ErrorTypeInvalidSignature                ErrorType = "invalid_signature"
+	ErrorTypeInvalidSqlQuery                 ErrorType = "invalid_sql_query"
+	ErrorTypeMalformedTransaction            ErrorType = "malformed_transaction"
+	ErrorTypeMfaAlreadyEnrolled              ErrorType = "mfa_already_enrolled"
+	ErrorTypeMfaFlowExpired                  ErrorType = "mfa_flow_expired"
+	ErrorTypeMfaInvalidCode                  ErrorType = "mfa_invalid_code"
+	ErrorTypeMfaNotEnrolled                  ErrorType = "mfa_not_enrolled"
+	ErrorTypeMfaRequired                     ErrorType = "mfa_required"
+	ErrorTypeNetworkNotTradable              ErrorType = "network_not_tradable"
+	ErrorTypeNotFound                        ErrorType = "not_found"
+	ErrorTypePaymentMethodRequired           ErrorType = "payment_method_required"
+	ErrorTypePhoneNumberVerificationExpired  ErrorType = "phone_number_verification_expired"
+	ErrorTypePolicyInUse                     ErrorType = "policy_in_use"
+	ErrorTypePolicyViolation                 ErrorType = "policy_violation"
+	ErrorTypeRateLimitExceeded               ErrorType = "rate_limit_exceeded"
+	ErrorTypeRecipientAllowlistPending       ErrorType = "recipient_allowlist_pending"
+	ErrorTypeRecipientAllowlistViolation     ErrorType = "recipient_allowlist_violation"
+	ErrorTypeRequestCanceled                 ErrorType = "request_canceled"
+	ErrorTypeServiceUnavailable              ErrorType = "service_unavailable"
+	ErrorTypeTimedOut                        ErrorType = "timed_out"
+	ErrorTypeTransferAmountOutOfBounds       ErrorType = "transfer_amount_out_of_bounds"
+	ErrorTypeTransferQuoteExpired            ErrorType = "transfer_quote_expired"
+	ErrorTypeTransferRecipientAddressInvalid ErrorType = "transfer_recipient_address_invalid"
+	ErrorTypeTravelRulesRecipientViolation   ErrorType = "travel_rules_recipient_violation"
+	ErrorTypeUnauthorized                    ErrorType = "unauthorized"
 )
 
 // Defines values for EthValueCriterionOperator.
@@ -275,6 +283,13 @@ const (
 // Defines values for NetUSDChangeCriterionType.
 const (
 	NetUSDChange NetUSDChangeCriterionType = "netUSDChange"
+)
+
+// Defines values for OAuth2ProviderType.
+const (
+	Apple  OAuth2ProviderType = "apple"
+	Google OAuth2ProviderType = "google"
+	X      OAuth2ProviderType = "x"
 )
 
 // Defines values for OnchainDataResultSchemaColumnsType.
@@ -665,6 +680,7 @@ const (
 	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidAfter                               X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_after"
 	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValidBefore                              X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_valid_before"
 	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValue                                    X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value"
+	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValueTooLow                              X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value_too_low"
 	X402VerifyInvalidReasonInvalidExactEvmPayloadSignature                                             X402VerifyInvalidReason = "invalid_exact_evm_payload_signature"
 	X402VerifyInvalidReasonInvalidExactEvmPayloadSignatureAddress                                      X402VerifyInvalidReason = "invalid_exact_evm_payload_signature_address"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransaction                                           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction"
@@ -673,6 +689,8 @@ const (
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstruction                       X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectAsset         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCreateAtaInstructionIncorrectPayee         X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionFeePayerIncludedInInstructionAccounts      X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts"
+	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionFeePayerTransferringFunds                  X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionNotSplTokenTransferChecked      X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructionNotToken2022TransferChecked     X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionInstructions                               X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_instructions"
@@ -921,7 +939,7 @@ type CreateSpendPermissionRequest struct {
 	Network SpendPermissionNetwork `json:"network"`
 
 	// PaymasterUrl The paymaster URL of the spend permission.
-	PaymasterUrl *string `json:"paymasterUrl,omitempty"`
+	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
 
 	// Period Time duration for resetting used allowance on a recurring basis (seconds).
 	Period string `json:"period"`
@@ -1104,13 +1122,19 @@ type EndUser struct {
 	// AuthenticationMethods The list of valid authentication methods linked to the end user.
 	AuthenticationMethods AuthenticationMethods `json:"authenticationMethods"`
 
-	// EvmAccounts The list of EVM accounts associated with the end user. Currently, only one EVM account is supported per end user.
+	// CreatedAt The date and time when the end user was created, in ISO 8601 format.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// EvmAccounts **DEPRECATED**: Use `evmAccountObjects` instead for richer account information. The list of EVM account addresses associated with the end user. End users can have up to 10 EVM accounts.
+	// Deprecated:
 	EvmAccounts []string `json:"evmAccounts"`
 
-	// EvmSmartAccounts The list of EVM smart accounts associated with the end user. Currently, only one EVM smart account is supported per end user.
+	// EvmSmartAccounts **DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.
+	// Deprecated:
 	EvmSmartAccounts []string `json:"evmSmartAccounts"`
 
-	// SolanaAccounts The list of Solana accounts associated with the end user. Currently, only one Solana account is supported per end user.
+	// SolanaAccounts **DEPRECATED**: Use `solanaAccountObjects` instead for richer account information. The list of Solana account addresses associated with the end user. End users can have up to 10 Solana accounts.
+	// Deprecated:
 	SolanaAccounts []string `json:"solanaAccounts"`
 
 	// UserId A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
@@ -1123,7 +1147,7 @@ type Error struct {
 	CorrelationId *string `json:"correlationId,omitempty"`
 
 	// ErrorLink A link to the corresponding error documentation.
-	ErrorLink *string `json:"errorLink,omitempty"`
+	ErrorLink *Url `json:"errorLink,omitempty"`
 
 	// ErrorMessage The error message.
 	ErrorMessage string `json:"errorMessage"`
@@ -1580,8 +1604,37 @@ type NetUSDChangeCriterionOperator string
 // NetUSDChangeCriterionType The type of criterion to use. This should be `netUSDChange`.
 type NetUSDChangeCriterionType string
 
+// OAuth2Authentication Information about an end user who authenticates using a third-party provider.
+type OAuth2Authentication struct {
+	// Email The email address of the end user contained within the user's ID token, if available from third-party OAuth2 provider's token exchange.
+	Email *string `json:"email,omitempty"`
+
+	// Name The full name of the end user if available from third-party OAuth2 provider's token exchange.
+	Name *string `json:"name,omitempty"`
+
+	// Sub The unique identifier for the end user that is captured in the `sub` claim of the JWT.
+	Sub string `json:"sub"`
+
+	// Type The type of OAuth2 provider.
+	Type OAuth2ProviderType `json:"type"`
+
+	// Username The username of the end user if available from third-party OAuth2 provider's token exchange.
+	Username *string `json:"username,omitempty"`
+}
+
+// OAuth2ProviderType The type of OAuth2 provider.
+type OAuth2ProviderType string
+
 // OnchainDataQuery Request to execute a SQL query against indexed blockchain data.
 type OnchainDataQuery struct {
+	// Cache Enables control over how often queries need to be fully re-executed on the backing store.
+	// This can be useful in scenarios where API calls might be made frequently, API latency is critical, and some freshness lag (ex: 750ms, 2s, 5s) is tolerable.
+	// By default, each query result is returned from cache so long as the result is from an identical query and less than 500ms old. This freshness tolerance can be modified upwards, to a maximum of 900000ms (i.e. 900s, 15m).
+	Cache *struct {
+		// MaxAgeMs The maximum tolerable staleness of the query result cache in milliseconds. If a previous execution result of an identical query is older than this age, the query will be re-executed. If the data is less than this age, the result will be returned from cache.
+		MaxAgeMs *int `json:"maxAgeMs,omitempty"`
+	} `json:"cache,omitempty"`
+
 	// Sql SQL query to execute against the indexed blockchain data.
 	Sql string `json:"sql"`
 }
@@ -1590,11 +1643,14 @@ type OnchainDataQuery struct {
 type OnchainDataResult struct {
 	// Metadata Metadata about query execution.
 	Metadata *struct {
-		// Cached Whether the result was served from cache.
+		// Cached Whether the result was served from the query result cache.
 		Cached *bool `json:"cached,omitempty"`
 
 		// ExecutionTimeMs Query execution time in milliseconds.
 		ExecutionTimeMs *int `json:"executionTimeMs,omitempty"`
+
+		// ExecutionTimestamp When the query result was executed against the backing store in RFC 3339 format.
+		ExecutionTimestamp *time.Time `json:"executionTimestamp,omitempty"`
 
 		// RowCount Number of rows returned.
 		RowCount *int `json:"rowCount,omitempty"`
@@ -1698,8 +1754,8 @@ type OnrampPaymentLink struct {
 	// PaymentLinkType The type of payment link.
 	PaymentLinkType OnrampPaymentLinkType `json:"paymentLinkType"`
 
-	// Url The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your  own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes.
-	Url string `json:"url"`
+	// Url The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes.
+	Url Url `json:"url"`
 }
 
 // OnrampPaymentLinkType The type of payment link.
@@ -1738,7 +1794,7 @@ type OnrampQuotePaymentMethodTypeId string
 // OnrampSession An onramp session containing a ready-to-use onramp URL.
 type OnrampSession struct {
 	// OnrampUrl Ready-to-use onramp URL.
-	OnrampUrl string `json:"onrampUrl"`
+	OnrampUrl Url `json:"onrampUrl"`
 }
 
 // Policy defines model for Policy.
@@ -1816,7 +1872,7 @@ type RevokeSpendPermissionRequest struct {
 	Network SpendPermissionNetwork `json:"network"`
 
 	// PaymasterUrl The paymaster URL of the spend permission.
-	PaymasterUrl *string `json:"paymasterUrl,omitempty"`
+	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
 
 	// PermissionHash The hash of the spend permission to revoke.
 	PermissionHash string `json:"permissionHash"`
@@ -2456,6 +2512,9 @@ type TokenFee struct {
 	Token string `json:"token"`
 }
 
+// Url A valid HTTP or HTTPS URL.
+type Url = string
+
 // UserOperationReceipt The receipt that contains information about the execution of user operation.
 type UserOperationReceipt struct {
 	// BlockHash The block hash of the block including the transaction as 0x-prefixed string.
@@ -2481,6 +2540,149 @@ type UserOperationReceiptRevert struct {
 
 	// Message Human-readable revert reason if able to decode.
 	Message string `json:"message"`
+}
+
+// WebhookSubscriptionListResponse defines model for WebhookSubscriptionListResponse.
+type WebhookSubscriptionListResponse struct {
+	// NextPageToken The token for the next page of items, if any.
+	NextPageToken *string `json:"nextPageToken,omitempty"`
+
+	// Subscriptions The list of webhook subscriptions.
+	Subscriptions []WebhookSubscriptionResponse `json:"subscriptions"`
+}
+
+// WebhookSubscriptionRequest Request to create a new webhook subscription with support for both traditional single-label
+// and multi-label filtering formats.
+type WebhookSubscriptionRequest struct {
+	// Description Description of the webhook subscription.
+	Description *string `json:"description,omitempty"`
+
+	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
+	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
+	// The subscription will only receive events matching these types AND the label filter(s).
+	EventTypes *[]string `json:"eventTypes,omitempty"`
+
+	// IsEnabled Whether the subscription is enabled.
+	IsEnabled *bool `json:"isEnabled,omitempty"`
+
+	// LabelKey Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair
+	// in addition to the event types. Only events matching both the event types AND this label filter will be delivered.
+	// NOTE: Use either (labelKey + labelValue) OR labels, not both.
+	LabelKey *string `json:"labelKey,omitempty"`
+
+	// LabelValue Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).
+	// Only events with this exact label value will be delivered.
+	// NOTE: Use either (labelKey + labelValue) OR labels, not both.
+	LabelValue *string `json:"labelValue,omitempty"`
+
+	// Labels Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
+	// an event contains ALL the key-value pairs specified here. Additional labels on
+	// the event are allowed and will not prevent matching.
+	// NOTE: Use either labels OR (labelKey + labelValue), not both.
+	Labels *map[string]string `json:"labels,omitempty"`
+
+	// Metadata Additional metadata for the subscription.
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
+
+	// Target Target configuration for webhook delivery.
+	// Specifies the destination URL and any custom headers to include in webhook requests.
+	Target *WebhookTarget `json:"target,omitempty"`
+	union  json.RawMessage
+}
+
+// WebhookSubscriptionRequest0 defines model for .
+type WebhookSubscriptionRequest0 = interface{}
+
+// WebhookSubscriptionRequest1 defines model for .
+type WebhookSubscriptionRequest1 = interface{}
+
+// WebhookSubscriptionResponse Response containing webhook subscription details.
+type WebhookSubscriptionResponse struct {
+	// CreatedAt When the subscription was created.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// Description Description of the webhook subscription.
+	Description *string `json:"description,omitempty"`
+
+	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
+	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
+	EventTypes []string `json:"eventTypes"`
+
+	// IsEnabled Whether the subscription is enabled.
+	IsEnabled bool `json:"isEnabled"`
+
+	// LabelKey Label key for filtering events. Present when subscription uses traditional single-label format.
+	LabelKey *string `json:"labelKey,omitempty"`
+
+	// LabelValue Label value for filtering events. Present when subscription uses traditional single-label format.
+	LabelValue *string `json:"labelValue,omitempty"`
+
+	// Labels Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.
+	// Present when subscription uses multi-label format.
+	Labels *map[string]string `json:"labels,omitempty"`
+
+	// Metadata Additional metadata for the subscription.
+	Metadata *struct {
+		// Secret Secret for webhook signature validation.
+		//
+		// **Note:** Webhooks are in beta and this interface is subject to change.
+		Secret *openapi_types.UUID `json:"secret,omitempty"`
+	} `json:"metadata,omitempty"`
+
+	// SubscriptionId Unique identifier for the subscription.
+	SubscriptionId openapi_types.UUID `json:"subscriptionId"`
+
+	// Target Target configuration for webhook delivery.
+	// Specifies the destination URL and any custom headers to include in webhook requests.
+	Target WebhookTarget `json:"target"`
+}
+
+// WebhookSubscriptionUpdateRequest Request to update an existing webhook subscription. The update format must match
+// the original subscription format (traditional or multi-label).
+type WebhookSubscriptionUpdateRequest struct {
+	// Description Description of the webhook subscription.
+	Description *string `json:"description,omitempty"`
+
+	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
+	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
+	EventTypes *[]string `json:"eventTypes,omitempty"`
+
+	// IsEnabled Whether the subscription is enabled.
+	IsEnabled *bool `json:"isEnabled,omitempty"`
+
+	// LabelKey Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.
+	LabelKey *string `json:"labelKey,omitempty"`
+
+	// LabelValue Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.
+	LabelValue *string `json:"labelValue,omitempty"`
+
+	// Labels Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
+	// an event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.
+	Labels *map[string]string `json:"labels,omitempty"`
+
+	// Metadata Additional metadata for the subscription.
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
+
+	// Target Target configuration for webhook delivery.
+	// Specifies the destination URL and any custom headers to include in webhook requests.
+	Target *WebhookTarget `json:"target,omitempty"`
+	union  json.RawMessage
+}
+
+// WebhookSubscriptionUpdateRequest0 defines model for .
+type WebhookSubscriptionUpdateRequest0 = interface{}
+
+// WebhookSubscriptionUpdateRequest1 defines model for .
+type WebhookSubscriptionUpdateRequest1 = interface{}
+
+// WebhookTarget Target configuration for webhook delivery.
+// Specifies the destination URL and any custom headers to include in webhook requests.
+type WebhookTarget struct {
+	// Headers Additional headers to include in webhook requests.
+	Headers *map[string]string `json:"headers,omitempty"`
+
+	// Url The webhook URL to deliver events to.
+	Url Url `json:"url"`
 }
 
 // X402Version The version of the x402 protocol.
@@ -2604,7 +2806,7 @@ type X402PaymentRequirements struct {
 	PayTo string `json:"payTo"`
 
 	// Resource The URL of the resource to pay for.
-	Resource string `json:"resource"`
+	Resource Url `json:"resource"`
 
 	// Scheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
 	Scheme X402PaymentRequirementsScheme `json:"scheme"`
@@ -2645,6 +2847,12 @@ type X402VerifyInvalidReason string
 
 // IdempotencyKey defines model for IdempotencyKey.
 type IdempotencyKey = string
+
+// PageSize defines model for PageSize.
+type PageSize = int
+
+// PageToken defines model for PageToken.
+type PageToken = string
 
 // XWalletAuth defines model for XWalletAuth.
 type XWalletAuth = string
@@ -2727,15 +2935,24 @@ type X402VerifyResponse struct {
 
 // ListDataTokenBalancesParams defines parameters for ListDataTokenBalances.
 type ListDataTokenBalancesParams struct {
-	// PageSize The number of balances to return per page.
-	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
-	// PageToken The token for the next page of balances. Will be empty if there are no more balances to fetch.
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
 // ListTokensForAccountParamsNetwork defines parameters for ListTokensForAccount.
 type ListTokensForAccountParamsNetwork string
+
+// ListWebhookSubscriptionsParams defines parameters for ListWebhookSubscriptions.
+type ListWebhookSubscriptionsParams struct {
+	// PageSize The number of subscriptions to return per page.
+	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+
+	// PageToken The token for the next page of subscriptions, if any.
+	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+}
 
 // ListEndUsersParams defines parameters for ListEndUsers.
 type ListEndUsersParams struct {
@@ -2752,6 +2969,42 @@ type ListEndUsersParams struct {
 // ListEndUsersParamsSort defines parameters for ListEndUsers.
 type ListEndUsersParamsSort string
 
+// CreateEndUserJSONBody defines parameters for CreateEndUser.
+type CreateEndUserJSONBody struct {
+	// AuthenticationMethods The list of valid authentication methods linked to the end user.
+	AuthenticationMethods AuthenticationMethods `json:"authenticationMethods"`
+
+	// EvmAccount Configuration for creating an EVM account for the end user.
+	EvmAccount *struct {
+		// CreateSmartAccount If true, creates an EVM smart account and a default EVM EOA account as the owner. If false, only a EVM EOA account is created.
+		CreateSmartAccount *bool `json:"createSmartAccount,omitempty"`
+	} `json:"evmAccount,omitempty"`
+
+	// SolanaAccount Configuration for creating a Solana account for the end user.
+	SolanaAccount *struct {
+		// CreateSmartAccount Only false is a valid option since currently smart accounts on Solana are not supported.
+		CreateSmartAccount *bool `json:"createSmartAccount,omitempty"`
+	} `json:"solanaAccount,omitempty"`
+
+	// UserId A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
+	//
+	// If `userId` is not provided in the request, the server will generate a random UUID.
+	UserId *string `json:"userId,omitempty"`
+}
+
+// CreateEndUserParams defines parameters for CreateEndUser.
+type CreateEndUserParams struct {
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
+
+	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+}
+
 // ValidateEndUserAccessTokenJSONBody defines parameters for ValidateEndUserAccessToken.
 type ValidateEndUserAccessTokenJSONBody struct {
 	// AccessToken The access token in JWT format to verify.
@@ -2760,11 +3013,11 @@ type ValidateEndUserAccessTokenJSONBody struct {
 
 // ListEvmAccountsParams defines parameters for ListEvmAccounts.
 type ListEvmAccountsParams struct {
-	// PageSize The number of accounts to return per page.
-	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
-	// PageToken The token for the next page of accounts, if any.
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
 // CreateEvmAccountJSONBody defines parameters for CreateEvmAccount.
@@ -2990,11 +3243,11 @@ type RequestEvmFaucetJSONBodyToken string
 
 // ListEvmSmartAccountsParams defines parameters for ListEvmSmartAccounts.
 type ListEvmSmartAccountsParams struct {
-	// PageSize The number of accounts to return per page.
-	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
-	// PageToken The token for the next page of accounts, if any.
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
 // CreateEvmSmartAccountJSONBody defines parameters for CreateEvmSmartAccount.
@@ -3064,11 +3317,39 @@ type PrepareUserOperationJSONBody struct {
 	// Calls The list of calls to make from the Smart Account.
 	Calls []EvmCall `json:"calls"`
 
+	// DataSuffix The EIP-8021 data suffix (hex-encoded) that enables transaction attribution for the user operation.
+	DataSuffix *string `json:"dataSuffix,omitempty"`
+
 	// Network The network the user operation is for.
 	Network EvmUserOperationNetwork `json:"network"`
 
 	// PaymasterUrl The URL of the paymaster to use for the user operation.
-	PaymasterUrl *string `json:"paymasterUrl,omitempty"`
+	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
+}
+
+// PrepareAndSendUserOperationJSONBody defines parameters for PrepareAndSendUserOperation.
+type PrepareAndSendUserOperationJSONBody struct {
+	// Calls The list of calls to make from the Smart Account.
+	Calls []EvmCall `json:"calls"`
+
+	// Network The network the user operation is for.
+	Network EvmUserOperationNetwork `json:"network"`
+
+	// PaymasterUrl The URL of the paymaster to use for the user operation.
+	PaymasterUrl *Url `json:"paymasterUrl,omitempty"`
+}
+
+// PrepareAndSendUserOperationParams defines parameters for PrepareAndSendUserOperation.
+type PrepareAndSendUserOperationParams struct {
+	// XIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
+	// When included, duplicate requests with the same key will return identical responses.
+	// Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
+	XIdempotencyKey *IdempotencyKey `json:"X-Idempotency-Key,omitempty"`
+
+	// XWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the
+	// [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token)
+	// section of our Authentication docs for more details on how to generate your Wallet Token.
+	XWalletAuth *XWalletAuth `json:"X-Wallet-Auth,omitempty"`
 }
 
 // PrepareAndSendUserOperationJSONBody defines parameters for PrepareAndSendUserOperation.
@@ -3151,11 +3432,11 @@ type GetEvmSwapPriceParams struct {
 
 // ListEvmTokenBalancesParams defines parameters for ListEvmTokenBalances.
 type ListEvmTokenBalancesParams struct {
-	// PageSize The number of balances to return per page.
-	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
-	// PageToken The token for the next page of balances. Will be empty if there are no more balances to fetch.
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
 // CreateOnrampOrderJSONBody defines parameters for CreateOnrampOrder.
@@ -3233,6 +3514,11 @@ type CreateOnrampSessionJSONBody struct {
 	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
 	DestinationNetwork string `json:"destinationNetwork"`
 
+	// PartnerUserRef A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+	//
+	// This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
+	PartnerUserRef *string `json:"partnerUserRef,omitempty"`
+
 	// PaymentAmount A string representing the amount of fiat the user wishes to pay in exchange for crypto.
 	PaymentAmount *string `json:"paymentAmount,omitempty"`
 
@@ -3247,8 +3533,8 @@ type CreateOnrampSessionJSONBody struct {
 	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
 	PurchaseCurrency string `json:"purchaseCurrency"`
 
-	// RedirectUrl URL to redirect the user to when they successfully complete a transaction. This URL will be  embedded in the returned onramp URL as a query parameter.
-	RedirectUrl *string `json:"redirectUrl,omitempty"`
+	// RedirectUrl URL to redirect the user to when they successfully complete a transaction. This URL will be embedded in the returned onramp URL as a query parameter.
+	RedirectUrl *Url `json:"redirectUrl,omitempty"`
 
 	// Subdivision The ISO 3166-2 two letter state code (e.g. NY). Only required for US.
 	Subdivision *string `json:"subdivision,omitempty"`
@@ -3256,11 +3542,11 @@ type CreateOnrampSessionJSONBody struct {
 
 // ListPoliciesParams defines parameters for ListPolicies.
 type ListPoliciesParams struct {
-	// PageSize The number of policies to return per page.
-	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
-	// PageToken The token for the next page of policies, if any.
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 
 	// Scope The scope of the policies to return. If `project`, the response will include exactly one policy, which is the project-level policy. If `account`, the response will include all account-level policies for the developer's CDP Project.
 	Scope *ListPoliciesParamsScope `form:"scope,omitempty" json:"scope,omitempty"`
@@ -3321,11 +3607,11 @@ type UpdatePolicyParams struct {
 
 // ListSolanaAccountsParams defines parameters for ListSolanaAccounts.
 type ListSolanaAccountsParams struct {
-	// PageSize The number of accounts to return per page.
-	PageSize *int `form:"pageSize,omitempty" json:"pageSize,omitempty"`
+	// PageSize The number of resources to return per page.
+	PageSize *PageSize `form:"pageSize,omitempty" json:"pageSize,omitempty"`
 
-	// PageToken The token for the next page of accounts, if any.
-	PageToken *string `form:"pageToken,omitempty" json:"pageToken,omitempty"`
+	// PageToken The token for the next page of resources, if any.
+	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
 // CreateSolanaAccountJSONBody defines parameters for CreateSolanaAccount.
@@ -3542,6 +3828,15 @@ type VerifyX402PaymentJSONBody struct {
 
 // RunSQLQueryJSONRequestBody defines body for RunSQLQuery for application/json ContentType.
 type RunSQLQueryJSONRequestBody = OnchainDataQuery
+
+// CreateWebhookSubscriptionJSONRequestBody defines body for CreateWebhookSubscription for application/json ContentType.
+type CreateWebhookSubscriptionJSONRequestBody = WebhookSubscriptionRequest
+
+// UpdateWebhookSubscriptionJSONRequestBody defines body for UpdateWebhookSubscription for application/json ContentType.
+type UpdateWebhookSubscriptionJSONRequestBody = WebhookSubscriptionUpdateRequest
+
+// CreateEndUserJSONRequestBody defines body for CreateEndUser for application/json ContentType.
+type CreateEndUserJSONRequestBody CreateEndUserJSONBody
 
 // ValidateEndUserAccessTokenJSONRequestBody defines body for ValidateEndUserAccessToken for application/json ContentType.
 type ValidateEndUserAccessTokenJSONRequestBody ValidateEndUserAccessTokenJSONBody
@@ -3778,6 +4073,32 @@ func (t *AuthenticationMethod) FromDeveloperJWTAuthentication(v DeveloperJWTAuth
 
 // MergeDeveloperJWTAuthentication performs a merge with any union data inside the AuthenticationMethod, using the provided DeveloperJWTAuthentication
 func (t *AuthenticationMethod) MergeDeveloperJWTAuthentication(v DeveloperJWTAuthentication) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsOAuth2Authentication returns the union data inside the AuthenticationMethod as a OAuth2Authentication
+func (t AuthenticationMethod) AsOAuth2Authentication() (OAuth2Authentication, error) {
+	var body OAuth2Authentication
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromOAuth2Authentication overwrites any union data inside the AuthenticationMethod as the provided OAuth2Authentication
+func (t *AuthenticationMethod) FromOAuth2Authentication(v OAuth2Authentication) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeOAuth2Authentication performs a merge with any union data inside the AuthenticationMethod, using the provided OAuth2Authentication
+func (t *AuthenticationMethod) MergeOAuth2Authentication(v OAuth2Authentication) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -5580,6 +5901,394 @@ func (t *SolDataCriterion_Idls_Item) UnmarshalJSON(b []byte) error {
 	return err
 }
 
+// AsWebhookSubscriptionRequest0 returns the union data inside the WebhookSubscriptionRequest as a WebhookSubscriptionRequest0
+func (t WebhookSubscriptionRequest) AsWebhookSubscriptionRequest0() (WebhookSubscriptionRequest0, error) {
+	var body WebhookSubscriptionRequest0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWebhookSubscriptionRequest0 overwrites any union data inside the WebhookSubscriptionRequest as the provided WebhookSubscriptionRequest0
+func (t *WebhookSubscriptionRequest) FromWebhookSubscriptionRequest0(v WebhookSubscriptionRequest0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWebhookSubscriptionRequest0 performs a merge with any union data inside the WebhookSubscriptionRequest, using the provided WebhookSubscriptionRequest0
+func (t *WebhookSubscriptionRequest) MergeWebhookSubscriptionRequest0(v WebhookSubscriptionRequest0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWebhookSubscriptionRequest1 returns the union data inside the WebhookSubscriptionRequest as a WebhookSubscriptionRequest1
+func (t WebhookSubscriptionRequest) AsWebhookSubscriptionRequest1() (WebhookSubscriptionRequest1, error) {
+	var body WebhookSubscriptionRequest1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWebhookSubscriptionRequest1 overwrites any union data inside the WebhookSubscriptionRequest as the provided WebhookSubscriptionRequest1
+func (t *WebhookSubscriptionRequest) FromWebhookSubscriptionRequest1(v WebhookSubscriptionRequest1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWebhookSubscriptionRequest1 performs a merge with any union data inside the WebhookSubscriptionRequest, using the provided WebhookSubscriptionRequest1
+func (t *WebhookSubscriptionRequest) MergeWebhookSubscriptionRequest1(v WebhookSubscriptionRequest1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WebhookSubscriptionRequest) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.Description != nil {
+		object["description"], err = json.Marshal(t.Description)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'description': %w", err)
+		}
+	}
+
+	if t.EventTypes != nil {
+		object["eventTypes"], err = json.Marshal(t.EventTypes)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'eventTypes': %w", err)
+		}
+	}
+
+	if t.IsEnabled != nil {
+		object["isEnabled"], err = json.Marshal(t.IsEnabled)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'isEnabled': %w", err)
+		}
+	}
+
+	if t.LabelKey != nil {
+		object["labelKey"], err = json.Marshal(t.LabelKey)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labelKey': %w", err)
+		}
+	}
+
+	if t.LabelValue != nil {
+		object["labelValue"], err = json.Marshal(t.LabelValue)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labelValue': %w", err)
+		}
+	}
+
+	if t.Labels != nil {
+		object["labels"], err = json.Marshal(t.Labels)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labels': %w", err)
+		}
+	}
+
+	if t.Metadata != nil {
+		object["metadata"], err = json.Marshal(t.Metadata)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'metadata': %w", err)
+		}
+	}
+
+	if t.Target != nil {
+		object["target"], err = json.Marshal(t.Target)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'target': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *WebhookSubscriptionRequest) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["description"]; found {
+		err = json.Unmarshal(raw, &t.Description)
+		if err != nil {
+			return fmt.Errorf("error reading 'description': %w", err)
+		}
+	}
+
+	if raw, found := object["eventTypes"]; found {
+		err = json.Unmarshal(raw, &t.EventTypes)
+		if err != nil {
+			return fmt.Errorf("error reading 'eventTypes': %w", err)
+		}
+	}
+
+	if raw, found := object["isEnabled"]; found {
+		err = json.Unmarshal(raw, &t.IsEnabled)
+		if err != nil {
+			return fmt.Errorf("error reading 'isEnabled': %w", err)
+		}
+	}
+
+	if raw, found := object["labelKey"]; found {
+		err = json.Unmarshal(raw, &t.LabelKey)
+		if err != nil {
+			return fmt.Errorf("error reading 'labelKey': %w", err)
+		}
+	}
+
+	if raw, found := object["labelValue"]; found {
+		err = json.Unmarshal(raw, &t.LabelValue)
+		if err != nil {
+			return fmt.Errorf("error reading 'labelValue': %w", err)
+		}
+	}
+
+	if raw, found := object["labels"]; found {
+		err = json.Unmarshal(raw, &t.Labels)
+		if err != nil {
+			return fmt.Errorf("error reading 'labels': %w", err)
+		}
+	}
+
+	if raw, found := object["metadata"]; found {
+		err = json.Unmarshal(raw, &t.Metadata)
+		if err != nil {
+			return fmt.Errorf("error reading 'metadata': %w", err)
+		}
+	}
+
+	if raw, found := object["target"]; found {
+		err = json.Unmarshal(raw, &t.Target)
+		if err != nil {
+			return fmt.Errorf("error reading 'target': %w", err)
+		}
+	}
+
+	return err
+}
+
+// AsWebhookSubscriptionUpdateRequest0 returns the union data inside the WebhookSubscriptionUpdateRequest as a WebhookSubscriptionUpdateRequest0
+func (t WebhookSubscriptionUpdateRequest) AsWebhookSubscriptionUpdateRequest0() (WebhookSubscriptionUpdateRequest0, error) {
+	var body WebhookSubscriptionUpdateRequest0
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWebhookSubscriptionUpdateRequest0 overwrites any union data inside the WebhookSubscriptionUpdateRequest as the provided WebhookSubscriptionUpdateRequest0
+func (t *WebhookSubscriptionUpdateRequest) FromWebhookSubscriptionUpdateRequest0(v WebhookSubscriptionUpdateRequest0) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWebhookSubscriptionUpdateRequest0 performs a merge with any union data inside the WebhookSubscriptionUpdateRequest, using the provided WebhookSubscriptionUpdateRequest0
+func (t *WebhookSubscriptionUpdateRequest) MergeWebhookSubscriptionUpdateRequest0(v WebhookSubscriptionUpdateRequest0) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsWebhookSubscriptionUpdateRequest1 returns the union data inside the WebhookSubscriptionUpdateRequest as a WebhookSubscriptionUpdateRequest1
+func (t WebhookSubscriptionUpdateRequest) AsWebhookSubscriptionUpdateRequest1() (WebhookSubscriptionUpdateRequest1, error) {
+	var body WebhookSubscriptionUpdateRequest1
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromWebhookSubscriptionUpdateRequest1 overwrites any union data inside the WebhookSubscriptionUpdateRequest as the provided WebhookSubscriptionUpdateRequest1
+func (t *WebhookSubscriptionUpdateRequest) FromWebhookSubscriptionUpdateRequest1(v WebhookSubscriptionUpdateRequest1) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeWebhookSubscriptionUpdateRequest1 performs a merge with any union data inside the WebhookSubscriptionUpdateRequest, using the provided WebhookSubscriptionUpdateRequest1
+func (t *WebhookSubscriptionUpdateRequest) MergeWebhookSubscriptionUpdateRequest1(v WebhookSubscriptionUpdateRequest1) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t WebhookSubscriptionUpdateRequest) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	object := make(map[string]json.RawMessage)
+	if t.union != nil {
+		err = json.Unmarshal(b, &object)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if t.Description != nil {
+		object["description"], err = json.Marshal(t.Description)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'description': %w", err)
+		}
+	}
+
+	if t.EventTypes != nil {
+		object["eventTypes"], err = json.Marshal(t.EventTypes)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'eventTypes': %w", err)
+		}
+	}
+
+	if t.IsEnabled != nil {
+		object["isEnabled"], err = json.Marshal(t.IsEnabled)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'isEnabled': %w", err)
+		}
+	}
+
+	if t.LabelKey != nil {
+		object["labelKey"], err = json.Marshal(t.LabelKey)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labelKey': %w", err)
+		}
+	}
+
+	if t.LabelValue != nil {
+		object["labelValue"], err = json.Marshal(t.LabelValue)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labelValue': %w", err)
+		}
+	}
+
+	if t.Labels != nil {
+		object["labels"], err = json.Marshal(t.Labels)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'labels': %w", err)
+		}
+	}
+
+	if t.Metadata != nil {
+		object["metadata"], err = json.Marshal(t.Metadata)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'metadata': %w", err)
+		}
+	}
+
+	if t.Target != nil {
+		object["target"], err = json.Marshal(t.Target)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'target': %w", err)
+		}
+	}
+	b, err = json.Marshal(object)
+	return b, err
+}
+
+func (t *WebhookSubscriptionUpdateRequest) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	if err != nil {
+		return err
+	}
+	object := make(map[string]json.RawMessage)
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["description"]; found {
+		err = json.Unmarshal(raw, &t.Description)
+		if err != nil {
+			return fmt.Errorf("error reading 'description': %w", err)
+		}
+	}
+
+	if raw, found := object["eventTypes"]; found {
+		err = json.Unmarshal(raw, &t.EventTypes)
+		if err != nil {
+			return fmt.Errorf("error reading 'eventTypes': %w", err)
+		}
+	}
+
+	if raw, found := object["isEnabled"]; found {
+		err = json.Unmarshal(raw, &t.IsEnabled)
+		if err != nil {
+			return fmt.Errorf("error reading 'isEnabled': %w", err)
+		}
+	}
+
+	if raw, found := object["labelKey"]; found {
+		err = json.Unmarshal(raw, &t.LabelKey)
+		if err != nil {
+			return fmt.Errorf("error reading 'labelKey': %w", err)
+		}
+	}
+
+	if raw, found := object["labelValue"]; found {
+		err = json.Unmarshal(raw, &t.LabelValue)
+		if err != nil {
+			return fmt.Errorf("error reading 'labelValue': %w", err)
+		}
+	}
+
+	if raw, found := object["labels"]; found {
+		err = json.Unmarshal(raw, &t.Labels)
+		if err != nil {
+			return fmt.Errorf("error reading 'labels': %w", err)
+		}
+	}
+
+	if raw, found := object["metadata"]; found {
+		err = json.Unmarshal(raw, &t.Metadata)
+		if err != nil {
+			return fmt.Errorf("error reading 'metadata': %w", err)
+		}
+	}
+
+	if raw, found := object["target"]; found {
+		err = json.Unmarshal(raw, &t.Target)
+		if err != nil {
+			return fmt.Errorf("error reading 'target': %w", err)
+		}
+	}
+
+	return err
+}
+
 // AsX402ExactEvmPayload returns the union data inside the X402PaymentPayload_Payload as a X402ExactEvmPayload
 func (t X402PaymentPayload_Payload) AsX402ExactEvmPayload() (X402ExactEvmPayload, error) {
 	var body X402ExactEvmPayload
@@ -5729,13 +6438,40 @@ type ClientInterface interface {
 
 	RunSQLQuery(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListWebhookSubscriptions request
+	ListWebhookSubscriptions(ctx context.Context, params *ListWebhookSubscriptionsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateWebhookSubscriptionWithBody request with any body
+	CreateWebhookSubscriptionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateWebhookSubscription(ctx context.Context, body CreateWebhookSubscriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteWebhookSubscription request
+	DeleteWebhookSubscription(ctx context.Context, subscriptionId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetWebhookSubscription request
+	GetWebhookSubscription(ctx context.Context, subscriptionId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateWebhookSubscriptionWithBody request with any body
+	UpdateWebhookSubscriptionWithBody(ctx context.Context, subscriptionId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateWebhookSubscription(ctx context.Context, subscriptionId openapi_types.UUID, body UpdateWebhookSubscriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListEndUsers request
 	ListEndUsers(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateEndUserWithBody request with any body
+	CreateEndUserWithBody(ctx context.Context, params *CreateEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateEndUser(ctx context.Context, params *CreateEndUserParams, body CreateEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ValidateEndUserAccessTokenWithBody request with any body
 	ValidateEndUserAccessTokenWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	ValidateEndUserAccessToken(ctx context.Context, body ValidateEndUserAccessTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetEndUser request
+	GetEndUser(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListEvmAccounts request
 	ListEvmAccounts(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -6025,8 +6761,116 @@ func (c *CDPClient) RunSQLQuery(ctx context.Context, body RunSQLQueryJSONRequest
 	return c.Client.Do(req)
 }
 
+func (c *CDPClient) ListWebhookSubscriptions(ctx context.Context, params *ListWebhookSubscriptionsParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListWebhookSubscriptionsRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateWebhookSubscriptionWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateWebhookSubscriptionRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateWebhookSubscription(ctx context.Context, body CreateWebhookSubscriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateWebhookSubscriptionRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) DeleteWebhookSubscription(ctx context.Context, subscriptionId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteWebhookSubscriptionRequest(c.Server, subscriptionId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetWebhookSubscription(ctx context.Context, subscriptionId openapi_types.UUID, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetWebhookSubscriptionRequest(c.Server, subscriptionId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) UpdateWebhookSubscriptionWithBody(ctx context.Context, subscriptionId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateWebhookSubscriptionRequestWithBody(c.Server, subscriptionId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) UpdateWebhookSubscription(ctx context.Context, subscriptionId openapi_types.UUID, body UpdateWebhookSubscriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateWebhookSubscriptionRequest(c.Server, subscriptionId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 func (c *CDPClient) ListEndUsers(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListEndUsersRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateEndUserWithBody(ctx context.Context, params *CreateEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateEndUserRequestWithBody(c.Server, params, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) CreateEndUser(ctx context.Context, params *CreateEndUserParams, body CreateEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateEndUserRequest(c.Server, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6051,6 +6895,18 @@ func (c *CDPClient) ValidateEndUserAccessTokenWithBody(ctx context.Context, cont
 
 func (c *CDPClient) ValidateEndUserAccessToken(ctx context.Context, body ValidateEndUserAccessTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewValidateEndUserAccessTokenRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetEndUser(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetEndUserRequest(c.Server, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -7292,6 +8148,226 @@ func NewRunSQLQueryRequestWithBody(server string, contentType string, body io.Re
 	return req, nil
 }
 
+// NewListWebhookSubscriptionsRequest generates requests for ListWebhookSubscriptions
+func NewListWebhookSubscriptionsRequest(server string, params *ListWebhookSubscriptionsParams) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/data/webhooks/subscriptions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		queryValues := queryURL.Query()
+
+		if params.PageSize != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageSize", runtime.ParamLocationQuery, *params.PageSize); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		if params.PageToken != nil {
+
+			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pageToken", runtime.ParamLocationQuery, *params.PageToken); err != nil {
+				return nil, err
+			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
+				return nil, err
+			} else {
+				for k, v := range parsed {
+					for _, v2 := range v {
+						queryValues.Add(k, v2)
+					}
+				}
+			}
+
+		}
+
+		queryURL.RawQuery = queryValues.Encode()
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateWebhookSubscriptionRequest calls the generic CreateWebhookSubscription builder with application/json body
+func NewCreateWebhookSubscriptionRequest(server string, body CreateWebhookSubscriptionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateWebhookSubscriptionRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateWebhookSubscriptionRequestWithBody generates requests for CreateWebhookSubscription with any type of body
+func NewCreateWebhookSubscriptionRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/data/webhooks/subscriptions")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteWebhookSubscriptionRequest generates requests for DeleteWebhookSubscription
+func NewDeleteWebhookSubscriptionRequest(server string, subscriptionId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "subscriptionId", runtime.ParamLocationPath, subscriptionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/data/webhooks/subscriptions/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetWebhookSubscriptionRequest generates requests for GetWebhookSubscription
+func NewGetWebhookSubscriptionRequest(server string, subscriptionId openapi_types.UUID) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "subscriptionId", runtime.ParamLocationPath, subscriptionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/data/webhooks/subscriptions/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateWebhookSubscriptionRequest calls the generic UpdateWebhookSubscription builder with application/json body
+func NewUpdateWebhookSubscriptionRequest(server string, subscriptionId openapi_types.UUID, body UpdateWebhookSubscriptionJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateWebhookSubscriptionRequestWithBody(server, subscriptionId, "application/json", bodyReader)
+}
+
+// NewUpdateWebhookSubscriptionRequestWithBody generates requests for UpdateWebhookSubscription with any type of body
+func NewUpdateWebhookSubscriptionRequestWithBody(server string, subscriptionId openapi_types.UUID, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "subscriptionId", runtime.ParamLocationPath, subscriptionId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/data/webhooks/subscriptions/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListEndUsersRequest generates requests for ListEndUsers
 func NewListEndUsersRequest(server string, params *ListEndUsersParams) (*http.Request, error) {
 	var err error
@@ -7373,6 +8449,72 @@ func NewListEndUsersRequest(server string, params *ListEndUsersParams) (*http.Re
 	return req, nil
 }
 
+// NewCreateEndUserRequest calls the generic CreateEndUser builder with application/json body
+func NewCreateEndUserRequest(server string, params *CreateEndUserParams, body CreateEndUserJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateEndUserRequestWithBody(server, params, "application/json", bodyReader)
+}
+
+// NewCreateEndUserRequestWithBody generates requests for CreateEndUser with any type of body
+func NewCreateEndUserRequestWithBody(server string, params *CreateEndUserParams, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/end-users")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	if params != nil {
+
+		if params.XWalletAuth != nil {
+			var headerParam0 string
+
+			headerParam0, err = runtime.StyleParamWithLocation("simple", false, "X-Wallet-Auth", runtime.ParamLocationHeader, *params.XWalletAuth)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Wallet-Auth", headerParam0)
+		}
+
+		if params.XIdempotencyKey != nil {
+			var headerParam1 string
+
+			headerParam1, err = runtime.StyleParamWithLocation("simple", false, "X-Idempotency-Key", runtime.ParamLocationHeader, *params.XIdempotencyKey)
+			if err != nil {
+				return nil, err
+			}
+
+			req.Header.Set("X-Idempotency-Key", headerParam1)
+		}
+
+	}
+
+	return req, nil
+}
+
 // NewValidateEndUserAccessTokenRequest calls the generic ValidateEndUserAccessToken builder with application/json body
 func NewValidateEndUserAccessTokenRequest(server string, body ValidateEndUserAccessTokenJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -7409,6 +8551,40 @@ func NewValidateEndUserAccessTokenRequestWithBody(server string, contentType str
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetEndUserRequest generates requests for GetEndUser
+func NewGetEndUserRequest(server string, userId string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "userId", runtime.ParamLocationPath, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/end-users/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -10597,13 +11773,40 @@ type ClientWithResponsesInterface interface {
 
 	RunSQLQueryWithResponse(ctx context.Context, body RunSQLQueryJSONRequestBody, reqEditors ...RequestEditorFn) (*RunSQLQueryResponse, error)
 
+	// ListWebhookSubscriptionsWithResponse request
+	ListWebhookSubscriptionsWithResponse(ctx context.Context, params *ListWebhookSubscriptionsParams, reqEditors ...RequestEditorFn) (*ListWebhookSubscriptionsResponse, error)
+
+	// CreateWebhookSubscriptionWithBodyWithResponse request with any body
+	CreateWebhookSubscriptionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateWebhookSubscriptionResponse, error)
+
+	CreateWebhookSubscriptionWithResponse(ctx context.Context, body CreateWebhookSubscriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateWebhookSubscriptionResponse, error)
+
+	// DeleteWebhookSubscriptionWithResponse request
+	DeleteWebhookSubscriptionWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteWebhookSubscriptionResponse, error)
+
+	// GetWebhookSubscriptionWithResponse request
+	GetWebhookSubscriptionWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetWebhookSubscriptionResponse, error)
+
+	// UpdateWebhookSubscriptionWithBodyWithResponse request with any body
+	UpdateWebhookSubscriptionWithBodyWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateWebhookSubscriptionResponse, error)
+
+	UpdateWebhookSubscriptionWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, body UpdateWebhookSubscriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateWebhookSubscriptionResponse, error)
+
 	// ListEndUsersWithResponse request
 	ListEndUsersWithResponse(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*ListEndUsersResponse, error)
+
+	// CreateEndUserWithBodyWithResponse request with any body
+	CreateEndUserWithBodyWithResponse(ctx context.Context, params *CreateEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEndUserResponse, error)
+
+	CreateEndUserWithResponse(ctx context.Context, params *CreateEndUserParams, body CreateEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEndUserResponse, error)
 
 	// ValidateEndUserAccessTokenWithBodyWithResponse request with any body
 	ValidateEndUserAccessTokenWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*ValidateEndUserAccessTokenResponse, error)
 
 	ValidateEndUserAccessTokenWithResponse(ctx context.Context, body ValidateEndUserAccessTokenJSONRequestBody, reqEditors ...RequestEditorFn) (*ValidateEndUserAccessTokenResponse, error)
+
+	// GetEndUserWithResponse request
+	GetEndUserWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*GetEndUserResponse, error)
 
 	// ListEvmAccountsWithResponse request
 	ListEvmAccountsWithResponse(ctx context.Context, params *ListEvmAccountsParams, reqEditors ...RequestEditorFn) (*ListEvmAccountsResponse, error)
@@ -10946,6 +12149,136 @@ func (r RunSQLQueryResponse) StatusCode() int {
 	return 0
 }
 
+type ListWebhookSubscriptionsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WebhookSubscriptionListResponse
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON429      *Error
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListWebhookSubscriptionsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListWebhookSubscriptionsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateWebhookSubscriptionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *WebhookSubscriptionResponse
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON429      *Error
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateWebhookSubscriptionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateWebhookSubscriptionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteWebhookSubscriptionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON429      *Error
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteWebhookSubscriptionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteWebhookSubscriptionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetWebhookSubscriptionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WebhookSubscriptionResponse
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON429      *Error
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetWebhookSubscriptionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetWebhookSubscriptionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateWebhookSubscriptionResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *WebhookSubscriptionResponse
+	JSON400      *Error
+	JSON401      *UnauthorizedError
+	JSON404      *Error
+	JSON429      *Error
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateWebhookSubscriptionResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateWebhookSubscriptionResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ListEndUsersResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -10979,6 +12312,33 @@ func (r ListEndUsersResponse) StatusCode() int {
 	return 0
 }
 
+type CreateEndUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *EndUser
+	JSON400      *Error
+	JSON401      *Error
+	JSON402      *PaymentMethodRequiredError
+	JSON422      *IdempotencyError
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateEndUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateEndUserResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type ValidateEndUserAccessTokenResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -10999,6 +12359,30 @@ func (r ValidateEndUserAccessTokenResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r ValidateEndUserAccessTokenResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetEndUserResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *EndUser
+	JSON404      *Error
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetEndUserResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetEndUserResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -12642,6 +14026,67 @@ func (c *ClientWithResponses) RunSQLQueryWithResponse(ctx context.Context, body 
 	return ParseRunSQLQueryResponse(rsp)
 }
 
+// ListWebhookSubscriptionsWithResponse request returning *ListWebhookSubscriptionsResponse
+func (c *ClientWithResponses) ListWebhookSubscriptionsWithResponse(ctx context.Context, params *ListWebhookSubscriptionsParams, reqEditors ...RequestEditorFn) (*ListWebhookSubscriptionsResponse, error) {
+	rsp, err := c.ListWebhookSubscriptions(ctx, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListWebhookSubscriptionsResponse(rsp)
+}
+
+// CreateWebhookSubscriptionWithBodyWithResponse request with arbitrary body returning *CreateWebhookSubscriptionResponse
+func (c *ClientWithResponses) CreateWebhookSubscriptionWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateWebhookSubscriptionResponse, error) {
+	rsp, err := c.CreateWebhookSubscriptionWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateWebhookSubscriptionResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateWebhookSubscriptionWithResponse(ctx context.Context, body CreateWebhookSubscriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateWebhookSubscriptionResponse, error) {
+	rsp, err := c.CreateWebhookSubscription(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateWebhookSubscriptionResponse(rsp)
+}
+
+// DeleteWebhookSubscriptionWithResponse request returning *DeleteWebhookSubscriptionResponse
+func (c *ClientWithResponses) DeleteWebhookSubscriptionWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, reqEditors ...RequestEditorFn) (*DeleteWebhookSubscriptionResponse, error) {
+	rsp, err := c.DeleteWebhookSubscription(ctx, subscriptionId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteWebhookSubscriptionResponse(rsp)
+}
+
+// GetWebhookSubscriptionWithResponse request returning *GetWebhookSubscriptionResponse
+func (c *ClientWithResponses) GetWebhookSubscriptionWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, reqEditors ...RequestEditorFn) (*GetWebhookSubscriptionResponse, error) {
+	rsp, err := c.GetWebhookSubscription(ctx, subscriptionId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetWebhookSubscriptionResponse(rsp)
+}
+
+// UpdateWebhookSubscriptionWithBodyWithResponse request with arbitrary body returning *UpdateWebhookSubscriptionResponse
+func (c *ClientWithResponses) UpdateWebhookSubscriptionWithBodyWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateWebhookSubscriptionResponse, error) {
+	rsp, err := c.UpdateWebhookSubscriptionWithBody(ctx, subscriptionId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateWebhookSubscriptionResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateWebhookSubscriptionWithResponse(ctx context.Context, subscriptionId openapi_types.UUID, body UpdateWebhookSubscriptionJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateWebhookSubscriptionResponse, error) {
+	rsp, err := c.UpdateWebhookSubscription(ctx, subscriptionId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateWebhookSubscriptionResponse(rsp)
+}
+
 // ListEndUsersWithResponse request returning *ListEndUsersResponse
 func (c *ClientWithResponses) ListEndUsersWithResponse(ctx context.Context, params *ListEndUsersParams, reqEditors ...RequestEditorFn) (*ListEndUsersResponse, error) {
 	rsp, err := c.ListEndUsers(ctx, params, reqEditors...)
@@ -12649,6 +14094,23 @@ func (c *ClientWithResponses) ListEndUsersWithResponse(ctx context.Context, para
 		return nil, err
 	}
 	return ParseListEndUsersResponse(rsp)
+}
+
+// CreateEndUserWithBodyWithResponse request with arbitrary body returning *CreateEndUserResponse
+func (c *ClientWithResponses) CreateEndUserWithBodyWithResponse(ctx context.Context, params *CreateEndUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEndUserResponse, error) {
+	rsp, err := c.CreateEndUserWithBody(ctx, params, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateEndUserResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateEndUserWithResponse(ctx context.Context, params *CreateEndUserParams, body CreateEndUserJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEndUserResponse, error) {
+	rsp, err := c.CreateEndUser(ctx, params, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateEndUserResponse(rsp)
 }
 
 // ValidateEndUserAccessTokenWithBodyWithResponse request with arbitrary body returning *ValidateEndUserAccessTokenResponse
@@ -12666,6 +14128,15 @@ func (c *ClientWithResponses) ValidateEndUserAccessTokenWithResponse(ctx context
 		return nil, err
 	}
 	return ParseValidateEndUserAccessTokenResponse(rsp)
+}
+
+// GetEndUserWithResponse request returning *GetEndUserResponse
+func (c *ClientWithResponses) GetEndUserWithResponse(ctx context.Context, userId string, reqEditors ...RequestEditorFn) (*GetEndUserResponse, error) {
+	rsp, err := c.GetEndUser(ctx, userId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetEndUserResponse(rsp)
 }
 
 // ListEvmAccountsWithResponse request returning *ListEvmAccountsResponse
@@ -13660,6 +15131,276 @@ func ParseRunSQLQueryResponse(rsp *http.Response) (*RunSQLQueryResponse, error) 
 	return response, nil
 }
 
+// ParseListWebhookSubscriptionsResponse parses an HTTP response from a ListWebhookSubscriptionsWithResponse call
+func ParseListWebhookSubscriptionsResponse(rsp *http.Response) (*ListWebhookSubscriptionsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListWebhookSubscriptionsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WebhookSubscriptionListResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateWebhookSubscriptionResponse parses an HTTP response from a CreateWebhookSubscriptionWithResponse call
+func ParseCreateWebhookSubscriptionResponse(rsp *http.Response) (*CreateWebhookSubscriptionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateWebhookSubscriptionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest WebhookSubscriptionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteWebhookSubscriptionResponse parses an HTTP response from a DeleteWebhookSubscriptionWithResponse call
+func ParseDeleteWebhookSubscriptionResponse(rsp *http.Response) (*DeleteWebhookSubscriptionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteWebhookSubscriptionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetWebhookSubscriptionResponse parses an HTTP response from a GetWebhookSubscriptionWithResponse call
+func ParseGetWebhookSubscriptionResponse(rsp *http.Response) (*GetWebhookSubscriptionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetWebhookSubscriptionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WebhookSubscriptionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateWebhookSubscriptionResponse parses an HTTP response from a UpdateWebhookSubscriptionWithResponse call
+func ParseUpdateWebhookSubscriptionResponse(rsp *http.Response) (*UpdateWebhookSubscriptionResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateWebhookSubscriptionResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest WebhookSubscriptionResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListEndUsersResponse parses an HTTP response from a ListEndUsersWithResponse call
 func ParseListEndUsersResponse(rsp *http.Response) (*ListEndUsersResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -13727,6 +15468,67 @@ func ParseListEndUsersResponse(rsp *http.Response) (*ListEndUsersResponse, error
 	return response, nil
 }
 
+// ParseCreateEndUserResponse parses an HTTP response from a CreateEndUserWithResponse call
+func ParseCreateEndUserResponse(rsp *http.Response) (*CreateEndUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateEndUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest EndUser
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest IdempotencyError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseValidateEndUserAccessTokenResponse parses an HTTP response from a ValidateEndUserAccessTokenWithResponse call
 func ParseValidateEndUserAccessTokenResponse(rsp *http.Response) (*ValidateEndUserAccessTokenResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -13761,6 +15563,46 @@ func ParseValidateEndUserAccessTokenResponse(rsp *http.Response) (*ValidateEndUs
 			return nil, err
 		}
 		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetEndUserResponse parses an HTTP response from a GetEndUserWithResponse call
+func ParseGetEndUserResponse(rsp *http.Response) (*GetEndUserResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetEndUserResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EndUser
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
 		var dest Error

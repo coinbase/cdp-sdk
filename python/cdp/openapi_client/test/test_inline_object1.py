@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.settle_x402_payment200_response import SettleX402Payment200Response
+from cdp.openapi_client.models.inline_object1 import InlineObject1
 
-class TestSettleX402Payment200Response(unittest.TestCase):
-    """SettleX402Payment200Response unit test stubs"""
+class TestInlineObject1(unittest.TestCase):
+    """InlineObject1 unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,16 +26,16 @@ class TestSettleX402Payment200Response(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> SettleX402Payment200Response:
-        """Test SettleX402Payment200Response
+    def make_instance(self, include_optional) -> InlineObject1:
+        """Test InlineObject1
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `SettleX402Payment200Response`
+        # uncomment below to create an instance of `InlineObject1`
         """
-        model = SettleX402Payment200Response()
+        model = InlineObject1()
         if include_optional:
-            return SettleX402Payment200Response(
+            return InlineObject1(
                 success = False,
                 error_reason = 'insufficient_funds',
                 payer = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
@@ -43,7 +43,7 @@ class TestSettleX402Payment200Response(unittest.TestCase):
                 network = 'base'
             )
         else:
-            return SettleX402Payment200Response(
+            return InlineObject1(
                 success = False,
                 payer = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 transaction = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
@@ -51,8 +51,8 @@ class TestSettleX402Payment200Response(unittest.TestCase):
         )
         """
 
-    def testSettleX402Payment200Response(self):
-        """Test SettleX402Payment200Response"""
+    def testInlineObject1(self):
+        """Test InlineObject1"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

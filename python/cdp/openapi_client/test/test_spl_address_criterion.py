@@ -37,13 +37,13 @@ class TestSplAddressCriterion(unittest.TestCase):
         if include_optional:
             return SplAddressCriterion(
                 type = 'splAddress',
-                addresses = ["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],
+                addresses = [HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT],
                 operator = 'in'
             )
         else:
             return SplAddressCriterion(
                 type = 'splAddress',
-                addresses = ["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],
+                addresses = [HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT],
                 operator = 'in',
         )
         """

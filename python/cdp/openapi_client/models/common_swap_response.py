@@ -62,6 +62,13 @@ class CommonSwapResponse(BaseModel):
             raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{40}$/")
         return value
 
+    @field_validator('liquidity_available')
+    def liquidity_available_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['true']):
+            raise ValueError("must be one of enum values ('true')")
+        return value
+
     @field_validator('min_to_amount')
     def min_to_amount_validate_regular_expression(cls, value):
         """Validates the regular expression"""

@@ -37,7 +37,7 @@ class TestAccountTokenAddressesResponse(unittest.TestCase):
         if include_optional:
             return AccountTokenAddressesResponse(
                 account_address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                token_addresses = ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","0x4200000000000000000000000000000000000006","0x0000000000000000000000000000000000000000"],
+                token_addresses = [0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913, 0x4200000000000000000000000000000000000006, 0x0000000000000000000000000000000000000000],
                 total_count = 15
             )
         else:

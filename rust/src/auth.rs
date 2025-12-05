@@ -135,7 +135,7 @@ impl WalletAuth {
         let claims = Claims {
             sub: self.api_key_id.clone(),
             iss: "cdp".to_string(),
-            aud: vec!["cdp_service".to_string()],
+            aud: vec![],
             exp: now + expires_in,
             iat: now,
             nbf: now,

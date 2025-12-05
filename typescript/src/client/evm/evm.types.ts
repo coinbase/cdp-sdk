@@ -328,6 +328,8 @@ export interface EvmCall {
    * The call data to send. This is the hex-encoded data of the function call consisting of the method selector and the function arguments.
    */
   data: Hex;
+  /** The override gas limit. */
+  overrideGasLimit?: string;
 }
 
 /**

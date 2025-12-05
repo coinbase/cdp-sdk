@@ -38,13 +38,13 @@ class TestSendSolTransactionRule(unittest.TestCase):
             return SendSolTransactionRule(
                 action = 'accept',
                 operation = 'sendSolTransaction',
-                criteria = [{"type":"solAddress","addresses":["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],"operator":"in"},{"type":"solValue","solValue":"1000000000000000000","operator":"<="}]
+                criteria = [{type=solAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}, {type=solValue, solValue=1000000000000000000, operator=<=}]
             )
         else:
             return SendSolTransactionRule(
                 action = 'accept',
                 operation = 'sendSolTransaction',
-                criteria = [{"type":"solAddress","addresses":["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],"operator":"in"},{"type":"solValue","solValue":"1000000000000000000","operator":"<="}],
+                criteria = [{type=solAddress, addresses=[HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT], operator=in}, {type=solValue, solValue=1000000000000000000, operator=<=}],
         )
         """
 

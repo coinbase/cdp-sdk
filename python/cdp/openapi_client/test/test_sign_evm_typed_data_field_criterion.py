@@ -37,14 +37,14 @@ class TestSignEvmTypedDataFieldCriterion(unittest.TestCase):
         if include_optional:
             return SignEvmTypedDataFieldCriterion(
                 type = 'evmTypedDataField',
-                types = {"primaryType":"Mail","types":{"Person":[{"name":"name","type":"string"},{"name":"wallet","type":"address"},{"name":"score","type":"uint256"}],"Mail":[{"name":"from","type":"Person"},{"name":"to","type":"Person"},{"name":"contents","type":"string"}]}},
-                conditions = [{"addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],"operator":"in","path":"to.wallet"},{"value":"50","operator":">=","path":"to.score"},{"match":"^hello ([a-z]+)$","path":"contents"}]
+                types = {primaryType=Mail, types={Person=[{name=name, type=string}, {name=wallet, type=address}, {name=score, type=uint256}], Mail=[{name=from, type=Person}, {name=to, type=Person}, {name=contents, type=string}]}},
+                conditions = [{addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in, path=to.wallet}, {value=50, operator=>=, path=to.score}, {match=^hello ([a-z]+)$, path=contents}]
             )
         else:
             return SignEvmTypedDataFieldCriterion(
                 type = 'evmTypedDataField',
-                types = {"primaryType":"Mail","types":{"Person":[{"name":"name","type":"string"},{"name":"wallet","type":"address"},{"name":"score","type":"uint256"}],"Mail":[{"name":"from","type":"Person"},{"name":"to","type":"Person"},{"name":"contents","type":"string"}]}},
-                conditions = [{"addresses":["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],"operator":"in","path":"to.wallet"},{"value":"50","operator":">=","path":"to.score"},{"match":"^hello ([a-z]+)$","path":"contents"}],
+                types = {primaryType=Mail, types={Person=[{name=name, type=string}, {name=wallet, type=address}, {name=score, type=uint256}], Mail=[{name=from, type=Person}, {name=to, type=Person}, {name=contents, type=string}]}},
+                conditions = [{addresses=[0x742d35Cc6634C0532925a3b844Bc454e4438f44e], operator=in, path=to.wallet}, {value=50, operator=>=, path=to.score}, {match=^hello ([a-z]+)$, path=contents}],
         )
         """
 

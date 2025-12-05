@@ -37,13 +37,13 @@ class TestSolAddressCriterion(unittest.TestCase):
         if include_optional:
             return SolAddressCriterion(
                 type = 'solAddress',
-                addresses = ["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],
+                addresses = [HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT],
                 operator = 'in'
             )
         else:
             return SolAddressCriterion(
                 type = 'solAddress',
-                addresses = ["HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"],
+                addresses = [HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT],
                 operator = 'in',
         )
         """

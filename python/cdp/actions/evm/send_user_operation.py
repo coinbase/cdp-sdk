@@ -45,11 +45,25 @@ async def send_user_operation(
             contract = Web3().eth.contract(address=call.to, abi=call.abi)
             data = contract.encode_abi(call.function_name, args=call.args)
             value = "0" if call.value is None else str(call.value)
-            encoded_calls.append(EvmCall(to=str(call.to), data=data, value=value))
+            encoded_calls.append(
+                EvmCall(
+                    to=str(call.to),
+                    data=data,
+                    value=value,
+                    override_gas_limit=call.override_gas_limit if call.override_gas_limit else None,
+                )
+            )
         else:
             value = "0" if call.value is None else str(call.value)
             data = "0x" if call.data is None else call.data
-            encoded_calls.append(EvmCall(to=str(call.to), data=data, value=value))
+            encoded_calls.append(
+                EvmCall(
+                    to=str(call.to),
+                    data=data,
+                    value=value,
+                    override_gas_limit=call.override_gas_limit if call.override_gas_limit else None,
+                )
+            )
 
     prepare_user_operation_request = PrepareUserOperationRequest(
         network=network,

@@ -24,9 +24,9 @@ from cdp.openapi_client.models.x402_supported_payment_kind import X402SupportedP
 from typing import Optional, Set
 from typing_extensions import Self
 
-class SupportedX402PaymentKinds200Response(BaseModel):
+class InlineObject2(BaseModel):
     """
-    SupportedX402PaymentKinds200Response
+    InlineObject2
     """ # noqa: E501
     kinds: List[X402SupportedPaymentKind] = Field(description="The list of supported payment kinds.")
     __properties: ClassVar[List[str]] = ["kinds"]
@@ -49,7 +49,7 @@ class SupportedX402PaymentKinds200Response(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SupportedX402PaymentKinds200Response from a JSON string"""
+        """Create an instance of InlineObject2 from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -81,7 +81,7 @@ class SupportedX402PaymentKinds200Response(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SupportedX402PaymentKinds200Response from a dict"""
+        """Create an instance of InlineObject2 from a dict"""
         if obj is None:
             return None
 

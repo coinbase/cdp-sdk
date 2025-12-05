@@ -18,8 +18,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 from cdp.openapi_client.models.onramp_payment_link_type import OnrampPaymentLinkType
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,9 +29,16 @@ class OnrampPaymentLink(BaseModel):
     """
     A payment link to pay for an order.  Please refer to the [Onramp docs](https://docs.cdp.coinbase.com/onramp-&-offramp/onramp-apis/onramp-overview) for details on how to integrate with the different payment link types.
     """ # noqa: E501
-    url: StrictStr = Field(description="The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your  own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes.")
+    url: Annotated[str, Field(min_length=11, strict=True, max_length=2048)] = Field(description="The URL to the hosted widget the user should be redirected to. For certain payment link types you can append your own redirect_url query parameter to this URL to ensure the user is redirected back to your app after the widget completes.")
     payment_link_type: OnrampPaymentLinkType = Field(alias="paymentLinkType")
     __properties: ClassVar[List[str]] = ["url", "paymentLinkType"]
+
+    @field_validator('url')
+    def url_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^https?:\/\/.*$", value):
+            raise ValueError(r"must validate the regular expression /^https?:\/\/.*$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

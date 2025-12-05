@@ -18,8 +18,9 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -27,8 +28,15 @@ class OnrampSession(BaseModel):
     """
     An onramp session containing a ready-to-use onramp URL.
     """ # noqa: E501
-    onramp_url: StrictStr = Field(description="Ready-to-use onramp URL.", alias="onrampUrl")
+    onramp_url: Annotated[str, Field(min_length=11, strict=True, max_length=2048)] = Field(description="Ready-to-use onramp URL.", alias="onrampUrl")
     __properties: ClassVar[List[str]] = ["onrampUrl"]
+
+    @field_validator('onramp_url')
+    def onramp_url_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^https?:\/\/.*$", value):
+            raise ValueError(r"must validate the regular expression /^https?:\/\/.*$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,

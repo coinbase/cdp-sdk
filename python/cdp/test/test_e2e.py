@@ -22,7 +22,15 @@ from cdp.evm_call_types import EncodedCall
 from cdp.evm_local_account import EvmLocalAccount
 from cdp.evm_transaction_types import TransactionRequestEIP1559
 from cdp.openapi_client.errors import ApiError
+from cdp.openapi_client.models.authentication_method import AuthenticationMethod
+from cdp.openapi_client.models.create_end_user_request_evm_account import (
+    CreateEndUserRequestEvmAccount,
+)
+from cdp.openapi_client.models.create_end_user_request_solana_account import (
+    CreateEndUserRequestSolanaAccount,
+)
 from cdp.openapi_client.models.eip712_domain import EIP712Domain
+from cdp.openapi_client.models.email_authentication import EmailAuthentication
 from cdp.openapi_client.models.update_evm_smart_account_request import UpdateEvmSmartAccountRequest
 from cdp.policies.types import (
     CreatePolicyOptions,
@@ -144,6 +152,36 @@ async def test_create_get_and_list_accounts(cdp_client):
     assert account is not None
     assert account.address == server_account.address
     assert account.name == random_name
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_create_end_user_with_accounts(cdp_client):
+    """Test creating an end user with EVM smart account and Solana account."""
+    random_email = f"test-{int(time.time())}-{generate_random_name()}@example.com"
+
+    end_user = await cdp_client.end_user.create_end_user(
+        authentication_methods=[
+            AuthenticationMethod(EmailAuthentication(type="email", email=random_email))
+        ],
+        evm_account=CreateEndUserRequestEvmAccount(create_smart_account=True),
+        solana_account=CreateEndUserRequestSolanaAccount(create_smart_account=False),
+    )
+
+    assert end_user is not None
+    assert end_user.user_id is not None
+    assert end_user.authentication_methods is not None
+    assert len(end_user.authentication_methods) == 1
+    assert end_user.authentication_methods[0].actual_instance.type == "email"
+    assert end_user.evm_accounts is not None
+    assert len(end_user.evm_accounts) == 1
+    assert end_user.evm_smart_accounts is not None
+    assert len(end_user.evm_smart_accounts) == 1
+    assert end_user.solana_accounts is not None
+    assert len(end_user.solana_accounts) == 1
+    assert end_user.created_at is not None
+
+    print(f"Created end user: {end_user.user_id}")
 
 
 @pytest.mark.e2e

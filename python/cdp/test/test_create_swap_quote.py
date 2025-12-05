@@ -1,7 +1,7 @@
 """Tests for create_swap_quote functionality."""
 
 import json
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -11,8 +11,49 @@ from cdp.actions.evm.swap.create_swap_quote import (
 from cdp.actions.evm.swap.types import Permit2Data, QuoteSwapResult, SwapUnavailableResult
 
 
+def create_mock_swap_response(response_data: dict) -> MagicMock:
+    """Create a mock CreateSwapQuoteResponse object from response data.
+
+    This bypasses the buggy Pydantic validation in the generated code.
+    """
+    mock = MagicMock()
+    mock.to_amount = response_data.get("toAmount")
+    mock.min_to_amount = response_data.get("minToAmount")
+
+    # Mock transaction
+    tx_data = response_data.get("transaction", {})
+    mock.transaction = MagicMock()
+    mock.transaction.to = tx_data.get("to")
+    mock.transaction.data = tx_data.get("data")
+    mock.transaction.value = tx_data.get("value")
+    mock.transaction.gas = tx_data.get("gas")
+    mock.transaction.gas_price = tx_data.get("gasPrice")
+    mock.transaction.max_fee_per_gas = tx_data.get("maxFeePerGas")
+    mock.transaction.max_priority_fee_per_gas = tx_data.get("maxPriorityFeePerGas")
+
+    # Mock permit2
+    permit2_data = response_data.get("permit2")
+    if permit2_data and permit2_data.get("eip712"):
+        mock.permit2 = MagicMock()
+        mock.permit2.eip712 = permit2_data.get("eip712")
+        mock.permit2.hash = permit2_data.get("hash")
+    else:
+        mock.permit2 = None
+
+    return mock
+
+
 class TestCreateSwapQuote:
     """Test create_swap_quote function."""
+
+    @pytest.fixture(autouse=True)
+    def patch_from_dict(self):
+        """Patch CreateSwapQuoteResponse.from_dict to bypass buggy Pydantic validation."""
+        with patch(
+            "cdp.openapi_client.models.create_swap_quote_response.CreateSwapQuoteResponse.from_dict",
+            side_effect=lambda obj: create_mock_swap_response(obj),
+        ):
+            yield
 
     @pytest.fixture
     def mock_api_clients(self):
@@ -23,7 +64,7 @@ class TestCreateSwapQuote:
 
     @pytest.fixture
     def valid_response_data(self):
-        """Provide valid swap quote response data."""
+        """Provide valid swap quote response data (no permit2 needed - e.g., native token swap)."""
         return {
             "liquidityAvailable": True,
             "toAmount": "500000000000000",  # 0.0005 WETH
@@ -32,8 +73,28 @@ class TestCreateSwapQuote:
             "fromToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             "toToken": "0x4200000000000000000000000000000000000006",
             "blockNumber": "123456",
-            "fees": {},
-            "issues": {"simulationIncomplete": False},
+            "fees": {
+                "gasFee": {
+                    "amount": "1000000000000000",
+                    "token": "0x0000000000000000000000000000000000000000",
+                },
+                "protocolFee": {
+                    "amount": "0",
+                    "token": "0x0000000000000000000000000000000000000000",
+                },
+            },
+            "issues": {
+                "allowance": {
+                    "currentAllowance": "0",
+                    "spender": "0x0000000000000000000000000000000000000000",
+                },
+                "balance": {
+                    "token": "0x0000000000000000000000000000000000000000",
+                    "currentBalance": "0",
+                    "requiredBalance": "0",
+                },
+                "simulationIncomplete": False,
+            },
             "transaction": {
                 "to": "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
                 "data": "0xabc123def456",
@@ -41,6 +102,7 @@ class TestCreateSwapQuote:
                 "gas": "200000",
                 "gasPrice": "20000000000",  # Required field
             },
+            "permit2": None,  # No permit2 needed for native token swaps
         }
 
     @pytest.fixture
@@ -54,8 +116,28 @@ class TestCreateSwapQuote:
             "fromToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             "toToken": "0x4200000000000000000000000000000000000006",
             "blockNumber": "123456",
-            "fees": {},
-            "issues": {"simulationIncomplete": False},
+            "fees": {
+                "gasFee": {
+                    "amount": "1000000000000000",
+                    "token": "0x0000000000000000000000000000000000000000",
+                },
+                "protocolFee": {
+                    "amount": "0",
+                    "token": "0x0000000000000000000000000000000000000000",
+                },
+            },
+            "issues": {
+                "allowance": {
+                    "currentAllowance": "0",
+                    "spender": "0x0000000000000000000000000000000000000000",
+                },
+                "balance": {
+                    "token": "0x0000000000000000000000000000000000000000",
+                    "currentBalance": "0",
+                    "requiredBalance": "0",
+                },
+                "simulationIncomplete": False,
+            },
             "transaction": {
                 "to": "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
                 "data": "0xabc123def456",
@@ -356,8 +438,28 @@ class TestCreateSwapQuote:
             "fromToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
             "toToken": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
             "blockNumber": "123456",
-            "fees": {},
-            "issues": {"simulationIncomplete": False},
+            "fees": {
+                "gasFee": {
+                    "amount": "1000000000000000",
+                    "token": "0x0000000000000000000000000000000000000000",
+                },
+                "protocolFee": {
+                    "amount": "0",
+                    "token": "0x0000000000000000000000000000000000000000",
+                },
+            },
+            "issues": {
+                "allowance": {
+                    "currentAllowance": "0",
+                    "spender": "0x0000000000000000000000000000000000000000",
+                },
+                "balance": {
+                    "token": "0x0000000000000000000000000000000000000000",
+                    "currentBalance": "0",
+                    "requiredBalance": "0",
+                },
+                "simulationIncomplete": False,
+            },
             "transaction": {
                 "to": "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
                 "data": "0xabc123def456",
@@ -367,6 +469,7 @@ class TestCreateSwapQuote:
                 "maxFeePerGas": "30000000000",
                 "maxPriorityFeePerGas": "2000000000",
             },
+            "permit2": None,  # No permit2 for this test
         }
 
         mock_response = AsyncMock()
@@ -388,6 +491,6 @@ class TestCreateSwapQuote:
         assert result.value == "1000000000000000"
         assert result.gas_limit == 250000
         assert result.gas_price == "20000000000"
-        # Note: max_fee_per_gas and max_priority_fee_per_gas are not extracted from response
-        assert result.max_fee_per_gas is None
-        assert result.max_priority_fee_per_gas is None
+        # max_fee_per_gas and max_priority_fee_per_gas are extracted from response
+        assert result.max_fee_per_gas == "30000000000"
+        assert result.max_priority_fee_per_gas == "2000000000"

@@ -49,6 +49,3 @@ jobs:
 
       - name: Run unit tests (no default features)
         run: cargo test --lib --verbose --no-default-features
-
-      - name: Run doc tests
-        run: cargo test --verbose --doc

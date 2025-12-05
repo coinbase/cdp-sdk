@@ -38,7 +38,7 @@ class TestRevokeSpendPermissionRequest(unittest.TestCase):
             return RevokeSpendPermissionRequest(
                 network = 'base',
                 permission_hash = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
-                paymaster_url = 'https://paymaster.cdp.coinbase.com'
+                paymaster_url = 'https://example.com'
             )
         else:
             return RevokeSpendPermissionRequest(

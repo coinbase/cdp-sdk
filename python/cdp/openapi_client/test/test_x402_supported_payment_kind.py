@@ -39,7 +39,7 @@ class TestX402SupportedPaymentKind(unittest.TestCase):
                 x402_version = 1,
                 scheme = 'exact',
                 network = 'base',
-                extra = {"feePayer":"HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"}
+                extra = {feePayer=HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT}
             )
         else:
             return X402SupportedPaymentKind(
