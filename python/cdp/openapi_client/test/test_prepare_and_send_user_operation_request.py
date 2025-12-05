@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.prepare_user_operation_request import PrepareUserOperationRequest
+from cdp.openapi_client.models.prepare_and_send_user_operation_request import PrepareAndSendUserOperationRequest
 
-class TestPrepareUserOperationRequest(unittest.TestCase):
-    """PrepareUserOperationRequest unit test stubs"""
+class TestPrepareAndSendUserOperationRequest(unittest.TestCase):
+    """PrepareAndSendUserOperationRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,16 +26,16 @@ class TestPrepareUserOperationRequest(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> PrepareUserOperationRequest:
-        """Test PrepareUserOperationRequest
+    def make_instance(self, include_optional) -> PrepareAndSendUserOperationRequest:
+        """Test PrepareAndSendUserOperationRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `PrepareUserOperationRequest`
+        # uncomment below to create an instance of `PrepareAndSendUserOperationRequest`
         """
-        model = PrepareUserOperationRequest()
+        model = PrepareAndSendUserOperationRequest()
         if include_optional:
-            return PrepareUserOperationRequest(
+            return PrepareAndSendUserOperationRequest(
                 network = 'base',
                 calls = [
                     cdp.openapi_client.models.evm_call.EvmCall(
@@ -44,11 +44,10 @@ class TestPrepareUserOperationRequest(unittest.TestCase):
                         data = '0xa9059cbb000000000000000000000000fc807d1be4997e5c7b33e4d8d57e60c5b0f02b1a0000000000000000000000000000000000000000000000000000000000000064', 
                         override_gas_limit = '100000', )
                     ],
-                paymaster_url = 'https://example.com',
-                data_suffix = '0xdddddddd62617365617070070080218021802180218021802180218021'
+                paymaster_url = 'https://example.com'
             )
         else:
-            return PrepareUserOperationRequest(
+            return PrepareAndSendUserOperationRequest(
                 network = 'base',
                 calls = [
                     cdp.openapi_client.models.evm_call.EvmCall(
@@ -60,8 +59,8 @@ class TestPrepareUserOperationRequest(unittest.TestCase):
         )
         """
 
-    def testPrepareUserOperationRequest(self):
-        """Test PrepareUserOperationRequest"""
+    def testPrepareAndSendUserOperationRequest(self):
+        """Test PrepareAndSendUserOperationRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 
