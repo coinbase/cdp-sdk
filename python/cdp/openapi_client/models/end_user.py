@@ -32,9 +32,9 @@ class EndUser(BaseModel):
     """ # noqa: E501
     user_id: Annotated[str, Field(strict=True)] = Field(description="A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.", alias="userId")
     authentication_methods: List[AuthenticationMethod] = Field(description="The list of valid authentication methods linked to the end user.", alias="authenticationMethods")
-    evm_accounts: List[Annotated[str, Field(strict=True)]] = Field(description="The list of EVM accounts associated with the end user. Currently, only one EVM account is supported per end user.", alias="evmAccounts")
-    evm_smart_accounts: List[Annotated[str, Field(strict=True)]] = Field(description="The list of EVM smart accounts associated with the end user. Currently, only one EVM smart account is supported per end user.", alias="evmSmartAccounts")
-    solana_accounts: List[Annotated[str, Field(strict=True)]] = Field(description="The list of Solana accounts associated with the end user. Currently, only one Solana account is supported per end user.", alias="solanaAccounts")
+    evm_accounts: List[Annotated[str, Field(strict=True)]] = Field(description="**DEPRECATED**: Use `evmAccountObjects` instead for richer account information. The list of EVM account addresses associated with the end user. End users can have up to 10 EVM accounts.", alias="evmAccounts")
+    evm_smart_accounts: List[Annotated[str, Field(strict=True)]] = Field(description="**DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.", alias="evmSmartAccounts")
+    solana_accounts: List[Annotated[str, Field(strict=True)]] = Field(description="**DEPRECATED**: Use `solanaAccountObjects` instead for richer account information. The list of Solana account addresses associated with the end user. End users can have up to 10 Solana accounts.", alias="solanaAccounts")
     created_at: datetime = Field(description="The date and time when the end user was created, in ISO 8601 format.", alias="createdAt")
     __properties: ClassVar[List[str]] = ["userId", "authenticationMethods", "evmAccounts", "evmSmartAccounts", "solanaAccounts", "createdAt"]
 

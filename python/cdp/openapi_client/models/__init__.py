@@ -118,6 +118,7 @@ from cdp.openapi_client.models.onramp_quote import OnrampQuote
 from cdp.openapi_client.models.onramp_quote_payment_method_type_id import OnrampQuotePaymentMethodTypeId
 from cdp.openapi_client.models.onramp_session import OnrampSession
 from cdp.openapi_client.models.policy import Policy
+from cdp.openapi_client.models.prepare_and_send_user_operation_request import PrepareAndSendUserOperationRequest
 from cdp.openapi_client.models.prepare_user_operation_request import PrepareUserOperationRequest
 from cdp.openapi_client.models.prepare_user_operation_rule import PrepareUserOperationRule
 from cdp.openapi_client.models.program_id_criterion import ProgramIdCriterion

@@ -26,15 +26,14 @@ from cdp.openapi_client.models.evm_user_operation_network import EvmUserOperatio
 from typing import Optional, Set
 from typing_extensions import Self
 
-class PrepareUserOperationRequest(BaseModel):
+class PrepareAndSendUserOperationRequest(BaseModel):
     """
-    PrepareUserOperationRequest
+    PrepareAndSendUserOperationRequest
     """ # noqa: E501
     network: EvmUserOperationNetwork
     calls: List[EvmCall] = Field(description="The list of calls to make from the Smart Account.")
     paymaster_url: Optional[Annotated[str, Field(min_length=11, strict=True, max_length=2048)]] = Field(default=None, description="The URL of the paymaster to use for the user operation.", alias="paymasterUrl")
-    data_suffix: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The EIP-8021 data suffix (hex-encoded) that enables transaction attribution for the user operation.", alias="dataSuffix")
-    __properties: ClassVar[List[str]] = ["network", "calls", "paymasterUrl", "dataSuffix"]
+    __properties: ClassVar[List[str]] = ["network", "calls", "paymasterUrl"]
 
     @field_validator('paymaster_url')
     def paymaster_url_validate_regular_expression(cls, value):
@@ -44,16 +43,6 @@ class PrepareUserOperationRequest(BaseModel):
 
         if not re.match(r"^https?:\/\/.*$", value):
             raise ValueError(r"must validate the regular expression /^https?:\/\/.*$/")
-        return value
-
-    @field_validator('data_suffix')
-    def data_suffix_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^0x[0-9a-fA-F]+$", value):
-            raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]+$/")
         return value
 
     model_config = ConfigDict(
@@ -74,7 +63,7 @@ class PrepareUserOperationRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of PrepareUserOperationRequest from a JSON string"""
+        """Create an instance of PrepareAndSendUserOperationRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -106,7 +95,7 @@ class PrepareUserOperationRequest(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of PrepareUserOperationRequest from a dict"""
+        """Create an instance of PrepareAndSendUserOperationRequest from a dict"""
         if obj is None:
             return None
 
@@ -116,8 +105,7 @@ class PrepareUserOperationRequest(BaseModel):
         _obj = cls.model_validate({
             "network": obj.get("network"),
             "calls": [EvmCall.from_dict(_item) for _item in obj["calls"]] if obj.get("calls") is not None else None,
-            "paymasterUrl": obj.get("paymasterUrl"),
-            "dataSuffix": obj.get("dataSuffix")
+            "paymasterUrl": obj.get("paymasterUrl")
         })
         return _obj
 

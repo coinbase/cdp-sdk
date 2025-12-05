@@ -26,6 +26,7 @@ from cdp.openapi_client.models.evm_smart_account import EvmSmartAccount
 from cdp.openapi_client.models.evm_user_operation import EvmUserOperation
 from cdp.openapi_client.models.list_evm_smart_accounts200_response import ListEvmSmartAccounts200Response
 from cdp.openapi_client.models.list_spend_permissions200_response import ListSpendPermissions200Response
+from cdp.openapi_client.models.prepare_and_send_user_operation_request import PrepareAndSendUserOperationRequest
 from cdp.openapi_client.models.prepare_user_operation_request import PrepareUserOperationRequest
 from cdp.openapi_client.models.revoke_spend_permission_request import RevokeSpendPermissionRequest
 from cdp.openapi_client.models.send_user_operation_request import SendUserOperationRequest
@@ -2138,7 +2139,7 @@ class EVMSmartAccountsApi:
         address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to execute the user operation from.")],
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        prepare_user_operation_request: Optional[PrepareUserOperationRequest] = None,
+        prepare_and_send_user_operation_request: Optional[PrepareAndSendUserOperationRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2162,8 +2163,8 @@ class EVMSmartAccountsApi:
         :type x_idempotency_key: str
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
-        :param prepare_user_operation_request:
-        :type prepare_user_operation_request: PrepareUserOperationRequest
+        :param prepare_and_send_user_operation_request:
+        :type prepare_and_send_user_operation_request: PrepareAndSendUserOperationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2190,7 +2191,7 @@ class EVMSmartAccountsApi:
             address=address,
             x_idempotency_key=x_idempotency_key,
             x_wallet_auth=x_wallet_auth,
-            prepare_user_operation_request=prepare_user_operation_request,
+            prepare_and_send_user_operation_request=prepare_and_send_user_operation_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2226,7 +2227,7 @@ class EVMSmartAccountsApi:
         address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to execute the user operation from.")],
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        prepare_user_operation_request: Optional[PrepareUserOperationRequest] = None,
+        prepare_and_send_user_operation_request: Optional[PrepareAndSendUserOperationRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2250,8 +2251,8 @@ class EVMSmartAccountsApi:
         :type x_idempotency_key: str
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
-        :param prepare_user_operation_request:
-        :type prepare_user_operation_request: PrepareUserOperationRequest
+        :param prepare_and_send_user_operation_request:
+        :type prepare_and_send_user_operation_request: PrepareAndSendUserOperationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2278,7 +2279,7 @@ class EVMSmartAccountsApi:
             address=address,
             x_idempotency_key=x_idempotency_key,
             x_wallet_auth=x_wallet_auth,
-            prepare_user_operation_request=prepare_user_operation_request,
+            prepare_and_send_user_operation_request=prepare_and_send_user_operation_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2314,7 +2315,7 @@ class EVMSmartAccountsApi:
         address: Annotated[str, Field(strict=True, description="The address of the EVM Smart Account to execute the user operation from.")],
         x_idempotency_key: Annotated[Optional[Annotated[str, Field(min_length=36, strict=True, max_length=36)]], Field(description="An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys. ")] = None,
         x_wallet_auth: Annotated[Optional[StrictStr], Field(description="A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. ")] = None,
-        prepare_user_operation_request: Optional[PrepareUserOperationRequest] = None,
+        prepare_and_send_user_operation_request: Optional[PrepareAndSendUserOperationRequest] = None,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -2338,8 +2339,8 @@ class EVMSmartAccountsApi:
         :type x_idempotency_key: str
         :param x_wallet_auth: A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token. 
         :type x_wallet_auth: str
-        :param prepare_user_operation_request:
-        :type prepare_user_operation_request: PrepareUserOperationRequest
+        :param prepare_and_send_user_operation_request:
+        :type prepare_and_send_user_operation_request: PrepareAndSendUserOperationRequest
         :param _request_timeout: timeout setting for this request. If one
                                  number provided, it will be total request
                                  timeout. It can also be a pair (tuple) of
@@ -2366,7 +2367,7 @@ class EVMSmartAccountsApi:
             address=address,
             x_idempotency_key=x_idempotency_key,
             x_wallet_auth=x_wallet_auth,
-            prepare_user_operation_request=prepare_user_operation_request,
+            prepare_and_send_user_operation_request=prepare_and_send_user_operation_request,
             _request_auth=_request_auth,
             _content_type=_content_type,
             _headers=_headers,
@@ -2397,7 +2398,7 @@ class EVMSmartAccountsApi:
         address,
         x_idempotency_key,
         x_wallet_auth,
-        prepare_user_operation_request,
+        prepare_and_send_user_operation_request,
         _request_auth,
         _content_type,
         _headers,
@@ -2429,8 +2430,8 @@ class EVMSmartAccountsApi:
             _header_params['X-Wallet-Auth'] = x_wallet_auth
         # process the form parameters
         # process the body parameter
-        if prepare_user_operation_request is not None:
-            _body_params = prepare_user_operation_request
+        if prepare_and_send_user_operation_request is not None:
+            _body_params = prepare_and_send_user_operation_request
 
 
         # set the HTTP header `Accept`
