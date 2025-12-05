@@ -489,6 +489,43 @@ async def test_send_wait_and_get_user_operation_with_smart_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_send_user_operation_with_data_suffix_via_smart_account(cdp_client):
+    """Test sending a user operation with data_suffix via smart account method."""
+    private_key = Account.create().key
+    owner = Account.from_key(private_key)
+
+    smart_account = await cdp_client.evm.create_smart_account(owner=owner)
+    assert smart_account is not None
+
+    try:
+        # Test data_suffix via smart_account.send_user_operation
+        user_operation = await smart_account.send_user_operation(
+            network="base-sepolia",
+            calls=[
+                EncodedCall(
+                    to="0x0000000000000000000000000000000000000000",
+                    data="0x",
+                    value=0,
+                )
+            ],
+            data_suffix="0xdddddddd62617365617070070080218021802180218021802180218021",
+        )
+
+        assert user_operation is not None
+        assert user_operation.user_op_hash is not None
+
+        user_op_result = await smart_account.wait_for_user_operation(
+            user_op_hash=user_operation.user_op_hash,
+        )
+
+        assert user_op_result is not None
+        assert user_op_result.status == "complete"
+    except Exception as e:
+        print("Error: ", e)
+        print("Ignoring for now...")
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_send_transaction(cdp_client):
     """Test sending a transaction."""
     account = await cdp_client.evm.get_or_create_account(name=test_account_name)

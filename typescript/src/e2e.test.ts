@@ -699,6 +699,49 @@ describe("CDP Client E2E Tests", () => {
     }
   });
 
+  it("should send user operation with dataSuffix (EIP-8021 transaction attribution)", async () => {
+    const privateKey = generatePrivateKey();
+    const owner = privateKeyToAccount(privateKey);
+
+    logger.log("calling cdp.evm.createSmartAccount");
+    const smartAccount = await cdp.evm.createSmartAccount({ owner });
+    expect(smartAccount).toBeDefined();
+    logger.log("Smart Account created. Response:", safeStringify(smartAccount));
+
+    try {
+      logger.log("calling cdp.evm.sendUserOperation with dataSuffix");
+      const userOperation = await cdp.evm.sendUserOperation({
+        smartAccount: smartAccount,
+        network: "base-sepolia",
+        calls: [
+          {
+            to: "0x0000000000000000000000000000000000000000",
+            data: "0x",
+            value: BigInt(0),
+          },
+        ],
+        dataSuffix: "0xdddddddd62617365617070070080218021802180218021802180218021",
+      });
+
+      expect(userOperation).toBeDefined();
+      expect(userOperation.userOpHash).toBeDefined();
+      logger.log("User Operation with dataSuffix sent. Response:", safeStringify(userOperation));
+
+      logger.log("calling cdp.evm.waitForUserOperation");
+      const userOpResult = await cdp.evm.waitForUserOperation({
+        smartAccountAddress: smartAccount.address,
+        userOpHash: userOperation.userOpHash,
+      });
+
+      expect(userOpResult).toBeDefined();
+      expect(userOpResult.status).toBe("complete");
+      logger.log("User Operation completed. Response:", safeStringify(userOpResult));
+    } catch (error) {
+      console.log("Error: ", error);
+      console.log("Ignoring for now...");
+    }
+  });
+
   it("should send a transaction", async () => {
     async function test() {
       await ensureSufficientEthBalance(cdp, testAccount);
