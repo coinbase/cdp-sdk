@@ -296,6 +296,8 @@ export interface PrepareUserOperationOptions {
   calls: Calls<EvmCall[]>;
   /** The paymaster URL. */
   paymasterUrl?: string;
+  /** Optional data suffix (EIP-8021) to enable transaction attribution. */
+  dataSuffix?: string;
 }
 
 /**

@@ -190,6 +190,39 @@ describe("sendUserOperation", () => {
     );
   });
 
+  it("should pass dataSuffix when provided", async () => {
+    const testDataSuffix = "0xdddddddd62617365617070070080218021802180218021802180218021";
+
+    await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
+      calls: [{ to: "0xrecipient", data: "0x" }],
+      network: "base-sepolia",
+      dataSuffix: testDataSuffix,
+    });
+
+    expect(mockClient.prepareUserOperation).toHaveBeenCalledWith(
+      "0xsmartAccountAddress",
+      expect.objectContaining({
+        dataSuffix: testDataSuffix,
+      }),
+    );
+  });
+
+  it("should not include dataSuffix when not provided", async () => {
+    await sendUserOperation(mockClient, {
+      smartAccount: mockSmartAccount,
+      calls: [{ to: "0xrecipient", data: "0x" }],
+      network: "base-sepolia",
+    });
+
+    expect(mockClient.prepareUserOperation).toHaveBeenCalledWith(
+      "0xsmartAccountAddress",
+      expect.objectContaining({
+        dataSuffix: undefined,
+      }),
+    );
+  });
+
   it("should handle multiple calls in one operation", async () => {
     await sendUserOperation(mockClient, {
       smartAccount: mockSmartAccount,

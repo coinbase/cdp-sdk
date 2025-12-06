@@ -21,6 +21,7 @@ async def send_user_operation(
     calls: list[ContractCall],
     network: str,
     paymaster_url: str | None = None,
+    data_suffix: str | None = None,
 ) -> EvmUserOperation:
     """Send a user operation.
 
@@ -31,6 +32,7 @@ async def send_user_operation(
         calls (List[EVMCall]): The calls to send.
         network (str): The network.
         paymaster_url (str): The paymaster URL.
+        data_suffix (str): Optional data suffix (EIP-8021) to enable transaction attribution.
 
     Returns:
         UserOperation: The user operation object.
@@ -69,6 +71,7 @@ async def send_user_operation(
         network=network,
         calls=encoded_calls,
         paymaster_url=paymaster_url,
+        data_suffix=data_suffix,
     )
     user_operation_model = await api_clients.evm_smart_accounts.prepare_user_operation(
         address, prepare_user_operation_request

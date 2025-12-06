@@ -456,3 +456,98 @@ async def test_send_user_operation_invalid_network(mock_api_clients):
             network="invalid-network",
             paymaster_url=None,
         )
+
+
+@pytest.mark.asyncio
+@patch("cdp.actions.evm.send_user_operation.ensure_awaitable")
+@patch("cdp.cdp_client.ApiClients")
+async def test_send_user_operation_with_data_suffix(mock_api_clients, mock_ensure_awaitable):
+    """Test sending a user operation with data_suffix for EIP-8021 transaction attribution."""
+    mock_smart_account = MagicMock(spec=EvmSmartAccount)
+    mock_owner = MagicMock(spec=EvmServerAccount)
+    mock_smart_account.owners = [mock_owner]
+    mock_smart_account.address = "0x1234567890123456789012345678901234567890"
+
+    mock_signed_payload = MagicMock()
+    mock_signed_payload.signature = bytes.fromhex("aabbcc")
+    mock_ensure_awaitable.return_value = mock_signed_payload
+
+    mock_user_op = MagicMock(spec=EvmUserOperation)
+    mock_user_op.user_op_hash = "0xuserhash123"
+
+    mock_api_clients.evm_smart_accounts.prepare_user_operation = AsyncMock(
+        return_value=mock_user_op
+    )
+    mock_api_clients.evm_smart_accounts.send_user_operation = AsyncMock(return_value=mock_user_op)
+
+    contract_call = EncodedCall(
+        to="0x4567890123456789012345678901234567890123", data="0x1234abcd", value=100
+    )
+
+    test_data_suffix = "0xdddddddd62617365617070070080218021802180218021802180218021"
+
+    result = await send_user_operation(
+        api_clients=mock_api_clients,
+        address=mock_smart_account.address,
+        owner=mock_smart_account.owners[0],
+        calls=[contract_call],
+        network="base-sepolia",
+        paymaster_url=None,
+        data_suffix=test_data_suffix,
+    )
+
+    assert result == mock_user_op
+
+    # Verify data_suffix was passed to prepare_user_operation
+    mock_api_clients.evm_smart_accounts.prepare_user_operation.assert_called_once()
+    actual_address, actual_request = (
+        mock_api_clients.evm_smart_accounts.prepare_user_operation.call_args[0]
+    )
+    assert actual_address == mock_smart_account.address
+    assert actual_request.data_suffix == test_data_suffix
+
+
+@pytest.mark.asyncio
+@patch("cdp.actions.evm.send_user_operation.ensure_awaitable")
+@patch("cdp.cdp_client.ApiClients")
+async def test_send_user_operation_without_data_suffix(mock_api_clients, mock_ensure_awaitable):
+    """Test sending a user operation without data_suffix (should be None)."""
+    mock_smart_account = MagicMock(spec=EvmSmartAccount)
+    mock_owner = MagicMock(spec=EvmServerAccount)
+    mock_smart_account.owners = [mock_owner]
+    mock_smart_account.address = "0x1234567890123456789012345678901234567890"
+
+    mock_signed_payload = MagicMock()
+    mock_signed_payload.signature = bytes.fromhex("aabbcc")
+    mock_ensure_awaitable.return_value = mock_signed_payload
+
+    mock_user_op = MagicMock(spec=EvmUserOperation)
+    mock_user_op.user_op_hash = "0xuserhash123"
+
+    mock_api_clients.evm_smart_accounts.prepare_user_operation = AsyncMock(
+        return_value=mock_user_op
+    )
+    mock_api_clients.evm_smart_accounts.send_user_operation = AsyncMock(return_value=mock_user_op)
+
+    contract_call = EncodedCall(
+        to="0x4567890123456789012345678901234567890123", data="0x1234abcd", value=100
+    )
+
+    result = await send_user_operation(
+        api_clients=mock_api_clients,
+        address=mock_smart_account.address,
+        owner=mock_smart_account.owners[0],
+        calls=[contract_call],
+        network="base-sepolia",
+        paymaster_url=None,
+    )
+
+    assert result == mock_user_op
+
+    # Verify data_suffix is None when not provided
+    mock_api_clients.evm_smart_accounts.prepare_user_operation.assert_called_once()
+    actual_address, actual_request = (
+        mock_api_clients.evm_smart_accounts.prepare_user_operation.call_args[0]
+    )
+    assert actual_address == mock_smart_account.address
+    assert actual_request.data_suffix is None

@@ -244,6 +244,7 @@ class EvmSmartAccount(BaseModel):
         calls: list[ContractCall],
         network: str,
         paymaster_url: str | None = None,
+        data_suffix: str | None = None,
     ) -> EvmUserOperationModel:
         """Send a user operation for the smart account.
 
@@ -251,6 +252,7 @@ class EvmSmartAccount(BaseModel):
             calls (List[ContractCall]): The calls to send.
             network (str): The network.
             paymaster_url (str): The paymaster URL.
+            data_suffix (str): Optional data suffix (EIP-8021) to enable transaction attribution.
 
         Returns:
             EvmUserOperationModel: The user operation model.
@@ -271,6 +273,7 @@ class EvmSmartAccount(BaseModel):
             calls,
             network,
             paymaster_url,
+            data_suffix,
         )
 
     async def wait_for_user_operation(
