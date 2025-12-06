@@ -524,6 +524,7 @@ async def test_send_user_operation_with_data_suffix_via_smart_account(cdp_client
         print("Error: ", e)
         print("Ignoring for now...")
 
+
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_send_transaction(cdp_client):
