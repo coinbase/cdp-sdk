@@ -49,6 +49,8 @@ export type SendUserOperationOptions<T extends readonly unknown[]> = {
   paymasterUrl?: string;
   /** The idempotency key. */
   idempotencyKey?: string;
+  /** Optional data suffix (EIP-8021) to enable transaction attribution. */
+  dataSuffix?: string;
 };
 
 /**
@@ -160,6 +162,7 @@ export async function sendUserOperation<T extends readonly unknown[]>(
     network,
     calls: encodedCalls,
     paymasterUrl,
+    dataSuffix: options.dataSuffix,
   });
 
   const owner = options.smartAccount.owners[0];
