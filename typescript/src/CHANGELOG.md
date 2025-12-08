@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.40.0
+
+### Minor Changes
+
+- [#506](https://github.com/coinbase/cdp-sdk/pull/506) [`56af347`](https://github.com/coinbase/cdp-sdk/commit/56af347209a82cbdee10c09cd77403250da19d8f) Thanks [@milan-cb](https://github.com/milan-cb)! - Added optional EIP-8021 dataSuffix to prepareUserOperation and sendUserOperation
+
 ## 1.39.0
 
 ### Minor Changes
