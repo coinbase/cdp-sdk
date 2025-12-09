@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.35.0] - 2025-12-08
+
+### Features
+
+- Added optional EIP-8021 dataSuffix to send_user_operation ([#506](https://github.com/coinbase/cdp-sdk/pull/506))
+
+
 ## [1.34.0] - 2025-12-04
 
 ### Features
