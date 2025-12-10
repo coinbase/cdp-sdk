@@ -40,6 +40,10 @@ fn fix_enum_values(value: &mut serde_json::Value) {
     }
 }
 
+fn fix_version(value: &mut serde_json::Value) {
+    value["openapi"] = "3.0.3".into();
+}
+
 fn main() {
     // Only generate code if CDP_GENERATE environment variable is set
     // This prevents the toolchain from automatically regenerating.
@@ -57,7 +61,9 @@ fn main() {
     // Fix enum values that aren't valid Rust identifiers
     fix_enum_values(&mut json);
 
-    let spec = serde_json::from_str(&serde_json::to_string_pretty(&json).unwrap()).unwrap();
+    fix_version(&mut json);
+
+    let spec = serde_json::from_value(json).unwrap();
 
     let mut settings = progenitor_middleware::GenerationSettings::default();
     settings.with_interface(progenitor_middleware::InterfaceStyle::Builder);
