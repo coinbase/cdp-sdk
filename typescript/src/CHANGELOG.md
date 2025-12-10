@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.40.1
+
+### Patch Changes
+
+- [#510](https://github.com/coinbase/cdp-sdk/pull/510) [`ae7ddf4`](https://github.com/coinbase/cdp-sdk/commit/ae7ddf4137dab319cc4e80ed832477951c13d25c) Thanks [@0xRAG](https://github.com/0xRAG)! - Fixed bug in EOA signMessage method
+
 ## 1.40.0
 
 ### Minor Changes
