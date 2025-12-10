@@ -69,7 +69,7 @@ console.log("");
 console.log("Test 2: Hex-encoded string (raw bytes)");
 let hexMessage = "0x48656c6c6f20576f726c64" as Hex; // "Hello World" in hex
 signature = await account.signMessage({ message: hexMessage });
-expectedHash = hashMessage({ raw: hexMessage });
+expectedHash = hashMessage(hexMessage);
 recoveredAddress = await recoverAddress({
   hash: expectedHash,
   signature: signature as Hex,
@@ -136,10 +136,8 @@ console.log(
 
 console.log("");
 
-// Test 4: { raw: hex } with binary data (32-byte hash) - THE ZERODEV USE CASE
-console.log(
-  "Test 4: { raw: hex } binary data (32-byte hash) - ZeroDev use case"
-);
+// Test 4: { raw: hex } with binary data (32-byte hash)
+console.log("Test 4: { raw: hex } binary data (32-byte hash)");
 const binaryDataHex =
   "0x69e540c217c8af830886c5a81e5c617f71fa7ab913488233406b9bfbc12b31be" as Hex;
 signature = await account.signMessage({
@@ -152,7 +150,7 @@ recoveredAddress = await recoverAddress({
 });
 
 result = {
-  name: "{ raw: hex } binary data (32-byte hash) - ZeroDev use case",
+  name: "{ raw: hex } binary data (32-byte hash)",
   message: { raw: binaryDataHex },
   signature,
   expectedHash,
@@ -172,7 +170,6 @@ if (result.matchesExpected) {
 } else {
   console.log("  ❌ Error: addresses do not match");
 }
-console.log(`  Note: This is what ZeroDev does - sign a UserOp hash`);
 
 console.log("");
 

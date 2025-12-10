@@ -150,14 +150,23 @@ describe("toEvmServerAccount", () => {
   });
 
   describe("signMessage", () => {
-    it("should call apiClient.signEvmHash with correct hash for hex-encoded string", async () => {
+    it("should call apiClient.signEvmMessage for plain string", async () => {
+      const message = "Hello World";
+
+      await serverAccount.signMessage({ message });
+
+      expect(mockApiClient.signEvmMessage).toHaveBeenCalledWith(mockAddress, {
+        message,
+      });
+    });
+
+    it("should call apiClient.signEvmMessage for hex-encoded string", async () => {
       const hexEncodedMessage = "0x48656c6c6f"; // hex encoded "Hello" (5 bytes)
-      const expectedHash = hashMessage({ raw: hexEncodedMessage as Hex });
 
       await serverAccount.signMessage({ message: hexEncodedMessage });
 
-      expect(mockApiClient.signEvmHash).toHaveBeenCalledWith(mockAddress, {
-        hash: expectedHash,
+      expect(mockApiClient.signEvmMessage).toHaveBeenCalledWith(mockAddress, {
+        message: hexEncodedMessage,
       });
     });
 
@@ -178,7 +187,7 @@ describe("toEvmServerAccount", () => {
         "0x69e540c217c8af830886c5a81e5c617f71fa7ab913488233406b9bfbc12b31be" as Hex;
       const expectedHash = hashMessage({ raw: binaryDataHex });
 
-      await serverAccount.signMessage({ message: binaryDataHex });
+      await serverAccount.signMessage({ message: { raw: binaryDataHex } });
 
       expect(mockApiClient.signEvmHash).toHaveBeenCalledWith(mockAddress, {
         hash: expectedHash,
@@ -188,10 +197,10 @@ describe("toEvmServerAccount", () => {
     it("should handle pre-hashed message (double-hash scenario)", async () => {
       const originalMessage = "Hello";
       const preHashedMessage = hashMessage(originalMessage);
-      // The preHashedMessage will be wrapped with EIP-191 again
+      // The preHashedMessage will be wrapped with EIP-191 again when passed as object
       const expectedHash = hashMessage({ raw: preHashedMessage });
 
-      await serverAccount.signMessage({ message: preHashedMessage });
+      await serverAccount.signMessage({ message: { raw: preHashedMessage } });
 
       expect(mockApiClient.signEvmHash).toHaveBeenCalledWith(mockAddress, {
         hash: expectedHash,

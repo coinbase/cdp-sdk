@@ -71,16 +71,15 @@ export function toEvmServerAccount(
         accountType: "evm_server",
       });
 
-      /**
-       * Compute the hash based on message format:
-       * - If message is a string (hex), treat it as { raw: hex }
-       * - If message is { raw: hex | ByteArray }, use it directly
-       */
-      const hash =
-        typeof message === "string" ? hashMessage({ raw: message as Hex }) : hashMessage(message);
+      if (typeof message === "string") {
+        const result = await apiClient.signEvmMessage(options.account.address, {
+          message,
+        });
+        return result.signature as Hex;
+      }
 
       const result = await apiClient.signEvmHash(options.account.address, {
-        hash,
+        hash: hashMessage(message),
       });
       return result.signature as Hex;
     },
