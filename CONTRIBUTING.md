@@ -130,12 +130,11 @@ make test-e2e
 # Build documentation
 make docs
 
+# Build client
+make build
+
 # Generate OpenAPI client and build client
-<<<<<<< Updated upstream
-cargo generate
-=======
 make generate
->>>>>>> Stashed changes
 ```
 
 ### TypeScript Development
