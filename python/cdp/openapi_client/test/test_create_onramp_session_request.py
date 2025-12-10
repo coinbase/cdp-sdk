@@ -44,7 +44,7 @@ class TestCreateOnrampSessionRequest(unittest.TestCase):
                 payment_method = 'CARD',
                 country = 'US',
                 subdivision = 'NY',
-                redirect_url = 'https://example.com',
+                redirect_url = 'foo://bar',
                 client_ip = '127.0.0.1',
                 partner_user_ref = 'user-1234'
             )

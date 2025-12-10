@@ -1125,13 +1125,22 @@ type EndUser struct {
 	// CreatedAt The date and time when the end user was created, in ISO 8601 format.
 	CreatedAt time.Time `json:"createdAt"`
 
+	// EvmAccountObjects The list of EVM accounts associated with the end user. End users can have up to 10 EVM accounts.
+	EvmAccountObjects *[]EndUserEvmAccount `json:"evmAccountObjects,omitempty"`
+
 	// EvmAccounts **DEPRECATED**: Use `evmAccountObjects` instead for richer account information. The list of EVM account addresses associated with the end user. End users can have up to 10 EVM accounts.
 	// Deprecated:
 	EvmAccounts []string `json:"evmAccounts"`
 
+	// EvmSmartAccountObjects The list of EVM smart accounts associated with the end user. Each EVM EOA can own one smart account.
+	EvmSmartAccountObjects *[]EndUserEvmSmartAccount `json:"evmSmartAccountObjects,omitempty"`
+
 	// EvmSmartAccounts **DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.
 	// Deprecated:
 	EvmSmartAccounts []string `json:"evmSmartAccounts"`
+
+	// SolanaAccountObjects The list of Solana accounts associated with the end user. End users can have up to 10 Solana accounts.
+	SolanaAccountObjects *[]EndUserSolanaAccount `json:"solanaAccountObjects,omitempty"`
 
 	// SolanaAccounts **DEPRECATED**: Use `solanaAccountObjects` instead for richer account information. The list of Solana account addresses associated with the end user. End users can have up to 10 Solana accounts.
 	// Deprecated:
@@ -1139,6 +1148,36 @@ type EndUser struct {
 
 	// UserId A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
 	UserId string `json:"userId"`
+}
+
+// EndUserEvmAccount Information about an EVM account associated with an end user.
+type EndUserEvmAccount struct {
+	// Address The address of the EVM account.
+	Address string `json:"address"`
+
+	// CreatedAt The date and time when the account was created, in ISO 8601 format.
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+// EndUserEvmSmartAccount Information about an EVM smart account associated with an end user.
+type EndUserEvmSmartAccount struct {
+	// Address The address of the EVM smart account.
+	Address string `json:"address"`
+
+	// CreatedAt The date and time when the account was created, in ISO 8601 format.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// OwnerAddresses The addresses of the EVM EOA accounts that own this smart account. Smart accounts can have multiple owners, such as when spend permissions are enabled.
+	OwnerAddresses []string `json:"ownerAddresses"`
+}
+
+// EndUserSolanaAccount Information about a Solana account associated with an end user.
+type EndUserSolanaAccount struct {
+	// Address The base58 encoded address of the Solana account.
+	Address string `json:"address"`
+
+	// CreatedAt The date and time when the account was created, in ISO 8601 format.
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 // Error An error response including the code for the type of error and a human-readable message describing the error.
@@ -2512,6 +2551,9 @@ type TokenFee struct {
 	Token string `json:"token"`
 }
 
+// Uri A valid URI.
+type Uri = string
+
 // Url A valid HTTP or HTTPS URL.
 type Url = string
 
@@ -2623,11 +2665,13 @@ type WebhookSubscriptionResponse struct {
 
 	// Metadata Additional metadata for the subscription.
 	Metadata *struct {
-		// Secret Secret for webhook signature validation.
-		//
-		// **Note:** Webhooks are in beta and this interface is subject to change.
+		// Secret Use the root-level `secret` field instead. Maintained for backward compatibility only.
+		// Deprecated:
 		Secret *openapi_types.UUID `json:"secret,omitempty"`
 	} `json:"metadata,omitempty"`
+
+	// Secret Secret for webhook signature validation.
+	Secret openapi_types.UUID `json:"secret"`
 
 	// SubscriptionId Unique identifier for the subscription.
 	SubscriptionId openapi_types.UUID `json:"subscriptionId"`
@@ -3489,7 +3533,7 @@ type CreateOnrampSessionJSONBody struct {
 	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
 	DestinationNetwork string `json:"destinationNetwork"`
 
-	// PartnerUserRef A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+	// PartnerUserRef A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
 	//
 	// This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
 	PartnerUserRef *string `json:"partnerUserRef,omitempty"`
@@ -3508,8 +3552,8 @@ type CreateOnrampSessionJSONBody struct {
 	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
 	PurchaseCurrency string `json:"purchaseCurrency"`
 
-	// RedirectUrl URL to redirect the user to when they successfully complete a transaction. This URL will be embedded in the returned onramp URL as a query parameter.
-	RedirectUrl *Url `json:"redirectUrl,omitempty"`
+	// RedirectUrl URI to redirect the user to when they successfully complete a transaction. This URI will be embedded in the returned onramp URI as a query parameter.
+	RedirectUrl *Uri `json:"redirectUrl,omitempty"`
 
 	// Subdivision The ISO 3166-2 two letter state code (e.g. NY). Only required for US.
 	Subdivision *string `json:"subdivision,omitempty"`

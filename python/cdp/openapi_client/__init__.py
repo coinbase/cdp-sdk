@@ -80,6 +80,9 @@ from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.email_authentication import EmailAuthentication
 from cdp.openapi_client.models.end_user import EndUser
+from cdp.openapi_client.models.end_user_evm_account import EndUserEvmAccount
+from cdp.openapi_client.models.end_user_evm_smart_account import EndUserEvmSmartAccount
+from cdp.openapi_client.models.end_user_solana_account import EndUserSolanaAccount
 from cdp.openapi_client.models.error import Error
 from cdp.openapi_client.models.error_type import ErrorType
 from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion

@@ -115,6 +115,47 @@ export type AuthenticationMethod =
 export type AuthenticationMethods = AuthenticationMethod[];
 
 /**
+ * Information about an EVM account associated with an end user.
+ */
+export interface EndUserEvmAccount {
+  /**
+   * The address of the EVM account.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: string;
+  /** The date and time when the account was created, in ISO 8601 format. */
+  createdAt: string;
+}
+
+/**
+ * Information about an EVM smart account associated with an end user.
+ */
+export interface EndUserEvmSmartAccount {
+  /**
+   * The address of the EVM smart account.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: string;
+  /** The addresses of the EVM EOA accounts that own this smart account. Smart accounts can have multiple owners, such as when spend permissions are enabled. */
+  ownerAddresses: string[];
+  /** The date and time when the account was created, in ISO 8601 format. */
+  createdAt: string;
+}
+
+/**
+ * Information about a Solana account associated with an end user.
+ */
+export interface EndUserSolanaAccount {
+  /**
+   * The base58 encoded address of the Solana account.
+   * @pattern ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+   */
+  address: string;
+  /** The date and time when the account was created, in ISO 8601 format. */
+  createdAt: string;
+}
+
+/**
  * Information about the end user.
  */
 export interface EndUser {
@@ -129,16 +170,22 @@ export interface EndUser {
    * @deprecated
    */
   evmAccounts: string[];
+  /** The list of EVM accounts associated with the end user. End users can have up to 10 EVM accounts. */
+  evmAccountObjects?: EndUserEvmAccount[];
   /**
    * **DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.
    * @deprecated
    */
   evmSmartAccounts: string[];
+  /** The list of EVM smart accounts associated with the end user. Each EVM EOA can own one smart account. */
+  evmSmartAccountObjects?: EndUserEvmSmartAccount[];
   /**
    * **DEPRECATED**: Use `solanaAccountObjects` instead for richer account information. The list of Solana account addresses associated with the end user. End users can have up to 10 Solana accounts.
    * @deprecated
    */
   solanaAccounts: string[];
+  /** The list of Solana accounts associated with the end user. End users can have up to 10 Solana accounts. */
+  solanaAccountObjects?: EndUserSolanaAccount[];
   /** The date and time when the end user was created, in ISO 8601 format. */
   createdAt: string;
 }
@@ -2505,10 +2552,10 @@ export interface WebhookTarget {
  * Additional metadata for the subscription.
  */
 export type WebhookSubscriptionResponseMetadata = {
-  /** Secret for webhook signature validation.
-
-**Note:** Webhooks are in beta and this interface is subject to change.
- */
+  /**
+   * Use the root-level `secret` field instead. Maintained for backward compatibility only.
+   * @deprecated
+   */
   secret?: string;
 };
 
@@ -2535,6 +2582,8 @@ service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detec
   isEnabled: boolean;
   /** Additional metadata for the subscription. */
   metadata?: WebhookSubscriptionResponseMetadata;
+  /** Secret for webhook signature validation. */
+  secret: string;
   /** Unique identifier for the subscription. */
   subscriptionId: string;
   target: WebhookTarget;
@@ -3143,6 +3192,14 @@ export const OnrampQuotePaymentMethodTypeId = {
   FIAT_WALLET: "FIAT_WALLET",
   CRYPTO_WALLET: "CRYPTO_WALLET",
 } as const;
+
+/**
+ * A valid URI.
+ * @minLength 5
+ * @maxLength 2048
+ * @pattern ^.*://.*$
+ */
+export type Uri = string;
 
 /**
  * An onramp session containing a ready-to-use onramp URL.
@@ -4057,11 +4114,11 @@ Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/res
   country?: string;
   /** The ISO 3166-2 two letter state code (e.g. NY). Only required for US. */
   subdivision?: string;
-  /** URL to redirect the user to when they successfully complete a transaction. This URL will be embedded in the returned onramp URL as a query parameter. */
-  redirectUrl?: Url;
+  /** URI to redirect the user to when they successfully complete a transaction. This URI will be embedded in the returned onramp URI as a query parameter. */
+  redirectUrl?: Uri;
   /** The IP address of the end user requesting the onramp transaction. */
   clientIp?: string;
-  /** A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+  /** A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
 
 This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user. */
   partnerUserRef?: string;
