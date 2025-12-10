@@ -41,7 +41,7 @@ bs58 = "0.5"
 
 [build-dependencies]
 prettyplease = "0.2.36"
-progenitor-middleware = { version = "^0.12.0" }
+progenitor-middleware = { version = "^0.12.2" }
 serde_json = "1.0"
 serde_yaml = "0.9.33"
 syn = "2.0"
