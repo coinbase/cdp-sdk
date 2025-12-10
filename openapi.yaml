@@ -9870,7 +9870,7 @@ components:
             For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
 
             For Solana-based networks, payTo will be a base58-encoded Solana address.
-          pattern: ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+          pattern: ^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$
           example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
         maxTimeoutSeconds:
           type: integer
@@ -9884,7 +9884,7 @@ components:
             For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
 
             For Solana-based networks, the asset will be a base58-encoded Solana address.
-          pattern: ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+          pattern: ^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$
           example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
         extra:
           type: object
@@ -10363,7 +10363,7 @@ components:
                   For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
 
                   For Solana-based networks, the payer will be a base58-encoded Solana address.
-                pattern: ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                pattern: ^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$
                 example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             required:
               - isValid
@@ -10389,7 +10389,7 @@ components:
                   For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
 
                   For Solana-based networks, the payer will be a base58-encoded Solana address.
-                pattern: ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                pattern: ^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$
                 example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
               transaction:
                 type: string
@@ -10397,7 +10397,7 @@ components:
                   The transaction of the settlement.
                   For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
                   For Solana-based networks, the transaction will be a base58-encoded Solana signature.
-                pattern: ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+                pattern: ^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{64,88})$
                 example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
               network:
                 type: string
