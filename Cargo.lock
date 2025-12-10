@@ -1030,7 +1030,7 @@ dependencies = [
 
 [[package]]
 name = "cdp-sdk"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "alloy",
  "async-trait",
@@ -2669,9 +2669,9 @@ dependencies = [
 
 [[package]]
 name = "progenitor-middleware"
-version = "0.12.0"
+version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e3fec73cff673d01b80f45ef71f3272efdea2602820e4e98f86d25b2ba75671"
+checksum = "9ee4282c594e6462a5b686de6c6b37edd410dd639ccdb3d74623abef17b3b90a"
 dependencies = [
  "progenitor-middleware-client",
  "progenitor-middleware-impl",
@@ -2697,9 +2697,9 @@ dependencies = [
 
 [[package]]
 name = "progenitor-middleware-impl"
-version = "0.12.0"
+version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6152bcf183b3e027a4db2e1dcd43de99e909c05c089c06f758e6d083a3bbb6bd"
+checksum = "10235fa634e10b656ef614dbdca3ca956c476e8b044ebca3d6674a4412939ba0"
 dependencies = [
  "heck",
  "http",
@@ -2719,9 +2719,9 @@ dependencies = [
 
 [[package]]
 name = "progenitor-middleware-macro"
-version = "0.12.0"
+version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e66ad6baef4d1e5093e7e098a2ad4e6a366c56e5365899b3c1c622a6537e719"
+checksum = "53a8763b3d7e1691cf29cddf8c4a656eaa13aab090812dd6f794e3adfbb1a77f"
 dependencies = [
  "openapiv3",
  "proc-macro2",
