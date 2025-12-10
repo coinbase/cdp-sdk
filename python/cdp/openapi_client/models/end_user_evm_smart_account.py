@@ -18,17 +18,28 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing import Any, ClassVar, Dict, List
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class WebhookSubscriptionResponseMetadata(BaseModel):
+class EndUserEvmSmartAccount(BaseModel):
     """
-    Additional metadata for the subscription.
+    Information about an EVM smart account associated with an end user.
     """ # noqa: E501
-    secret: Optional[StrictStr] = Field(default=None, description="Use the root-level `secret` field instead. Maintained for backward compatibility only.")
-    __properties: ClassVar[List[str]] = ["secret"]
+    address: Annotated[str, Field(strict=True)] = Field(description="The address of the EVM smart account.")
+    owner_addresses: List[Annotated[str, Field(strict=True)]] = Field(description="The addresses of the EVM EOA accounts that own this smart account. Smart accounts can have multiple owners, such as when spend permissions are enabled.", alias="ownerAddresses")
+    created_at: datetime = Field(description="The date and time when the account was created, in ISO 8601 format.", alias="createdAt")
+    __properties: ClassVar[List[str]] = ["address", "ownerAddresses", "createdAt"]
+
+    @field_validator('address')
+    def address_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^0x[0-9a-fA-F]{40}$", value):
+            raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{40}$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +59,7 @@ class WebhookSubscriptionResponseMetadata(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of WebhookSubscriptionResponseMetadata from a JSON string"""
+        """Create an instance of EndUserEvmSmartAccount from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,7 +84,7 @@ class WebhookSubscriptionResponseMetadata(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of WebhookSubscriptionResponseMetadata from a dict"""
+        """Create an instance of EndUserEvmSmartAccount from a dict"""
         if obj is None:
             return None
 
@@ -81,7 +92,9 @@ class WebhookSubscriptionResponseMetadata(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "secret": obj.get("secret")
+            "address": obj.get("address"),
+            "ownerAddresses": obj.get("ownerAddresses"),
+            "createdAt": obj.get("createdAt")
         })
         return _obj
 

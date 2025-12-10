@@ -71,6 +71,23 @@ jobs:
           go-version: "1.23"
           cache: true
 
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@21dc36fb71dd22e3317045c0c31a3f4249868b17 # stable
+        with:
+          toolchain: stable
+          components: clippy, rustfmt
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            rust/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('rust/Cargo.lock') }}
+
       - name: Install oapi-codegen
         if: steps.check_branch.outputs.branch_exists == 'false'
         run: |
@@ -93,6 +110,11 @@ jobs:
         working-directory: ./go
         run: make client
 
+      - name: Run make generate in rust folder
+        if: steps.check_branch.outputs.branch_exists == 'false'
+        working-directory: ./rust
+        run: make generate
+
       - name: Remove OpenAPI Generator JAR
         if: steps.check_branch.outputs.branch_exists == 'false'
         run: rm -f openapi-generator-cli.jar
@@ -112,6 +134,8 @@ jobs:
             - Updated OpenAPI specifications
             - Generated TypeScript code from the updated specs
             - Generated Python client from the updated specs
+            - Generated Go client from the updated specs
+            - Generated Rust client from the updated specs
           commit-message: "chore: update OpenAPI spec and generated code"
           sign-commits: true
           labels: automated-pr, api-update

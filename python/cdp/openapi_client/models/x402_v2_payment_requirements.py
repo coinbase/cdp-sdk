@@ -18,33 +18,41 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
-from cdp.openapi_client.models.x402_settle_error_reason import X402SettleErrorReason
 from typing import Optional, Set
 from typing_extensions import Self
 
-class InlineObject1(BaseModel):
+class X402V2PaymentRequirements(BaseModel):
     """
-    InlineObject1
+    The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
     """ # noqa: E501
-    success: StrictBool = Field(description="Indicates whether the payment settlement is successful.")
-    error_reason: Optional[X402SettleErrorReason] = Field(default=None, alias="errorReason")
-    payer: Annotated[str, Field(strict=True)] = Field(description="The onchain address of the client that is paying for the resource.  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the payer will be a base58-encoded Solana address.")
-    transaction: Annotated[str, Field(strict=True)] = Field(description="The transaction of the settlement. For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash. For Solana-based networks, the transaction will be a base58-encoded Solana signature.")
-    network: StrictStr = Field(description="The network where the settlement occurred.")
-    __properties: ClassVar[List[str]] = ["success", "errorReason", "payer", "transaction", "network"]
+    scheme: StrictStr = Field(description="The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.")
+    network: StrictStr = Field(description="The network of the blockchain to send payment on in caip2 format.")
+    asset: Annotated[str, Field(strict=True)] = Field(description="The asset to pay with.  For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the asset will be a base58-encoded Solana address.")
+    amount: StrictStr = Field(description="The amount to pay for the resource in atomic units of the payment asset.")
+    pay_to: Annotated[str, Field(strict=True)] = Field(description="The destination to pay value to.  For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, payTo will be a base58-encoded Solana address.", alias="payTo")
+    max_timeout_seconds: StrictInt = Field(description="The maximum time in seconds for the resource server to respond.", alias="maxTimeoutSeconds")
+    extra: Optional[Dict[str, Any]] = Field(default=None, description="The optional additional scheme-specific payment info.")
+    __properties: ClassVar[List[str]] = ["scheme", "network", "asset", "amount", "payTo", "maxTimeoutSeconds", "extra"]
 
-    @field_validator('payer')
-    def payer_validate_regular_expression(cls, value):
+    @field_validator('scheme')
+    def scheme_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['exact']):
+            raise ValueError("must be one of enum values ('exact')")
+        return value
+
+    @field_validator('asset')
+    def asset_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$", value):
             raise ValueError(r"must validate the regular expression /^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$/")
         return value
 
-    @field_validator('transaction')
-    def transaction_validate_regular_expression(cls, value):
+    @field_validator('pay_to')
+    def pay_to_validate_regular_expression(cls, value):
         """Validates the regular expression"""
         if not re.match(r"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$", value):
             raise ValueError(r"must validate the regular expression /^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$/")
@@ -68,7 +76,7 @@ class InlineObject1(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of InlineObject1 from a JSON string"""
+        """Create an instance of X402V2PaymentRequirements from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -93,7 +101,7 @@ class InlineObject1(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of InlineObject1 from a dict"""
+        """Create an instance of X402V2PaymentRequirements from a dict"""
         if obj is None:
             return None
 
@@ -101,11 +109,13 @@ class InlineObject1(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "success": obj.get("success"),
-            "errorReason": obj.get("errorReason"),
-            "payer": obj.get("payer"),
-            "transaction": obj.get("transaction"),
-            "network": obj.get("network")
+            "scheme": obj.get("scheme"),
+            "network": obj.get("network"),
+            "asset": obj.get("asset"),
+            "amount": obj.get("amount"),
+            "payTo": obj.get("payTo"),
+            "maxTimeoutSeconds": obj.get("maxTimeoutSeconds"),
+            "extra": obj.get("extra")
         })
         return _obj
 

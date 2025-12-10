@@ -611,32 +611,7 @@ const (
 // Defines values for X402Version.
 const (
 	X402VersionN1 X402Version = 1
-)
-
-// Defines values for X402PaymentPayloadNetwork.
-const (
-	X402PaymentPayloadNetworkBase         X402PaymentPayloadNetwork = "base"
-	X402PaymentPayloadNetworkBaseSepolia  X402PaymentPayloadNetwork = "base-sepolia"
-	X402PaymentPayloadNetworkSolana       X402PaymentPayloadNetwork = "solana"
-	X402PaymentPayloadNetworkSolanaDevnet X402PaymentPayloadNetwork = "solana-devnet"
-)
-
-// Defines values for X402PaymentPayloadScheme.
-const (
-	X402PaymentPayloadSchemeExact X402PaymentPayloadScheme = "exact"
-)
-
-// Defines values for X402PaymentRequirementsNetwork.
-const (
-	X402PaymentRequirementsNetworkBase         X402PaymentRequirementsNetwork = "base"
-	X402PaymentRequirementsNetworkBaseSepolia  X402PaymentRequirementsNetwork = "base-sepolia"
-	X402PaymentRequirementsNetworkSolana       X402PaymentRequirementsNetwork = "solana"
-	X402PaymentRequirementsNetworkSolanaDevnet X402PaymentRequirementsNetwork = "solana-devnet"
-)
-
-// Defines values for X402PaymentRequirementsScheme.
-const (
-	X402PaymentRequirementsSchemeExact X402PaymentRequirementsScheme = "exact"
+	X402VersionN2 X402Version = 2
 )
 
 // Defines values for X402SettleErrorReason.
@@ -668,7 +643,38 @@ const (
 
 // Defines values for X402SupportedPaymentKindScheme.
 const (
-	Exact X402SupportedPaymentKindScheme = "exact"
+	X402SupportedPaymentKindSchemeExact X402SupportedPaymentKindScheme = "exact"
+)
+
+// Defines values for X402V1PaymentPayloadNetwork.
+const (
+	X402V1PaymentPayloadNetworkBase         X402V1PaymentPayloadNetwork = "base"
+	X402V1PaymentPayloadNetworkBaseSepolia  X402V1PaymentPayloadNetwork = "base-sepolia"
+	X402V1PaymentPayloadNetworkSolana       X402V1PaymentPayloadNetwork = "solana"
+	X402V1PaymentPayloadNetworkSolanaDevnet X402V1PaymentPayloadNetwork = "solana-devnet"
+)
+
+// Defines values for X402V1PaymentPayloadScheme.
+const (
+	X402V1PaymentPayloadSchemeExact X402V1PaymentPayloadScheme = "exact"
+)
+
+// Defines values for X402V1PaymentRequirementsNetwork.
+const (
+	X402V1PaymentRequirementsNetworkBase         X402V1PaymentRequirementsNetwork = "base"
+	X402V1PaymentRequirementsNetworkBaseSepolia  X402V1PaymentRequirementsNetwork = "base-sepolia"
+	X402V1PaymentRequirementsNetworkSolana       X402V1PaymentRequirementsNetwork = "solana"
+	X402V1PaymentRequirementsNetworkSolanaDevnet X402V1PaymentRequirementsNetwork = "solana-devnet"
+)
+
+// Defines values for X402V1PaymentRequirementsScheme.
+const (
+	X402V1PaymentRequirementsSchemeExact X402V1PaymentRequirementsScheme = "exact"
+)
+
+// Defines values for X402V2PaymentRequirementsScheme.
+const (
+	X402V2PaymentRequirementsSchemeExact X402V2PaymentRequirementsScheme = "exact"
 )
 
 // Defines values for X402VerifyInvalidReason.
@@ -1125,13 +1131,22 @@ type EndUser struct {
 	// CreatedAt The date and time when the end user was created, in ISO 8601 format.
 	CreatedAt time.Time `json:"createdAt"`
 
+	// EvmAccountObjects The list of EVM accounts associated with the end user. End users can have up to 10 EVM accounts.
+	EvmAccountObjects []EndUserEvmAccount `json:"evmAccountObjects"`
+
 	// EvmAccounts **DEPRECATED**: Use `evmAccountObjects` instead for richer account information. The list of EVM account addresses associated with the end user. End users can have up to 10 EVM accounts.
 	// Deprecated:
 	EvmAccounts []string `json:"evmAccounts"`
 
+	// EvmSmartAccountObjects The list of EVM smart accounts associated with the end user. Each EVM EOA can own one smart account.
+	EvmSmartAccountObjects []EndUserEvmSmartAccount `json:"evmSmartAccountObjects"`
+
 	// EvmSmartAccounts **DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.
 	// Deprecated:
 	EvmSmartAccounts []string `json:"evmSmartAccounts"`
+
+	// SolanaAccountObjects The list of Solana accounts associated with the end user. End users can have up to 10 Solana accounts.
+	SolanaAccountObjects []EndUserSolanaAccount `json:"solanaAccountObjects"`
 
 	// SolanaAccounts **DEPRECATED**: Use `solanaAccountObjects` instead for richer account information. The list of Solana account addresses associated with the end user. End users can have up to 10 Solana accounts.
 	// Deprecated:
@@ -1139,6 +1154,36 @@ type EndUser struct {
 
 	// UserId A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
 	UserId string `json:"userId"`
+}
+
+// EndUserEvmAccount Information about an EVM account associated with an end user.
+type EndUserEvmAccount struct {
+	// Address The address of the EVM account.
+	Address string `json:"address"`
+
+	// CreatedAt The date and time when the account was created, in ISO 8601 format.
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+// EndUserEvmSmartAccount Information about an EVM smart account associated with an end user.
+type EndUserEvmSmartAccount struct {
+	// Address The address of the EVM smart account.
+	Address string `json:"address"`
+
+	// CreatedAt The date and time when the account was created, in ISO 8601 format.
+	CreatedAt time.Time `json:"createdAt"`
+
+	// OwnerAddresses The addresses of the EVM EOA accounts that own this smart account. Smart accounts can have multiple owners, such as when spend permissions are enabled.
+	OwnerAddresses []string `json:"ownerAddresses"`
+}
+
+// EndUserSolanaAccount Information about a Solana account associated with an end user.
+type EndUserSolanaAccount struct {
+	// Address The base58 encoded address of the Solana account.
+	Address string `json:"address"`
+
+	// CreatedAt The date and time when the account was created, in ISO 8601 format.
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 // Error An error response including the code for the type of error and a human-readable message describing the error.
@@ -1567,6 +1612,9 @@ type ListResponse struct {
 
 // ListSolanaTokenBalancesNetwork The name of the supported Solana networks in human-readable format.
 type ListSolanaTokenBalancesNetwork string
+
+// MimeType A valid MIME type (media type) as defined in RFC 6838.
+type MimeType = string
 
 // MintAddressCriterion The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
 type MintAddressCriterion struct {
@@ -2512,6 +2560,9 @@ type TokenFee struct {
 	Token string `json:"token"`
 }
 
+// Uri A valid URI.
+type Uri = string
+
 // Url A valid HTTP or HTTPS URL.
 type Url = string
 
@@ -2623,11 +2674,13 @@ type WebhookSubscriptionResponse struct {
 
 	// Metadata Additional metadata for the subscription.
 	Metadata *struct {
-		// Secret Secret for webhook signature validation.
-		//
-		// **Note:** Webhooks are in beta and this interface is subject to change.
+		// Secret Use the root-level `secret` field instead. Maintained for backward compatibility only.
+		// Deprecated:
 		Secret *openapi_types.UUID `json:"secret,omitempty"`
 	} `json:"metadata,omitempty"`
+
+	// Secret Secret for webhook signature validation.
+	Secret openapi_types.UUID `json:"secret"`
 
 	// SubscriptionId Unique identifier for the subscription.
 	SubscriptionId openapi_types.UUID `json:"subscriptionId"`
@@ -2744,79 +2797,25 @@ type X402ExactSolanaPayload struct {
 
 // X402PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
 type X402PaymentPayload struct {
-	// Network The network of the blockchain to send payment on.
-	Network X402PaymentPayloadNetwork `json:"network"`
-
-	// Payload The payload of the payment depending on the x402Version, scheme, and network.
-	Payload X402PaymentPayload_Payload `json:"payload"`
-
-	// Scheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
-	Scheme X402PaymentPayloadScheme `json:"scheme"`
-
-	// X402Version The version of the x402 protocol.
-	X402Version X402Version `json:"x402Version"`
-}
-
-// X402PaymentPayloadNetwork The network of the blockchain to send payment on.
-type X402PaymentPayloadNetwork string
-
-// X402PaymentPayload_Payload The payload of the payment depending on the x402Version, scheme, and network.
-type X402PaymentPayload_Payload struct {
 	union json.RawMessage
 }
 
-// X402PaymentPayloadScheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
-type X402PaymentPayloadScheme string
-
 // X402PaymentRequirements The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
 type X402PaymentRequirements struct {
-	// Asset The asset to pay with.
-	//
-	// For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
-	//
-	// For Solana-based networks, the asset will be a base58-encoded Solana address.
-	Asset string `json:"asset"`
-
-	// Description The description of the resource.
-	Description string `json:"description"`
-
-	// Extra The optional additional scheme-specific payment info.
-	Extra *map[string]interface{} `json:"extra,omitempty"`
-
-	// MaxAmountRequired The maximum amount required to pay for the resource in atomic units of the payment asset.
-	MaxAmountRequired string `json:"maxAmountRequired"`
-
-	// MaxTimeoutSeconds The maximum time in seconds for the resource server to respond.
-	MaxTimeoutSeconds int `json:"maxTimeoutSeconds"`
-
-	// MimeType The MIME type of the resource response.
-	MimeType string `json:"mimeType"`
-
-	// Network The network of the blockchain to send payment on.
-	Network X402PaymentRequirementsNetwork `json:"network"`
-
-	// OutputSchema The optional JSON schema describing the resource output.
-	OutputSchema *map[string]interface{} `json:"outputSchema,omitempty"`
-
-	// PayTo The destination to pay value to.
-	//
-	// For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
-	//
-	// For Solana-based networks, payTo will be a base58-encoded Solana address.
-	PayTo string `json:"payTo"`
-
-	// Resource The URL of the resource to pay for.
-	Resource Url `json:"resource"`
-
-	// Scheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
-	Scheme X402PaymentRequirementsScheme `json:"scheme"`
+	union json.RawMessage
 }
 
-// X402PaymentRequirementsNetwork The network of the blockchain to send payment on.
-type X402PaymentRequirementsNetwork string
+// X402ResourceInfo Describes the resource being accessed in x402 protocol.
+type X402ResourceInfo struct {
+	// Description The description of the resource.
+	Description *string `json:"description,omitempty"`
 
-// X402PaymentRequirementsScheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
-type X402PaymentRequirementsScheme string
+	// MimeType The MIME type of the resource response.
+	MimeType *MimeType `json:"mimeType,omitempty"`
+
+	// Url The URL of the resource.
+	Url Url `json:"url"`
+}
 
 // X402SettleErrorReason The reason the payment settlement errored on the x402 protocol.
 type X402SettleErrorReason string
@@ -2841,6 +2840,140 @@ type X402SupportedPaymentKindNetwork string
 
 // X402SupportedPaymentKindScheme The scheme of the payment protocol.
 type X402SupportedPaymentKindScheme string
+
+// X402V1PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+type X402V1PaymentPayload struct {
+	// Network The network of the blockchain to send payment on.
+	Network X402V1PaymentPayloadNetwork `json:"network"`
+
+	// Payload The payload of the payment depending on the x402Version, scheme, and network.
+	Payload X402V1PaymentPayload_Payload `json:"payload"`
+
+	// Scheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+	Scheme X402V1PaymentPayloadScheme `json:"scheme"`
+
+	// X402Version The version of the x402 protocol.
+	X402Version X402Version `json:"x402Version"`
+}
+
+// X402V1PaymentPayloadNetwork The network of the blockchain to send payment on.
+type X402V1PaymentPayloadNetwork string
+
+// X402V1PaymentPayload_Payload The payload of the payment depending on the x402Version, scheme, and network.
+type X402V1PaymentPayload_Payload struct {
+	union json.RawMessage
+}
+
+// X402V1PaymentPayloadScheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+type X402V1PaymentPayloadScheme string
+
+// X402V1PaymentRequirements The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+type X402V1PaymentRequirements struct {
+	// Asset The asset to pay with.
+	//
+	// For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
+	//
+	// For Solana-based networks, the asset will be a base58-encoded Solana address.
+	Asset string `json:"asset"`
+
+	// Description The description of the resource.
+	Description string `json:"description"`
+
+	// Extra The optional additional scheme-specific payment info.
+	Extra *map[string]interface{} `json:"extra,omitempty"`
+
+	// MaxAmountRequired The maximum amount required to pay for the resource in atomic units of the payment asset.
+	MaxAmountRequired string `json:"maxAmountRequired"`
+
+	// MaxTimeoutSeconds The maximum time in seconds for the resource server to respond.
+	MaxTimeoutSeconds int `json:"maxTimeoutSeconds"`
+
+	// MimeType The MIME type of the resource response.
+	MimeType MimeType `json:"mimeType"`
+
+	// Network The network of the blockchain to send payment on.
+	Network X402V1PaymentRequirementsNetwork `json:"network"`
+
+	// OutputSchema The optional JSON schema describing the resource output.
+	OutputSchema *map[string]interface{} `json:"outputSchema,omitempty"`
+
+	// PayTo The destination to pay value to.
+	//
+	// For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
+	//
+	// For Solana-based networks, payTo will be a base58-encoded Solana address.
+	PayTo string `json:"payTo"`
+
+	// Resource The URL of the resource to pay for.
+	Resource Url `json:"resource"`
+
+	// Scheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+	Scheme X402V1PaymentRequirementsScheme `json:"scheme"`
+}
+
+// X402V1PaymentRequirementsNetwork The network of the blockchain to send payment on.
+type X402V1PaymentRequirementsNetwork string
+
+// X402V1PaymentRequirementsScheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+type X402V1PaymentRequirementsScheme string
+
+// X402V2PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+type X402V2PaymentPayload struct {
+	// Accepted The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+	Accepted X402V2PaymentRequirements `json:"accepted"`
+
+	// Extensions Optional protocol extensions.
+	Extensions *map[string]interface{} `json:"extensions,omitempty"`
+
+	// Payload The payload of the payment depending on the x402Version, scheme, and network.
+	Payload X402V2PaymentPayload_Payload `json:"payload"`
+
+	// Resource Describes the resource being accessed in x402 protocol.
+	Resource *X402ResourceInfo `json:"resource,omitempty"`
+
+	// X402Version The version of the x402 protocol.
+	X402Version X402Version `json:"x402Version"`
+}
+
+// X402V2PaymentPayload_Payload The payload of the payment depending on the x402Version, scheme, and network.
+type X402V2PaymentPayload_Payload struct {
+	union json.RawMessage
+}
+
+// X402V2PaymentRequirements The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+type X402V2PaymentRequirements struct {
+	// Amount The amount to pay for the resource in atomic units of the payment asset.
+	Amount string `json:"amount"`
+
+	// Asset The asset to pay with.
+	//
+	// For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
+	//
+	// For Solana-based networks, the asset will be a base58-encoded Solana address.
+	Asset string `json:"asset"`
+
+	// Extra The optional additional scheme-specific payment info.
+	Extra *map[string]interface{} `json:"extra,omitempty"`
+
+	// MaxTimeoutSeconds The maximum time in seconds for the resource server to respond.
+	MaxTimeoutSeconds int `json:"maxTimeoutSeconds"`
+
+	// Network The network of the blockchain to send payment on in caip2 format.
+	Network string `json:"network"`
+
+	// PayTo The destination to pay value to.
+	//
+	// For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
+	//
+	// For Solana-based networks, payTo will be a base58-encoded Solana address.
+	PayTo string `json:"payTo"`
+
+	// Scheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+	Scheme X402V2PaymentRequirementsScheme `json:"scheme"`
+}
+
+// X402V2PaymentRequirementsScheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+type X402V2PaymentRequirementsScheme string
 
 // X402VerifyInvalidReason The reason the payment is invalid on the x402 protocol.
 type X402VerifyInvalidReason string
@@ -2913,8 +3046,14 @@ type X402SettleResponse struct {
 
 // X402SupportedPaymentKindsResponse defines model for x402SupportedPaymentKindsResponse.
 type X402SupportedPaymentKindsResponse struct {
+	// Extensions The list of supported x402 extensions.
+	Extensions []string `json:"extensions"`
+
 	// Kinds The list of supported payment kinds.
 	Kinds []X402SupportedPaymentKind `json:"kinds"`
+
+	// Signers A map of CAIP-2 network or protocol family patterns to their supported signer addresses.
+	Signers map[string][]string `json:"signers"`
 }
 
 // X402VerifyResponse defines model for x402VerifyResponse.
@@ -3489,7 +3628,7 @@ type CreateOnrampSessionJSONBody struct {
 	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.
 	DestinationNetwork string `json:"destinationNetwork"`
 
-	// PartnerUserRef A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+	// PartnerUserRef A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
 	//
 	// This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.
 	PartnerUserRef *string `json:"partnerUserRef,omitempty"`
@@ -3508,8 +3647,8 @@ type CreateOnrampSessionJSONBody struct {
 	// Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.
 	PurchaseCurrency string `json:"purchaseCurrency"`
 
-	// RedirectUrl URL to redirect the user to when they successfully complete a transaction. This URL will be embedded in the returned onramp URL as a query parameter.
-	RedirectUrl *Url `json:"redirectUrl,omitempty"`
+	// RedirectUrl URI to redirect the user to when they successfully complete a transaction. This URI will be embedded in the returned onramp URI as a query parameter.
+	RedirectUrl *Uri `json:"redirectUrl,omitempty"`
 
 	// Subdivision The ISO 3166-2 two letter state code (e.g. NY). Only required for US.
 	Subdivision *string `json:"subdivision,omitempty"`
@@ -6264,22 +6403,146 @@ func (t *WebhookSubscriptionUpdateRequest) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-// AsX402ExactEvmPayload returns the union data inside the X402PaymentPayload_Payload as a X402ExactEvmPayload
-func (t X402PaymentPayload_Payload) AsX402ExactEvmPayload() (X402ExactEvmPayload, error) {
+// AsX402V1PaymentPayload returns the union data inside the X402PaymentPayload as a X402V1PaymentPayload
+func (t X402PaymentPayload) AsX402V1PaymentPayload() (X402V1PaymentPayload, error) {
+	var body X402V1PaymentPayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402V1PaymentPayload overwrites any union data inside the X402PaymentPayload as the provided X402V1PaymentPayload
+func (t *X402PaymentPayload) FromX402V1PaymentPayload(v X402V1PaymentPayload) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402V1PaymentPayload performs a merge with any union data inside the X402PaymentPayload, using the provided X402V1PaymentPayload
+func (t *X402PaymentPayload) MergeX402V1PaymentPayload(v X402V1PaymentPayload) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsX402V2PaymentPayload returns the union data inside the X402PaymentPayload as a X402V2PaymentPayload
+func (t X402PaymentPayload) AsX402V2PaymentPayload() (X402V2PaymentPayload, error) {
+	var body X402V2PaymentPayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402V2PaymentPayload overwrites any union data inside the X402PaymentPayload as the provided X402V2PaymentPayload
+func (t *X402PaymentPayload) FromX402V2PaymentPayload(v X402V2PaymentPayload) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402V2PaymentPayload performs a merge with any union data inside the X402PaymentPayload, using the provided X402V2PaymentPayload
+func (t *X402PaymentPayload) MergeX402V2PaymentPayload(v X402V2PaymentPayload) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t X402PaymentPayload) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *X402PaymentPayload) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsX402V1PaymentRequirements returns the union data inside the X402PaymentRequirements as a X402V1PaymentRequirements
+func (t X402PaymentRequirements) AsX402V1PaymentRequirements() (X402V1PaymentRequirements, error) {
+	var body X402V1PaymentRequirements
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402V1PaymentRequirements overwrites any union data inside the X402PaymentRequirements as the provided X402V1PaymentRequirements
+func (t *X402PaymentRequirements) FromX402V1PaymentRequirements(v X402V1PaymentRequirements) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402V1PaymentRequirements performs a merge with any union data inside the X402PaymentRequirements, using the provided X402V1PaymentRequirements
+func (t *X402PaymentRequirements) MergeX402V1PaymentRequirements(v X402V1PaymentRequirements) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsX402V2PaymentRequirements returns the union data inside the X402PaymentRequirements as a X402V2PaymentRequirements
+func (t X402PaymentRequirements) AsX402V2PaymentRequirements() (X402V2PaymentRequirements, error) {
+	var body X402V2PaymentRequirements
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402V2PaymentRequirements overwrites any union data inside the X402PaymentRequirements as the provided X402V2PaymentRequirements
+func (t *X402PaymentRequirements) FromX402V2PaymentRequirements(v X402V2PaymentRequirements) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402V2PaymentRequirements performs a merge with any union data inside the X402PaymentRequirements, using the provided X402V2PaymentRequirements
+func (t *X402PaymentRequirements) MergeX402V2PaymentRequirements(v X402V2PaymentRequirements) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t X402PaymentRequirements) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *X402PaymentRequirements) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsX402ExactEvmPayload returns the union data inside the X402V1PaymentPayload_Payload as a X402ExactEvmPayload
+func (t X402V1PaymentPayload_Payload) AsX402ExactEvmPayload() (X402ExactEvmPayload, error) {
 	var body X402ExactEvmPayload
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromX402ExactEvmPayload overwrites any union data inside the X402PaymentPayload_Payload as the provided X402ExactEvmPayload
-func (t *X402PaymentPayload_Payload) FromX402ExactEvmPayload(v X402ExactEvmPayload) error {
+// FromX402ExactEvmPayload overwrites any union data inside the X402V1PaymentPayload_Payload as the provided X402ExactEvmPayload
+func (t *X402V1PaymentPayload_Payload) FromX402ExactEvmPayload(v X402ExactEvmPayload) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeX402ExactEvmPayload performs a merge with any union data inside the X402PaymentPayload_Payload, using the provided X402ExactEvmPayload
-func (t *X402PaymentPayload_Payload) MergeX402ExactEvmPayload(v X402ExactEvmPayload) error {
+// MergeX402ExactEvmPayload performs a merge with any union data inside the X402V1PaymentPayload_Payload, using the provided X402ExactEvmPayload
+func (t *X402V1PaymentPayload_Payload) MergeX402ExactEvmPayload(v X402ExactEvmPayload) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -6290,22 +6553,22 @@ func (t *X402PaymentPayload_Payload) MergeX402ExactEvmPayload(v X402ExactEvmPayl
 	return err
 }
 
-// AsX402ExactSolanaPayload returns the union data inside the X402PaymentPayload_Payload as a X402ExactSolanaPayload
-func (t X402PaymentPayload_Payload) AsX402ExactSolanaPayload() (X402ExactSolanaPayload, error) {
+// AsX402ExactSolanaPayload returns the union data inside the X402V1PaymentPayload_Payload as a X402ExactSolanaPayload
+func (t X402V1PaymentPayload_Payload) AsX402ExactSolanaPayload() (X402ExactSolanaPayload, error) {
 	var body X402ExactSolanaPayload
 	err := json.Unmarshal(t.union, &body)
 	return body, err
 }
 
-// FromX402ExactSolanaPayload overwrites any union data inside the X402PaymentPayload_Payload as the provided X402ExactSolanaPayload
-func (t *X402PaymentPayload_Payload) FromX402ExactSolanaPayload(v X402ExactSolanaPayload) error {
+// FromX402ExactSolanaPayload overwrites any union data inside the X402V1PaymentPayload_Payload as the provided X402ExactSolanaPayload
+func (t *X402V1PaymentPayload_Payload) FromX402ExactSolanaPayload(v X402ExactSolanaPayload) error {
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-// MergeX402ExactSolanaPayload performs a merge with any union data inside the X402PaymentPayload_Payload, using the provided X402ExactSolanaPayload
-func (t *X402PaymentPayload_Payload) MergeX402ExactSolanaPayload(v X402ExactSolanaPayload) error {
+// MergeX402ExactSolanaPayload performs a merge with any union data inside the X402V1PaymentPayload_Payload, using the provided X402ExactSolanaPayload
+func (t *X402V1PaymentPayload_Payload) MergeX402ExactSolanaPayload(v X402ExactSolanaPayload) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -6316,12 +6579,74 @@ func (t *X402PaymentPayload_Payload) MergeX402ExactSolanaPayload(v X402ExactSola
 	return err
 }
 
-func (t X402PaymentPayload_Payload) MarshalJSON() ([]byte, error) {
+func (t X402V1PaymentPayload_Payload) MarshalJSON() ([]byte, error) {
 	b, err := t.union.MarshalJSON()
 	return b, err
 }
 
-func (t *X402PaymentPayload_Payload) UnmarshalJSON(b []byte) error {
+func (t *X402V1PaymentPayload_Payload) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
+
+// AsX402ExactEvmPayload returns the union data inside the X402V2PaymentPayload_Payload as a X402ExactEvmPayload
+func (t X402V2PaymentPayload_Payload) AsX402ExactEvmPayload() (X402ExactEvmPayload, error) {
+	var body X402ExactEvmPayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402ExactEvmPayload overwrites any union data inside the X402V2PaymentPayload_Payload as the provided X402ExactEvmPayload
+func (t *X402V2PaymentPayload_Payload) FromX402ExactEvmPayload(v X402ExactEvmPayload) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402ExactEvmPayload performs a merge with any union data inside the X402V2PaymentPayload_Payload, using the provided X402ExactEvmPayload
+func (t *X402V2PaymentPayload_Payload) MergeX402ExactEvmPayload(v X402ExactEvmPayload) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsX402ExactSolanaPayload returns the union data inside the X402V2PaymentPayload_Payload as a X402ExactSolanaPayload
+func (t X402V2PaymentPayload_Payload) AsX402ExactSolanaPayload() (X402ExactSolanaPayload, error) {
+	var body X402ExactSolanaPayload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402ExactSolanaPayload overwrites any union data inside the X402V2PaymentPayload_Payload as the provided X402ExactSolanaPayload
+func (t *X402V2PaymentPayload_Payload) FromX402ExactSolanaPayload(v X402ExactSolanaPayload) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402ExactSolanaPayload performs a merge with any union data inside the X402V2PaymentPayload_Payload, using the provided X402ExactSolanaPayload
+func (t *X402V2PaymentPayload_Payload) MergeX402ExactSolanaPayload(v X402ExactSolanaPayload) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t X402V2PaymentPayload_Payload) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *X402V2PaymentPayload_Payload) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
 	return err
 }

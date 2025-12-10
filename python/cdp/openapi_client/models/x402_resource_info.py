@@ -18,17 +18,37 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
-class WebhookSubscriptionResponseMetadata(BaseModel):
+class X402ResourceInfo(BaseModel):
     """
-    Additional metadata for the subscription.
+    Describes the resource being accessed in x402 protocol.
     """ # noqa: E501
-    secret: Optional[StrictStr] = Field(default=None, description="Use the root-level `secret` field instead. Maintained for backward compatibility only.")
-    __properties: ClassVar[List[str]] = ["secret"]
+    url: Annotated[str, Field(min_length=11, strict=True, max_length=2048)] = Field(description="The URL of the resource.")
+    description: Optional[StrictStr] = Field(default=None, description="The description of the resource.")
+    mime_type: Optional[Annotated[str, Field(min_length=3, strict=True, max_length=255)]] = Field(default=None, description="The MIME type of the resource response.", alias="mimeType")
+    __properties: ClassVar[List[str]] = ["url", "description", "mimeType"]
+
+    @field_validator('url')
+    def url_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^https?:\/\/.*$", value):
+            raise ValueError(r"must validate the regular expression /^https?:\/\/.*$/")
+        return value
+
+    @field_validator('mime_type')
+    def mime_type_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*\/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*\/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +68,7 @@ class WebhookSubscriptionResponseMetadata(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of WebhookSubscriptionResponseMetadata from a JSON string"""
+        """Create an instance of X402ResourceInfo from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,7 +93,7 @@ class WebhookSubscriptionResponseMetadata(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of WebhookSubscriptionResponseMetadata from a dict"""
+        """Create an instance of X402ResourceInfo from a dict"""
         if obj is None:
             return None
 
@@ -81,7 +101,9 @@ class WebhookSubscriptionResponseMetadata(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "secret": obj.get("secret")
+            "url": obj.get("url"),
+            "description": obj.get("description"),
+            "mimeType": obj.get("mimeType")
         })
         return _obj
 

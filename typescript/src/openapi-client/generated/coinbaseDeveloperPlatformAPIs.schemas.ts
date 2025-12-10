@@ -115,6 +115,47 @@ export type AuthenticationMethod =
 export type AuthenticationMethods = AuthenticationMethod[];
 
 /**
+ * Information about an EVM account associated with an end user.
+ */
+export interface EndUserEvmAccount {
+  /**
+   * The address of the EVM account.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: string;
+  /** The date and time when the account was created, in ISO 8601 format. */
+  createdAt: string;
+}
+
+/**
+ * Information about an EVM smart account associated with an end user.
+ */
+export interface EndUserEvmSmartAccount {
+  /**
+   * The address of the EVM smart account.
+   * @pattern ^0x[0-9a-fA-F]{40}$
+   */
+  address: string;
+  /** The addresses of the EVM EOA accounts that own this smart account. Smart accounts can have multiple owners, such as when spend permissions are enabled. */
+  ownerAddresses: string[];
+  /** The date and time when the account was created, in ISO 8601 format. */
+  createdAt: string;
+}
+
+/**
+ * Information about a Solana account associated with an end user.
+ */
+export interface EndUserSolanaAccount {
+  /**
+   * The base58 encoded address of the Solana account.
+   * @pattern ^[1-9A-HJ-NP-Za-km-z]{32,44}$
+   */
+  address: string;
+  /** The date and time when the account was created, in ISO 8601 format. */
+  createdAt: string;
+}
+
+/**
  * Information about the end user.
  */
 export interface EndUser {
@@ -129,16 +170,22 @@ export interface EndUser {
    * @deprecated
    */
   evmAccounts: string[];
+  /** The list of EVM accounts associated with the end user. End users can have up to 10 EVM accounts. */
+  evmAccountObjects: EndUserEvmAccount[];
   /**
    * **DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.
    * @deprecated
    */
   evmSmartAccounts: string[];
+  /** The list of EVM smart accounts associated with the end user. Each EVM EOA can own one smart account. */
+  evmSmartAccountObjects: EndUserEvmSmartAccount[];
   /**
    * **DEPRECATED**: Use `solanaAccountObjects` instead for richer account information. The list of Solana account addresses associated with the end user. End users can have up to 10 Solana accounts.
    * @deprecated
    */
   solanaAccounts: string[];
+  /** The list of Solana accounts associated with the end user. End users can have up to 10 Solana accounts. */
+  solanaAccountObjects: EndUserSolanaAccount[];
   /** The date and time when the end user was created, in ISO 8601 format. */
   createdAt: string;
 }
@@ -2505,10 +2552,10 @@ export interface WebhookTarget {
  * Additional metadata for the subscription.
  */
 export type WebhookSubscriptionResponseMetadata = {
-  /** Secret for webhook signature validation.
-
-**Note:** Webhooks are in beta and this interface is subject to change.
- */
+  /**
+   * Use the root-level `secret` field instead. Maintained for backward compatibility only.
+   * @deprecated
+   */
   secret?: string;
 };
 
@@ -2535,6 +2582,8 @@ service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detec
   isEnabled: boolean;
   /** Additional metadata for the subscription. */
   metadata?: WebhookSubscriptionResponseMetadata;
+  /** Secret for webhook signature validation. */
+  secret: string;
   /** Unique identifier for the subscription. */
   subscriptionId: string;
   target: WebhookTarget;
@@ -2714,6 +2763,7 @@ export type X402Version = (typeof X402Version)[keyof typeof X402Version];
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const X402Version = {
   NUMBER_1: 1,
+  NUMBER_2: 2,
 } as const;
 
 /**
@@ -2761,22 +2811,22 @@ export interface X402ExactSolanaPayload {
 /**
  * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
  */
-export type X402PaymentPayloadScheme =
-  (typeof X402PaymentPayloadScheme)[keyof typeof X402PaymentPayloadScheme];
+export type X402V1PaymentPayloadScheme =
+  (typeof X402V1PaymentPayloadScheme)[keyof typeof X402V1PaymentPayloadScheme];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402PaymentPayloadScheme = {
+export const X402V1PaymentPayloadScheme = {
   exact: "exact",
 } as const;
 
 /**
  * The network of the blockchain to send payment on.
  */
-export type X402PaymentPayloadNetwork =
-  (typeof X402PaymentPayloadNetwork)[keyof typeof X402PaymentPayloadNetwork];
+export type X402V1PaymentPayloadNetwork =
+  (typeof X402V1PaymentPayloadNetwork)[keyof typeof X402V1PaymentPayloadNetwork];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402PaymentPayloadNetwork = {
+export const X402V1PaymentPayloadNetwork = {
   "base-sepolia": "base-sepolia",
   base: "base",
   "solana-devnet": "solana-devnet",
@@ -2786,40 +2836,138 @@ export const X402PaymentPayloadNetwork = {
 /**
  * The payload of the payment depending on the x402Version, scheme, and network.
  */
-export type X402PaymentPayloadPayload = X402ExactEvmPayload | X402ExactSolanaPayload;
+export type X402V1PaymentPayloadPayload = X402ExactEvmPayload | X402ExactSolanaPayload;
 
 /**
  * The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
  */
-export interface X402PaymentPayload {
+export interface X402V1PaymentPayload {
   x402Version: X402Version;
   /** The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`. */
-  scheme: X402PaymentPayloadScheme;
+  scheme: X402V1PaymentPayloadScheme;
   /** The network of the blockchain to send payment on. */
-  network: X402PaymentPayloadNetwork;
+  network: X402V1PaymentPayloadNetwork;
   /** The payload of the payment depending on the x402Version, scheme, and network. */
-  payload: X402PaymentPayloadPayload;
+  payload: X402V1PaymentPayloadPayload;
 }
 
 /**
  * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
  */
-export type X402PaymentRequirementsScheme =
-  (typeof X402PaymentRequirementsScheme)[keyof typeof X402PaymentRequirementsScheme];
+export type X402V2PaymentRequirementsScheme =
+  (typeof X402V2PaymentRequirementsScheme)[keyof typeof X402V2PaymentRequirementsScheme];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402PaymentRequirementsScheme = {
+export const X402V2PaymentRequirementsScheme = {
+  exact: "exact",
+} as const;
+
+/**
+ * The optional additional scheme-specific payment info.
+ */
+export type X402V2PaymentRequirementsExtra = { [key: string]: unknown };
+
+/**
+ * The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+ */
+export interface X402V2PaymentRequirements {
+  /** The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`. */
+  scheme: X402V2PaymentRequirementsScheme;
+  /** The network of the blockchain to send payment on in caip2 format. */
+  network: string;
+  /**
+   * The asset to pay with.
+
+For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, the asset will be a base58-encoded Solana address.
+   * @pattern ^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$
+   */
+  asset: string;
+  /** The amount to pay for the resource in atomic units of the payment asset. */
+  amount: string;
+  /**
+   * The destination to pay value to.
+
+For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
+
+For Solana-based networks, payTo will be a base58-encoded Solana address.
+   * @pattern ^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$
+   */
+  payTo: string;
+  /** The maximum time in seconds for the resource server to respond. */
+  maxTimeoutSeconds: number;
+  /** The optional additional scheme-specific payment info. */
+  extra?: X402V2PaymentRequirementsExtra;
+}
+
+/**
+ * A valid MIME type (media type) as defined in RFC 6838.
+ * @minLength 3
+ * @maxLength 255
+ * @pattern ^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*\/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$
+ */
+export type MimeType = string;
+
+/**
+ * Describes the resource being accessed in x402 protocol.
+ */
+export interface X402ResourceInfo {
+  /** The URL of the resource. */
+  url: Url;
+  /** The description of the resource. */
+  description?: string;
+  /** The MIME type of the resource response. */
+  mimeType?: MimeType;
+}
+
+/**
+ * The payload of the payment depending on the x402Version, scheme, and network.
+ */
+export type X402V2PaymentPayloadPayload = X402ExactEvmPayload | X402ExactSolanaPayload;
+
+/**
+ * Optional protocol extensions.
+ */
+export type X402V2PaymentPayloadExtensions = { [key: string]: unknown };
+
+/**
+ * The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+ */
+export interface X402V2PaymentPayload {
+  x402Version: X402Version;
+  /** The payload of the payment depending on the x402Version, scheme, and network. */
+  payload: X402V2PaymentPayloadPayload;
+  accepted: X402V2PaymentRequirements;
+  resource?: X402ResourceInfo;
+  /** Optional protocol extensions. */
+  extensions?: X402V2PaymentPayloadExtensions;
+}
+
+/**
+ * The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+ */
+export type X402PaymentPayload = X402V1PaymentPayload | X402V2PaymentPayload;
+
+/**
+ * The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+ */
+export type X402V1PaymentRequirementsScheme =
+  (typeof X402V1PaymentRequirementsScheme)[keyof typeof X402V1PaymentRequirementsScheme];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402V1PaymentRequirementsScheme = {
   exact: "exact",
 } as const;
 
 /**
  * The network of the blockchain to send payment on.
  */
-export type X402PaymentRequirementsNetwork =
-  (typeof X402PaymentRequirementsNetwork)[keyof typeof X402PaymentRequirementsNetwork];
+export type X402V1PaymentRequirementsNetwork =
+  (typeof X402V1PaymentRequirementsNetwork)[keyof typeof X402V1PaymentRequirementsNetwork];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402PaymentRequirementsNetwork = {
+export const X402V1PaymentRequirementsNetwork = {
   "base-sepolia": "base-sepolia",
   base: "base",
   "solana-devnet": "solana-devnet",
@@ -2829,21 +2977,21 @@ export const X402PaymentRequirementsNetwork = {
 /**
  * The optional JSON schema describing the resource output.
  */
-export type X402PaymentRequirementsOutputSchema = { [key: string]: unknown };
+export type X402V1PaymentRequirementsOutputSchema = { [key: string]: unknown };
 
 /**
  * The optional additional scheme-specific payment info.
  */
-export type X402PaymentRequirementsExtra = { [key: string]: unknown };
+export type X402V1PaymentRequirementsExtra = { [key: string]: unknown };
 
 /**
  * The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
  */
-export interface X402PaymentRequirements {
+export interface X402V1PaymentRequirements {
   /** The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`. */
-  scheme: X402PaymentRequirementsScheme;
+  scheme: X402V1PaymentRequirementsScheme;
   /** The network of the blockchain to send payment on. */
-  network: X402PaymentRequirementsNetwork;
+  network: X402V1PaymentRequirementsNetwork;
   /** The maximum amount required to pay for the resource in atomic units of the payment asset. */
   maxAmountRequired: string;
   /** The URL of the resource to pay for. */
@@ -2851,16 +2999,16 @@ export interface X402PaymentRequirements {
   /** The description of the resource. */
   description: string;
   /** The MIME type of the resource response. */
-  mimeType: string;
+  mimeType: MimeType;
   /** The optional JSON schema describing the resource output. */
-  outputSchema?: X402PaymentRequirementsOutputSchema;
+  outputSchema?: X402V1PaymentRequirementsOutputSchema;
   /**
    * The destination to pay value to.
 
 For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
 
 For Solana-based networks, payTo will be a base58-encoded Solana address.
-   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   * @pattern ^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$
    */
   payTo: string;
   /** The maximum time in seconds for the resource server to respond. */
@@ -2871,12 +3019,17 @@ For Solana-based networks, payTo will be a base58-encoded Solana address.
 For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
 
 For Solana-based networks, the asset will be a base58-encoded Solana address.
-   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   * @pattern ^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$
    */
   asset: string;
   /** The optional additional scheme-specific payment info. */
-  extra?: X402PaymentRequirementsExtra;
+  extra?: X402V1PaymentRequirementsExtra;
 }
+
+/**
+ * The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+ */
+export type X402PaymentRequirements = X402V1PaymentRequirements | X402V2PaymentRequirements;
 
 /**
  * The reason the payment is invalid on the x402 protocol.
@@ -3145,6 +3298,14 @@ export const OnrampQuotePaymentMethodTypeId = {
 } as const;
 
 /**
+ * A valid URI.
+ * @minLength 5
+ * @maxLength 2048
+ * @pattern ^.*://.*$
+ */
+export type Uri = string;
+
+/**
  * An onramp session containing a ready-to-use onramp URL.
  */
 export interface OnrampSession {
@@ -3229,7 +3390,7 @@ export type X402VerifyResponseResponse = {
 For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
 
 For Solana-based networks, the payer will be a base58-encoded Solana address.
-   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   * @pattern ^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$
    */
   payer: string;
 };
@@ -3244,23 +3405,32 @@ export type X402SettleResponseResponse = {
 For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
 
 For Solana-based networks, the payer will be a base58-encoded Solana address.
-   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   * @pattern ^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$
    */
   payer: string;
   /**
    * The transaction of the settlement.
 For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
 For Solana-based networks, the transaction will be a base58-encoded Solana signature.
-   * @pattern ^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$
+   * @pattern ^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$
    */
   transaction: string;
   /** The network where the settlement occurred. */
   network: string;
 };
 
+/**
+ * A map of CAIP-2 network or protocol family patterns to their supported signer addresses.
+ */
+export type X402SupportedPaymentKindsResponseResponseSigners = { [key: string]: string[] };
+
 export type X402SupportedPaymentKindsResponseResponse = {
   /** The list of supported payment kinds. */
   kinds: X402SupportedPaymentKind[];
+  /** The list of supported x402 extensions. */
+  extensions: string[];
+  /** A map of CAIP-2 network or protocol family patterns to their supported signer addresses. */
+  signers: X402SupportedPaymentKindsResponseResponseSigners;
 };
 
 /**
@@ -4057,11 +4227,11 @@ Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/res
   country?: string;
   /** The ISO 3166-2 two letter state code (e.g. NY). Only required for US. */
   subdivision?: string;
-  /** URL to redirect the user to when they successfully complete a transaction. This URL will be embedded in the returned onramp URL as a query parameter. */
-  redirectUrl?: Url;
+  /** URI to redirect the user to when they successfully complete a transaction. This URI will be embedded in the returned onramp URI as a query parameter. */
+  redirectUrl?: Uri;
   /** The IP address of the end user requesting the onramp transaction. */
   clientIp?: string;
-  /** A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+  /** A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
 
 This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user. */
   partnerUserRef?: string;

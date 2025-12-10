@@ -28,6 +28,7 @@ class X402Version(int, Enum):
     allowed enum values
     """
     NUMBER_1 = 1
+    NUMBER_2 = 2
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

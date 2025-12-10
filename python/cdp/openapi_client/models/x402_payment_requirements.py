@@ -14,131 +14,125 @@
 
 
 from __future__ import annotations
-import pprint
-import re  # noqa: F401
 import json
+import pprint
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, field_validator
+from typing import Any, List, Optional
+from cdp.openapi_client.models.x402_v1_payment_requirements import X402V1PaymentRequirements
+from cdp.openapi_client.models.x402_v2_payment_requirements import X402V2PaymentRequirements
+from pydantic import StrictStr, Field
+from typing import Union, List, Set, Optional, Dict
+from typing_extensions import Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
-from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
-from typing import Optional, Set
-from typing_extensions import Self
+X402PAYMENTREQUIREMENTS_ONE_OF_SCHEMAS = ["X402V1PaymentRequirements", "X402V2PaymentRequirements"]
 
 class X402PaymentRequirements(BaseModel):
     """
     The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
-    """ # noqa: E501
-    scheme: StrictStr = Field(description="The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.")
-    network: StrictStr = Field(description="The network of the blockchain to send payment on.")
-    max_amount_required: StrictStr = Field(description="The maximum amount required to pay for the resource in atomic units of the payment asset.", alias="maxAmountRequired")
-    resource: Annotated[str, Field(min_length=11, strict=True, max_length=2048)] = Field(description="The URL of the resource to pay for.")
-    description: StrictStr = Field(description="The description of the resource.")
-    mime_type: StrictStr = Field(description="The MIME type of the resource response.", alias="mimeType")
-    output_schema: Optional[Dict[str, Any]] = Field(default=None, description="The optional JSON schema describing the resource output.", alias="outputSchema")
-    pay_to: Annotated[str, Field(strict=True)] = Field(description="The destination to pay value to.  For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, payTo will be a base58-encoded Solana address.", alias="payTo")
-    max_timeout_seconds: StrictInt = Field(description="The maximum time in seconds for the resource server to respond.", alias="maxTimeoutSeconds")
-    asset: Annotated[str, Field(strict=True)] = Field(description="The asset to pay with.  For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the asset will be a base58-encoded Solana address.")
-    extra: Optional[Dict[str, Any]] = Field(default=None, description="The optional additional scheme-specific payment info.")
-    __properties: ClassVar[List[str]] = ["scheme", "network", "maxAmountRequired", "resource", "description", "mimeType", "outputSchema", "payTo", "maxTimeoutSeconds", "asset", "extra"]
-
-    @field_validator('scheme')
-    def scheme_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['exact']):
-            raise ValueError("must be one of enum values ('exact')")
-        return value
-
-    @field_validator('network')
-    def network_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana')")
-        return value
-
-    @field_validator('resource')
-    def resource_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^https?:\/\/.*$", value):
-            raise ValueError(r"must validate the regular expression /^https?:\/\/.*$/")
-        return value
-
-    @field_validator('pay_to')
-    def pay_to_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
-            raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
-        return value
-
-    @field_validator('asset')
-    def asset_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
-            raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
-        return value
+    """
+    # data type: X402V1PaymentRequirements
+    oneof_schema_1_validator: Optional[X402V1PaymentRequirements] = None
+    # data type: X402V2PaymentRequirements
+    oneof_schema_2_validator: Optional[X402V2PaymentRequirements] = None
+    actual_instance: Optional[Union[X402V1PaymentRequirements, X402V2PaymentRequirements]] = None
+    one_of_schemas: Set[str] = { "X402V1PaymentRequirements", "X402V2PaymentRequirements" }
 
     model_config = ConfigDict(
-        populate_by_name=True,
         validate_assignment=True,
         protected_namespaces=(),
     )
 
 
-    def to_str(self) -> str:
-        """Returns the string representation of the model using alias"""
-        return pprint.pformat(self.model_dump(by_alias=True))
+    def __init__(self, *args, **kwargs) -> None:
+        if args:
+            if len(args) > 1:
+                raise ValueError("If a position argument is used, only 1 is allowed to set `actual_instance`")
+            if kwargs:
+                raise ValueError("If a position argument is used, keyword arguments cannot be used.")
+            super().__init__(actual_instance=args[0])
+        else:
+            super().__init__(**kwargs)
+
+    @field_validator('actual_instance')
+    def actual_instance_must_validate_oneof(cls, v):
+        instance = X402PaymentRequirements.model_construct()
+        error_messages = []
+        match = 0
+        # validate data type: X402V1PaymentRequirements
+        if not isinstance(v, X402V1PaymentRequirements):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `X402V1PaymentRequirements`")
+        else:
+            match += 1
+        # validate data type: X402V2PaymentRequirements
+        if not isinstance(v, X402V2PaymentRequirements):
+            error_messages.append(f"Error! Input type `{type(v)}` is not `X402V2PaymentRequirements`")
+        else:
+            match += 1
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when setting `actual_instance` in X402PaymentRequirements with oneOf schemas: X402V1PaymentRequirements, X402V2PaymentRequirements. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when setting `actual_instance` in X402PaymentRequirements with oneOf schemas: X402V1PaymentRequirements, X402V2PaymentRequirements. Details: " + ", ".join(error_messages))
+        else:
+            return v
+
+    @classmethod
+    def from_dict(cls, obj: Union[str, Dict[str, Any]]) -> Self:
+        return cls.from_json(json.dumps(obj))
+
+    @classmethod
+    def from_json(cls, json_str: str) -> Self:
+        """Returns the object represented by the json string"""
+        instance = cls.model_construct()
+        error_messages = []
+        match = 0
+
+        # deserialize data into X402V1PaymentRequirements
+        try:
+            instance.actual_instance = X402V1PaymentRequirements.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+        # deserialize data into X402V2PaymentRequirements
+        try:
+            instance.actual_instance = X402V2PaymentRequirements.from_json(json_str)
+            match += 1
+        except (ValidationError, ValueError) as e:
+            error_messages.append(str(e))
+
+        if match > 1:
+            # more than 1 match
+            raise ValueError("Multiple matches found when deserializing the JSON string into X402PaymentRequirements with oneOf schemas: X402V1PaymentRequirements, X402V2PaymentRequirements. Details: " + ", ".join(error_messages))
+        elif match == 0:
+            # no match
+            raise ValueError("No match found when deserializing the JSON string into X402PaymentRequirements with oneOf schemas: X402V1PaymentRequirements, X402V2PaymentRequirements. Details: " + ", ".join(error_messages))
+        else:
+            return instance
 
     def to_json(self) -> str:
-        """Returns the JSON representation of the model using alias"""
-        # TODO: pydantic v2: use .model_dump_json(by_alias=True, exclude_unset=True) instead
-        return json.dumps(self.to_dict())
+        """Returns the JSON representation of the actual instance"""
+        if self.actual_instance is None:
+            return "null"
 
-    @classmethod
-    def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of X402PaymentRequirements from a JSON string"""
-        return cls.from_dict(json.loads(json_str))
+        if hasattr(self.actual_instance, "to_json") and callable(self.actual_instance.to_json):
+            return self.actual_instance.to_json()
+        else:
+            return json.dumps(self.actual_instance)
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Return the dictionary representation of the model using alias.
-
-        This has the following differences from calling pydantic's
-        `self.model_dump(by_alias=True)`:
-
-        * `None` is only added to the output dict for nullable fields that
-          were set at model initialization. Other fields with value `None`
-          are ignored.
-        """
-        excluded_fields: Set[str] = set([
-        ])
-
-        _dict = self.model_dump(
-            by_alias=True,
-            exclude=excluded_fields,
-            exclude_none=True,
-        )
-        return _dict
-
-    @classmethod
-    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of X402PaymentRequirements from a dict"""
-        if obj is None:
+    def to_dict(self) -> Optional[Union[Dict[str, Any], X402V1PaymentRequirements, X402V2PaymentRequirements]]:
+        """Returns the dict representation of the actual instance"""
+        if self.actual_instance is None:
             return None
 
-        if not isinstance(obj, dict):
-            return cls.model_validate(obj)
+        if hasattr(self.actual_instance, "to_dict") and callable(self.actual_instance.to_dict):
+            return self.actual_instance.to_dict()
+        else:
+            # primitive type
+            return self.actual_instance
 
-        _obj = cls.model_validate({
-            "scheme": obj.get("scheme"),
-            "network": obj.get("network"),
-            "maxAmountRequired": obj.get("maxAmountRequired"),
-            "resource": obj.get("resource"),
-            "description": obj.get("description"),
-            "mimeType": obj.get("mimeType"),
-            "outputSchema": obj.get("outputSchema"),
-            "payTo": obj.get("payTo"),
-            "maxTimeoutSeconds": obj.get("maxTimeoutSeconds"),
-            "asset": obj.get("asset"),
-            "extra": obj.get("extra")
-        })
-        return _obj
+    def to_str(self) -> str:
+        """Returns the string representation of the actual instance"""
+        return pprint.pformat(self.model_dump())
 
 

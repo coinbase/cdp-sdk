@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.x402_payment_requirements import X402PaymentRequirements
+from cdp.openapi_client.models.x402_v1_payment_requirements import X402V1PaymentRequirements
 
-class TestX402PaymentRequirements(unittest.TestCase):
-    """X402PaymentRequirements unit test stubs"""
+class TestX402V1PaymentRequirements(unittest.TestCase):
+    """X402V1PaymentRequirements unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,18 +26,18 @@ class TestX402PaymentRequirements(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> X402PaymentRequirements:
-        """Test X402PaymentRequirements
+    def make_instance(self, include_optional) -> X402V1PaymentRequirements:
+        """Test X402V1PaymentRequirements
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `X402PaymentRequirements`
+        # uncomment below to create an instance of `X402V1PaymentRequirements`
         """
-        model = X402PaymentRequirements()
+        model = X402V1PaymentRequirements()
         if include_optional:
-            return X402PaymentRequirements(
+            return X402V1PaymentRequirements(
                 scheme = 'exact',
-                network = 'eip155:1',
+                network = 'base',
                 max_amount_required = '1000000',
                 resource = 'https://example.com',
                 description = 'Premium API access for data analysis',
@@ -46,13 +46,12 @@ class TestX402PaymentRequirements(unittest.TestCase):
                 pay_to = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 max_timeout_seconds = 10,
                 asset = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                extra = {name=USDC, version=2},
-                amount = '1000000'
+                extra = {gasLimit=1000000}
             )
         else:
-            return X402PaymentRequirements(
+            return X402V1PaymentRequirements(
                 scheme = 'exact',
-                network = 'eip155:1',
+                network = 'base',
                 max_amount_required = '1000000',
                 resource = 'https://example.com',
                 description = 'Premium API access for data analysis',
@@ -60,12 +59,11 @@ class TestX402PaymentRequirements(unittest.TestCase):
                 pay_to = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 max_timeout_seconds = 10,
                 asset = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                amount = '1000000',
         )
         """
 
-    def testX402PaymentRequirements(self):
-        """Test X402PaymentRequirements"""
+    def testX402V1PaymentRequirements(self):
+        """Test X402V1PaymentRequirements"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

@@ -18,17 +18,25 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Any, ClassVar, Dict, List, Optional
+from cdp.openapi_client.models.x402_resource_info import X402ResourceInfo
+from cdp.openapi_client.models.x402_v1_payment_payload_payload import X402V1PaymentPayloadPayload
+from cdp.openapi_client.models.x402_v2_payment_requirements import X402V2PaymentRequirements
+from cdp.openapi_client.models.x402_version import X402Version
 from typing import Optional, Set
 from typing_extensions import Self
 
-class WebhookSubscriptionResponseMetadata(BaseModel):
+class X402V2PaymentPayload(BaseModel):
     """
-    Additional metadata for the subscription.
+    The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
     """ # noqa: E501
-    secret: Optional[StrictStr] = Field(default=None, description="Use the root-level `secret` field instead. Maintained for backward compatibility only.")
-    __properties: ClassVar[List[str]] = ["secret"]
+    x402_version: X402Version = Field(alias="x402Version")
+    payload: X402V1PaymentPayloadPayload
+    accepted: X402V2PaymentRequirements
+    resource: Optional[X402ResourceInfo] = None
+    extensions: Optional[Dict[str, Any]] = Field(default=None, description="Optional protocol extensions.")
+    __properties: ClassVar[List[str]] = ["x402Version", "payload", "accepted", "resource", "extensions"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +56,7 @@ class WebhookSubscriptionResponseMetadata(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of WebhookSubscriptionResponseMetadata from a JSON string"""
+        """Create an instance of X402V2PaymentPayload from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,11 +77,20 @@ class WebhookSubscriptionResponseMetadata(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of payload
+        if self.payload:
+            _dict['payload'] = self.payload.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of accepted
+        if self.accepted:
+            _dict['accepted'] = self.accepted.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of resource
+        if self.resource:
+            _dict['resource'] = self.resource.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of WebhookSubscriptionResponseMetadata from a dict"""
+        """Create an instance of X402V2PaymentPayload from a dict"""
         if obj is None:
             return None
 
@@ -81,7 +98,11 @@ class WebhookSubscriptionResponseMetadata(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "secret": obj.get("secret")
+            "x402Version": obj.get("x402Version"),
+            "payload": X402V1PaymentPayloadPayload.from_dict(obj["payload"]) if obj.get("payload") is not None else None,
+            "accepted": X402V2PaymentRequirements.from_dict(obj["accepted"]) if obj.get("accepted") is not None else None,
+            "resource": X402ResourceInfo.from_dict(obj["resource"]) if obj.get("resource") is not None else None,
+            "extensions": obj.get("extensions")
         })
         return _obj
 

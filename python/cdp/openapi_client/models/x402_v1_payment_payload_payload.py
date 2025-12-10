@@ -24,9 +24,9 @@ from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-X402PAYMENTPAYLOADPAYLOAD_ONE_OF_SCHEMAS = ["X402ExactEvmPayload", "X402ExactSolanaPayload"]
+X402V1PAYMENTPAYLOADPAYLOAD_ONE_OF_SCHEMAS = ["X402ExactEvmPayload", "X402ExactSolanaPayload"]
 
-class X402PaymentPayloadPayload(BaseModel):
+class X402V1PaymentPayloadPayload(BaseModel):
     """
     The payload of the payment depending on the x402Version, scheme, and network.
     """
@@ -55,7 +55,7 @@ class X402PaymentPayloadPayload(BaseModel):
 
     @field_validator('actual_instance')
     def actual_instance_must_validate_oneof(cls, v):
-        instance = X402PaymentPayloadPayload.model_construct()
+        instance = X402V1PaymentPayloadPayload.model_construct()
         error_messages = []
         match = 0
         # validate data type: X402ExactEvmPayload
@@ -70,10 +70,10 @@ class X402PaymentPayloadPayload(BaseModel):
             match += 1
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in X402PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in X402V1PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in X402PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in X402V1PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -103,10 +103,10 @@ class X402PaymentPayloadPayload(BaseModel):
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into X402PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into X402V1PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into X402PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into X402V1PaymentPayloadPayload with oneOf schemas: X402ExactEvmPayload, X402ExactSolanaPayload. Details: " + ", ".join(error_messages))
         else:
             return instance
 

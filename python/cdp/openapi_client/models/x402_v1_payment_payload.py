@@ -18,17 +18,36 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from typing import Any, ClassVar, Dict, List
+from cdp.openapi_client.models.x402_v1_payment_payload_payload import X402V1PaymentPayloadPayload
+from cdp.openapi_client.models.x402_version import X402Version
 from typing import Optional, Set
 from typing_extensions import Self
 
-class WebhookSubscriptionResponseMetadata(BaseModel):
+class X402V1PaymentPayload(BaseModel):
     """
-    Additional metadata for the subscription.
+    The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
     """ # noqa: E501
-    secret: Optional[StrictStr] = Field(default=None, description="Use the root-level `secret` field instead. Maintained for backward compatibility only.")
-    __properties: ClassVar[List[str]] = ["secret"]
+    x402_version: X402Version = Field(alias="x402Version")
+    scheme: StrictStr = Field(description="The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.")
+    network: StrictStr = Field(description="The network of the blockchain to send payment on.")
+    payload: X402V1PaymentPayloadPayload
+    __properties: ClassVar[List[str]] = ["x402Version", "scheme", "network", "payload"]
+
+    @field_validator('scheme')
+    def scheme_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['exact']):
+            raise ValueError("must be one of enum values ('exact')")
+        return value
+
+    @field_validator('network')
+    def network_validate_enum(cls, value):
+        """Validates the enum"""
+        if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana']):
+            raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana')")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -48,7 +67,7 @@ class WebhookSubscriptionResponseMetadata(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of WebhookSubscriptionResponseMetadata from a JSON string"""
+        """Create an instance of X402V1PaymentPayload from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -69,11 +88,14 @@ class WebhookSubscriptionResponseMetadata(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of payload
+        if self.payload:
+            _dict['payload'] = self.payload.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of WebhookSubscriptionResponseMetadata from a dict"""
+        """Create an instance of X402V1PaymentPayload from a dict"""
         if obj is None:
             return None
 
@@ -81,7 +103,10 @@ class WebhookSubscriptionResponseMetadata(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "secret": obj.get("secret")
+            "x402Version": obj.get("x402Version"),
+            "scheme": obj.get("scheme"),
+            "network": obj.get("network"),
+            "payload": X402V1PaymentPayloadPayload.from_dict(obj["payload"]) if obj.get("payload") is not None else None
         })
         return _obj
 

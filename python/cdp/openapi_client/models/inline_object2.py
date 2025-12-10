@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List
 from cdp.openapi_client.models.x402_supported_payment_kind import X402SupportedPaymentKind
 from typing import Optional, Set
@@ -29,7 +29,9 @@ class InlineObject2(BaseModel):
     InlineObject2
     """ # noqa: E501
     kinds: List[X402SupportedPaymentKind] = Field(description="The list of supported payment kinds.")
-    __properties: ClassVar[List[str]] = ["kinds"]
+    extensions: List[StrictStr] = Field(description="The list of supported x402 extensions.")
+    signers: Dict[str, List[StrictStr]] = Field(description="A map of CAIP-2 network or protocol family patterns to their supported signer addresses.")
+    __properties: ClassVar[List[str]] = ["kinds", "extensions", "signers"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -89,7 +91,9 @@ class InlineObject2(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "kinds": [X402SupportedPaymentKind.from_dict(_item) for _item in obj["kinds"]] if obj.get("kinds") is not None else None
+            "kinds": [X402SupportedPaymentKind.from_dict(_item) for _item in obj["kinds"]] if obj.get("kinds") is not None else None,
+            "extensions": obj.get("extensions"),
+            "signers": obj.get("signers")
         })
         return _obj
 
