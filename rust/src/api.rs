@@ -26309,7 +26309,7 @@ pub mod types {
     ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///      ],
     ///      "type": "string",
-    ///      "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///    },
     ///    "success": {
     ///      "description": "Indicates whether the payment settlement is successful.",
@@ -26324,7 +26324,7 @@ pub mod types {
     ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///      ],
     ///      "type": "string",
-    ///      "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{64,88})$"
     ///    }
     ///  }
     ///}
@@ -26378,7 +26378,7 @@ pub mod types {
     ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///  ],
     ///  "type": "string",
-    ///  "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///}
     /// ```
     /// </details>
@@ -26404,16 +26404,17 @@ pub mod types {
     impl ::std::str::FromStr for SettleX402PaymentResponsePayer {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> = ::std::sync::LazyLock::new(
+                || {
                     ::regress::Regex::new(
-                        "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$",
+                        "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$",
                     )
                     .unwrap()
-                });
+                },
+            );
             if PATTERN.find(value).is_none() {
                 return Err(
-                    "doesn't match pattern \"^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$\""
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$\""
                         .into(),
                 );
             }
@@ -26467,7 +26468,7 @@ pub mod types {
     ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///  ],
     ///  "type": "string",
-    ///  "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{64,88})$"
     ///}
     /// ```
     /// </details>
@@ -26495,16 +26496,17 @@ pub mod types {
     impl ::std::str::FromStr for SettleX402PaymentResponseTransaction {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> = ::std::sync::LazyLock::new(
+                || {
                     ::regress::Regex::new(
-                        "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$",
+                        "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{64,88})$",
                     )
                     .unwrap()
-                });
+                },
+            );
             if PATTERN.find(value).is_none() {
                 return Err(
-                    "doesn't match pattern \"^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$\""
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{64,88})$\""
                         .into(),
                 );
             }
@@ -37122,7 +37124,7 @@ pub mod types {
     ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///      ],
     ///      "type": "string",
-    ///      "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///    }
     ///  }
     ///}
@@ -37171,7 +37173,7 @@ pub mod types {
     ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///  ],
     ///  "type": "string",
-    ///  "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///}
     /// ```
     /// </details>
@@ -37197,16 +37199,17 @@ pub mod types {
     impl ::std::str::FromStr for VerifyX402PaymentResponsePayer {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> = ::std::sync::LazyLock::new(
+                || {
                     ::regress::Regex::new(
-                        "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$",
+                        "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$",
                     )
                     .unwrap()
-                });
+                },
+            );
             if PATTERN.find(value).is_none() {
                 return Err(
-                    "doesn't match pattern \"^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$\""
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$\""
                         .into(),
                 );
             }
@@ -39269,7 +39272,7 @@ pub mod types {
     ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///      ],
     ///      "type": "string",
-    ///      "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///    },
     ///    "description": {
     ///      "description": "The description of the resource.",
@@ -39338,7 +39341,7 @@ pub mod types {
     ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///      ],
     ///      "type": "string",
-    ///      "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///    },
     ///    "resource": {
     ///      "description": "The URL of the resource to pay for.",
@@ -39433,7 +39436,7 @@ pub mod types {
     ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///  ],
     ///  "type": "string",
-    ///  "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///}
     /// ```
     /// </details>
@@ -39459,16 +39462,17 @@ pub mod types {
     impl ::std::str::FromStr for X402PaymentRequirementsAsset {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> = ::std::sync::LazyLock::new(
+                || {
                     ::regress::Regex::new(
-                        "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$",
+                        "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$",
                     )
                     .unwrap()
-                });
+                },
+            );
             if PATTERN.find(value).is_none() {
                 return Err(
-                    "doesn't match pattern \"^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$\""
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$\""
                         .into(),
                 );
             }
@@ -39615,7 +39619,7 @@ pub mod types {
     ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///  ],
     ///  "type": "string",
-    ///  "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///}
     /// ```
     /// </details>
@@ -39641,16 +39645,17 @@ pub mod types {
     impl ::std::str::FromStr for X402PaymentRequirementsPayTo {
         type Err = self::error::ConversionError;
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> = ::std::sync::LazyLock::new(
+                || {
                     ::regress::Regex::new(
-                        "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$",
+                        "^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$",
                     )
                     .unwrap()
-                });
+                },
+            );
             if PATTERN.find(value).is_none() {
                 return Err(
-                    "doesn't match pattern \"^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$\""
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9])|([1-9A-HJ-NP-Za-km-z]{32,44})$\""
                         .into(),
                 );
             }
