@@ -130,8 +130,11 @@ make test-e2e
 # Build documentation
 make docs
 
+# Build client
+make build
+
 # Generate OpenAPI client and build client
-cargo generate
+make generate
 ```
 
 ### TypeScript Development

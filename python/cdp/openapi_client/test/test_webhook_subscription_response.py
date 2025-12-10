@@ -41,6 +41,7 @@ class TestWebhookSubscriptionResponse(unittest.TestCase):
                 event_types = [onchain.activity.detected],
                 is_enabled = True,
                 metadata = {secret=123e4567-e89b-12d3-a456-426614174000},
+                secret = '123e4567-e89b-12d3-a456-426614174000',
                 subscription_id = '123e4567-e89b-12d3-a456-426614174000',
                 target = {url=https://api.example.com/webhooks, headers={Authorization=Bearer token123, Content-Type=application/json}},
                 label_key = 'contract_address',
@@ -52,6 +53,7 @@ class TestWebhookSubscriptionResponse(unittest.TestCase):
                 created_at = '2025-01-15T10:30:00Z',
                 event_types = [onchain.activity.detected],
                 is_enabled = True,
+                secret = '123e4567-e89b-12d3-a456-426614174000',
                 subscription_id = '123e4567-e89b-12d3-a456-426614174000',
                 target = {url=https://api.example.com/webhooks, headers={Authorization=Bearer token123, Content-Type=application/json}},
         )

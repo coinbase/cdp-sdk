@@ -37,8 +37,8 @@ class InlineObject(BaseModel):
     @field_validator('payer')
     def payer_validate_regular_expression(cls, value):
         """Validates the regular expression"""
-        if not re.match(r"^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$", value):
-            raise ValueError(r"must validate the regular expression /^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$/")
+        if not re.match(r"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$", value):
+            raise ValueError(r"must validate the regular expression /^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$/")
         return value
 
     model_config = ConfigDict(

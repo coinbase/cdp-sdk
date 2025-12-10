@@ -49,6 +49,9 @@ from cdp.openapi_client.models.eip712_domain import EIP712Domain
 from cdp.openapi_client.models.eip712_message import EIP712Message
 from cdp.openapi_client.models.email_authentication import EmailAuthentication
 from cdp.openapi_client.models.end_user import EndUser
+from cdp.openapi_client.models.end_user_evm_account import EndUserEvmAccount
+from cdp.openapi_client.models.end_user_evm_smart_account import EndUserEvmSmartAccount
+from cdp.openapi_client.models.end_user_solana_account import EndUserSolanaAccount
 from cdp.openapi_client.models.error import Error
 from cdp.openapi_client.models.error_type import ErrorType
 from cdp.openapi_client.models.eth_value_criterion import EthValueCriterion
@@ -209,9 +212,14 @@ from cdp.openapi_client.models.x402_exact_evm_payload import X402ExactEvmPayload
 from cdp.openapi_client.models.x402_exact_evm_payload_authorization import X402ExactEvmPayloadAuthorization
 from cdp.openapi_client.models.x402_exact_solana_payload import X402ExactSolanaPayload
 from cdp.openapi_client.models.x402_payment_payload import X402PaymentPayload
-from cdp.openapi_client.models.x402_payment_payload_payload import X402PaymentPayloadPayload
 from cdp.openapi_client.models.x402_payment_requirements import X402PaymentRequirements
+from cdp.openapi_client.models.x402_resource_info import X402ResourceInfo
 from cdp.openapi_client.models.x402_settle_error_reason import X402SettleErrorReason
 from cdp.openapi_client.models.x402_supported_payment_kind import X402SupportedPaymentKind
+from cdp.openapi_client.models.x402_v1_payment_payload import X402V1PaymentPayload
+from cdp.openapi_client.models.x402_v1_payment_payload_payload import X402V1PaymentPayloadPayload
+from cdp.openapi_client.models.x402_v1_payment_requirements import X402V1PaymentRequirements
+from cdp.openapi_client.models.x402_v2_payment_payload import X402V2PaymentPayload
+from cdp.openapi_client.models.x402_v2_payment_requirements import X402V2PaymentRequirements
 from cdp.openapi_client.models.x402_verify_invalid_reason import X402VerifyInvalidReason
 from cdp.openapi_client.models.x402_version import X402Version

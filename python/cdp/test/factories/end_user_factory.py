@@ -17,8 +17,11 @@ def end_user_model_factory():
             user_id=user_id,
             authentication_methods=[AuthenticationMethod(type="email", email="test@test.com")],
             evm_accounts=[],
-            solana_accounts=[],
+            evm_account_objects=[],
             evm_smart_accounts=[],
+            evm_smart_account_objects=[],
+            solana_accounts=[],
+            solana_account_objects=[],
             created_at=datetime.now(timezone.utc),
         )
 

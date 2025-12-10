@@ -4558,7 +4558,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "partnerUserRef": {
-    ///      "description": "A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. \"sandbox-user-1234\") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.\n\nThis value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.",
+    ///      "description": "A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. \"sandbox-user-1234\") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.\n\nThis value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.",
     ///      "examples": [
     ///        "user-1234"
     ///      ],
@@ -4589,13 +4589,13 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "redirectUrl": {
-    ///      "description": "URL to redirect the user to when they successfully complete a transaction. This URL will be embedded in the returned onramp URL as a query parameter.",
+    ///      "description": "URI to redirect the user to when they successfully complete a transaction. This URI will be embedded in the returned onramp URI as a query parameter.",
     ///      "examples": [
     ///        "https://example.com/success"
     ///      ],
     ///      "allOf": [
     ///        {
-    ///          "$ref": "#/components/schemas/Url"
+    ///          "$ref": "#/components/schemas/Uri"
     ///        }
     ///      ]
     ///    },
@@ -4630,7 +4630,7 @@ pub mod types {
         Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.*/
         #[serde(rename = "destinationNetwork")]
         pub destination_network: ::std::string::String,
-        /**A unique string that represents the user in your app. This can be used to link individual transactions  together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
+        /**A unique string that represents the user in your app. This can be used to link individual transactions together so you can retrieve the transaction history for your users. Prefix this string with “sandbox-”  (e.g. "sandbox-user-1234") to perform a sandbox transaction which will allow you to test your integration  without any real transfer of funds.
 
         This value can be used with with [Onramp User Transactions API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-onramp-transactions-by-id) to retrieve all transactions created by the user.*/
         #[serde(
@@ -4664,13 +4664,13 @@ pub mod types {
         Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported purchase currencies for your user's location.*/
         #[serde(rename = "purchaseCurrency")]
         pub purchase_currency: ::std::string::String,
-        ///URL to redirect the user to when they successfully complete a transaction. This URL will be embedded in the returned onramp URL as a query parameter.
+        ///URI to redirect the user to when they successfully complete a transaction. This URI will be embedded in the returned onramp URI as a query parameter.
         #[serde(
             rename = "redirectUrl",
             default,
             skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub redirect_url: ::std::option::Option<Url>,
+        pub redirect_url: ::std::option::Option<Uri>,
         ///The ISO 3166-2 two letter state code (e.g. NY). Only required for US.
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub subdivision: ::std::option::Option<::std::string::String>,
@@ -8748,8 +8748,11 @@ pub mod types {
     ///  "required": [
     ///    "authenticationMethods",
     ///    "createdAt",
+    ///    "evmAccountObjects",
     ///    "evmAccounts",
+    ///    "evmSmartAccountObjects",
     ///    "evmSmartAccounts",
+    ///    "solanaAccountObjects",
     ///    "solanaAccounts",
     ///    "userId"
     ///  ],
@@ -8764,6 +8767,25 @@ pub mod types {
     ///      ],
     ///      "type": "string",
     ///      "format": "date-time"
+    ///    },
+    ///    "evmAccountObjects": {
+    ///      "description": "The list of EVM accounts associated with the end user. End users can have up to 10 EVM accounts.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///            "createdAt": "2025-01-15T10:30:00Z"
+    ///          },
+    ///          {
+    ///            "address": "0x1234567890abcdef1234567890abcdef12345678",
+    ///            "createdAt": "2025-01-15T11:00:00Z"
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/EndUserEvmAccount"
+    ///      }
     ///    },
     ///    "evmAccounts": {
     ///      "description": "**DEPRECATED**: Use `evmAccountObjects` instead for richer account information. The list of EVM account addresses associated with the end user. End users can have up to 10 EVM accounts.",
@@ -8783,6 +8805,25 @@ pub mod types {
     ///        "pattern": "^0x[0-9a-fA-F]{40}$"
     ///      }
     ///    },
+    ///    "evmSmartAccountObjects": {
+    ///      "description": "The list of EVM smart accounts associated with the end user. Each EVM EOA can own one smart account.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///            "createdAt": "2025-01-15T12:00:00Z",
+    ///            "ownerAddresses": [
+    ///              "0x1234567890abcdef1234567890abcdef12345678",
+    ///              "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd"
+    ///            ]
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/EndUserEvmSmartAccount"
+    ///      }
+    ///    },
     ///    "evmSmartAccounts": {
     ///      "description": "**DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.",
     ///      "deprecated": true,
@@ -8799,6 +8840,25 @@ pub mod types {
     ///        ],
     ///        "type": "string",
     ///        "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///      }
+    ///    },
+    ///    "solanaAccountObjects": {
+    ///      "description": "The list of Solana accounts associated with the end user. End users can have up to 10 Solana accounts.",
+    ///      "examples": [
+    ///        [
+    ///          {
+    ///            "address": "HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT",
+    ///            "createdAt": "2025-01-15T10:30:00Z"
+    ///          },
+    ///          {
+    ///            "address": "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin",
+    ///            "createdAt": "2025-01-15T11:30:00Z"
+    ///          }
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "$ref": "#/components/schemas/EndUserSolanaAccount"
     ///      }
     ///    },
     ///    "solanaAccounts": {
@@ -8838,12 +8898,21 @@ pub mod types {
         ///The date and time when the end user was created, in ISO 8601 format.
         #[serde(rename = "createdAt")]
         pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        ///The list of EVM accounts associated with the end user. End users can have up to 10 EVM accounts.
+        #[serde(rename = "evmAccountObjects")]
+        pub evm_account_objects: ::std::vec::Vec<EndUserEvmAccount>,
         ///**DEPRECATED**: Use `evmAccountObjects` instead for richer account information. The list of EVM account addresses associated with the end user. End users can have up to 10 EVM accounts.
         #[serde(rename = "evmAccounts")]
         pub evm_accounts: ::std::vec::Vec<EndUserEvmAccountsItem>,
+        ///The list of EVM smart accounts associated with the end user. Each EVM EOA can own one smart account.
+        #[serde(rename = "evmSmartAccountObjects")]
+        pub evm_smart_account_objects: ::std::vec::Vec<EndUserEvmSmartAccount>,
         ///**DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.
         #[serde(rename = "evmSmartAccounts")]
         pub evm_smart_accounts: ::std::vec::Vec<EndUserEvmSmartAccountsItem>,
+        ///The list of Solana accounts associated with the end user. End users can have up to 10 Solana accounts.
+        #[serde(rename = "solanaAccountObjects")]
+        pub solana_account_objects: ::std::vec::Vec<EndUserSolanaAccount>,
         ///**DEPRECATED**: Use `solanaAccountObjects` instead for richer account information. The list of Solana account addresses associated with the end user. End users can have up to 10 Solana accounts.
         #[serde(rename = "solanaAccounts")]
         pub solana_accounts: ::std::vec::Vec<EndUserSolanaAccountsItem>,
@@ -8859,6 +8928,138 @@ pub mod types {
     impl EndUser {
         pub fn builder() -> builder::EndUser {
             Default::default()
+        }
+    }
+    ///Information about an EVM account associated with an end user.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Information about an EVM account associated with an end user.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "createdAt"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The address of the EVM account.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "createdAt": {
+    ///      "description": "The date and time when the account was created, in ISO 8601 format.",
+    ///      "examples": [
+    ///        "2025-01-15T10:30:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct EndUserEvmAccount {
+        ///The address of the EVM account.
+        pub address: EndUserEvmAccountAddress,
+        ///The date and time when the account was created, in ISO 8601 format.
+        #[serde(rename = "createdAt")]
+        pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&EndUserEvmAccount> for EndUserEvmAccount {
+        fn from(value: &EndUserEvmAccount) -> Self {
+            value.clone()
+        }
+    }
+    impl EndUserEvmAccount {
+        pub fn builder() -> builder::EndUserEvmAccount {
+            Default::default()
+        }
+    }
+    ///The address of the EVM account.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The address of the EVM account.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct EndUserEvmAccountAddress(::std::string::String);
+    impl ::std::ops::Deref for EndUserEvmAccountAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<EndUserEvmAccountAddress> for ::std::string::String {
+        fn from(value: EndUserEvmAccountAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&EndUserEvmAccountAddress> for EndUserEvmAccountAddress {
+        fn from(value: &EndUserEvmAccountAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for EndUserEvmAccountAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for EndUserEvmAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for EndUserEvmAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for EndUserEvmAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for EndUserEvmAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
         }
     }
     ///The address of the EVM account associated with the end user.
@@ -8942,6 +9143,243 @@ pub mod types {
                 })
         }
     }
+    ///Information about an EVM smart account associated with an end user.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Information about an EVM smart account associated with an end user.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "createdAt",
+    ///    "ownerAddresses"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The address of the EVM smart account.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///    },
+    ///    "createdAt": {
+    ///      "description": "The date and time when the account was created, in ISO 8601 format.",
+    ///      "examples": [
+    ///        "2025-01-15T10:30:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "ownerAddresses": {
+    ///      "description": "The addresses of the EVM EOA accounts that own this smart account. Smart accounts can have multiple owners, such as when spend permissions are enabled.",
+    ///      "examples": [
+    ///        [
+    ///          "0x1234567890abcdef1234567890abcdef12345678",
+    ///          "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd"
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "description": "The address of an EVM EOA account that owns this smart account.",
+    ///        "examples": [
+    ///          "0x1234567890abcdef1234567890abcdef12345678"
+    ///        ],
+    ///        "type": "string",
+    ///        "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///      }
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct EndUserEvmSmartAccount {
+        ///The address of the EVM smart account.
+        pub address: EndUserEvmSmartAccountAddress,
+        ///The date and time when the account was created, in ISO 8601 format.
+        #[serde(rename = "createdAt")]
+        pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+        ///The addresses of the EVM EOA accounts that own this smart account. Smart accounts can have multiple owners, such as when spend permissions are enabled.
+        #[serde(rename = "ownerAddresses")]
+        pub owner_addresses: ::std::vec::Vec<EndUserEvmSmartAccountOwnerAddressesItem>,
+    }
+    impl ::std::convert::From<&EndUserEvmSmartAccount> for EndUserEvmSmartAccount {
+        fn from(value: &EndUserEvmSmartAccount) -> Self {
+            value.clone()
+        }
+    }
+    impl EndUserEvmSmartAccount {
+        pub fn builder() -> builder::EndUserEvmSmartAccount {
+            Default::default()
+        }
+    }
+    ///The address of the EVM smart account.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The address of the EVM smart account.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct EndUserEvmSmartAccountAddress(::std::string::String);
+    impl ::std::ops::Deref for EndUserEvmSmartAccountAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<EndUserEvmSmartAccountAddress> for ::std::string::String {
+        fn from(value: EndUserEvmSmartAccountAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&EndUserEvmSmartAccountAddress> for EndUserEvmSmartAccountAddress {
+        fn from(value: &EndUserEvmSmartAccountAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for EndUserEvmSmartAccountAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for EndUserEvmSmartAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for EndUserEvmSmartAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for EndUserEvmSmartAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for EndUserEvmSmartAccountAddress {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The address of an EVM EOA account that owns this smart account.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The address of an EVM EOA account that owns this smart account.",
+    ///  "examples": [
+    ///    "0x1234567890abcdef1234567890abcdef12345678"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^0x[0-9a-fA-F]{40}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct EndUserEvmSmartAccountOwnerAddressesItem(::std::string::String);
+    impl ::std::ops::Deref for EndUserEvmSmartAccountOwnerAddressesItem {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<EndUserEvmSmartAccountOwnerAddressesItem> for ::std::string::String {
+        fn from(value: EndUserEvmSmartAccountOwnerAddressesItem) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&EndUserEvmSmartAccountOwnerAddressesItem>
+        for EndUserEvmSmartAccountOwnerAddressesItem
+    {
+        fn from(value: &EndUserEvmSmartAccountOwnerAddressesItem) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for EndUserEvmSmartAccountOwnerAddressesItem {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^0x[0-9a-fA-F]{40}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^0x[0-9a-fA-F]{40}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for EndUserEvmSmartAccountOwnerAddressesItem {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for EndUserEvmSmartAccountOwnerAddressesItem {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for EndUserEvmSmartAccountOwnerAddressesItem {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for EndUserEvmSmartAccountOwnerAddressesItem {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///The address of the EVM smart account associated with the end user.
     ///
     /// <details><summary>JSON schema</summary>
@@ -9012,6 +9450,138 @@ pub mod types {
         }
     }
     impl<'de> ::serde::Deserialize<'de> for EndUserEvmSmartAccountsItem {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///Information about a Solana account associated with an end user.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Information about a Solana account associated with an end user.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "address",
+    ///    "createdAt"
+    ///  ],
+    ///  "properties": {
+    ///    "address": {
+    ///      "description": "The base58 encoded address of the Solana account.",
+    ///      "examples": [
+    ///        "HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+    ///    },
+    ///    "createdAt": {
+    ///      "description": "The date and time when the account was created, in ISO 8601 format.",
+    ///      "examples": [
+    ///        "2025-01-15T10:30:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct EndUserSolanaAccount {
+        ///The base58 encoded address of the Solana account.
+        pub address: EndUserSolanaAccountAddress,
+        ///The date and time when the account was created, in ISO 8601 format.
+        #[serde(rename = "createdAt")]
+        pub created_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&EndUserSolanaAccount> for EndUserSolanaAccount {
+        fn from(value: &EndUserSolanaAccount) -> Self {
+            value.clone()
+        }
+    }
+    impl EndUserSolanaAccount {
+        pub fn builder() -> builder::EndUserSolanaAccount {
+            Default::default()
+        }
+    }
+    ///The base58 encoded address of the Solana account.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The base58 encoded address of the Solana account.",
+    ///  "examples": [
+    ///    "HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct EndUserSolanaAccountAddress(::std::string::String);
+    impl ::std::ops::Deref for EndUserSolanaAccountAddress {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<EndUserSolanaAccountAddress> for ::std::string::String {
+        fn from(value: EndUserSolanaAccountAddress) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&EndUserSolanaAccountAddress> for EndUserSolanaAccountAddress {
+        fn from(value: &EndUserSolanaAccountAddress) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for EndUserSolanaAccountAddress {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^[1-9A-HJ-NP-Za-km-z]{32,44}$").unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err("doesn't match pattern \"^[1-9A-HJ-NP-Za-km-z]{32,44}$\"".into());
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for EndUserSolanaAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for EndUserSolanaAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for EndUserSolanaAccountAddress {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for EndUserSolanaAccountAddress {
         fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
         where
             D: ::serde::Deserializer<'de>,
@@ -19327,6 +19897,101 @@ pub mod types {
             value.parse()
         }
     }
+    ///A valid MIME type (media type) as defined in RFC 6838.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A valid MIME type (media type) as defined in RFC 6838.",
+    ///  "examples": [
+    ///    "application/json"
+    ///  ],
+    ///  "type": "string",
+    ///  "maxLength": 255,
+    ///  "minLength": 3,
+    ///  "pattern": "^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct MimeType(::std::string::String);
+    impl ::std::ops::Deref for MimeType {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<MimeType> for ::std::string::String {
+        fn from(value: MimeType) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&MimeType> for MimeType {
+        fn from(value: &MimeType) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for MimeType {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            if value.chars().count() > 255usize {
+                return Err("longer than 255 characters".into());
+            }
+            if value.chars().count() < 3usize {
+                return Err("shorter than 3 characters".into());
+            }
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new(
+                        "^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$",
+                    )
+                    .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for MimeType {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for MimeType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for MimeType {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for MimeType {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
     ///The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
     ///
     /// <details><summary>JSON schema</summary>
@@ -26309,7 +26974,7 @@ pub mod types {
     ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///      ],
     ///      "type": "string",
-    ///      "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///    },
     ///    "success": {
     ///      "description": "Indicates whether the payment settlement is successful.",
@@ -26324,7 +26989,7 @@ pub mod types {
     ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///      ],
     ///      "type": "string",
-    ///      "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///    }
     ///  }
     ///}
@@ -26378,7 +27043,7 @@ pub mod types {
     ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///  ],
     ///  "type": "string",
-    ///  "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///}
     /// ```
     /// </details>
@@ -26406,14 +27071,12 @@ pub mod types {
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
                 ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$",
-                    )
-                    .unwrap()
+                    ::regress::Regex::new("^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$")
+                        .unwrap()
                 });
             if PATTERN.find(value).is_none() {
                 return Err(
-                    "doesn't match pattern \"^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$\""
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$\""
                         .into(),
                 );
             }
@@ -26467,7 +27130,7 @@ pub mod types {
     ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///  ],
     ///  "type": "string",
-    ///  "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///}
     /// ```
     /// </details>
@@ -26497,14 +27160,12 @@ pub mod types {
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
                 ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$",
-                    )
-                    .unwrap()
+                    ::regress::Regex::new("^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$")
+                        .unwrap()
                 });
             if PATTERN.find(value).is_none() {
                 return Err(
-                    "doesn't match pattern \"^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$\""
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$\""
                         .into(),
                 );
             }
@@ -34409,9 +35070,23 @@ pub mod types {
     ///{
     ///  "type": "object",
     ///  "required": [
-    ///    "kinds"
+    ///    "extensions",
+    ///    "kinds",
+    ///    "signers"
     ///  ],
     ///  "properties": {
+    ///    "extensions": {
+    ///      "description": "The list of supported x402 extensions.",
+    ///      "examples": [
+    ///        [
+    ///          "bazaar"
+    ///        ]
+    ///      ],
+    ///      "type": "array",
+    ///      "items": {
+    ///        "type": "string"
+    ///      }
+    ///    },
     ///    "kinds": {
     ///      "description": "The list of supported payment kinds.",
     ///      "examples": [
@@ -34442,6 +35117,27 @@ pub mod types {
     ///      "items": {
     ///        "$ref": "#/components/schemas/x402SupportedPaymentKind"
     ///      }
+    ///    },
+    ///    "signers": {
+    ///      "description": "A map of CAIP-2 network or protocol family patterns to their supported signer addresses.",
+    ///      "examples": [
+    ///        {
+    ///          "eip155:*": [
+    ///            "0x1234567890abcdef1234567890abcdef12345678",
+    ///            "0xabcdef1234567890abcdef1234567890abcdef12"
+    ///          ],
+    ///          "solana:*": [
+    ///            "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d"
+    ///          ]
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "additionalProperties": {
+    ///        "type": "array",
+    ///        "items": {
+    ///          "type": "string"
+    ///        }
+    ///      }
     ///    }
     ///  }
     ///}
@@ -34449,8 +35145,15 @@ pub mod types {
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct SupportedX402PaymentKindsResponse {
+        ///The list of supported x402 extensions.
+        pub extensions: ::std::vec::Vec<::std::string::String>,
         ///The list of supported payment kinds.
         pub kinds: ::std::vec::Vec<X402SupportedPaymentKind>,
+        ///A map of CAIP-2 network or protocol family patterns to their supported signer addresses.
+        pub signers: ::std::collections::HashMap<
+            ::std::string::String,
+            ::std::vec::Vec<::std::string::String>,
+        >,
     }
     impl ::std::convert::From<&SupportedX402PaymentKindsResponse>
         for SupportedX402PaymentKindsResponse
@@ -36546,6 +37249,61 @@ pub mod types {
                 })
         }
     }
+    ///A valid URI.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "A valid URI.",
+    ///  "examples": [
+    ///    "foo://bar"
+    ///  ],
+    ///  "type": "string",
+    ///  "format": "uri",
+    ///  "maxLength": 2048,
+    ///  "minLength": 5,
+    ///  "pattern": "^.*://.*$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize, ::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd,
+    )]
+    #[serde(transparent)]
+    pub struct Uri(pub ::std::string::String);
+    impl ::std::ops::Deref for Uri {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<Uri> for ::std::string::String {
+        fn from(value: Uri) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&Uri> for Uri {
+        fn from(value: &Uri) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<::std::string::String> for Uri {
+        fn from(value: ::std::string::String) -> Self {
+            Self(value)
+        }
+    }
+    impl ::std::str::FromStr for Uri {
+        type Err = ::std::convert::Infallible;
+        fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::fmt::Display for Uri {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            self.0.fmt(f)
+        }
+    }
     ///A valid HTTP or HTTPS URL.
     ///
     /// <details><summary>JSON schema</summary>
@@ -37122,7 +37880,7 @@ pub mod types {
     ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///      ],
     ///      "type": "string",
-    ///      "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///    }
     ///  }
     ///}
@@ -37171,7 +37929,7 @@ pub mod types {
     ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
     ///  ],
     ///  "type": "string",
-    ///  "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
     ///}
     /// ```
     /// </details>
@@ -37199,14 +37957,12 @@ pub mod types {
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
                 ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$",
-                    )
-                    .unwrap()
+                    ::regress::Regex::new("^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$")
+                        .unwrap()
                 });
             if PATTERN.find(value).is_none() {
                 return Err(
-                    "doesn't match pattern \"^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$\""
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$\""
                         .into(),
                 );
             }
@@ -37755,6 +38511,7 @@ pub mod types {
     ///      "metadata": {
     ///        "secret": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
     ///      },
+    ///      "secret": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     ///      "subscriptionId": "123e4567-e89b-12d3-a456-426614174000",
     ///      "target": {
     ///        "url": "https://api.example.com/webhooks"
@@ -37766,6 +38523,7 @@ pub mod types {
     ///    "createdAt",
     ///    "eventTypes",
     ///    "isEnabled",
+    ///    "secret",
     ///    "subscriptionId",
     ///    "target"
     ///  ],
@@ -37842,7 +38600,8 @@ pub mod types {
     ///      "type": "object",
     ///      "properties": {
     ///        "secret": {
-    ///          "description": "Secret for webhook signature validation.\n\n**Note:** Webhooks are in beta and this interface is subject to change.\n",
+    ///          "description": "Use the root-level `secret` field instead. Maintained for backward compatibility only.",
+    ///          "deprecated": true,
     ///          "examples": [
     ///            "123e4567-e89b-12d3-a456-426614174000"
     ///          ],
@@ -37850,6 +38609,14 @@ pub mod types {
     ///          "format": "uuid"
     ///        }
     ///      }
+    ///    },
+    ///    "secret": {
+    ///      "description": "Secret for webhook signature validation.",
+    ///      "examples": [
+    ///        "123e4567-e89b-12d3-a456-426614174000"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "uuid"
     ///    },
     ///    "subscriptionId": {
     ///      "description": "Unique identifier for the subscription.",
@@ -37908,6 +38675,8 @@ pub mod types {
         pub labels: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub metadata: ::std::option::Option<WebhookSubscriptionResponseMetadata>,
+        ///Secret for webhook signature validation.
+        pub secret: ::uuid::Uuid,
         ///Unique identifier for the subscription.
         #[serde(rename = "subscriptionId")]
         pub subscription_id: ::uuid::Uuid,
@@ -37938,7 +38707,8 @@ pub mod types {
     ///  "type": "object",
     ///  "properties": {
     ///    "secret": {
-    ///      "description": "Secret for webhook signature validation.\n\n**Note:** Webhooks are in beta and this interface is subject to change.\n",
+    ///      "description": "Use the root-level `secret` field instead. Maintained for backward compatibility only.",
+    ///      "deprecated": true,
     ///      "examples": [
     ///        "123e4567-e89b-12d3-a456-426614174000"
     ///      ],
@@ -37951,10 +38721,7 @@ pub mod types {
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct WebhookSubscriptionResponseMetadata {
-        /**Secret for webhook signature validation.
-
-        **Note:** Webhooks are in beta and this interface is subject to change.
-        */
+        ///Use the root-level `secret` field instead. Maintained for backward compatibility only.
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
         pub secret: ::std::option::Option<::uuid::Uuid>,
     }
@@ -38921,226 +39688,13 @@ pub mod types {
     /// ```json
     ///{
     ///  "description": "The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.",
-    ///  "examples": [
-    ///    {
-    ///      "network": "base",
-    ///      "payload": {
-    ///        "authorization": {
-    ///          "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///          "nonce": "0x1234567890abcdef1234567890abcdef12345678",
-    ///          "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///          "validAfter": "1716150000",
-    ///          "validBefore": "1716150000",
-    ///          "value": "1000000000000000000"
-    ///        },
-    ///        "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
-    ///      },
-    ///      "scheme": "exact",
-    ///      "x402Version": 1
-    ///    }
-    ///  ],
-    ///  "type": "object",
-    ///  "required": [
-    ///    "network",
-    ///    "payload",
-    ///    "scheme",
-    ///    "x402Version"
-    ///  ],
-    ///  "properties": {
-    ///    "network": {
-    ///      "description": "The network of the blockchain to send payment on.",
-    ///      "examples": [
-    ///        "base"
-    ///      ],
-    ///      "type": "string",
-    ///      "enum": [
-    ///        "base-sepolia",
-    ///        "base",
-    ///        "solana-devnet",
-    ///        "solana"
-    ///      ]
-    ///    },
-    ///    "payload": {
-    ///      "description": "The payload of the payment depending on the x402Version, scheme, and network.",
-    ///      "examples": [
-    ///        {
-    ///          "authorization": {
-    ///            "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///            "nonce": "0x1234567890abcdef1234567890abcdef12345678",
-    ///            "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///            "validAfter": "1716150000",
-    ///            "validBefore": "1716150000",
-    ///            "value": "1000000000000000000"
-    ///          },
-    ///          "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
-    ///        }
-    ///      ],
-    ///      "type": "object",
-    ///      "oneOf": [
-    ///        {
-    ///          "$ref": "#/components/schemas/x402ExactEvmPayload"
-    ///        },
-    ///        {
-    ///          "$ref": "#/components/schemas/x402ExactSolanaPayload"
-    ///        }
-    ///      ]
-    ///    },
-    ///    "scheme": {
-    ///      "description": "The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.",
-    ///      "examples": [
-    ///        "exact"
-    ///      ],
-    ///      "type": "string",
-    ///      "enum": [
-    ///        "exact"
-    ///      ]
-    ///    },
-    ///    "x402Version": {
-    ///      "$ref": "#/components/schemas/X402Version"
-    ///    }
-    ///  }
-    ///}
-    /// ```
-    /// </details>
-    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-    pub struct X402PaymentPayload {
-        ///The network of the blockchain to send payment on.
-        pub network: X402PaymentPayloadNetwork,
-        ///The payload of the payment depending on the x402Version, scheme, and network.
-        pub payload: X402PaymentPayloadPayload,
-        ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
-        pub scheme: X402PaymentPayloadScheme,
-        #[serde(rename = "x402Version")]
-        pub x402_version: X402Version,
-    }
-    impl ::std::convert::From<&X402PaymentPayload> for X402PaymentPayload {
-        fn from(value: &X402PaymentPayload) -> Self {
-            value.clone()
-        }
-    }
-    impl X402PaymentPayload {
-        pub fn builder() -> builder::X402PaymentPayload {
-            Default::default()
-        }
-    }
-    ///The network of the blockchain to send payment on.
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "The network of the blockchain to send payment on.",
-    ///  "examples": [
-    ///    "base"
-    ///  ],
-    ///  "type": "string",
-    ///  "enum": [
-    ///    "base-sepolia",
-    ///    "base",
-    ///    "solana-devnet",
-    ///    "solana"
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(
-        ::serde::Deserialize,
-        ::serde::Serialize,
-        Clone,
-        Copy,
-        Debug,
-        Eq,
-        Hash,
-        Ord,
-        PartialEq,
-        PartialOrd,
-    )]
-    pub enum X402PaymentPayloadNetwork {
-        #[serde(rename = "base-sepolia")]
-        BaseSepolia,
-        #[serde(rename = "base")]
-        Base,
-        #[serde(rename = "solana-devnet")]
-        SolanaDevnet,
-        #[serde(rename = "solana")]
-        Solana,
-    }
-    impl ::std::convert::From<&Self> for X402PaymentPayloadNetwork {
-        fn from(value: &X402PaymentPayloadNetwork) -> Self {
-            value.clone()
-        }
-    }
-    impl ::std::fmt::Display for X402PaymentPayloadNetwork {
-        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-            match *self {
-                Self::BaseSepolia => f.write_str("base-sepolia"),
-                Self::Base => f.write_str("base"),
-                Self::SolanaDevnet => f.write_str("solana-devnet"),
-                Self::Solana => f.write_str("solana"),
-            }
-        }
-    }
-    impl ::std::str::FromStr for X402PaymentPayloadNetwork {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            match value {
-                "base-sepolia" => Ok(Self::BaseSepolia),
-                "base" => Ok(Self::Base),
-                "solana-devnet" => Ok(Self::SolanaDevnet),
-                "solana" => Ok(Self::Solana),
-                _ => Err("invalid value".into()),
-            }
-        }
-    }
-    impl ::std::convert::TryFrom<&str> for X402PaymentPayloadNetwork {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<&::std::string::String> for X402PaymentPayloadNetwork {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: &::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<::std::string::String> for X402PaymentPayloadNetwork {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: ::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    ///The payload of the payment depending on the x402Version, scheme, and network.
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "The payload of the payment depending on the x402Version, scheme, and network.",
-    ///  "examples": [
-    ///    {
-    ///      "authorization": {
-    ///        "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///        "nonce": "0x1234567890abcdef1234567890abcdef12345678",
-    ///        "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    ///        "validAfter": "1716150000",
-    ///        "validBefore": "1716150000",
-    ///        "value": "1000000000000000000"
-    ///      },
-    ///      "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
-    ///    }
-    ///  ],
     ///  "type": "object",
     ///  "oneOf": [
     ///    {
-    ///      "$ref": "#/components/schemas/x402ExactEvmPayload"
+    ///      "$ref": "#/components/schemas/x402V1PaymentPayload"
     ///    },
     ///    {
-    ///      "$ref": "#/components/schemas/x402ExactSolanaPayload"
+    ///      "$ref": "#/components/schemas/x402V2PaymentPayload"
     ///    }
     ///  ]
     ///}
@@ -39148,99 +39702,25 @@ pub mod types {
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     #[serde(untagged)]
-    pub enum X402PaymentPayloadPayload {
-        EvmPayload(X402ExactEvmPayload),
-        SolanaPayload(X402ExactSolanaPayload),
+    pub enum X402PaymentPayload {
+        #[serde(rename = "X402V1PaymentPayload")]
+        X402v1PaymentPayload(X402V1PaymentPayload),
+        #[serde(rename = "X402V2PaymentPayload")]
+        X402v2PaymentPayload(X402V2PaymentPayload),
     }
-    impl ::std::convert::From<&Self> for X402PaymentPayloadPayload {
-        fn from(value: &X402PaymentPayloadPayload) -> Self {
+    impl ::std::convert::From<&Self> for X402PaymentPayload {
+        fn from(value: &X402PaymentPayload) -> Self {
             value.clone()
         }
     }
-    impl ::std::convert::From<X402ExactEvmPayload> for X402PaymentPayloadPayload {
-        fn from(value: X402ExactEvmPayload) -> Self {
-            Self::EvmPayload(value)
+    impl ::std::convert::From<X402V1PaymentPayload> for X402PaymentPayload {
+        fn from(value: X402V1PaymentPayload) -> Self {
+            Self::X402v1PaymentPayload(value)
         }
     }
-    impl ::std::convert::From<X402ExactSolanaPayload> for X402PaymentPayloadPayload {
-        fn from(value: X402ExactSolanaPayload) -> Self {
-            Self::SolanaPayload(value)
-        }
-    }
-    ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.",
-    ///  "examples": [
-    ///    "exact"
-    ///  ],
-    ///  "type": "string",
-    ///  "enum": [
-    ///    "exact"
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(
-        ::serde::Deserialize,
-        ::serde::Serialize,
-        Clone,
-        Copy,
-        Debug,
-        Eq,
-        Hash,
-        Ord,
-        PartialEq,
-        PartialOrd,
-    )]
-    pub enum X402PaymentPayloadScheme {
-        #[serde(rename = "exact")]
-        Exact,
-    }
-    impl ::std::convert::From<&Self> for X402PaymentPayloadScheme {
-        fn from(value: &X402PaymentPayloadScheme) -> Self {
-            value.clone()
-        }
-    }
-    impl ::std::fmt::Display for X402PaymentPayloadScheme {
-        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-            match *self {
-                Self::Exact => f.write_str("exact"),
-            }
-        }
-    }
-    impl ::std::str::FromStr for X402PaymentPayloadScheme {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            match value {
-                "exact" => Ok(Self::Exact),
-                _ => Err("invalid value".into()),
-            }
-        }
-    }
-    impl ::std::convert::TryFrom<&str> for X402PaymentPayloadScheme {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<&::std::string::String> for X402PaymentPayloadScheme {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: &::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<::std::string::String> for X402PaymentPayloadScheme {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: ::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
+    impl ::std::convert::From<X402V2PaymentPayload> for X402PaymentPayload {
+        fn from(value: X402V2PaymentPayload) -> Self {
+            Self::X402v2PaymentPayload(value)
         }
     }
     ///The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
@@ -39251,26 +39731,52 @@ pub mod types {
     ///{
     ///  "description": "The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.",
     ///  "type": "object",
+    ///  "oneOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/x402V1PaymentRequirements"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/x402V2PaymentRequirements"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(untagged)]
+    pub enum X402PaymentRequirements {
+        #[serde(rename = "X402V1PaymentRequirements")]
+        X402v1PaymentRequirements(X402V1PaymentRequirements),
+        #[serde(rename = "X402V2PaymentRequirements")]
+        X402v2PaymentRequirements(X402V2PaymentRequirements),
+    }
+    impl ::std::convert::From<&Self> for X402PaymentRequirements {
+        fn from(value: &X402PaymentRequirements) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<X402V1PaymentRequirements> for X402PaymentRequirements {
+        fn from(value: X402V1PaymentRequirements) -> Self {
+            Self::X402v1PaymentRequirements(value)
+        }
+    }
+    impl ::std::convert::From<X402V2PaymentRequirements> for X402PaymentRequirements {
+        fn from(value: X402V2PaymentRequirements) -> Self {
+            Self::X402v2PaymentRequirements(value)
+        }
+    }
+    ///Describes the resource being accessed in x402 protocol.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Describes the resource being accessed in x402 protocol.",
+    ///  "type": "object",
     ///  "required": [
-    ///    "asset",
-    ///    "description",
-    ///    "maxAmountRequired",
-    ///    "maxTimeoutSeconds",
-    ///    "mimeType",
-    ///    "network",
-    ///    "payTo",
-    ///    "resource",
-    ///    "scheme"
+    ///    "url"
     ///  ],
     ///  "properties": {
-    ///    "asset": {
-    ///      "description": "The asset to pay with.\n\nFor EVM networks, the asset will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, the asset will be a base58-encoded Solana address.",
-    ///      "examples": [
-    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
-    ///      ],
-    ///      "type": "string",
-    ///      "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
-    ///    },
     ///    "description": {
     ///      "description": "The description of the resource.",
     ///      "examples": [
@@ -39278,70 +39784,19 @@ pub mod types {
     ///      ],
     ///      "type": "string"
     ///    },
-    ///    "extra": {
-    ///      "description": "The optional additional scheme-specific payment info.",
-    ///      "examples": [
-    ///        {
-    ///          "gasLimit": "1000000"
-    ///        }
-    ///      ],
-    ///      "type": "object",
-    ///      "additionalProperties": true
-    ///    },
-    ///    "maxAmountRequired": {
-    ///      "description": "The maximum amount required to pay for the resource in atomic units of the payment asset.",
-    ///      "examples": [
-    ///        "1000000"
-    ///      ],
-    ///      "type": "string"
-    ///    },
-    ///    "maxTimeoutSeconds": {
-    ///      "description": "The maximum time in seconds for the resource server to respond.",
-    ///      "examples": [
-    ///        10
-    ///      ],
-    ///      "type": "integer"
-    ///    },
     ///    "mimeType": {
     ///      "description": "The MIME type of the resource response.",
     ///      "examples": [
     ///        "application/json"
     ///      ],
-    ///      "type": "string"
-    ///    },
-    ///    "network": {
-    ///      "description": "The network of the blockchain to send payment on.",
-    ///      "examples": [
-    ///        "base"
-    ///      ],
-    ///      "type": "string",
-    ///      "enum": [
-    ///        "base-sepolia",
-    ///        "base",
-    ///        "solana-devnet",
-    ///        "solana"
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/MimeType"
+    ///        }
     ///      ]
     ///    },
-    ///    "outputSchema": {
-    ///      "description": "The optional JSON schema describing the resource output.",
-    ///      "examples": [
-    ///        {
-    ///          "data": "string"
-    ///        }
-    ///      ],
-    ///      "type": "object",
-    ///      "additionalProperties": true
-    ///    },
-    ///    "payTo": {
-    ///      "description": "The destination to pay value to.\n\nFor EVM networks, payTo will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, payTo will be a base58-encoded Solana address.",
-    ///      "examples": [
-    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
-    ///      ],
-    ///      "type": "string",
-    ///      "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
-    ///    },
-    ///    "resource": {
-    ///      "description": "The URL of the resource to pay for.",
+    ///    "url": {
+    ///      "description": "The URL of the resource.",
     ///      "examples": [
     ///        "https://api.example.com/premium/resource/123"
     ///      ],
@@ -39350,421 +39805,34 @@ pub mod types {
     ///          "$ref": "#/components/schemas/Url"
     ///        }
     ///      ]
-    ///    },
-    ///    "scheme": {
-    ///      "description": "The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.",
-    ///      "examples": [
-    ///        "exact"
-    ///      ],
-    ///      "type": "string",
-    ///      "enum": [
-    ///        "exact"
-    ///      ]
     ///    }
     ///  }
     ///}
     /// ```
     /// </details>
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
-    pub struct X402PaymentRequirements {
-        /**The asset to pay with.
-
-        For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
-
-        For Solana-based networks, the asset will be a base58-encoded Solana address.*/
-        pub asset: X402PaymentRequirementsAsset,
+    pub struct X402ResourceInfo {
         ///The description of the resource.
-        pub description: ::std::string::String,
-        ///The optional additional scheme-specific payment info.
-        #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
-        pub extra: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
-        ///The maximum amount required to pay for the resource in atomic units of the payment asset.
-        #[serde(rename = "maxAmountRequired")]
-        pub max_amount_required: ::std::string::String,
-        ///The maximum time in seconds for the resource server to respond.
-        #[serde(rename = "maxTimeoutSeconds")]
-        pub max_timeout_seconds: i64,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub description: ::std::option::Option<::std::string::String>,
         ///The MIME type of the resource response.
-        #[serde(rename = "mimeType")]
-        pub mime_type: ::std::string::String,
-        ///The network of the blockchain to send payment on.
-        pub network: X402PaymentRequirementsNetwork,
-        ///The optional JSON schema describing the resource output.
         #[serde(
-            rename = "outputSchema",
+            rename = "mimeType",
             default,
-            skip_serializing_if = "::serde_json::Map::is_empty"
+            skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub output_schema: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
-        /**The destination to pay value to.
-
-        For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
-
-        For Solana-based networks, payTo will be a base58-encoded Solana address.*/
-        #[serde(rename = "payTo")]
-        pub pay_to: X402PaymentRequirementsPayTo,
-        ///The URL of the resource to pay for.
-        pub resource: Url,
-        ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
-        pub scheme: X402PaymentRequirementsScheme,
+        pub mime_type: ::std::option::Option<MimeType>,
+        ///The URL of the resource.
+        pub url: Url,
     }
-    impl ::std::convert::From<&X402PaymentRequirements> for X402PaymentRequirements {
-        fn from(value: &X402PaymentRequirements) -> Self {
+    impl ::std::convert::From<&X402ResourceInfo> for X402ResourceInfo {
+        fn from(value: &X402ResourceInfo) -> Self {
             value.clone()
         }
     }
-    impl X402PaymentRequirements {
-        pub fn builder() -> builder::X402PaymentRequirements {
+    impl X402ResourceInfo {
+        pub fn builder() -> builder::X402ResourceInfo {
             Default::default()
-        }
-    }
-    /**The asset to pay with.
-
-    For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
-
-    For Solana-based networks, the asset will be a base58-encoded Solana address.*/
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "The asset to pay with.\n\nFor EVM networks, the asset will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, the asset will be a base58-encoded Solana address.",
-    ///  "examples": [
-    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
-    ///  ],
-    ///  "type": "string",
-    ///  "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
-    ///}
-    /// ```
-    /// </details>
-    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-    #[serde(transparent)]
-    pub struct X402PaymentRequirementsAsset(::std::string::String);
-    impl ::std::ops::Deref for X402PaymentRequirementsAsset {
-        type Target = ::std::string::String;
-        fn deref(&self) -> &::std::string::String {
-            &self.0
-        }
-    }
-    impl ::std::convert::From<X402PaymentRequirementsAsset> for ::std::string::String {
-        fn from(value: X402PaymentRequirementsAsset) -> Self {
-            value.0
-        }
-    }
-    impl ::std::convert::From<&X402PaymentRequirementsAsset> for X402PaymentRequirementsAsset {
-        fn from(value: &X402PaymentRequirementsAsset) -> Self {
-            value.clone()
-        }
-    }
-    impl ::std::str::FromStr for X402PaymentRequirementsAsset {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$\""
-                        .into(),
-                );
-            }
-            Ok(Self(value.to_string()))
-        }
-    }
-    impl ::std::convert::TryFrom<&str> for X402PaymentRequirementsAsset {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<&::std::string::String> for X402PaymentRequirementsAsset {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: &::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<::std::string::String> for X402PaymentRequirementsAsset {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: ::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl<'de> ::serde::Deserialize<'de> for X402PaymentRequirementsAsset {
-        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
-        where
-            D: ::serde::Deserializer<'de>,
-        {
-            ::std::string::String::deserialize(deserializer)?
-                .parse()
-                .map_err(|e: self::error::ConversionError| {
-                    <D::Error as ::serde::de::Error>::custom(e.to_string())
-                })
-        }
-    }
-    ///The network of the blockchain to send payment on.
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "The network of the blockchain to send payment on.",
-    ///  "examples": [
-    ///    "base"
-    ///  ],
-    ///  "type": "string",
-    ///  "enum": [
-    ///    "base-sepolia",
-    ///    "base",
-    ///    "solana-devnet",
-    ///    "solana"
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(
-        ::serde::Deserialize,
-        ::serde::Serialize,
-        Clone,
-        Copy,
-        Debug,
-        Eq,
-        Hash,
-        Ord,
-        PartialEq,
-        PartialOrd,
-    )]
-    pub enum X402PaymentRequirementsNetwork {
-        #[serde(rename = "base-sepolia")]
-        BaseSepolia,
-        #[serde(rename = "base")]
-        Base,
-        #[serde(rename = "solana-devnet")]
-        SolanaDevnet,
-        #[serde(rename = "solana")]
-        Solana,
-    }
-    impl ::std::convert::From<&Self> for X402PaymentRequirementsNetwork {
-        fn from(value: &X402PaymentRequirementsNetwork) -> Self {
-            value.clone()
-        }
-    }
-    impl ::std::fmt::Display for X402PaymentRequirementsNetwork {
-        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-            match *self {
-                Self::BaseSepolia => f.write_str("base-sepolia"),
-                Self::Base => f.write_str("base"),
-                Self::SolanaDevnet => f.write_str("solana-devnet"),
-                Self::Solana => f.write_str("solana"),
-            }
-        }
-    }
-    impl ::std::str::FromStr for X402PaymentRequirementsNetwork {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            match value {
-                "base-sepolia" => Ok(Self::BaseSepolia),
-                "base" => Ok(Self::Base),
-                "solana-devnet" => Ok(Self::SolanaDevnet),
-                "solana" => Ok(Self::Solana),
-                _ => Err("invalid value".into()),
-            }
-        }
-    }
-    impl ::std::convert::TryFrom<&str> for X402PaymentRequirementsNetwork {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<&::std::string::String> for X402PaymentRequirementsNetwork {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: &::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<::std::string::String> for X402PaymentRequirementsNetwork {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: ::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    /**The destination to pay value to.
-
-    For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
-
-    For Solana-based networks, payTo will be a base58-encoded Solana address.*/
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "The destination to pay value to.\n\nFor EVM networks, payTo will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, payTo will be a base58-encoded Solana address.",
-    ///  "examples": [
-    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
-    ///  ],
-    ///  "type": "string",
-    ///  "pattern": "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$"
-    ///}
-    /// ```
-    /// </details>
-    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-    #[serde(transparent)]
-    pub struct X402PaymentRequirementsPayTo(::std::string::String);
-    impl ::std::ops::Deref for X402PaymentRequirementsPayTo {
-        type Target = ::std::string::String;
-        fn deref(&self) -> &::std::string::String {
-            &self.0
-        }
-    }
-    impl ::std::convert::From<X402PaymentRequirementsPayTo> for ::std::string::String {
-        fn from(value: X402PaymentRequirementsPayTo) -> Self {
-            value.0
-        }
-    }
-    impl ::std::convert::From<&X402PaymentRequirementsPayTo> for X402PaymentRequirementsPayTo {
-        fn from(value: &X402PaymentRequirementsPayTo) -> Self {
-            value.clone()
-        }
-    }
-    impl ::std::str::FromStr for X402PaymentRequirementsPayTo {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^0x[a-fA-F0-9]{40}|[A-Za-z0-9][A-Za-z0-9-]{0,34}[A-Za-z0-9]$\""
-                        .into(),
-                );
-            }
-            Ok(Self(value.to_string()))
-        }
-    }
-    impl ::std::convert::TryFrom<&str> for X402PaymentRequirementsPayTo {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<&::std::string::String> for X402PaymentRequirementsPayTo {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: &::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<::std::string::String> for X402PaymentRequirementsPayTo {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: ::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl<'de> ::serde::Deserialize<'de> for X402PaymentRequirementsPayTo {
-        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
-        where
-            D: ::serde::Deserializer<'de>,
-        {
-            ::std::string::String::deserialize(deserializer)?
-                .parse()
-                .map_err(|e: self::error::ConversionError| {
-                    <D::Error as ::serde::de::Error>::custom(e.to_string())
-                })
-        }
-    }
-    ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.",
-    ///  "examples": [
-    ///    "exact"
-    ///  ],
-    ///  "type": "string",
-    ///  "enum": [
-    ///    "exact"
-    ///  ]
-    ///}
-    /// ```
-    /// </details>
-    #[derive(
-        ::serde::Deserialize,
-        ::serde::Serialize,
-        Clone,
-        Copy,
-        Debug,
-        Eq,
-        Hash,
-        Ord,
-        PartialEq,
-        PartialOrd,
-    )]
-    pub enum X402PaymentRequirementsScheme {
-        #[serde(rename = "exact")]
-        Exact,
-    }
-    impl ::std::convert::From<&Self> for X402PaymentRequirementsScheme {
-        fn from(value: &X402PaymentRequirementsScheme) -> Self {
-            value.clone()
-        }
-    }
-    impl ::std::fmt::Display for X402PaymentRequirementsScheme {
-        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-            match *self {
-                Self::Exact => f.write_str("exact"),
-            }
-        }
-    }
-    impl ::std::str::FromStr for X402PaymentRequirementsScheme {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            match value {
-                "exact" => Ok(Self::Exact),
-                _ => Err("invalid value".into()),
-            }
-        }
-    }
-    impl ::std::convert::TryFrom<&str> for X402PaymentRequirementsScheme {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<&::std::string::String> for X402PaymentRequirementsScheme {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: &::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<::std::string::String> for X402PaymentRequirementsScheme {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: ::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
         }
     }
     ///The reason the payment settlement errored on the x402 protocol.
@@ -40190,6 +40258,531 @@ pub mod types {
             value: ::std::string::String,
         ) -> ::std::result::Result<Self, self::error::ConversionError> {
             value.parse()
+        }
+    }
+    ///The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.",
+    ///  "examples": [
+    ///    {
+    ///      "network": "base",
+    ///      "payload": {
+    ///        "authorization": {
+    ///          "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///          "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///          "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///          "validAfter": "1716150000",
+    ///          "validBefore": "1716150000",
+    ///          "value": "1000000000000000000"
+    ///        },
+    ///        "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///      },
+    ///      "scheme": "exact",
+    ///      "x402Version": 1
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "network",
+    ///    "payload",
+    ///    "scheme",
+    ///    "x402Version"
+    ///  ],
+    ///  "properties": {
+    ///    "network": {
+    ///      "description": "The network of the blockchain to send payment on.",
+    ///      "examples": [
+    ///        "base"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "base-sepolia",
+    ///        "base",
+    ///        "solana-devnet",
+    ///        "solana"
+    ///      ]
+    ///    },
+    ///    "payload": {
+    ///      "description": "The payload of the payment depending on the x402Version, scheme, and network.",
+    ///      "examples": [
+    ///        {
+    ///          "authorization": {
+    ///            "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///            "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///            "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///            "validAfter": "1716150000",
+    ///            "validBefore": "1716150000",
+    ///            "value": "1000000000000000000"
+    ///          },
+    ///          "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "oneOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/x402ExactEvmPayload"
+    ///        },
+    ///        {
+    ///          "$ref": "#/components/schemas/x402ExactSolanaPayload"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "scheme": {
+    ///      "description": "The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.",
+    ///      "examples": [
+    ///        "exact"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "exact"
+    ///      ]
+    ///    },
+    ///    "x402Version": {
+    ///      "$ref": "#/components/schemas/X402Version"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402V1PaymentPayload {
+        ///The network of the blockchain to send payment on.
+        pub network: X402v1PaymentPayloadNetwork,
+        ///The payload of the payment depending on the x402Version, scheme, and network.
+        pub payload: X402v1PaymentPayloadPayload,
+        ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+        pub scheme: X402v1PaymentPayloadScheme,
+        #[serde(rename = "x402Version")]
+        pub x402_version: X402Version,
+    }
+    impl ::std::convert::From<&X402V1PaymentPayload> for X402V1PaymentPayload {
+        fn from(value: &X402V1PaymentPayload) -> Self {
+            value.clone()
+        }
+    }
+    impl X402V1PaymentPayload {
+        pub fn builder() -> builder::X402V1PaymentPayload {
+            Default::default()
+        }
+    }
+    ///The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "asset",
+    ///    "description",
+    ///    "maxAmountRequired",
+    ///    "maxTimeoutSeconds",
+    ///    "mimeType",
+    ///    "network",
+    ///    "payTo",
+    ///    "resource",
+    ///    "scheme"
+    ///  ],
+    ///  "properties": {
+    ///    "asset": {
+    ///      "description": "The asset to pay with.\n\nFor EVM networks, the asset will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, the asset will be a base58-encoded Solana address.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///    },
+    ///    "description": {
+    ///      "description": "The description of the resource.",
+    ///      "examples": [
+    ///        "Premium API access for data analysis"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "extra": {
+    ///      "description": "The optional additional scheme-specific payment info.",
+    ///      "examples": [
+    ///        {
+    ///          "gasLimit": "1000000"
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "additionalProperties": true
+    ///    },
+    ///    "maxAmountRequired": {
+    ///      "description": "The maximum amount required to pay for the resource in atomic units of the payment asset.",
+    ///      "examples": [
+    ///        "1000000"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "maxTimeoutSeconds": {
+    ///      "description": "The maximum time in seconds for the resource server to respond.",
+    ///      "examples": [
+    ///        10
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "mimeType": {
+    ///      "description": "The MIME type of the resource response.",
+    ///      "examples": [
+    ///        "application/json"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/MimeType"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "network": {
+    ///      "description": "The network of the blockchain to send payment on.",
+    ///      "examples": [
+    ///        "base"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "base-sepolia",
+    ///        "base",
+    ///        "solana-devnet",
+    ///        "solana"
+    ///      ]
+    ///    },
+    ///    "outputSchema": {
+    ///      "description": "The optional JSON schema describing the resource output.",
+    ///      "examples": [
+    ///        {
+    ///          "data": "string"
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "additionalProperties": true
+    ///    },
+    ///    "payTo": {
+    ///      "description": "The destination to pay value to.\n\nFor EVM networks, payTo will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, payTo will be a base58-encoded Solana address.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///    },
+    ///    "resource": {
+    ///      "description": "The URL of the resource to pay for.",
+    ///      "examples": [
+    ///        "https://api.example.com/premium/resource/123"
+    ///      ],
+    ///      "allOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/Url"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "scheme": {
+    ///      "description": "The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.",
+    ///      "examples": [
+    ///        "exact"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "exact"
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402V1PaymentRequirements {
+        /**The asset to pay with.
+
+        For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
+
+        For Solana-based networks, the asset will be a base58-encoded Solana address.*/
+        pub asset: X402v1PaymentRequirementsAsset,
+        ///The description of the resource.
+        pub description: ::std::string::String,
+        ///The optional additional scheme-specific payment info.
+        #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
+        pub extra: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+        ///The maximum amount required to pay for the resource in atomic units of the payment asset.
+        #[serde(rename = "maxAmountRequired")]
+        pub max_amount_required: ::std::string::String,
+        ///The maximum time in seconds for the resource server to respond.
+        #[serde(rename = "maxTimeoutSeconds")]
+        pub max_timeout_seconds: i64,
+        ///The MIME type of the resource response.
+        #[serde(rename = "mimeType")]
+        pub mime_type: MimeType,
+        ///The network of the blockchain to send payment on.
+        pub network: X402v1PaymentRequirementsNetwork,
+        ///The optional JSON schema describing the resource output.
+        #[serde(
+            rename = "outputSchema",
+            default,
+            skip_serializing_if = "::serde_json::Map::is_empty"
+        )]
+        pub output_schema: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+        /**The destination to pay value to.
+
+        For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
+
+        For Solana-based networks, payTo will be a base58-encoded Solana address.*/
+        #[serde(rename = "payTo")]
+        pub pay_to: X402v1PaymentRequirementsPayTo,
+        ///The URL of the resource to pay for.
+        pub resource: Url,
+        ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+        pub scheme: X402v1PaymentRequirementsScheme,
+    }
+    impl ::std::convert::From<&X402V1PaymentRequirements> for X402V1PaymentRequirements {
+        fn from(value: &X402V1PaymentRequirements) -> Self {
+            value.clone()
+        }
+    }
+    impl X402V1PaymentRequirements {
+        pub fn builder() -> builder::X402V1PaymentRequirements {
+            Default::default()
+        }
+    }
+    ///The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.",
+    ///  "examples": [
+    ///    {
+    ///      "accepted": {
+    ///        "amount": "1000",
+    ///        "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    ///        "extra": {
+    ///          "name": "USDC",
+    ///          "version": "2"
+    ///        },
+    ///        "maxTimeoutSeconds": 60,
+    ///        "network": "eip155:84532",
+    ///        "payTo": "0x122F8Fcaf2152420445Aa424E1D8C0306935B5c9",
+    ///        "scheme": "exact"
+    ///      },
+    ///      "payload": {
+    ///        "authorization": {
+    ///          "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///          "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///          "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///          "validAfter": "1716150000",
+    ///          "validBefore": "1716150000",
+    ///          "value": "1000000000000000000"
+    ///        },
+    ///        "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///      },
+    ///      "resource": {
+    ///        "description": "Premium API access for data analysis.",
+    ///        "mimeType": "application/json",
+    ///        "url": "https://api.example.com/premium/resource/123"
+    ///      },
+    ///      "x402Version": 2
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "required": [
+    ///    "accepted",
+    ///    "payload",
+    ///    "x402Version"
+    ///  ],
+    ///  "properties": {
+    ///    "accepted": {
+    ///      "$ref": "#/components/schemas/x402V2PaymentRequirements"
+    ///    },
+    ///    "extensions": {
+    ///      "description": "Optional protocol extensions.",
+    ///      "examples": [
+    ///        {
+    ///          "bazaar": {
+    ///            "discoveryEnabled": true
+    ///          }
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "additionalProperties": true
+    ///    },
+    ///    "payload": {
+    ///      "description": "The payload of the payment depending on the x402Version, scheme, and network.",
+    ///      "examples": [
+    ///        {
+    ///          "authorization": {
+    ///            "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///            "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///            "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///            "validAfter": "1716150000",
+    ///            "validBefore": "1716150000",
+    ///            "value": "1000000000000000000"
+    ///          },
+    ///          "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "oneOf": [
+    ///        {
+    ///          "$ref": "#/components/schemas/x402ExactEvmPayload"
+    ///        },
+    ///        {
+    ///          "$ref": "#/components/schemas/x402ExactSolanaPayload"
+    ///        }
+    ///      ]
+    ///    },
+    ///    "resource": {
+    ///      "$ref": "#/components/schemas/x402ResourceInfo"
+    ///    },
+    ///    "x402Version": {
+    ///      "$ref": "#/components/schemas/X402Version"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402V2PaymentPayload {
+        pub accepted: X402V2PaymentRequirements,
+        ///Optional protocol extensions.
+        #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
+        pub extensions: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+        ///The payload of the payment depending on the x402Version, scheme, and network.
+        pub payload: X402v2PaymentPayloadPayload,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub resource: ::std::option::Option<X402ResourceInfo>,
+        #[serde(rename = "x402Version")]
+        pub x402_version: X402Version,
+    }
+    impl ::std::convert::From<&X402V2PaymentPayload> for X402V2PaymentPayload {
+        fn from(value: &X402V2PaymentPayload) -> Self {
+            value.clone()
+        }
+    }
+    impl X402V2PaymentPayload {
+        pub fn builder() -> builder::X402V2PaymentPayload {
+            Default::default()
+        }
+    }
+    ///The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "amount",
+    ///    "asset",
+    ///    "maxTimeoutSeconds",
+    ///    "network",
+    ///    "payTo",
+    ///    "scheme"
+    ///  ],
+    ///  "properties": {
+    ///    "amount": {
+    ///      "description": "The amount to pay for the resource in atomic units of the payment asset.",
+    ///      "examples": [
+    ///        "1000000"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "asset": {
+    ///      "description": "The asset to pay with.\n\nFor EVM networks, the asset will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, the asset will be a base58-encoded Solana address.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///    },
+    ///    "extra": {
+    ///      "description": "The optional additional scheme-specific payment info.",
+    ///      "examples": [
+    ///        {
+    ///          "name": "USDC",
+    ///          "version": "2"
+    ///        }
+    ///      ],
+    ///      "type": "object",
+    ///      "additionalProperties": true
+    ///    },
+    ///    "maxTimeoutSeconds": {
+    ///      "description": "The maximum time in seconds for the resource server to respond.",
+    ///      "examples": [
+    ///        10
+    ///      ],
+    ///      "type": "integer"
+    ///    },
+    ///    "network": {
+    ///      "description": "The network of the blockchain to send payment on in caip2 format.",
+    ///      "examples": [
+    ///        "eip155:1"
+    ///      ],
+    ///      "type": "string"
+    ///    },
+    ///    "payTo": {
+    ///      "description": "The destination to pay value to.\n\nFor EVM networks, payTo will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, payTo will be a base58-encoded Solana address.",
+    ///      "examples": [
+    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///      ],
+    ///      "type": "string",
+    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///    },
+    ///    "scheme": {
+    ///      "description": "The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.",
+    ///      "examples": [
+    ///        "exact"
+    ///      ],
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "exact"
+    ///      ]
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct X402V2PaymentRequirements {
+        ///The amount to pay for the resource in atomic units of the payment asset.
+        pub amount: ::std::string::String,
+        /**The asset to pay with.
+
+        For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
+
+        For Solana-based networks, the asset will be a base58-encoded Solana address.*/
+        pub asset: X402v2PaymentRequirementsAsset,
+        ///The optional additional scheme-specific payment info.
+        #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
+        pub extra: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+        ///The maximum time in seconds for the resource server to respond.
+        #[serde(rename = "maxTimeoutSeconds")]
+        pub max_timeout_seconds: i64,
+        ///The network of the blockchain to send payment on in caip2 format.
+        pub network: ::std::string::String,
+        /**The destination to pay value to.
+
+        For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
+
+        For Solana-based networks, payTo will be a base58-encoded Solana address.*/
+        #[serde(rename = "payTo")]
+        pub pay_to: X402v2PaymentRequirementsPayTo,
+        ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+        pub scheme: X402v2PaymentRequirementsScheme,
+    }
+    impl ::std::convert::From<&X402V2PaymentRequirements> for X402V2PaymentRequirements {
+        fn from(value: &X402V2PaymentRequirements) -> Self {
+            value.clone()
+        }
+    }
+    impl X402V2PaymentRequirements {
+        pub fn builder() -> builder::X402V2PaymentRequirements {
+            Default::default()
         }
     }
     ///The reason the payment is invalid on the x402 protocol.
@@ -40638,7 +41231,8 @@ pub mod types {
     ///  ],
     ///  "type": "integer",
     ///  "enum": [
-    ///    1
+    ///    1,
+    ///    2
     ///  ]
     ///}
     /// ```
@@ -40665,7 +41259,7 @@ pub mod types {
     impl ::std::convert::TryFrom<i64> for X402Version {
         type Error = self::error::ConversionError;
         fn try_from(value: i64) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if ![1_i64].contains(&value) {
+            if ![1_i64, 2_i64].contains(&value) {
                 Err("invalid value".into())
             } else {
                 Ok(Self(value))
@@ -40679,6 +41273,878 @@ pub mod types {
         {
             Self::try_from(<i64>::deserialize(deserializer)?)
                 .map_err(|e| <D::Error as ::serde::de::Error>::custom(e.to_string()))
+        }
+    }
+    ///The network of the blockchain to send payment on.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The network of the blockchain to send payment on.",
+    ///  "examples": [
+    ///    "base"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base-sepolia",
+    ///    "base",
+    ///    "solana-devnet",
+    ///    "solana"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum X402v1PaymentPayloadNetwork {
+        #[serde(rename = "base-sepolia")]
+        BaseSepolia,
+        #[serde(rename = "base")]
+        Base,
+        #[serde(rename = "solana-devnet")]
+        SolanaDevnet,
+        #[serde(rename = "solana")]
+        Solana,
+    }
+    impl ::std::convert::From<&Self> for X402v1PaymentPayloadNetwork {
+        fn from(value: &X402v1PaymentPayloadNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for X402v1PaymentPayloadNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::BaseSepolia => f.write_str("base-sepolia"),
+                Self::Base => f.write_str("base"),
+                Self::SolanaDevnet => f.write_str("solana-devnet"),
+                Self::Solana => f.write_str("solana"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for X402v1PaymentPayloadNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base-sepolia" => Ok(Self::BaseSepolia),
+                "base" => Ok(Self::Base),
+                "solana-devnet" => Ok(Self::SolanaDevnet),
+                "solana" => Ok(Self::Solana),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402v1PaymentPayloadNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402v1PaymentPayloadNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402v1PaymentPayloadNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The payload of the payment depending on the x402Version, scheme, and network.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The payload of the payment depending on the x402Version, scheme, and network.",
+    ///  "examples": [
+    ///    {
+    ///      "authorization": {
+    ///        "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///        "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///        "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///        "validAfter": "1716150000",
+    ///        "validBefore": "1716150000",
+    ///        "value": "1000000000000000000"
+    ///      },
+    ///      "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "oneOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/x402ExactEvmPayload"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/x402ExactSolanaPayload"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(untagged)]
+    pub enum X402v1PaymentPayloadPayload {
+        EvmPayload(X402ExactEvmPayload),
+        SolanaPayload(X402ExactSolanaPayload),
+    }
+    impl ::std::convert::From<&Self> for X402v1PaymentPayloadPayload {
+        fn from(value: &X402v1PaymentPayloadPayload) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPayload> for X402v1PaymentPayloadPayload {
+        fn from(value: X402ExactEvmPayload) -> Self {
+            Self::EvmPayload(value)
+        }
+    }
+    impl ::std::convert::From<X402ExactSolanaPayload> for X402v1PaymentPayloadPayload {
+        fn from(value: X402ExactSolanaPayload) -> Self {
+            Self::SolanaPayload(value)
+        }
+    }
+    ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.",
+    ///  "examples": [
+    ///    "exact"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "exact"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum X402v1PaymentPayloadScheme {
+        #[serde(rename = "exact")]
+        Exact,
+    }
+    impl ::std::convert::From<&Self> for X402v1PaymentPayloadScheme {
+        fn from(value: &X402v1PaymentPayloadScheme) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for X402v1PaymentPayloadScheme {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Exact => f.write_str("exact"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for X402v1PaymentPayloadScheme {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "exact" => Ok(Self::Exact),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402v1PaymentPayloadScheme {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402v1PaymentPayloadScheme {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402v1PaymentPayloadScheme {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    /**The asset to pay with.
+
+    For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
+
+    For Solana-based networks, the asset will be a base58-encoded Solana address.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The asset to pay with.\n\nFor EVM networks, the asset will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, the asset will be a base58-encoded Solana address.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402v1PaymentRequirementsAsset(::std::string::String);
+    impl ::std::ops::Deref for X402v1PaymentRequirementsAsset {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402v1PaymentRequirementsAsset> for ::std::string::String {
+        fn from(value: X402v1PaymentRequirementsAsset) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402v1PaymentRequirementsAsset> for X402v1PaymentRequirementsAsset {
+        fn from(value: &X402v1PaymentRequirementsAsset) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402v1PaymentRequirementsAsset {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$")
+                        .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402v1PaymentRequirementsAsset {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402v1PaymentRequirementsAsset {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402v1PaymentRequirementsAsset {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402v1PaymentRequirementsAsset {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The network of the blockchain to send payment on.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The network of the blockchain to send payment on.",
+    ///  "examples": [
+    ///    "base"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "base-sepolia",
+    ///    "base",
+    ///    "solana-devnet",
+    ///    "solana"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum X402v1PaymentRequirementsNetwork {
+        #[serde(rename = "base-sepolia")]
+        BaseSepolia,
+        #[serde(rename = "base")]
+        Base,
+        #[serde(rename = "solana-devnet")]
+        SolanaDevnet,
+        #[serde(rename = "solana")]
+        Solana,
+    }
+    impl ::std::convert::From<&Self> for X402v1PaymentRequirementsNetwork {
+        fn from(value: &X402v1PaymentRequirementsNetwork) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for X402v1PaymentRequirementsNetwork {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::BaseSepolia => f.write_str("base-sepolia"),
+                Self::Base => f.write_str("base"),
+                Self::SolanaDevnet => f.write_str("solana-devnet"),
+                Self::Solana => f.write_str("solana"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for X402v1PaymentRequirementsNetwork {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "base-sepolia" => Ok(Self::BaseSepolia),
+                "base" => Ok(Self::Base),
+                "solana-devnet" => Ok(Self::SolanaDevnet),
+                "solana" => Ok(Self::Solana),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402v1PaymentRequirementsNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402v1PaymentRequirementsNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402v1PaymentRequirementsNetwork {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    /**The destination to pay value to.
+
+    For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
+
+    For Solana-based networks, payTo will be a base58-encoded Solana address.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The destination to pay value to.\n\nFor EVM networks, payTo will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, payTo will be a base58-encoded Solana address.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402v1PaymentRequirementsPayTo(::std::string::String);
+    impl ::std::ops::Deref for X402v1PaymentRequirementsPayTo {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402v1PaymentRequirementsPayTo> for ::std::string::String {
+        fn from(value: X402v1PaymentRequirementsPayTo) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402v1PaymentRequirementsPayTo> for X402v1PaymentRequirementsPayTo {
+        fn from(value: &X402v1PaymentRequirementsPayTo) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402v1PaymentRequirementsPayTo {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$")
+                        .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402v1PaymentRequirementsPayTo {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402v1PaymentRequirementsPayTo {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402v1PaymentRequirementsPayTo {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402v1PaymentRequirementsPayTo {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.",
+    ///  "examples": [
+    ///    "exact"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "exact"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum X402v1PaymentRequirementsScheme {
+        #[serde(rename = "exact")]
+        Exact,
+    }
+    impl ::std::convert::From<&Self> for X402v1PaymentRequirementsScheme {
+        fn from(value: &X402v1PaymentRequirementsScheme) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for X402v1PaymentRequirementsScheme {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Exact => f.write_str("exact"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for X402v1PaymentRequirementsScheme {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "exact" => Ok(Self::Exact),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402v1PaymentRequirementsScheme {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402v1PaymentRequirementsScheme {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402v1PaymentRequirementsScheme {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    ///The payload of the payment depending on the x402Version, scheme, and network.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The payload of the payment depending on the x402Version, scheme, and network.",
+    ///  "examples": [
+    ///    {
+    ///      "authorization": {
+    ///        "from": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///        "nonce": "0x1234567890abcdef1234567890abcdef12345678",
+    ///        "to": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    ///        "validAfter": "1716150000",
+    ///        "validBefore": "1716150000",
+    ///        "value": "1000000000000000000"
+    ///      },
+    ///      "signature": "0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480"
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "oneOf": [
+    ///    {
+    ///      "$ref": "#/components/schemas/x402ExactEvmPayload"
+    ///    },
+    ///    {
+    ///      "$ref": "#/components/schemas/x402ExactSolanaPayload"
+    ///    }
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    #[serde(untagged)]
+    pub enum X402v2PaymentPayloadPayload {
+        EvmPayload(X402ExactEvmPayload),
+        SolanaPayload(X402ExactSolanaPayload),
+    }
+    impl ::std::convert::From<&Self> for X402v2PaymentPayloadPayload {
+        fn from(value: &X402v2PaymentPayloadPayload) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::convert::From<X402ExactEvmPayload> for X402v2PaymentPayloadPayload {
+        fn from(value: X402ExactEvmPayload) -> Self {
+            Self::EvmPayload(value)
+        }
+    }
+    impl ::std::convert::From<X402ExactSolanaPayload> for X402v2PaymentPayloadPayload {
+        fn from(value: X402ExactSolanaPayload) -> Self {
+            Self::SolanaPayload(value)
+        }
+    }
+    /**The asset to pay with.
+
+    For EVM networks, the asset will be a 0x-prefixed, checksum EVM address.
+
+    For Solana-based networks, the asset will be a base58-encoded Solana address.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The asset to pay with.\n\nFor EVM networks, the asset will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, the asset will be a base58-encoded Solana address.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402v2PaymentRequirementsAsset(::std::string::String);
+    impl ::std::ops::Deref for X402v2PaymentRequirementsAsset {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402v2PaymentRequirementsAsset> for ::std::string::String {
+        fn from(value: X402v2PaymentRequirementsAsset) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402v2PaymentRequirementsAsset> for X402v2PaymentRequirementsAsset {
+        fn from(value: &X402v2PaymentRequirementsAsset) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402v2PaymentRequirementsAsset {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$")
+                        .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402v2PaymentRequirementsAsset {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402v2PaymentRequirementsAsset {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402v2PaymentRequirementsAsset {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402v2PaymentRequirementsAsset {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    /**The destination to pay value to.
+
+    For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.
+
+    For Solana-based networks, payTo will be a base58-encoded Solana address.*/
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The destination to pay value to.\n\nFor EVM networks, payTo will be a 0x-prefixed, checksum EVM address.\n\nFor Solana-based networks, payTo will be a base58-encoded Solana address.",
+    ///  "examples": [
+    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///  ],
+    ///  "type": "string",
+    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[serde(transparent)]
+    pub struct X402v2PaymentRequirementsPayTo(::std::string::String);
+    impl ::std::ops::Deref for X402v2PaymentRequirementsPayTo {
+        type Target = ::std::string::String;
+        fn deref(&self) -> &::std::string::String {
+            &self.0
+        }
+    }
+    impl ::std::convert::From<X402v2PaymentRequirementsPayTo> for ::std::string::String {
+        fn from(value: X402v2PaymentRequirementsPayTo) -> Self {
+            value.0
+        }
+    }
+    impl ::std::convert::From<&X402v2PaymentRequirementsPayTo> for X402v2PaymentRequirementsPayTo {
+        fn from(value: &X402v2PaymentRequirementsPayTo) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::str::FromStr for X402v2PaymentRequirementsPayTo {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+                ::std::sync::LazyLock::new(|| {
+                    ::regress::Regex::new("^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$")
+                        .unwrap()
+                });
+            if PATTERN.find(value).is_none() {
+                return Err(
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$\""
+                        .into(),
+                );
+            }
+            Ok(Self(value.to_string()))
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402v2PaymentRequirementsPayTo {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402v2PaymentRequirementsPayTo {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402v2PaymentRequirementsPayTo {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl<'de> ::serde::Deserialize<'de> for X402v2PaymentRequirementsPayTo {
+        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+        where
+            D: ::serde::Deserializer<'de>,
+        {
+            ::std::string::String::deserialize(deserializer)?
+                .parse()
+                .map_err(|e: self::error::ConversionError| {
+                    <D::Error as ::serde::de::Error>::custom(e.to_string())
+                })
+        }
+    }
+    ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.",
+    ///  "examples": [
+    ///    "exact"
+    ///  ],
+    ///  "type": "string",
+    ///  "enum": [
+    ///    "exact"
+    ///  ]
+    ///}
+    /// ```
+    /// </details>
+    #[derive(
+        ::serde::Deserialize,
+        ::serde::Serialize,
+        Clone,
+        Copy,
+        Debug,
+        Eq,
+        Hash,
+        Ord,
+        PartialEq,
+        PartialOrd,
+    )]
+    pub enum X402v2PaymentRequirementsScheme {
+        #[serde(rename = "exact")]
+        Exact,
+    }
+    impl ::std::convert::From<&Self> for X402v2PaymentRequirementsScheme {
+        fn from(value: &X402v2PaymentRequirementsScheme) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::fmt::Display for X402v2PaymentRequirementsScheme {
+        fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+            match *self {
+                Self::Exact => f.write_str("exact"),
+            }
+        }
+    }
+    impl ::std::str::FromStr for X402v2PaymentRequirementsScheme {
+        type Err = self::error::ConversionError;
+        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            match value {
+                "exact" => Ok(Self::Exact),
+                _ => Err("invalid value".into()),
+            }
+        }
+    }
+    impl ::std::convert::TryFrom<&str> for X402v2PaymentRequirementsScheme {
+        type Error = self::error::ConversionError;
+        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<&::std::string::String> for X402v2PaymentRequirementsScheme {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: &::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
+        }
+    }
+    impl ::std::convert::TryFrom<::std::string::String> for X402v2PaymentRequirementsScheme {
+        type Error = self::error::ConversionError;
+        fn try_from(
+            value: ::std::string::String,
+        ) -> ::std::result::Result<Self, self::error::ConversionError> {
+            value.parse()
         }
     }
     /// Types for composing complex structures.
@@ -42380,7 +43846,7 @@ pub mod types {
             >,
             purchase_currency: ::std::result::Result<::std::string::String, ::std::string::String>,
             redirect_url:
-                ::std::result::Result<::std::option::Option<super::Url>, ::std::string::String>,
+                ::std::result::Result<::std::option::Option<super::Uri>, ::std::string::String>,
             subdivision: ::std::result::Result<
                 ::std::option::Option<::std::string::String>,
                 ::std::string::String,
@@ -42517,7 +43983,7 @@ pub mod types {
             }
             pub fn redirect_url<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::option::Option<super::Url>>,
+                T: ::std::convert::TryInto<::std::option::Option<super::Uri>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.redirect_url = value.try_into().map_err(|e| {
@@ -43962,12 +45428,24 @@ pub mod types {
                 ::chrono::DateTime<::chrono::offset::Utc>,
                 ::std::string::String,
             >,
+            evm_account_objects: ::std::result::Result<
+                ::std::vec::Vec<super::EndUserEvmAccount>,
+                ::std::string::String,
+            >,
             evm_accounts: ::std::result::Result<
                 ::std::vec::Vec<super::EndUserEvmAccountsItem>,
                 ::std::string::String,
             >,
+            evm_smart_account_objects: ::std::result::Result<
+                ::std::vec::Vec<super::EndUserEvmSmartAccount>,
+                ::std::string::String,
+            >,
             evm_smart_accounts: ::std::result::Result<
                 ::std::vec::Vec<super::EndUserEvmSmartAccountsItem>,
+                ::std::string::String,
+            >,
+            solana_account_objects: ::std::result::Result<
+                ::std::vec::Vec<super::EndUserSolanaAccount>,
                 ::std::string::String,
             >,
             solana_accounts: ::std::result::Result<
@@ -43983,8 +45461,17 @@ pub mod types {
                         "no value supplied for authentication_methods".to_string()
                     ),
                     created_at: Err("no value supplied for created_at".to_string()),
+                    evm_account_objects: Err(
+                        "no value supplied for evm_account_objects".to_string()
+                    ),
                     evm_accounts: Err("no value supplied for evm_accounts".to_string()),
+                    evm_smart_account_objects: Err(
+                        "no value supplied for evm_smart_account_objects".to_string(),
+                    ),
                     evm_smart_accounts: Err("no value supplied for evm_smart_accounts".to_string()),
+                    solana_account_objects: Err(
+                        "no value supplied for solana_account_objects".to_string()
+                    ),
                     solana_accounts: Err("no value supplied for solana_accounts".to_string()),
                     user_id: Err("no value supplied for user_id".to_string()),
                 }
@@ -44014,6 +45501,19 @@ pub mod types {
                     .map_err(|e| format!("error converting supplied value for created_at: {}", e));
                 self
             }
+            pub fn evm_account_objects<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::EndUserEvmAccount>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.evm_account_objects = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for evm_account_objects: {}",
+                        e
+                    )
+                });
+                self
+            }
             pub fn evm_accounts<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<::std::vec::Vec<super::EndUserEvmAccountsItem>>,
@@ -44021,6 +45521,19 @@ pub mod types {
             {
                 self.evm_accounts = value.try_into().map_err(|e| {
                     format!("error converting supplied value for evm_accounts: {}", e)
+                });
+                self
+            }
+            pub fn evm_smart_account_objects<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::EndUserEvmSmartAccount>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.evm_smart_account_objects = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for evm_smart_account_objects: {}",
+                        e
+                    )
                 });
                 self
             }
@@ -44032,6 +45545,19 @@ pub mod types {
                 self.evm_smart_accounts = value.try_into().map_err(|e| {
                     format!(
                         "error converting supplied value for evm_smart_accounts: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn solana_account_objects<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<super::EndUserSolanaAccount>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.solana_account_objects = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for solana_account_objects: {}",
                         e
                     )
                 });
@@ -44066,8 +45592,11 @@ pub mod types {
                 Ok(Self {
                     authentication_methods: value.authentication_methods?,
                     created_at: value.created_at?,
+                    evm_account_objects: value.evm_account_objects?,
                     evm_accounts: value.evm_accounts?,
+                    evm_smart_account_objects: value.evm_smart_account_objects?,
                     evm_smart_accounts: value.evm_smart_accounts?,
+                    solana_account_objects: value.solana_account_objects?,
                     solana_accounts: value.solana_accounts?,
                     user_id: value.user_id?,
                 })
@@ -44078,10 +45607,205 @@ pub mod types {
                 Self {
                     authentication_methods: Ok(value.authentication_methods),
                     created_at: Ok(value.created_at),
+                    evm_account_objects: Ok(value.evm_account_objects),
                     evm_accounts: Ok(value.evm_accounts),
+                    evm_smart_account_objects: Ok(value.evm_smart_account_objects),
                     evm_smart_accounts: Ok(value.evm_smart_accounts),
+                    solana_account_objects: Ok(value.solana_account_objects),
                     solana_accounts: Ok(value.solana_accounts),
                     user_id: Ok(value.user_id),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct EndUserEvmAccount {
+            address: ::std::result::Result<super::EndUserEvmAccountAddress, ::std::string::String>,
+            created_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for EndUserEvmAccount {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    created_at: Err("no value supplied for created_at".to_string()),
+                }
+            }
+        }
+        impl EndUserEvmAccount {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::EndUserEvmAccountAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn created_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.created_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for created_at: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<EndUserEvmAccount> for super::EndUserEvmAccount {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: EndUserEvmAccount,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    created_at: value.created_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::EndUserEvmAccount> for EndUserEvmAccount {
+            fn from(value: super::EndUserEvmAccount) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    created_at: Ok(value.created_at),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct EndUserEvmSmartAccount {
+            address:
+                ::std::result::Result<super::EndUserEvmSmartAccountAddress, ::std::string::String>,
+            created_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+            owner_addresses: ::std::result::Result<
+                ::std::vec::Vec<super::EndUserEvmSmartAccountOwnerAddressesItem>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for EndUserEvmSmartAccount {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    created_at: Err("no value supplied for created_at".to_string()),
+                    owner_addresses: Err("no value supplied for owner_addresses".to_string()),
+                }
+            }
+        }
+        impl EndUserEvmSmartAccount {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::EndUserEvmSmartAccountAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn created_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.created_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for created_at: {}", e));
+                self
+            }
+            pub fn owner_addresses<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::vec::Vec<super::EndUserEvmSmartAccountOwnerAddressesItem>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.owner_addresses = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for owner_addresses: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<EndUserEvmSmartAccount> for super::EndUserEvmSmartAccount {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: EndUserEvmSmartAccount,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    created_at: value.created_at?,
+                    owner_addresses: value.owner_addresses?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::EndUserEvmSmartAccount> for EndUserEvmSmartAccount {
+            fn from(value: super::EndUserEvmSmartAccount) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    created_at: Ok(value.created_at),
+                    owner_addresses: Ok(value.owner_addresses),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct EndUserSolanaAccount {
+            address:
+                ::std::result::Result<super::EndUserSolanaAccountAddress, ::std::string::String>,
+            created_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for EndUserSolanaAccount {
+            fn default() -> Self {
+                Self {
+                    address: Err("no value supplied for address".to_string()),
+                    created_at: Err("no value supplied for created_at".to_string()),
+                }
+            }
+        }
+        impl EndUserSolanaAccount {
+            pub fn address<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::EndUserSolanaAccountAddress>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.address = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for address: {}", e));
+                self
+            }
+            pub fn created_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.created_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for created_at: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<EndUserSolanaAccount> for super::EndUserSolanaAccount {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: EndUserSolanaAccount,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    address: value.address?,
+                    created_at: value.created_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::EndUserSolanaAccount> for EndUserSolanaAccount {
+            fn from(value: super::EndUserSolanaAccount) -> Self {
+                Self {
+                    address: Ok(value.address),
+                    created_at: Ok(value.created_at),
                 }
             }
         }
@@ -52443,19 +54167,42 @@ pub mod types {
         }
         #[derive(Clone, Debug)]
         pub struct SupportedX402PaymentKindsResponse {
+            extensions: ::std::result::Result<
+                ::std::vec::Vec<::std::string::String>,
+                ::std::string::String,
+            >,
             kinds: ::std::result::Result<
                 ::std::vec::Vec<super::X402SupportedPaymentKind>,
+                ::std::string::String,
+            >,
+            signers: ::std::result::Result<
+                ::std::collections::HashMap<
+                    ::std::string::String,
+                    ::std::vec::Vec<::std::string::String>,
+                >,
                 ::std::string::String,
             >,
         }
         impl ::std::default::Default for SupportedX402PaymentKindsResponse {
             fn default() -> Self {
                 Self {
+                    extensions: Err("no value supplied for extensions".to_string()),
                     kinds: Err("no value supplied for kinds".to_string()),
+                    signers: Err("no value supplied for signers".to_string()),
                 }
             }
         }
         impl SupportedX402PaymentKindsResponse {
+            pub fn extensions<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.extensions = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for extensions: {}", e));
+                self
+            }
             pub fn kinds<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<::std::vec::Vec<super::X402SupportedPaymentKind>>,
@@ -52464,6 +54211,21 @@ pub mod types {
                 self.kinds = value
                     .try_into()
                     .map_err(|e| format!("error converting supplied value for kinds: {}", e));
+                self
+            }
+            pub fn signers<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::collections::HashMap<
+                        ::std::string::String,
+                        ::std::vec::Vec<::std::string::String>,
+                    >,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.signers = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for signers: {}", e));
                 self
             }
         }
@@ -52475,7 +54237,9 @@ pub mod types {
                 value: SupportedX402PaymentKindsResponse,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
+                    extensions: value.extensions?,
                     kinds: value.kinds?,
+                    signers: value.signers?,
                 })
             }
         }
@@ -52484,7 +54248,9 @@ pub mod types {
         {
             fn from(value: super::SupportedX402PaymentKindsResponse) -> Self {
                 Self {
+                    extensions: Ok(value.extensions),
                     kinds: Ok(value.kinds),
+                    signers: Ok(value.signers),
                 }
             }
         }
@@ -53474,6 +55240,7 @@ pub mod types {
                 ::std::option::Option<super::WebhookSubscriptionResponseMetadata>,
                 ::std::string::String,
             >,
+            secret: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
             subscription_id: ::std::result::Result<::uuid::Uuid, ::std::string::String>,
             target: ::std::result::Result<super::WebhookTarget, ::std::string::String>,
         }
@@ -53488,6 +55255,7 @@ pub mod types {
                     label_value: Ok(Default::default()),
                     labels: Ok(Default::default()),
                     metadata: Ok(Default::default()),
+                    secret: Err("no value supplied for secret".to_string()),
                     subscription_id: Err("no value supplied for subscription_id".to_string()),
                     target: Err("no value supplied for target".to_string()),
                 }
@@ -53578,6 +55346,16 @@ pub mod types {
                     .map_err(|e| format!("error converting supplied value for metadata: {}", e));
                 self
             }
+            pub fn secret<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::uuid::Uuid>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.secret = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for secret: {}", e));
+                self
+            }
             pub fn subscription_id<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<::uuid::Uuid>,
@@ -53613,6 +55391,7 @@ pub mod types {
                     label_value: value.label_value?,
                     labels: value.labels?,
                     metadata: value.metadata?,
+                    secret: value.secret?,
                     subscription_id: value.subscription_id?,
                     target: value.target?,
                 })
@@ -53629,6 +55408,7 @@ pub mod types {
                     label_value: Ok(value.label_value),
                     labels: Ok(value.labels),
                     metadata: Ok(value.metadata),
+                    secret: Ok(value.secret),
                     subscription_id: Ok(value.subscription_id),
                     target: Ok(value.target),
                 }
@@ -53956,147 +55736,30 @@ pub mod types {
             }
         }
         #[derive(Clone, Debug)]
-        pub struct X402PaymentPayload {
-            network: ::std::result::Result<super::X402PaymentPayloadNetwork, ::std::string::String>,
-            payload: ::std::result::Result<super::X402PaymentPayloadPayload, ::std::string::String>,
-            scheme: ::std::result::Result<super::X402PaymentPayloadScheme, ::std::string::String>,
-            x402_version: ::std::result::Result<super::X402Version, ::std::string::String>,
-        }
-        impl ::std::default::Default for X402PaymentPayload {
-            fn default() -> Self {
-                Self {
-                    network: Err("no value supplied for network".to_string()),
-                    payload: Err("no value supplied for payload".to_string()),
-                    scheme: Err("no value supplied for scheme".to_string()),
-                    x402_version: Err("no value supplied for x402_version".to_string()),
-                }
-            }
-        }
-        impl X402PaymentPayload {
-            pub fn network<T>(mut self, value: T) -> Self
-            where
-                T: ::std::convert::TryInto<super::X402PaymentPayloadNetwork>,
-                T::Error: ::std::fmt::Display,
-            {
-                self.network = value
-                    .try_into()
-                    .map_err(|e| format!("error converting supplied value for network: {}", e));
-                self
-            }
-            pub fn payload<T>(mut self, value: T) -> Self
-            where
-                T: ::std::convert::TryInto<super::X402PaymentPayloadPayload>,
-                T::Error: ::std::fmt::Display,
-            {
-                self.payload = value
-                    .try_into()
-                    .map_err(|e| format!("error converting supplied value for payload: {}", e));
-                self
-            }
-            pub fn scheme<T>(mut self, value: T) -> Self
-            where
-                T: ::std::convert::TryInto<super::X402PaymentPayloadScheme>,
-                T::Error: ::std::fmt::Display,
-            {
-                self.scheme = value
-                    .try_into()
-                    .map_err(|e| format!("error converting supplied value for scheme: {}", e));
-                self
-            }
-            pub fn x402_version<T>(mut self, value: T) -> Self
-            where
-                T: ::std::convert::TryInto<super::X402Version>,
-                T::Error: ::std::fmt::Display,
-            {
-                self.x402_version = value.try_into().map_err(|e| {
-                    format!("error converting supplied value for x402_version: {}", e)
-                });
-                self
-            }
-        }
-        impl ::std::convert::TryFrom<X402PaymentPayload> for super::X402PaymentPayload {
-            type Error = super::error::ConversionError;
-            fn try_from(
-                value: X402PaymentPayload,
-            ) -> ::std::result::Result<Self, super::error::ConversionError> {
-                Ok(Self {
-                    network: value.network?,
-                    payload: value.payload?,
-                    scheme: value.scheme?,
-                    x402_version: value.x402_version?,
-                })
-            }
-        }
-        impl ::std::convert::From<super::X402PaymentPayload> for X402PaymentPayload {
-            fn from(value: super::X402PaymentPayload) -> Self {
-                Self {
-                    network: Ok(value.network),
-                    payload: Ok(value.payload),
-                    scheme: Ok(value.scheme),
-                    x402_version: Ok(value.x402_version),
-                }
-            }
-        }
-        #[derive(Clone, Debug)]
-        pub struct X402PaymentRequirements {
-            asset:
-                ::std::result::Result<super::X402PaymentRequirementsAsset, ::std::string::String>,
-            description: ::std::result::Result<::std::string::String, ::std::string::String>,
-            extra: ::std::result::Result<
-                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+        pub struct X402ResourceInfo {
+            description: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
                 ::std::string::String,
             >,
-            max_amount_required:
-                ::std::result::Result<::std::string::String, ::std::string::String>,
-            max_timeout_seconds: ::std::result::Result<i64, ::std::string::String>,
-            mime_type: ::std::result::Result<::std::string::String, ::std::string::String>,
-            network:
-                ::std::result::Result<super::X402PaymentRequirementsNetwork, ::std::string::String>,
-            output_schema: ::std::result::Result<
-                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+            mime_type: ::std::result::Result<
+                ::std::option::Option<super::MimeType>,
                 ::std::string::String,
             >,
-            pay_to:
-                ::std::result::Result<super::X402PaymentRequirementsPayTo, ::std::string::String>,
-            resource: ::std::result::Result<super::Url, ::std::string::String>,
-            scheme:
-                ::std::result::Result<super::X402PaymentRequirementsScheme, ::std::string::String>,
+            url: ::std::result::Result<super::Url, ::std::string::String>,
         }
-        impl ::std::default::Default for X402PaymentRequirements {
+        impl ::std::default::Default for X402ResourceInfo {
             fn default() -> Self {
                 Self {
-                    asset: Err("no value supplied for asset".to_string()),
-                    description: Err("no value supplied for description".to_string()),
-                    extra: Ok(Default::default()),
-                    max_amount_required: Err(
-                        "no value supplied for max_amount_required".to_string()
-                    ),
-                    max_timeout_seconds: Err(
-                        "no value supplied for max_timeout_seconds".to_string()
-                    ),
-                    mime_type: Err("no value supplied for mime_type".to_string()),
-                    network: Err("no value supplied for network".to_string()),
-                    output_schema: Ok(Default::default()),
-                    pay_to: Err("no value supplied for pay_to".to_string()),
-                    resource: Err("no value supplied for resource".to_string()),
-                    scheme: Err("no value supplied for scheme".to_string()),
+                    description: Ok(Default::default()),
+                    mime_type: Ok(Default::default()),
+                    url: Err("no value supplied for url".to_string()),
                 }
             }
         }
-        impl X402PaymentRequirements {
-            pub fn asset<T>(mut self, value: T) -> Self
-            where
-                T: ::std::convert::TryInto<super::X402PaymentRequirementsAsset>,
-                T::Error: ::std::fmt::Display,
-            {
-                self.asset = value
-                    .try_into()
-                    .map_err(|e| format!("error converting supplied value for asset: {}", e));
-                self
-            }
+        impl X402ResourceInfo {
             pub fn description<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.description = value
@@ -54104,47 +55767,9 @@ pub mod types {
                     .map_err(|e| format!("error converting supplied value for description: {}", e));
                 self
             }
-            pub fn extra<T>(mut self, value: T) -> Self
-            where
-                T: ::std::convert::TryInto<
-                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
-                >,
-                T::Error: ::std::fmt::Display,
-            {
-                self.extra = value
-                    .try_into()
-                    .map_err(|e| format!("error converting supplied value for extra: {}", e));
-                self
-            }
-            pub fn max_amount_required<T>(mut self, value: T) -> Self
-            where
-                T: ::std::convert::TryInto<::std::string::String>,
-                T::Error: ::std::fmt::Display,
-            {
-                self.max_amount_required = value.try_into().map_err(|e| {
-                    format!(
-                        "error converting supplied value for max_amount_required: {}",
-                        e
-                    )
-                });
-                self
-            }
-            pub fn max_timeout_seconds<T>(mut self, value: T) -> Self
-            where
-                T: ::std::convert::TryInto<i64>,
-                T::Error: ::std::fmt::Display,
-            {
-                self.max_timeout_seconds = value.try_into().map_err(|e| {
-                    format!(
-                        "error converting supplied value for max_timeout_seconds: {}",
-                        e
-                    )
-                });
-                self
-            }
             pub fn mime_type<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<::std::option::Option<super::MimeType>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.mime_type = value
@@ -54152,93 +55777,35 @@ pub mod types {
                     .map_err(|e| format!("error converting supplied value for mime_type: {}", e));
                 self
             }
-            pub fn network<T>(mut self, value: T) -> Self
-            where
-                T: ::std::convert::TryInto<super::X402PaymentRequirementsNetwork>,
-                T::Error: ::std::fmt::Display,
-            {
-                self.network = value
-                    .try_into()
-                    .map_err(|e| format!("error converting supplied value for network: {}", e));
-                self
-            }
-            pub fn output_schema<T>(mut self, value: T) -> Self
-            where
-                T: ::std::convert::TryInto<
-                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
-                >,
-                T::Error: ::std::fmt::Display,
-            {
-                self.output_schema = value.try_into().map_err(|e| {
-                    format!("error converting supplied value for output_schema: {}", e)
-                });
-                self
-            }
-            pub fn pay_to<T>(mut self, value: T) -> Self
-            where
-                T: ::std::convert::TryInto<super::X402PaymentRequirementsPayTo>,
-                T::Error: ::std::fmt::Display,
-            {
-                self.pay_to = value
-                    .try_into()
-                    .map_err(|e| format!("error converting supplied value for pay_to: {}", e));
-                self
-            }
-            pub fn resource<T>(mut self, value: T) -> Self
+            pub fn url<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<super::Url>,
                 T::Error: ::std::fmt::Display,
             {
-                self.resource = value
+                self.url = value
                     .try_into()
-                    .map_err(|e| format!("error converting supplied value for resource: {}", e));
-                self
-            }
-            pub fn scheme<T>(mut self, value: T) -> Self
-            where
-                T: ::std::convert::TryInto<super::X402PaymentRequirementsScheme>,
-                T::Error: ::std::fmt::Display,
-            {
-                self.scheme = value
-                    .try_into()
-                    .map_err(|e| format!("error converting supplied value for scheme: {}", e));
+                    .map_err(|e| format!("error converting supplied value for url: {}", e));
                 self
             }
         }
-        impl ::std::convert::TryFrom<X402PaymentRequirements> for super::X402PaymentRequirements {
+        impl ::std::convert::TryFrom<X402ResourceInfo> for super::X402ResourceInfo {
             type Error = super::error::ConversionError;
             fn try_from(
-                value: X402PaymentRequirements,
+                value: X402ResourceInfo,
             ) -> ::std::result::Result<Self, super::error::ConversionError> {
                 Ok(Self {
-                    asset: value.asset?,
                     description: value.description?,
-                    extra: value.extra?,
-                    max_amount_required: value.max_amount_required?,
-                    max_timeout_seconds: value.max_timeout_seconds?,
                     mime_type: value.mime_type?,
-                    network: value.network?,
-                    output_schema: value.output_schema?,
-                    pay_to: value.pay_to?,
-                    resource: value.resource?,
-                    scheme: value.scheme?,
+                    url: value.url?,
                 })
             }
         }
-        impl ::std::convert::From<super::X402PaymentRequirements> for X402PaymentRequirements {
-            fn from(value: super::X402PaymentRequirements) -> Self {
+        impl ::std::convert::From<super::X402ResourceInfo> for X402ResourceInfo {
+            fn from(value: super::X402ResourceInfo) -> Self {
                 Self {
-                    asset: Ok(value.asset),
                     description: Ok(value.description),
-                    extra: Ok(value.extra),
-                    max_amount_required: Ok(value.max_amount_required),
-                    max_timeout_seconds: Ok(value.max_timeout_seconds),
                     mime_type: Ok(value.mime_type),
-                    network: Ok(value.network),
-                    output_schema: Ok(value.output_schema),
-                    pay_to: Ok(value.pay_to),
-                    resource: Ok(value.resource),
-                    scheme: Ok(value.scheme),
+                    url: Ok(value.url),
                 }
             }
         }
@@ -54330,6 +55897,544 @@ pub mod types {
                     network: Ok(value.network),
                     scheme: Ok(value.scheme),
                     x402_version: Ok(value.x402_version),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402V1PaymentPayload {
+            network:
+                ::std::result::Result<super::X402v1PaymentPayloadNetwork, ::std::string::String>,
+            payload:
+                ::std::result::Result<super::X402v1PaymentPayloadPayload, ::std::string::String>,
+            scheme: ::std::result::Result<super::X402v1PaymentPayloadScheme, ::std::string::String>,
+            x402_version: ::std::result::Result<super::X402Version, ::std::string::String>,
+        }
+        impl ::std::default::Default for X402V1PaymentPayload {
+            fn default() -> Self {
+                Self {
+                    network: Err("no value supplied for network".to_string()),
+                    payload: Err("no value supplied for payload".to_string()),
+                    scheme: Err("no value supplied for scheme".to_string()),
+                    x402_version: Err("no value supplied for x402_version".to_string()),
+                }
+            }
+        }
+        impl X402V1PaymentPayload {
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402v1PaymentPayloadNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn payload<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402v1PaymentPayloadPayload>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payload = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for payload: {}", e));
+                self
+            }
+            pub fn scheme<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402v1PaymentPayloadScheme>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.scheme = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for scheme: {}", e));
+                self
+            }
+            pub fn x402_version<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402Version>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.x402_version = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for x402_version: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402V1PaymentPayload> for super::X402V1PaymentPayload {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402V1PaymentPayload,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    network: value.network?,
+                    payload: value.payload?,
+                    scheme: value.scheme?,
+                    x402_version: value.x402_version?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402V1PaymentPayload> for X402V1PaymentPayload {
+            fn from(value: super::X402V1PaymentPayload) -> Self {
+                Self {
+                    network: Ok(value.network),
+                    payload: Ok(value.payload),
+                    scheme: Ok(value.scheme),
+                    x402_version: Ok(value.x402_version),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402V1PaymentRequirements {
+            asset:
+                ::std::result::Result<super::X402v1PaymentRequirementsAsset, ::std::string::String>,
+            description: ::std::result::Result<::std::string::String, ::std::string::String>,
+            extra: ::std::result::Result<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                ::std::string::String,
+            >,
+            max_amount_required:
+                ::std::result::Result<::std::string::String, ::std::string::String>,
+            max_timeout_seconds: ::std::result::Result<i64, ::std::string::String>,
+            mime_type: ::std::result::Result<super::MimeType, ::std::string::String>,
+            network: ::std::result::Result<
+                super::X402v1PaymentRequirementsNetwork,
+                ::std::string::String,
+            >,
+            output_schema: ::std::result::Result<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                ::std::string::String,
+            >,
+            pay_to:
+                ::std::result::Result<super::X402v1PaymentRequirementsPayTo, ::std::string::String>,
+            resource: ::std::result::Result<super::Url, ::std::string::String>,
+            scheme: ::std::result::Result<
+                super::X402v1PaymentRequirementsScheme,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for X402V1PaymentRequirements {
+            fn default() -> Self {
+                Self {
+                    asset: Err("no value supplied for asset".to_string()),
+                    description: Err("no value supplied for description".to_string()),
+                    extra: Ok(Default::default()),
+                    max_amount_required: Err(
+                        "no value supplied for max_amount_required".to_string()
+                    ),
+                    max_timeout_seconds: Err(
+                        "no value supplied for max_timeout_seconds".to_string()
+                    ),
+                    mime_type: Err("no value supplied for mime_type".to_string()),
+                    network: Err("no value supplied for network".to_string()),
+                    output_schema: Ok(Default::default()),
+                    pay_to: Err("no value supplied for pay_to".to_string()),
+                    resource: Err("no value supplied for resource".to_string()),
+                    scheme: Err("no value supplied for scheme".to_string()),
+                }
+            }
+        }
+        impl X402V1PaymentRequirements {
+            pub fn asset<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402v1PaymentRequirementsAsset>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.asset = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for asset: {}", e));
+                self
+            }
+            pub fn description<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.description = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for description: {}", e));
+                self
+            }
+            pub fn extra<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.extra = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for extra: {}", e));
+                self
+            }
+            pub fn max_amount_required<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.max_amount_required = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for max_amount_required: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn max_timeout_seconds<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<i64>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.max_timeout_seconds = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for max_timeout_seconds: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn mime_type<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::MimeType>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.mime_type = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for mime_type: {}", e));
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402v1PaymentRequirementsNetwork>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn output_schema<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.output_schema = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for output_schema: {}", e)
+                });
+                self
+            }
+            pub fn pay_to<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402v1PaymentRequirementsPayTo>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.pay_to = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for pay_to: {}", e));
+                self
+            }
+            pub fn resource<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::Url>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.resource = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for resource: {}", e));
+                self
+            }
+            pub fn scheme<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402v1PaymentRequirementsScheme>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.scheme = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for scheme: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402V1PaymentRequirements> for super::X402V1PaymentRequirements {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402V1PaymentRequirements,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    asset: value.asset?,
+                    description: value.description?,
+                    extra: value.extra?,
+                    max_amount_required: value.max_amount_required?,
+                    max_timeout_seconds: value.max_timeout_seconds?,
+                    mime_type: value.mime_type?,
+                    network: value.network?,
+                    output_schema: value.output_schema?,
+                    pay_to: value.pay_to?,
+                    resource: value.resource?,
+                    scheme: value.scheme?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402V1PaymentRequirements> for X402V1PaymentRequirements {
+            fn from(value: super::X402V1PaymentRequirements) -> Self {
+                Self {
+                    asset: Ok(value.asset),
+                    description: Ok(value.description),
+                    extra: Ok(value.extra),
+                    max_amount_required: Ok(value.max_amount_required),
+                    max_timeout_seconds: Ok(value.max_timeout_seconds),
+                    mime_type: Ok(value.mime_type),
+                    network: Ok(value.network),
+                    output_schema: Ok(value.output_schema),
+                    pay_to: Ok(value.pay_to),
+                    resource: Ok(value.resource),
+                    scheme: Ok(value.scheme),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402V2PaymentPayload {
+            accepted:
+                ::std::result::Result<super::X402V2PaymentRequirements, ::std::string::String>,
+            extensions: ::std::result::Result<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                ::std::string::String,
+            >,
+            payload:
+                ::std::result::Result<super::X402v2PaymentPayloadPayload, ::std::string::String>,
+            resource: ::std::result::Result<
+                ::std::option::Option<super::X402ResourceInfo>,
+                ::std::string::String,
+            >,
+            x402_version: ::std::result::Result<super::X402Version, ::std::string::String>,
+        }
+        impl ::std::default::Default for X402V2PaymentPayload {
+            fn default() -> Self {
+                Self {
+                    accepted: Err("no value supplied for accepted".to_string()),
+                    extensions: Ok(Default::default()),
+                    payload: Err("no value supplied for payload".to_string()),
+                    resource: Ok(Default::default()),
+                    x402_version: Err("no value supplied for x402_version".to_string()),
+                }
+            }
+        }
+        impl X402V2PaymentPayload {
+            pub fn accepted<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402V2PaymentRequirements>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.accepted = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for accepted: {}", e));
+                self
+            }
+            pub fn extensions<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.extensions = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for extensions: {}", e));
+                self
+            }
+            pub fn payload<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402v2PaymentPayloadPayload>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.payload = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for payload: {}", e));
+                self
+            }
+            pub fn resource<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::X402ResourceInfo>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.resource = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for resource: {}", e));
+                self
+            }
+            pub fn x402_version<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402Version>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.x402_version = value.try_into().map_err(|e| {
+                    format!("error converting supplied value for x402_version: {}", e)
+                });
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402V2PaymentPayload> for super::X402V2PaymentPayload {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402V2PaymentPayload,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    accepted: value.accepted?,
+                    extensions: value.extensions?,
+                    payload: value.payload?,
+                    resource: value.resource?,
+                    x402_version: value.x402_version?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402V2PaymentPayload> for X402V2PaymentPayload {
+            fn from(value: super::X402V2PaymentPayload) -> Self {
+                Self {
+                    accepted: Ok(value.accepted),
+                    extensions: Ok(value.extensions),
+                    payload: Ok(value.payload),
+                    resource: Ok(value.resource),
+                    x402_version: Ok(value.x402_version),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct X402V2PaymentRequirements {
+            amount: ::std::result::Result<::std::string::String, ::std::string::String>,
+            asset:
+                ::std::result::Result<super::X402v2PaymentRequirementsAsset, ::std::string::String>,
+            extra: ::std::result::Result<
+                ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                ::std::string::String,
+            >,
+            max_timeout_seconds: ::std::result::Result<i64, ::std::string::String>,
+            network: ::std::result::Result<::std::string::String, ::std::string::String>,
+            pay_to:
+                ::std::result::Result<super::X402v2PaymentRequirementsPayTo, ::std::string::String>,
+            scheme: ::std::result::Result<
+                super::X402v2PaymentRequirementsScheme,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for X402V2PaymentRequirements {
+            fn default() -> Self {
+                Self {
+                    amount: Err("no value supplied for amount".to_string()),
+                    asset: Err("no value supplied for asset".to_string()),
+                    extra: Ok(Default::default()),
+                    max_timeout_seconds: Err(
+                        "no value supplied for max_timeout_seconds".to_string()
+                    ),
+                    network: Err("no value supplied for network".to_string()),
+                    pay_to: Err("no value supplied for pay_to".to_string()),
+                    scheme: Err("no value supplied for scheme".to_string()),
+                }
+            }
+        }
+        impl X402V2PaymentRequirements {
+            pub fn amount<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.amount = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for amount: {}", e));
+                self
+            }
+            pub fn asset<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402v2PaymentRequirementsAsset>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.asset = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for asset: {}", e));
+                self
+            }
+            pub fn extra<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::serde_json::Map<::std::string::String, ::serde_json::Value>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.extra = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for extra: {}", e));
+                self
+            }
+            pub fn max_timeout_seconds<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<i64>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.max_timeout_seconds = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for max_timeout_seconds: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn network<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::string::String>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.network = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for network: {}", e));
+                self
+            }
+            pub fn pay_to<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402v2PaymentRequirementsPayTo>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.pay_to = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for pay_to: {}", e));
+                self
+            }
+            pub fn scheme<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<super::X402v2PaymentRequirementsScheme>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.scheme = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for scheme: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<X402V2PaymentRequirements> for super::X402V2PaymentRequirements {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: X402V2PaymentRequirements,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    amount: value.amount?,
+                    asset: value.asset?,
+                    extra: value.extra?,
+                    max_timeout_seconds: value.max_timeout_seconds?,
+                    network: value.network?,
+                    pay_to: value.pay_to?,
+                    scheme: value.scheme?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::X402V2PaymentRequirements> for X402V2PaymentRequirements {
+            fn from(value: super::X402V2PaymentRequirements) -> Self {
+                Self {
+                    amount: Ok(value.amount),
+                    asset: Ok(value.asset),
+                    extra: Ok(value.extra),
+                    max_timeout_seconds: Ok(value.max_timeout_seconds),
+                    network: Ok(value.network),
+                    pay_to: Ok(value.pay_to),
+                    scheme: Ok(value.scheme),
                 }
             }
         }
