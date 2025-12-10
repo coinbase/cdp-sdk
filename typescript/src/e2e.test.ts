@@ -14,8 +14,10 @@ import {
   TransactionReceipt,
   createPublicClient,
   formatEther,
+  hashMessage,
   http,
   parseEther,
+  recoverAddress,
   serializeTransaction,
   type Address,
   type Chain,
@@ -938,6 +940,91 @@ describe("CDP Client E2E Tests", () => {
     expect(secondPage.balances[0].amount).toBeDefined();
     expect(secondPage.balances[0].amount.amount).toBeDefined();
     expect(secondPage.balances[0].amount.decimals).toBeDefined();
+  });
+
+  describe("eoa sign message", () => {
+    it("should handle plain string message", async () => {
+      const message = "Hello World";
+      const signature = await testAccount.signMessage({ message });
+      const expectedHash = hashMessage(message);
+      const recoveredAddress = await recoverAddress({
+        hash: expectedHash,
+        signature: signature as Hex,
+      });
+
+      expect(signature).toBeDefined();
+      expect(recoveredAddress).toBe(testAccount.address);
+    });
+
+    it("should handle hex-encoded string message", async () => {
+      const hexMessage = "0x48656c6c6f20576f726c64" as Hex; // "Hello World" in hex
+      const signature = await testAccount.signMessage({ message: { raw: hexMessage } });
+      const expectedHash = hashMessage({ raw: hexMessage });
+      const recoveredAddress = await recoverAddress({
+        hash: expectedHash,
+        signature: signature as Hex,
+      });
+      expect(signature).toBeDefined();
+      expect(recoveredAddress).toBe(testAccount.address);
+    });
+
+    it("should handle { raw: hex } format with UTF-8 text", async () => {
+      const hexMessage = "0x48656c6c6f20576f726c64" as Hex; // "Hello World" in hex
+      const signature = await testAccount.signMessage({ message: { raw: hexMessage } });
+      const expectedHash = hashMessage({ raw: hexMessage });
+      const recoveredAddress = await recoverAddress({
+        hash: expectedHash,
+        signature: signature as Hex,
+      });
+      expect(signature).toBeDefined();
+      expect(recoveredAddress).toBe(testAccount.address);
+    });
+
+    it("should handle { raw: hex } binary data (32-byte hash)", async () => {
+      const binaryDataHex =
+        "0x69e540c217c8af830886c5a81e5c617f71fa7ab913488233406b9bfbc12b31be" as Hex;
+      const signature = await testAccount.signMessage({
+        message: { raw: binaryDataHex },
+      });
+      const expectedHash = hashMessage({ raw: binaryDataHex });
+      const recoveredAddress = await recoverAddress({
+        hash: expectedHash,
+        signature: signature as Hex,
+      });
+
+      expect(signature).toBeDefined();
+      expect(recoveredAddress).toBe(testAccount.address);
+    });
+
+    it("should handle pre-hashed message", async () => {
+      const originalMessage = "Hello";
+      const preHashedMessage = hashMessage(originalMessage);
+      const signature = await testAccount.signMessage({
+        message: { raw: preHashedMessage },
+      });
+      // Note: This will have EIP-191 applied twice
+      const expectedHash = hashMessage({ raw: preHashedMessage });
+      const recoveredAddress = await recoverAddress({
+        hash: expectedHash,
+        signature: signature as Hex,
+      });
+
+      expect(signature).toBeDefined();
+      expect(recoveredAddress).toBe(testAccount.address);
+    });
+
+    it("should handle object format with Uint8Array", async () => {
+      const byteArray = new Uint8Array([72, 101, 108, 108, 111]); // "Hello" in bytes
+      const signature = await testAccount.signMessage({ message: { raw: byteArray } });
+      const expectedHash = hashMessage({ raw: byteArray });
+      const recoveredAddress = await recoverAddress({
+        hash: expectedHash,
+        signature: signature as Hex,
+      });
+
+      expect(signature).toBeDefined();
+      expect(recoveredAddress).toBe(testAccount.address);
+    });
   });
 
   describe("get or create account", () => {

@@ -5,6 +5,7 @@ import {
   type HashTypedDataParameters,
   getTypesForEIP712Domain,
   serializeTransaction,
+  hashMessage,
 } from "viem";
 
 import { toNetworkScopedEvmServerAccount } from "./toNetworkScopedEvmServerAccount.js";
@@ -70,8 +71,15 @@ export function toEvmServerAccount(
         accountType: "evm_server",
       });
 
-      const result = await apiClient.signEvmMessage(options.account.address, {
-        message: message.toString(),
+      if (typeof message === "string") {
+        const result = await apiClient.signEvmMessage(options.account.address, {
+          message,
+        });
+        return result.signature as Hex;
+      }
+
+      const result = await apiClient.signEvmHash(options.account.address, {
+        hash: hashMessage(message),
       });
       return result.signature as Hex;
     },

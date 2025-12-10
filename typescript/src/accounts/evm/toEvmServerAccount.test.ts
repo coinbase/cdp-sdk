@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toEvmServerAccount } from "./toEvmServerAccount.js";
 import { EvmAccount, EvmServerAccount } from "./types.js";
 import { Address, Hash, Hex } from "../../types/misc.js";
-import { parseUnits, Transaction } from "viem";
+import { parseUnits, Transaction, hashMessage, recoverAddress } from "viem";
 import { transfer } from "../../actions/evm/transfer/transfer.js";
 import { accountTransferStrategy } from "../../actions/evm/transfer/accountTransferStrategy.js";
 import { CdpOpenApiClientType } from "../../openapi-client/index.js";
@@ -149,12 +149,73 @@ describe("toEvmServerAccount", () => {
     expect(serverAccount.type).toBe("evm-server");
   });
 
-  it("should call apiClient.signEvmMessage when signMessage is called", async () => {
-    const message = "Hello World";
-    await serverAccount.signMessage({ message });
+  describe("signMessage", () => {
+    it("should call apiClient.signEvmMessage for plain string", async () => {
+      const message = "Hello World";
 
-    expect(mockApiClient.signEvmMessage).toHaveBeenCalledWith(mockAddress, {
-      message: message.toString(),
+      await serverAccount.signMessage({ message });
+
+      expect(mockApiClient.signEvmMessage).toHaveBeenCalledWith(mockAddress, {
+        message,
+      });
+    });
+
+    it("should call apiClient.signEvmMessage for hex-encoded string", async () => {
+      const hexEncodedMessage = "0x48656c6c6f"; // hex encoded "Hello" (5 bytes)
+
+      await serverAccount.signMessage({ message: hexEncodedMessage });
+
+      expect(mockApiClient.signEvmMessage).toHaveBeenCalledWith(mockAddress, {
+        message: hexEncodedMessage,
+      });
+    });
+
+    it("should call apiClient.signEvmHash with correct hash for object format with raw hex", async () => {
+      const hexMessage = "0x48656c6c6f20576f726c64" as Hex; // "Hello World" in hex
+      const expectedHash = hashMessage({ raw: hexMessage });
+
+      await serverAccount.signMessage({ message: { raw: hexMessage } });
+
+      expect(mockApiClient.signEvmHash).toHaveBeenCalledWith(mockAddress, {
+        hash: expectedHash,
+      });
+    });
+
+    it("should handle binary data (32-byte hash) correctly - ZeroDev use case", async () => {
+      // This is the ZeroDev use case: signing a UserOp hash
+      const binaryDataHex =
+        "0x69e540c217c8af830886c5a81e5c617f71fa7ab913488233406b9bfbc12b31be" as Hex;
+      const expectedHash = hashMessage({ raw: binaryDataHex });
+
+      await serverAccount.signMessage({ message: { raw: binaryDataHex } });
+
+      expect(mockApiClient.signEvmHash).toHaveBeenCalledWith(mockAddress, {
+        hash: expectedHash,
+      });
+    });
+
+    it("should handle pre-hashed message (double-hash scenario)", async () => {
+      const originalMessage = "Hello";
+      const preHashedMessage = hashMessage(originalMessage);
+      // The preHashedMessage will be wrapped with EIP-191 again when passed as object
+      const expectedHash = hashMessage({ raw: preHashedMessage });
+
+      await serverAccount.signMessage({ message: { raw: preHashedMessage } });
+
+      expect(mockApiClient.signEvmHash).toHaveBeenCalledWith(mockAddress, {
+        hash: expectedHash,
+      });
+    });
+
+    it("should handle object format with Uint8Array", async () => {
+      const byteArray = new Uint8Array([72, 101, 108, 108, 111]); // "Hello" in bytes
+      const expectedHash = hashMessage({ raw: byteArray });
+
+      await serverAccount.signMessage({ message: { raw: byteArray } });
+
+      expect(mockApiClient.signEvmHash).toHaveBeenCalledWith(mockAddress, {
+        hash: expectedHash,
+      });
     });
   });
 
