@@ -9979,20 +9979,12 @@ components:
         - amount
         - payTo
         - maxTimeoutSeconds
-    MimeType:
-      type: string
-      minLength: 3
-      maxLength: 255
-      pattern: ^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$
-      description: A valid MIME type (media type) as defined in RFC 6838.
-      example: application/json
     x402ResourceInfo:
       type: object
       description: Describes the resource being accessed in x402 protocol.
       properties:
         url:
-          allOf:
-            - $ref: '#/components/schemas/Url'
+          type: string
           description: The URL of the resource.
           example: https://api.example.com/premium/resource/123
         description:
@@ -10000,12 +9992,9 @@ components:
           description: The description of the resource.
           example: Premium API access for data analysis
         mimeType:
-          allOf:
-            - $ref: '#/components/schemas/MimeType'
+          type: string
           description: The MIME type of the resource response.
           example: application/json
-      required:
-        - url
     x402V2PaymentPayload:
       type: object
       description: The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
@@ -10097,8 +10086,7 @@ components:
           description: The maximum amount required to pay for the resource in atomic units of the payment asset.
           example: '1000000'
         resource:
-          allOf:
-            - $ref: '#/components/schemas/Url'
+          type: string
           description: The URL of the resource to pay for.
           example: https://api.example.com/premium/resource/123
         description:
@@ -10106,8 +10094,7 @@ components:
           description: The description of the resource.
           example: Premium API access for data analysis
         mimeType:
-          allOf:
-            - $ref: '#/components/schemas/MimeType'
+          type: string
           description: The MIME type of the resource response.
           example: application/json
         outputSchema:
@@ -10665,8 +10652,8 @@ components:
                   The transaction of the settlement.
                   For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
                   For Solana-based networks, the transaction will be a base58-encoded Solana signature.
-                pattern: ^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$
-                example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                pattern: ^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$
+                example: '0x89c91c789e57059b17285e7ba1716a1f5ff4c5dace0ea5a5135f26158d0421b9'
               network:
                 type: string
                 description: The network where the settlement occurred.

@@ -1613,9 +1613,6 @@ type ListResponse struct {
 // ListSolanaTokenBalancesNetwork The name of the supported Solana networks in human-readable format.
 type ListSolanaTokenBalancesNetwork string
 
-// MimeType A valid MIME type (media type) as defined in RFC 6838.
-type MimeType = string
-
 // MintAddressCriterion The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
 type MintAddressCriterion struct {
 	// Addresses The Solana addresses that are compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
@@ -2811,10 +2808,10 @@ type X402ResourceInfo struct {
 	Description *string `json:"description,omitempty"`
 
 	// MimeType The MIME type of the resource response.
-	MimeType *MimeType `json:"mimeType,omitempty"`
+	MimeType *string `json:"mimeType,omitempty"`
 
 	// Url The URL of the resource.
-	Url Url `json:"url"`
+	Url *string `json:"url,omitempty"`
 }
 
 // X402SettleErrorReason The reason the payment settlement errored on the x402 protocol.
@@ -2889,7 +2886,7 @@ type X402V1PaymentRequirements struct {
 	MaxTimeoutSeconds int `json:"maxTimeoutSeconds"`
 
 	// MimeType The MIME type of the resource response.
-	MimeType MimeType `json:"mimeType"`
+	MimeType string `json:"mimeType"`
 
 	// Network The network of the blockchain to send payment on.
 	Network X402V1PaymentRequirementsNetwork `json:"network"`
@@ -2905,7 +2902,7 @@ type X402V1PaymentRequirements struct {
 	PayTo string `json:"payTo"`
 
 	// Resource The URL of the resource to pay for.
-	Resource Url `json:"resource"`
+	Resource string `json:"resource"`
 
 	// Scheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
 	Scheme X402V1PaymentRequirementsScheme `json:"scheme"`

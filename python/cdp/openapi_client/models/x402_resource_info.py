@@ -18,9 +18,8 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,27 +27,10 @@ class X402ResourceInfo(BaseModel):
     """
     Describes the resource being accessed in x402 protocol.
     """ # noqa: E501
-    url: Annotated[str, Field(min_length=11, strict=True, max_length=2048)] = Field(description="The URL of the resource.")
+    url: Optional[StrictStr] = Field(default=None, description="The URL of the resource.")
     description: Optional[StrictStr] = Field(default=None, description="The description of the resource.")
-    mime_type: Optional[Annotated[str, Field(min_length=3, strict=True, max_length=255)]] = Field(default=None, description="The MIME type of the resource response.", alias="mimeType")
+    mime_type: Optional[StrictStr] = Field(default=None, description="The MIME type of the resource response.", alias="mimeType")
     __properties: ClassVar[List[str]] = ["url", "description", "mimeType"]
-
-    @field_validator('url')
-    def url_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^https?:\/\/.*$", value):
-            raise ValueError(r"must validate the regular expression /^https?:\/\/.*$/")
-        return value
-
-    @field_validator('mime_type')
-    def mime_type_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if value is None:
-            return value
-
-        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*\/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*\/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$/")
-        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
