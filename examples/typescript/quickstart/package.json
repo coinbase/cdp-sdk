@@ -11,7 +11,7 @@
   },
   "main": "dist/index.js",
   "dependencies": {
-    "@coinbase/cdp-sdk": "^1.8.0",
+    "@coinbase/cdp-sdk": "^1.40.1",
     "viem": "^2.31.0"
   },
   "devDependencies": {

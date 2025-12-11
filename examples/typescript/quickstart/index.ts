@@ -80,8 +80,7 @@ const account = await cdp.evm.createAccount();
 console.log("✅ Created EVM account:", account.address);
 
 // 💧 Faucet
-const { transactionHash: faucetTx } = await cdp.evm.requestFaucet({
-  address: account.address,
+const { transactionHash: faucetTx } = await account.requestFaucet({
   network: "base-sepolia",
   token: "eth",
 });
@@ -89,8 +88,7 @@ await publicClient.waitForTransactionReceipt({ hash: faucetTx });
 console.log("🚰 Received testnet ETH:", faucetTx);
 
 // 🧾 Send tx
-const { transactionHash } = await cdp.evm.sendTransaction({
-  address: account.address,
+const { transactionHash } = await account.sendTransaction({
   network: "base-sepolia",
   transaction: {
     to: "0x0000000000000000000000000000000000000000",
