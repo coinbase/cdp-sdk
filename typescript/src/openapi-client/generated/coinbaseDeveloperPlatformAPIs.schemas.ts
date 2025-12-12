@@ -2902,23 +2902,15 @@ For Solana-based networks, payTo will be a base58-encoded Solana address.
 }
 
 /**
- * A valid MIME type (media type) as defined in RFC 6838.
- * @minLength 3
- * @maxLength 255
- * @pattern ^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*\/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$
- */
-export type MimeType = string;
-
-/**
  * Describes the resource being accessed in x402 protocol.
  */
 export interface X402ResourceInfo {
   /** The URL of the resource. */
-  url: Url;
+  url?: string;
   /** The description of the resource. */
   description?: string;
   /** The MIME type of the resource response. */
-  mimeType?: MimeType;
+  mimeType?: string;
 }
 
 /**
@@ -2995,11 +2987,11 @@ export interface X402V1PaymentRequirements {
   /** The maximum amount required to pay for the resource in atomic units of the payment asset. */
   maxAmountRequired: string;
   /** The URL of the resource to pay for. */
-  resource: Url;
+  resource: string;
   /** The description of the resource. */
   description: string;
   /** The MIME type of the resource response. */
-  mimeType: MimeType;
+  mimeType: string;
   /** The optional JSON schema describing the resource output. */
   outputSchema?: X402V1PaymentRequirementsOutputSchema;
   /**
@@ -3412,7 +3404,7 @@ For Solana-based networks, the payer will be a base58-encoded Solana address.
    * The transaction of the settlement.
 For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
 For Solana-based networks, the transaction will be a base58-encoded Solana signature.
-   * @pattern ^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$
+   * @pattern ^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$
    */
   transaction: string;
   /** The network where the settlement occurred. */
