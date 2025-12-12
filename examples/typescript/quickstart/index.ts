@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-import { http, createPublicClient, parseEther } from "viem";
-import { baseSepolia } from "viem/chains";
+import { parseEther } from "viem";
 import { CdpClient } from "@coinbase/cdp-sdk";
 import readline from "readline/promises";
 import { stdin as input, stdout as output } from "process";
@@ -70,32 +69,25 @@ const cdp = new CdpClient({
   walletSecret: CDP_WALLET_SECRET,
 });
 
-const publicClient = createPublicClient({
-  chain: baseSepolia,
-  transport: http(),
-});
-
 // 🪪 Create account
 const account = await cdp.evm.createAccount();
 console.log("✅ Created EVM account:", account.address);
 
+const baseSepoliaAccount = await account.useNetwork("base-sepolia");
+
 // 💧 Faucet
-const { transactionHash: faucetTx } = await cdp.evm.requestFaucet({
-  address: account.address,
-  network: "base-sepolia",
+const { transactionHash: faucetTx } = await baseSepoliaAccount.requestFaucet({
   token: "eth",
 });
-await publicClient.waitForTransactionReceipt({ hash: faucetTx });
+await baseSepoliaAccount.waitForTransactionReceipt({ hash: faucetTx });
 console.log("🚰 Received testnet ETH:", faucetTx);
 
 // 🧾 Send tx
-const { transactionHash } = await cdp.evm.sendTransaction({
-  address: account.address,
-  network: "base-sepolia",
+const { transactionHash } = await baseSepoliaAccount.sendTransaction({
   transaction: {
     to: "0x0000000000000000000000000000000000000000",
     value: parseEther("0.000001"),
   },
 });
-await publicClient.waitForTransactionReceipt({ hash: transactionHash });
+await baseSepoliaAccount.waitForTransactionReceipt({ hash: transactionHash });
 console.log(`📦 TX confirmed: https://sepolia.basescan.org/tx/${transactionHash}`);
