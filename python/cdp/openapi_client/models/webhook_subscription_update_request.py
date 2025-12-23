@@ -26,16 +26,16 @@ from typing_extensions import Self
 
 class WebhookSubscriptionUpdateRequest(BaseModel):
     """
-    Request to update an existing webhook subscription. The update format must match  the original subscription format (traditional or multi-label). 
+    Request to update an existing webhook subscription. The update format must match the original subscription format (traditional or multi-label). 
     """ # noqa: E501
     description: Optional[StrictStr] = Field(default=None, description="Description of the webhook subscription.")
-    event_types: Optional[List[StrictStr]] = Field(default=None, description="Types of events to subscribe to. Event types follow a three-part dot-separated format:  service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\"). ", alias="eventTypes")
+    event_types: Optional[List[StrictStr]] = Field(default=None, description="Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\"). ", alias="eventTypes")
     is_enabled: Optional[StrictBool] = Field(default=None, description="Whether the subscription is enabled.", alias="isEnabled")
     target: Optional[WebhookTarget] = None
     metadata: Optional[Dict[str, Any]] = Field(default=None, description="Additional metadata for the subscription.")
     label_key: Optional[StrictStr] = Field(default=None, description="Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both. ", alias="labelKey")
     label_value: Optional[StrictStr] = Field(default=None, description="Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both. ", alias="labelValue")
-    labels: Optional[Dict[str, StrictStr]] = Field(default=None, description="Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when  an event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both. ")
+    labels: Optional[Dict[str, StrictStr]] = Field(default=None, description="Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when an event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both. ")
     __properties: ClassVar[List[str]] = []
 
     model_config = ConfigDict(

@@ -19897,101 +19897,6 @@ pub mod types {
             value.parse()
         }
     }
-    ///A valid MIME type (media type) as defined in RFC 6838.
-    ///
-    /// <details><summary>JSON schema</summary>
-    ///
-    /// ```json
-    ///{
-    ///  "description": "A valid MIME type (media type) as defined in RFC 6838.",
-    ///  "examples": [
-    ///    "application/json"
-    ///  ],
-    ///  "type": "string",
-    ///  "maxLength": 255,
-    ///  "minLength": 3,
-    ///  "pattern": "^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$"
-    ///}
-    /// ```
-    /// </details>
-    #[derive(::serde::Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-    #[serde(transparent)]
-    pub struct MimeType(::std::string::String);
-    impl ::std::ops::Deref for MimeType {
-        type Target = ::std::string::String;
-        fn deref(&self) -> &::std::string::String {
-            &self.0
-        }
-    }
-    impl ::std::convert::From<MimeType> for ::std::string::String {
-        fn from(value: MimeType) -> Self {
-            value.0
-        }
-    }
-    impl ::std::convert::From<&MimeType> for MimeType {
-        fn from(value: &MimeType) -> Self {
-            value.clone()
-        }
-    }
-    impl ::std::str::FromStr for MimeType {
-        type Err = self::error::ConversionError;
-        fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            if value.chars().count() > 255usize {
-                return Err("longer than 255 characters".into());
-            }
-            if value.chars().count() < 3usize {
-                return Err("shorter than 3 characters".into());
-            }
-            static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-                ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new(
-                        "^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$",
-                    )
-                    .unwrap()
-                });
-            if PATTERN.find(value).is_none() {
-                return Err(
-                    "doesn't match pattern \"^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$\""
-                        .into(),
-                );
-            }
-            Ok(Self(value.to_string()))
-        }
-    }
-    impl ::std::convert::TryFrom<&str> for MimeType {
-        type Error = self::error::ConversionError;
-        fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<&::std::string::String> for MimeType {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: &::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl ::std::convert::TryFrom<::std::string::String> for MimeType {
-        type Error = self::error::ConversionError;
-        fn try_from(
-            value: ::std::string::String,
-        ) -> ::std::result::Result<Self, self::error::ConversionError> {
-            value.parse()
-        }
-    }
-    impl<'de> ::serde::Deserialize<'de> for MimeType {
-        fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
-        where
-            D: ::serde::Deserializer<'de>,
-        {
-            ::std::string::String::deserialize(deserializer)?
-                .parse()
-                .map_err(|e: self::error::ConversionError| {
-                    <D::Error as ::serde::de::Error>::custom(e.to_string())
-                })
-        }
-    }
     ///The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
     ///
     /// <details><summary>JSON schema</summary>
@@ -26986,10 +26891,10 @@ pub mod types {
     ///    "transaction": {
     ///      "description": "The transaction of the settlement.\nFor EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.\nFor Solana-based networks, the transaction will be a base58-encoded Solana signature.",
     ///      "examples": [
-    ///        "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///        "0x89c91c789e57059b17285e7ba1716a1f5ff4c5dace0ea5a5135f26158d0421b9"
     ///      ],
     ///      "type": "string",
-    ///      "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///      "pattern": "^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$"
     ///    }
     ///  }
     ///}
@@ -27127,10 +27032,10 @@ pub mod types {
     ///{
     ///  "description": "The transaction of the settlement.\nFor EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.\nFor Solana-based networks, the transaction will be a base58-encoded Solana signature.",
     ///  "examples": [
-    ///    "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    ///    "0x89c91c789e57059b17285e7ba1716a1f5ff4c5dace0ea5a5135f26158d0421b9"
     ///  ],
     ///  "type": "string",
-    ///  "pattern": "^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$"
+    ///  "pattern": "^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$"
     ///}
     /// ```
     /// </details>
@@ -27160,12 +27065,12 @@ pub mod types {
         fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
             static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
                 ::std::sync::LazyLock::new(|| {
-                    ::regress::Regex::new("^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$")
+                    ::regress::Regex::new("^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$")
                         .unwrap()
                 });
             if PATTERN.find(value).is_none() {
                 return Err(
-                    "doesn't match pattern \"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$\""
+                    "doesn't match pattern \"^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$\""
                         .into(),
                 );
             }
@@ -38063,7 +37968,7 @@ pub mod types {
     ///
     /// ```json
     ///{
-    ///  "description": "Request to create a new webhook subscription with support for both traditional single-label \nand multi-label filtering formats.\n",
+    ///  "description": "Request to create a new webhook subscription with support for both traditional single-label\nand multi-label filtering formats.\n",
     ///  "type": "object",
     ///  "oneOf": [
     ///    {
@@ -38114,7 +38019,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "eventTypes": {
-    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
+    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
     ///      "examples": [
     ///        [
     ///          "onchain.activity.detected"
@@ -38133,7 +38038,7 @@ pub mod types {
     ///      "type": "boolean"
     ///    },
     ///    "labelKey": {
-    ///      "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair \nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///      "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair\nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
     ///      "examples": [
     ///        "contract_address"
     ///      ],
@@ -38147,7 +38052,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "labels": {
-    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Additional labels on \nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
+    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
     ///      "examples": [
     ///        {
     ///          "contract_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -38217,7 +38122,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
+    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
     ///          "examples": [
     ///            [
     ///              "onchain.activity.detected"
@@ -38236,7 +38141,7 @@ pub mod types {
     ///          "type": "boolean"
     ///        },
     ///        "labelKey": {
-    ///          "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair \nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///          "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair\nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
     ///          "examples": [
     ///            "contract_address"
     ///          ],
@@ -38250,7 +38155,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Additional labels on \nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
+    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
     ///          "examples": [
     ///            {
     ///              "contract_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -38360,7 +38265,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
+    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
     ///          "examples": [
     ///            [
     ///              "onchain.activity.detected"
@@ -38379,7 +38284,7 @@ pub mod types {
     ///          "type": "boolean"
     ///        },
     ///        "labelKey": {
-    ///          "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair \nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///          "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair\nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
     ///          "examples": [
     ///            "contract_address"
     ///          ],
@@ -38393,7 +38298,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Additional labels on \nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
+    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
     ///          "examples": [
     ///            {
     ///              "contract_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -38544,7 +38449,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "eventTypes": {
-    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
+    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
     ///      "examples": [
     ///        [
     ///          "onchain.activity.detected"
@@ -38752,7 +38657,7 @@ pub mod types {
     ///
     /// ```json
     ///{
-    ///  "description": "Request to update an existing webhook subscription. The update format must match \nthe original subscription format (traditional or multi-label).\n",
+    ///  "description": "Request to update an existing webhook subscription. The update format must match\nthe original subscription format (traditional or multi-label).\n",
     ///  "type": "object",
     ///  "oneOf": [
     ///    {
@@ -38803,7 +38708,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "eventTypes": {
-    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
+    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
     ///      "examples": [
     ///        [
     ///          "onchain.activity.detected"
@@ -38836,7 +38741,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "labels": {
-    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
+    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
     ///      "examples": [
     ///        {
     ///          "env": "prod",
@@ -38909,7 +38814,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
+    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
     ///          "examples": [
     ///            [
     ///              "onchain.activity.detected"
@@ -38942,7 +38847,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
+    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
     ///          "examples": [
     ///            {
     ///              "env": "prod",
@@ -39051,7 +38956,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
+    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
     ///          "examples": [
     ///            [
     ///              "onchain.activity.detected"
@@ -39084,7 +38989,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
+    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
     ///          "examples": [
     ///            {
     ///              "env": "prod",
@@ -39773,9 +39678,6 @@ pub mod types {
     ///{
     ///  "description": "Describes the resource being accessed in x402 protocol.",
     ///  "type": "object",
-    ///  "required": [
-    ///    "url"
-    ///  ],
     ///  "properties": {
     ///    "description": {
     ///      "description": "The description of the resource.",
@@ -39789,22 +39691,14 @@ pub mod types {
     ///      "examples": [
     ///        "application/json"
     ///      ],
-    ///      "allOf": [
-    ///        {
-    ///          "$ref": "#/components/schemas/MimeType"
-    ///        }
-    ///      ]
+    ///      "type": "string"
     ///    },
     ///    "url": {
     ///      "description": "The URL of the resource.",
     ///      "examples": [
     ///        "https://api.example.com/premium/resource/123"
     ///      ],
-    ///      "allOf": [
-    ///        {
-    ///          "$ref": "#/components/schemas/Url"
-    ///        }
-    ///      ]
+    ///      "type": "string"
     ///    }
     ///  }
     ///}
@@ -39821,13 +39715,23 @@ pub mod types {
             default,
             skip_serializing_if = "::std::option::Option::is_none"
         )]
-        pub mime_type: ::std::option::Option<MimeType>,
+        pub mime_type: ::std::option::Option<::std::string::String>,
         ///The URL of the resource.
-        pub url: Url,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub url: ::std::option::Option<::std::string::String>,
     }
     impl ::std::convert::From<&X402ResourceInfo> for X402ResourceInfo {
         fn from(value: &X402ResourceInfo) -> Self {
             value.clone()
+        }
+    }
+    impl ::std::default::Default for X402ResourceInfo {
+        fn default() -> Self {
+            Self {
+                description: Default::default(),
+                mime_type: Default::default(),
+                url: Default::default(),
+            }
         }
     }
     impl X402ResourceInfo {
@@ -40046,13 +39950,7 @@ pub mod types {
     ///      "examples": [
     ///        "base"
     ///      ],
-    ///      "type": "string",
-    ///      "enum": [
-    ///        "base-sepolia",
-    ///        "base",
-    ///        "solana-devnet",
-    ///        "solana"
-    ///      ]
+    ///      "type": "string"
     ///    },
     ///    "scheme": {
     ///      "description": "The scheme of the payment protocol.",
@@ -40077,7 +39975,7 @@ pub mod types {
         #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
         pub extra: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
         ///The network of the blockchain.
-        pub network: X402SupportedPaymentKindNetwork,
+        pub network: ::std::string::String,
         ///The scheme of the payment protocol.
         pub scheme: X402SupportedPaymentKindScheme,
         #[serde(rename = "x402Version")]
@@ -40433,11 +40331,7 @@ pub mod types {
     ///      "examples": [
     ///        "application/json"
     ///      ],
-    ///      "allOf": [
-    ///        {
-    ///          "$ref": "#/components/schemas/MimeType"
-    ///        }
-    ///      ]
+    ///      "type": "string"
     ///    },
     ///    "network": {
     ///      "description": "The network of the blockchain to send payment on.",
@@ -40475,11 +40369,7 @@ pub mod types {
     ///      "examples": [
     ///        "https://api.example.com/premium/resource/123"
     ///      ],
-    ///      "allOf": [
-    ///        {
-    ///          "$ref": "#/components/schemas/Url"
-    ///        }
-    ///      ]
+    ///      "type": "string"
     ///    },
     ///    "scheme": {
     ///      "description": "The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.",
@@ -40516,7 +40406,7 @@ pub mod types {
         pub max_timeout_seconds: i64,
         ///The MIME type of the resource response.
         #[serde(rename = "mimeType")]
-        pub mime_type: MimeType,
+        pub mime_type: ::std::string::String,
         ///The network of the blockchain to send payment on.
         pub network: X402v1PaymentRequirementsNetwork,
         ///The optional JSON schema describing the resource output.
@@ -40534,7 +40424,7 @@ pub mod types {
         #[serde(rename = "payTo")]
         pub pay_to: X402v1PaymentRequirementsPayTo,
         ///The URL of the resource to pay for.
-        pub resource: Url,
+        pub resource: ::std::string::String,
         ///The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
         pub scheme: X402v1PaymentRequirementsScheme,
     }
@@ -55742,17 +55632,20 @@ pub mod types {
                 ::std::string::String,
             >,
             mime_type: ::std::result::Result<
-                ::std::option::Option<super::MimeType>,
+                ::std::option::Option<::std::string::String>,
                 ::std::string::String,
             >,
-            url: ::std::result::Result<super::Url, ::std::string::String>,
+            url: ::std::result::Result<
+                ::std::option::Option<::std::string::String>,
+                ::std::string::String,
+            >,
         }
         impl ::std::default::Default for X402ResourceInfo {
             fn default() -> Self {
                 Self {
                     description: Ok(Default::default()),
                     mime_type: Ok(Default::default()),
-                    url: Err("no value supplied for url".to_string()),
+                    url: Ok(Default::default()),
                 }
             }
         }
@@ -55769,7 +55662,7 @@ pub mod types {
             }
             pub fn mime_type<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::option::Option<super::MimeType>>,
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.mime_type = value
@@ -55779,7 +55672,7 @@ pub mod types {
             }
             pub fn url<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<super::Url>,
+                T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
                 T::Error: ::std::fmt::Display,
             {
                 self.url = value
@@ -55815,10 +55708,7 @@ pub mod types {
                 ::serde_json::Map<::std::string::String, ::serde_json::Value>,
                 ::std::string::String,
             >,
-            network: ::std::result::Result<
-                super::X402SupportedPaymentKindNetwork,
-                ::std::string::String,
-            >,
+            network: ::std::result::Result<::std::string::String, ::std::string::String>,
             scheme:
                 ::std::result::Result<super::X402SupportedPaymentKindScheme, ::std::string::String>,
             x402_version: ::std::result::Result<super::X402Version, ::std::string::String>,
@@ -55848,7 +55738,7 @@ pub mod types {
             }
             pub fn network<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<super::X402SupportedPaymentKindNetwork>,
+                T: ::std::convert::TryInto<::std::string::String>,
                 T::Error: ::std::fmt::Display,
             {
                 self.network = value
@@ -55996,7 +55886,7 @@ pub mod types {
             max_amount_required:
                 ::std::result::Result<::std::string::String, ::std::string::String>,
             max_timeout_seconds: ::std::result::Result<i64, ::std::string::String>,
-            mime_type: ::std::result::Result<super::MimeType, ::std::string::String>,
+            mime_type: ::std::result::Result<::std::string::String, ::std::string::String>,
             network: ::std::result::Result<
                 super::X402v1PaymentRequirementsNetwork,
                 ::std::string::String,
@@ -56007,7 +55897,7 @@ pub mod types {
             >,
             pay_to:
                 ::std::result::Result<super::X402v1PaymentRequirementsPayTo, ::std::string::String>,
-            resource: ::std::result::Result<super::Url, ::std::string::String>,
+            resource: ::std::result::Result<::std::string::String, ::std::string::String>,
             scheme: ::std::result::Result<
                 super::X402v1PaymentRequirementsScheme,
                 ::std::string::String,
@@ -56095,7 +55985,7 @@ pub mod types {
             }
             pub fn mime_type<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<super::MimeType>,
+                T: ::std::convert::TryInto<::std::string::String>,
                 T::Error: ::std::fmt::Display,
             {
                 self.mime_type = value
@@ -56137,7 +56027,7 @@ pub mod types {
             }
             pub fn resource<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<super::Url>,
+                T: ::std::convert::TryInto<::std::string::String>,
                 T::Error: ::std::fmt::Display,
             {
                 self.resource = value

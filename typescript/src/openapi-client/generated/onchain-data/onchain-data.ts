@@ -17,7 +17,7 @@ import { cdpApiClient } from "../../cdpApiClient.js";
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
- * Retrieve all ERC-20 token contract addresses that an account has ever received tokens from. 
+ * Retrieve all ERC-20 token contract addresses that an account has ever received tokens from.
 Analyzes transaction history to discover token interactions.
 
  * @summary List token addresses for account

@@ -17,7 +17,7 @@ generate-all-clients:
 	@echo "Generating Python client..."
 	@cd python && make python-client
 	@echo "Generating Rust client..."
-	@cd rust && make build && make format
+	@cd rust && make generate && make format
 	@echo "Generating Go client..."
 	@cd go && make client
 	@echo "All clients generated successfully!"

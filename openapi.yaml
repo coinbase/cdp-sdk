@@ -4860,7 +4860,7 @@ paths:
       summary: List token addresses for account
       x-audience: public
       description: |
-        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from. 
+        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from.
         Analyzes transaction history to discover token interactions.
       tags:
         - Onchain Data
@@ -9539,7 +9539,7 @@ components:
         eventTypes:
           type: array
           description: |
-            Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+            Types of events to subscribe to. Event types follow a three-part dot-separated format:
             service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
           items:
             type: string
@@ -9629,7 +9629,7 @@ components:
     WebhookSubscriptionRequest:
       type: object
       description: |
-        Request to create a new webhook subscription with support for both traditional single-label 
+        Request to create a new webhook subscription with support for both traditional single-label
         and multi-label filtering formats.
       properties:
         description:
@@ -9639,7 +9639,7 @@ components:
         eventTypes:
           type: array
           description: |
-            Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+            Types of events to subscribe to. Event types follow a three-part dot-separated format:
             service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
             The subscription will only receive events matching these types AND the label filter(s).
           items:
@@ -9662,7 +9662,7 @@ components:
         labelKey:
           type: string
           description: |
-            Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair 
+            Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair
             in addition to the event types. Only events matching both the event types AND this label filter will be delivered.
             NOTE: Use either (labelKey + labelValue) OR labels, not both.
           example: contract_address
@@ -9676,8 +9676,8 @@ components:
         labels:
           type: object
           description: |
-            Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
-            an event contains ALL the key-value pairs specified here. Additional labels on 
+            Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
+            an event contains ALL the key-value pairs specified here. Additional labels on
             the event are allowed and will not prevent matching.
             NOTE: Use either labels OR (labelKey + labelValue), not both.
           additionalProperties:
@@ -9712,7 +9712,7 @@ components:
     WebhookSubscriptionUpdateRequest:
       type: object
       description: |
-        Request to update an existing webhook subscription. The update format must match 
+        Request to update an existing webhook subscription. The update format must match
         the original subscription format (traditional or multi-label).
       properties:
         description:
@@ -9722,7 +9722,7 @@ components:
         eventTypes:
           type: array
           description: |
-            Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+            Types of events to subscribe to. Event types follow a three-part dot-separated format:
             service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
           items:
             type: string
@@ -9754,7 +9754,7 @@ components:
         labels:
           type: object
           description: |
-            Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
+            Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
             an event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.
           additionalProperties:
             type: string
@@ -9979,20 +9979,12 @@ components:
         - amount
         - payTo
         - maxTimeoutSeconds
-    MimeType:
-      type: string
-      minLength: 3
-      maxLength: 255
-      pattern: ^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$
-      description: A valid MIME type (media type) as defined in RFC 6838.
-      example: application/json
     x402ResourceInfo:
       type: object
       description: Describes the resource being accessed in x402 protocol.
       properties:
         url:
-          allOf:
-            - $ref: '#/components/schemas/Url'
+          type: string
           description: The URL of the resource.
           example: https://api.example.com/premium/resource/123
         description:
@@ -10000,12 +9992,9 @@ components:
           description: The description of the resource.
           example: Premium API access for data analysis
         mimeType:
-          allOf:
-            - $ref: '#/components/schemas/MimeType'
+          type: string
           description: The MIME type of the resource response.
           example: application/json
-      required:
-        - url
     x402V2PaymentPayload:
       type: object
       description: The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
@@ -10097,8 +10086,7 @@ components:
           description: The maximum amount required to pay for the resource in atomic units of the payment asset.
           example: '1000000'
         resource:
-          allOf:
-            - $ref: '#/components/schemas/Url'
+          type: string
           description: The URL of the resource to pay for.
           example: https://api.example.com/premium/resource/123
         description:
@@ -10106,8 +10094,7 @@ components:
           description: The description of the resource.
           example: Premium API access for data analysis
         mimeType:
-          allOf:
-            - $ref: '#/components/schemas/MimeType'
+          type: string
           description: The MIME type of the resource response.
           example: application/json
         outputSchema:
@@ -10222,6 +10209,15 @@ components:
         - settle_exact_svm_block_height_exceeded
         - settle_exact_svm_transaction_confirmation_timed_out
       example: insufficient_funds
+    x402SupportedPaymentKindNetwork:
+      type: string
+      description: The network of the blockchain.
+      enum:
+        - base-sepolia
+        - base
+        - solana-devnet
+        - solana
+      example: base
     x402SupportedPaymentKind:
       type: object
       description: The supported payment kind for the x402 protocol. A kind is comprised of a scheme and a network, which together uniquely identify a way to move money on the x402 protocol. For more details, please see [x402 Schemes](https://github.com/coinbase/x402?tab=readme-ov-file#schemes).
@@ -10237,11 +10233,6 @@ components:
         network:
           type: string
           description: The network of the blockchain.
-          enum:
-            - base-sepolia
-            - base
-            - solana-devnet
-            - solana
           example: base
         extra:
           type: object
@@ -10665,8 +10656,8 @@ components:
                   The transaction of the settlement.
                   For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
                   For Solana-based networks, the transaction will be a base58-encoded Solana signature.
-                pattern: ^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$
-                example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                pattern: ^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$
+                example: '0x89c91c789e57059b17285e7ba1716a1f5ff4c5dace0ea5a5135f26158d0421b9'
               network:
                 type: string
                 description: The network where the settlement occurred.
@@ -10754,7 +10745,7 @@ components:
       required: false
       description: |
         An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
-        When included, duplicate requests with the same key will return identical responses. 
+        When included, duplicate requests with the same key will return identical responses.
         Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
       schema:
         type: string

@@ -46,8 +46,8 @@ class InlineObject1(BaseModel):
     @field_validator('transaction')
     def transaction_validate_regular_expression(cls, value):
         """Validates the regular expression"""
-        if not re.match(r"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$", value):
-            raise ValueError(r"must validate the regular expression /^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$/")
+        if not re.match(r"^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$", value):
+            raise ValueError(r"must validate the regular expression /^(0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})$/")
         return value
 
     model_config = ConfigDict(

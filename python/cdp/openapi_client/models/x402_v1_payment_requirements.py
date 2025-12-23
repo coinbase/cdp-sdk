@@ -31,9 +31,9 @@ class X402V1PaymentRequirements(BaseModel):
     scheme: StrictStr = Field(description="The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.")
     network: StrictStr = Field(description="The network of the blockchain to send payment on.")
     max_amount_required: StrictStr = Field(description="The maximum amount required to pay for the resource in atomic units of the payment asset.", alias="maxAmountRequired")
-    resource: Annotated[str, Field(min_length=11, strict=True, max_length=2048)] = Field(description="The URL of the resource to pay for.")
+    resource: StrictStr = Field(description="The URL of the resource to pay for.")
     description: StrictStr = Field(description="The description of the resource.")
-    mime_type: Annotated[str, Field(min_length=3, strict=True, max_length=255)] = Field(description="The MIME type of the resource response.", alias="mimeType")
+    mime_type: StrictStr = Field(description="The MIME type of the resource response.", alias="mimeType")
     output_schema: Optional[Dict[str, Any]] = Field(default=None, description="The optional JSON schema describing the resource output.", alias="outputSchema")
     pay_to: Annotated[str, Field(strict=True)] = Field(description="The destination to pay value to.  For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, payTo will be a base58-encoded Solana address.", alias="payTo")
     max_timeout_seconds: StrictInt = Field(description="The maximum time in seconds for the resource server to respond.", alias="maxTimeoutSeconds")
@@ -53,20 +53,6 @@ class X402V1PaymentRequirements(BaseModel):
         """Validates the enum"""
         if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana']):
             raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana')")
-        return value
-
-    @field_validator('resource')
-    def resource_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^https?:\/\/.*$", value):
-            raise ValueError(r"must validate the regular expression /^https?:\/\/.*$/")
-        return value
-
-    @field_validator('mime_type')
-    def mime_type_validate_regular_expression(cls, value):
-        """Validates the regular expression"""
-        if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*\/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*\/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$/")
         return value
 
     @field_validator('pay_to')

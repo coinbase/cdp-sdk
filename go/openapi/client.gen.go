@@ -633,14 +633,6 @@ const (
 	X402SettleErrorReasonSettleExactSvmTransactionConfirmationTimedOut       X402SettleErrorReason = "settle_exact_svm_transaction_confirmation_timed_out"
 )
 
-// Defines values for X402SupportedPaymentKindNetwork.
-const (
-	X402SupportedPaymentKindNetworkBase         X402SupportedPaymentKindNetwork = "base"
-	X402SupportedPaymentKindNetworkBaseSepolia  X402SupportedPaymentKindNetwork = "base-sepolia"
-	X402SupportedPaymentKindNetworkSolana       X402SupportedPaymentKindNetwork = "solana"
-	X402SupportedPaymentKindNetworkSolanaDevnet X402SupportedPaymentKindNetwork = "solana-devnet"
-)
-
 // Defines values for X402SupportedPaymentKindScheme.
 const (
 	X402SupportedPaymentKindSchemeExact X402SupportedPaymentKindScheme = "exact"
@@ -742,9 +734,9 @@ const (
 
 // Defines values for RequestEvmFaucetJSONBodyNetwork.
 const (
-	BaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
-	EthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
-	EthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
+	RequestEvmFaucetJSONBodyNetworkBaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
+	RequestEvmFaucetJSONBodyNetworkEthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
+	RequestEvmFaucetJSONBodyNetworkEthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
 )
 
 // Defines values for RequestEvmFaucetJSONBodyToken.
@@ -1612,9 +1604,6 @@ type ListResponse struct {
 
 // ListSolanaTokenBalancesNetwork The name of the supported Solana networks in human-readable format.
 type ListSolanaTokenBalancesNetwork string
-
-// MimeType A valid MIME type (media type) as defined in RFC 6838.
-type MimeType = string
 
 // MintAddressCriterion The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
 type MintAddressCriterion struct {
@@ -2811,10 +2800,10 @@ type X402ResourceInfo struct {
 	Description *string `json:"description,omitempty"`
 
 	// MimeType The MIME type of the resource response.
-	MimeType *MimeType `json:"mimeType,omitempty"`
+	MimeType *string `json:"mimeType,omitempty"`
 
 	// Url The URL of the resource.
-	Url Url `json:"url"`
+	Url *string `json:"url,omitempty"`
 }
 
 // X402SettleErrorReason The reason the payment settlement errored on the x402 protocol.
@@ -2826,7 +2815,7 @@ type X402SupportedPaymentKind struct {
 	Extra *map[string]interface{} `json:"extra,omitempty"`
 
 	// Network The network of the blockchain.
-	Network X402SupportedPaymentKindNetwork `json:"network"`
+	Network string `json:"network"`
 
 	// Scheme The scheme of the payment protocol.
 	Scheme X402SupportedPaymentKindScheme `json:"scheme"`
@@ -2834,9 +2823,6 @@ type X402SupportedPaymentKind struct {
 	// X402Version The version of the x402 protocol.
 	X402Version X402Version `json:"x402Version"`
 }
-
-// X402SupportedPaymentKindNetwork The network of the blockchain.
-type X402SupportedPaymentKindNetwork string
 
 // X402SupportedPaymentKindScheme The scheme of the payment protocol.
 type X402SupportedPaymentKindScheme string
@@ -2889,7 +2875,7 @@ type X402V1PaymentRequirements struct {
 	MaxTimeoutSeconds int `json:"maxTimeoutSeconds"`
 
 	// MimeType The MIME type of the resource response.
-	MimeType MimeType `json:"mimeType"`
+	MimeType string `json:"mimeType"`
 
 	// Network The network of the blockchain to send payment on.
 	Network X402V1PaymentRequirementsNetwork `json:"network"`
@@ -2905,7 +2891,7 @@ type X402V1PaymentRequirements struct {
 	PayTo string `json:"payTo"`
 
 	// Resource The URL of the resource to pay for.
-	Resource Url `json:"resource"`
+	Resource string `json:"resource"`
 
 	// Scheme The scheme of the payment protocol to use. Currently, the only supported scheme is `exact`.
 	Scheme X402V1PaymentRequirementsScheme `json:"scheme"`

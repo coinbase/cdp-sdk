@@ -39,14 +39,14 @@ class TestInlineObject1(unittest.TestCase):
                 success = False,
                 error_reason = 'insufficient_funds',
                 payer = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                transaction = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+                transaction = '0x89c91c789e57059b17285e7ba1716a1f5ff4c5dace0ea5a5135f26158d0421b9',
                 network = 'base'
             )
         else:
             return InlineObject1(
                 success = False,
                 payer = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-                transaction = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+                transaction = '0x89c91c789e57059b17285e7ba1716a1f5ff4c5dace0ea5a5135f26158d0421b9',
                 network = 'base',
         )
         """

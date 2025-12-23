@@ -41,13 +41,6 @@ class X402SupportedPaymentKind(BaseModel):
             raise ValueError("must be one of enum values ('exact')")
         return value
 
-    @field_validator('network')
-    def network_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana')")
-        return value
-
     model_config = ConfigDict(
         populate_by_name=True,
         validate_assignment=True,
