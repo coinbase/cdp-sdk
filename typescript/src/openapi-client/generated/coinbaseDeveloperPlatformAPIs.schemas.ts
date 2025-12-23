@@ -2574,7 +2574,7 @@ export interface WebhookSubscriptionResponse {
   createdAt: string;
   /** Description of the webhook subscription. */
   description?: string;
-  /** Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+  /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
  */
   eventTypes: string[];
@@ -2615,8 +2615,8 @@ export type WebhookSubscriptionListResponse = WebhookSubscriptionListResponseAll
 export type WebhookSubscriptionRequestMetadata = { [key: string]: unknown };
 
 /**
- * Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
-an event contains ALL the key-value pairs specified here. Additional labels on 
+ * Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
+an event contains ALL the key-value pairs specified here. Additional labels on
 the event are allowed and will not prevent matching.
 NOTE: Use either labels OR (labelKey + labelValue), not both.
 
@@ -2624,7 +2624,7 @@ NOTE: Use either labels OR (labelKey + labelValue), not both.
 export type WebhookSubscriptionRequestLabels = { [key: string]: string };
 
 /**
- * Request to create a new webhook subscription with support for both traditional single-label 
+ * Request to create a new webhook subscription with support for both traditional single-label
 and multi-label filtering formats.
 
  */
@@ -2632,7 +2632,7 @@ export type WebhookSubscriptionRequest =
   | (unknown & {
       /** Description of the webhook subscription. */
       description?: string;
-      /** Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+      /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
 The subscription will only receive events matching these types AND the label filter(s).
  */
@@ -2642,7 +2642,7 @@ The subscription will only receive events matching these types AND the label fil
       target?: WebhookTarget;
       /** Additional metadata for the subscription. */
       metadata?: WebhookSubscriptionRequestMetadata;
-      /** Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair 
+      /** Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair
 in addition to the event types. Only events matching both the event types AND this label filter will be delivered.
 NOTE: Use either (labelKey + labelValue) OR labels, not both.
  */
@@ -2652,8 +2652,8 @@ Only events with this exact label value will be delivered.
 NOTE: Use either (labelKey + labelValue) OR labels, not both.
  */
       labelValue?: string;
-      /** Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
-an event contains ALL the key-value pairs specified here. Additional labels on 
+      /** Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
+an event contains ALL the key-value pairs specified here. Additional labels on
 the event are allowed and will not prevent matching.
 NOTE: Use either labels OR (labelKey + labelValue), not both.
  */
@@ -2662,7 +2662,7 @@ NOTE: Use either labels OR (labelKey + labelValue), not both.
   | (unknown & {
       /** Description of the webhook subscription. */
       description?: string;
-      /** Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+      /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
 The subscription will only receive events matching these types AND the label filter(s).
  */
@@ -2672,7 +2672,7 @@ The subscription will only receive events matching these types AND the label fil
       target?: WebhookTarget;
       /** Additional metadata for the subscription. */
       metadata?: WebhookSubscriptionRequestMetadata;
-      /** Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair 
+      /** Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair
 in addition to the event types. Only events matching both the event types AND this label filter will be delivered.
 NOTE: Use either (labelKey + labelValue) OR labels, not both.
  */
@@ -2682,8 +2682,8 @@ Only events with this exact label value will be delivered.
 NOTE: Use either (labelKey + labelValue) OR labels, not both.
  */
       labelValue?: string;
-      /** Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
-an event contains ALL the key-value pairs specified here. Additional labels on 
+      /** Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
+an event contains ALL the key-value pairs specified here. Additional labels on
 the event are allowed and will not prevent matching.
 NOTE: Use either labels OR (labelKey + labelValue), not both.
  */
@@ -2696,14 +2696,14 @@ NOTE: Use either labels OR (labelKey + labelValue), not both.
 export type WebhookSubscriptionUpdateRequestMetadata = { [key: string]: unknown };
 
 /**
- * Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
+ * Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
 an event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.
 
  */
 export type WebhookSubscriptionUpdateRequestLabels = { [key: string]: string };
 
 /**
- * Request to update an existing webhook subscription. The update format must match 
+ * Request to update an existing webhook subscription. The update format must match
 the original subscription format (traditional or multi-label).
 
  */
@@ -2711,7 +2711,7 @@ export type WebhookSubscriptionUpdateRequest =
   | (unknown & {
       /** Description of the webhook subscription. */
       description?: string;
-      /** Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+      /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
  */
       eventTypes?: string[];
@@ -2726,7 +2726,7 @@ service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detec
       /** Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.
        */
       labelValue?: string;
-      /** Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
+      /** Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
 an event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.
  */
       labels?: WebhookSubscriptionUpdateRequestLabels;
@@ -2734,7 +2734,7 @@ an event contains ALL the key-value pairs specified here. Use either labels OR (
   | (unknown & {
       /** Description of the webhook subscription. */
       description?: string;
-      /** Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+      /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
  */
       eventTypes?: string[];
@@ -2749,7 +2749,7 @@ service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detec
       /** Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.
        */
       labelValue?: string;
-      /** Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
+      /** Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
 an event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.
  */
       labels?: WebhookSubscriptionUpdateRequestLabels;
@@ -3125,17 +3125,6 @@ export const X402SettleErrorReason = {
 } as const;
 
 /**
- * The scheme of the payment protocol.
- */
-export type X402SupportedPaymentKindScheme =
-  (typeof X402SupportedPaymentKindScheme)[keyof typeof X402SupportedPaymentKindScheme];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const X402SupportedPaymentKindScheme = {
-  exact: "exact",
-} as const;
-
-/**
  * The network of the blockchain.
  */
 export type X402SupportedPaymentKindNetwork =
@@ -3147,6 +3136,17 @@ export const X402SupportedPaymentKindNetwork = {
   base: "base",
   "solana-devnet": "solana-devnet",
   solana: "solana",
+} as const;
+
+/**
+ * The scheme of the payment protocol.
+ */
+export type X402SupportedPaymentKindScheme =
+  (typeof X402SupportedPaymentKindScheme)[keyof typeof X402SupportedPaymentKindScheme];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const X402SupportedPaymentKindScheme = {
+  exact: "exact",
 } as const;
 
 /**
@@ -3162,7 +3162,7 @@ export interface X402SupportedPaymentKind {
   /** The scheme of the payment protocol. */
   scheme: X402SupportedPaymentKindScheme;
   /** The network of the blockchain. */
-  network: X402SupportedPaymentKindNetwork;
+  network: string;
   /** The optional additional scheme-specific payment info. */
   extra?: X402SupportedPaymentKindExtra;
 }
@@ -3440,7 +3440,7 @@ export type XWalletAuthParameter = string;
 
 /**
  * An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
-When included, duplicate requests with the same key will return identical responses. 
+When included, duplicate requests with the same key will return identical responses.
 Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
 
  */

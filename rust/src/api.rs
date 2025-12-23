@@ -37968,7 +37968,7 @@ pub mod types {
     ///
     /// ```json
     ///{
-    ///  "description": "Request to create a new webhook subscription with support for both traditional single-label \nand multi-label filtering formats.\n",
+    ///  "description": "Request to create a new webhook subscription with support for both traditional single-label\nand multi-label filtering formats.\n",
     ///  "type": "object",
     ///  "oneOf": [
     ///    {
@@ -38019,7 +38019,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "eventTypes": {
-    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
+    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
     ///      "examples": [
     ///        [
     ///          "onchain.activity.detected"
@@ -38038,7 +38038,7 @@ pub mod types {
     ///      "type": "boolean"
     ///    },
     ///    "labelKey": {
-    ///      "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair \nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///      "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair\nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
     ///      "examples": [
     ///        "contract_address"
     ///      ],
@@ -38052,7 +38052,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "labels": {
-    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Additional labels on \nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
+    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
     ///      "examples": [
     ///        {
     ///          "contract_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -38122,7 +38122,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
+    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
     ///          "examples": [
     ///            [
     ///              "onchain.activity.detected"
@@ -38141,7 +38141,7 @@ pub mod types {
     ///          "type": "boolean"
     ///        },
     ///        "labelKey": {
-    ///          "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair \nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///          "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair\nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
     ///          "examples": [
     ///            "contract_address"
     ///          ],
@@ -38155,7 +38155,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Additional labels on \nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
+    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
     ///          "examples": [
     ///            {
     ///              "contract_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -38265,7 +38265,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
+    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
     ///          "examples": [
     ///            [
     ///              "onchain.activity.detected"
@@ -38284,7 +38284,7 @@ pub mod types {
     ///          "type": "boolean"
     ///        },
     ///        "labelKey": {
-    ///          "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair \nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///          "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair\nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
     ///          "examples": [
     ///            "contract_address"
     ///          ],
@@ -38298,7 +38298,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Additional labels on \nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
+    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
     ///          "examples": [
     ///            {
     ///              "contract_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -38449,7 +38449,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "eventTypes": {
-    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
+    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
     ///      "examples": [
     ///        [
     ///          "onchain.activity.detected"
@@ -38657,7 +38657,7 @@ pub mod types {
     ///
     /// ```json
     ///{
-    ///  "description": "Request to update an existing webhook subscription. The update format must match \nthe original subscription format (traditional or multi-label).\n",
+    ///  "description": "Request to update an existing webhook subscription. The update format must match\nthe original subscription format (traditional or multi-label).\n",
     ///  "type": "object",
     ///  "oneOf": [
     ///    {
@@ -38708,7 +38708,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "eventTypes": {
-    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
+    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
     ///      "examples": [
     ///        [
     ///          "onchain.activity.detected"
@@ -38741,7 +38741,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "labels": {
-    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
+    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
     ///      "examples": [
     ///        {
     ///          "env": "prod",
@@ -38814,7 +38814,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
+    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
     ///          "examples": [
     ///            [
     ///              "onchain.activity.detected"
@@ -38847,7 +38847,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
+    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
     ///          "examples": [
     ///            {
     ///              "env": "prod",
@@ -38956,7 +38956,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
+    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
     ///          "examples": [
     ///            [
     ///              "onchain.activity.detected"
@@ -38989,7 +38989,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
+    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
     ///          "examples": [
     ///            {
     ///              "env": "prod",
@@ -39950,13 +39950,7 @@ pub mod types {
     ///      "examples": [
     ///        "base"
     ///      ],
-    ///      "type": "string",
-    ///      "enum": [
-    ///        "base-sepolia",
-    ///        "base",
-    ///        "solana-devnet",
-    ///        "solana"
-    ///      ]
+    ///      "type": "string"
     ///    },
     ///    "scheme": {
     ///      "description": "The scheme of the payment protocol.",
@@ -39981,7 +39975,7 @@ pub mod types {
         #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
         pub extra: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
         ///The network of the blockchain.
-        pub network: X402SupportedPaymentKindNetwork,
+        pub network: ::std::string::String,
         ///The scheme of the payment protocol.
         pub scheme: X402SupportedPaymentKindScheme,
         #[serde(rename = "x402Version")]
@@ -55714,10 +55708,7 @@ pub mod types {
                 ::serde_json::Map<::std::string::String, ::serde_json::Value>,
                 ::std::string::String,
             >,
-            network: ::std::result::Result<
-                super::X402SupportedPaymentKindNetwork,
-                ::std::string::String,
-            >,
+            network: ::std::result::Result<::std::string::String, ::std::string::String>,
             scheme:
                 ::std::result::Result<super::X402SupportedPaymentKindScheme, ::std::string::String>,
             x402_version: ::std::result::Result<super::X402Version, ::std::string::String>,
@@ -55747,7 +55738,7 @@ pub mod types {
             }
             pub fn network<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<super::X402SupportedPaymentKindNetwork>,
+                T: ::std::convert::TryInto<::std::string::String>,
                 T::Error: ::std::fmt::Display,
             {
                 self.network = value

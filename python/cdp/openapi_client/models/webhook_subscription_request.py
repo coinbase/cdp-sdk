@@ -26,16 +26,16 @@ from typing_extensions import Self
 
 class WebhookSubscriptionRequest(BaseModel):
     """
-    Request to create a new webhook subscription with support for both traditional single-label  and multi-label filtering formats. 
+    Request to create a new webhook subscription with support for both traditional single-label and multi-label filtering formats. 
     """ # noqa: E501
     description: Optional[StrictStr] = Field(default=None, description="Description of the webhook subscription.")
-    event_types: Optional[List[StrictStr]] = Field(default=None, description="Types of events to subscribe to. Event types follow a three-part dot-separated format:  service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\"). The subscription will only receive events matching these types AND the label filter(s). ", alias="eventTypes")
+    event_types: Optional[List[StrictStr]] = Field(default=None, description="Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\"). The subscription will only receive events matching these types AND the label filter(s). ", alias="eventTypes")
     is_enabled: Optional[StrictBool] = Field(default=None, description="Whether the subscription is enabled.", alias="isEnabled")
     target: Optional[WebhookTarget] = None
     metadata: Optional[Dict[str, Any]] = Field(default=None, description="Additional metadata for the subscription.")
-    label_key: Optional[StrictStr] = Field(default=None, description="Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair  in addition to the event types. Only events matching both the event types AND this label filter will be delivered. NOTE: Use either (labelKey + labelValue) OR labels, not both. ", alias="labelKey")
+    label_key: Optional[StrictStr] = Field(default=None, description="Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair in addition to the event types. Only events matching both the event types AND this label filter will be delivered. NOTE: Use either (labelKey + labelValue) OR labels, not both. ", alias="labelKey")
     label_value: Optional[StrictStr] = Field(default=None, description="Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key). Only events with this exact label value will be delivered. NOTE: Use either (labelKey + labelValue) OR labels, not both. ", alias="labelValue")
-    labels: Optional[Dict[str, StrictStr]] = Field(default=None, description="Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when  an event contains ALL the key-value pairs specified here. Additional labels on  the event are allowed and will not prevent matching. NOTE: Use either labels OR (labelKey + labelValue), not both. ")
+    labels: Optional[Dict[str, StrictStr]] = Field(default=None, description="Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when an event contains ALL the key-value pairs specified here. Additional labels on the event are allowed and will not prevent matching. NOTE: Use either labels OR (labelKey + labelValue), not both. ")
     __properties: ClassVar[List[str]] = []
 
     model_config = ConfigDict(
