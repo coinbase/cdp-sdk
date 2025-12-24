@@ -4,7 +4,7 @@
   </h1>
 
   <p style="font-size: 1.2em; max-width: 600px; margin: 0 auto 20px;">
-    Client libraries for managing EVM and Solana wallets while relying on CDP to secure private keys.
+    Client libraries for managing EVM and Solana wallets while relying on CDP to secure private keys. Update New Limit Rocket Actions.
   </p>
 
 [![Follow @CoinbaseDev](https://img.shields.io/twitter/follow/CoinbaseDev.svg?style=social)](https://x.com/CoinbaseDev)
