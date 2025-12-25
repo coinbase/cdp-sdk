@@ -1,6 +1,4 @@
 # Usage: uv run python evm/swaps/get_swap_price.py
-#!/usr/bin/env python3
-# Usage: uv run python evm/get_swap_price.py
 
 """
 Example: Get Swap Price
