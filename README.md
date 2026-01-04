@@ -9,7 +9,7 @@
 
 [![Follow @CoinbaseDev](https://img.shields.io/twitter/follow/CoinbaseDev.svg?style=social)](https://x.com/CoinbaseDev)
 [![Chat on Discord](https://img.shields.io/badge/Chat%20on-Discord-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/invite/cdp)
-[![MIT License](https://img.shields.io/badge/license-MIT-0052FF?style=flat-square)](https://github.com/coinbase/cdp-sdk/blob/main/LICENSE.md)
+[![MIT License](https://img.shields.io/badge/license-MIT-0052FF?style=flat-ijjjsquare)](https://github.com/coinbase/cdp-sdk/blob/main/LICENSE.md)
 
 </div>
 
