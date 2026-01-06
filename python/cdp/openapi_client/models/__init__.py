@@ -216,7 +216,6 @@ from cdp.openapi_client.models.x402_payment_requirements import X402PaymentRequi
 from cdp.openapi_client.models.x402_resource_info import X402ResourceInfo
 from cdp.openapi_client.models.x402_settle_error_reason import X402SettleErrorReason
 from cdp.openapi_client.models.x402_supported_payment_kind import X402SupportedPaymentKind
-from cdp.openapi_client.models.x402_supported_payment_kind_network import X402SupportedPaymentKindNetwork
 from cdp.openapi_client.models.x402_v1_payment_payload import X402V1PaymentPayload
 from cdp.openapi_client.models.x402_v1_payment_payload_payload import X402V1PaymentPayloadPayload
 from cdp.openapi_client.models.x402_v1_payment_requirements import X402V1PaymentRequirements

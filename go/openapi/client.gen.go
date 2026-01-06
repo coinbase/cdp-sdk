@@ -633,6 +633,14 @@ const (
 	X402SettleErrorReasonSettleExactSvmTransactionConfirmationTimedOut       X402SettleErrorReason = "settle_exact_svm_transaction_confirmation_timed_out"
 )
 
+// Defines values for X402SupportedPaymentKindNetwork.
+const (
+	X402SupportedPaymentKindNetworkBase         X402SupportedPaymentKindNetwork = "base"
+	X402SupportedPaymentKindNetworkBaseSepolia  X402SupportedPaymentKindNetwork = "base-sepolia"
+	X402SupportedPaymentKindNetworkSolana       X402SupportedPaymentKindNetwork = "solana"
+	X402SupportedPaymentKindNetworkSolanaDevnet X402SupportedPaymentKindNetwork = "solana-devnet"
+)
+
 // Defines values for X402SupportedPaymentKindScheme.
 const (
 	X402SupportedPaymentKindSchemeExact X402SupportedPaymentKindScheme = "exact"
@@ -734,9 +742,9 @@ const (
 
 // Defines values for RequestEvmFaucetJSONBodyNetwork.
 const (
-	RequestEvmFaucetJSONBodyNetworkBaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
-	RequestEvmFaucetJSONBodyNetworkEthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
-	RequestEvmFaucetJSONBodyNetworkEthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
+	BaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
+	EthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
+	EthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
 )
 
 // Defines values for RequestEvmFaucetJSONBodyToken.
@@ -2815,7 +2823,7 @@ type X402SupportedPaymentKind struct {
 	Extra *map[string]interface{} `json:"extra,omitempty"`
 
 	// Network The network of the blockchain.
-	Network string `json:"network"`
+	Network X402SupportedPaymentKindNetwork `json:"network"`
 
 	// Scheme The scheme of the payment protocol.
 	Scheme X402SupportedPaymentKindScheme `json:"scheme"`
@@ -2823,6 +2831,9 @@ type X402SupportedPaymentKind struct {
 	// X402Version The version of the x402 protocol.
 	X402Version X402Version `json:"x402Version"`
 }
+
+// X402SupportedPaymentKindNetwork The network of the blockchain.
+type X402SupportedPaymentKindNetwork string
 
 // X402SupportedPaymentKindScheme The scheme of the payment protocol.
 type X402SupportedPaymentKindScheme string
