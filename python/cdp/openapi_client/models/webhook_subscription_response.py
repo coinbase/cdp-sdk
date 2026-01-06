@@ -32,14 +32,14 @@ class WebhookSubscriptionResponse(BaseModel):
     """ # noqa: E501
     created_at: datetime = Field(description="When the subscription was created.", alias="createdAt")
     description: Optional[StrictStr] = Field(default=None, description="Description of the webhook subscription.")
-    event_types: List[StrictStr] = Field(description="Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\"). ", alias="eventTypes")
+    event_types: List[StrictStr] = Field(description="Types of events to subscribe to. Event types follow a three-part dot-separated format:  service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\"). ", alias="eventTypes")
     is_enabled: StrictBool = Field(description="Whether the subscription is enabled.", alias="isEnabled")
     metadata: Optional[WebhookSubscriptionResponseMetadata] = None
     secret: StrictStr = Field(description="Secret for webhook signature validation.")
     subscription_id: StrictStr = Field(description="Unique identifier for the subscription.", alias="subscriptionId")
     target: WebhookTarget
-    label_key: Optional[StrictStr] = Field(default=None, description="Label key for filtering events. Present when subscription uses traditional single-label format. ", alias="labelKey")
-    label_value: Optional[StrictStr] = Field(default=None, description="Label value for filtering events. Present when subscription uses traditional single-label format. ", alias="labelValue")
+    label_key: Optional[StrictStr] = Field(default=None, description="(Deprecated) Use `labels` field instead.  Label key for filtering events. Present when subscription uses traditional single-label format. Maintained for backward compatibility only. ", alias="labelKey")
+    label_value: Optional[StrictStr] = Field(default=None, description="(Deprecated) Use `labels` field instead.  Label value for filtering events. Present when subscription uses traditional single-label format. Maintained for backward compatibility only. ", alias="labelValue")
     labels: Optional[Dict[str, StrictStr]] = Field(default=None, description="Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs. Present when subscription uses multi-label format. ")
     __properties: ClassVar[List[str]] = ["createdAt", "description", "eventTypes", "isEnabled", "metadata", "secret", "subscriptionId", "target", "labelKey", "labelValue", "labels"]
 

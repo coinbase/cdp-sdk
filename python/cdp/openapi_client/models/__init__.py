@@ -102,6 +102,8 @@ from cdp.openapi_client.models.list_solana_accounts200_response import ListSolan
 from cdp.openapi_client.models.list_solana_token_balances200_response import ListSolanaTokenBalances200Response
 from cdp.openapi_client.models.list_solana_token_balances_network import ListSolanaTokenBalancesNetwork
 from cdp.openapi_client.models.list_spend_permissions200_response import ListSpendPermissions200Response
+from cdp.openapi_client.models.mfa_methods import MFAMethods
+from cdp.openapi_client.models.mfa_methods_totp import MFAMethodsTotp
 from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterion
 from cdp.openapi_client.models.net_usd_change_criterion import NetUSDChangeCriterion
 from cdp.openapi_client.models.o_auth2_authentication import OAuth2Authentication
@@ -216,7 +218,6 @@ from cdp.openapi_client.models.x402_payment_requirements import X402PaymentRequi
 from cdp.openapi_client.models.x402_resource_info import X402ResourceInfo
 from cdp.openapi_client.models.x402_settle_error_reason import X402SettleErrorReason
 from cdp.openapi_client.models.x402_supported_payment_kind import X402SupportedPaymentKind
-from cdp.openapi_client.models.x402_supported_payment_kind_network import X402SupportedPaymentKindNetwork
 from cdp.openapi_client.models.x402_v1_payment_payload import X402V1PaymentPayload
 from cdp.openapi_client.models.x402_v1_payment_payload_payload import X402V1PaymentPayloadPayload
 from cdp.openapi_client.models.x402_v1_payment_requirements import X402V1PaymentRequirements

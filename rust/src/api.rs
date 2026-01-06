@@ -8842,6 +8842,9 @@ pub mod types {
     ///        "pattern": "^0x[0-9a-fA-F]{40}$"
     ///      }
     ///    },
+    ///    "mfaMethods": {
+    ///      "$ref": "#/components/schemas/MFAMethods"
+    ///    },
     ///    "solanaAccountObjects": {
     ///      "description": "The list of Solana accounts associated with the end user. End users can have up to 10 Solana accounts.",
     ///      "examples": [
@@ -8910,6 +8913,12 @@ pub mod types {
         ///**DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.
         #[serde(rename = "evmSmartAccounts")]
         pub evm_smart_accounts: ::std::vec::Vec<EndUserEvmSmartAccountsItem>,
+        #[serde(
+            rename = "mfaMethods",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub mfa_methods: ::std::option::Option<MfaMethods>,
         ///The list of Solana accounts associated with the end user. End users can have up to 10 Solana accounts.
         #[serde(rename = "solanaAccountObjects")]
         pub solana_account_objects: ::std::vec::Vec<EndUserSolanaAccount>,
@@ -19897,6 +19906,125 @@ pub mod types {
             value.parse()
         }
     }
+    /**Information about the end user's MFA enrollments.
+    */
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "Information about the end user's MFA enrollments.\n",
+    ///  "examples": [
+    ///    {
+    ///      "enrollmentPromptedAt": "2025-01-15T10:30:00Z",
+    ///      "totp": {
+    ///        "enrolledAt": "2025-01-15T10:30:00Z"
+    ///      }
+    ///    }
+    ///  ],
+    ///  "type": "object",
+    ///  "properties": {
+    ///    "enrollmentPromptedAt": {
+    ///      "description": "The date and time when the end user was prompted for MFA enrollment, in ISO 8601 format. If the this field exists, and the user has no other enrolled MFA methods, then the user skipped MFA enrollment.",
+    ///      "examples": [
+    ///        "2025-01-15T10:30:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    },
+    ///    "totp": {
+    ///      "description": "An object containing information about the end user's TOTP enrollment.",
+    ///      "type": "object",
+    ///      "required": [
+    ///        "enrolledAt"
+    ///      ],
+    ///      "properties": {
+    ///        "enrolledAt": {
+    ///          "description": "The date and time when the method was enrolled, in ISO 8601 format.",
+    ///          "examples": [
+    ///            "2025-01-15T10:30:00Z"
+    ///          ],
+    ///          "type": "string",
+    ///          "format": "date-time"
+    ///        }
+    ///      }
+    ///    }
+    ///  },
+    ///  "x-audience": "public"
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MfaMethods {
+        ///The date and time when the end user was prompted for MFA enrollment, in ISO 8601 format. If the this field exists, and the user has no other enrolled MFA methods, then the user skipped MFA enrollment.
+        #[serde(
+            rename = "enrollmentPromptedAt",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        pub enrollment_prompted_at:
+            ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        pub totp: ::std::option::Option<MfaMethodsTotp>,
+    }
+    impl ::std::convert::From<&MfaMethods> for MfaMethods {
+        fn from(value: &MfaMethods) -> Self {
+            value.clone()
+        }
+    }
+    impl ::std::default::Default for MfaMethods {
+        fn default() -> Self {
+            Self {
+                enrollment_prompted_at: Default::default(),
+                totp: Default::default(),
+            }
+        }
+    }
+    impl MfaMethods {
+        pub fn builder() -> builder::MfaMethods {
+            Default::default()
+        }
+    }
+    ///An object containing information about the end user's TOTP enrollment.
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    ///{
+    ///  "description": "An object containing information about the end user's TOTP enrollment.",
+    ///  "type": "object",
+    ///  "required": [
+    ///    "enrolledAt"
+    ///  ],
+    ///  "properties": {
+    ///    "enrolledAt": {
+    ///      "description": "The date and time when the method was enrolled, in ISO 8601 format.",
+    ///      "examples": [
+    ///        "2025-01-15T10:30:00Z"
+    ///      ],
+    ///      "type": "string",
+    ///      "format": "date-time"
+    ///    }
+    ///  }
+    ///}
+    /// ```
+    /// </details>
+    #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
+    pub struct MfaMethodsTotp {
+        ///The date and time when the method was enrolled, in ISO 8601 format.
+        #[serde(rename = "enrolledAt")]
+        pub enrolled_at: ::chrono::DateTime<::chrono::offset::Utc>,
+    }
+    impl ::std::convert::From<&MfaMethodsTotp> for MfaMethodsTotp {
+        fn from(value: &MfaMethodsTotp) -> Self {
+            value.clone()
+        }
+    }
+    impl MfaMethodsTotp {
+        pub fn builder() -> builder::MfaMethodsTotp {
+            Default::default()
+        }
+    }
     ///The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
     ///
     /// <details><summary>JSON schema</summary>
@@ -21035,7 +21163,7 @@ pub mod types {
         }
     }
     /**Schema information for the query result. This is a derived schema from the query result, so types may not match the underlying table.
-     */
+    */
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -24249,7 +24377,7 @@ pub mod types {
     #[derive(::serde::Deserialize, ::serde::Serialize, Clone, Debug)]
     pub struct RequestEvmFaucetResponse {
         /**The hash of the transaction that requested the funds.
-         **Note:** In rare cases, when gas conditions are unusually high, the transaction may not confirm, and the system may issue a replacement transaction to complete the faucet request. In these rare cases, the `transactionHash` will be out of sync with the actual faucet transaction that was confirmed onchain.*/
+        **Note:** In rare cases, when gas conditions are unusually high, the transaction may not confirm, and the system may issue a replacement transaction to complete the faucet request. In these rare cases, the `transactionHash` will be out of sync with the actual faucet transaction that was confirmed onchain.*/
         #[serde(rename = "transactionHash")]
         pub transaction_hash: ::std::string::String,
     }
@@ -37968,26 +38096,11 @@ pub mod types {
     ///
     /// ```json
     ///{
-    ///  "description": "Request to create a new webhook subscription with support for both traditional single-label\nand multi-label filtering formats.\n",
+    ///  "description": "Request to create a new webhook subscription with support for both traditional single-label \nand multi-label filtering formats.\n",
     ///  "type": "object",
     ///  "oneOf": [
     ///    {
-    ///      "title": "Traditional single-label format",
-    ///      "not": {
-    ///        "required": [
-    ///          "labels"
-    ///        ]
-    ///      },
-    ///      "required": [
-    ///        "eventTypes",
-    ///        "isEnabled",
-    ///        "labelKey",
-    ///        "labelValue",
-    ///        "target"
-    ///      ]
-    ///    },
-    ///    {
-    ///      "title": "Multi-label format with total overlap logic",
+    ///      "title": "Multi-label format (recommended)",
     ///      "not": {
     ///        "anyOf": [
     ///          {
@@ -38008,6 +38121,21 @@ pub mod types {
     ///        "labels",
     ///        "target"
     ///      ]
+    ///    },
+    ///    {
+    ///      "title": "Legacy single-label format (deprecated)",
+    ///      "not": {
+    ///        "required": [
+    ///          "labels"
+    ///        ]
+    ///      },
+    ///      "required": [
+    ///        "eventTypes",
+    ///        "isEnabled",
+    ///        "labelKey",
+    ///        "labelValue",
+    ///        "target"
+    ///      ]
     ///    }
     ///  ],
     ///  "properties": {
@@ -38019,7 +38147,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "eventTypes": {
-    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
+    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
     ///      "examples": [
     ///        [
     ///          "onchain.activity.detected"
@@ -38038,26 +38166,28 @@ pub mod types {
     ///      "type": "boolean"
     ///    },
     ///    "labelKey": {
-    ///      "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair\nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///      "description": "(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.\n\nLabel key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair \nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n\nMaintained for backward compatibility only.\n",
+    ///      "deprecated": true,
     ///      "examples": [
     ///        "contract_address"
     ///      ],
     ///      "type": "string"
     ///    },
     ///    "labelValue": {
-    ///      "description": "Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).\nOnly events with this exact label value will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///      "description": "(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.\n\nLabel value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).\nOnly events with this exact label value will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n\nMaintained for backward compatibility only.\n",
+    ///      "deprecated": true,
     ///      "examples": [
     ///        "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
     ///      ],
     ///      "type": "string"
     ///    },
     ///    "labels": {
-    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
+    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Additional labels on \nthe event are allowed and will not prevent matching.\n\n**Note:** Currently, labels are supported for onchain webhooks only.\n\nSee [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).\n",
     ///      "examples": [
     ///        {
-    ///          "contract_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    ///          "env": "dev",
-    ///          "team": "payments"
+    ///          "contract_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///          "event_name": "Transfer",
+    ///          "network": "base-mainnet"
     ///        }
     ///      ],
     ///      "type": "object",
@@ -38122,7 +38252,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
+    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
     ///          "examples": [
     ///            [
     ///              "onchain.activity.detected"
@@ -38141,26 +38271,28 @@ pub mod types {
     ///          "type": "boolean"
     ///        },
     ///        "labelKey": {
-    ///          "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair\nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///          "description": "(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.\n\nLabel key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair \nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n\nMaintained for backward compatibility only.\n",
+    ///          "deprecated": true,
     ///          "examples": [
     ///            "contract_address"
     ///          ],
     ///          "type": "string"
     ///        },
     ///        "labelValue": {
-    ///          "description": "Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).\nOnly events with this exact label value will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///          "description": "(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.\n\nLabel value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).\nOnly events with this exact label value will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n\nMaintained for backward compatibility only.\n",
+    ///          "deprecated": true,
     ///          "examples": [
     ///            "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
     ///          ],
     ///          "type": "string"
     ///        },
     ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
+    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Additional labels on \nthe event are allowed and will not prevent matching.\n\n**Note:** Currently, labels are supported for onchain webhooks only.\n\nSee [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).\n",
     ///          "examples": [
     ///            {
-    ///              "contract_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    ///              "env": "dev",
-    ///              "team": "payments"
+    ///              "contract_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///              "event_name": "Transfer",
+    ///              "network": "base-mainnet"
     ///            }
     ///          ],
     ///          "type": "object",
@@ -38185,41 +38317,41 @@ pub mod types {
     ///      }
     ///    },
     ///    {
-    ///      "title": "Traditional single-label format",
+    ///      "title": "Multi-label format (recommended)",
     ///      "not": {
-    ///        "required": [
-    ///          "labels"
+    ///        "anyOf": [
+    ///          {
+    ///            "required": [
+    ///              "labelKey"
+    ///            ]
+    ///          },
+    ///          {
+    ///            "required": [
+    ///              "labelValue"
+    ///            ]
+    ///          }
     ///        ]
     ///      },
     ///      "required": [
     ///        "eventTypes",
     ///        "isEnabled",
-    ///        "labelKey",
-    ///        "labelValue",
+    ///        "labels",
     ///        "target"
     ///      ]
     ///    },
     ///    {
     ///      "not": {
-    ///        "title": "Multi-label format with total overlap logic",
+    ///        "title": "Legacy single-label format (deprecated)",
     ///        "not": {
-    ///          "anyOf": [
-    ///            {
-    ///              "required": [
-    ///                "labelKey"
-    ///              ]
-    ///            },
-    ///            {
-    ///              "required": [
-    ///                "labelValue"
-    ///              ]
-    ///            }
+    ///          "required": [
+    ///            "labels"
     ///          ]
     ///        },
     ///        "required": [
     ///          "eventTypes",
     ///          "isEnabled",
-    ///          "labels",
+    ///          "labelKey",
+    ///          "labelValue",
     ///          "target"
     ///        ]
     ///      }
@@ -38265,7 +38397,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
+    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\nThe subscription will only receive events matching these types AND the label filter(s).\n",
     ///          "examples": [
     ///            [
     ///              "onchain.activity.detected"
@@ -38284,26 +38416,28 @@ pub mod types {
     ///          "type": "boolean"
     ///        },
     ///        "labelKey": {
-    ///          "description": "Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair\nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///          "description": "(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.\n\nLabel key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair \nin addition to the event types. Only events matching both the event types AND this label filter will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n\nMaintained for backward compatibility only.\n",
+    ///          "deprecated": true,
     ///          "examples": [
     ///            "contract_address"
     ///          ],
     ///          "type": "string"
     ///        },
     ///        "labelValue": {
-    ///          "description": "Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).\nOnly events with this exact label value will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///          "description": "(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.\n\nLabel value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).\nOnly events with this exact label value will be delivered.\nNOTE: Use either (labelKey + labelValue) OR labels, not both.\n\nMaintained for backward compatibility only.\n",
+    ///          "deprecated": true,
     ///          "examples": [
     ///            "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
     ///          ],
     ///          "type": "string"
     ///        },
     ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Additional labels on\nthe event are allowed and will not prevent matching.\nNOTE: Use either labels OR (labelKey + labelValue), not both.\n",
+    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when \nan event contains ALL the key-value pairs specified here. Additional labels on \nthe event are allowed and will not prevent matching.\n\n**Note:** Currently, labels are supported for onchain webhooks only.\n\nSee [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).\n",
     ///          "examples": [
     ///            {
-    ///              "contract_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    ///              "env": "dev",
-    ///              "team": "payments"
+    ///              "contract_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///              "event_name": "Transfer",
+    ///              "network": "base-mainnet"
     ///            }
     ///          ],
     ///          "type": "object",
@@ -38328,41 +38462,41 @@ pub mod types {
     ///      }
     ///    },
     ///    {
-    ///      "title": "Multi-label format with total overlap logic",
+    ///      "title": "Legacy single-label format (deprecated)",
     ///      "not": {
-    ///        "anyOf": [
-    ///          {
-    ///            "required": [
-    ///              "labelKey"
-    ///            ]
-    ///          },
-    ///          {
-    ///            "required": [
-    ///              "labelValue"
-    ///            ]
-    ///          }
+    ///        "required": [
+    ///          "labels"
     ///        ]
     ///      },
     ///      "required": [
     ///        "eventTypes",
     ///        "isEnabled",
-    ///        "labels",
+    ///        "labelKey",
+    ///        "labelValue",
     ///        "target"
     ///      ]
     ///    },
     ///    {
     ///      "not": {
-    ///        "title": "Traditional single-label format",
+    ///        "title": "Multi-label format (recommended)",
     ///        "not": {
-    ///          "required": [
-    ///            "labels"
+    ///          "anyOf": [
+    ///            {
+    ///              "required": [
+    ///                "labelKey"
+    ///              ]
+    ///            },
+    ///            {
+    ///              "required": [
+    ///                "labelValue"
+    ///              ]
+    ///            }
     ///          ]
     ///        },
     ///        "required": [
     ///          "eventTypes",
     ///          "isEnabled",
-    ///          "labelKey",
-    ///          "labelValue",
+    ///          "labels",
     ///          "target"
     ///        ]
     ///      }
@@ -38449,7 +38583,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "eventTypes": {
-    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
+    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
     ///      "examples": [
     ///        [
     ///          "onchain.activity.detected"
@@ -38468,14 +38602,16 @@ pub mod types {
     ///      "type": "boolean"
     ///    },
     ///    "labelKey": {
-    ///      "description": "Label key for filtering events. Present when subscription uses traditional single-label format.\n",
+    ///      "description": "(Deprecated) Use `labels` field instead.\n\nLabel key for filtering events. Present when subscription uses traditional single-label format.\nMaintained for backward compatibility only.\n",
+    ///      "deprecated": true,
     ///      "examples": [
     ///        "contract_address"
     ///      ],
     ///      "type": "string"
     ///    },
     ///    "labelValue": {
-    ///      "description": "Label value for filtering events. Present when subscription uses traditional single-label format.\n",
+    ///      "description": "(Deprecated) Use `labels` field instead.\n\nLabel value for filtering events. Present when subscription uses traditional single-label format.\nMaintained for backward compatibility only.\n",
+    ///      "deprecated": true,
     ///      "examples": [
     ///        "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
     ///      ],
@@ -38554,16 +38690,22 @@ pub mod types {
         ///Whether the subscription is enabled.
         #[serde(rename = "isEnabled")]
         pub is_enabled: bool,
-        /**Label key for filtering events. Present when subscription uses traditional single-label format.
-         */
+        /**(Deprecated) Use `labels` field instead.
+
+        Label key for filtering events. Present when subscription uses traditional single-label format.
+        Maintained for backward compatibility only.
+        */
         #[serde(
             rename = "labelKey",
             default,
             skip_serializing_if = "::std::option::Option::is_none"
         )]
         pub label_key: ::std::option::Option<::std::string::String>,
-        /**Label value for filtering events. Present when subscription uses traditional single-label format.
-         */
+        /**(Deprecated) Use `labels` field instead.
+
+        Label value for filtering events. Present when subscription uses traditional single-label format.
+        Maintained for backward compatibility only.
+        */
         #[serde(
             rename = "labelValue",
             default,
@@ -38657,26 +38799,11 @@ pub mod types {
     ///
     /// ```json
     ///{
-    ///  "description": "Request to update an existing webhook subscription. The update format must match\nthe original subscription format (traditional or multi-label).\n",
+    ///  "description": "Request to update an existing webhook subscription. The update format must match \nthe original subscription format (traditional or multi-label).\n",
     ///  "type": "object",
     ///  "oneOf": [
     ///    {
-    ///      "title": "Traditional single-label update format",
-    ///      "not": {
-    ///        "required": [
-    ///          "labels"
-    ///        ]
-    ///      },
-    ///      "required": [
-    ///        "eventTypes",
-    ///        "isEnabled",
-    ///        "labelKey",
-    ///        "labelValue",
-    ///        "target"
-    ///      ]
-    ///    },
-    ///    {
-    ///      "title": "Multi-label update format with total overlap logic",
+    ///      "title": "Multi-label update format (recommended)",
     ///      "not": {
     ///        "anyOf": [
     ///          {
@@ -38697,6 +38824,21 @@ pub mod types {
     ///        "labels",
     ///        "target"
     ///      ]
+    ///    },
+    ///    {
+    ///      "title": "Legacy single-label update format (deprecated)",
+    ///      "not": {
+    ///        "required": [
+    ///          "labels"
+    ///        ]
+    ///      },
+    ///      "required": [
+    ///        "eventTypes",
+    ///        "isEnabled",
+    ///        "labelKey",
+    ///        "labelValue",
+    ///        "target"
+    ///      ]
     ///    }
     ///  ],
     ///  "properties": {
@@ -38708,7 +38850,7 @@ pub mod types {
     ///      "type": "string"
     ///    },
     ///    "eventTypes": {
-    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
+    ///      "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
     ///      "examples": [
     ///        [
     ///          "onchain.activity.detected"
@@ -38727,25 +38869,28 @@ pub mod types {
     ///      "type": "boolean"
     ///    },
     ///    "labelKey": {
-    ///      "description": "Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///      "description": "(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.\n\nLabel key for filtering events. Use either (labelKey + labelValue) OR labels, not both.\nMaintained for backward compatibility only.\n",
+    ///      "deprecated": true,
     ///      "examples": [
     ///        "contract_address"
     ///      ],
     ///      "type": "string"
     ///    },
     ///    "labelValue": {
-    ///      "description": "Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///      "description": "(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.\n\nLabel value for filtering events. Use either (labelKey + labelValue) OR labels, not both.\nMaintained for backward compatibility only.\n",
+    ///      "deprecated": true,
     ///      "examples": [
     ///        "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
     ///      ],
     ///      "type": "string"
     ///    },
     ///    "labels": {
-    ///      "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
+    ///      "description": "Multi-label filters that trigger only when an event contains ALL of these key-value pairs.\n\n**Note:** Currently, labels are supported for onchain webhooks only.\n\nSee [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).\n",
     ///      "examples": [
     ///        {
-    ///          "env": "prod",
-    ///          "service": "api"
+    ///          "contract_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///          "event_name": "Transfer",
+    ///          "network": "base-mainnet"
     ///        }
     ///      ],
     ///      "type": "object",
@@ -38814,7 +38959,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
+    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
     ///          "examples": [
     ///            [
     ///              "onchain.activity.detected"
@@ -38833,25 +38978,28 @@ pub mod types {
     ///          "type": "boolean"
     ///        },
     ///        "labelKey": {
-    ///          "description": "Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///          "description": "(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.\n\nLabel key for filtering events. Use either (labelKey + labelValue) OR labels, not both.\nMaintained for backward compatibility only.\n",
+    ///          "deprecated": true,
     ///          "examples": [
     ///            "contract_address"
     ///          ],
     ///          "type": "string"
     ///        },
     ///        "labelValue": {
-    ///          "description": "Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///          "description": "(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.\n\nLabel value for filtering events. Use either (labelKey + labelValue) OR labels, not both.\nMaintained for backward compatibility only.\n",
+    ///          "deprecated": true,
     ///          "examples": [
     ///            "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
     ///          ],
     ///          "type": "string"
     ///        },
     ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
+    ///          "description": "Multi-label filters that trigger only when an event contains ALL of these key-value pairs.\n\n**Note:** Currently, labels are supported for onchain webhooks only.\n\nSee [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).\n",
     ///          "examples": [
     ///            {
-    ///              "env": "prod",
-    ///              "service": "api"
+    ///              "contract_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///              "event_name": "Transfer",
+    ///              "network": "base-mainnet"
     ///            }
     ///          ],
     ///          "type": "object",
@@ -38876,41 +39024,41 @@ pub mod types {
     ///      }
     ///    },
     ///    {
-    ///      "title": "Traditional single-label update format",
+    ///      "title": "Multi-label update format (recommended)",
     ///      "not": {
-    ///        "required": [
-    ///          "labels"
+    ///        "anyOf": [
+    ///          {
+    ///            "required": [
+    ///              "labelKey"
+    ///            ]
+    ///          },
+    ///          {
+    ///            "required": [
+    ///              "labelValue"
+    ///            ]
+    ///          }
     ///        ]
     ///      },
     ///      "required": [
     ///        "eventTypes",
     ///        "isEnabled",
-    ///        "labelKey",
-    ///        "labelValue",
+    ///        "labels",
     ///        "target"
     ///      ]
     ///    },
     ///    {
     ///      "not": {
-    ///        "title": "Multi-label update format with total overlap logic",
+    ///        "title": "Legacy single-label update format (deprecated)",
     ///        "not": {
-    ///          "anyOf": [
-    ///            {
-    ///              "required": [
-    ///                "labelKey"
-    ///              ]
-    ///            },
-    ///            {
-    ///              "required": [
-    ///                "labelValue"
-    ///              ]
-    ///            }
+    ///          "required": [
+    ///            "labels"
     ///          ]
     ///        },
     ///        "required": [
     ///          "eventTypes",
     ///          "isEnabled",
-    ///          "labels",
+    ///          "labelKey",
+    ///          "labelValue",
     ///          "target"
     ///        ]
     ///      }
@@ -38956,7 +39104,7 @@ pub mod types {
     ///          "type": "string"
     ///        },
     ///        "eventTypes": {
-    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format:\nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
+    ///          "description": "Types of events to subscribe to. Event types follow a three-part dot-separated format: \nservice.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\").\n",
     ///          "examples": [
     ///            [
     ///              "onchain.activity.detected"
@@ -38975,25 +39123,28 @@ pub mod types {
     ///          "type": "boolean"
     ///        },
     ///        "labelKey": {
-    ///          "description": "Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///          "description": "(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.\n\nLabel key for filtering events. Use either (labelKey + labelValue) OR labels, not both.\nMaintained for backward compatibility only.\n",
+    ///          "deprecated": true,
     ///          "examples": [
     ///            "contract_address"
     ///          ],
     ///          "type": "string"
     ///        },
     ///        "labelValue": {
-    ///          "description": "Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.\n",
+    ///          "description": "(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.\n\nLabel value for filtering events. Use either (labelKey + labelValue) OR labels, not both.\nMaintained for backward compatibility only.\n",
+    ///          "deprecated": true,
     ///          "examples": [
     ///            "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
     ///          ],
     ///          "type": "string"
     ///        },
     ///        "labels": {
-    ///          "description": "Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when\nan event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.\n",
+    ///          "description": "Multi-label filters that trigger only when an event contains ALL of these key-value pairs.\n\n**Note:** Currently, labels are supported for onchain webhooks only.\n\nSee [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).\n",
     ///          "examples": [
     ///            {
-    ///              "env": "prod",
-    ///              "service": "api"
+    ///              "contract_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    ///              "event_name": "Transfer",
+    ///              "network": "base-mainnet"
     ///            }
     ///          ],
     ///          "type": "object",
@@ -39018,41 +39169,41 @@ pub mod types {
     ///      }
     ///    },
     ///    {
-    ///      "title": "Multi-label update format with total overlap logic",
+    ///      "title": "Legacy single-label update format (deprecated)",
     ///      "not": {
-    ///        "anyOf": [
-    ///          {
-    ///            "required": [
-    ///              "labelKey"
-    ///            ]
-    ///          },
-    ///          {
-    ///            "required": [
-    ///              "labelValue"
-    ///            ]
-    ///          }
+    ///        "required": [
+    ///          "labels"
     ///        ]
     ///      },
     ///      "required": [
     ///        "eventTypes",
     ///        "isEnabled",
-    ///        "labels",
+    ///        "labelKey",
+    ///        "labelValue",
     ///        "target"
     ///      ]
     ///    },
     ///    {
     ///      "not": {
-    ///        "title": "Traditional single-label update format",
+    ///        "title": "Multi-label update format (recommended)",
     ///        "not": {
-    ///          "required": [
-    ///            "labels"
+    ///          "anyOf": [
+    ///            {
+    ///              "required": [
+    ///                "labelKey"
+    ///              ]
+    ///            },
+    ///            {
+    ///              "required": [
+    ///                "labelValue"
+    ///              ]
+    ///            }
     ///          ]
     ///        },
     ///        "required": [
     ///          "eventTypes",
     ///          "isEnabled",
-    ///          "labelKey",
-    ///          "labelValue",
+    ///          "labels",
     ///          "target"
     ///        ]
     ///      }
@@ -39950,7 +40101,13 @@ pub mod types {
     ///      "examples": [
     ///        "base"
     ///      ],
-    ///      "type": "string"
+    ///      "type": "string",
+    ///      "enum": [
+    ///        "base-sepolia",
+    ///        "base",
+    ///        "solana-devnet",
+    ///        "solana"
+    ///      ]
     ///    },
     ///    "scheme": {
     ///      "description": "The scheme of the payment protocol.",
@@ -39975,7 +40132,7 @@ pub mod types {
         #[serde(default, skip_serializing_if = "::serde_json::Map::is_empty")]
         pub extra: ::serde_json::Map<::std::string::String, ::serde_json::Value>,
         ///The network of the blockchain.
-        pub network: ::std::string::String,
+        pub network: X402SupportedPaymentKindNetwork,
         ///The scheme of the payment protocol.
         pub scheme: X402SupportedPaymentKindScheme,
         #[serde(rename = "x402Version")]
@@ -45334,6 +45491,10 @@ pub mod types {
                 ::std::vec::Vec<super::EndUserEvmSmartAccountsItem>,
                 ::std::string::String,
             >,
+            mfa_methods: ::std::result::Result<
+                ::std::option::Option<super::MfaMethods>,
+                ::std::string::String,
+            >,
             solana_account_objects: ::std::result::Result<
                 ::std::vec::Vec<super::EndUserSolanaAccount>,
                 ::std::string::String,
@@ -45359,6 +45520,7 @@ pub mod types {
                         "no value supplied for evm_smart_account_objects".to_string(),
                     ),
                     evm_smart_accounts: Err("no value supplied for evm_smart_accounts".to_string()),
+                    mfa_methods: Ok(Default::default()),
                     solana_account_objects: Err(
                         "no value supplied for solana_account_objects".to_string()
                     ),
@@ -45440,6 +45602,16 @@ pub mod types {
                 });
                 self
             }
+            pub fn mfa_methods<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::MfaMethods>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.mfa_methods = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for mfa_methods: {}", e));
+                self
+            }
             pub fn solana_account_objects<T>(mut self, value: T) -> Self
             where
                 T: ::std::convert::TryInto<::std::vec::Vec<super::EndUserSolanaAccount>>,
@@ -45486,6 +45658,7 @@ pub mod types {
                     evm_accounts: value.evm_accounts?,
                     evm_smart_account_objects: value.evm_smart_account_objects?,
                     evm_smart_accounts: value.evm_smart_accounts?,
+                    mfa_methods: value.mfa_methods?,
                     solana_account_objects: value.solana_account_objects?,
                     solana_accounts: value.solana_accounts?,
                     user_id: value.user_id?,
@@ -45501,6 +45674,7 @@ pub mod types {
                     evm_accounts: Ok(value.evm_accounts),
                     evm_smart_account_objects: Ok(value.evm_smart_account_objects),
                     evm_smart_accounts: Ok(value.evm_smart_accounts),
+                    mfa_methods: Ok(value.mfa_methods),
                     solana_account_objects: Ok(value.solana_account_objects),
                     solana_accounts: Ok(value.solana_accounts),
                     user_id: Ok(value.user_id),
@@ -49003,6 +49177,114 @@ pub mod types {
                 Self {
                     next_page_token: Ok(value.next_page_token),
                     spend_permissions: Ok(value.spend_permissions),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct MfaMethods {
+            enrollment_prompted_at: ::std::result::Result<
+                ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                ::std::string::String,
+            >,
+            totp: ::std::result::Result<
+                ::std::option::Option<super::MfaMethodsTotp>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for MfaMethods {
+            fn default() -> Self {
+                Self {
+                    enrollment_prompted_at: Ok(Default::default()),
+                    totp: Ok(Default::default()),
+                }
+            }
+        }
+        impl MfaMethods {
+            pub fn enrollment_prompted_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<
+                    ::std::option::Option<::chrono::DateTime<::chrono::offset::Utc>>,
+                >,
+                T::Error: ::std::fmt::Display,
+            {
+                self.enrollment_prompted_at = value.try_into().map_err(|e| {
+                    format!(
+                        "error converting supplied value for enrollment_prompted_at: {}",
+                        e
+                    )
+                });
+                self
+            }
+            pub fn totp<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::std::option::Option<super::MfaMethodsTotp>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.totp = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for totp: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MfaMethods> for super::MfaMethods {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MfaMethods,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    enrollment_prompted_at: value.enrollment_prompted_at?,
+                    totp: value.totp?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MfaMethods> for MfaMethods {
+            fn from(value: super::MfaMethods) -> Self {
+                Self {
+                    enrollment_prompted_at: Ok(value.enrollment_prompted_at),
+                    totp: Ok(value.totp),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct MfaMethodsTotp {
+            enrolled_at: ::std::result::Result<
+                ::chrono::DateTime<::chrono::offset::Utc>,
+                ::std::string::String,
+            >,
+        }
+        impl ::std::default::Default for MfaMethodsTotp {
+            fn default() -> Self {
+                Self {
+                    enrolled_at: Err("no value supplied for enrolled_at".to_string()),
+                }
+            }
+        }
+        impl MfaMethodsTotp {
+            pub fn enrolled_at<T>(mut self, value: T) -> Self
+            where
+                T: ::std::convert::TryInto<::chrono::DateTime<::chrono::offset::Utc>>,
+                T::Error: ::std::fmt::Display,
+            {
+                self.enrolled_at = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for enrolled_at: {}", e));
+                self
+            }
+        }
+        impl ::std::convert::TryFrom<MfaMethodsTotp> for super::MfaMethodsTotp {
+            type Error = super::error::ConversionError;
+            fn try_from(
+                value: MfaMethodsTotp,
+            ) -> ::std::result::Result<Self, super::error::ConversionError> {
+                Ok(Self {
+                    enrolled_at: value.enrolled_at?,
+                })
+            }
+        }
+        impl ::std::convert::From<super::MfaMethodsTotp> for MfaMethodsTotp {
+            fn from(value: super::MfaMethodsTotp) -> Self {
+                Self {
+                    enrolled_at: Ok(value.enrolled_at),
                 }
             }
         }
@@ -55708,7 +55990,10 @@ pub mod types {
                 ::serde_json::Map<::std::string::String, ::serde_json::Value>,
                 ::std::string::String,
             >,
-            network: ::std::result::Result<::std::string::String, ::std::string::String>,
+            network: ::std::result::Result<
+                super::X402SupportedPaymentKindNetwork,
+                ::std::string::String,
+            >,
             scheme:
                 ::std::result::Result<super::X402SupportedPaymentKindScheme, ::std::string::String>,
             x402_version: ::std::result::Result<super::X402Version, ::std::string::String>,
@@ -55738,7 +56023,7 @@ pub mod types {
             }
             pub fn network<T>(mut self, value: T) -> Self
             where
-                T: ::std::convert::TryInto<::std::string::String>,
+                T: ::std::convert::TryInto<super::X402SupportedPaymentKindNetwork>,
                 T::Error: ::std::fmt::Display,
             {
                 self.network = value
@@ -65354,6 +65639,9 @@ pub mod builder {
             match response.status().as_u16() {
                 200u16 => ResponseValue::from_response(response).await,
                 400u16 => Err(Error::ErrorResponse(
+                    ResponseValue::from_response(response).await?,
+                )),
+                402u16 => Err(Error::ErrorResponse(
                     ResponseValue::from_response(response).await?,
                 )),
                 500u16 => Err(Error::ErrorResponse(

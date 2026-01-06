@@ -96,6 +96,7 @@ class X402FacilitatorApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "InlineObject1",
             '400': "Error",
+            '402': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -167,6 +168,7 @@ class X402FacilitatorApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "InlineObject1",
             '400': "Error",
+            '402': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",
@@ -238,6 +240,7 @@ class X402FacilitatorApi:
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "InlineObject1",
             '400': "Error",
+            '402': "Error",
             '500': "Error",
             '502': "Error",
             '503': "Error",

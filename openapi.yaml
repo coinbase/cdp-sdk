@@ -4860,7 +4860,7 @@ paths:
       summary: List token addresses for account
       x-audience: public
       description: |
-        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from.
+        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from. 
         Analyzes transaction history to discover token interactions.
       tags:
         - Onchain Data
@@ -5514,6 +5514,8 @@ paths:
                   value:
                     errorType: invalid_request
                     errorMessage: Invalid request. Please check the request body and parameters.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
         '500':
           $ref: '#/components/responses/InternalServerError'
         '502':
@@ -5994,6 +5996,32 @@ components:
         - type: google
           sub: '115346410074741490243'
           email: test.user@gmail.com
+    MFAMethods:
+      x-audience: public
+      description: |
+        Information about the end user's MFA enrollments.
+      type: object
+      properties:
+        enrollmentPromptedAt:
+          type: string
+          format: date-time
+          description: The date and time when the end user was prompted for MFA enrollment, in ISO 8601 format. If the this field exists, and the user has no other enrolled MFA methods, then the user skipped MFA enrollment.
+          example: '2025-01-15T10:30:00Z'
+        totp:
+          type: object
+          description: An object containing information about the end user's TOTP enrollment.
+          required:
+            - enrolledAt
+          properties:
+            enrolledAt:
+              type: string
+              format: date-time
+              description: The date and time when the method was enrolled, in ISO 8601 format.
+              example: '2025-01-15T10:30:00Z'
+      example:
+        enrollmentPromptedAt: '2025-01-15T10:30:00Z'
+        totp:
+          enrolledAt: '2025-01-15T10:30:00Z'
     EndUserEvmAccount:
       type: object
       description: Information about an EVM account associated with an end user.
@@ -6068,6 +6096,8 @@ components:
           example: e051beeb-7163-4527-a5b6-35e301529ff2
         authenticationMethods:
           $ref: '#/components/schemas/AuthenticationMethods'
+        mfaMethods:
+          $ref: '#/components/schemas/MFAMethods'
         evmAccounts:
           type: array
           deprecated: true
@@ -9539,7 +9569,7 @@ components:
         eventTypes:
           type: array
           description: |
-            Types of events to subscribe to. Event types follow a three-part dot-separated format:
+            Types of events to subscribe to. Event types follow a three-part dot-separated format: 
             service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
           items:
             type: string
@@ -9575,13 +9605,21 @@ components:
           $ref: '#/components/schemas/WebhookTarget'
         labelKey:
           type: string
+          deprecated: true
           description: |
+            (Deprecated) Use `labels` field instead.
+
             Label key for filtering events. Present when subscription uses traditional single-label format.
+            Maintained for backward compatibility only.
           example: contract_address
         labelValue:
           type: string
+          deprecated: true
           description: |
+            (Deprecated) Use `labels` field instead.
+
             Label value for filtering events. Present when subscription uses traditional single-label format.
+            Maintained for backward compatibility only.
           example: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
         labels:
           type: object
@@ -9629,7 +9667,7 @@ components:
     WebhookSubscriptionRequest:
       type: object
       description: |
-        Request to create a new webhook subscription with support for both traditional single-label
+        Request to create a new webhook subscription with support for both traditional single-label 
         and multi-label filtering formats.
       properties:
         description:
@@ -9639,7 +9677,7 @@ components:
         eventTypes:
           type: array
           description: |
-            Types of events to subscribe to. Event types follow a three-part dot-separated format:
+            Types of events to subscribe to. Event types follow a three-part dot-separated format: 
             service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
             The subscription will only receive events matching these types AND the label filter(s).
           items:
@@ -9661,43 +9699,46 @@ components:
             webhook_version: v1
         labelKey:
           type: string
+          deprecated: true
           description: |
-            Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair
+            (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
+
+            Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair 
             in addition to the event types. Only events matching both the event types AND this label filter will be delivered.
             NOTE: Use either (labelKey + labelValue) OR labels, not both.
+
+            Maintained for backward compatibility only.
           example: contract_address
         labelValue:
           type: string
+          deprecated: true
           description: |
+            (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
+
             Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).
             Only events with this exact label value will be delivered.
             NOTE: Use either (labelKey + labelValue) OR labels, not both.
+
+            Maintained for backward compatibility only.
           example: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
         labels:
           type: object
           description: |
-            Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
-            an event contains ALL the key-value pairs specified here. Additional labels on
+            Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
+            an event contains ALL the key-value pairs specified here. Additional labels on 
             the event are allowed and will not prevent matching.
-            NOTE: Use either labels OR (labelKey + labelValue), not both.
+
+            **Note:** Currently, labels are supported for onchain webhooks only.
+
+            See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
           additionalProperties:
             type: string
           example:
-            env: dev
-            team: payments
-            contract_address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+            network: base-mainnet
+            contract_address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+            event_name: Transfer
       oneOf:
-        - title: Traditional single-label format
-          required:
-            - eventTypes
-            - isEnabled
-            - labelKey
-            - labelValue
-            - target
-          not:
-            required:
-              - labels
-        - title: Multi-label format with total overlap logic
+        - title: Multi-label format (recommended)
           required:
             - eventTypes
             - isEnabled
@@ -9709,10 +9750,20 @@ components:
                   - labelKey
               - required:
                   - labelValue
+        - title: Legacy single-label format (deprecated)
+          required:
+            - eventTypes
+            - isEnabled
+            - labelKey
+            - labelValue
+            - target
+          not:
+            required:
+              - labels
     WebhookSubscriptionUpdateRequest:
       type: object
       description: |
-        Request to update an existing webhook subscription. The update format must match
+        Request to update an existing webhook subscription. The update format must match 
         the original subscription format (traditional or multi-label).
       properties:
         description:
@@ -9722,7 +9773,7 @@ components:
         eventTypes:
           type: array
           description: |
-            Types of events to subscribe to. Event types follow a three-part dot-separated format:
+            Types of events to subscribe to. Event types follow a three-part dot-separated format: 
             service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
           items:
             type: string
@@ -9741,38 +9792,40 @@ components:
           example:
             updated_field: updated_value
             webhook_version: v2
-        labelKey:
-          type: string
-          description: |
-            Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.
-          example: contract_address
-        labelValue:
-          type: string
-          description: |
-            Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.
-          example: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
         labels:
           type: object
           description: |
-            Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
-            an event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.
+            Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
+
+            **Note:** Currently, labels are supported for onchain webhooks only.
+
+            See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
           additionalProperties:
             type: string
           example:
-            env: prod
-            service: api
+            network: base-mainnet
+            contract_address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+            event_name: Transfer
+        labelKey:
+          type: string
+          deprecated: true
+          description: |
+            (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
+
+            Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.
+            Maintained for backward compatibility only.
+          example: contract_address
+        labelValue:
+          type: string
+          deprecated: true
+          description: |
+            (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
+
+            Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.
+            Maintained for backward compatibility only.
+          example: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
       oneOf:
-        - title: Traditional single-label update format
-          required:
-            - eventTypes
-            - isEnabled
-            - labelKey
-            - labelValue
-            - target
-          not:
-            required:
-              - labels
-        - title: Multi-label update format with total overlap logic
+        - title: Multi-label update format (recommended)
           required:
             - eventTypes
             - isEnabled
@@ -9784,6 +9837,16 @@ components:
                   - labelKey
               - required:
                   - labelValue
+        - title: Legacy single-label update format (deprecated)
+          required:
+            - eventTypes
+            - isEnabled
+            - labelKey
+            - labelValue
+            - target
+          not:
+            required:
+              - labels
     X402Version:
       type: integer
       description: The version of the x402 protocol.
@@ -10209,15 +10272,6 @@ components:
         - settle_exact_svm_block_height_exceeded
         - settle_exact_svm_transaction_confirmation_timed_out
       example: insufficient_funds
-    x402SupportedPaymentKindNetwork:
-      type: string
-      description: The network of the blockchain.
-      enum:
-        - base-sepolia
-        - base
-        - solana-devnet
-        - solana
-      example: base
     x402SupportedPaymentKind:
       type: object
       description: The supported payment kind for the x402 protocol. A kind is comprised of a scheme and a network, which together uniquely identify a way to move money on the x402 protocol. For more details, please see [x402 Schemes](https://github.com/coinbase/x402?tab=readme-ov-file#schemes).
@@ -10233,6 +10287,11 @@ components:
         network:
           type: string
           description: The network of the blockchain.
+          enum:
+            - base-sepolia
+            - base
+            - solana-devnet
+            - solana
           example: base
         extra:
           type: object
@@ -10745,7 +10804,7 @@ components:
       required: false
       description: |
         An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable.
-        When included, duplicate requests with the same key will return identical responses.
+        When included, duplicate requests with the same key will return identical responses. 
         Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.
       schema:
         type: string

@@ -41,6 +41,7 @@ class TestListEndUsers200Response(unittest.TestCase):
                     cdp.openapi_client.models.end_user.EndUser(
                         user_id = 'e051beeb-7163-4527-a5b6-35e301529ff2', 
                         authentication_methods = [{type=email, email=user@example.com}, {type=sms, phoneNumber=+12055555555}, {type=jwt, sub=e051beeb-7163-4527-a5b6-35e301529ff2, kid=NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg}, {type=google, sub=115346410074741490243, email=test.user@gmail.com}], 
+                        mfa_methods = {enrollmentPromptedAt=2025-01-15T10:30:00Z, totp={enrolledAt=2025-01-15T10:30:00Z}}, 
                         evm_accounts = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e], 
                         evm_account_objects = [{address=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, createdAt=2025-01-15T10:30:00Z}, {address=0x1234567890abcdef1234567890abcdef12345678, createdAt=2025-01-15T11:00:00Z}], 
                         evm_smart_accounts = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e], 
@@ -56,6 +57,7 @@ class TestListEndUsers200Response(unittest.TestCase):
                     cdp.openapi_client.models.end_user.EndUser(
                         user_id = 'e051beeb-7163-4527-a5b6-35e301529ff2', 
                         authentication_methods = [{type=email, email=user@example.com}, {type=sms, phoneNumber=+12055555555}, {type=jwt, sub=e051beeb-7163-4527-a5b6-35e301529ff2, kid=NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg}, {type=google, sub=115346410074741490243, email=test.user@gmail.com}], 
+                        mfa_methods = {enrollmentPromptedAt=2025-01-15T10:30:00Z, totp={enrolledAt=2025-01-15T10:30:00Z}}, 
                         evm_accounts = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e], 
                         evm_account_objects = [{address=0x742d35Cc6634C0532925a3b844Bc454e4438f44e, createdAt=2025-01-15T10:30:00Z}, {address=0x1234567890abcdef1234567890abcdef12345678, createdAt=2025-01-15T11:00:00Z}], 
                         evm_smart_accounts = [0x742d35Cc6634C0532925a3b844Bc454e4438f44e], 
