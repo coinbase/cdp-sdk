@@ -33,6 +33,9 @@ describe("EndUserClient", () => {
     evmAccounts: ["0x123"],
     evmSmartAccounts: ["0x123"],
     solanaAccounts: ["0x123"],
+    evmAccountObjects: [{ address: "0x123", createdAt: "2024-01-01T00:00:00Z" }],
+    evmSmartAccountObjects: [{ address: "0x123", ownerAddresses: ["0x456"], createdAt: "2024-01-01T00:00:00Z" }],
+    solanaAccountObjects: [{ address: "test123", createdAt: "2024-01-01T00:00:00Z" }],
     authenticationMethods: [
       {
         type: "email" as const,
@@ -118,6 +121,24 @@ describe("EndUserClient", () => {
         userId: "generated-uuid",
         authenticationMethods: [{ type: "email", email: "test@example.com" }],
         solanaAccount: { createSmartAccount: false },
+      });
+    });
+
+    it("should create an end user with evmAccount and enableSpendPermissions option", async () => {
+      const createOptions: CreateEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        evmAccount: { createSmartAccount: true, enableSpendPermissions: true },
+      };
+      (
+        CdpOpenApiClient.createEndUser as MockedFunction<typeof CdpOpenApiClient.createEndUser>
+      ).mockResolvedValue(mockEndUser);
+
+      await client.createEndUser(createOptions);
+
+      expect(CdpOpenApiClient.createEndUser).toHaveBeenCalledWith({
+        userId: "generated-uuid",
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        evmAccount: { createSmartAccount: true, enableSpendPermissions: true },
       });
     });
 

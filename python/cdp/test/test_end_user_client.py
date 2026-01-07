@@ -236,6 +236,34 @@ async def test_create_end_user_with_solana_account(end_user_model_factory):
 
 
 @pytest.mark.asyncio
+async def test_create_end_user_with_evm_account_and_spend_permissions(end_user_model_factory):
+    """Test creating an end user with an EVM account and spend permissions enabled."""
+    mock_end_user_model = end_user_model_factory(user_id="test-user")
+    mock_api_clients = AsyncMock()
+    mock_api_clients.end_user.create_end_user = AsyncMock(return_value=mock_end_user_model)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    auth_method = AuthenticationMethod(EmailAuthentication(type="email", email="test@example.com"))
+    evm_account = CreateEndUserRequestEvmAccount(
+        create_smart_account=True, enable_spend_permissions=True
+    )
+
+    with patch("cdp.end_user_client.uuid.uuid4") as mock_uuid:
+        mock_uuid.return_value = "generated-uuid"
+        await client.create_end_user(
+            authentication_methods=[auth_method],
+            evm_account=evm_account,
+        )
+
+    call_args = mock_api_clients.end_user.create_end_user.call_args
+    request = call_args.kwargs["create_end_user_request"]
+    assert request.evm_account == evm_account
+    assert request.evm_account.create_smart_account is True
+    assert request.evm_account.enable_spend_permissions is True
+
+
+@pytest.mark.asyncio
 async def test_create_end_user_handles_error():
     """Test that errors are propagated when creating an end user."""
     mock_api_clients = AsyncMock()
