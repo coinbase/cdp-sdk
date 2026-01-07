@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.40.2
+
+### Patch Changes
+
+- [#539](https://github.com/coinbase/cdp-sdk/pull/539) [`b08076c`](https://github.com/coinbase/cdp-sdk/commit/b08076cf688f3f2bc3186ad9406062808007cb2c) Thanks [@tmm](https://github.com/tmm)! - Upgraded internal `@solana/kit` version to 5.1.0
+
 ## 1.40.1
 
 ### Patch Changes
