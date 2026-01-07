@@ -34,7 +34,9 @@ describe("EndUserClient", () => {
     evmSmartAccounts: ["0x123"],
     solanaAccounts: ["0x123"],
     evmAccountObjects: [{ address: "0x123", createdAt: "2024-01-01T00:00:00Z" }],
-    evmSmartAccountObjects: [{ address: "0x123", ownerAddresses: ["0x456"], createdAt: "2024-01-01T00:00:00Z" }],
+    evmSmartAccountObjects: [
+      { address: "0x123", ownerAddresses: ["0x456"], createdAt: "2024-01-01T00:00:00Z" },
+    ],
     solanaAccountObjects: [{ address: "test123", createdAt: "2024-01-01T00:00:00Z" }],
     authenticationMethods: [
       {
