@@ -19,9 +19,9 @@
     }
   },
   "dependencies": {
-    "@solana/kit": "^3.0.3",
-    "@solana-program/token": "^0.6.0",
-    "@solana-program/system": "^0.8.0",
+    "@solana/kit": "^5.1.0",
+    "@solana-program/token": "^0.9.0",
+    "@solana-program/system": "^0.10.0",
     "@solana/web3.js": "^1.98.1",
     "abitype": "1.0.6",
     "axios": "^1.12.2",
