@@ -186,6 +186,36 @@ async def test_create_end_user_with_accounts(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_create_end_user_with_spend_permissions(cdp_client):
+    """Test creating an end user with spend permissions enabled."""
+    from cdp.spend_permissions import SPEND_PERMISSION_MANAGER_ADDRESS
+
+    random_email = f"test-{int(time.time())}-{generate_random_name()}@example.com"
+
+    end_user = await cdp_client.end_user.create_end_user(
+        authentication_methods=[
+            AuthenticationMethod(EmailAuthentication(type="email", email=random_email))
+        ],
+        evm_account=CreateEndUserRequestEvmAccount(
+            create_smart_account=True, enable_spend_permissions=True
+        ),
+    )
+
+    assert end_user is not None
+    assert end_user.user_id is not None
+    assert end_user.evm_smart_account_objects is not None
+    assert len(end_user.evm_smart_account_objects) == 1
+
+    smart_account = end_user.evm_smart_account_objects[0]
+    assert smart_account.owner_addresses is not None
+    assert len(smart_account.owner_addresses) == 2
+    assert smart_account.owner_addresses[1] == SPEND_PERMISSION_MANAGER_ADDRESS
+
+    print(f"Created end user with spend permissions: {end_user.user_id}")
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_import_account(cdp_client):
     """Test importing an account."""
     account = Account.create()
