@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.create_end_user_request_evm_account import CreateEndUserRequestEvmAccount
+from cdp.openapi_client.models.x402_verify_payment_rejection import X402VerifyPaymentRejection
 
-class TestCreateEndUserRequestEvmAccount(unittest.TestCase):
-    """CreateEndUserRequestEvmAccount unit test stubs"""
+class TestX402VerifyPaymentRejection(unittest.TestCase):
+    """X402VerifyPaymentRejection unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,26 +26,29 @@ class TestCreateEndUserRequestEvmAccount(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CreateEndUserRequestEvmAccount:
-        """Test CreateEndUserRequestEvmAccount
+    def make_instance(self, include_optional) -> X402VerifyPaymentRejection:
+        """Test X402VerifyPaymentRejection
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CreateEndUserRequestEvmAccount`
+        # uncomment below to create an instance of `X402VerifyPaymentRejection`
         """
-        model = CreateEndUserRequestEvmAccount()
+        model = X402VerifyPaymentRejection()
         if include_optional:
-            return CreateEndUserRequestEvmAccount(
-                create_smart_account = True,
-                enable_spend_permissions = True
+            return X402VerifyPaymentRejection(
+                is_valid = False,
+                invalid_reason = 'insufficient_funds',
+                payer = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             )
         else:
-            return CreateEndUserRequestEvmAccount(
+            return X402VerifyPaymentRejection(
+                is_valid = False,
+                invalid_reason = 'insufficient_funds',
         )
         """
 
-    def testCreateEndUserRequestEvmAccount(self):
-        """Test CreateEndUserRequestEvmAccount"""
+    def testX402VerifyPaymentRejection(self):
+        """Test X402VerifyPaymentRejection"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

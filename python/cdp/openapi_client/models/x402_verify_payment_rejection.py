@@ -18,18 +18,31 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
+from cdp.openapi_client.models.x402_verify_invalid_reason import X402VerifyInvalidReason
 from typing import Optional, Set
 from typing_extensions import Self
 
-class CreateEndUserRequestEvmAccount(BaseModel):
+class X402VerifyPaymentRejection(BaseModel):
     """
-    Configuration for creating an EVM account for the end user.
+    The result when x402 payment verification fails.
     """ # noqa: E501
-    create_smart_account: Optional[StrictBool] = Field(default=False, description="If true, creates an EVM smart account and a default EVM EOA account as the owner. If false, only a EVM EOA account is created.", alias="createSmartAccount")
-    enable_spend_permissions: Optional[StrictBool] = Field(default=None, description="If true, enables spend permissions for the EVM smart account.", alias="enableSpendPermissions")
-    __properties: ClassVar[List[str]] = ["createSmartAccount", "enableSpendPermissions"]
+    is_valid: StrictBool = Field(description="Indicates whether the payment is valid.", alias="isValid")
+    invalid_reason: X402VerifyInvalidReason = Field(alias="invalidReason")
+    payer: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, description="The onchain address of the client that is paying for the resource.  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the payer will be a base58-encoded Solana address.")
+    __properties: ClassVar[List[str]] = ["isValid", "invalidReason", "payer"]
+
+    @field_validator('payer')
+    def payer_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if value is None:
+            return value
+
+        if not re.match(r"^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$", value):
+            raise ValueError(r"must validate the regular expression /^(0x[a-fA-F0-9]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$/")
+        return value
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -49,7 +62,7 @@ class CreateEndUserRequestEvmAccount(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CreateEndUserRequestEvmAccount from a JSON string"""
+        """Create an instance of X402VerifyPaymentRejection from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -74,7 +87,7 @@ class CreateEndUserRequestEvmAccount(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CreateEndUserRequestEvmAccount from a dict"""
+        """Create an instance of X402VerifyPaymentRejection from a dict"""
         if obj is None:
             return None
 
@@ -82,8 +95,9 @@ class CreateEndUserRequestEvmAccount(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "createSmartAccount": obj.get("createSmartAccount") if obj.get("createSmartAccount") is not None else False,
-            "enableSpendPermissions": obj.get("enableSpendPermissions")
+            "isValid": obj.get("isValid"),
+            "invalidReason": obj.get("invalidReason"),
+            "payer": obj.get("payer")
         })
         return _obj
 

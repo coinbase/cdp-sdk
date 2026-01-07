@@ -19,12 +19,32 @@ async def main():
             # Create an end user with an email authentication method and an EVM account.
             end_user = await cdp.end_user.create_end_user(
                 authentication_methods=[
-                    AuthenticationMethod(EmailAuthentication(type="email", email="user@example.com"))
+                    AuthenticationMethod(EmailAuthentication(type="email", email="user+3@example.com"))
                 ],
                 evm_account=CreateEndUserRequestEvmAccount(create_smart_account=False),
             )
 
             print("Created end user:", end_user)
+
+            # Create an end user with an email authentication method and a smart account.
+            end_user_with_smart_account = await cdp.end_user.create_end_user(
+                authentication_methods=[
+                    AuthenticationMethod(EmailAuthentication(type="email", email="user+4@example.com"))
+                ],
+                evm_account=CreateEndUserRequestEvmAccount(create_smart_account=True),
+            )
+
+            print("Created end user with smart account:", end_user_with_smart_account)
+
+            # Create an end user with an email authentication method and a smart account with spend permissions.
+            end_user_with_smart_account_and_spend_permissions = await cdp.end_user.create_end_user(
+                authentication_methods=[
+                    AuthenticationMethod(EmailAuthentication(type="email", email="user+5@example.com"))
+                ],
+                evm_account=CreateEndUserRequestEvmAccount(create_smart_account=True, enable_spend_permissions=True),
+            )
+
+            print("Created end user with smart account and spend permissions:", end_user_with_smart_account_and_spend_permissions)
 
         except Exception as e:
             print(f"Error creating end user: {e}")

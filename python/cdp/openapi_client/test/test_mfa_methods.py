@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.create_end_user_request_evm_account import CreateEndUserRequestEvmAccount
+from cdp.openapi_client.models.mfa_methods import MFAMethods
 
-class TestCreateEndUserRequestEvmAccount(unittest.TestCase):
-    """CreateEndUserRequestEvmAccount unit test stubs"""
+class TestMFAMethods(unittest.TestCase):
+    """MFAMethods unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,26 +26,27 @@ class TestCreateEndUserRequestEvmAccount(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> CreateEndUserRequestEvmAccount:
-        """Test CreateEndUserRequestEvmAccount
+    def make_instance(self, include_optional) -> MFAMethods:
+        """Test MFAMethods
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `CreateEndUserRequestEvmAccount`
+        # uncomment below to create an instance of `MFAMethods`
         """
-        model = CreateEndUserRequestEvmAccount()
+        model = MFAMethods()
         if include_optional:
-            return CreateEndUserRequestEvmAccount(
-                create_smart_account = True,
-                enable_spend_permissions = True
+            return MFAMethods(
+                enrollment_prompted_at = '2025-01-15T10:30:00Z',
+                totp = cdp.openapi_client.models.mfa_methods_totp.MFAMethods_totp(
+                    enrolled_at = '2025-01-15T10:30:00Z', )
             )
         else:
-            return CreateEndUserRequestEvmAccount(
+            return MFAMethods(
         )
         """
 
-    def testCreateEndUserRequestEvmAccount(self):
-        """Test CreateEndUserRequestEvmAccount"""
+    def testMFAMethods(self):
+        """Test MFAMethods"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

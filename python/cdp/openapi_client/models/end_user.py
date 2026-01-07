@@ -20,12 +20,13 @@ import json
 
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.authentication_method import AuthenticationMethod
 from cdp.openapi_client.models.end_user_evm_account import EndUserEvmAccount
 from cdp.openapi_client.models.end_user_evm_smart_account import EndUserEvmSmartAccount
 from cdp.openapi_client.models.end_user_solana_account import EndUserSolanaAccount
+from cdp.openapi_client.models.mfa_methods import MFAMethods
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -35,6 +36,7 @@ class EndUser(BaseModel):
     """ # noqa: E501
     user_id: Annotated[str, Field(strict=True)] = Field(description="A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.", alias="userId")
     authentication_methods: List[AuthenticationMethod] = Field(description="The list of valid authentication methods linked to the end user.", alias="authenticationMethods")
+    mfa_methods: Optional[MFAMethods] = Field(default=None, alias="mfaMethods")
     evm_accounts: List[Annotated[str, Field(strict=True)]] = Field(description="**DEPRECATED**: Use `evmAccountObjects` instead for richer account information. The list of EVM account addresses associated with the end user. End users can have up to 10 EVM accounts.", alias="evmAccounts")
     evm_account_objects: List[EndUserEvmAccount] = Field(description="The list of EVM accounts associated with the end user. End users can have up to 10 EVM accounts.", alias="evmAccountObjects")
     evm_smart_accounts: List[Annotated[str, Field(strict=True)]] = Field(description="**DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.", alias="evmSmartAccounts")
@@ -42,7 +44,7 @@ class EndUser(BaseModel):
     solana_accounts: List[Annotated[str, Field(strict=True)]] = Field(description="**DEPRECATED**: Use `solanaAccountObjects` instead for richer account information. The list of Solana account addresses associated with the end user. End users can have up to 10 Solana accounts.", alias="solanaAccounts")
     solana_account_objects: List[EndUserSolanaAccount] = Field(description="The list of Solana accounts associated with the end user. End users can have up to 10 Solana accounts.", alias="solanaAccountObjects")
     created_at: datetime = Field(description="The date and time when the end user was created, in ISO 8601 format.", alias="createdAt")
-    __properties: ClassVar[List[str]] = ["userId", "authenticationMethods", "evmAccounts", "evmAccountObjects", "evmSmartAccounts", "evmSmartAccountObjects", "solanaAccounts", "solanaAccountObjects", "createdAt"]
+    __properties: ClassVar[List[str]] = ["userId", "authenticationMethods", "mfaMethods", "evmAccounts", "evmAccountObjects", "evmSmartAccounts", "evmSmartAccountObjects", "solanaAccounts", "solanaAccountObjects", "createdAt"]
 
     @field_validator('user_id')
     def user_id_validate_regular_expression(cls, value):
@@ -97,6 +99,9 @@ class EndUser(BaseModel):
                 if _item_authentication_methods:
                     _items.append(_item_authentication_methods.to_dict())
             _dict['authenticationMethods'] = _items
+        # override the default output from pydantic by calling `to_dict()` of mfa_methods
+        if self.mfa_methods:
+            _dict['mfaMethods'] = self.mfa_methods.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in evm_account_objects (list)
         _items = []
         if self.evm_account_objects:
@@ -132,6 +137,7 @@ class EndUser(BaseModel):
         _obj = cls.model_validate({
             "userId": obj.get("userId"),
             "authenticationMethods": [AuthenticationMethod.from_dict(_item) for _item in obj["authenticationMethods"]] if obj.get("authenticationMethods") is not None else None,
+            "mfaMethods": MFAMethods.from_dict(obj["mfaMethods"]) if obj.get("mfaMethods") is not None else None,
             "evmAccounts": obj.get("evmAccounts"),
             "evmAccountObjects": [EndUserEvmAccount.from_dict(_item) for _item in obj["evmAccountObjects"]] if obj.get("evmAccountObjects") is not None else None,
             "evmSmartAccounts": obj.get("evmSmartAccounts"),
