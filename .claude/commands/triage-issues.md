@@ -1,6 +1,6 @@
 ---
 description: Triage open GitHub issues - analyze priority, type, and recommend labels
-allowed-tools: Bash(gh:*), Read, Grep, Glob
+allowed-tools: Bash(gh:*), Bash(curl:*), Read, Grep, Glob
 ---
 
 # Triage GitHub Issues
@@ -51,7 +51,8 @@ If a `--token` argument is provided, extract it from $ARGUMENTS and set it for s
 
 $ARGUMENTS supports:
 - Optional filter: `bug`, `docs`, `security`, `all`, or a specific issue number. Defaults to `all`.
-- Optional token: `--token <github_token>` to authenticate without environment variable.
+- Optional GitHub token: `--token <github_token>` to authenticate without environment variable.
+- Optional Linear token: `--linear-token <linear_api_key>` to enable Linear ticket creation.
 
 ## Step 1: Fetch Issues
 
@@ -171,3 +172,72 @@ gh issue close <number> --reason "not planned" --comment "Closing as invalid/spa
 ### Stale Issues
 - Issues older than 90 days with no activity may need a ping or closure
 - Check if the issue still applies to the current SDK version
+
+## Step 6: Create Linear Tickets (Optional)
+
+For issues with status **ready**, offer to create Linear tickets. This step is optional and requires Linear API authentication.
+
+### Linear Authentication
+
+Linear API access can be provided via:
+1. **Environment variable**: `LINEAR_API_KEY`
+2. **Command argument**: `--linear-token <token>` passed in $ARGUMENTS
+
+If Linear authentication is not available when the user wants to create tickets, display:
+
+> **Linear authentication required**
+>
+> To create Linear tickets, you need a Linear API key.
+>
+> **Generate a new API key:**
+> [Click here to create a Linear API key](https://linear.app/coinbase/settings/account/security)
+>
+> Then either:
+> - Set it as an environment variable: `export LINEAR_API_KEY=<your-key>`
+> - Or pass it as an argument: `/triage-issues --linear-token <your-key> [filter]`
+
+### Linear Configuration
+
+Use these values for the CDPSDK team:
+- **Team ID**: `827cc285-1fc8-476d-99c4-1ef6f4f66524`
+- **Team Key**: `CDPSDK`
+- **Triage State ID**: `c1a4ca9a-55de-4623-8332-0c71f729b0c6`
+
+### Priority Mapping
+
+Map GitHub priority labels to Linear priority values:
+| GitHub Label | Linear Priority |
+|--------------|-----------------|
+| `critical` | 1 (Urgent) |
+| `high` | 2 (High) |
+| `medium` | 3 (Medium) |
+| `low` | 4 (Low) |
+| (none) | 0 (No priority) |
+
+### Creating Tickets
+
+For each **ready** issue, prompt the user: "Create Linear ticket for #[number] [title]?"
+
+If confirmed, create the ticket using the Linear GraphQL API:
+
+```bash
+curl -X POST https://api.linear.app/graphql \
+  -H "Authorization: $LINEAR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "mutation CreateIssue($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { id identifier url } } }",
+    "variables": {
+      "input": {
+        "teamId": "827cc285-1fc8-476d-99c4-1ef6f4f66524",
+        "stateId": "c1a4ca9a-55de-4623-8332-0c71f729b0c6",
+        "title": "[GitHub #<number>] <issue title>",
+        "description": "<issue body summary>\n\n---\n**GitHub Issue:** https://github.com/coinbase/cdp-sdk/issues/<number>",
+        "priority": <mapped_priority>
+      }
+    }
+  }'
+```
+
+After successful creation, display the Linear ticket URL (e.g., `https://linear.app/coinbase/issue/CDPSDK-1234`).
+
+**Important**: Do NOT update the GitHub issue with the Linear link. The Linear ticket should contain the link back to GitHub, but not vice versa.
