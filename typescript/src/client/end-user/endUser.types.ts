@@ -1,4 +1,9 @@
-import type { CreateEndUserBody, ListEndUsersParams } from "../../openapi-client/index.js";
+import type {
+  CreateEndUserBody,
+  ListEndUsersParams,
+  ImportEndUserBodyKeyType,
+  AuthenticationMethods,
+} from "../../openapi-client/index.js";
 
 /**
  * The options for validating an access token.
@@ -29,3 +34,29 @@ export type ListEndUsersOptions = ListEndUsersParams;
  * The options for creating an end user.
  */
 export type CreateEndUserOptions = CreateEndUserBody;
+
+/**
+ * The options for importing an end user.
+ */
+export interface ImportEndUserOptions {
+  /**
+   * A stable, unique identifier for the end user.
+   * If not provided, a UUID will be generated.
+   */
+  userId?: string;
+  /**
+   * The authentication methods for the end user.
+   */
+  authenticationMethods: AuthenticationMethods;
+  /**
+   * The private key to import.
+   * - For EVM: hex string (with or without 0x prefix)
+   * - For Solana: base58 encoded string or raw bytes (Uint8Array, 32 or 64 bytes)
+   * The SDK will encrypt this before sending to the API.
+   */
+  privateKey: string | Uint8Array;
+  /**
+   * The type of key being imported ("evm" or "solana").
+   */
+  keyType: ImportEndUserBodyKeyType;
+}

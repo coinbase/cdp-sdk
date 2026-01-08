@@ -1,10 +1,12 @@
-import { randomUUID } from "crypto";
+import { randomUUID, publicEncrypt, constants } from "crypto";
+import bs58 from "bs58";
 
 import {
   type ValidateAccessTokenOptions,
   type ListEndUsersOptions,
   type CreateEndUserOptions,
   type GetEndUserOptions,
+  type ImportEndUserOptions,
 } from "./endUser.types.js";
 import { Analytics } from "../../analytics.js";
 import {
@@ -12,6 +14,8 @@ import {
   type EndUser,
   type ListEndUsers200,
 } from "../../openapi-client/index.js";
+import { ImportAccountPublicRSAKey } from "../../constants.js";
+import { UserInputValidationError } from "../../errors.js";
 
 /**
  * The CDP end user client.
@@ -145,6 +149,93 @@ export class CDPEndUserClient {
 
     return CdpOpenApiClient.validateEndUserAccessToken({
       accessToken,
+    });
+  }
+
+  /**
+   * Imports an existing private key for an end user.
+   *
+   * @param options - The options for importing an end user.
+   *
+   * @returns A promise that resolves to the imported end user.
+   *
+   * @example **Import an end user with an EVM private key**
+   *          ```ts
+   *          const endUser = await cdp.endUser.importEndUser({
+   *            authenticationMethods: [
+   *              { type: "sms", phoneNumber: "+12055555555" }
+   *            ],
+   *            privateKey: "0x...",
+   *            keyType: "evm"
+   *          });
+   *          ```
+   *
+   * @example **Import an end user with a Solana private key (base58)**
+   *          ```ts
+   *          const endUser = await cdp.endUser.importEndUser({
+   *            authenticationMethods: [
+   *              { type: "sms", phoneNumber: "+12055555555" }
+   *            ],
+   *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
+   *            keyType: "solana"
+   *          });
+   *          ```
+   */
+  async importEndUser(options: ImportEndUserOptions): Promise<EndUser> {
+    Analytics.trackAction({
+      action: "import_end_user",
+    });
+
+    const userId = options.userId ?? randomUUID();
+
+    let privateKeyBytes: Uint8Array;
+
+    if (options.keyType === "evm") {
+      // EVM: expect hex string (with or without 0x prefix)
+      if (typeof options.privateKey !== "string") {
+        throw new UserInputValidationError("EVM private key must be a hex string");
+      }
+      const privateKeyHex = options.privateKey.startsWith("0x")
+        ? options.privateKey.slice(2)
+        : options.privateKey;
+
+      if (!/^[0-9a-fA-F]+$/.test(privateKeyHex)) {
+        throw new UserInputValidationError("Private key must be a valid hexadecimal string");
+      }
+
+      privateKeyBytes = Buffer.from(privateKeyHex, "hex");
+    } else {
+      // Solana: expect base58 string or raw bytes (32 or 64 bytes)
+      if (typeof options.privateKey === "string") {
+        privateKeyBytes = bs58.decode(options.privateKey);
+      } else {
+        privateKeyBytes = options.privateKey;
+      }
+
+      if (privateKeyBytes.length !== 32 && privateKeyBytes.length !== 64) {
+        throw new UserInputValidationError("Invalid Solana private key length");
+      }
+
+      // Truncate 64-byte keys to 32 bytes (seed only)
+      if (privateKeyBytes.length === 64) {
+        privateKeyBytes = privateKeyBytes.subarray(0, 32);
+      }
+    }
+
+    const encryptedPrivateKey = publicEncrypt(
+      {
+        key: ImportAccountPublicRSAKey,
+        padding: constants.RSA_PKCS1_OAEP_PADDING,
+        oaepHash: "sha256",
+      },
+      privateKeyBytes,
+    );
+
+    return CdpOpenApiClient.importEndUser({
+      userId,
+      authenticationMethods: options.authenticationMethods,
+      encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
+      keyType: options.keyType,
     });
   }
 }
