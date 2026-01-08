@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.41.0
+
+### Minor Changes
+
+- [#541](https://github.com/coinbase/cdp-sdk/pull/541) [`3d25993`](https://github.com/coinbase/cdp-sdk/commit/3d25993cd6d1b5c0ac0e48539695ee167b3b2d0e) Thanks [@milan-cb](https://github.com/milan-cb)! - Added spend permissions for pre-generated smart accounts
+
 ## 1.40.2
 
 ### Patch Changes
