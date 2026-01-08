@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.36.0] - 2026-01-08
+
+### Features
+
+- Added spend permissions for pre-generated smart accounts ([#541](https://github.com/coinbase/cdp-sdk/pull/541))
+
+
 ## [1.35.0] - 2025-12-08
 
 ### Features
