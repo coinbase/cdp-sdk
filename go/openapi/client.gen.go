@@ -629,8 +629,19 @@ const (
 	X402SettleErrorReasonInvalidPaymentRequirements                          X402SettleErrorReason = "invalid_payment_requirements"
 	X402SettleErrorReasonInvalidScheme                                       X402SettleErrorReason = "invalid_scheme"
 	X402SettleErrorReasonInvalidX402Version                                  X402SettleErrorReason = "invalid_x402_version"
+	X402SettleErrorReasonSettleExactEvmTransactionConfirmationTimedOut       X402SettleErrorReason = "settle_exact_evm_transaction_confirmation_timed_out"
+	X402SettleErrorReasonSettleExactFailedOnchain                            X402SettleErrorReason = "settle_exact_failed_onchain"
+	X402SettleErrorReasonSettleExactNodeFailure                              X402SettleErrorReason = "settle_exact_node_failure"
 	X402SettleErrorReasonSettleExactSvmBlockHeightExceeded                   X402SettleErrorReason = "settle_exact_svm_block_height_exceeded"
 	X402SettleErrorReasonSettleExactSvmTransactionConfirmationTimedOut       X402SettleErrorReason = "settle_exact_svm_transaction_confirmation_timed_out"
+)
+
+// Defines values for X402SupportedPaymentKindNetwork.
+const (
+	X402SupportedPaymentKindNetworkBase         X402SupportedPaymentKindNetwork = "base"
+	X402SupportedPaymentKindNetworkBaseSepolia  X402SupportedPaymentKindNetwork = "base-sepolia"
+	X402SupportedPaymentKindNetworkSolana       X402SupportedPaymentKindNetwork = "solana"
+	X402SupportedPaymentKindNetworkSolanaDevnet X402SupportedPaymentKindNetwork = "solana-devnet"
 )
 
 // Defines values for X402SupportedPaymentKindScheme.
@@ -734,9 +745,9 @@ const (
 
 // Defines values for RequestEvmFaucetJSONBodyNetwork.
 const (
-	RequestEvmFaucetJSONBodyNetworkBaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
-	RequestEvmFaucetJSONBodyNetworkEthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
-	RequestEvmFaucetJSONBodyNetworkEthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
+	BaseSepolia     RequestEvmFaucetJSONBodyNetwork = "base-sepolia"
+	EthereumHoodi   RequestEvmFaucetJSONBodyNetwork = "ethereum-hoodi"
+	EthereumSepolia RequestEvmFaucetJSONBodyNetwork = "ethereum-sepolia"
 )
 
 // Defines values for RequestEvmFaucetJSONBodyToken.
@@ -1136,6 +1147,9 @@ type EndUser struct {
 	// EvmSmartAccounts **DEPRECATED**: Use `evmSmartAccountObjects` instead for richer account information including owner relationships. The list of EVM smart account addresses associated with the end user. Each EVM EOA can own one smart account.
 	// Deprecated:
 	EvmSmartAccounts []string `json:"evmSmartAccounts"`
+
+	// MfaMethods Information about the end user's MFA enrollments.
+	MfaMethods *MFAMethods `json:"mfaMethods,omitempty"`
 
 	// SolanaAccountObjects The list of Solana accounts associated with the end user. End users can have up to 10 Solana accounts.
 	SolanaAccountObjects []EndUserSolanaAccount `json:"solanaAccountObjects"`
@@ -1604,6 +1618,18 @@ type ListResponse struct {
 
 // ListSolanaTokenBalancesNetwork The name of the supported Solana networks in human-readable format.
 type ListSolanaTokenBalancesNetwork string
+
+// MFAMethods Information about the end user's MFA enrollments.
+type MFAMethods struct {
+	// EnrollmentPromptedAt The date and time when the end user was prompted for MFA enrollment, in ISO 8601 format. If the this field exists, and the user has no other enrolled MFA methods, then the user skipped MFA enrollment.
+	EnrollmentPromptedAt *time.Time `json:"enrollmentPromptedAt,omitempty"`
+
+	// Totp An object containing information about the end user's TOTP enrollment.
+	Totp *struct {
+		// EnrolledAt The date and time when the method was enrolled, in ISO 8601 format.
+		EnrolledAt time.Time `json:"enrolledAt"`
+	} `json:"totp,omitempty"`
+}
 
 // MintAddressCriterion The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
 type MintAddressCriterion struct {
@@ -2605,20 +2631,33 @@ type WebhookSubscriptionRequest struct {
 	// IsEnabled Whether the subscription is enabled.
 	IsEnabled *bool `json:"isEnabled,omitempty"`
 
-	// LabelKey Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair
+	// LabelKey (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
+	//
+	// Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair
 	// in addition to the event types. Only events matching both the event types AND this label filter will be delivered.
 	// NOTE: Use either (labelKey + labelValue) OR labels, not both.
+	//
+	// Maintained for backward compatibility only.
+	// Deprecated:
 	LabelKey *string `json:"labelKey,omitempty"`
 
-	// LabelValue Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).
+	// LabelValue (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
+	//
+	// Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).
 	// Only events with this exact label value will be delivered.
 	// NOTE: Use either (labelKey + labelValue) OR labels, not both.
+	//
+	// Maintained for backward compatibility only.
+	// Deprecated:
 	LabelValue *string `json:"labelValue,omitempty"`
 
 	// Labels Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
 	// an event contains ALL the key-value pairs specified here. Additional labels on
 	// the event are allowed and will not prevent matching.
-	// NOTE: Use either labels OR (labelKey + labelValue), not both.
+	//
+	// **Note:** Currently, labels are supported for onchain webhooks only.
+	//
+	// See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
 	Labels *map[string]string `json:"labels,omitempty"`
 
 	// Metadata Additional metadata for the subscription.
@@ -2651,10 +2690,18 @@ type WebhookSubscriptionResponse struct {
 	// IsEnabled Whether the subscription is enabled.
 	IsEnabled bool `json:"isEnabled"`
 
-	// LabelKey Label key for filtering events. Present when subscription uses traditional single-label format.
+	// LabelKey (Deprecated) Use `labels` field instead.
+	//
+	// Label key for filtering events. Present when subscription uses traditional single-label format.
+	// Maintained for backward compatibility only.
+	// Deprecated:
 	LabelKey *string `json:"labelKey,omitempty"`
 
-	// LabelValue Label value for filtering events. Present when subscription uses traditional single-label format.
+	// LabelValue (Deprecated) Use `labels` field instead.
+	//
+	// Label value for filtering events. Present when subscription uses traditional single-label format.
+	// Maintained for backward compatibility only.
+	// Deprecated:
 	LabelValue *string `json:"labelValue,omitempty"`
 
 	// Labels Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.
@@ -2692,14 +2739,25 @@ type WebhookSubscriptionUpdateRequest struct {
 	// IsEnabled Whether the subscription is enabled.
 	IsEnabled *bool `json:"isEnabled,omitempty"`
 
-	// LabelKey Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.
+	// LabelKey (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
+	//
+	// Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.
+	// Maintained for backward compatibility only.
+	// Deprecated:
 	LabelKey *string `json:"labelKey,omitempty"`
 
-	// LabelValue Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.
+	// LabelValue (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
+	//
+	// Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.
+	// Maintained for backward compatibility only.
+	// Deprecated:
 	LabelValue *string `json:"labelValue,omitempty"`
 
-	// Labels Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
-	// an event contains ALL the key-value pairs specified here. Use either labels OR (labelKey + labelValue), not both.
+	// Labels Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
+	//
+	// **Note:** Currently, labels are supported for onchain webhooks only.
+	//
+	// See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
 	Labels *map[string]string `json:"labels,omitempty"`
 
 	// Metadata Additional metadata for the subscription.
@@ -2809,13 +2867,37 @@ type X402ResourceInfo struct {
 // X402SettleErrorReason The reason the payment settlement errored on the x402 protocol.
 type X402SettleErrorReason string
 
+// X402SettlePaymentRejection The result when x402 payment settlement fails.
+type X402SettlePaymentRejection struct {
+	// ErrorReason The reason the payment settlement errored on the x402 protocol.
+	ErrorReason X402SettleErrorReason `json:"errorReason"`
+
+	// Network The network where the settlement occurred.
+	Network *string `json:"network,omitempty"`
+
+	// Payer The onchain address of the client that is paying for the resource.
+	//
+	// For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+	//
+	// For Solana-based networks, the payer will be a base58-encoded Solana address.
+	Payer *string `json:"payer,omitempty"`
+
+	// Success Indicates whether the payment settlement is successful.
+	Success bool `json:"success"`
+
+	// Transaction The transaction of the settlement.
+	// For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash.
+	// For Solana-based networks, the transaction will be a base58-encoded Solana signature.
+	Transaction *string `json:"transaction,omitempty"`
+}
+
 // X402SupportedPaymentKind The supported payment kind for the x402 protocol. A kind is comprised of a scheme and a network, which together uniquely identify a way to move money on the x402 protocol. For more details, please see [x402 Schemes](https://github.com/coinbase/x402?tab=readme-ov-file#schemes).
 type X402SupportedPaymentKind struct {
 	// Extra The optional additional scheme-specific payment info.
 	Extra *map[string]interface{} `json:"extra,omitempty"`
 
 	// Network The network of the blockchain.
-	Network string `json:"network"`
+	Network X402SupportedPaymentKindNetwork `json:"network"`
 
 	// Scheme The scheme of the payment protocol.
 	Scheme X402SupportedPaymentKindScheme `json:"scheme"`
@@ -2823,6 +2905,9 @@ type X402SupportedPaymentKind struct {
 	// X402Version The version of the x402 protocol.
 	X402Version X402Version `json:"x402Version"`
 }
+
+// X402SupportedPaymentKindNetwork The network of the blockchain.
+type X402SupportedPaymentKindNetwork string
 
 // X402SupportedPaymentKindScheme The scheme of the payment protocol.
 type X402SupportedPaymentKindScheme string
@@ -2964,6 +3049,22 @@ type X402V2PaymentRequirementsScheme string
 // X402VerifyInvalidReason The reason the payment is invalid on the x402 protocol.
 type X402VerifyInvalidReason string
 
+// X402VerifyPaymentRejection The result when x402 payment verification fails.
+type X402VerifyPaymentRejection struct {
+	// InvalidReason The reason the payment is invalid on the x402 protocol.
+	InvalidReason X402VerifyInvalidReason `json:"invalidReason"`
+
+	// IsValid Indicates whether the payment is valid.
+	IsValid bool `json:"isValid"`
+
+	// Payer The onchain address of the client that is paying for the resource.
+	//
+	// For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.
+	//
+	// For Solana-based networks, the payer will be a base58-encoded Solana address.
+	Payer *string `json:"payer,omitempty"`
+}
+
 // IdempotencyKey defines model for IdempotencyKey.
 type IdempotencyKey = string
 
@@ -3006,6 +3107,9 @@ type TimedOutError = Error
 // UnauthorizedError An error response including the code for the type of error and a human-readable message describing the error.
 type UnauthorizedError = Error
 
+// X402SettleError The result when x402 payment settlement fails.
+type X402SettleError = X402SettlePaymentRejection
+
 // X402SettleResponse defines model for x402SettleResponse.
 type X402SettleResponse struct {
 	// ErrorReason The reason the payment settlement errored on the x402 protocol.
@@ -3041,6 +3145,9 @@ type X402SupportedPaymentKindsResponse struct {
 	// Signers A map of CAIP-2 network or protocol family patterns to their supported signer addresses.
 	Signers map[string][]string `json:"signers"`
 }
+
+// X402VerifyInvalidError The result when x402 payment verification fails.
+type X402VerifyInvalidError = X402VerifyPaymentRejection
 
 // X402VerifyResponse defines model for x402VerifyResponse.
 type X402VerifyResponse struct {
@@ -3103,6 +3210,9 @@ type CreateEndUserJSONBody struct {
 	EvmAccount *struct {
 		// CreateSmartAccount If true, creates an EVM smart account and a default EVM EOA account as the owner. If false, only a EVM EOA account is created.
 		CreateSmartAccount *bool `json:"createSmartAccount,omitempty"`
+
+		// EnableSpendPermissions If true, enables spend permissions for the EVM smart account.
+		EnableSpendPermissions *bool `json:"enableSpendPermissions,omitempty"`
 	} `json:"evmAccount,omitempty"`
 
 	// SolanaAccount Configuration for creating a Solana account for the end user.
@@ -14195,7 +14305,8 @@ type SettleX402PaymentResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *X402SettleResponse
-	JSON400      *Error
+	JSON400      *X402SettleError
+	JSON402      *PaymentMethodRequiredError
 	JSON500      *InternalServerError
 	JSON502      *BadGatewayError
 	JSON503      *ServiceUnavailableError
@@ -14246,7 +14357,7 @@ type VerifyX402PaymentResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
 	JSON200      *X402VerifyResponse
-	JSON400      *Error
+	JSON400      *X402VerifyInvalidError
 	JSON500      *InternalServerError
 	JSON502      *BadGatewayError
 	JSON503      *ServiceUnavailableError
@@ -19531,11 +19642,18 @@ func ParseSettleX402PaymentResponse(rsp *http.Response) (*SettleX402PaymentRespo
 		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest Error
+		var dest X402SettleError
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 402:
+		var dest PaymentMethodRequiredError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON402 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
 		var dest InternalServerError
@@ -19632,7 +19750,7 @@ func ParseVerifyX402PaymentResponse(rsp *http.Response) (*VerifyX402PaymentRespo
 		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest Error
+		var dest X402VerifyInvalidError
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}

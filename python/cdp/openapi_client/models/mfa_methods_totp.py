@@ -18,18 +18,18 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool
-from typing import Any, ClassVar, Dict, List, Optional
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
-class CreateEndUserRequestEvmAccount(BaseModel):
+class MFAMethodsTotp(BaseModel):
     """
-    Configuration for creating an EVM account for the end user.
+    An object containing information about the end user's TOTP enrollment.
     """ # noqa: E501
-    create_smart_account: Optional[StrictBool] = Field(default=False, description="If true, creates an EVM smart account and a default EVM EOA account as the owner. If false, only a EVM EOA account is created.", alias="createSmartAccount")
-    enable_spend_permissions: Optional[StrictBool] = Field(default=None, description="If true, enables spend permissions for the EVM smart account.", alias="enableSpendPermissions")
-    __properties: ClassVar[List[str]] = ["createSmartAccount", "enableSpendPermissions"]
+    enrolled_at: datetime = Field(description="The date and time when the method was enrolled, in ISO 8601 format.", alias="enrolledAt")
+    __properties: ClassVar[List[str]] = ["enrolledAt"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -49,7 +49,7 @@ class CreateEndUserRequestEvmAccount(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of CreateEndUserRequestEvmAccount from a JSON string"""
+        """Create an instance of MFAMethodsTotp from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -74,7 +74,7 @@ class CreateEndUserRequestEvmAccount(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of CreateEndUserRequestEvmAccount from a dict"""
+        """Create an instance of MFAMethodsTotp from a dict"""
         if obj is None:
             return None
 
@@ -82,8 +82,7 @@ class CreateEndUserRequestEvmAccount(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "createSmartAccount": obj.get("createSmartAccount") if obj.get("createSmartAccount") is not None else False,
-            "enableSpendPermissions": obj.get("enableSpendPermissions")
+            "enrolledAt": obj.get("enrolledAt")
         })
         return _obj
 

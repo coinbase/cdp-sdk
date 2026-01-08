@@ -40,6 +40,9 @@ class X402SettleErrorReason(str, Enum):
     INVALID_EXACT_EVM_PAYLOAD_AUTHORIZATION_FROM_ADDRESS_KYT = 'invalid_exact_evm_payload_authorization_from_address_kyt'
     INVALID_EXACT_EVM_PAYLOAD_AUTHORIZATION_TO_ADDRESS_KYT = 'invalid_exact_evm_payload_authorization_to_address_kyt'
     INVALID_EXACT_EVM_PAYLOAD_SIGNATURE_ADDRESS = 'invalid_exact_evm_payload_signature_address'
+    SETTLE_EXACT_EVM_TRANSACTION_CONFIRMATION_TIMED_OUT = 'settle_exact_evm_transaction_confirmation_timed_out'
+    SETTLE_EXACT_NODE_FAILURE = 'settle_exact_node_failure'
+    SETTLE_EXACT_FAILED_ONCHAIN = 'settle_exact_failed_onchain'
     SETTLE_EXACT_SVM_BLOCK_HEIGHT_EXCEEDED = 'settle_exact_svm_block_height_exceeded'
     SETTLE_EXACT_SVM_TRANSACTION_CONFIRMATION_TIMED_OUT = 'settle_exact_svm_transaction_confirmation_timed_out'
 
