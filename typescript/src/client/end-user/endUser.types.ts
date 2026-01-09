@@ -11,6 +11,16 @@ export interface ValidateAccessTokenOptions {
 }
 
 /**
+ * The options for getting an end user.
+ */
+export interface GetEndUserOptions {
+  /**
+   * The unique identifier of the end user to retrieve.
+   */
+  userId: string;
+}
+
+/**
  * The options for listing end users.
  */
 export type ListEndUsersOptions = ListEndUsersParams;

@@ -4,6 +4,7 @@ import {
   type ValidateAccessTokenOptions,
   type ListEndUsersOptions,
   type CreateEndUserOptions,
+  type GetEndUserOptions,
 } from "./endUser.types.js";
 import { Analytics } from "../../analytics.js";
 import {
@@ -101,6 +102,31 @@ export class CDPEndUserClient {
     };
 
     return CdpOpenApiClient.listEndUsers(params as ListEndUsersOptions);
+  }
+
+  /**
+   * Gets an end user by their unique identifier.
+   *
+   * @param options - The options for getting an end user.
+   *
+   * @returns A promise that resolves to the end user.
+   *
+   * @example **Get an end user by ID**
+   *          ```ts
+   *          const endUser = await cdp.endUser.getEndUser({
+   *            userId: "user-123"
+   *          });
+   *          console.log(endUser.userId);
+   *          ```
+   */
+  async getEndUser(options: GetEndUserOptions): Promise<EndUser> {
+    Analytics.trackAction({
+      action: "get_end_user",
+    });
+
+    const { userId } = options;
+
+    return CdpOpenApiClient.getEndUser(userId);
   }
 
   /**
