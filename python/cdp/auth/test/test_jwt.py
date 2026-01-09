@@ -101,6 +101,23 @@ def test_parse_private_key_ed25519(ed25519_private_key_factory):
     assert isinstance(key, ed25519.Ed25519PrivateKey)
 
 
+def test_parse_private_key_ec_with_literal_newlines(ec_private_key_factory):
+    r"""Test parsing an EC private key with literal \n sequences.
+
+    This handles the case where a PEM key is provided in an env file without quotes,
+    causing the newline escape sequences to remain as literal characters.
+    """
+    # Setup - convert actual newlines to literal \n sequences
+    key_data = ec_private_key_factory()
+    key_with_literal_newlines = key_data.replace("\n", "\\n")
+
+    # Execute
+    key = _parse_private_key(key_with_literal_newlines)
+
+    # Verify
+    assert isinstance(key, ec.EllipticCurvePrivateKey)
+
+
 def test_parse_private_key_invalid():
     """Test parsing an invalid private key."""
     # Execute & Verify
