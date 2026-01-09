@@ -7,6 +7,7 @@ import type {
   ValidateAccessTokenOptions,
   ListEndUsersOptions,
   CreateEndUserOptions,
+  GetEndUserOptions,
 } from "./endUser.types.js";
 import { APIError } from "../../openapi-client/errors.js";
 
@@ -22,6 +23,7 @@ vi.mock("../../openapi-client", () => {
       createEndUser: vi.fn(),
       validateEndUserAccessToken: vi.fn(),
       listEndUsers: vi.fn(),
+      getEndUser: vi.fn(),
     },
   };
 });
@@ -190,6 +192,34 @@ describe("EndUserClient", () => {
       await expect(client.validateAccessToken(validateAccessTokenOptions)).rejects.toThrow(
         expectedError,
       );
+    });
+  });
+
+  describe("getEndUser", () => {
+    it("should get an end user by userId", async () => {
+      const getOptions: GetEndUserOptions = {
+        userId: "test-user-id",
+      };
+      (
+        CdpOpenApiClient.getEndUser as MockedFunction<typeof CdpOpenApiClient.getEndUser>
+      ).mockResolvedValue(mockEndUser);
+
+      const result = await client.getEndUser(getOptions);
+
+      expect(CdpOpenApiClient.getEndUser).toHaveBeenCalledWith("test-user-id");
+      expect(result).toEqual(mockEndUser);
+    });
+
+    it("should handle errors when getting an end user", async () => {
+      const getOptions: GetEndUserOptions = {
+        userId: "non-existent-user-id",
+      };
+      const expectedError = new APIError(404, "not_found", "End user not found");
+      (
+        CdpOpenApiClient.getEndUser as MockedFunction<typeof CdpOpenApiClient.getEndUser>
+      ).mockRejectedValue(expectedError);
+
+      await expect(client.getEndUser(getOptions)).rejects.toThrow(expectedError);
     });
   });
 
