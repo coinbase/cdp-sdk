@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.43.0
+
+### Minor Changes
+
+- [#545](https://github.com/coinbase/cdp-sdk/pull/545) [`9a532bc`](https://github.com/coinbase/cdp-sdk/commit/9a532bcd0770bd7239e042c2dfd14022ab6ce4cd) Thanks [@marcin-cb](https://github.com/marcin-cb)! - Added importEndUser to the end user client
+
 ## 1.42.0
 
 ### Minor Changes
