@@ -65,6 +65,8 @@ class ErrorType(str, Enum):
     MFA_FLOW_EXPIRED = 'mfa_flow_expired'
     MFA_REQUIRED = 'mfa_required'
     MFA_NOT_ENROLLED = 'mfa_not_enrolled'
+    MFA_MULTIPLE_METHODS_AVAILABLE = 'mfa_multiple_methods_available'
+    MFA_INVALID_METHOD = 'mfa_invalid_method'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

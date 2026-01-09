@@ -75,6 +75,9 @@ def test_get_auth_headers_missing_wallet_auth(mock_jwt, auth_options_factory):
         ("DELETE", "/any/123", False),
         ("GET", "/any/accounts", False),
         ("GET", "/any/path", False),
+        ("POST", "/v2/end-users", True),
+        ("POST", "/v2/end-users/import", True),
+        ("GET", "/v2/end-users", False),
     ],
 )
 def test_requires_wallet_auth(request_method, request_path, expected):

@@ -123,6 +123,14 @@ export type MFAMethodsTotp = {
 };
 
 /**
+ * An object containing information about the end user's SMS MFA enrollment.
+ */
+export type MFAMethodsSms = {
+  /** The date and time when the method was enrolled, in ISO 8601 format. */
+  enrolledAt: string;
+};
+
+/**
  * Information about the end user's MFA enrollments.
 
  */
@@ -131,6 +139,8 @@ export interface MFAMethods {
   enrollmentPromptedAt?: string;
   /** An object containing information about the end user's TOTP enrollment. */
   totp?: MFAMethodsTotp;
+  /** An object containing information about the end user's SMS MFA enrollment. */
+  sms?: MFAMethodsSms;
 }
 
 /**
@@ -260,6 +270,8 @@ export const ErrorType = {
   mfa_flow_expired: "mfa_flow_expired",
   mfa_required: "mfa_required",
   mfa_not_enrolled: "mfa_not_enrolled",
+  mfa_multiple_methods_available: "mfa_multiple_methods_available",
+  mfa_invalid_method: "mfa_invalid_method",
 } as const;
 
 /**
@@ -3228,6 +3240,8 @@ export const X402SettleErrorReason = {
   invalid_payment_requirements: "invalid_payment_requirements",
   invalid_payload: "invalid_payload",
   invalid_exact_evm_payload_authorization_value: "invalid_exact_evm_payload_authorization_value",
+  invalid_exact_evm_payload_authorization_value_too_low:
+    "invalid_exact_evm_payload_authorization_value_too_low",
   invalid_exact_evm_payload_authorization_valid_after:
     "invalid_exact_evm_payload_authorization_valid_after",
   invalid_exact_evm_payload_authorization_valid_before:
@@ -3238,7 +3252,47 @@ export const X402SettleErrorReason = {
     "invalid_exact_evm_payload_authorization_from_address_kyt",
   invalid_exact_evm_payload_authorization_to_address_kyt:
     "invalid_exact_evm_payload_authorization_to_address_kyt",
+  invalid_exact_evm_payload_signature: "invalid_exact_evm_payload_signature",
   invalid_exact_evm_payload_signature_address: "invalid_exact_evm_payload_signature_address",
+  invalid_exact_svm_payload_transaction: "invalid_exact_svm_payload_transaction",
+  invalid_exact_svm_payload_transaction_amount_mismatch:
+    "invalid_exact_svm_payload_transaction_amount_mismatch",
+  invalid_exact_svm_payload_transaction_create_ata_instruction:
+    "invalid_exact_svm_payload_transaction_create_ata_instruction",
+  invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee:
+    "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee",
+  invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset:
+    "invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset",
+  invalid_exact_svm_payload_transaction_instructions:
+    "invalid_exact_svm_payload_transaction_instructions",
+  invalid_exact_svm_payload_transaction_instructions_length:
+    "invalid_exact_svm_payload_transaction_instructions_length",
+  invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction:
+    "invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction",
+  invalid_exact_svm_payload_transaction_instructions_compute_price_instruction:
+    "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction",
+  invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high:
+    "invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high",
+  invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked:
+    "invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked",
+  invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked:
+    "invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked",
+  invalid_exact_svm_payload_transaction_not_a_transfer_instruction:
+    "invalid_exact_svm_payload_transaction_not_a_transfer_instruction",
+  invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata:
+    "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata",
+  invalid_exact_svm_payload_transaction_receiver_ata_not_found:
+    "invalid_exact_svm_payload_transaction_receiver_ata_not_found",
+  invalid_exact_svm_payload_transaction_sender_ata_not_found:
+    "invalid_exact_svm_payload_transaction_sender_ata_not_found",
+  invalid_exact_svm_payload_transaction_simulation_failed:
+    "invalid_exact_svm_payload_transaction_simulation_failed",
+  invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata:
+    "invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata",
+  invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts:
+    "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts",
+  invalid_exact_svm_payload_transaction_fee_payer_transferring_funds:
+    "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds",
   settle_exact_evm_transaction_confirmation_timed_out:
     "settle_exact_evm_transaction_confirmation_timed_out",
   settle_exact_node_failure: "settle_exact_node_failure",
@@ -3686,6 +3740,31 @@ export type ListEndUsers200 = ListEndUsers200AllOf & ListResponse;
 export type ValidateEndUserAccessTokenBody = {
   /** The access token in JWT format to verify. */
   accessToken: string;
+};
+
+/**
+ * The type of key being imported. Determines what type of account will be associated for the end user.
+ */
+export type ImportEndUserBodyKeyType =
+  (typeof ImportEndUserBodyKeyType)[keyof typeof ImportEndUserBodyKeyType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ImportEndUserBodyKeyType = {
+  evm: "evm",
+  solana: "solana",
+} as const;
+
+export type ImportEndUserBody = {
+  /**
+   * A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
+   * @pattern ^[a-zA-Z0-9-]{1,100}$
+   */
+  userId: string;
+  authenticationMethods: AuthenticationMethods;
+  /** The base64-encoded, encrypted private key to import. The private key must be encrypted using the CDP SDK's encryption scheme. This is a 32-byte raw private key. */
+  encryptedPrivateKey: string;
+  /** The type of key being imported. Determines what type of account will be associated for the end user. */
+  keyType: ImportEndUserBodyKeyType;
 };
 
 export type ListEvmAccountsParams = {
@@ -4373,8 +4452,10 @@ Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/res
   destinationNetwork: string;
   /** The address the purchased crypto will be sent to. */
   destinationAddress: string;
-  /** A string representing the amount of fiat the user wishes to pay in exchange for crypto. */
+  /** A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user  will pay this exact amount of the payment currency. */
   paymentAmount?: string;
+  /** A string representing the amount of crypto the user wishes to purchase. When using  this parameter, the returned quote will be exclusive of fees i.e. the user will  receive this exact amount of the purchase currency. */
+  purchaseAmount?: string;
   /** The fiat currency to be converted to crypto. */
   paymentCurrency?: string;
   paymentMethod?: OnrampQuotePaymentMethodTypeId;

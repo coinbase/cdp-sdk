@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.mfa_methods import MFAMethods
+from cdp.openapi_client.models.mfa_methods_sms import MFAMethodsSms
 
-class TestMFAMethods(unittest.TestCase):
-    """MFAMethods unit test stubs"""
+class TestMFAMethodsSms(unittest.TestCase):
+    """MFAMethodsSms unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,29 +26,26 @@ class TestMFAMethods(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> MFAMethods:
-        """Test MFAMethods
+    def make_instance(self, include_optional) -> MFAMethodsSms:
+        """Test MFAMethodsSms
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `MFAMethods`
+        # uncomment below to create an instance of `MFAMethodsSms`
         """
-        model = MFAMethods()
+        model = MFAMethodsSms()
         if include_optional:
-            return MFAMethods(
-                enrollment_prompted_at = '2025-01-15T10:30:00Z',
-                totp = cdp.openapi_client.models.mfa_methods_totp.MFAMethods_totp(
-                    enrolled_at = '2025-01-15T10:30:00Z', ),
-                sms = cdp.openapi_client.models.mfa_methods_sms.MFAMethods_sms(
-                    enrolled_at = '2025-01-15T10:30:00Z', )
+            return MFAMethodsSms(
+                enrolled_at = '2025-01-15T10:30:00Z'
             )
         else:
-            return MFAMethods(
+            return MFAMethodsSms(
+                enrolled_at = '2025-01-15T10:30:00Z',
         )
         """
 
-    def testMFAMethods(self):
-        """Test MFAMethods"""
+    def testMFAMethodsSms(self):
+        """Test MFAMethodsSms"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

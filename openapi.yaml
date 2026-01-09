@@ -917,6 +917,173 @@ paths:
                     errorMessage: End user with the given ID not found.
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v2/end-users/import:
+    post:
+      summary: Import a private key for an end user
+      description: |-
+        Imports an existing private key for an end user into the developer's CDP Project. The private key must be encrypted using the CDP SDK's encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
+
+        This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
+      operationId: importEndUser
+      tags:
+        - End User Accounts
+      x-audience: public
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - $ref: '#/components/parameters/XWalletAuth'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  description: A stable, unique identifier for the end user. The `userId` must be unique across all end users in the developer's CDP Project. It must be between 1 and 100 characters long and can only contain alphanumeric characters and hyphens.
+                  type: string
+                  pattern: ^[a-zA-Z0-9-]{1,100}$
+                  example: e051beeb-7163-4527-a5b6-35e301529ff2
+                authenticationMethods:
+                  $ref: '#/components/schemas/AuthenticationMethods'
+                encryptedPrivateKey:
+                  type: string
+                  description: The base64-encoded, encrypted private key to import. The private key must be encrypted using the CDP SDK's encryption scheme. This is a 32-byte raw private key.
+                  example: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+                keyType:
+                  type: string
+                  description: The type of key being imported. Determines what type of account will be associated for the end user.
+                  enum:
+                    - evm
+                    - solana
+                  example: evm
+              required:
+                - userId
+                - authenticationMethods
+                - encryptedPrivateKey
+                - keyType
+            examples:
+              import_evm_key:
+                summary: Import an EVM private key
+                value:
+                  userId: user-001
+                  authenticationMethods:
+                    - type: email
+                      email: user@example.com
+                  encryptedPrivateKey: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+                  keyType: evm
+              import_solana_key:
+                summary: Import a Solana private key
+                value:
+                  userId: user-002
+                  authenticationMethods:
+                    - type: sms
+                      phoneNumber: '+15555551234'
+                  encryptedPrivateKey: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+                  keyType: solana
+              import_evm_key_with_jwt_auth:
+                summary: Import an EVM private key with JWT authentication
+                value:
+                  userId: user-003
+                  authenticationMethods:
+                    - type: jwt
+                      sub: e051beeb-7163-4527-a5b6-35e301529ff2
+                      kid: NjVBRjY5MDlCMUIwNzU4RTA2QzZFMDQ4QzQ2MDAyQjVDNjk1RTM2Qg
+                  encryptedPrivateKey: U2FsdGVkX1+vupppZksvRf5X5YgHq4+da+Q4qf51+Q4=
+                  keyType: evm
+      responses:
+        '201':
+          description: Successfully imported key and created end user with the associated account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EndUser'
+              examples:
+                evm_key_imported:
+                  summary: End user with imported EVM account
+                  value:
+                    userId: user-001
+                    authenticationMethods:
+                      - type: email
+                        email: user@example.com
+                    evmAccounts:
+                      - '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                    evmAccountObjects:
+                      - address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                        createdAt: '2025-11-17T10:00:00Z'
+                    evmSmartAccounts: []
+                    evmSmartAccountObjects: []
+                    solanaAccounts: []
+                    solanaAccountObjects: []
+                    createdAt: '2025-11-17T10:00:00Z'
+                solana_key_imported:
+                  summary: End user with imported Solana account
+                  value:
+                    userId: user-002
+                    authenticationMethods:
+                      - type: sms
+                        phoneNumber: '+15555551234'
+                    evmAccounts: []
+                    evmAccountObjects: []
+                    evmSmartAccounts: []
+                    evmSmartAccountObjects: []
+                    solanaAccounts:
+                      - HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+                    solanaAccountObjects:
+                      - address: HpabPRRCFbBKSuJr5PdkVvQc85FyxyTWkFM2obBRSvHT
+                        createdAt: '2025-11-17T10:00:00Z'
+                    createdAt: '2025-11-17T10:00:00Z'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_key:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: The encrypted private key is invalid.
+                invalid_key_type:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Invalid key type. Must be 'evm' or 'solana'.
+                missing_auth_methods:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: At least one authentication method must be provided.
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unauthorized:
+                  value:
+                    errorType: unauthorized
+                    errorMessage: Wallet authentication error.
+        '402':
+          $ref: '#/components/responses/PaymentMethodRequiredError'
+        '409':
+          description: Resource already exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                already_exists:
+                  value:
+                    errorType: already_exists
+                    errorMessage: An account with the given address already exists.
+        '422':
+          $ref: '#/components/responses/IdempotencyError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '502':
+          $ref: '#/components/responses/BadGatewayError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
   /v2/evm/accounts:
     get:
       x-audience: public
@@ -4864,7 +5031,7 @@ paths:
       summary: List token addresses for account
       x-audience: public
       description: |
-        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from. 
+        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from.
         Analyzes transaction history to discover token interactions.
       tags:
         - Onchain Data
@@ -5746,13 +5913,15 @@ paths:
 
         **Returns**: Basic single-use onramp URL. The `quote` object will not be included in the response.
         ### 2. One-Click Onramp URL
-        **Required**: Basic parameters + `paymentAmount`, `paymentCurrency`
+        **Required**: Basic parameters + (`paymentAmount` OR `purchaseAmount`), `paymentCurrency`
 
         **Returns**: One-click onramp URL for streamlined checkout. The `quote` object will not be included in the response.
         ### 3. One-Click Onramp URL with Quote
         **Required**: One-Click Onramp parameters + `paymentMethod`, `country`, `subdivision`
 
         **Returns**: Complete pricing quote and one-click onramp URL. Both `session` and `quote` objects will be included in the response.
+
+        **Note**: Only one of `paymentAmount` or `purchaseAmount` should be provided, not both. Providing both will result in an error. When `paymentAmount` is provided, the quote shows how much crypto the user will receive for the specified fiat amount (fee-inclusive). When `purchaseAmount` is provided, the quote shows how much fiat the user needs to pay for the specified crypto amount (fee-exclusive).
       operationId: createOnrampSession
       tags:
         - Onramp
@@ -5783,9 +5952,13 @@ paths:
                   type: string
                   example: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
                 paymentAmount:
-                  description: A string representing the amount of fiat the user wishes to pay in exchange for crypto.
+                  description: A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user  will pay this exact amount of the payment currency.
                   type: string
                   example: '100.00'
+                purchaseAmount:
+                  description: A string representing the amount of crypto the user wishes to purchase. When using  this parameter, the returned quote will be exclusive of fees i.e. the user will  receive this exact amount of the purchase currency.
+                  type: string
+                  example: '10.000000'
                 paymentCurrency:
                   description: The fiat currency to be converted to crypto.
                   type: string
@@ -6004,9 +6177,22 @@ components:
               format: date-time
               description: The date and time when the method was enrolled, in ISO 8601 format.
               example: '2025-01-15T10:30:00Z'
+        sms:
+          type: object
+          description: An object containing information about the end user's SMS MFA enrollment.
+          required:
+            - enrolledAt
+          properties:
+            enrolledAt:
+              type: string
+              format: date-time
+              description: The date and time when the method was enrolled, in ISO 8601 format.
+              example: '2025-01-15T10:30:00Z'
       example:
         enrollmentPromptedAt: '2025-01-15T10:30:00Z'
         totp:
+          enrolledAt: '2025-01-15T10:30:00Z'
+        sms:
           enrolledAt: '2025-01-15T10:30:00Z'
     EndUserEvmAccount:
       type: object
@@ -6213,6 +6399,8 @@ components:
         - mfa_flow_expired
         - mfa_required
         - mfa_not_enrolled
+        - mfa_multiple_methods_available
+        - mfa_invalid_method
       x-error-instructions:
         already_exists: |-
           This error occurs when trying to create a resource that already exists.
@@ -6596,6 +6784,20 @@ components:
           1. Check if the user has enrolled in MFA before attempting verification
           2. Guide the user through MFA enrollment first using the `/mfa/enroll/{mfaMethod}/init` endpoint
           3. Complete enrollment before requiring MFA verification
+        mfa_multiple_methods_available: |-
+          This error occurs when the user has multiple MFA methods enrolled and must specify which one to use for verification.
+
+          **Steps to resolve:**
+          1. Prompt the user to select an MFA method (e.g., "SMS" or "TOTP")
+          2. Include the `mfaMethod` parameter in the verification initiation request
+          3. Guide the user through verification using their selected method
+        mfa_invalid_method: |-
+          This error occurs when the requested MFA method is not valid for the current authentication context (e.g., attempting SMS MFA when user authenticated via SMS).
+
+          **Steps to resolve:**
+          1. Check the user's authentication method
+          2. If user authenticated via SMS, use TOTP MFA instead (SMS MFA is redundant)
+          3. Prompt the user to enroll in an alternative MFA method if needed
     Url:
       type: string
       format: uri
@@ -10276,12 +10478,34 @@ components:
         - invalid_payment_requirements
         - invalid_payload
         - invalid_exact_evm_payload_authorization_value
+        - invalid_exact_evm_payload_authorization_value_too_low
         - invalid_exact_evm_payload_authorization_valid_after
         - invalid_exact_evm_payload_authorization_valid_before
         - invalid_exact_evm_payload_authorization_typed_data_message
         - invalid_exact_evm_payload_authorization_from_address_kyt
         - invalid_exact_evm_payload_authorization_to_address_kyt
+        - invalid_exact_evm_payload_signature
         - invalid_exact_evm_payload_signature_address
+        - invalid_exact_svm_payload_transaction
+        - invalid_exact_svm_payload_transaction_amount_mismatch
+        - invalid_exact_svm_payload_transaction_create_ata_instruction
+        - invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_payee
+        - invalid_exact_svm_payload_transaction_create_ata_instruction_incorrect_asset
+        - invalid_exact_svm_payload_transaction_instructions
+        - invalid_exact_svm_payload_transaction_instructions_length
+        - invalid_exact_svm_payload_transaction_instructions_compute_limit_instruction
+        - invalid_exact_svm_payload_transaction_instructions_compute_price_instruction
+        - invalid_exact_svm_payload_transaction_instructions_compute_price_instruction_too_high
+        - invalid_exact_svm_payload_transaction_instruction_not_spl_token_transfer_checked
+        - invalid_exact_svm_payload_transaction_instruction_not_token_2022_transfer_checked
+        - invalid_exact_svm_payload_transaction_not_a_transfer_instruction
+        - invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata
+        - invalid_exact_svm_payload_transaction_receiver_ata_not_found
+        - invalid_exact_svm_payload_transaction_sender_ata_not_found
+        - invalid_exact_svm_payload_transaction_simulation_failed
+        - invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata
+        - invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts
+        - invalid_exact_svm_payload_transaction_fee_payer_transferring_funds
         - settle_exact_evm_transaction_confirmation_timed_out
         - settle_exact_node_failure
         - settle_exact_failed_onchain

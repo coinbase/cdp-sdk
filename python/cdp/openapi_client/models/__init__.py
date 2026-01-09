@@ -84,6 +84,7 @@ from cdp.openapi_client.models.idl_instructions_inner import IdlInstructionsInne
 from cdp.openapi_client.models.idl_instructions_inner_accounts_inner import IdlInstructionsInnerAccountsInner
 from cdp.openapi_client.models.idl_instructions_inner_args_inner import IdlInstructionsInnerArgsInner
 from cdp.openapi_client.models.idl_metadata import IdlMetadata
+from cdp.openapi_client.models.import_end_user_request import ImportEndUserRequest
 from cdp.openapi_client.models.import_evm_account_request import ImportEvmAccountRequest
 from cdp.openapi_client.models.import_solana_account_request import ImportSolanaAccountRequest
 from cdp.openapi_client.models.inline_object import InlineObject
@@ -103,6 +104,7 @@ from cdp.openapi_client.models.list_solana_token_balances200_response import Lis
 from cdp.openapi_client.models.list_solana_token_balances_network import ListSolanaTokenBalancesNetwork
 from cdp.openapi_client.models.list_spend_permissions200_response import ListSpendPermissions200Response
 from cdp.openapi_client.models.mfa_methods import MFAMethods
+from cdp.openapi_client.models.mfa_methods_sms import MFAMethodsSms
 from cdp.openapi_client.models.mfa_methods_totp import MFAMethodsTotp
 from cdp.openapi_client.models.mint_address_criterion import MintAddressCriterion
 from cdp.openapi_client.models.net_usd_change_criterion import NetUSDChangeCriterion
