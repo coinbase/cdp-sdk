@@ -216,6 +216,101 @@ async def test_create_end_user_with_spend_permissions(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_import_end_user_with_evm_key(cdp_client):
+    """Test importing an end user with an EVM private key."""
+    account = Account.create()
+    random_email = f"test-{int(time.time())}-{generate_random_name()}@example.com"
+
+    end_user = await cdp_client.end_user.import_end_user(
+        authentication_methods=[
+            AuthenticationMethod(EmailAuthentication(type="email", email=random_email))
+        ],
+        private_key=account.key.hex(),
+        key_type="evm",
+    )
+
+    assert end_user is not None
+    assert end_user.user_id is not None
+    assert end_user.authentication_methods is not None
+    assert len(end_user.authentication_methods) == 1
+    assert end_user.authentication_methods[0].actual_instance.type == "email"
+    assert end_user.evm_accounts is not None
+    assert len(end_user.evm_accounts) == 1
+    assert end_user.evm_accounts[0].lower() == account.address.lower()
+    assert end_user.created_at is not None
+
+    print(f"Imported end user with EVM key: {end_user.user_id}")
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_import_end_user_with_solana_key_base58(cdp_client):
+    """Test importing an end user with a Solana private key (base58 encoded)."""
+    from solders.keypair import Keypair
+
+    keypair = Keypair()
+    random_email = f"test-{int(time.time())}-{generate_random_name()}@example.com"
+
+    # Convert private key to base58 string (32 bytes seed)
+    private_key_bytes = bytes(keypair.secret())
+    private_key_b58 = base58.b58encode(private_key_bytes).decode()
+
+    end_user = await cdp_client.end_user.import_end_user(
+        authentication_methods=[
+            AuthenticationMethod(EmailAuthentication(type="email", email=random_email))
+        ],
+        private_key=private_key_b58,
+        key_type="solana",
+    )
+
+    assert end_user is not None
+    assert end_user.user_id is not None
+    assert end_user.authentication_methods is not None
+    assert len(end_user.authentication_methods) == 1
+    assert end_user.authentication_methods[0].actual_instance.type == "email"
+    assert end_user.solana_accounts is not None
+    assert len(end_user.solana_accounts) == 1
+    assert end_user.solana_accounts[0] == str(keypair.pubkey())
+    assert end_user.created_at is not None
+
+    print(f"Imported end user with Solana key (base58): {end_user.user_id}")
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_import_end_user_with_solana_key_bytes(cdp_client):
+    """Test importing an end user with a Solana private key (raw bytes)."""
+    from solders.keypair import Keypair
+
+    keypair = Keypair()
+    random_email = f"test-{int(time.time())}-{generate_random_name()}@example.com"
+
+    # Use private key bytes directly
+    private_key_bytes = bytes(keypair.secret())
+
+    end_user = await cdp_client.end_user.import_end_user(
+        authentication_methods=[
+            AuthenticationMethod(EmailAuthentication(type="email", email=random_email))
+        ],
+        private_key=private_key_bytes,
+        key_type="solana",
+    )
+
+    assert end_user is not None
+    assert end_user.user_id is not None
+    assert end_user.authentication_methods is not None
+    assert len(end_user.authentication_methods) == 1
+    assert end_user.authentication_methods[0].actual_instance.type == "email"
+    assert end_user.solana_accounts is not None
+    assert len(end_user.solana_accounts) == 1
+    assert end_user.solana_accounts[0] == str(keypair.pubkey())
+    assert end_user.created_at is not None
+
+    print(f"Imported end user with Solana key (bytes): {end_user.user_id}")
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_import_account(cdp_client):
     """Test importing an account."""
     account = Account.create()
