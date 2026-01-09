@@ -1095,6 +1095,36 @@ const endUser = await cdp.endUser.createEndUser({
 console.log(endUser);
 ```
 
+#### Import End User
+
+You can import an existing private key for an end user:
+
+```typescript
+const endUser = await cdp.endUser.importEndUser({
+  authenticationMethods: [
+    { type: "email", email: "user@example.com" }
+  ],
+  privateKey: "0x...", // EVM private key (hex string)
+  keyType: "evm",
+});
+
+console.log(endUser);
+```
+
+You can also import a Solana private key:
+
+```typescript
+const endUser = await cdp.endUser.importEndUser({
+  authenticationMethods: [
+    { type: "email", email: "user@example.com" }
+  ],
+  privateKey: "3Kzj...", // base58 encoded
+  keyType: "solana",
+});
+
+console.log(endUser);
+```
+
 #### Validate Access Token
 
 When your end user has signed in with an [Embedded Wallet](https://docs.cdp.coinbase.com/embedded-wallets/welcome), you can check whether the access token they were granted is valid, and which of your user's it is associated with.

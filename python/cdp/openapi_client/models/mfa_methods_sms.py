@@ -20,20 +20,16 @@ import json
 
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List, Optional
-from cdp.openapi_client.models.mfa_methods_sms import MFAMethodsSms
-from cdp.openapi_client.models.mfa_methods_totp import MFAMethodsTotp
+from typing import Any, ClassVar, Dict, List
 from typing import Optional, Set
 from typing_extensions import Self
 
-class MFAMethods(BaseModel):
+class MFAMethodsSms(BaseModel):
     """
-    Information about the end user's MFA enrollments. 
+    An object containing information about the end user's SMS MFA enrollment.
     """ # noqa: E501
-    enrollment_prompted_at: Optional[datetime] = Field(default=None, description="The date and time when the end user was prompted for MFA enrollment, in ISO 8601 format. If the this field exists, and the user has no other enrolled MFA methods, then the user skipped MFA enrollment.", alias="enrollmentPromptedAt")
-    totp: Optional[MFAMethodsTotp] = None
-    sms: Optional[MFAMethodsSms] = None
-    __properties: ClassVar[List[str]] = ["enrollmentPromptedAt", "totp", "sms"]
+    enrolled_at: datetime = Field(description="The date and time when the method was enrolled, in ISO 8601 format.", alias="enrolledAt")
+    __properties: ClassVar[List[str]] = ["enrolledAt"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -53,7 +49,7 @@ class MFAMethods(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of MFAMethods from a JSON string"""
+        """Create an instance of MFAMethodsSms from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -74,17 +70,11 @@ class MFAMethods(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of totp
-        if self.totp:
-            _dict['totp'] = self.totp.to_dict()
-        # override the default output from pydantic by calling `to_dict()` of sms
-        if self.sms:
-            _dict['sms'] = self.sms.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of MFAMethods from a dict"""
+        """Create an instance of MFAMethodsSms from a dict"""
         if obj is None:
             return None
 
@@ -92,9 +82,7 @@ class MFAMethods(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "enrollmentPromptedAt": obj.get("enrollmentPromptedAt"),
-            "totp": MFAMethodsTotp.from_dict(obj["totp"]) if obj.get("totp") is not None else None,
-            "sms": MFAMethodsSms.from_dict(obj["sms"]) if obj.get("sms") is not None else None
+            "enrolledAt": obj.get("enrolledAt")
         })
         return _obj
 

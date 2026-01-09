@@ -7,14 +7,21 @@ import type {
   ValidateAccessTokenOptions,
   ListEndUsersOptions,
   CreateEndUserOptions,
+  ImportEndUserOptions,
   GetEndUserOptions,
 } from "./endUser.types.js";
 import { APIError } from "../../openapi-client/errors.js";
+import { UserInputValidationError } from "../../errors.js";
 
-// Mock crypto.randomUUID to return predictable values in tests.
+// Mock crypto.randomUUID and publicEncrypt to return predictable values in tests.
 const mockRandomUUID = vi.fn();
+const mockPublicEncrypt = vi.fn();
 vi.mock("crypto", () => ({
   randomUUID: () => mockRandomUUID(),
+  publicEncrypt: (...args: unknown[]) => mockPublicEncrypt(...args),
+  constants: {
+    RSA_PKCS1_OAEP_PADDING: 4,
+  },
 }));
 
 vi.mock("../../openapi-client", () => {
@@ -24,6 +31,7 @@ vi.mock("../../openapi-client", () => {
       validateEndUserAccessToken: vi.fn(),
       listEndUsers: vi.fn(),
       getEndUser: vi.fn(),
+      importEndUser: vi.fn(),
     },
   };
 });
@@ -52,6 +60,7 @@ describe("EndUserClient", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockRandomUUID.mockReturnValue("generated-uuid");
+    mockPublicEncrypt.mockReturnValue(Buffer.from("encrypted-private-key"));
     client = new CDPEndUserClient();
   });
 
@@ -286,6 +295,196 @@ describe("EndUserClient", () => {
       ).mockRejectedValue(expectedError);
 
       await expect(client.listEndUsers()).rejects.toThrow(expectedError);
+    });
+  });
+
+  describe("importEndUser", () => {
+    it("should import an end user with EVM private key (with 0x prefix)", async () => {
+      const importOptions: ImportEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        privateKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        keyType: "evm",
+      };
+      (
+        CdpOpenApiClient.importEndUser as MockedFunction<typeof CdpOpenApiClient.importEndUser>
+      ).mockResolvedValue(mockEndUser);
+
+      const result = await client.importEndUser(importOptions);
+
+      expect(CdpOpenApiClient.importEndUser).toHaveBeenCalledWith({
+        userId: "generated-uuid",
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        encryptedPrivateKey: Buffer.from("encrypted-private-key").toString("base64"),
+        keyType: "evm",
+      });
+      expect(result).toEqual(mockEndUser);
+    });
+
+    it("should import an end user with EVM private key (without 0x prefix)", async () => {
+      const importOptions: ImportEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        privateKey: "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        keyType: "evm",
+      };
+      (
+        CdpOpenApiClient.importEndUser as MockedFunction<typeof CdpOpenApiClient.importEndUser>
+      ).mockResolvedValue(mockEndUser);
+
+      const result = await client.importEndUser(importOptions);
+
+      expect(CdpOpenApiClient.importEndUser).toHaveBeenCalledWith({
+        userId: "generated-uuid",
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        encryptedPrivateKey: Buffer.from("encrypted-private-key").toString("base64"),
+        keyType: "evm",
+      });
+      expect(result).toEqual(mockEndUser);
+    });
+
+    it("should import an end user with provided userId", async () => {
+      const importOptions: ImportEndUserOptions = {
+        userId: "custom-user-id",
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        privateKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        keyType: "evm",
+      };
+      (
+        CdpOpenApiClient.importEndUser as MockedFunction<typeof CdpOpenApiClient.importEndUser>
+      ).mockResolvedValue({ ...mockEndUser, userId: "custom-user-id" });
+
+      const result = await client.importEndUser(importOptions);
+
+      expect(CdpOpenApiClient.importEndUser).toHaveBeenCalledWith({
+        userId: "custom-user-id",
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        encryptedPrivateKey: Buffer.from("encrypted-private-key").toString("base64"),
+        keyType: "evm",
+      });
+      expect(result.userId).toBe("custom-user-id");
+    });
+
+    it("should import an end user with Solana private key (base58 string)", async () => {
+      const importOptions: ImportEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY",
+        keyType: "solana",
+      };
+      (
+        CdpOpenApiClient.importEndUser as MockedFunction<typeof CdpOpenApiClient.importEndUser>
+      ).mockResolvedValue(mockEndUser);
+
+      const result = await client.importEndUser(importOptions);
+
+      expect(CdpOpenApiClient.importEndUser).toHaveBeenCalledWith({
+        userId: "generated-uuid",
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        encryptedPrivateKey: Buffer.from("encrypted-private-key").toString("base64"),
+        keyType: "solana",
+      });
+      expect(result).toEqual(mockEndUser);
+    });
+
+    it("should import an end user with Solana private key (32-byte Uint8Array)", async () => {
+      const privateKeyBytes = new Uint8Array(32).fill(1);
+      const importOptions: ImportEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        privateKey: privateKeyBytes,
+        keyType: "solana",
+      };
+      (
+        CdpOpenApiClient.importEndUser as MockedFunction<typeof CdpOpenApiClient.importEndUser>
+      ).mockResolvedValue(mockEndUser);
+
+      const result = await client.importEndUser(importOptions);
+
+      expect(CdpOpenApiClient.importEndUser).toHaveBeenCalledWith({
+        userId: "generated-uuid",
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        encryptedPrivateKey: Buffer.from("encrypted-private-key").toString("base64"),
+        keyType: "solana",
+      });
+      expect(result).toEqual(mockEndUser);
+    });
+
+    it("should import an end user with Solana private key (64-byte Uint8Array, truncates to 32)", async () => {
+      const privateKeyBytes = new Uint8Array(64).fill(1);
+      const importOptions: ImportEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        privateKey: privateKeyBytes,
+        keyType: "solana",
+      };
+      (
+        CdpOpenApiClient.importEndUser as MockedFunction<typeof CdpOpenApiClient.importEndUser>
+      ).mockResolvedValue(mockEndUser);
+
+      const result = await client.importEndUser(importOptions);
+
+      // Verify the encryption was called with a 32-byte key (truncated from 64)
+      expect(mockPublicEncrypt).toHaveBeenCalled();
+      const encryptedData = mockPublicEncrypt.mock.calls[0][1];
+      expect(encryptedData.length).toBe(32);
+
+      expect(CdpOpenApiClient.importEndUser).toHaveBeenCalledWith({
+        userId: "generated-uuid",
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        encryptedPrivateKey: Buffer.from("encrypted-private-key").toString("base64"),
+        keyType: "solana",
+      });
+      expect(result).toEqual(mockEndUser);
+    });
+
+    it("should throw error for EVM private key that is not a string", async () => {
+      const importOptions: ImportEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        privateKey: new Uint8Array(32) as unknown as string,
+        keyType: "evm",
+      };
+
+      await expect(client.importEndUser(importOptions)).rejects.toThrow(UserInputValidationError);
+      await expect(client.importEndUser(importOptions)).rejects.toThrow(
+        "EVM private key must be a hex string",
+      );
+    });
+
+    it("should throw error for EVM private key that is not valid hex", async () => {
+      const importOptions: ImportEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        privateKey: "0xGGGGGGGGGGGGGGGG",
+        keyType: "evm",
+      };
+
+      await expect(client.importEndUser(importOptions)).rejects.toThrow(UserInputValidationError);
+      await expect(client.importEndUser(importOptions)).rejects.toThrow(
+        "Private key must be a valid hexadecimal string",
+      );
+    });
+
+    it("should throw error for Solana private key with invalid length", async () => {
+      const privateKeyBytes = new Uint8Array(16).fill(1); // Invalid length
+      const importOptions: ImportEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        privateKey: privateKeyBytes,
+        keyType: "solana",
+      };
+
+      await expect(client.importEndUser(importOptions)).rejects.toThrow(UserInputValidationError);
+      await expect(client.importEndUser(importOptions)).rejects.toThrow(
+        "Invalid Solana private key length",
+      );
+    });
+
+    it("should handle API errors when importing an end user", async () => {
+      const importOptions: ImportEndUserOptions = {
+        authenticationMethods: [{ type: "email", email: "test@example.com" }],
+        privateKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        keyType: "evm",
+      };
+      const expectedError = new APIError(400, "invalid_request", "Invalid authentication method");
+      (
+        CdpOpenApiClient.importEndUser as MockedFunction<typeof CdpOpenApiClient.importEndUser>
+      ).mockRejectedValue(expectedError);
+
+      await expect(client.importEndUser(importOptions)).rejects.toThrow(expectedError);
     });
   });
 });

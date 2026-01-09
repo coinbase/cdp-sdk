@@ -387,7 +387,7 @@ class OnchainDataApi:
     ) -> AccountTokenAddressesResponse:
         """List token addresses for account
 
-        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from.  Analyzes transaction history to discover token interactions. 
+        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from. Analyzes transaction history to discover token interactions. 
 
         :param network: The blockchain network to query. (required)
         :type network: str
@@ -462,7 +462,7 @@ class OnchainDataApi:
     ) -> ApiResponse[AccountTokenAddressesResponse]:
         """List token addresses for account
 
-        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from.  Analyzes transaction history to discover token interactions. 
+        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from. Analyzes transaction history to discover token interactions. 
 
         :param network: The blockchain network to query. (required)
         :type network: str
@@ -537,7 +537,7 @@ class OnchainDataApi:
     ) -> RESTResponseType:
         """List token addresses for account
 
-        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from.  Analyzes transaction history to discover token interactions. 
+        Retrieve all ERC-20 token contract addresses that an account has ever received tokens from. Analyzes transaction history to discover token interactions. 
 
         :param network: The blockchain network to query. (required)
         :type network: str

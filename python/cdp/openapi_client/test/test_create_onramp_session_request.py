@@ -40,6 +40,7 @@ class TestCreateOnrampSessionRequest(unittest.TestCase):
                 destination_network = 'base',
                 destination_address = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
                 payment_amount = '100.00',
+                purchase_amount = '10.000000',
                 payment_currency = 'USD',
                 payment_method = 'CARD',
                 country = 'US',

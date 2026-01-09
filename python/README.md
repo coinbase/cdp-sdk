@@ -21,6 +21,7 @@
 - [Policy Management](#policy-management)
 - [End-user Management](#end-user-management)
   - [Create End User](#create-end-user)
+  - [Import End User](#import-end-user)
   - [Validate Access Token](#validate-access-token)
 - [Authentication Tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
@@ -1236,6 +1237,44 @@ async def main():
         print(f"Created end user: {end_user}")
 
 asyncio.run(main())
+```
+
+#### Import End User
+
+Import an existing private key for an end user:
+
+```python
+import asyncio
+from cdp import CdpClient
+from cdp.openapi_client.models.authentication_method import AuthenticationMethod
+from cdp.openapi_client.models.email_authentication import EmailAuthentication
+
+async def main():
+    async with CdpClient() as cdp:
+        # Import an end user with an EVM private key
+        end_user = await cdp.end_user.import_end_user(
+            authentication_methods=[
+                AuthenticationMethod(EmailAuthentication(type="email", email="user@example.com"))
+            ],
+            private_key="0x...",  # EVM private key (hex string)
+            key_type="evm",
+        )
+
+        print(f"Imported end user: {end_user}")
+
+asyncio.run(main())
+```
+
+You can also import a Solana private key:
+
+```python
+end_user = await cdp.end_user.import_end_user(
+    authentication_methods=[
+        AuthenticationMethod(EmailAuthentication(type="email", email="user@example.com"))
+    ],
+    private_key="3Kzj...",  # base58 encoded
+    key_type="solana",
+)
 ```
 
 #### Validate Access Token

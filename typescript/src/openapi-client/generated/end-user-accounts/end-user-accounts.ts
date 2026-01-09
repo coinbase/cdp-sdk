@@ -8,6 +8,7 @@
 import type {
   CreateEndUserBody,
   EndUser,
+  ImportEndUserBody,
   ListEndUsers200,
   ListEndUsersParams,
   ValidateEndUserAccessTokenBody,
@@ -76,9 +77,30 @@ This API is intended to be used by the developer's own backend, and is authentic
 export const getEndUser = (userId: string, options?: SecondParameter<typeof cdpApiClient>) => {
   return cdpApiClient<EndUser>({ url: `/v2/end-users/${userId}`, method: "GET" }, options);
 };
+/**
+ * Imports an existing private key for an end user into the developer's CDP Project. The private key must be encrypted using the CDP SDK's encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
+
+This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
+ * @summary Import a private key for an end user
+ */
+export const importEndUser = (
+  importEndUserBody: ImportEndUserBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<EndUser>(
+    {
+      url: `/v2/end-users/import`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: importEndUserBody,
+    },
+    options,
+  );
+};
 export type CreateEndUserResult = NonNullable<Awaited<ReturnType<typeof createEndUser>>>;
 export type ListEndUsersResult = NonNullable<Awaited<ReturnType<typeof listEndUsers>>>;
 export type ValidateEndUserAccessTokenResult = NonNullable<
   Awaited<ReturnType<typeof validateEndUserAccessToken>>
 >;
 export type GetEndUserResult = NonNullable<Awaited<ReturnType<typeof getEndUser>>>;
+export type ImportEndUserResult = NonNullable<Awaited<ReturnType<typeof importEndUser>>>;
