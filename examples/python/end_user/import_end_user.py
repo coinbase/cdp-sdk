@@ -18,16 +18,7 @@ async def main():
             local_account = Account.create()
             print(f"Generated address: {local_account.address}")
 
-            # Fund the address with testnet ETH using the faucet.
-            print("Requesting faucet funds...")
-            transaction_hash = await cdp.evm.request_faucet(
-                address=local_account.address,
-                network="base-sepolia",
-                token="eth",
-            )
-            print(f"Faucet funds requested. Explorer: https://sepolia.basescan.org/tx/{transaction_hash}")
-
-            # Import the end user with the funded private key.
+            # Import the end user with the private key.
             end_user = await cdp.end_user.import_end_user(
                 authentication_methods=[
                     AuthenticationMethod(EmailAuthentication(type="email", email="test@example.com"))
@@ -38,6 +29,15 @@ async def main():
 
             print(f"Imported end user: {end_user}")
             print(f"End user EVM accounts: {end_user.evm_account_objects}")
+
+            # Fund the address with testnet ETH using the faucet.
+            print("Requesting faucet funds...")
+            transaction_hash = await cdp.evm.request_faucet(
+                address=local_account.address,
+                network="base-sepolia",
+                token="eth",
+            )
+            print(f"Faucet funds requested. Explorer: https://sepolia.basescan.org/tx/{transaction_hash}")
 
         except Exception as e:
             print(f"Error importing end user: {e}")

@@ -12,18 +12,7 @@ try {
     const viemAccount = privateKeyToAccount(privateKey);
     console.log("Generated address:", viemAccount.address);
 
-    // Fund the address with testnet ETH using the faucet.
-    console.log("Requesting faucet funds...");
-    const { transactionHash } = await cdp.evm.requestFaucet({
-        address: viemAccount.address,
-        network: "base-sepolia",
-        token: "eth",
-    });
-    console.log(
-        `Faucet funds requested. Explorer: https://sepolia.basescan.org/tx/${transactionHash}`
-    );
-
-    // Import the end user with the funded private key
+    // Import the end user with the private key.
     const endUser = await cdp.endUser.importEndUser({
         authenticationMethods: [
             { type: "email", email: "test@example.com" },
@@ -34,6 +23,17 @@ try {
 
     console.log("Imported end user:", endUser);
     console.log("End user EVM accounts:", endUser.evmAccountObjects);
+
+    // Fund the address with testnet ETH using the faucet.
+    console.log("Requesting faucet funds...");
+    const { transactionHash } = await cdp.evm.requestFaucet({
+        address: viemAccount.address,
+        network: "base-sepolia",
+        token: "eth",
+    });
+    console.log(
+        `Faucet funds requested. Explorer: https://sepolia.basescan.org/tx/${transactionHash}`
+    );
 } catch (error) {
     console.error(
         "Error importing end user:",
