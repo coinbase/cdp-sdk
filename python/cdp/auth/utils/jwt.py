@@ -274,6 +274,11 @@ def _parse_private_key(
         ValueError: If the key cannot be parsed or is of an unsupported type
 
     """
+    # Handle literal \n sequences (common when env vars are unquoted)
+    # If the key contains literal '\n' strings, replace them with actual newlines
+    if "\\n" in key_data:
+        key_data = key_data.replace("\\n", "\n")
+
     # First try parsing as PEM (EC key)
     try:
         key = serialization.load_pem_private_key(key_data.encode(), password=None)
