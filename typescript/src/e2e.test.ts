@@ -251,6 +251,31 @@ describe("CDP Client E2E Tests", () => {
     logger.log("Created end user with spend permissions:", safeStringify(endUser));
   });
 
+  it("should create and retrieve an end user", async () => {
+    const randomEmail = `test-${Date.now()}@example.com`;
+
+    // Create an end user
+    const createdEndUser = await cdp.endUser.createEndUser({
+      authenticationMethods: [{ type: "email", email: randomEmail }],
+      evmAccount: { createSmartAccount: false },
+    });
+
+    expect(createdEndUser).toBeDefined();
+    expect(createdEndUser.userId).toBeDefined();
+
+    logger.log("Created end user:", safeStringify(createdEndUser));
+
+    // Retrieve the same end user using getEndUser
+    const retrievedEndUser = await cdp.endUser.getEndUser({
+      userId: createdEndUser.userId,
+    });
+
+    expect(retrievedEndUser).toBeDefined();
+    expect(retrievedEndUser.userId).toBe(createdEndUser.userId);
+
+    logger.log("Retrieved end user:", safeStringify(retrievedEndUser));
+  });
+
   it("should import an evm server account from a private key", async () => {
     const privateKey = generatePrivateKey();
     const randomName = generateRandomName();
