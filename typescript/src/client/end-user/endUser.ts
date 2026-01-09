@@ -177,7 +177,7 @@ export class CDPEndUserClient {
    *            authenticationMethods: [
    *              { type: "sms", phoneNumber: "+12055555555" }
    *            ],
-   *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
+   *            privateKey: "3Kzj...",
    *            keyType: "solana"
    *          });
    *          ```

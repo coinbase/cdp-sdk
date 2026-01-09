@@ -1272,7 +1272,7 @@ end_user = await cdp.end_user.import_end_user(
     authentication_methods=[
         AuthenticationMethod(EmailAuthentication(type="email", email="user@example.com"))
     ],
-    private_key="3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",  # base58 encoded
+    private_key="3Kzj...",  # base58 encoded
     key_type="solana",
 )
 ```

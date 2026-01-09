@@ -165,14 +165,14 @@ export class SolanaClient implements SolanaClientInterface {
    * @example **Import with private key only**
    *          ```ts
    *          const account = await cdp.solana.importAccount({
-   *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
+   *            privateKey: "3Kzj...",
    *          });
    *          ```
    *
    * @example **Import with name**
    *          ```ts
    *          const account = await cdp.solana.importAccount({
-   *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
+   *            privateKey: "3Kzj...",
    *            name: "ImportedAccount",
    *          });
    *          ```
@@ -182,7 +182,7 @@ export class SolanaClient implements SolanaClientInterface {
    *          const idempotencyKey = uuidv4();
    *
    *          const account = await cdp.solana.importAccount({
-   *            privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP",
+   *            privateKey: "3Kzj...",
    *            name: "ImportedAccount",
    *            idempotencyKey,
    *          });

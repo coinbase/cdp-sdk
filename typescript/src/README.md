@@ -1118,7 +1118,7 @@ const endUser = await cdp.endUser.importEndUser({
   authenticationMethods: [
     { type: "email", email: "user@example.com" }
   ],
-  privateKey: "3Kzjw8qSxx8bQkV7EHrVFWYiPyNLbBVxtVe1Q5h2zKZY8DdcuT2dKxyz9kU5vQrP", // base58 encoded
+  privateKey: "3Kzj...", // base58 encoded
   keyType: "solana",
 });
 
