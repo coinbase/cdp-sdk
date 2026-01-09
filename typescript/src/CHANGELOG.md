@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.42.0
+
+### Minor Changes
+
+- [#547](https://github.com/coinbase/cdp-sdk/pull/547) [`bccbced`](https://github.com/coinbase/cdp-sdk/commit/bccbceda35fd141fb327514be5ab24b573a4dba8) Thanks [@milan-cb](https://github.com/milan-cb)! - Added getEndUser method for End User operations
+
 ## 1.41.0
 
 ### Minor Changes
