@@ -441,7 +441,9 @@ async def test_import_end_user_with_solana_base58_key(end_user_model_factory):
 
     auth_method = AuthenticationMethod(EmailAuthentication(type="email", email="test@example.com"))
     # A valid base58 string that decodes to 64 bytes (will be truncated to 32)
-    private_key = "4wBqpZM9k6nGsXbvQ3ENkK9qGgvt4Qsq4tbcbjmrBCxWKMp8MGKvdPN1RfJCqd9L8gsQDqfYLAUBSEJWJQMigc55"
+    private_key = (
+        "4wBqpZM9k6nGsXbvQ3ENkK9qGgvt4Qsq4tbcbjmrBCxWKMp8MGKvdPN1RfJCqd9L8gsQDqfYLAUBSEJWJQMigc55"
+    )
 
     with (
         patch("cdp.end_user_client.uuid.uuid4") as mock_uuid,

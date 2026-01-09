@@ -185,9 +185,7 @@ class EndUserClient:
                 private_key_bytes = private_key
 
             if len(private_key_bytes) not in (32, 64):
-                raise UserInputValidationError(
-                    "Solana private key must be 32 or 64 bytes"
-                )
+                raise UserInputValidationError("Solana private key must be 32 or 64 bytes")
 
             # Truncate 64-byte keys to 32 bytes (seed only)
             if len(private_key_bytes) == 64:

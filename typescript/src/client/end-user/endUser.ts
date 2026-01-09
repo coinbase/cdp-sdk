@@ -1,4 +1,5 @@
 import { randomUUID, publicEncrypt, constants } from "crypto";
+
 import bs58 from "bs58";
 
 import {
@@ -9,13 +10,13 @@ import {
   type ImportEndUserOptions,
 } from "./endUser.types.js";
 import { Analytics } from "../../analytics.js";
+import { ImportAccountPublicRSAKey } from "../../constants.js";
+import { UserInputValidationError } from "../../errors.js";
 import {
   CdpOpenApiClient,
   type EndUser,
   type ListEndUsers200,
 } from "../../openapi-client/index.js";
-import { ImportAccountPublicRSAKey } from "../../constants.js";
-import { UserInputValidationError } from "../../errors.js";
 
 /**
  * The CDP end user client.
