@@ -256,12 +256,18 @@ describe("CDP Client E2E Tests", () => {
     const randomEmail = `test-${Date.now()}@example.com`;
     const expectedAddress = privateKeyToAccount(privateKey).address;
 
-    logger.log("Importing end user with EVM private key");
-    const endUser = await cdp.endUser.importEndUser({
+    const importEndUserOptions: Parameters<typeof cdp.endUser.importEndUser>[0] = {
       authenticationMethods: [{ type: "email", email: randomEmail }],
       privateKey,
       keyType: "evm",
-    });
+    };
+
+    if (process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY) {
+      importEndUserOptions.encryptionPublicKey = process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY;
+    }
+
+    logger.log("Importing end user with EVM private key");
+    const endUser = await cdp.endUser.importEndUser(importEndUserOptions);
 
     expect(endUser).toBeDefined();
     expect(endUser.userId).toBeDefined();
@@ -279,12 +285,18 @@ describe("CDP Client E2E Tests", () => {
     const privateKey = bs58.encode(keypair.secretKey); // secretKey is 64 bytes
     const randomEmail = `test-${Date.now()}@example.com`;
 
-    logger.log("Importing end user with Solana base58 private key");
-    const endUser = await cdp.endUser.importEndUser({
+    const importEndUserOptions: Parameters<typeof cdp.endUser.importEndUser>[0] = {
       authenticationMethods: [{ type: "email", email: randomEmail }],
       privateKey,
       keyType: "solana",
-    });
+    };
+
+    if (process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY) {
+      importEndUserOptions.encryptionPublicKey = process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY;
+    }
+
+    logger.log("Importing end user with Solana base58 private key");
+    const endUser = await cdp.endUser.importEndUser(importEndUserOptions);
 
     expect(endUser).toBeDefined();
     expect(endUser.userId).toBeDefined();
@@ -302,12 +314,18 @@ describe("CDP Client E2E Tests", () => {
     const privateKeyBytes = keypair.secretKey; // This is a Uint8Array (64 bytes)
     const randomEmail = `test-${Date.now()}@example.com`;
 
-    logger.log("Importing end user with Solana raw bytes private key");
-    const endUser = await cdp.endUser.importEndUser({
+    const importEndUserOptions: Parameters<typeof cdp.endUser.importEndUser>[0] = {
       authenticationMethods: [{ type: "email", email: randomEmail }],
       privateKey: privateKeyBytes,
       keyType: "solana",
-    });
+    };
+
+    if (process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY) {
+      importEndUserOptions.encryptionPublicKey = process.env.CDP_E2E_ENCRYPTION_PUBLIC_KEY;
+    }
+
+    logger.log("Importing end user with Solana raw bytes private key");
+    const endUser = await cdp.endUser.importEndUser(importEndUserOptions);
 
     expect(endUser).toBeDefined();
     expect(endUser.userId).toBeDefined();

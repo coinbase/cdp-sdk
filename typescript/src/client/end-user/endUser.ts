@@ -225,7 +225,7 @@ export class CDPEndUserClient {
 
     const encryptedPrivateKey = publicEncrypt(
       {
-        key: ImportAccountPublicRSAKey,
+        key: options.encryptionPublicKey ?? ImportAccountPublicRSAKey,
         padding: constants.RSA_PKCS1_OAEP_PADDING,
         oaepHash: "sha256",
       },

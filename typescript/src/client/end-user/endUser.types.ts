@@ -59,4 +59,9 @@ export interface ImportEndUserOptions {
    * The type of key being imported ("evm" or "solana").
    */
   keyType: ImportEndUserBodyKeyType;
+  /**
+   * Optional RSA public key to encrypt the private key.
+   * Defaults to the known CDP public key.
+   */
+  encryptionPublicKey?: string;
 }
