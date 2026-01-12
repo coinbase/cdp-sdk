@@ -196,7 +196,9 @@ class EndUserClient:
 
         # Encrypt the private key
         try:
-            key_to_use = encryption_public_key if encryption_public_key else ImportAccountPublicRSAKey
+            key_to_use = (
+                encryption_public_key if encryption_public_key else ImportAccountPublicRSAKey
+            )
             public_key = load_pem_public_key(key_to_use.encode())
             encrypted_private_key = public_key.encrypt(
                 private_key_bytes,

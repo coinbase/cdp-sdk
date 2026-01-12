@@ -230,7 +230,9 @@ async def test_import_end_user_with_evm_key(cdp_client):
     }
 
     if os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY"):
-        import_end_user_options["encryption_public_key"] = os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY")
+        import_end_user_options["encryption_public_key"] = os.getenv(
+            "CDP_E2E_ENCRYPTION_PUBLIC_KEY"
+        )
 
     end_user = await cdp_client.end_user.import_end_user(**import_end_user_options)
 
@@ -269,7 +271,9 @@ async def test_import_end_user_with_solana_key_base58(cdp_client):
     }
 
     if os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY"):
-        import_end_user_options["encryption_public_key"] = os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY")
+        import_end_user_options["encryption_public_key"] = os.getenv(
+            "CDP_E2E_ENCRYPTION_PUBLIC_KEY"
+        )
 
     end_user = await cdp_client.end_user.import_end_user(**import_end_user_options)
 
@@ -307,7 +311,9 @@ async def test_import_end_user_with_solana_key_bytes(cdp_client):
     }
 
     if os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY"):
-        import_end_user_options["encryption_public_key"] = os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY")
+        import_end_user_options["encryption_public_key"] = os.getenv(
+            "CDP_E2E_ENCRYPTION_PUBLIC_KEY"
+        )
 
     end_user = await cdp_client.end_user.import_end_user(**import_end_user_options)
 
