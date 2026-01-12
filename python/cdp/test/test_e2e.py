@@ -221,13 +221,20 @@ async def test_import_end_user_with_evm_key(cdp_client):
     account = Account.create()
     random_email = f"test-{int(time.time())}-{generate_random_name()}@example.com"
 
-    end_user = await cdp_client.end_user.import_end_user(
-        authentication_methods=[
+    import_end_user_options = {
+        "authentication_methods": [
             AuthenticationMethod(EmailAuthentication(type="email", email=random_email))
         ],
-        private_key=account.key.hex(),
-        key_type="evm",
-    )
+        "private_key": account.key.hex(),
+        "key_type": "evm",
+    }
+
+    if os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY"):
+        import_end_user_options["encryption_public_key"] = os.getenv(
+            "CDP_E2E_ENCRYPTION_PUBLIC_KEY"
+        )
+
+    end_user = await cdp_client.end_user.import_end_user(**import_end_user_options)
 
     assert end_user is not None
     assert end_user.user_id is not None
@@ -255,13 +262,20 @@ async def test_import_end_user_with_solana_key_base58(cdp_client):
     private_key_bytes = bytes(keypair.secret())
     private_key_b58 = base58.b58encode(private_key_bytes).decode()
 
-    end_user = await cdp_client.end_user.import_end_user(
-        authentication_methods=[
+    import_end_user_options = {
+        "authentication_methods": [
             AuthenticationMethod(EmailAuthentication(type="email", email=random_email))
         ],
-        private_key=private_key_b58,
-        key_type="solana",
-    )
+        "private_key": private_key_b58,
+        "key_type": "solana",
+    }
+
+    if os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY"):
+        import_end_user_options["encryption_public_key"] = os.getenv(
+            "CDP_E2E_ENCRYPTION_PUBLIC_KEY"
+        )
+
+    end_user = await cdp_client.end_user.import_end_user(**import_end_user_options)
 
     assert end_user is not None
     assert end_user.user_id is not None
@@ -288,13 +302,20 @@ async def test_import_end_user_with_solana_key_bytes(cdp_client):
     # Use private key bytes directly
     private_key_bytes = bytes(keypair.secret())
 
-    end_user = await cdp_client.end_user.import_end_user(
-        authentication_methods=[
+    import_end_user_options = {
+        "authentication_methods": [
             AuthenticationMethod(EmailAuthentication(type="email", email=random_email))
         ],
-        private_key=private_key_bytes,
-        key_type="solana",
-    )
+        "private_key": private_key_bytes,
+        "key_type": "solana",
+    }
+
+    if os.getenv("CDP_E2E_ENCRYPTION_PUBLIC_KEY"):
+        import_end_user_options["encryption_public_key"] = os.getenv(
+            "CDP_E2E_ENCRYPTION_PUBLIC_KEY"
+        )
+
+    end_user = await cdp_client.end_user.import_end_user(**import_end_user_options)
 
     assert end_user is not None
     assert end_user.user_id is not None

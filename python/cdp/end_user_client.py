@@ -138,6 +138,7 @@ class EndUserClient:
         private_key: str | bytes,
         key_type: Literal["evm", "solana"],
         user_id: str | None = None,
+        encryption_public_key: str | None = None,
     ) -> EndUser:
         """Import an existing private key for an end user.
 
@@ -148,6 +149,8 @@ class EndUserClient:
                 - For Solana: base58 encoded string or raw bytes (32 or 64 bytes)
             key_type: The type of key being imported ("evm" or "solana").
             user_id: Optional unique identifier for the end user. If not provided, a UUID is generated.
+            encryption_public_key: Optional RSA public key to encrypt the private key.
+                Defaults to the known CDP public key.
 
         Returns:
             EndUser: The imported end user.
@@ -193,7 +196,10 @@ class EndUserClient:
 
         # Encrypt the private key
         try:
-            public_key = load_pem_public_key(ImportAccountPublicRSAKey.encode())
+            key_to_use = (
+                encryption_public_key if encryption_public_key else ImportAccountPublicRSAKey
+            )
+            public_key = load_pem_public_key(key_to_use.encode())
             encrypted_private_key = public_key.encrypt(
                 private_key_bytes,
                 padding.OAEP(
