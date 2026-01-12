@@ -2564,6 +2564,20 @@ export interface AccountTokenAddressesResponse {
 }
 
 /**
+ * A human-readable description.
+ * @minLength 0
+ * @maxLength 500
+ */
+export type Description = string;
+
+/**
+ * Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Keys and values are both strings.
+ */
+export interface Metadata {
+  [key: string]: string;
+}
+
+/**
  * Additional headers to include in webhook requests.
  */
 export type WebhookTargetHeaders = { [key: string]: string };
@@ -2580,16 +2594,19 @@ export interface WebhookTarget {
   headers?: WebhookTargetHeaders;
 }
 
-/**
- * Additional metadata for the subscription.
- */
-export type WebhookSubscriptionResponseMetadata = {
+export type WebhookSubscriptionResponseMetadataAllOf = {
   /**
    * Use the root-level `secret` field instead. Maintained for backward compatibility only.
    * @deprecated
    */
   secret?: string;
 };
+
+/**
+ * Additional metadata for the subscription.
+ */
+export type WebhookSubscriptionResponseMetadata = Metadata &
+  WebhookSubscriptionResponseMetadataAllOf;
 
 /**
  * Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.
@@ -2605,8 +2622,8 @@ export interface WebhookSubscriptionResponse {
   /** When the subscription was created. */
   createdAt: string;
   /** Description of the webhook subscription. */
-  description?: string;
-  /** Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+  description?: Description;
+  /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
  */
   eventTypes: string[];
@@ -2654,11 +2671,6 @@ export type WebhookSubscriptionListResponseAllOf = {
 export type WebhookSubscriptionListResponse = WebhookSubscriptionListResponseAllOf & ListResponse;
 
 /**
- * Additional metadata for the subscription.
- */
-export type WebhookSubscriptionRequestMetadata = { [key: string]: unknown };
-
-/**
  * Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
 an event contains ALL the key-value pairs specified here. Additional labels on 
 the event are allowed and will not prevent matching.
@@ -2678,8 +2690,8 @@ and multi-label filtering formats.
 export type WebhookSubscriptionRequest =
   | (unknown & {
       /** Description of the webhook subscription. */
-      description?: string;
-      /** Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+      description?: Description;
+      /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
 The subscription will only receive events matching these types AND the label filter(s).
  */
@@ -2687,8 +2699,7 @@ The subscription will only receive events matching these types AND the label fil
       /** Whether the subscription is enabled. */
       isEnabled?: boolean;
       target?: WebhookTarget;
-      /** Additional metadata for the subscription. */
-      metadata?: WebhookSubscriptionRequestMetadata;
+      metadata?: Metadata;
       /**
    * (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
 
@@ -2725,8 +2736,8 @@ See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-refe
     })
   | (unknown & {
       /** Description of the webhook subscription. */
-      description?: string;
-      /** Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+      description?: Description;
+      /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
 The subscription will only receive events matching these types AND the label filter(s).
  */
@@ -2734,8 +2745,7 @@ The subscription will only receive events matching these types AND the label fil
       /** Whether the subscription is enabled. */
       isEnabled?: boolean;
       target?: WebhookTarget;
-      /** Additional metadata for the subscription. */
-      metadata?: WebhookSubscriptionRequestMetadata;
+      metadata?: Metadata;
       /**
    * (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
 
@@ -2772,11 +2782,6 @@ See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-refe
     });
 
 /**
- * Additional metadata for the subscription.
- */
-export type WebhookSubscriptionUpdateRequestMetadata = { [key: string]: unknown };
-
-/**
  * Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
 
 **Note:** Currently, labels are supported for onchain webhooks only.
@@ -2794,16 +2799,15 @@ the original subscription format (traditional or multi-label).
 export type WebhookSubscriptionUpdateRequest =
   | (unknown & {
       /** Description of the webhook subscription. */
-      description?: string;
-      /** Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+      description?: Description;
+      /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
  */
       eventTypes?: string[];
       /** Whether the subscription is enabled. */
       isEnabled?: boolean;
       target?: WebhookTarget;
-      /** Additional metadata for the subscription. */
-      metadata?: WebhookSubscriptionUpdateRequestMetadata;
+      metadata?: Metadata;
       /** Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
 
 **Note:** Currently, labels are supported for onchain webhooks only.
@@ -2832,16 +2836,15 @@ Maintained for backward compatibility only.
     })
   | (unknown & {
       /** Description of the webhook subscription. */
-      description?: string;
-      /** Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+      description?: Description;
+      /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
  */
       eventTypes?: string[];
       /** Whether the subscription is enabled. */
       isEnabled?: boolean;
       target?: WebhookTarget;
-      /** Additional metadata for the subscription. */
-      metadata?: WebhookSubscriptionUpdateRequestMetadata;
+      metadata?: Metadata;
       /** Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
 
 **Note:** Currently, labels are supported for onchain webhooks only.
@@ -3021,8 +3024,8 @@ For Solana-based networks, payTo will be a base58-encoded Solana address.
 export interface X402ResourceInfo {
   /** The URL of the resource. */
   url?: string;
-  /** The description of the resource. */
-  description?: string;
+  /** A human-readable description of the resource. */
+  description?: Description;
   /** The MIME type of the resource response. */
   mimeType?: string;
 }
@@ -3102,8 +3105,8 @@ export interface X402V1PaymentRequirements {
   maxAmountRequired: string;
   /** The URL of the resource to pay for. */
   resource: string;
-  /** The description of the resource. */
-  description: string;
+  /** A human-readable description of the resource. */
+  description: Description;
   /** The MIME type of the resource response. */
   mimeType: string;
   /** The optional JSON schema describing the resource output. */
@@ -3352,6 +3355,10 @@ export const X402SupportedPaymentKindNetwork = {
   base: "base",
   "solana-devnet": "solana-devnet",
   solana: "solana",
+  "eip155:8453": "eip155:8453",
+  "eip155:84532": "eip155:84532",
+  "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+  "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
 } as const;
 
 /**
@@ -3371,6 +3378,13 @@ export interface X402SupportedPaymentKind {
   /** The optional additional scheme-specific payment info. */
   extra?: X402SupportedPaymentKindExtra;
 }
+
+/**
+ * A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).
+ * @minLength 1
+ * @maxLength 128
+ */
+export type BlockchainAddress = string;
 
 /**
  * The type of payment method to be used to complete an onramp order.
@@ -3442,7 +3456,7 @@ export interface OnrampOrder {
   /** The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat. */
   exchangeRate: string;
   /** The destination address to send the crypto to. */
-  destinationAddress: string;
+  destinationAddress: BlockchainAddress;
   /** The network to send the crypto on. */
   destinationNetwork: string;
   status: OnrampOrderStatus;
@@ -4394,7 +4408,7 @@ export type CreateOnrampOrderBody = {
   /** The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy). */
   agreementAcceptedAt: string;
   /** The address the purchased crypto will be sent to. */
-  destinationAddress: string;
+  destinationAddress: BlockchainAddress;
   /** The name of the crypto network the purchased currency will be sent on.
 
 Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location. */
@@ -4451,7 +4465,7 @@ Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/res
 Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location. */
   destinationNetwork: string;
   /** The address the purchased crypto will be sent to. */
-  destinationAddress: string;
+  destinationAddress: BlockchainAddress;
   /** A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user  will pay this exact amount of the payment currency. */
   paymentAmount?: string;
   /** A string representing the amount of crypto the user wishes to purchase. When using  this parameter, the returned quote will be exclusive of fees i.e. the user will  receive this exact amount of the purchase currency. */

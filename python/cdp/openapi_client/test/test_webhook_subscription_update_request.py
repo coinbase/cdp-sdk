@@ -36,11 +36,11 @@ class TestWebhookSubscriptionUpdateRequest(unittest.TestCase):
         model = WebhookSubscriptionUpdateRequest()
         if include_optional:
             return WebhookSubscriptionUpdateRequest(
-                description = 'Updated subscription for token transfer events',
+                description = 'A description of the resource.',
                 event_types = [onchain.activity.detected],
                 is_enabled = False,
                 target = {url=https://api.example.com/webhooks, headers={Authorization=Bearer token123, Content-Type=application/json}},
-                metadata = {updated_field=updated_value, webhook_version=v2},
+                metadata = {customer_id=cust_12345, order_reference=order-67890},
                 labels = {network=base-mainnet, contract_address=0x833589fcd6edb6e08f4c7c32d4f71b54bda02913, event_name=Transfer},
                 label_key = 'contract_address',
                 label_value = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'

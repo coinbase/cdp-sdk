@@ -21,6 +21,7 @@ import json
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from cdp.openapi_client.models.onramp_order_payment_method_type_id import OnrampOrderPaymentMethodTypeId
 from typing import Optional, Set
 from typing_extensions import Self
@@ -30,7 +31,7 @@ class CreateOnrampOrderRequest(BaseModel):
     CreateOnrampOrderRequest
     """ # noqa: E501
     agreement_accepted_at: datetime = Field(description="The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy).", alias="agreementAcceptedAt")
-    destination_address: StrictStr = Field(description="The address the purchased crypto will be sent to.", alias="destinationAddress")
+    destination_address: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="The address the purchased crypto will be sent to.", alias="destinationAddress")
     destination_network: StrictStr = Field(description="The name of the crypto network the purchased currency will be sent on.  Use the [Onramp Buy Options API](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options) to discover the supported networks for your user's location.", alias="destinationNetwork")
     email: StrictStr = Field(description="The verified email address of the user requesting the onramp transaction. This email must be verified by your app (via OTP) before being used with the Onramp API.")
     is_quote: Optional[StrictBool] = Field(default=False, description="If true, this API will return a quote without creating any transaction.", alias="isQuote")

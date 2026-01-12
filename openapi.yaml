@@ -5720,9 +5720,9 @@ paths:
                   type: string
                   example: '2025-04-24T00:00:00Z'
                 destinationAddress:
+                  allOf:
+                    - $ref: '#/components/schemas/BlockchainAddress'
                   description: The address the purchased crypto will be sent to.
-                  type: string
-                  example: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
                 destinationNetwork:
                   description: |-
                     The name of the crypto network the purchased currency will be sent on.
@@ -5948,9 +5948,9 @@ paths:
                   type: string
                   example: base
                 destinationAddress:
+                  allOf:
+                    - $ref: '#/components/schemas/BlockchainAddress'
                   description: The address the purchased crypto will be sent to.
-                  type: string
-                  example: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
                 paymentAmount:
                   description: A string representing the amount of fiat the user wishes to pay in exchange for crypto. When using this parameter, the returned quote will be inclusive of fees i.e. the user  will pay this exact amount of the payment currency.
                   type: string
@@ -9708,6 +9708,23 @@ components:
           description: Total number of unique token addresses discovered.
           example: 15
           minimum: 0
+    Description:
+      type: string
+      minLength: 0
+      maxLength: 500
+      description: A human-readable description.
+      example: A description of the resource.
+    Metadata:
+      type: object
+      description: Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Keys and values are both strings.
+      additionalProperties:
+        type: string
+        minLength: 0
+        maxLength: 500
+      maxProperties: 50
+      example:
+        customer_id: cust_12345
+        order_reference: order-67890
     WebhookTarget:
       type: object
       description: |
@@ -9751,13 +9768,14 @@ components:
           description: When the subscription was created.
           example: '2025-01-15T10:30:00Z'
         description:
-          type: string
+          allOf:
+            - $ref: '#/components/schemas/Description'
           description: Description of the webhook subscription.
           example: Subscription for token transfer events
         eventTypes:
           type: array
           description: |
-            Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+            Types of events to subscribe to. Event types follow a three-part dot-separated format:
             service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
           items:
             type: string
@@ -9768,15 +9786,17 @@ components:
           description: Whether the subscription is enabled.
           example: true
         metadata:
-          type: object
+          allOf:
+            - $ref: '#/components/schemas/Metadata'
+            - type: object
+              properties:
+                secret:
+                  type: string
+                  format: uuid
+                  deprecated: true
+                  description: Use the root-level `secret` field instead. Maintained for backward compatibility only.
+                  example: 123e4567-e89b-12d3-a456-426614174000
           description: Additional metadata for the subscription.
-          properties:
-            secret:
-              type: string
-              format: uuid
-              deprecated: true
-              description: Use the root-level `secret` field instead. Maintained for backward compatibility only.
-              example: 123e4567-e89b-12d3-a456-426614174000
           example:
             secret: 123e4567-e89b-12d3-a456-426614174000
         secret:
@@ -9859,13 +9879,14 @@ components:
         and multi-label filtering formats.
       properties:
         description:
-          type: string
+          allOf:
+            - $ref: '#/components/schemas/Description'
           description: Description of the webhook subscription.
           example: Subscription for token transfer events
         eventTypes:
           type: array
           description: |
-            Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+            Types of events to subscribe to. Event types follow a three-part dot-separated format:
             service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
             The subscription will only receive events matching these types AND the label filter(s).
           items:
@@ -9879,12 +9900,7 @@ components:
         target:
           $ref: '#/components/schemas/WebhookTarget'
         metadata:
-          type: object
-          description: Additional metadata for the subscription.
-          additionalProperties: true
-          example:
-            custom_field: custom_value
-            webhook_version: v1
+          $ref: '#/components/schemas/Metadata'
         labelKey:
           type: string
           deprecated: true
@@ -9955,13 +9971,14 @@ components:
         the original subscription format (traditional or multi-label).
       properties:
         description:
-          type: string
+          allOf:
+            - $ref: '#/components/schemas/Description'
           description: Description of the webhook subscription.
           example: Updated subscription for token transfer events
         eventTypes:
           type: array
           description: |
-            Types of events to subscribe to. Event types follow a three-part dot-separated format: 
+            Types of events to subscribe to. Event types follow a three-part dot-separated format:
             service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
           items:
             type: string
@@ -9974,12 +9991,7 @@ components:
         target:
           $ref: '#/components/schemas/WebhookTarget'
         metadata:
-          type: object
-          description: Additional metadata for the subscription.
-          additionalProperties: true
-          example:
-            updated_field: updated_value
-            webhook_version: v2
+          $ref: '#/components/schemas/Metadata'
         labels:
           type: object
           description: |
@@ -10239,8 +10251,9 @@ components:
           description: The URL of the resource.
           example: https://api.example.com/premium/resource/123
         description:
-          type: string
-          description: The description of the resource.
+          allOf:
+            - $ref: '#/components/schemas/Description'
+          description: A human-readable description of the resource.
           example: Premium API access for data analysis
         mimeType:
           type: string
@@ -10341,8 +10354,9 @@ components:
           description: The URL of the resource to pay for.
           example: https://api.example.com/premium/resource/123
         description:
-          type: string
-          description: The description of the resource.
+          allOf:
+            - $ref: '#/components/schemas/Description'
+          description: A human-readable description of the resource.
           example: Premium API access for data analysis
         mimeType:
           type: string
@@ -10566,12 +10580,16 @@ components:
         network:
           type: string
           description: The network of the blockchain.
+          example: base
           enum:
             - base-sepolia
             - base
             - solana-devnet
             - solana
-          example: base
+            - eip155:8453
+            - eip155:84532
+            - solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp
+            - solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1
         extra:
           type: object
           description: The optional additional scheme-specific payment info.
@@ -10582,6 +10600,12 @@ components:
         - x402Version
         - scheme
         - network
+    BlockchainAddress:
+      type: string
+      minLength: 1
+      maxLength: 128
+      description: A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).
+      example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
     OnrampOrderPaymentMethodTypeId:
       type: string
       description: The type of payment method to be used to complete an onramp order.
@@ -10668,7 +10692,8 @@ components:
           description: The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat.
           example: '1'
         destinationAddress:
-          type: string
+          allOf:
+            - $ref: '#/components/schemas/BlockchainAddress'
           description: The destination address to send the crypto to.
           example: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
         destinationNetwork:
