@@ -3,7 +3,15 @@
 import tempfile
 from pathlib import Path
 
-from cdp.x402.x402 import FacilitatorConfig, create_facilitator_config, facilitator
+from cdp.x402.x402 import (
+    AuthHeaders,
+    CDPAuthProvider,
+    FacilitatorConfig,
+    FacilitatorConfigV2,
+    create_facilitator_config,
+    create_facilitator_config_v2,
+    facilitator,
+)
 
 
 def _show_notice_once():
@@ -31,7 +39,13 @@ The endpoints have not been reviewed by Coinbase, so please ensure that you trus
 _show_notice_once()
 
 __all__ = [
+    # V1 API
     "FacilitatorConfig",
     "create_facilitator_config",
     "facilitator",
+    # V2 API
+    "AuthHeaders",
+    "CDPAuthProvider",
+    "FacilitatorConfigV2",
+    "create_facilitator_config_v2",
 ]
