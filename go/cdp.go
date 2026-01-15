@@ -27,6 +27,9 @@ type ClientOptions struct {
 	BasePath string
 	// Optional expiration time in seconds (defaults to 120).
 	ExpiresIn int64
+	// HostOverride overrides the host used for request routing and JWT signing.
+	// This is for internal use only and should not be used by external consumers.
+	HostOverride string
 }
 
 // NewClient creates a new CDP client based on the provided options.
@@ -36,16 +39,40 @@ func NewClient(options ClientOptions) (*openapi.ClientWithResponses, error) {
 		basePath = "https://api.cdp.coinbase.com/platform"
 	}
 
-	client, err := openapi.NewClientWithResponses(
-		basePath,
-		openapi.WithRequestEditorFn(apiKeyHeaderFn(options)),
-		openapi.WithRequestEditorFn(walletHeaderFn(options)),
-	)
+	opts := []openapi.ClientOption{}
+
+	// Add HostOverride editor FIRST if set (before auth editors that use req.Host)
+	if options.HostOverride != "" {
+		opts = append(opts, openapi.WithRequestEditorFn(hostOverrideFn(options.HostOverride)))
+	}
+
+	opts = append(opts, openapi.WithRequestEditorFn(apiKeyHeaderFn(options)))
+	opts = append(opts, openapi.WithRequestEditorFn(walletHeaderFn(options)))
+
+	client, err := openapi.NewClientWithResponses(basePath, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create CDP client: %w", err)
 	}
 
 	return client, nil
+}
+
+// hostOverrideFn sets the Host header to the specified override value.
+// This must run before auth editors so they use the correct host for JWT signing.
+func hostOverrideFn(hostOverride string) openapi.RequestEditorFn {
+	return func(_ context.Context, req *http.Request) error {
+		req.Host = hostOverride
+		return nil
+	}
+}
+
+// getRequestHost returns the host to use for JWT signing.
+// If HostOverride is set, it takes precedence over req.Host.
+func getRequestHost(options ClientOptions, req *http.Request) string {
+	if options.HostOverride != "" {
+		return options.HostOverride
+	}
+	return req.Host
 }
 
 // apiKeyHeaderFn generates a JWT for the API key and adds it to the request headers.
@@ -60,7 +87,7 @@ func apiKeyHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 			KeyID:         options.APIKeyID,
 			KeySecret:     options.APIKeySecret,
 			RequestMethod: method,
-			RequestHost:   req.Host,
+			RequestHost:   getRequestHost(options, req),
 			RequestPath:   req.URL.Path,
 			ExpiresIn:     options.ExpiresIn,
 		}
@@ -110,7 +137,7 @@ func walletHeaderFn(options ClientOptions) openapi.RequestEditorFn {
 		walletJwtOptions := auth.WalletJwtOptions{
 			WalletSecret:  options.WalletSecret,
 			RequestMethod: req.Method,
-			RequestHost:   req.Host,
+			RequestHost:   getRequestHost(options, req),
 			RequestPath:   req.URL.Path,
 			RequestData:   body,
 		}
