@@ -21,6 +21,8 @@ This module optionally uses CDP API keys from the [Coinbase Developer Platform](
 
 ## Quick Start
 
+### x402 V1 
+
 ```python
 # Option 1: Import the default Coinbase facilitator config
 # Works for list endpoint without credentials, or with CDP_API_KEY_ID and CDP_API_KEY_SECRET environment variables for verify/settle
@@ -32,6 +34,24 @@ from cdp.x402 import create_facilitator_config
 facilitator = create_facilitator_config("your-cdp-api-key-id", "your-cdp-api-key-secret")  # Pass in directly from preferred secret management
 
 # Use the Coinbase facilitator config in your x402 integration
+```
+
+### x402 V2 (For HTTPFacilitatorClient)
+
+```python
+from cdp.x402 import create_facilitator_config_v2
+from x402.http import HTTPFacilitatorClient
+from x402.server import x402ResourceServer
+
+# Create a V2 config for use with HTTPFacilitatorClient
+facilitator_config = create_facilitator_config("your-cdp-api-key-id", "your-cdp-api-key-secret")
+
+# Or use environment variables (CDP_API_KEY_ID and CDP_API_KEY_SECRET)
+facilitator_config = create_facilitator_config()
+
+# Use with HTTPFacilitatorClient
+facilitator = HTTPFacilitatorClient(facilitator_config)
+server = x402ResourceServer(facilitator)
 ```
 
 ## API Reference
@@ -81,7 +101,7 @@ Configuration object for accessing Coinbase's x402 facilitator service.
 
 - `COINBASE_FACILITATOR_BASE_URL`: "https://api.cdp.coinbase.com"
 - `COINBASE_FACILITATOR_V2_ROUTE`: "/platform/v2/x402"
-- `x402_VERSION`: "0.4.3"
+- `X402_VERSION`: "2.0.0"
 
 ## Default Facilitator Instance
 
