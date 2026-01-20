@@ -22,5 +22,5 @@ const addressMap = {
  * @returns The address of the ERC20 token.
  */
 export function getErc20Address(token: string, network: Network) {
-  return addressMap[network][token] ?? token;
+  return addressMap[network]?.[token] ?? token;
 }

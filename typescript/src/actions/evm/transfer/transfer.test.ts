@@ -113,6 +113,28 @@ describe("transfer", () => {
     expect(result).toEqual("0xhash");
   });
 
+  it("should transfer custom token on ethereum-sepolia", async () => {
+    const transferArgs: TransferOptions = {
+      to: "0x1234567890123456789012345678901234567890" as Address,
+      amount: parseEther("10"),
+      token: "0x4200000000000000000000000000000000000006" as Hex,
+      network: "ethereum-sepolia",
+    };
+
+    const result = await transfer(mockApiClient, mockAccount, transferArgs, mockTransferStrategy);
+
+    expect(mockTransferStrategy.executeTransfer).toHaveBeenCalledWith({
+      apiClient: mockApiClient,
+      from: mockAccount,
+      to: transferArgs.to,
+      value: expect.any(BigInt),
+      network: transferArgs.network,
+      token: transferArgs.token,
+    });
+
+    expect(result).toEqual("0xhash");
+  });
+
   it("should work with smart accounts", async () => {
     const transferArgs: SmartAccountTransferOptions = {
       to: "0x1234567890123456789012345678901234567890" as Address,
