@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.37.1] - 2026-01-20
+
+### Bugfixes
+
+- Relaxed dependency version constraints ([#561](https://github.com/coinbase/cdp-sdk/pull/561))
+
+
 ## [1.37.0] - 2026-01-09
 
 ### Features
