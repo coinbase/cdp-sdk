@@ -109,6 +109,14 @@ const cdp = new CdpClient({
 });
 ```
 
+### Client Lifecycle
+
+The CDP client wraps an HTTP client (Axios) and should be created once and reused throughout your application's lifecycle. The underlying HTTP client handles connection pooling automatically, so there's no need to recreate the client per request—doing so would be less efficient.
+
+- **Long-lived services**: Create a single client instance at startup
+- **Serverless/request-based runtimes**: Create once per cold start, or use a module-level singleton
+- **Concurrency**: The client is safe to use across concurrent async operations
+
 ### Creating EVM or Solana accounts
 
 #### Create an EVM account as follows:
