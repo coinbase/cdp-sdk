@@ -1,6 +1,6 @@
 {
   "name": "@coinbase/cdp-sdk",
-  "version": "1.43.0",
+  "version": "1.43.1",
   "description": "SDK for interacting with the Coinbase Developer Platform Wallet API",
   "type": "module",
   "main": "./_cjs/index.js",

@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.43.1
+
+### Patch Changes
+
+- [#565](https://github.com/coinbase/cdp-sdk/pull/565) [`80dd120`](https://github.com/coinbase/cdp-sdk/commit/80dd120d255c3aa6880af02d7fd320d392431ed3) Thanks [@0xRAG](https://github.com/0xRAG)! - Fixed bug in transfer method to support transfers on non-Base networks
+
 ## 1.43.0
 
 ### Minor Changes
