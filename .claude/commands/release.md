@@ -70,16 +70,16 @@ Display the output to the user and identify the new version number.
 
 Read the current version from package.json to confirm:
 ```bash
-cat typescript/package.json | grep '"version"'
+cat src/package.json | grep '"version"'
 ```
 
 Ask the user to confirm the new version number.
 
 ### Step 4: Update version.ts
 
-Read the current `typescript/src/version.ts` file and update it with the new version:
+Read the current `src/version.ts` file and update it with the new version:
 ```bash
-cat typescript/src/version.ts
+cat src/version.ts
 ```
 
 Then edit the file to update the version string to match the new version.
@@ -88,7 +88,7 @@ Then edit the file to update the version string to match the new version.
 
 Stage and commit the changes:
 ```bash
-git add typescript/
+git add .
 git commit -m "chore: bump @coinbase/cdp-sdk to {NEW_VERSION}"
 ```
 
