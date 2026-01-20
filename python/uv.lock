@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.11'",
@@ -299,8 +299,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiohttp", specifier = "==3.11.16" },
-    { name = "aiohttp-retry", specifier = "==2.9.1" },
+    { name = "aiohttp", specifier = ">=3.11.16" },
+    { name = "aiohttp-retry", specifier = ">=2.9.1" },
     { name = "base58", specifier = ">=2.1.1" },
     { name = "cryptography", specifier = ">=42.0.0" },
     { name = "myst-parser", marker = "extra == 'dev'", specifier = ">=4.0.1" },
@@ -310,7 +310,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.26.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
-    { name = "python-dateutil", specifier = "==2.9.0" },
+    { name = "python-dateutil", specifier = ">=2.9.0" },
     { name = "python-dotenv", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "pyyaml", marker = "extra == 'dev'", specifier = ">=6.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.7.1,<0.8" },
@@ -321,7 +321,7 @@ requires-dist = [
     { name = "sphinx-autodoc-typehints", marker = "extra == 'dev'", specifier = ">=3.0.1" },
     { name = "sphinxcontrib-napoleon", marker = "extra == 'dev'", specifier = ">=0.7" },
     { name = "towncrier", marker = "extra == 'dev'", specifier = ">=24.8.0,<25" },
-    { name = "urllib3", specifier = ">=2.2.3,<=2.3.0" },
+    { name = "urllib3", specifier = ">=2.2.3" },
     { name = "web3", specifier = ">=7.6.0,<=7.10.0" },
 ]
 provides-extras = ["dev"]
