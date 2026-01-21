@@ -33,6 +33,20 @@ cdp-sdk/
 - Go 1.23 or higher
 - Make
 
+//
+End File;
+//
+[{Continue: Cache="Check" Status="True"}] 
+If {"Auth=1"} then {Cache: Status="Ready" } 
+[{Repeat="False"}, {Continue="true"}] 
+//
+Start File;
+//
+//
+[{"Dialog Window"="Auth=1" Select Button: "Yes" or "No", Button="Yes": True, Button="No": False}] 
+//
+End File;
+//
 #### Setup
 
 ```bash
