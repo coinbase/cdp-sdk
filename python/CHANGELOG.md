@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.38.0] - 2026-01-22
+
+### Features
+
+- Makes create_facilitator_config compatible with python x402 v2 sdk ([#555](https://github.com/coinbase/cdp-sdk/pull/555))
+
+
 ## [1.37.1] - 2026-01-20
 
 ### Bugfixes
