@@ -3,7 +3,11 @@
 import tempfile
 from pathlib import Path
 
-from cdp.x402.x402 import FacilitatorConfig, create_facilitator_config, facilitator
+from cdp.x402.x402 import (
+    FacilitatorConfig,
+    create_facilitator_config,
+    facilitator,
+)
 
 
 def _show_notice_once():

@@ -7,7 +7,7 @@ from cdp.auth.utils.http import GetAuthHeadersOptions, _get_correlation_data, ge
 COINBASE_FACILITATOR_BASE_URL = "https://api.cdp.coinbase.com"
 COINBASE_FACILITATOR_V2_ROUTE = "/platform/v2/x402"
 
-X402_VERSION = "0.6.1"
+X402_VERSION = "2.0.0"
 
 
 class FacilitatorConfig(TypedDict, total=False):
@@ -38,7 +38,7 @@ def create_cdp_auth_headers(
     """
     request_host = COINBASE_FACILITATOR_BASE_URL.replace("https://", "")
 
-    async def _create_headers() -> dict[str, dict[str, str]]:
+    def _create_headers() -> dict[str, dict[str, str]]:
         verify_auth_headers = get_auth_headers(
             GetAuthHeadersOptions(
                 api_key_id=api_key_id,
@@ -63,6 +63,18 @@ def create_cdp_auth_headers(
             )
         )
 
+        supported_auth_headers = get_auth_headers(
+            GetAuthHeadersOptions(
+                api_key_id=api_key_id,
+                api_key_secret=api_key_secret,
+                request_host=request_host,
+                request_path=f"{COINBASE_FACILITATOR_V2_ROUTE}/supported",
+                request_method="GET",
+                source="x402",
+                source_version=X402_VERSION,
+            )
+        )
+
         # List endpoint always uses only correlation headers, no JWT auth
         list_correlation_headers = {
             "Correlation-Context": _get_correlation_data(
@@ -74,6 +86,7 @@ def create_cdp_auth_headers(
         return {
             "verify": verify_auth_headers,
             "settle": settle_auth_headers,
+            "supported": supported_auth_headers,
             "list": list_correlation_headers,
         }
 
@@ -88,7 +101,7 @@ def create_cdp_unauth_headers() -> Callable[[], dict[str, dict[str, str]]]:
 
     """
 
-    async def _create_headers() -> dict[str, dict[str, str]]:
+    def _create_headers() -> dict[str, dict[str, str]]:
         # Create correlation headers for list endpoint (no authentication needed)
         correlation_headers = {
             "Correlation-Context": _get_correlation_data(
@@ -100,6 +113,7 @@ def create_cdp_unauth_headers() -> Callable[[], dict[str, dict[str, str]]]:
         return {
             "verify": {},
             "settle": {},
+            "supported": {},
             "list": correlation_headers,
         }
 
