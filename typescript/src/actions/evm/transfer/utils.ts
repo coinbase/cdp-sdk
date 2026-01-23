@@ -1,9 +1,11 @@
 import { Network } from "./types.js";
 
+import type { Address } from "viem";
+
 /**
  * The address of an ERC20 token for a given network.
  */
-const addressMap = {
+const addressMap: Record<string, Record<string, Address>> = {
   base: {
     usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   },
@@ -21,6 +23,6 @@ const addressMap = {
  *
  * @returns The address of the ERC20 token.
  */
-export function getErc20Address(token: string, network: Network) {
+export function getErc20Address(token: string, network: Network): Address {
   return addressMap[network]?.[token] ?? token;
 }
