@@ -20,6 +20,8 @@ generate-all-clients:
 	@cd rust && make generate && make format
 	@echo "Generating Go client..."
 	@cd go && make client
+	@echo "Generating Java client..."
+	@cd java && make client
 	@echo "All clients generated successfully!"
 
 update-openapi:
