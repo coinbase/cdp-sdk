@@ -1,4 +1,4 @@
-import { encodeFunctionData } from "viem";
+import { encodeFunctionData, type Abi } from "viem";
 
 import { getBaseNodeRpcUrl } from "../../accounts/evm/getBaseNodeRpcUrl.js";
 import {
@@ -10,6 +10,37 @@ import {
 import type { EvmSmartAccount } from "../../accounts/evm/types.js";
 import type { Calls } from "../../types/calls.js";
 import type { Address, Hex } from "../../types/misc.js";
+
+// Base interface that all call types implement
+interface BaseCall {
+  to: Address;
+  value?: bigint;
+  overrideGasLimit?: bigint;
+}
+
+// Direct call interface
+interface DirectCall extends BaseCall {
+  data?: Hex;
+}
+
+// Contract call interface
+interface ContractCall extends BaseCall {
+  abi: readonly unknown[] | Abi;
+  functionName: string;
+  args?: readonly unknown[];
+}
+
+// Type guards
+
+/**
+ * Type guard to check if a BaseCall is a ContractCall.
+ *
+ * @param call - The BaseCall to check
+ * @returns True if the call is a ContractCall
+ */
+function isContractCall(call: BaseCall): call is ContractCall {
+  return "abi" in call && "functionName" in call;
+}
 
 /**
  * Options for sending a user operation.
@@ -135,26 +166,29 @@ export async function sendUserOperation<T extends readonly unknown[]>(
   }
 
   const encodedCalls = calls.map(call => {
-    const value = (call.value ?? BigInt(0)).toString();
+    const baseCall = call as BaseCall;
+    const value = (baseCall.value ?? BigInt(0)).toString();
+    const overrideGasLimit = baseCall.overrideGasLimit?.toString();
 
-    if ("abi" in call && call.abi && "functionName" in call) {
+    if (isContractCall(baseCall)) {
       return {
-        to: call.to,
+        to: baseCall.to,
         data: encodeFunctionData({
-          abi: call.abi,
-          functionName: call.functionName,
-          args: call.args,
+          abi: baseCall.abi,
+          functionName: baseCall.functionName,
+          args: baseCall.args,
         }),
         value,
-        overrideGasLimit: call.overrideGasLimit,
+        overrideGasLimit,
       };
     }
 
+    const directCall = baseCall as DirectCall;
     return {
-      to: call.to,
-      data: call.data ?? "0x",
+      to: directCall.to,
+      data: directCall.data ?? "0x",
       value,
-      overrideGasLimit: call.overrideGasLimit,
+      overrideGasLimit,
     };
   });
 
