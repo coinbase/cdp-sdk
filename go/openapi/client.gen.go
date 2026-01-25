@@ -662,10 +662,14 @@ const (
 
 // Defines values for X402SupportedPaymentKindNetwork.
 const (
-	X402SupportedPaymentKindNetworkBase         X402SupportedPaymentKindNetwork = "base"
-	X402SupportedPaymentKindNetworkBaseSepolia  X402SupportedPaymentKindNetwork = "base-sepolia"
-	X402SupportedPaymentKindNetworkSolana       X402SupportedPaymentKindNetwork = "solana"
-	X402SupportedPaymentKindNetworkSolanaDevnet X402SupportedPaymentKindNetwork = "solana-devnet"
+	X402SupportedPaymentKindNetworkBase                                   X402SupportedPaymentKindNetwork = "base"
+	X402SupportedPaymentKindNetworkBaseSepolia                            X402SupportedPaymentKindNetwork = "base-sepolia"
+	X402SupportedPaymentKindNetworkEip1558453                             X402SupportedPaymentKindNetwork = "eip155:8453"
+	X402SupportedPaymentKindNetworkEip15584532                            X402SupportedPaymentKindNetwork = "eip155:84532"
+	X402SupportedPaymentKindNetworkSolana                                 X402SupportedPaymentKindNetwork = "solana"
+	X402SupportedPaymentKindNetworkSolana5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp X402SupportedPaymentKindNetwork = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+	X402SupportedPaymentKindNetworkSolanaDevnet                           X402SupportedPaymentKindNetwork = "solana-devnet"
+	X402SupportedPaymentKindNetworkSolanaEtWTRABZaYq6iMfeYKouRu166VU2xqa1 X402SupportedPaymentKindNetwork = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
 )
 
 // Defines values for X402SupportedPaymentKindScheme.
@@ -900,6 +904,9 @@ type AuthenticationMethod struct {
 // AuthenticationMethods The list of valid authentication methods linked to the end user.
 type AuthenticationMethods = []AuthenticationMethod
 
+// BlockchainAddress A blockchain address. Format varies by network (e.g., 0x-prefixed for EVM, base58 for Solana).
+type BlockchainAddress = string
+
 // CommonSwapResponse defines model for CommonSwapResponse.
 type CommonSwapResponse struct {
 	// BlockNumber The block number at which the liquidity conditions were examined.
@@ -1090,6 +1097,9 @@ type CreateSwapQuoteResponseLiquidityAvailable bool
 type CreateSwapQuoteResponseWrapper struct {
 	union json.RawMessage
 }
+
+// Description A human-readable description.
+type Description = string
 
 // DeveloperJWTAuthentication Information about an end user who authenticates using a JWT issued by the developer.
 type DeveloperJWTAuthentication struct {
@@ -1667,6 +1677,9 @@ type MFAMethods struct {
 	} `json:"totp,omitempty"`
 }
 
+// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Keys and values are both strings.
+type Metadata map[string]string
+
 // MintAddressCriterion The criterion for the token mint addresses of a Solana transaction's SPL token transfer instructions.
 type MintAddressCriterion struct {
 	// Addresses The Solana addresses that are compared to the list of token mint addresses in the transaction's `accountKeys` (for legacy transactions) or `staticAccountKeys` (for V0 transactions) array.
@@ -1780,7 +1793,7 @@ type OnrampOrder struct {
 	CreatedAt string `json:"createdAt"`
 
 	// DestinationAddress The destination address to send the crypto to.
-	DestinationAddress string `json:"destinationAddress"`
+	DestinationAddress BlockchainAddress `json:"destinationAddress"`
 
 	// DestinationNetwork The network to send the crypto on.
 	DestinationNetwork string `json:"destinationNetwork"`
@@ -2657,7 +2670,7 @@ type WebhookSubscriptionListResponse struct {
 // and multi-label filtering formats.
 type WebhookSubscriptionRequest struct {
 	// Description Description of the webhook subscription.
-	Description *string `json:"description,omitempty"`
+	Description *Description `json:"description,omitempty"`
 
 	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
 	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
@@ -2696,8 +2709,8 @@ type WebhookSubscriptionRequest struct {
 	// See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
 	Labels *map[string]string `json:"labels,omitempty"`
 
-	// Metadata Additional metadata for the subscription.
-	Metadata *map[string]interface{} `json:"metadata,omitempty"`
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Keys and values are both strings.
+	Metadata *Metadata `json:"metadata,omitempty"`
 
 	// Target Target configuration for webhook delivery.
 	// Specifies the destination URL and any custom headers to include in webhook requests.
@@ -2717,7 +2730,7 @@ type WebhookSubscriptionResponse struct {
 	CreatedAt time.Time `json:"createdAt"`
 
 	// Description Description of the webhook subscription.
-	Description *string `json:"description,omitempty"`
+	Description *Description `json:"description,omitempty"`
 
 	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
 	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
@@ -2745,11 +2758,7 @@ type WebhookSubscriptionResponse struct {
 	Labels *map[string]string `json:"labels,omitempty"`
 
 	// Metadata Additional metadata for the subscription.
-	Metadata *struct {
-		// Secret Use the root-level `secret` field instead. Maintained for backward compatibility only.
-		// Deprecated:
-		Secret *openapi_types.UUID `json:"secret,omitempty"`
-	} `json:"metadata,omitempty"`
+	Metadata *WebhookSubscriptionResponse_Metadata `json:"metadata,omitempty"`
 
 	// Secret Secret for webhook signature validation.
 	Secret openapi_types.UUID `json:"secret"`
@@ -2762,11 +2771,19 @@ type WebhookSubscriptionResponse struct {
 	Target WebhookTarget `json:"target"`
 }
 
+// WebhookSubscriptionResponse_Metadata defines model for WebhookSubscriptionResponse.Metadata.
+type WebhookSubscriptionResponse_Metadata struct {
+	// Secret Use the root-level `secret` field instead. Maintained for backward compatibility only.
+	// Deprecated:
+	Secret               *openapi_types.UUID `json:"secret,omitempty"`
+	AdditionalProperties map[string]string   `json:"-"`
+}
+
 // WebhookSubscriptionUpdateRequest Request to update an existing webhook subscription. The update format must match
 // the original subscription format (traditional or multi-label).
 type WebhookSubscriptionUpdateRequest struct {
 	// Description Description of the webhook subscription.
-	Description *string `json:"description,omitempty"`
+	Description *Description `json:"description,omitempty"`
 
 	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
 	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
@@ -2796,8 +2813,8 @@ type WebhookSubscriptionUpdateRequest struct {
 	// See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
 	Labels *map[string]string `json:"labels,omitempty"`
 
-	// Metadata Additional metadata for the subscription.
-	Metadata *map[string]interface{} `json:"metadata,omitempty"`
+	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Keys and values are both strings.
+	Metadata *Metadata `json:"metadata,omitempty"`
 
 	// Target Target configuration for webhook delivery.
 	// Specifies the destination URL and any custom headers to include in webhook requests.
@@ -2890,8 +2907,8 @@ type X402PaymentRequirements struct {
 
 // X402ResourceInfo Describes the resource being accessed in x402 protocol.
 type X402ResourceInfo struct {
-	// Description The description of the resource.
-	Description *string `json:"description,omitempty"`
+	// Description A human-readable description of the resource.
+	Description *Description `json:"description,omitempty"`
 
 	// MimeType The MIME type of the resource response.
 	MimeType *string `json:"mimeType,omitempty"`
@@ -2983,8 +3000,8 @@ type X402V1PaymentRequirements struct {
 	// For Solana-based networks, the asset will be a base58-encoded Solana address.
 	Asset string `json:"asset"`
 
-	// Description The description of the resource.
-	Description string `json:"description"`
+	// Description A human-readable description of the resource.
+	Description Description `json:"description"`
 
 	// Extra The optional additional scheme-specific payment info.
 	Extra *map[string]interface{} `json:"extra,omitempty"`
@@ -3725,7 +3742,7 @@ type CreateOnrampOrderJSONBody struct {
 	ClientIp *string `json:"clientIp,omitempty"`
 
 	// DestinationAddress The address the purchased crypto will be sent to.
-	DestinationAddress string `json:"destinationAddress"`
+	DestinationAddress BlockchainAddress `json:"destinationAddress"`
 
 	// DestinationNetwork The name of the crypto network the purchased currency will be sent on.
 	//
@@ -3784,7 +3801,7 @@ type CreateOnrampSessionJSONBody struct {
 	Country *string `json:"country,omitempty"`
 
 	// DestinationAddress The address the purchased crypto will be sent to.
-	DestinationAddress string `json:"destinationAddress"`
+	DestinationAddress BlockchainAddress `json:"destinationAddress"`
 
 	// DestinationNetwork The name of the crypto network the purchased currency will be sent on.
 	//
@@ -4225,6 +4242,74 @@ type SettleX402PaymentJSONRequestBody SettleX402PaymentJSONBody
 
 // VerifyX402PaymentJSONRequestBody defines body for VerifyX402Payment for application/json ContentType.
 type VerifyX402PaymentJSONRequestBody VerifyX402PaymentJSONBody
+
+// Getter for additional properties for WebhookSubscriptionResponse_Metadata. Returns the specified
+// element and whether it was found
+func (a WebhookSubscriptionResponse_Metadata) Get(fieldName string) (value string, found bool) {
+	if a.AdditionalProperties != nil {
+		value, found = a.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for WebhookSubscriptionResponse_Metadata
+func (a *WebhookSubscriptionResponse_Metadata) Set(fieldName string, value string) {
+	if a.AdditionalProperties == nil {
+		a.AdditionalProperties = make(map[string]string)
+	}
+	a.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for WebhookSubscriptionResponse_Metadata to handle AdditionalProperties
+func (a *WebhookSubscriptionResponse_Metadata) UnmarshalJSON(b []byte) error {
+	object := make(map[string]json.RawMessage)
+	err := json.Unmarshal(b, &object)
+	if err != nil {
+		return err
+	}
+
+	if raw, found := object["secret"]; found {
+		err = json.Unmarshal(raw, &a.Secret)
+		if err != nil {
+			return fmt.Errorf("error reading 'secret': %w", err)
+		}
+		delete(object, "secret")
+	}
+
+	if len(object) != 0 {
+		a.AdditionalProperties = make(map[string]string)
+		for fieldName, fieldBuf := range object {
+			var fieldVal string
+			err := json.Unmarshal(fieldBuf, &fieldVal)
+			if err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			a.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for WebhookSubscriptionResponse_Metadata to handle AdditionalProperties
+func (a WebhookSubscriptionResponse_Metadata) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if a.Secret != nil {
+		object["secret"], err = json.Marshal(a.Secret)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling 'secret': %w", err)
+		}
+	}
+
+	for fieldName, field := range a.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
 
 // AsAbiFunction returns the union data inside the Abi_Item as a AbiFunction
 func (t Abi_Item) AsAbiFunction() (AbiFunction, error) {

@@ -21,6 +21,7 @@ import json
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from cdp.openapi_client.models.webhook_subscription_response_metadata import WebhookSubscriptionResponseMetadata
 from cdp.openapi_client.models.webhook_target import WebhookTarget
 from typing import Optional, Set
@@ -31,8 +32,8 @@ class WebhookSubscriptionResponse(BaseModel):
     Response containing webhook subscription details.
     """ # noqa: E501
     created_at: datetime = Field(description="When the subscription was created.", alias="createdAt")
-    description: Optional[StrictStr] = Field(default=None, description="Description of the webhook subscription.")
-    event_types: List[StrictStr] = Field(description="Types of events to subscribe to. Event types follow a three-part dot-separated format:  service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\"). ", alias="eventTypes")
+    description: Optional[Annotated[str, Field(min_length=0, strict=True, max_length=500)]] = Field(default=None, description="Description of the webhook subscription.")
+    event_types: List[StrictStr] = Field(description="Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\"). ", alias="eventTypes")
     is_enabled: StrictBool = Field(description="Whether the subscription is enabled.", alias="isEnabled")
     metadata: Optional[WebhookSubscriptionResponseMetadata] = None
     secret: StrictStr = Field(description="Secret for webhook signature validation.")

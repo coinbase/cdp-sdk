@@ -20,6 +20,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from typing import Optional, Set
 from typing_extensions import Self
 
@@ -28,7 +29,7 @@ class X402ResourceInfo(BaseModel):
     Describes the resource being accessed in x402 protocol.
     """ # noqa: E501
     url: Optional[StrictStr] = Field(default=None, description="The URL of the resource.")
-    description: Optional[StrictStr] = Field(default=None, description="The description of the resource.")
+    description: Optional[Annotated[str, Field(min_length=0, strict=True, max_length=500)]] = Field(default=None, description="A human-readable description of the resource.")
     mime_type: Optional[StrictStr] = Field(default=None, description="The MIME type of the resource response.", alias="mimeType")
     __properties: ClassVar[List[str]] = ["url", "description", "mimeType"]
 

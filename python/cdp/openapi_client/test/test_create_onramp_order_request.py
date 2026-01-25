@@ -37,7 +37,7 @@ class TestCreateOnrampOrderRequest(unittest.TestCase):
         if include_optional:
             return CreateOnrampOrderRequest(
                 agreement_accepted_at = '2025-04-24T00:00:00Z',
-                destination_address = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+                destination_address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 destination_network = 'base',
                 email = 'test@example.com',
                 is_quote = True,
@@ -56,7 +56,7 @@ class TestCreateOnrampOrderRequest(unittest.TestCase):
         else:
             return CreateOnrampOrderRequest(
                 agreement_accepted_at = '2025-04-24T00:00:00Z',
-                destination_address = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+                destination_address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 destination_network = 'base',
                 email = 'test@example.com',
                 partner_user_ref = 'user-1234',

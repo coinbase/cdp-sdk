@@ -37,7 +37,7 @@ class TestX402ResourceInfo(unittest.TestCase):
         if include_optional:
             return X402ResourceInfo(
                 url = 'https://api.example.com/premium/resource/123',
-                description = 'Premium API access for data analysis',
+                description = 'A description of the resource.',
                 mime_type = 'application/json'
             )
         else:

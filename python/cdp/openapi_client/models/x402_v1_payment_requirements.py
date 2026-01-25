@@ -32,7 +32,7 @@ class X402V1PaymentRequirements(BaseModel):
     network: StrictStr = Field(description="The network of the blockchain to send payment on.")
     max_amount_required: StrictStr = Field(description="The maximum amount required to pay for the resource in atomic units of the payment asset.", alias="maxAmountRequired")
     resource: StrictStr = Field(description="The URL of the resource to pay for.")
-    description: StrictStr = Field(description="The description of the resource.")
+    description: Annotated[str, Field(min_length=0, strict=True, max_length=500)] = Field(description="A human-readable description of the resource.")
     mime_type: StrictStr = Field(description="The MIME type of the resource response.", alias="mimeType")
     output_schema: Optional[Dict[str, Any]] = Field(default=None, description="The optional JSON schema describing the resource output.", alias="outputSchema")
     pay_to: Annotated[str, Field(strict=True)] = Field(description="The destination to pay value to.  For EVM networks, payTo will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, payTo will be a base58-encoded Solana address.", alias="payTo")
