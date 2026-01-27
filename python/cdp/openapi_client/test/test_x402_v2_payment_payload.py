@@ -48,7 +48,7 @@ class TestX402V2PaymentPayload(unittest.TestCase):
                     extra = {name=USDC, version=2}, ),
                 resource = cdp.openapi_client.models.x402_resource_info.x402ResourceInfo(
                     url = 'https://api.example.com/premium/resource/123', 
-                    description = 'Premium API access for data analysis', 
+                    description = Premium API access for data analysis, 
                     mime_type = 'application/json', ),
                 extensions = {bazaar={discoveryEnabled=true}}
             )

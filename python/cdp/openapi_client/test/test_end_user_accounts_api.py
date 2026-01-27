@@ -27,6 +27,27 @@ class TestEndUserAccountsApi(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self) -> None:
         await self.api.api_client.close()
 
+    async def test_add_end_user_evm_account(self) -> None:
+        """Test case for add_end_user_evm_account
+
+        Add an EVM account to an end user
+        """
+        pass
+
+    async def test_add_end_user_evm_smart_account(self) -> None:
+        """Test case for add_end_user_evm_smart_account
+
+        Add an EVM smart account to an end user
+        """
+        pass
+
+    async def test_add_end_user_solana_account(self) -> None:
+        """Test case for add_end_user_solana_account
+
+        Add a Solana account to an end user
+        """
+        pass
+
     async def test_create_end_user(self) -> None:
         """Test case for create_end_user
 

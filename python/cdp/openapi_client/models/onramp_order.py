@@ -20,6 +20,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from cdp.openapi_client.models.onramp_order_fee import OnrampOrderFee
 from cdp.openapi_client.models.onramp_order_payment_method_type_id import OnrampOrderPaymentMethodTypeId
 from cdp.openapi_client.models.onramp_order_status import OnrampOrderStatus
@@ -39,7 +40,7 @@ class OnrampOrder(BaseModel):
     purchase_currency: StrictStr = Field(description="The crypto currency to be purchased.", alias="purchaseCurrency")
     fees: List[OnrampOrderFee] = Field(description="The fees associated with the order.")
     exchange_rate: StrictStr = Field(description="The exchange rate used to convert fiat to crypto i.e. the crypto value of one fiat.", alias="exchangeRate")
-    destination_address: StrictStr = Field(description="The destination address to send the crypto to.", alias="destinationAddress")
+    destination_address: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(description="The destination address to send the crypto to.", alias="destinationAddress")
     destination_network: StrictStr = Field(description="The network to send the crypto on.", alias="destinationNetwork")
     status: OnrampOrderStatus
     tx_hash: Optional[StrictStr] = Field(default=None, description="The transaction hash of the order (only available once crypto has been sent).", alias="txHash")

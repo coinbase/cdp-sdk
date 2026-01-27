@@ -54,12 +54,19 @@ export const listWebhookSubscriptions = (
 - `offramp.transaction.success`, `offramp.transaction.failed`
 - **No labels required** - maximum simplicity for transaction monitoring
 
+**Payments Transfers Events** - Transfer lifecycle notifications:
+- `payments.transfers.quoted`
+- `payments.transfers.processing`
+- `payments.transfers.completed`
+- `payments.transfers.failed`
+- **No labels required** - enable the transfers webhook to monitor status transitions
+
 **Wallet Events** - Wallet activity notifications:
 - `wallet.activity.detected`
 
 ### Webhook Signature Verification
 All webhooks include cryptographic signatures for security.
-The signature secret is returned in `metadata.secret` when creating a subscription.
+The signature secret is returned in `secret` field when creating a subscription.
 
 **Note:** Webhooks are in beta and this interface is subject to change.
 

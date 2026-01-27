@@ -18,35 +18,17 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool
 from typing import Any, ClassVar, Dict, List, Optional
-from cdp.openapi_client.models.x402_version import X402Version
 from typing import Optional, Set
 from typing_extensions import Self
 
-class X402SupportedPaymentKind(BaseModel):
+class AddEndUserEvmSmartAccountRequest(BaseModel):
     """
-    The supported payment kind for the x402 protocol. A kind is comprised of a scheme and a network, which together uniquely identify a way to move money on the x402 protocol. For more details, please see [x402 Schemes](https://github.com/coinbase/x402?tab=readme-ov-file#schemes).
+    AddEndUserEvmSmartAccountRequest
     """ # noqa: E501
-    x402_version: X402Version = Field(alias="x402Version")
-    scheme: StrictStr = Field(description="The scheme of the payment protocol.")
-    network: StrictStr = Field(description="The network of the blockchain.")
-    extra: Optional[Dict[str, Any]] = Field(default=None, description="The optional additional scheme-specific payment info.")
-    __properties: ClassVar[List[str]] = ["x402Version", "scheme", "network", "extra"]
-
-    @field_validator('scheme')
-    def scheme_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['exact']):
-            raise ValueError("must be one of enum values ('exact')")
-        return value
-
-    @field_validator('network')
-    def network_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(['base-sepolia', 'base', 'solana-devnet', 'solana', 'eip155:8453', 'eip155:84532', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1']):
-            raise ValueError("must be one of enum values ('base-sepolia', 'base', 'solana-devnet', 'solana', 'eip155:8453', 'eip155:84532', 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1')")
-        return value
+    enable_spend_permissions: Optional[StrictBool] = Field(default=False, description="If true, enables spend permissions for the EVM smart account.", alias="enableSpendPermissions")
+    __properties: ClassVar[List[str]] = ["enableSpendPermissions"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -66,7 +48,7 @@ class X402SupportedPaymentKind(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of X402SupportedPaymentKind from a JSON string"""
+        """Create an instance of AddEndUserEvmSmartAccountRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -91,7 +73,7 @@ class X402SupportedPaymentKind(BaseModel):
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of X402SupportedPaymentKind from a dict"""
+        """Create an instance of AddEndUserEvmSmartAccountRequest from a dict"""
         if obj is None:
             return None
 
@@ -99,10 +81,7 @@ class X402SupportedPaymentKind(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "x402Version": obj.get("x402Version"),
-            "scheme": obj.get("scheme"),
-            "network": obj.get("network"),
-            "extra": obj.get("extra")
+            "enableSpendPermissions": obj.get("enableSpendPermissions") if obj.get("enableSpendPermissions") is not None else False
         })
         return _obj
 
