@@ -3,6 +3,9 @@ import type {
   ListEndUsersParams,
   ImportEndUserBodyKeyType,
   AuthenticationMethods,
+  AddEndUserEvmAccount201,
+  AddEndUserEvmSmartAccount201,
+  AddEndUserSolanaAccount201,
 } from "../../openapi-client/index.js";
 
 /**
@@ -34,6 +37,55 @@ export type ListEndUsersOptions = ListEndUsersParams;
  * The options for creating an end user.
  */
 export type CreateEndUserOptions = CreateEndUserBody;
+
+/**
+ * The options for adding an EVM account to an end user.
+ */
+export interface AddEndUserEvmAccountOptions {
+  /**
+   * The unique identifier of the end user.
+   */
+  userId: string;
+}
+
+/**
+ * The result of adding an EVM account to an end user.
+ */
+export type AddEndUserEvmAccountResult = AddEndUserEvmAccount201;
+
+/**
+ * The options for adding an EVM smart account to an end user.
+ */
+export interface AddEndUserEvmSmartAccountOptions {
+  /**
+   * The unique identifier of the end user.
+   */
+  userId: string;
+  /**
+   * If true, enables spend permissions for the EVM smart account.
+   */
+  enableSpendPermissions: boolean;
+}
+
+/**
+ * The result of adding an EVM smart account to an end user.
+ */
+export type AddEndUserEvmSmartAccountResult = AddEndUserEvmSmartAccount201;
+
+/**
+ * The options for adding a Solana account to an end user.
+ */
+export interface AddEndUserSolanaAccountOptions {
+  /**
+   * The unique identifier of the end user.
+   */
+  userId: string;
+}
+
+/**
+ * The result of adding a Solana account to an end user.
+ */
+export type AddEndUserSolanaAccountResult = AddEndUserSolanaAccount201;
 
 /**
  * The options for importing an end user.
