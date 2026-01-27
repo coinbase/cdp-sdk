@@ -237,7 +237,7 @@ class EndUserClient:
         self,
         user_id: str,
     ) -> AddEndUserEvmAccount201Response:
-        """Add an EVM account to an existing end user.
+        """Add an EVM EOA (Externally Owned Account) to an existing end user.
 
         End users can have up to 10 EVM accounts.
 
@@ -245,7 +245,7 @@ class EndUserClient:
             user_id: The unique identifier of the end user.
 
         Returns:
-            AddEndUserEvmAccount201Response: The result containing the newly created EVM account.
+            AddEndUserEvmAccount201Response: The result containing the newly created EVM EOA account.
 
         """
         track_action(action="add_end_user_evm_account")
@@ -262,7 +262,7 @@ class EndUserClient:
     ) -> AddEndUserEvmSmartAccount201Response:
         """Add an EVM smart account to an existing end user.
 
-        Each EVM EOA can own one smart account.
+        This also creates a new EVM EOA account to serve as the owner of the smart account.
 
         Args:
             user_id: The unique identifier of the end user.

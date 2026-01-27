@@ -1290,7 +1290,7 @@ end_user = await cdp.end_user.import_end_user(
 
 #### Add EVM Account to End User
 
-Add an additional EVM account to an existing end user:
+Add an additional EVM EOA (Externally Owned Account) to an existing end user:
 
 ```python
 result = await cdp.end_user.add_end_user_evm_account(user_id=end_user.user_id)

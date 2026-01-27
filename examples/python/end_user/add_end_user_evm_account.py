@@ -16,7 +16,7 @@ load_dotenv()
 async def main():
     async with CdpClient() as cdp:
         try:
-            # Create an end user with an EVM account.
+            # Create an end user with an EVM EOA (Externally Owned Account).
             end_user = await cdp.end_user.create_end_user(
                 authentication_methods=[
                     AuthenticationMethod(EmailAuthentication(type="email", email="user@example.com"))
@@ -27,7 +27,7 @@ async def main():
             print("Created end user:", end_user.user_id)
             print("Initial EVM accounts:", end_user.evm_accounts)
 
-            # Add another EVM account to the same end user.
+            # Add another EVM EOA to the same end user.
             result = await cdp.end_user.add_end_user_evm_account(
                 user_id=end_user.user_id,
             )
