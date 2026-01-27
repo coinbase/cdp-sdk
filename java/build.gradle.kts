@@ -3,15 +3,15 @@ plugins {
     `java-library`
     `maven-publish`
     id("org.openapi.generator") version "7.11.0"
-    id("com.diffplug.spotless") version "6.25.0"
+    id("com.diffplug.spotless") version "7.0.2"
 }
 
 group = "com.coinbase"
 version = "0.1.0"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_23
+    targetCompatibility = JavaVersion.VERSION_23
     withJavadocJar()
     withSourcesJar()
 }
@@ -81,7 +81,7 @@ spotless {
     java {
         target("src/**/*.java")
         targetExclude("src/main/java/com/coinbase/cdp/openapi/**")
-        googleJavaFormat("1.25.2")
+        googleJavaFormat("1.33.0")
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()

@@ -1,5 +1,8 @@
 package com.coinbase.cdp;
 
+import com.coinbase.cdp.auth.CdpTokenGenerator;
+import com.coinbase.cdp.auth.CdpTokenRequest;
+import com.coinbase.cdp.auth.CdpTokenResponse;
 import com.coinbase.cdp.auth.JwtGenerator;
 import com.coinbase.cdp.auth.JwtOptions;
 import com.coinbase.cdp.auth.WalletJwtGenerator;
@@ -64,11 +67,18 @@ public class CdpClient implements Closeable {
   private final CdpClientOptions options;
   private final ApiClient apiClient;
   private final ObjectMapper objectMapper;
+  private final CdpTokenGenerator tokenGenerator;
   private volatile boolean closed = false;
 
   private CdpClient(CdpClientOptions options) {
     this.options = options;
     this.objectMapper = ApiClient.createDefaultObjectMapper();
+    this.tokenGenerator =
+        new CdpTokenGenerator(
+            options.apiKeyId(),
+            options.apiKeySecret(),
+            options.walletSecret(),
+            options.expiresIn());
     this.apiClient = buildApiClient(options);
   }
 
@@ -171,6 +181,104 @@ public class CdpClient implements Closeable {
    */
   public CdpClientOptions options() {
     return options;
+  }
+
+  /**
+   * Generates authentication tokens using the unified token API.
+   *
+   * <p>This method provides a single entry point for generating both bearer tokens and optional
+   * wallet auth tokens based on the request configuration.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * CdpTokenRequest request = CdpTokenRequest.builder()
+   *     .requestMethod("POST")
+   *     .requestPath("/v2/evm/accounts")
+   *     .includeWalletAuthToken(true)
+   *     .requestBody(Map.of("name", "my-account"))
+   *     .build();
+   *
+   * CdpTokenResponse tokens = cdp.generateTokens(request);
+   * // tokens.bearerToken() - for Authorization header
+   * // tokens.walletAuthToken() - for X-Wallet-Auth header
+   * }</pre>
+   *
+   * @param request the token request configuration
+   * @return the generated tokens
+   * @throws com.coinbase.cdp.auth.exceptions.WalletSecretException if wallet auth is requested but
+   *     no wallet secret is configured
+   * @throws IllegalStateException if the client has been closed
+   */
+  public CdpTokenResponse generateTokens(CdpTokenRequest request) {
+    checkNotClosed();
+    return tokenGenerator.generateTokens(request);
+  }
+
+  /**
+   * Returns the token generator for advanced usage.
+   *
+   * <p>The token generator can be used independently to generate tokens for use with external
+   * systems or custom authentication flows.
+   *
+   * @return the token generator
+   * @throws IllegalStateException if the client has been closed
+   */
+  public CdpTokenGenerator getTokenGenerator() {
+    checkNotClosed();
+    return tokenGenerator;
+  }
+
+  /**
+   * Creates an ApiClient configured to use pre-generated tokens.
+   *
+   * <p>This factory method allows constructing an ApiClient that uses externally generated tokens
+   * rather than auto-generating them via the request interceptor. This is useful for environments
+   * where token generation happens in a separate service or process.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * // Generate tokens externally
+   * CdpTokenResponse tokens = externalGenerator.generateTokens(request);
+   *
+   * // Create client with pre-generated tokens
+   * ApiClient apiClient = CdpClient.createApiClientWithTokens(tokens);
+   *
+   * // Use API directly
+   * EvmAccountsApi evmApi = new EvmAccountsApi(apiClient);
+   * }</pre>
+   *
+   * @param tokens the pre-generated tokens
+   * @return a configured ApiClient
+   */
+  public static ApiClient createApiClientWithTokens(CdpTokenResponse tokens) {
+    return createApiClientWithTokens(tokens, CdpClientOptions.DEFAULT_BASE_PATH);
+  }
+
+  /**
+   * Creates an ApiClient configured to use pre-generated tokens with a custom base path.
+   *
+   * @param tokens the pre-generated tokens
+   * @param basePath the API base path
+   * @return a configured ApiClient
+   */
+  public static ApiClient createApiClientWithTokens(CdpTokenResponse tokens, String basePath) {
+    ApiClient client = new ApiClient();
+    client.updateBaseUri(basePath);
+
+    client.setRequestInterceptor(
+        builder -> {
+          builder.header("Authorization", "Bearer " + tokens.bearerToken());
+          builder.header("Correlation-Context", CorrelationData.build(SDK_VERSION, SDK_LANGUAGE));
+
+          // Add wallet auth header if present
+          tokens
+              .walletAuthToken()
+              .ifPresent(walletJwt -> builder.header("X-Wallet-Auth", walletJwt));
+        });
+
+    return client;
   }
 
   /**

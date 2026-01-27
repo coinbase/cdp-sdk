@@ -1,9 +1,14 @@
 package com.coinbase.cdp.examples.evm;
 
 import com.coinbase.cdp.CdpClient;
+import com.coinbase.cdp.auth.CdpTokenGenerator;
+import com.coinbase.cdp.auth.CdpTokenRequest;
+import com.coinbase.cdp.auth.CdpTokenResponse;
 import com.coinbase.cdp.examples.utils.EnvLoader;
+import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.openapi.api.EvmAccountsApi;
 import com.coinbase.cdp.openapi.model.CreateEvmAccountRequest;
+import java.util.Optional;
 
 /**
  * Example: Create an EVM account.
@@ -14,25 +19,35 @@ import com.coinbase.cdp.openapi.model.CreateEvmAccountRequest;
  */
 public class CreateAccount {
 
-  public static void main(String[] args) throws Exception {
-    EnvLoader.load();
+    public static void main(String[] args) throws Exception {
+        EnvLoader.load();
 
-    try (CdpClient cdp = CdpClient.create()) {
-      EvmAccountsApi evmApi = new EvmAccountsApi(cdp.getApiClient());
+        // Create an account with a unique name
+        String accountName = "java-example-" + System.currentTimeMillis();
+        var request = new CreateEvmAccountRequest().name(accountName);
 
-      // Create an account with a unique name
-      String accountName = "java-example-" + System.currentTimeMillis();
-      var request = new CreateEvmAccountRequest().name(accountName);
+        CdpTokenGenerator tokenGenerator = new CdpTokenGenerator(
+            System.getenv("CDP_API_KEY_ID"),
+            System.getenv("CDP_API_KEY_SECRET"),
+            Optional.ofNullable(System.getenv("CDP_WALLET_SECRET"))
+        );
 
-      // Generate wallet JWT for the write operation
-      String walletJwt = cdp.generateWalletJwt("POST", "/v2/evm/accounts", request);
+        CdpTokenRequest req = CdpTokenRequest.builder()
+            .requestBody(request)
+            .requestPath("/v2/evm/accounts")
+            .requestMethod("POST")
+            .includeWalletAuthToken(true)
+            .build();
 
-      // Create the account
-      var account = evmApi.createEvmAccount(walletJwt, null, request);
+        CdpTokenResponse tokens = tokenGenerator.generateTokens(req);
+        ApiClient apiClient = CdpClient.createApiClientWithTokens(tokens);
+        EvmAccountsApi evmApi = new EvmAccountsApi(apiClient);
 
-      System.out.println("Created EVM account:");
-      System.out.println("  Address: " + account.getAddress());
-      System.out.println("  Name: " + account.getName());
+        // Create the account
+        var account = evmApi.createEvmAccount(null, null, request);
+
+        System.out.println("Created EVM account:");
+        System.out.println("  Address: " + account.getAddress());
+        System.out.println("  Name: " + account.getName());
     }
-  }
 }
