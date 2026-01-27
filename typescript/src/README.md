@@ -18,6 +18,12 @@
   - [Account Actions](#account-actions)
 - [Policy Management](#policy-management)
 - [End-user Management](#end-user-management)
+  - [Create End User](#create-end-user)
+  - [Import End User](#import-end-user)
+  - [Add EVM Account to End User](#add-evm-account-to-end-user)
+  - [Add EVM Smart Account to End User](#add-evm-smart-account-to-end-user)
+  - [Add Solana Account to End User](#add-solana-account-to-end-user)
+  - [Validate Access Token](#validate-access-token)
 - [Authentication tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
 - [Usage Tracking](#usage-tracking)
@@ -1131,6 +1137,43 @@ const endUser = await cdp.endUser.importEndUser({
 });
 
 console.log(endUser);
+```
+
+#### Add EVM Account to End User
+
+Add an additional EVM account to an existing end user:
+
+```typescript
+const result = await cdp.endUser.addEndUserEvmAccount({
+  userId: endUser.userId,
+});
+
+console.log(`Added EVM account: ${result.evmAccount.address}`);
+```
+
+#### Add EVM Smart Account to End User
+
+Add an EVM smart account to an existing end user:
+
+```typescript
+const result = await cdp.endUser.addEndUserEvmSmartAccount({
+  userId: endUser.userId,
+  enableSpendPermissions: true,
+});
+
+console.log(`Added EVM smart account: ${result.evmSmartAccount.address}`);
+```
+
+#### Add Solana Account to End User
+
+Add an additional Solana account to an existing end user:
+
+```typescript
+const result = await cdp.endUser.addEndUserSolanaAccount({
+  userId: endUser.userId,
+});
+
+console.log(`Added Solana account: ${result.solanaAccount.address}`);
 ```
 
 #### Validate Access Token

@@ -22,6 +22,9 @@
 - [End-user Management](#end-user-management)
   - [Create End User](#create-end-user)
   - [Import End User](#import-end-user)
+  - [Add EVM Account to End User](#add-evm-account-to-end-user)
+  - [Add EVM Smart Account to End User](#add-evm-smart-account-to-end-user)
+  - [Add Solana Account to End User](#add-solana-account-to-end-user)
   - [Validate Access Token](#validate-access-token)
 - [Authentication Tools](#authentication-tools)
 - [Error Reporting](#error-reporting)
@@ -1283,6 +1286,39 @@ end_user = await cdp.end_user.import_end_user(
     private_key="3Kzj...",  # base58 encoded
     key_type="solana",
 )
+```
+
+#### Add EVM Account to End User
+
+Add an additional EVM account to an existing end user:
+
+```python
+result = await cdp.end_user.add_end_user_evm_account(user_id=end_user.user_id)
+
+print(f"Added EVM account: {result.evm_account.address}")
+```
+
+#### Add EVM Smart Account to End User
+
+Add an EVM smart account to an existing end user:
+
+```python
+result = await cdp.end_user.add_end_user_evm_smart_account(
+    user_id=end_user.user_id,
+    enable_spend_permissions=True,
+)
+
+print(f"Added EVM smart account: {result.evm_smart_account.address}")
+```
+
+#### Add Solana Account to End User
+
+Add an additional Solana account to an existing end user:
+
+```python
+result = await cdp.end_user.add_end_user_solana_account(user_id=end_user.user_id)
+
+print(f"Added Solana account: {result.solana_account.address}")
 ```
 
 #### Validate Access Token
