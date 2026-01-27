@@ -5,8 +5,12 @@ import com.coinbase.cdp.auth.CdpTokenRequest;
 import com.coinbase.cdp.auth.CdpTokenResponse;
 import com.coinbase.cdp.auth.JwtGenerator;
 import com.coinbase.cdp.auth.JwtOptions;
+import com.coinbase.cdp.auth.TokenProvider;
 import com.coinbase.cdp.auth.WalletJwtGenerator;
 import com.coinbase.cdp.auth.WalletJwtOptions;
+import com.coinbase.cdp.client.evm.EvmClient;
+import com.coinbase.cdp.client.policies.PoliciesClient;
+import com.coinbase.cdp.client.solana.SolanaClient;
 import com.coinbase.cdp.errors.ValidationException;
 import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.utils.CorrelationData;
@@ -18,41 +22,54 @@ import java.net.http.HttpRequest;
 import java.util.Map;
 
 /**
- * Factory for creating a configured {@link ApiClient} to interact with the CDP API.
+ * The main client for interacting with the CDP API.
  *
- * <p>This class provides the entry point for using the CDP SDK. It creates an {@link ApiClient}
- * that is pre-configured with JWT authentication headers. Use the generated OpenAPI API classes
- * directly with the configured client.
+ * <p>The CdpClient is namespaced by chain type and functionality:
+ *
+ * <ul>
+ *   <li>{@code cdp.evm()} - EVM account operations
+ *   <li>{@code cdp.solana()} - Solana account operations
+ *   <li>{@code cdp.policies()} - Policy management
+ * </ul>
  *
  * <p>Example usage:
  *
  * <pre>{@code
- * // Create from environment variables
+ * // Pattern 1: Instance-based (automatic token generation)
  * try (CdpClient cdp = CdpClient.create()) {
- *     ApiClient apiClient = cdp.getApiClient();
+ *     // Create an EVM account
+ *     EvmAccount account = cdp.evm().createAccount(
+ *         CreateAccountOptions.builder()
+ *             .name("my-account")
+ *             .build()
+ *     );
  *
- *     // Use generated API classes directly
- *     EvmAccountsApi evmApi = new EvmAccountsApi(apiClient);
+ *     // Create a Solana account
+ *     SolanaAccount solAccount = cdp.solana().createAccount();
  *
- *     // Read operations
- *     var accounts = evmApi.listEvmAccounts(null, null, null);
- *
- *     // Write operations - generate wallet JWT for X-Wallet-Auth header
- *     var request = new CreateEvmAccountRequest().name("my-account");
- *     String walletJwt = cdp.generateWalletJwt("POST", "/v2/evm/accounts", request);
- *     EvmAccount account = evmApi.createEvmAccount(walletJwt, null, request);
+ *     // Create a policy
+ *     Policy policy = cdp.policies().createPolicy(
+ *         CreatePolicyOptions.builder()
+ *             .policy(policyRequest)
+ *             .build()
+ *     );
  * }
  *
- * // Or with explicit configuration
- * CdpClientOptions options = CdpClientOptions.builder()
- *     .apiKeyId("your-api-key-id")
- *     .apiKeySecret("your-api-key-secret")
- *     .walletSecret("your-wallet-secret")
- *     .build();
+ * // Pattern 2: Static factory with pre-generated tokens
+ * CdpTokenResponse tokens = tokenGenerator.generateTokens(request);
+ * EvmAccount account = CdpClient.evm(tokens).createAccount(
+ *     CreateAccountOptions.builder()
+ *         .name("my-account")
+ *         .build()
+ * );
+ * }</pre>
  *
- * try (CdpClient cdp = CdpClient.create(options)) {
+ * <p>For low-level access, you can still use the generated OpenAPI API classes directly:
+ *
+ * <pre>{@code
+ * try (CdpClient cdp = CdpClient.create()) {
  *     EvmAccountsApi evmApi = new EvmAccountsApi(cdp.getApiClient());
- *     // ... use API
+ *     var accounts = evmApi.listEvmAccounts(null, null);
  * }
  * }</pre>
  */
@@ -69,6 +86,12 @@ public class CdpClient implements Closeable {
   private final ObjectMapper objectMapper;
   private final CdpTokenGenerator tokenGenerator;
   private volatile boolean closed = false;
+
+  // Lazily initialized namespace clients
+  private volatile EvmClient evmClient;
+  private volatile SolanaClient solanaClient;
+  private volatile PoliciesClient policiesClient;
+  private final Object namespaceLock = new Object();
 
   private CdpClient(CdpClientOptions options) {
     this.options = options;
@@ -135,6 +158,202 @@ public class CdpClient implements Closeable {
   public ApiClient getApiClient() {
     checkNotClosed();
     return apiClient;
+  }
+
+  // ==================== Instance Methods (internal token generation) ====================
+
+  /**
+   * Returns the EVM namespace client with automatic token generation.
+   *
+   * <p>Use this client for EVM account operations:
+   *
+   * <pre>{@code
+   * EvmAccount account = cdp.evm().createAccount(
+   *     CreateAccountOptions.builder().name("my-account").build()
+   * );
+   * }</pre>
+   *
+   * @return the EVM client
+   * @throws IllegalStateException if the client has been closed
+   */
+  public EvmClient evm() {
+    checkNotClosed();
+    if (evmClient == null) {
+      synchronized (namespaceLock) {
+        if (evmClient == null) {
+          evmClient = new EvmClient(this);
+        }
+      }
+    }
+    return evmClient;
+  }
+
+  /**
+   * Returns the Solana namespace client with automatic token generation.
+   *
+   * <p>Use this client for Solana account operations:
+   *
+   * <pre>{@code
+   * SolanaAccount account = cdp.solana().createAccount(
+   *     CreateAccountOptions.builder().name("my-account").build()
+   * );
+   * }</pre>
+   *
+   * @return the Solana client
+   * @throws IllegalStateException if the client has been closed
+   */
+  public SolanaClient solana() {
+    checkNotClosed();
+    if (solanaClient == null) {
+      synchronized (namespaceLock) {
+        if (solanaClient == null) {
+          solanaClient = new SolanaClient(this);
+        }
+      }
+    }
+    return solanaClient;
+  }
+
+  /**
+   * Returns the Policies namespace client.
+   *
+   * <p>Use this client for policy operations:
+   *
+   * <pre>{@code
+   * Policy policy = cdp.policies().createPolicy(
+   *     CreatePolicyOptions.builder().policy(policyRequest).build()
+   * );
+   * }</pre>
+   *
+   * @return the Policies client
+   * @throws IllegalStateException if the client has been closed
+   */
+  public PoliciesClient policies() {
+    checkNotClosed();
+    if (policiesClient == null) {
+      synchronized (namespaceLock) {
+        if (policiesClient == null) {
+          policiesClient = new PoliciesClient(this);
+        }
+      }
+    }
+    return policiesClient;
+  }
+
+  // ==================== Static Factory Methods (pre-generated tokens) ====================
+
+  /**
+   * Creates an EVM client using pre-generated tokens.
+   *
+   * <p>Use this when tokens are generated externally (e.g., from a separate auth service):
+   *
+   * <pre>{@code
+   * // Using CdpTokenResponse
+   * CdpTokenResponse tokens = tokenGenerator.generateTokens(request);
+   * EvmAccount account = CdpClient.evm(tokens).createAccount(
+   *     CreateAccountOptions.builder().name("my-account").build()
+   * );
+   *
+   * // Using custom TokenProvider implementation
+   * TokenProvider customTokens = new MyCustomTokenProvider();
+   * EvmAccount account = CdpClient.evm(customTokens).createAccount(
+   *     CreateAccountOptions.builder().name("my-account").build()
+   * );
+   * }</pre>
+   *
+   * @param tokens the pre-generated tokens
+   * @return a new EVM client
+   */
+  public static EvmClient evm(TokenProvider tokens) {
+    return evm(tokens, CdpClientOptions.DEFAULT_BASE_PATH);
+  }
+
+  /**
+   * Creates an EVM client using pre-generated tokens with a custom base path.
+   *
+   * @param tokens the pre-generated tokens
+   * @param basePath the API base path
+   * @return a new EVM client
+   */
+  public static EvmClient evm(TokenProvider tokens, String basePath) {
+    ApiClient apiClient = createApiClientWithTokens(tokens, basePath);
+    return new EvmClient(apiClient, tokens);
+  }
+
+  /**
+   * Creates a Solana client using pre-generated tokens.
+   *
+   * <p>Use this when tokens are generated externally (e.g., from a separate auth service):
+   *
+   * <pre>{@code
+   * // Using CdpTokenResponse
+   * CdpTokenResponse tokens = tokenGenerator.generateTokens(request);
+   * SolanaAccount account = CdpClient.solana(tokens).createAccount(
+   *     CreateAccountOptions.builder().name("my-account").build()
+   * );
+   *
+   * // Using custom TokenProvider implementation
+   * TokenProvider customTokens = new MyCustomTokenProvider();
+   * SolanaAccount account = CdpClient.solana(customTokens).createAccount(
+   *     CreateAccountOptions.builder().name("my-account").build()
+   * );
+   * }</pre>
+   *
+   * @param tokens the pre-generated tokens
+   * @return a new Solana client
+   */
+  public static SolanaClient solana(TokenProvider tokens) {
+    return solana(tokens, CdpClientOptions.DEFAULT_BASE_PATH);
+  }
+
+  /**
+   * Creates a Solana client using pre-generated tokens with a custom base path.
+   *
+   * @param tokens the pre-generated tokens
+   * @param basePath the API base path
+   * @return a new Solana client
+   */
+  public static SolanaClient solana(TokenProvider tokens, String basePath) {
+    ApiClient apiClient = createApiClientWithTokens(tokens, basePath);
+    return new SolanaClient(apiClient, tokens);
+  }
+
+  /**
+   * Creates a Policies client using pre-generated tokens.
+   *
+   * <p>Use this when tokens are generated externally (e.g., from a separate auth service):
+   *
+   * <pre>{@code
+   * // Using CdpTokenResponse
+   * CdpTokenResponse tokens = tokenGenerator.generateTokens(request);
+   * Policy policy = CdpClient.policies(tokens).createPolicy(
+   *     CreatePolicyOptions.builder().policy(policyRequest).build()
+   * );
+   *
+   * // Using custom TokenProvider implementation
+   * TokenProvider customTokens = new MyCustomTokenProvider();
+   * Policy policy = CdpClient.policies(customTokens).createPolicy(
+   *     CreatePolicyOptions.builder().policy(policyRequest).build()
+   * );
+   * }</pre>
+   *
+   * @param tokens the pre-generated tokens
+   * @return a new Policies client
+   */
+  public static PoliciesClient policies(TokenProvider tokens) {
+    return policies(tokens, CdpClientOptions.DEFAULT_BASE_PATH);
+  }
+
+  /**
+   * Creates a Policies client using pre-generated tokens with a custom base path.
+   *
+   * @param tokens the pre-generated tokens
+   * @param basePath the API base path
+   * @return a new Policies client
+   */
+  public static PoliciesClient policies(TokenProvider tokens, String basePath) {
+    ApiClient apiClient = createApiClientWithTokens(tokens, basePath);
+    return new PoliciesClient(apiClient, tokens);
   }
 
   /**
@@ -236,14 +455,19 @@ public class CdpClient implements Closeable {
    * rather than auto-generating them via the request interceptor. This is useful for environments
    * where token generation happens in a separate service or process.
    *
+   * <p>Accepts any implementation of {@link TokenProvider}, allowing for flexible token sourcing
+   * from custom authentication systems, external services, or alternative token generators.
+   *
    * <p>Example:
    *
    * <pre>{@code
-   * // Generate tokens externally
+   * // Using CdpTokenResponse
    * CdpTokenResponse tokens = externalGenerator.generateTokens(request);
-   *
-   * // Create client with pre-generated tokens
    * ApiClient apiClient = CdpClient.createApiClientWithTokens(tokens);
+   *
+   * // Using custom TokenProvider
+   * TokenProvider customTokens = new MyCustomTokenProvider();
+   * ApiClient apiClient = CdpClient.createApiClientWithTokens(customTokens);
    *
    * // Use API directly
    * EvmAccountsApi evmApi = new EvmAccountsApi(apiClient);
@@ -252,7 +476,7 @@ public class CdpClient implements Closeable {
    * @param tokens the pre-generated tokens
    * @return a configured ApiClient
    */
-  public static ApiClient createApiClientWithTokens(CdpTokenResponse tokens) {
+  public static ApiClient createApiClientWithTokens(TokenProvider tokens) {
     return createApiClientWithTokens(tokens, CdpClientOptions.DEFAULT_BASE_PATH);
   }
 
@@ -263,7 +487,7 @@ public class CdpClient implements Closeable {
    * @param basePath the API base path
    * @return a configured ApiClient
    */
-  public static ApiClient createApiClientWithTokens(CdpTokenResponse tokens, String basePath) {
+  public static ApiClient createApiClientWithTokens(TokenProvider tokens, String basePath) {
     ApiClient client = new ApiClient();
     client.updateBaseUri(basePath);
 
@@ -271,11 +495,10 @@ public class CdpClient implements Closeable {
         builder -> {
           builder.header("Authorization", "Bearer " + tokens.bearerToken());
           builder.header("Correlation-Context", CorrelationData.build(SDK_VERSION, SDK_LANGUAGE));
-
-          // Add wallet auth header if present
-          tokens
-              .walletAuthToken()
-              .ifPresent(walletJwt -> builder.header("X-Wallet-Auth", walletJwt));
+          // Note: X-Wallet-Auth is NOT set here because it's handled by the namespace client
+          // methods (EvmClient, SolanaClient) which pass the wallet JWT from TokenProvider
+          // directly to the OpenAPI method parameters. Adding it here would result in
+          // duplicate headers.
         });
 
     return client;
