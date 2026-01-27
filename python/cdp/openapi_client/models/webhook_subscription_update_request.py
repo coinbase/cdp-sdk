@@ -20,6 +20,7 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from cdp.openapi_client.models.webhook_target import WebhookTarget
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,11 +29,11 @@ class WebhookSubscriptionUpdateRequest(BaseModel):
     """
     Request to update an existing webhook subscription. The update format must match  the original subscription format (traditional or multi-label). 
     """ # noqa: E501
-    description: Optional[StrictStr] = Field(default=None, description="Description of the webhook subscription.")
-    event_types: Optional[List[StrictStr]] = Field(default=None, description="Types of events to subscribe to. Event types follow a three-part dot-separated format:  service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\"). ", alias="eventTypes")
+    description: Optional[Annotated[str, Field(min_length=0, strict=True, max_length=500)]] = Field(default=None, description="Description of the webhook subscription.")
+    event_types: Optional[List[StrictStr]] = Field(default=None, description="Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \"onchain.activity.detected\", \"wallet.activity.detected\", \"onramp.transaction.created\"). ", alias="eventTypes")
     is_enabled: Optional[StrictBool] = Field(default=None, description="Whether the subscription is enabled.", alias="isEnabled")
     target: Optional[WebhookTarget] = None
-    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Additional metadata for the subscription.")
+    metadata: Optional[Dict[str, Annotated[str, Field(min_length=0, strict=True, max_length=500)]]] = Field(default=None, description="Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 50 key/value pairs may be provided.  Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.")
     labels: Optional[Dict[str, StrictStr]] = Field(default=None, description="Multi-label filters that trigger only when an event contains ALL of these key-value pairs.  **Note:** Currently, labels are supported for onchain webhooks only.  See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering). ")
     label_key: Optional[StrictStr] = Field(default=None, description="(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.  Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both. Maintained for backward compatibility only. ", alias="labelKey")
     label_value: Optional[StrictStr] = Field(default=None, description="(Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.  Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both. Maintained for backward compatibility only. ", alias="labelValue")

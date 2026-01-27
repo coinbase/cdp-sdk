@@ -21,7 +21,6 @@ import {
   SignatureResult,
   SignMessageOptions,
   SignTransactionOptions,
-  SolanaClientInterface,
   UpdateSolanaAccountOptions,
 } from "./solana.types.js";
 import { toSolanaAccount } from "../../accounts/solana/toSolanaAccount.js";
@@ -50,7 +49,7 @@ import {
 /**
  * The namespace containing all Solana methods.
  */
-export class SolanaClient implements SolanaClientInterface {
+export class SolanaClient {
   /**
    * Creates a new Solana account.
    *

@@ -59,3 +59,21 @@ export const OpenApiPoliciesMethods = {
 };
 
 export type CdpOpenApiClientType = typeof CdpOpenApiClient;
+export * from "./generated/accounts-under-development/accounts-under-development.js";
+export * from "./generated/customers-under-development/customers-under-development.js";
+export * from "./generated/deposit-destinations-under-development/deposit-destinations-under-development.js";
+export * from "./generated/transfers-under-development/transfers-under-development.js";
+export * from "./generated/entities-under-development/entities-under-development.js";
+export * from "./generated/team-members-under-development/team-members-under-development.js";
+export * from "./generated/reporting-under-development/reporting-under-development.js";
+export * from "./generated/projects-under-development/projects-under-development.js";
+export * from "./generated/embedded-wallets-under-development/embedded-wallets-under-development.js";
+export * from "./generated/embedded-wallets-custom-auth/embedded-wallets-custom-auth.js";
+export * from "./generated/embedded-wallets-custom-oauth/embedded-wallets-custom-oauth.js";
+export * from "./generated/embedded-wallets-mfa/embedded-wallets-mfa.js";
+export * from "./generated/permissions-under-development/permissions-under-development.js";
+export * from "./generated/roles-under-development/roles-under-development.js";
+export * from "./generated/wallet-secrets-internal/wallet-secrets-internal.js";
+export * from "./generated/cors-internal/cors-internal.js";
+export * from "./generated/payment-methods-under-development/payment-methods-under-development.js";
+export * from "./generated/risk/risk.js";

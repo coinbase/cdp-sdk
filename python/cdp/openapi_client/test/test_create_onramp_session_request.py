@@ -38,7 +38,7 @@ class TestCreateOnrampSessionRequest(unittest.TestCase):
             return CreateOnrampSessionRequest(
                 purchase_currency = 'USDC',
                 destination_network = 'base',
-                destination_address = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+                destination_address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
                 payment_amount = '100.00',
                 purchase_amount = '10.000000',
                 payment_currency = 'USD',
@@ -53,7 +53,7 @@ class TestCreateOnrampSessionRequest(unittest.TestCase):
             return CreateOnrampSessionRequest(
                 purchase_currency = 'USDC',
                 destination_network = 'base',
-                destination_address = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+                destination_address = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
         )
         """
 

@@ -15,10 +15,10 @@
 
 import unittest
 
-from cdp.openapi_client.models.x402_resource_info import X402ResourceInfo
+from cdp.openapi_client.models.add_end_user_evm_smart_account_request import AddEndUserEvmSmartAccountRequest
 
-class TestX402ResourceInfo(unittest.TestCase):
-    """X402ResourceInfo unit test stubs"""
+class TestAddEndUserEvmSmartAccountRequest(unittest.TestCase):
+    """AddEndUserEvmSmartAccountRequest unit test stubs"""
 
     def setUp(self):
         pass
@@ -26,27 +26,25 @@ class TestX402ResourceInfo(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def make_instance(self, include_optional) -> X402ResourceInfo:
-        """Test X402ResourceInfo
+    def make_instance(self, include_optional) -> AddEndUserEvmSmartAccountRequest:
+        """Test AddEndUserEvmSmartAccountRequest
             include_optional is a boolean, when False only required
             params are included, when True both required and
             optional params are included """
-        # uncomment below to create an instance of `X402ResourceInfo`
+        # uncomment below to create an instance of `AddEndUserEvmSmartAccountRequest`
         """
-        model = X402ResourceInfo()
+        model = AddEndUserEvmSmartAccountRequest()
         if include_optional:
-            return X402ResourceInfo(
-                url = 'https://api.example.com/premium/resource/123',
-                description = 'A description of the resource.',
-                mime_type = 'application/json'
+            return AddEndUserEvmSmartAccountRequest(
+                enable_spend_permissions = True
             )
         else:
-            return X402ResourceInfo(
+            return AddEndUserEvmSmartAccountRequest(
         )
         """
 
-    def testX402ResourceInfo(self):
-        """Test X402ResourceInfo"""
+    def testAddEndUserEvmSmartAccountRequest(self):
+        """Test AddEndUserEvmSmartAccountRequest"""
         # inst_req_only = self.make_instance(include_optional=False)
         # inst_req_and_optional = self.make_instance(include_optional=True)
 

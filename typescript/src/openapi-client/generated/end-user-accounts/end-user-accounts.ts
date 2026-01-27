@@ -6,6 +6,12 @@
  * OpenAPI spec version: 2.0.0
  */
 import type {
+  AddEndUserEvmAccount201,
+  AddEndUserEvmAccountBody,
+  AddEndUserEvmSmartAccount201,
+  AddEndUserEvmSmartAccountBody,
+  AddEndUserSolanaAccount201,
+  AddEndUserSolanaAccountBody,
   CreateEndUserBody,
   EndUser,
   ImportEndUserBody,
@@ -78,6 +84,66 @@ export const getEndUser = (userId: string, options?: SecondParameter<typeof cdpA
   return cdpApiClient<EndUser>({ url: `/v2/end-users/${userId}`, method: "GET" }, options);
 };
 /**
+ * Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts.
+This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+ * @summary Add an EVM account to an end user
+ */
+export const addEndUserEvmAccount = (
+  userId: string,
+  addEndUserEvmAccountBody?: AddEndUserEvmAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<AddEndUserEvmAccount201>(
+    {
+      url: `/v2/end-users/${userId}/evm`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: addEndUserEvmAccountBody,
+    },
+    options,
+  );
+};
+/**
+ * Creates an EVM smart account for an existing end user. The backend will create a new EVM EOA account to serve as the owner of the smart account.
+This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+ * @summary Add an EVM smart account to an end user
+ */
+export const addEndUserEvmSmartAccount = (
+  userId: string,
+  addEndUserEvmSmartAccountBody?: AddEndUserEvmSmartAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<AddEndUserEvmSmartAccount201>(
+    {
+      url: `/v2/end-users/${userId}/evm-smart-account`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: addEndUserEvmSmartAccountBody,
+    },
+    options,
+  );
+};
+/**
+ * Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts.
+This API is intended to be used by the developer's own backend, and is authenticated using the developer's CDP API key.
+ * @summary Add a Solana account to an end user
+ */
+export const addEndUserSolanaAccount = (
+  userId: string,
+  addEndUserSolanaAccountBody?: AddEndUserSolanaAccountBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<AddEndUserSolanaAccount201>(
+    {
+      url: `/v2/end-users/${userId}/solana`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: addEndUserSolanaAccountBody,
+    },
+    options,
+  );
+};
+/**
  * Imports an existing private key for an end user into the developer's CDP Project. The private key must be encrypted using the CDP SDK's encryption scheme before being sent to this endpoint. This API should be called from the [CDP SDK](https://github.com/coinbase/cdp-sdk) to ensure that the associated private key is properly encrypted.
 
 This endpoint allows developers to import existing keys for their end users, supporting both EVM and Solana key types. The end user must have at least one authentication method configured.
@@ -103,4 +169,13 @@ export type ValidateEndUserAccessTokenResult = NonNullable<
   Awaited<ReturnType<typeof validateEndUserAccessToken>>
 >;
 export type GetEndUserResult = NonNullable<Awaited<ReturnType<typeof getEndUser>>>;
+export type AddEndUserEvmAccountResult = NonNullable<
+  Awaited<ReturnType<typeof addEndUserEvmAccount>>
+>;
+export type AddEndUserEvmSmartAccountResult = NonNullable<
+  Awaited<ReturnType<typeof addEndUserEvmSmartAccount>>
+>;
+export type AddEndUserSolanaAccountResult = NonNullable<
+  Awaited<ReturnType<typeof addEndUserSolanaAccount>>
+>;
 export type ImportEndUserResult = NonNullable<Awaited<ReturnType<typeof importEndUser>>>;
