@@ -10,8 +10,8 @@ group = "com.coinbase"
 version = "0.1.0"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_23
+    targetCompatibility = JavaVersion.VERSION_23
     withJavadocJar()
     withSourcesJar()
 }
