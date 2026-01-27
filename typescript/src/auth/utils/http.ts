@@ -135,7 +135,10 @@ function requiresWalletAuth(requestMethod: string, requestPath: string): boolean
       requestPath?.includes("/spend-permissions") ||
       requestPath?.includes("/user-operations/prepare-and-send") ||
       requestPath?.endsWith("/end-users") ||
-      requestPath?.endsWith("/end-users/import")) &&
+      requestPath?.endsWith("/end-users/import") ||
+      /\/end-users\/[^/]+\/evm$/.test(requestPath) ||
+      /\/end-users\/[^/]+\/evm-smart-account$/.test(requestPath) ||
+      /\/end-users\/[^/]+\/solana$/.test(requestPath)) &&
     (requestMethod === "POST" || requestMethod === "DELETE" || requestMethod === "PUT")
   );
 }

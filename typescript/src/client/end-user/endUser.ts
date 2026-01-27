@@ -8,6 +8,12 @@ import {
   type CreateEndUserOptions,
   type GetEndUserOptions,
   type ImportEndUserOptions,
+  type AddEndUserEvmAccountOptions,
+  type AddEndUserEvmAccountResult,
+  type AddEndUserEvmSmartAccountOptions,
+  type AddEndUserEvmSmartAccountResult,
+  type AddEndUserSolanaAccountOptions,
+  type AddEndUserSolanaAccountResult,
 } from "./endUser.types.js";
 import { Analytics } from "../../analytics.js";
 import { ImportAccountPublicRSAKey } from "../../constants.js";
@@ -132,6 +138,99 @@ export class CDPEndUserClient {
     const { userId } = options;
 
     return CdpOpenApiClient.getEndUser(userId);
+  }
+
+  /**
+   * Adds an EVM EOA (Externally Owned Account) to an existing end user. End users can have up to 10 EVM accounts.
+   *
+   * @param options - The options for adding an EVM account.
+   *
+   * @returns A promise that resolves to the newly created EVM EOA account.
+   *
+   * @example **Add an EVM EOA account to an existing end user**
+   *          ```ts
+   *          const result = await cdp.endUser.addEndUserEvmAccount({
+   *            userId: "user-123"
+   *          });
+   *          console.log(result.evmAccount.address);
+   *          ```
+   */
+  async addEndUserEvmAccount(
+    options: AddEndUserEvmAccountOptions,
+  ): Promise<AddEndUserEvmAccountResult> {
+    Analytics.trackAction({
+      action: "add_end_user_evm_account",
+    });
+
+    const { userId } = options;
+
+    return CdpOpenApiClient.addEndUserEvmAccount(userId, {});
+  }
+
+  /**
+   * Adds an EVM smart account to an existing end user. This also creates a new EVM EOA account to serve as the owner of the smart account.
+   *
+   * @param options - The options for adding an EVM smart account.
+   *
+   * @returns A promise that resolves to the newly created EVM smart account.
+   *
+   * @example **Add an EVM smart account to an existing end user**
+   *          ```ts
+   *          const result = await cdp.endUser.addEndUserEvmSmartAccount({
+   *            userId: "user-123",
+   *            enableSpendPermissions: false
+   *          });
+   *          console.log(result.evmSmartAccount.address);
+   *          ```
+   *
+   * @example **Add an EVM smart account with spend permissions enabled**
+   *          ```ts
+   *          const result = await cdp.endUser.addEndUserEvmSmartAccount({
+   *            userId: "user-123",
+   *            enableSpendPermissions: true
+   *          });
+   *          console.log(result.evmSmartAccount.address);
+   *          ```
+   */
+  async addEndUserEvmSmartAccount(
+    options: AddEndUserEvmSmartAccountOptions,
+  ): Promise<AddEndUserEvmSmartAccountResult> {
+    Analytics.trackAction({
+      action: "add_end_user_evm_smart_account",
+    });
+
+    const { userId, enableSpendPermissions } = options;
+
+    return CdpOpenApiClient.addEndUserEvmSmartAccount(userId, {
+      enableSpendPermissions,
+    });
+  }
+
+  /**
+   * Adds a Solana account to an existing end user. End users can have up to 10 Solana accounts.
+   *
+   * @param options - The options for adding a Solana account.
+   *
+   * @returns A promise that resolves to the newly created Solana account.
+   *
+   * @example **Add a Solana account to an existing end user**
+   *          ```ts
+   *          const result = await cdp.endUser.addEndUserSolanaAccount({
+   *            userId: "user-123"
+   *          });
+   *          console.log(result.solanaAccount.address);
+   *          ```
+   */
+  async addEndUserSolanaAccount(
+    options: AddEndUserSolanaAccountOptions,
+  ): Promise<AddEndUserSolanaAccountResult> {
+    Analytics.trackAction({
+      action: "add_end_user_solana_account",
+    });
+
+    const { userId } = options;
+
+    return CdpOpenApiClient.addEndUserSolanaAccount(userId, {});
   }
 
   /**
