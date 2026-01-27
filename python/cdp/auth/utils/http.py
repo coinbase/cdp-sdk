@@ -107,12 +107,17 @@ def _requires_wallet_auth(method: str, path: str) -> bool:
         True if wallet authentication is required, False otherwise
 
     """
+    import re
+
     return (
         "/accounts" in path
         or "/spend-permissions" in path
         or "/user-operations/prepare-and-send" in path
         or path.endswith("/end-users")
         or path.endswith("/end-users/import")
+        or bool(re.search(r"/end-users/[^/]+/evm$", path))
+        or bool(re.search(r"/end-users/[^/]+/evm-smart-account$", path))
+        or bool(re.search(r"/end-users/[^/]+/solana$", path))
     ) and (method == "POST" or method == "DELETE" or method == "PUT")
 
 

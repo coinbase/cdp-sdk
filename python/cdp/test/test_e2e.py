@@ -332,6 +332,102 @@ async def test_import_end_user_with_solana_key_bytes(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_add_end_user_evm_account(cdp_client):
+    """Test adding an EVM EOA account to an existing end user."""
+    random_email = f"test-{int(time.time())}-{generate_random_name()}@example.com"
+
+    # First create an end user with an EVM EOA
+    end_user = await cdp_client.end_user.create_end_user(
+        authentication_methods=[
+            AuthenticationMethod(EmailAuthentication(type="email", email=random_email))
+        ],
+        evm_account=CreateEndUserRequestEvmAccount(create_smart_account=False),
+    )
+
+    assert end_user is not None
+    assert len(end_user.evm_accounts) == 1
+    initial_evm_account = end_user.evm_accounts[0]
+
+    # Add another EVM EOA to the same end user
+    result = await cdp_client.end_user.add_end_user_evm_account(user_id=end_user.user_id)
+
+    assert result is not None
+    assert result.evm_account is not None
+    assert result.evm_account.address is not None
+    assert result.evm_account.address != initial_evm_account
+    assert result.evm_account.created_at is not None
+
+    print(f"Added EVM EOA {result.evm_account.address} to end user {end_user.user_id}")
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_add_end_user_evm_smart_account(cdp_client):
+    """Test adding an EVM smart account to an existing end user."""
+    random_email = f"test-{int(time.time())}-{generate_random_name()}@example.com"
+
+    # First create an end user with an EVM account (no smart account yet)
+    end_user = await cdp_client.end_user.create_end_user(
+        authentication_methods=[
+            AuthenticationMethod(EmailAuthentication(type="email", email=random_email))
+        ],
+        evm_account=CreateEndUserRequestEvmAccount(create_smart_account=False),
+    )
+
+    assert end_user is not None
+    assert len(end_user.evm_accounts) == 1
+    assert len(end_user.evm_smart_accounts) == 0
+
+    # Add an EVM smart account to the same end user
+    result = await cdp_client.end_user.add_end_user_evm_smart_account(
+        user_id=end_user.user_id,
+        enable_spend_permissions=True,
+    )
+
+    assert result is not None
+    assert result.evm_smart_account is not None
+    assert result.evm_smart_account.address is not None
+    assert result.evm_smart_account.owner_addresses is not None
+    assert len(result.evm_smart_account.owner_addresses) >= 1
+    assert result.evm_smart_account.created_at is not None
+
+    print(
+        f"Added EVM smart account {result.evm_smart_account.address} to end user {end_user.user_id}"
+    )
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_add_end_user_solana_account(cdp_client):
+    """Test adding a Solana account to an existing end user."""
+    random_email = f"test-{int(time.time())}-{generate_random_name()}@example.com"
+
+    # First create an end user with a Solana account
+    end_user = await cdp_client.end_user.create_end_user(
+        authentication_methods=[
+            AuthenticationMethod(EmailAuthentication(type="email", email=random_email))
+        ],
+        solana_account=CreateEndUserRequestSolanaAccount(create_smart_account=False),
+    )
+
+    assert end_user is not None
+    assert len(end_user.solana_accounts) == 1
+    initial_solana_account = end_user.solana_accounts[0]
+
+    # Add another Solana account to the same end user
+    result = await cdp_client.end_user.add_end_user_solana_account(user_id=end_user.user_id)
+
+    assert result is not None
+    assert result.solana_account is not None
+    assert result.solana_account.address is not None
+    assert result.solana_account.address != initial_solana_account
+    assert result.solana_account.created_at is not None
+
+    print(f"Added Solana account {result.solana_account.address} to end user {end_user.user_id}")
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_import_account(cdp_client):
     """Test importing an account."""
     account = Account.create()

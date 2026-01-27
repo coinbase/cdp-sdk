@@ -608,3 +608,140 @@ async def test_import_end_user_handles_api_error():
                 private_key=private_key,
                 key_type="evm",
             )
+
+
+# --- Add End User EVM Account Tests ---
+
+
+@pytest.mark.asyncio
+async def test_add_end_user_evm_account_success(add_end_user_evm_account_response_factory):
+    """Test successfully adding an EVM account to an existing end user."""
+    mock_user_id = "test-user-id"
+    mock_response = add_end_user_evm_account_response_factory()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.end_user.add_end_user_evm_account = AsyncMock(return_value=mock_response)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    result = await client.add_end_user_evm_account(user_id=mock_user_id)
+
+    assert result.evm_account.address == mock_response.evm_account.address
+    mock_api_clients.end_user.add_end_user_evm_account.assert_called_once_with(
+        user_id=mock_user_id,
+        body={},
+    )
+
+
+@pytest.mark.asyncio
+async def test_add_end_user_evm_account_handles_error():
+    """Test that errors are propagated when adding an EVM account."""
+    mock_api_clients = AsyncMock()
+    expected_error = Exception("API Error: User not found")
+    mock_api_clients.end_user.add_end_user_evm_account = AsyncMock(side_effect=expected_error)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    with pytest.raises(Exception, match="API Error: User not found"):
+        await client.add_end_user_evm_account(user_id="non-existent-user")
+
+
+# --- Add End User EVM Smart Account Tests ---
+
+
+@pytest.mark.asyncio
+async def test_add_end_user_evm_smart_account_success(
+    add_end_user_evm_smart_account_response_factory,
+):
+    """Test successfully adding an EVM smart account to an existing end user."""
+    mock_user_id = "test-user-id"
+    mock_response = add_end_user_evm_smart_account_response_factory()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.end_user.add_end_user_evm_smart_account = AsyncMock(return_value=mock_response)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    result = await client.add_end_user_evm_smart_account(
+        user_id=mock_user_id,
+        enable_spend_permissions=True,
+    )
+
+    assert result.evm_smart_account.address == mock_response.evm_smart_account.address
+    mock_api_clients.end_user.add_end_user_evm_smart_account.assert_called_once()
+    call_args = mock_api_clients.end_user.add_end_user_evm_smart_account.call_args
+    assert call_args.kwargs["user_id"] == mock_user_id
+    request = call_args.kwargs["add_end_user_evm_smart_account_request"]
+    assert request.enable_spend_permissions is True
+
+
+@pytest.mark.asyncio
+async def test_add_end_user_evm_smart_account_without_spend_permissions(
+    add_end_user_evm_smart_account_response_factory,
+):
+    """Test adding an EVM smart account without spend permissions enabled."""
+    mock_user_id = "test-user-id"
+    mock_response = add_end_user_evm_smart_account_response_factory()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.end_user.add_end_user_evm_smart_account = AsyncMock(return_value=mock_response)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    result = await client.add_end_user_evm_smart_account(
+        user_id=mock_user_id,
+        enable_spend_permissions=False,
+    )
+
+    assert result.evm_smart_account.address == mock_response.evm_smart_account.address
+    call_args = mock_api_clients.end_user.add_end_user_evm_smart_account.call_args
+    request = call_args.kwargs["add_end_user_evm_smart_account_request"]
+    assert request.enable_spend_permissions is False
+
+
+@pytest.mark.asyncio
+async def test_add_end_user_evm_smart_account_handles_error():
+    """Test that errors are propagated when adding an EVM smart account."""
+    mock_api_clients = AsyncMock()
+    expected_error = Exception("API Error: User not found")
+    mock_api_clients.end_user.add_end_user_evm_smart_account = AsyncMock(side_effect=expected_error)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    with pytest.raises(Exception, match="API Error: User not found"):
+        await client.add_end_user_evm_smart_account(
+            user_id="non-existent-user",
+            enable_spend_permissions=True,
+        )
+
+
+# --- Add End User Solana Account Tests ---
+
+
+@pytest.mark.asyncio
+async def test_add_end_user_solana_account_success(add_end_user_solana_account_response_factory):
+    """Test successfully adding a Solana account to an existing end user."""
+    mock_user_id = "test-user-id"
+    mock_response = add_end_user_solana_account_response_factory()
+    mock_api_clients = AsyncMock()
+    mock_api_clients.end_user.add_end_user_solana_account = AsyncMock(return_value=mock_response)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    result = await client.add_end_user_solana_account(user_id=mock_user_id)
+
+    assert result.solana_account.address == mock_response.solana_account.address
+    mock_api_clients.end_user.add_end_user_solana_account.assert_called_once_with(
+        user_id=mock_user_id,
+        body={},
+    )
+
+
+@pytest.mark.asyncio
+async def test_add_end_user_solana_account_handles_error():
+    """Test that errors are propagated when adding a Solana account."""
+    mock_api_clients = AsyncMock()
+    expected_error = Exception("API Error: User not found")
+    mock_api_clients.end_user.add_end_user_solana_account = AsyncMock(side_effect=expected_error)
+
+    client = EndUserClient(api_clients=mock_api_clients)
+
+    with pytest.raises(Exception, match="API Error: User not found"):
+        await client.add_end_user_solana_account(user_id="non-existent-user")
