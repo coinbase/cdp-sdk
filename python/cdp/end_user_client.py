@@ -12,6 +12,18 @@ from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
 from cdp.constants import ImportAccountPublicRSAKey
 from cdp.errors import UserInputValidationError
+from cdp.openapi_client.models.add_end_user_evm_account201_response import (
+    AddEndUserEvmAccount201Response,
+)
+from cdp.openapi_client.models.add_end_user_evm_smart_account201_response import (
+    AddEndUserEvmSmartAccount201Response,
+)
+from cdp.openapi_client.models.add_end_user_evm_smart_account_request import (
+    AddEndUserEvmSmartAccountRequest,
+)
+from cdp.openapi_client.models.add_end_user_solana_account201_response import (
+    AddEndUserSolanaAccount201Response,
+)
 from cdp.openapi_client.models.authentication_method import AuthenticationMethod
 from cdp.openapi_client.models.create_end_user_request import CreateEndUserRequest
 from cdp.openapi_client.models.create_end_user_request_evm_account import (
@@ -219,4 +231,74 @@ class EndUserClient:
                 encrypted_private_key=encrypted_private_key_b64,
                 key_type=key_type,
             ),
+        )
+
+    async def add_end_user_evm_account(
+        self,
+        user_id: str,
+    ) -> AddEndUserEvmAccount201Response:
+        """Add an EVM account to an existing end user.
+
+        End users can have up to 10 EVM accounts.
+
+        Args:
+            user_id: The unique identifier of the end user.
+
+        Returns:
+            AddEndUserEvmAccount201Response: The result containing the newly created EVM account.
+
+        """
+        track_action(action="add_end_user_evm_account")
+
+        return await self.api_clients.end_user.add_end_user_evm_account(
+            user_id=user_id,
+            body={},
+        )
+
+    async def add_end_user_evm_smart_account(
+        self,
+        user_id: str,
+        enable_spend_permissions: bool,
+    ) -> AddEndUserEvmSmartAccount201Response:
+        """Add an EVM smart account to an existing end user.
+
+        Each EVM EOA can own one smart account.
+
+        Args:
+            user_id: The unique identifier of the end user.
+            enable_spend_permissions: If true, enables spend permissions for the EVM smart account.
+
+        Returns:
+            AddEndUserEvmSmartAccount201Response: The result containing the newly created EVM smart account.
+
+        """
+        track_action(action="add_end_user_evm_smart_account")
+
+        return await self.api_clients.end_user.add_end_user_evm_smart_account(
+            user_id=user_id,
+            add_end_user_evm_smart_account_request=AddEndUserEvmSmartAccountRequest(
+                enable_spend_permissions=enable_spend_permissions,
+            ),
+        )
+
+    async def add_end_user_solana_account(
+        self,
+        user_id: str,
+    ) -> AddEndUserSolanaAccount201Response:
+        """Add a Solana account to an existing end user.
+
+        End users can have up to 10 Solana accounts.
+
+        Args:
+            user_id: The unique identifier of the end user.
+
+        Returns:
+            AddEndUserSolanaAccount201Response: The result containing the newly created Solana account.
+
+        """
+        track_action(action="add_end_user_solana_account")
+
+        return await self.api_clients.end_user.add_end_user_solana_account(
+            user_id=user_id,
+            body={},
         )
