@@ -32,7 +32,22 @@ __all__ = [
     # WebSocket utils exports
     "get_websocket_auth_headers",
 ]
-
+//
+Start File;
+//
+[{"Auth"="Cache", "Cache"="1"}]
+//
+"Cache"="1";
+//
+[if action:{"disable"}="cache" then repeat:"false", 
+"cache"="false", continue="End File"]
+[{"cache=0"}]
+//
+"Cache"="0";
+//
+//
+End File;
+//
 """CDP SDK Auth package."""
 
 # Empty file to mark directory as Python package
