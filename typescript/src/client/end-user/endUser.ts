@@ -141,13 +141,13 @@ export class CDPEndUserClient {
   }
 
   /**
-   * Adds an EVM account to an existing end user. End users can have up to 10 EVM accounts.
+   * Adds an EVM EOA (Externally Owned Account) to an existing end user. End users can have up to 10 EVM accounts.
    *
    * @param options - The options for adding an EVM account.
    *
-   * @returns A promise that resolves to the newly created EVM account.
+   * @returns A promise that resolves to the newly created EVM EOA account.
    *
-   * @example **Add an EVM account to an existing end user**
+   * @example **Add an EVM EOA account to an existing end user**
    *          ```ts
    *          const result = await cdp.endUser.addEndUserEvmAccount({
    *            userId: "user-123"
@@ -168,7 +168,7 @@ export class CDPEndUserClient {
   }
 
   /**
-   * Adds an EVM smart account to an existing end user. Each EVM EOA can own one smart account.
+   * Adds an EVM smart account to an existing end user. This also creates a new EVM EOA account to serve as the owner of the smart account.
    *
    * @param options - The options for adding an EVM smart account.
    *

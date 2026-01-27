@@ -142,6 +142,7 @@ function requiresWalletAuth(requestMethod: string, requestPath: string): boolean
     (requestMethod === "POST" || requestMethod === "DELETE" || requestMethod === "PUT")
   );
 }
+
 /**
  * Returns encoded correlation data including the SDK version and language.
  *

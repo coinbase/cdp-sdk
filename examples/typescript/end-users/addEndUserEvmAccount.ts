@@ -6,7 +6,7 @@ import "dotenv/config";
 const cdp = new CdpClient();
 
 try {
-    // Create an end user with an initial EVM account.
+    // Create an end user with an initial EVM EOA (Externally Owned Account).
     const endUser = await cdp.endUser.createEndUser({
         authenticationMethods: [
             { type: "email", email: "user@example.com" }
@@ -17,7 +17,7 @@ try {
     console.log("Created end user:", endUser.userId);
     console.log("Initial EVM accounts:", endUser.evmAccountObjects);
 
-    // Add a new EVM account to the same end user.
+    // Add a new EVM EOA to the same end user.
     const result = await cdp.endUser.addEndUserEvmAccount({
         userId: endUser.userId
     });
@@ -25,7 +25,7 @@ try {
     console.log("Added new EVM account:", result.evmAccount.address);
     console.log("Account created at:", result.evmAccount.createdAt);
 
-    // Verify the end user now has two EVM accounts.
+    // Verify the end user now has two EVM EOA accounts.
     const updatedEndUser = await cdp.endUser.getEndUser({
         userId: endUser.userId
     });

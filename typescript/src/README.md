@@ -1141,7 +1141,7 @@ console.log(endUser);
 
 #### Add EVM Account to End User
 
-Add an additional EVM account to an existing end user:
+Add an additional EVM EOA (Externally Owned Account) to an existing end user:
 
 ```typescript
 const result = await cdp.endUser.addEndUserEvmAccount({
