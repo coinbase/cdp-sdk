@@ -73,6 +73,13 @@ tasks.register<JavaExec>("runRequestFaucet") {
     classpath = sourceSets["main"].runtimeClasspath
 }
 
+tasks.register<JavaExec>("runSignTypedDataWithTokenProvider") {
+    group = "examples"
+    description = "Run the EVM sign typed data with custom TokenProvider example"
+    mainClass.set("com.coinbase.cdp.examples.evm.SignTypedDataWithTokenProvider")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
 tasks.register<JavaExec>("runCreateSolanaAccount") {
     group = "examples"
     description = "Run the Solana create account example"
@@ -93,14 +100,15 @@ tasks.register("listExamples") {
     description = "List all available example tasks"
     doLast {
         println("\nAvailable example tasks:")
-        println("  ./gradlew runQuickstart         - Run the quickstart example")
-        println("  ./gradlew runCreateEvmAccount   - Create an EVM account")
-        println("  ./gradlew runListEvmAccounts    - List EVM accounts")
-        println("  ./gradlew runGetEvmAccount      - Get an EVM account by address")
-        println("  ./gradlew runSignMessage        - Sign a message with an EVM account")
-        println("  ./gradlew runRequestFaucet      - Request testnet ETH from faucet")
-        println("  ./gradlew runCreateSolanaAccount - Create a Solana account")
-        println("  ./gradlew runListSolanaAccounts - List Solana accounts")
+        println("  ./gradlew runQuickstart                      - Run the quickstart example")
+        println("  ./gradlew runCreateEvmAccount                - Create an EVM account")
+        println("  ./gradlew runListEvmAccounts                 - List EVM accounts")
+        println("  ./gradlew runGetEvmAccount                   - Get an EVM account by address")
+        println("  ./gradlew runSignMessage                     - Sign a message with an EVM account")
+        println("  ./gradlew runRequestFaucet                   - Request testnet ETH from faucet")
+        println("  ./gradlew runSignTypedDataWithTokenProvider  - Sign EIP-712 typed data using TokenProvider")
+        println("  ./gradlew runCreateSolanaAccount             - Create a Solana account")
+        println("  ./gradlew runListSolanaAccounts              - List Solana accounts")
         println("\nOr run any example directly:")
         println("  ./gradlew run -PmainClass=com.coinbase.cdp.examples.evm.CreateAccount")
     }

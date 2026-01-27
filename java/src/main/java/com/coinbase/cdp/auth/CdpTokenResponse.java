@@ -8,6 +8,9 @@ import java.util.Optional;
  * <p>Always contains a bearer token. Optionally contains a wallet auth token if {@code
  * includeWalletAuthToken} was set to true in the request.
  *
+ * <p>This class implements {@link TokenProvider} and can be used wherever token providers are
+ * accepted, such as in CDP client factory methods.
+ *
  * <p>Example usage:
  *
  * <pre>{@code
@@ -20,9 +23,13 @@ import java.util.Optional;
  * response.walletAuthToken().ifPresent(walletJwt -> {
  *     // Use wallet JWT
  * });
+ *
+ * // Use as TokenProvider
+ * EvmClient evmClient = CdpClient.evm(response);
  * }</pre>
  */
-public record CdpTokenResponse(String bearerToken, Optional<String> walletAuthToken) {
+public record CdpTokenResponse(String bearerToken, Optional<String> walletAuthToken)
+    implements TokenProvider {
 
   /**
    * Validates the token response.
