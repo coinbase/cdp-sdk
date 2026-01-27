@@ -67,7 +67,7 @@ public final class WalletJwtGenerator {
 
       // Add reqHash if request data is present
       if (options.hasRequestData()) {
-        Map<String, Object> sorted = JsonUtils.sortKeys(options.requestData());
+        Map<String, Object> sorted = JsonUtils.sortKeys(options.requestBody());
         String json = JsonUtils.toJson(sorted);
         String hash = HashUtils.sha256Hex(json);
         builder.claim("reqHash", hash);

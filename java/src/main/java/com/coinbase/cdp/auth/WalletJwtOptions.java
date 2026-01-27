@@ -25,7 +25,7 @@ public record WalletJwtOptions(
     String requestMethod,
     String requestHost,
     String requestPath,
-    Map<String, Object> requestData) {
+    Map<String, Object> requestBody) {
 
   /**
    * Validates the wallet JWT options.
@@ -45,8 +45,8 @@ public record WalletJwtOptions(
     if (requestPath == null || requestPath.isBlank()) {
       throw new IllegalArgumentException("requestPath is required");
     }
-    if (requestData == null) {
-      requestData = Map.of();
+    if (requestBody == null) {
+      requestBody = Map.of();
     }
   }
 
@@ -56,8 +56,8 @@ public record WalletJwtOptions(
    * @return true if request data is non-empty
    */
   public boolean hasRequestData() {
-    return requestData != null
-        && !requestData.isEmpty()
-        && requestData.values().stream().anyMatch(v -> v != null);
+    return requestBody != null
+        && !requestBody.isEmpty()
+        && requestBody.values().stream().anyMatch(v -> v != null);
   }
 }

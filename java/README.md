@@ -4,7 +4,7 @@ The official Java SDK for the [Coinbase Developer Platform (CDP)](https://docs.c
 
 ## Requirements
 
-- Java 17 or higher
+- Java 23 or higher
 - Gradle 8.x (included via wrapper)
 
 ## Installation
