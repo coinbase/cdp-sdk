@@ -5,7 +5,11 @@ import com.coinbase.cdp.auth.JwtOptions;
 import com.coinbase.cdp.auth.WalletJwtGenerator;
 import com.coinbase.cdp.auth.WalletJwtOptions;
 import com.coinbase.cdp.errors.ValidationException;
+import com.coinbase.cdp.evm.EvmClient;
 import com.coinbase.cdp.openapi.ApiClient;
+import com.coinbase.cdp.openapi.api.EvmAccountsApi;
+import com.coinbase.cdp.openapi.api.EvmSmartAccountsApi;
+import com.coinbase.cdp.openapi.api.FaucetsApi;
 import com.coinbase.cdp.utils.CorrelationData;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,12 +68,14 @@ public class CdpClient implements Closeable {
   private final CdpClientOptions options;
   private final ApiClient apiClient;
   private final ObjectMapper objectMapper;
+  private final EvmClient evmClient;
   private volatile boolean closed = false;
 
   private CdpClient(CdpClientOptions options) {
     this.options = options;
     this.objectMapper = ApiClient.createDefaultObjectMapper();
     this.apiClient = buildApiClient(options);
+    this.evmClient = buildEvmClient();
   }
 
   /**
@@ -174,6 +180,35 @@ public class CdpClient implements Closeable {
   }
 
   /**
+   * Returns the EVM client for high-level EVM account operations.
+   *
+   * <p>The EVM client provides convenient methods for managing EVM accounts, including
+   * higher-level abstractions like {@code getOrCreateAccount} that handle common patterns.
+   *
+   * <p>Example usage:
+   *
+   * <pre>{@code
+   * try (CdpClient cdp = CdpClient.create()) {
+   *     // Get or create an account by name
+   *     EvmAccount account = cdp.evm().getOrCreateAccount(
+   *         GetOrCreateAccountOptions.builder()
+   *             .name("MyAccount")
+   *             .build()
+   *     );
+   *
+   *     System.out.println("Account address: " + account.getAddress());
+   * }
+   * }</pre>
+   *
+   * @return the EVM client
+   * @throws IllegalStateException if the client has been closed
+   */
+  public EvmClient evm() {
+    checkNotClosed();
+    return evmClient;
+  }
+
+  /**
    * Closes the client.
    *
    * <p>After closing, any attempt to use the client will throw {@link IllegalStateException}. Note
@@ -241,5 +276,17 @@ public class CdpClient implements Closeable {
 
     // Use Jackson ObjectMapper to convert POJO to Map
     return objectMapper.convertValue(obj, new TypeReference<Map<String, Object>>() {});
+  }
+
+  private EvmClient buildEvmClient() {
+    EvmAccountsApi evmAccountsApi = new EvmAccountsApi(apiClient);
+    EvmSmartAccountsApi evmSmartAccountsApi = new EvmSmartAccountsApi(apiClient);
+    FaucetsApi faucetsApi = new FaucetsApi(apiClient);
+
+    return new EvmClient(
+        evmAccountsApi,
+        evmSmartAccountsApi,
+        faucetsApi,
+        (path, requestBody) -> generateWalletJwt("POST", path, requestBody));
   }
 }

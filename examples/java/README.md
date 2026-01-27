@@ -4,7 +4,7 @@ This directory contains examples demonstrating how to use the CDP Java SDK.
 
 ## Prerequisites
 
-- Java 17 or higher
+- Java 23 or higher
 - Gradle (wrapper included)
 - CDP API credentials from [CDP Portal](https://portal.cdp.coinbase.com/projects/api-keys)
 
@@ -40,11 +40,13 @@ Use the convenience tasks to run specific examples:
 
 ```bash
 # EVM Examples
-./gradlew runCreateEvmAccount    # Create an EVM account
-./gradlew runListEvmAccounts     # List all EVM accounts
-./gradlew runGetEvmAccount       # Get an account by address
-./gradlew runSignMessage         # Sign a message
-./gradlew runRequestFaucet       # Request testnet ETH
+./gradlew runCreateEvmAccount           # Create an EVM account
+./gradlew runListEvmAccounts            # List all EVM accounts
+./gradlew runGetEvmAccount              # Get an account by address
+./gradlew runGetOrCreateEvmAccount      # Get or create an EVM account by name
+./gradlew runGetOrCreateEvmSmartAccount # Get or create an EVM smart account
+./gradlew runSignMessage                # Sign a message
+./gradlew runRequestFaucet              # Request testnet ETH
 
 # Solana Examples
 ./gradlew runCreateSolanaAccount # Create a Solana account
@@ -82,6 +84,8 @@ To see all available example tasks:
 | `CreateAccount.java` | Create a new EVM account |
 | `ListAccounts.java` | List all EVM accounts in your project |
 | `GetAccount.java` | Retrieve an account by its address |
+| `GetOrCreateAccount.java` | Get or create an EVM account by name |
+| `GetOrCreateSmartAccount.java` | Get or create an EVM smart account |
 | `SignMessage.java` | Sign an arbitrary message |
 | `RequestFaucet.java` | Request testnet ETH from the faucet |
 
@@ -92,9 +96,38 @@ To see all available example tasks:
 | `CreateAccount.java` | Create a new Solana account |
 | `ListAccounts.java` | List all Solana accounts in your project |
 
-## Code Pattern
+## Code Patterns
 
-Each example follows a consistent pattern:
+### High-Level API (Recommended)
+
+The SDK provides a high-level `evm()` client with convenient methods:
+
+```java
+import com.coinbase.cdp.CdpClient;
+import com.coinbase.cdp.evm.options.GetOrCreateAccountOptions;
+import com.coinbase.cdp.examples.utils.EnvLoader;
+
+public class Example {
+    public static void main(String[] args) throws Exception {
+        EnvLoader.load();
+
+        try (CdpClient cdp = CdpClient.create()) {
+            // Get or create an account by name - handles all the complexity
+            var account = cdp.evm().getOrCreateAccount(
+                GetOrCreateAccountOptions.builder()
+                    .name("MyAccount")
+                    .build()
+            );
+
+            System.out.println("Account: " + account.getAddress());
+        }
+    }
+}
+```
+
+### Low-Level API
+
+For more control, use the OpenAPI-generated classes directly:
 
 ```java
 import com.coinbase.cdp.CdpClient;
@@ -103,7 +136,6 @@ import com.coinbase.cdp.openapi.api.EvmAccountsApi;
 
 public class Example {
     public static void main(String[] args) throws Exception {
-        // Load .env file
         EnvLoader.load();
 
         try (CdpClient cdp = CdpClient.create()) {
@@ -111,7 +143,7 @@ public class Example {
             EvmAccountsApi evmApi = new EvmAccountsApi(cdp.getApiClient());
 
             // Read operations - no wallet JWT needed
-            var accounts = evmApi.listEvmAccounts(null, null, null);
+            var accounts = evmApi.listEvmAccounts(null, null);
 
             // Write operations - generate wallet JWT
             var request = new CreateEvmAccountRequest().name("my-account");

@@ -1,13 +1,9 @@
 package com.coinbase.cdp.examples.quickstart;
 
 import com.coinbase.cdp.CdpClient;
+import com.coinbase.cdp.evm.options.CreateAccountOptions;
+import com.coinbase.cdp.evm.options.RequestFaucetOptions;
 import com.coinbase.cdp.examples.utils.EnvLoader;
-import com.coinbase.cdp.openapi.api.EvmAccountsApi;
-import com.coinbase.cdp.openapi.api.FaucetsApi;
-import com.coinbase.cdp.openapi.model.CreateEvmAccountRequest;
-import com.coinbase.cdp.openapi.model.RequestEvmFaucetRequest;
-import com.coinbase.cdp.openapi.model.RequestEvmFaucetRequest.NetworkEnum;
-import com.coinbase.cdp.openapi.model.RequestEvmFaucetRequest.TokenEnum;
 
 /**
  * Quickstart example demonstrating basic CDP SDK usage.
@@ -32,19 +28,14 @@ public class Quickstart {
     System.out.println("=".repeat(50));
 
     try (CdpClient cdp = CdpClient.create()) {
-      // Get the configured API client
-      var apiClient = cdp.getApiClient();
-
-      // Create API instances
-      EvmAccountsApi evmApi = new EvmAccountsApi(apiClient);
-      FaucetsApi faucetsApi = new FaucetsApi(apiClient);
-
       // Step 1: Create an EVM account
       System.out.println("\n1. Creating EVM account...");
-      var createRequest =
-          new CreateEvmAccountRequest().name("quickstart-" + System.currentTimeMillis());
-      String walletJwt = cdp.generateWalletJwt("POST", "/v2/evm/accounts", createRequest);
-      var account = evmApi.createEvmAccount(walletJwt, null, createRequest);
+      var account =
+          cdp.evm()
+              .createAccount(
+                  CreateAccountOptions.builder()
+                      .name("quickstart-" + System.currentTimeMillis())
+                      .build());
 
       System.out.println("   Account created!");
       System.out.println("   Address: " + account.getAddress());
@@ -52,12 +43,14 @@ public class Quickstart {
 
       // Step 2: Request testnet ETH from faucet
       System.out.println("\n2. Requesting testnet ETH from faucet...");
-      var faucetRequest =
-          new RequestEvmFaucetRequest()
-              .address(account.getAddress())
-              .network(NetworkEnum.BASE_SEPOLIA)
-              .token(TokenEnum.ETH);
-      var faucetResponse = faucetsApi.requestEvmFaucet(faucetRequest);
+      var faucetResponse =
+          cdp.evm()
+              .requestFaucet(
+                  RequestFaucetOptions.builder()
+                      .address(account.getAddress())
+                      .network("base-sepolia")
+                      .token("eth")
+                      .build());
 
       System.out.println("   Faucet request successful!");
       System.out.println("   Transaction hash: " + faucetResponse.getTransactionHash());
@@ -67,7 +60,7 @@ public class Quickstart {
 
       // Step 3: List all accounts
       System.out.println("\n3. Listing all EVM accounts...");
-      var accountsList = evmApi.listEvmAccounts(null, null);
+      var accountsList = cdp.evm().listAccounts();
       System.out.println("   Total accounts: " + accountsList.getAccounts().size());
 
       System.out.println("\n" + "=".repeat(50));

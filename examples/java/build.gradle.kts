@@ -87,6 +87,20 @@ tasks.register<JavaExec>("runListSolanaAccounts") {
     classpath = sourceSets["main"].runtimeClasspath
 }
 
+tasks.register<JavaExec>("runGetOrCreateEvmAccount") {
+    group = "examples"
+    description = "Run the EVM get or create account example"
+    mainClass.set("com.coinbase.cdp.examples.evm.GetOrCreateAccount")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runGetOrCreateEvmSmartAccount") {
+    group = "examples"
+    description = "Run the EVM get or create smart account example"
+    mainClass.set("com.coinbase.cdp.examples.evm.GetOrCreateSmartAccount")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
 // Task to list all available example tasks
 tasks.register("listExamples") {
     group = "examples"
@@ -101,6 +115,8 @@ tasks.register("listExamples") {
         println("  ./gradlew runRequestFaucet      - Request testnet ETH from faucet")
         println("  ./gradlew runCreateSolanaAccount - Create a Solana account")
         println("  ./gradlew runListSolanaAccounts - List Solana accounts")
+        println("  ./gradlew runGetOrCreateEvmAccount - Get or create an EVM account")
+        println("  ./gradlew runGetOrCreateEvmSmartAccount - Get or create an EVM smart account")
         println("\nOr run any example directly:")
         println("  ./gradlew run -PmainClass=com.coinbase.cdp.examples.evm.CreateAccount")
     }

@@ -2,7 +2,6 @@ package com.coinbase.cdp.examples.evm;
 
 import com.coinbase.cdp.CdpClient;
 import com.coinbase.cdp.examples.utils.EnvLoader;
-import com.coinbase.cdp.openapi.api.EvmAccountsApi;
 
 /**
  * Example: List all EVM accounts.
@@ -17,10 +16,8 @@ public class ListAccounts {
     EnvLoader.load();
 
     try (CdpClient cdp = CdpClient.create()) {
-      EvmAccountsApi evmApi = new EvmAccountsApi(cdp.getApiClient());
-
-      // List accounts (no wallet JWT needed for read operations)
-      var response = evmApi.listEvmAccounts(null, null);
+      // List accounts
+      var response = cdp.evm().listAccounts();
 
       System.out.println("EVM Accounts (" + response.getAccounts().size() + " total):");
       System.out.println();
