@@ -656,9 +656,7 @@ async def test_add_end_user_evm_smart_account_success(
     mock_user_id = "test-user-id"
     mock_response = add_end_user_evm_smart_account_response_factory()
     mock_api_clients = AsyncMock()
-    mock_api_clients.end_user.add_end_user_evm_smart_account = AsyncMock(
-        return_value=mock_response
-    )
+    mock_api_clients.end_user.add_end_user_evm_smart_account = AsyncMock(return_value=mock_response)
 
     client = EndUserClient(api_clients=mock_api_clients)
 
@@ -683,9 +681,7 @@ async def test_add_end_user_evm_smart_account_without_spend_permissions(
     mock_user_id = "test-user-id"
     mock_response = add_end_user_evm_smart_account_response_factory()
     mock_api_clients = AsyncMock()
-    mock_api_clients.end_user.add_end_user_evm_smart_account = AsyncMock(
-        return_value=mock_response
-    )
+    mock_api_clients.end_user.add_end_user_evm_smart_account = AsyncMock(return_value=mock_response)
 
     client = EndUserClient(api_clients=mock_api_clients)
 
@@ -705,9 +701,7 @@ async def test_add_end_user_evm_smart_account_handles_error():
     """Test that errors are propagated when adding an EVM smart account."""
     mock_api_clients = AsyncMock()
     expected_error = Exception("API Error: User not found")
-    mock_api_clients.end_user.add_end_user_evm_smart_account = AsyncMock(
-        side_effect=expected_error
-    )
+    mock_api_clients.end_user.add_end_user_evm_smart_account = AsyncMock(side_effect=expected_error)
 
     client = EndUserClient(api_clients=mock_api_clients)
 
