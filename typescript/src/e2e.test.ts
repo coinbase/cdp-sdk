@@ -363,6 +363,116 @@ describe("CDP Client E2E Tests", () => {
     logger.log("Retrieved end user:", safeStringify(retrievedEndUser));
   });
 
+  it("should add an EVM account to an existing end user", async () => {
+    const randomEmail = `test-${Date.now()}@example.com`;
+
+    // Create an end user with an EVM account
+    const endUser = await cdp.endUser.createEndUser({
+      authenticationMethods: [{ type: "email", email: randomEmail }],
+      evmAccount: { createSmartAccount: false },
+    });
+
+    expect(endUser).toBeDefined();
+    expect(endUser.evmAccounts).toHaveLength(1);
+
+    logger.log("Created end user:", safeStringify(endUser));
+
+    // Add another EVM account to the same end user
+    const result = await cdp.endUser.addEndUserEvmAccount({
+      userId: endUser.userId,
+    });
+
+    expect(result).toBeDefined();
+    expect(result.evmAccount).toBeDefined();
+    expect(result.evmAccount.address).toBeDefined();
+    expect(result.evmAccount.createdAt).toBeDefined();
+
+    logger.log("Added EVM account:", safeStringify(result));
+
+    // Verify the end user now has two EVM accounts
+    const updatedEndUser = await cdp.endUser.getEndUser({
+      userId: endUser.userId,
+    });
+
+    expect(updatedEndUser.evmAccounts).toHaveLength(2);
+
+    logger.log("Updated end user:", safeStringify(updatedEndUser));
+  });
+
+  it("should add an EVM smart account to an existing end user", async () => {
+    const randomEmail = `test-${Date.now()}@example.com`;
+
+    // Create an end user with an EVM smart account
+    const endUser = await cdp.endUser.createEndUser({
+      authenticationMethods: [{ type: "email", email: randomEmail }],
+      evmAccount: { createSmartAccount: true, enableSpendPermissions: true },
+    });
+
+    expect(endUser).toBeDefined();
+    expect(endUser.evmSmartAccounts).toHaveLength(1);
+
+    logger.log("Created end user:", safeStringify(endUser));
+
+    // Add another EVM smart account to the same end user
+    const result = await cdp.endUser.addEndUserEvmSmartAccount({
+      userId: endUser.userId,
+      enableSpendPermissions: true,
+    });
+
+    expect(result).toBeDefined();
+    expect(result.evmSmartAccount).toBeDefined();
+    expect(result.evmSmartAccount.address).toBeDefined();
+    expect(result.evmSmartAccount.ownerAddresses).toBeDefined();
+    expect(result.evmSmartAccount.createdAt).toBeDefined();
+
+    logger.log("Added EVM smart account:", safeStringify(result));
+
+    // Verify the end user now has two EVM smart accounts
+    const updatedEndUser = await cdp.endUser.getEndUser({
+      userId: endUser.userId,
+    });
+
+    expect(updatedEndUser.evmSmartAccounts).toHaveLength(2);
+
+    logger.log("Updated end user:", safeStringify(updatedEndUser));
+  });
+
+  it("should add a Solana account to an existing end user", async () => {
+    const randomEmail = `test-${Date.now()}@example.com`;
+
+    // Create an end user with a Solana account
+    const endUser = await cdp.endUser.createEndUser({
+      authenticationMethods: [{ type: "email", email: randomEmail }],
+      solanaAccount: { createSmartAccount: false },
+    });
+
+    expect(endUser).toBeDefined();
+    expect(endUser.solanaAccounts).toHaveLength(1);
+
+    logger.log("Created end user:", safeStringify(endUser));
+
+    // Add another Solana account to the same end user
+    const result = await cdp.endUser.addEndUserSolanaAccount({
+      userId: endUser.userId,
+    });
+
+    expect(result).toBeDefined();
+    expect(result.solanaAccount).toBeDefined();
+    expect(result.solanaAccount.address).toBeDefined();
+    expect(result.solanaAccount.createdAt).toBeDefined();
+
+    logger.log("Added Solana account:", safeStringify(result));
+
+    // Verify the end user now has two Solana accounts
+    const updatedEndUser = await cdp.endUser.getEndUser({
+      userId: endUser.userId,
+    });
+
+    expect(updatedEndUser.solanaAccounts).toHaveLength(2);
+
+    logger.log("Updated end user:", safeStringify(updatedEndUser));
+  });
+
   it("should import an evm server account from a private key", async () => {
     const privateKey = generatePrivateKey();
     const randomName = generateRandomName();
