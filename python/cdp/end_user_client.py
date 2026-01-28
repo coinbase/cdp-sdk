@@ -11,6 +11,7 @@ from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from cdp.analytics import track_action
 from cdp.api_clients import ApiClients
 from cdp.constants import ImportAccountPublicRSAKey
+from cdp.end_user_account import EndUserAccount
 from cdp.errors import UserInputValidationError
 from cdp.openapi_client.models.add_end_user_evm_account201_response import (
     AddEndUserEvmAccount201Response,
@@ -32,7 +33,6 @@ from cdp.openapi_client.models.create_end_user_request_evm_account import (
 from cdp.openapi_client.models.create_end_user_request_solana_account import (
     CreateEndUserRequestSolanaAccount,
 )
-from cdp.openapi_client.models.end_user import EndUser
 from cdp.openapi_client.models.import_end_user_request import ImportEndUserRequest
 from cdp.openapi_client.models.validate_end_user_access_token_request import (
     ValidateEndUserAccessTokenRequest,
@@ -43,12 +43,12 @@ class ListEndUsersResult:
     """Result of listing end users.
 
     Attributes:
-        end_users (List[EndUser]): The list of end users.
+        end_users (List[EndUserAccount]): The list of end users.
         next_page_token (str | None): The token for the next page of end users, if any.
 
     """
 
-    def __init__(self, end_users: list[EndUser], next_page_token: str | None = None):
+    def __init__(self, end_users: list[EndUserAccount], next_page_token: str | None = None):
         self.end_users = end_users
         self.next_page_token = next_page_token
 
@@ -65,7 +65,7 @@ class EndUserClient:
         user_id: str | None = None,
         evm_account: CreateEndUserRequestEvmAccount | None = None,
         solana_account: CreateEndUserRequestSolanaAccount | None = None,
-    ) -> EndUser:
+    ) -> EndUserAccount:
         """Create an end user.
 
         An end user is an entity that can own CDP EVM accounts, EVM smart accounts,
@@ -78,7 +78,7 @@ class EndUserClient:
             solana_account: Optional configuration for creating a Solana account for the end user.
 
         Returns:
-            EndUser: The created end user.
+            EndUserAccount: The created end user with action methods.
 
         """
         track_action(action="create_end_user")
@@ -87,7 +87,7 @@ class EndUserClient:
         if user_id is None:
             user_id = str(uuid.uuid4())
 
-        return await self.api_clients.end_user.create_end_user(
+        end_user = await self.api_clients.end_user.create_end_user(
             create_end_user_request=CreateEndUserRequest(
                 user_id=user_id,
                 authentication_methods=authentication_methods,
@@ -95,6 +95,8 @@ class EndUserClient:
                 solana_account=solana_account,
             ),
         )
+
+        return EndUserAccount(end_user, self.api_clients)
 
     async def list_end_users(
         self,
@@ -110,7 +112,7 @@ class EndUserClient:
             sort (List[str] | None, optional): Sort end users. Defaults to ascending order (oldest first). Defaults to None.
 
         Returns:
-            ListEndUsersResult: A paginated list of end users.
+            ListEndUsersResult: A paginated list of end users with action methods.
 
         """
         track_action(action="list_end_users")
@@ -121,8 +123,12 @@ class EndUserClient:
             sort=sort,
         )
 
+        end_user_accounts = [
+            EndUserAccount(end_user, self.api_clients) for end_user in response.end_users
+        ]
+
         return ListEndUsersResult(
-            end_users=response.end_users,
+            end_users=end_user_accounts,
             next_page_token=response.next_page_token,
         )
 
@@ -151,7 +157,7 @@ class EndUserClient:
         key_type: Literal["evm", "solana"],
         user_id: str | None = None,
         encryption_public_key: str | None = None,
-    ) -> EndUser:
+    ) -> EndUserAccount:
         """Import an existing private key for an end user.
 
         Args:
@@ -165,7 +171,7 @@ class EndUserClient:
                 Defaults to the known CDP public key.
 
         Returns:
-            EndUser: The imported end user.
+            EndUserAccount: The imported end user with action methods.
 
         Raises:
             UserInputValidationError: If the private key format is invalid.
@@ -224,7 +230,7 @@ class EndUserClient:
         except Exception as e:
             raise ValueError(f"Failed to encrypt private key: {e}") from e
 
-        return await self.api_clients.end_user.import_end_user(
+        end_user = await self.api_clients.end_user.import_end_user(
             import_end_user_request=ImportEndUserRequest(
                 user_id=user_id,
                 authentication_methods=authentication_methods,
@@ -232,6 +238,8 @@ class EndUserClient:
                 key_type=key_type,
             ),
         )
+
+        return EndUserAccount(end_user, self.api_clients)
 
     async def add_end_user_evm_account(
         self,

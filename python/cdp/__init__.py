@@ -1,5 +1,6 @@
 from cdp.__version__ import __version__
 from cdp.cdp_client import CdpClient
+from cdp.end_user_account import EndUserAccount
 from cdp.end_user_client import ListEndUsersResult
 from cdp.evm_call_types import ContractCall, EncodedCall, FunctionCall
 from cdp.evm_local_account import EvmLocalAccount
@@ -21,6 +22,7 @@ __all__ = [
     "CdpClient",
     "ContractCall",
     "EncodedCall",
+    "EndUserAccount",
     "EvmLocalAccount",
     "EvmServerAccount",
     "EvmSmartAccount",

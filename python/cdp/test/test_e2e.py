@@ -428,6 +428,54 @@ async def test_add_end_user_solana_account(cdp_client):
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_end_user_account_object_methods(cdp_client):
+    """Test using EndUserAccount object methods to add accounts."""
+    random_email = f"test-{int(time.time())}-{generate_random_name()}@example.com"
+
+    # Create an end user with an EVM account
+    end_user = await cdp_client.end_user.create_end_user(
+        authentication_methods=[
+            AuthenticationMethod(EmailAuthentication(type="email", email=random_email))
+        ],
+        evm_account=CreateEndUserRequestEvmAccount(create_smart_account=False),
+    )
+
+    assert end_user is not None
+    assert len(end_user.evm_accounts) == 1
+    initial_evm_account = end_user.evm_accounts[0]
+
+    # Verify the EndUserAccount has action methods
+    assert callable(end_user.add_evm_account)
+    assert callable(end_user.add_evm_smart_account)
+    assert callable(end_user.add_solana_account)
+
+    # Test add_evm_account via object method
+    evm_result = await end_user.add_evm_account()
+    assert evm_result is not None
+    assert evm_result.evm_account is not None
+    assert evm_result.evm_account.address is not None
+    assert evm_result.evm_account.address != initial_evm_account
+    print(f"Added EVM EOA {evm_result.evm_account.address} via object method")
+
+    # Test add_evm_smart_account via object method
+    smart_result = await end_user.add_evm_smart_account(enable_spend_permissions=False)
+    assert smart_result is not None
+    assert smart_result.evm_smart_account is not None
+    assert smart_result.evm_smart_account.address is not None
+    print(f"Added EVM smart account {smart_result.evm_smart_account.address} via object method")
+
+    # Test add_solana_account via object method
+    solana_result = await end_user.add_solana_account()
+    assert solana_result is not None
+    assert solana_result.solana_account is not None
+    assert solana_result.solana_account.address is not None
+    print(f"Added Solana account {solana_result.solana_account.address} via object method")
+
+    print(f"Successfully tested EndUserAccount object methods for user {end_user.user_id}")
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_import_account(cdp_client):
     """Test importing an account."""
     account = Account.create()
