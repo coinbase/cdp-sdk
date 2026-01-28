@@ -1290,7 +1290,15 @@ end_user = await cdp.end_user.import_end_user(
 
 #### Add EVM Account to End User
 
-Add an additional EVM EOA (Externally Owned Account) to an existing end user:
+Add an additional EVM EOA (Externally Owned Account) to an existing end user. You can call the method directly on the EndUserAccount object:
+
+```python
+result = await end_user.add_evm_account()
+
+print(f"Added EVM account: {result.evm_account.address}")
+```
+
+Or use the client method with a user ID:
 
 ```python
 result = await cdp.end_user.add_end_user_evm_account(user_id=end_user.user_id)
@@ -1300,7 +1308,15 @@ print(f"Added EVM account: {result.evm_account.address}")
 
 #### Add EVM Smart Account to End User
 
-Add an EVM smart account to an existing end user:
+Add an EVM smart account to an existing end user. You can call the method directly on the EndUserAccount object:
+
+```python
+result = await end_user.add_evm_smart_account(enable_spend_permissions=True)
+
+print(f"Added EVM smart account: {result.evm_smart_account.address}")
+```
+
+Or use the client method with a user ID:
 
 ```python
 result = await cdp.end_user.add_end_user_evm_smart_account(
@@ -1313,7 +1329,15 @@ print(f"Added EVM smart account: {result.evm_smart_account.address}")
 
 #### Add Solana Account to End User
 
-Add an additional Solana account to an existing end user:
+Add an additional Solana account to an existing end user. You can call the method directly on the EndUserAccount object:
+
+```python
+result = await end_user.add_solana_account()
+
+print(f"Added Solana account: {result.solana_account.address}")
+```
+
+Or use the client method with a user ID:
 
 ```python
 result = await cdp.end_user.add_end_user_solana_account(user_id=end_user.user_id)

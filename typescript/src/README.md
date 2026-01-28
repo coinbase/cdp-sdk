@@ -1141,13 +1141,17 @@ console.log(endUser);
 
 #### Add EVM Account to End User
 
-Add an additional EVM EOA (Externally Owned Account) to an existing end user:
+Add an additional EVM EOA (Externally Owned Account) to an existing end user. You can call the method directly on the EndUser object:
 
 ```typescript
+// Using the EndUser object method (recommended)
+const result = await endUser.addEvmAccount();
+console.log(`Added EVM account: ${result.evmAccount.address}`);
+
+// Or using the client method
 const result = await cdp.endUser.addEndUserEvmAccount({
   userId: endUser.userId,
 });
-
 console.log(`Added EVM account: ${result.evmAccount.address}`);
 ```
 
@@ -1156,11 +1160,15 @@ console.log(`Added EVM account: ${result.evmAccount.address}`);
 Add an EVM smart account to an existing end user:
 
 ```typescript
+// Using the EndUser object method (recommended)
+const result = await endUser.addEvmSmartAccount({ enableSpendPermissions: true });
+console.log(`Added EVM smart account: ${result.evmSmartAccount.address}`);
+
+// Or using the client method
 const result = await cdp.endUser.addEndUserEvmSmartAccount({
   userId: endUser.userId,
   enableSpendPermissions: true,
 });
-
 console.log(`Added EVM smart account: ${result.evmSmartAccount.address}`);
 ```
 
@@ -1169,10 +1177,14 @@ console.log(`Added EVM smart account: ${result.evmSmartAccount.address}`);
 Add an additional Solana account to an existing end user:
 
 ```typescript
+// Using the EndUser object method (recommended)
+const result = await endUser.addSolanaAccount();
+console.log(`Added Solana account: ${result.solanaAccount.address}`);
+
+// Or using the client method
 const result = await cdp.endUser.addEndUserSolanaAccount({
   userId: endUser.userId,
 });
-
 console.log(`Added Solana account: ${result.solanaAccount.address}`);
 ```
 

@@ -14,15 +14,13 @@ import {
   type AddEndUserEvmSmartAccountResult,
   type AddEndUserSolanaAccountOptions,
   type AddEndUserSolanaAccountResult,
+  type EndUserAccount,
 } from "./endUser.types.js";
+import { toEndUserAccount } from "./toEndUserAccount.js";
 import { Analytics } from "../../analytics.js";
 import { ImportAccountPublicRSAKey } from "../../constants.js";
 import { UserInputValidationError } from "../../errors.js";
-import {
-  CdpOpenApiClient,
-  type EndUser,
-  type ListEndUsers200,
-} from "../../openapi-client/index.js";
+import { CdpOpenApiClient, type ListEndUsers200 } from "../../openapi-client/index.js";
 
 /**
  * The CDP end user client.
@@ -56,17 +54,19 @@ export class CDPEndUserClient {
    *          });
    *          ```
    */
-  async createEndUser(options: CreateEndUserOptions): Promise<EndUser> {
+  async createEndUser(options: CreateEndUserOptions): Promise<EndUserAccount> {
     Analytics.trackAction({
       action: "create_end_user",
     });
 
     const userId = options.userId ?? randomUUID();
 
-    return CdpOpenApiClient.createEndUser({
+    const endUser = await CdpOpenApiClient.createEndUser({
       ...options,
       userId,
     });
+
+    return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 
   /**
@@ -130,14 +130,16 @@ export class CDPEndUserClient {
    *          console.log(endUser.userId);
    *          ```
    */
-  async getEndUser(options: GetEndUserOptions): Promise<EndUser> {
+  async getEndUser(options: GetEndUserOptions): Promise<EndUserAccount> {
     Analytics.trackAction({
       action: "get_end_user",
     });
 
     const { userId } = options;
 
-    return CdpOpenApiClient.getEndUser(userId);
+    const endUser = await CdpOpenApiClient.getEndUser(userId);
+
+    return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 
   /**
@@ -240,16 +242,18 @@ export class CDPEndUserClient {
    *
    * @returns The end user object if the access token is valid.
    */
-  async validateAccessToken(options: ValidateAccessTokenOptions): Promise<EndUser> {
+  async validateAccessToken(options: ValidateAccessTokenOptions): Promise<EndUserAccount> {
     Analytics.trackAction({
       action: "validate_access_token",
     });
 
     const { accessToken } = options;
 
-    return CdpOpenApiClient.validateEndUserAccessToken({
+    const endUser = await CdpOpenApiClient.validateEndUserAccessToken({
       accessToken,
     });
+
+    return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 
   /**
@@ -281,7 +285,7 @@ export class CDPEndUserClient {
    *          });
    *          ```
    */
-  async importEndUser(options: ImportEndUserOptions): Promise<EndUser> {
+  async importEndUser(options: ImportEndUserOptions): Promise<EndUserAccount> {
     Analytics.trackAction({
       action: "import_end_user",
     });
@@ -331,11 +335,13 @@ export class CDPEndUserClient {
       privateKeyBytes,
     );
 
-    return CdpOpenApiClient.importEndUser({
+    const endUser = await CdpOpenApiClient.importEndUser({
       userId,
       authenticationMethods: options.authenticationMethods,
       encryptedPrivateKey: encryptedPrivateKey.toString("base64"),
       keyType: options.keyType,
     });
+
+    return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 }

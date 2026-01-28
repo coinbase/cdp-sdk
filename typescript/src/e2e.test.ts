@@ -473,6 +473,48 @@ describe("CDP Client E2E Tests", () => {
     logger.log("Updated end user:", safeStringify(updatedEndUser));
   });
 
+  it("should add accounts using EndUserAccount object methods", async () => {
+    const randomEmail = `test-${Date.now()}@example.com`;
+
+    // Create an end user
+    const endUser = await cdp.endUser.createEndUser({
+      authenticationMethods: [{ type: "email", email: randomEmail }],
+    });
+
+    expect(endUser).toBeDefined();
+    expect(typeof endUser.addEvmAccount).toBe("function");
+    expect(typeof endUser.addEvmSmartAccount).toBe("function");
+    expect(typeof endUser.addSolanaAccount).toBe("function");
+
+    logger.log("Created end user with methods:", safeStringify(endUser));
+
+    // Add an EVM EOA account using the object method
+    const evmResult = await endUser.addEvmAccount();
+    expect(evmResult).toBeDefined();
+    expect(evmResult.evmAccount.address).toBeDefined();
+    logger.log("Added EVM EOA account via object method:", safeStringify(evmResult));
+
+    // Add an EVM smart account using the object method
+    const smartResult = await endUser.addEvmSmartAccount({ enableSpendPermissions: false });
+    expect(smartResult).toBeDefined();
+    expect(smartResult.evmSmartAccount.address).toBeDefined();
+    logger.log("Added EVM smart account via object method:", safeStringify(smartResult));
+
+    // Add a Solana account using the object method
+    const solanaResult = await endUser.addSolanaAccount();
+    expect(solanaResult).toBeDefined();
+    expect(solanaResult.solanaAccount.address).toBeDefined();
+    logger.log("Added Solana account via object method:", safeStringify(solanaResult));
+
+    // Verify the end user has all the accounts
+    const updatedEndUser = await cdp.endUser.getEndUser({ userId: endUser.userId });
+    expect(updatedEndUser.evmAccounts).toHaveLength(2);
+    expect(updatedEndUser.evmSmartAccounts).toHaveLength(1);
+    expect(updatedEndUser.solanaAccounts).toHaveLength(1);
+
+    logger.log("Updated end user:", safeStringify(updatedEndUser));
+  });
+
   it("should import an evm server account from a private key", async () => {
     const privateKey = generatePrivateKey();
     const randomName = generateRandomName();

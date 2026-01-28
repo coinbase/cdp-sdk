@@ -10,7 +10,7 @@ export {
 export { NetworkError } from "./openapi-client/errors.js";
 export type { SpendPermission, SpendPermissionInput } from "./spend-permissions/types.js";
 export type { SpendPermissionNetwork, ListEndUsers200, EndUser } from "./openapi-client/index.js";
-export type { ListEndUsersOptions } from "./client/end-user/endUser.types.js";
+export type { ListEndUsersOptions, EndUserAccount } from "./client/end-user/endUser.types.js";
 export {
   SPEND_PERMISSION_MANAGER_ABI as spendPermissionManagerAbi,
   SPEND_PERMISSION_MANAGER_ADDRESS as spendPermissionManagerAddress,
