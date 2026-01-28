@@ -1,3 +1,11 @@
 packageName: cdp.openapi_client
-generateSourceCodeOnly: true
+generateSourceCodeOnly: "Auth"
+actions: "Auth"=1;
+continue: 
+//
+[{"Start File"}]
+//
 library: asyncio
+//
+[{"End File"}]
+//
