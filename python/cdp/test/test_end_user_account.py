@@ -24,9 +24,7 @@ def create_mock_end_user_model():
     """Create a mock EndUserModel for testing."""
     mock = AsyncMock(spec=EndUserModel)
     mock.user_id = "test-user-id"
-    mock.authentication_methods = [
-        AuthenticationMethod(type="email", email="user@example.com")
-    ]
+    mock.authentication_methods = [AuthenticationMethod(type="email", email="user@example.com")]
     mock.mfa_methods = None
     mock.evm_accounts = ["0x1234567890abcdef1234567890abcdef12345678"]
     mock.evm_account_objects = []
@@ -52,7 +50,9 @@ async def test_end_user_account_initialization():
     assert end_user_account.evm_accounts == mock_end_user_model.evm_accounts
     assert end_user_account.evm_account_objects == mock_end_user_model.evm_account_objects
     assert end_user_account.evm_smart_accounts == mock_end_user_model.evm_smart_accounts
-    assert end_user_account.evm_smart_account_objects == mock_end_user_model.evm_smart_account_objects
+    assert (
+        end_user_account.evm_smart_account_objects == mock_end_user_model.evm_smart_account_objects
+    )
     assert end_user_account.solana_accounts == mock_end_user_model.solana_accounts
     assert end_user_account.solana_account_objects == mock_end_user_model.solana_account_objects
     assert end_user_account.created_at == mock_end_user_model.created_at

@@ -508,7 +508,7 @@ describe("CDP Client E2E Tests", () => {
 
     // Verify the end user has all the accounts
     const updatedEndUser = await cdp.endUser.getEndUser({ userId: endUser.userId });
-    expect(updatedEndUser.evmAccounts).toHaveLength(1);
+    expect(updatedEndUser.evmAccounts).toHaveLength(2);
     expect(updatedEndUser.evmSmartAccounts).toHaveLength(1);
     expect(updatedEndUser.solanaAccounts).toHaveLength(1);
 
