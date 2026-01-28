@@ -531,7 +531,20 @@ async def main():
 asyncio.run(main())
 ```
 
-CDP SDK server accounts are compatible with `eth-account`'s BaseAccount interface via `EvmLocalAccount`. With it, you may sign a hash, message, typed data, or a transaction.
+### EvmServerAccount vs EvmLocalAccount
+
+CDP SDK provides two account types for different use cases:
+
+- **`EvmServerAccount`** - Async-first API for CDP server-managed accounts. All signing operations are asynchronous and involve network calls to the CDP API. This is the recommended type for most CDP SDK usage.
+
+- **`EvmLocalAccount`** - Synchronous wrapper around `EvmServerAccount` that provides compatibility with `eth-account`'s `BaseAccount` interface. Use this when you need to integrate with libraries that expect synchronous `eth-account` LocalAccount objects (e.g., creating smart accounts with a server account as owner).
+
+**When to use `EvmLocalAccount`:**
+- Creating smart accounts where the owner must be a `BaseAccount`
+- Integrating with `web3.py` or other libraries expecting `eth-account` LocalAccount
+- Any synchronous context where you cannot use async/await
+
+With `EvmLocalAccount`, you may sign a hash, message, typed data, or a transaction synchronously.
 
 ```python
 import asyncio
