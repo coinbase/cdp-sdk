@@ -66,7 +66,7 @@ export class CDPEndUserClient {
       userId,
     });
 
-    return toEndUserAccount({ endUser });
+    return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 
   /**
@@ -139,7 +139,7 @@ export class CDPEndUserClient {
 
     const endUser = await CdpOpenApiClient.getEndUser(userId);
 
-    return toEndUserAccount({ endUser });
+    return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 
   /**
@@ -253,7 +253,7 @@ export class CDPEndUserClient {
       accessToken,
     });
 
-    return toEndUserAccount({ endUser });
+    return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 
   /**
@@ -342,6 +342,6 @@ export class CDPEndUserClient {
       keyType: options.keyType,
     });
 
-    return toEndUserAccount({ endUser });
+    return toEndUserAccount(CdpOpenApiClient, { endUser });
   }
 }

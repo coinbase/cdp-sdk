@@ -1,5 +1,4 @@
 import { Analytics } from "../../analytics.js";
-import { CdpOpenApiClient, type EndUser as OpenAPIEndUser } from "../../openapi-client/index.js";
 
 import type {
   EndUserAccount,
@@ -8,6 +7,10 @@ import type {
   AddEndUserSolanaAccountResult,
   AddEvmSmartAccountOptions,
 } from "./endUser.types.js";
+import type {
+  CdpOpenApiClientType,
+  EndUser as OpenAPIEndUser,
+} from "../../openapi-client/index.js";
 
 /**
  * Options for converting an OpenAPI EndUser to an EndUserAccount with actions.
@@ -21,11 +24,15 @@ export type ToEndUserAccountOptions = {
  * Creates an EndUserAccount instance with actions from an existing OpenAPI EndUser.
  * This wraps the raw API response and adds convenience methods for adding accounts.
  *
+ * @param apiClient - The API client.
  * @param options - Configuration options.
  * @param options.endUser - The end user from the API response.
  * @returns An EndUserAccount instance with action methods.
  */
-export function toEndUserAccount(options: ToEndUserAccountOptions): EndUserAccount {
+export function toEndUserAccount(
+  apiClient: CdpOpenApiClientType,
+  options: ToEndUserAccountOptions,
+): EndUserAccount {
   const endUserAccount: EndUserAccount = {
     // Pass through all properties from the OpenAPI EndUser
     userId: options.endUser.userId,
@@ -45,7 +52,7 @@ export function toEndUserAccount(options: ToEndUserAccountOptions): EndUserAccou
         action: "end_user_add_evm_account",
       });
 
-      return CdpOpenApiClient.addEndUserEvmAccount(options.endUser.userId, {});
+      return apiClient.addEndUserEvmAccount(options.endUser.userId, {});
     },
 
     async addEvmSmartAccount(
@@ -55,7 +62,7 @@ export function toEndUserAccount(options: ToEndUserAccountOptions): EndUserAccou
         action: "end_user_add_evm_smart_account",
       });
 
-      return CdpOpenApiClient.addEndUserEvmSmartAccount(options.endUser.userId, {
+      return apiClient.addEndUserEvmSmartAccount(options.endUser.userId, {
         enableSpendPermissions: smartAccountOptions.enableSpendPermissions,
       });
     },
@@ -65,7 +72,7 @@ export function toEndUserAccount(options: ToEndUserAccountOptions): EndUserAccou
         action: "end_user_add_solana_account",
       });
 
-      return CdpOpenApiClient.addEndUserSolanaAccount(options.endUser.userId, {});
+      return apiClient.addEndUserSolanaAccount(options.endUser.userId, {});
     },
   };
 
