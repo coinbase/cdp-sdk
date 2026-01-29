@@ -43,6 +43,7 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
 if TYPE_CHECKING:
     from eth_account.signers.base import BaseAccount
 
+    from cdp.evm_smart_account import EvmSmartAccount
     from cdp.spend_permissions import SpendPermissionInput
 
 
@@ -246,7 +247,13 @@ class EvmServerAccount(BaseModel):
             v=v,
         )
 
-    async def transfer(self, to: str | BaseAccount, amount: int, token: str, network: str):
+    async def transfer(
+        self,
+        to: str | BaseAccount | EvmServerAccount | EvmSmartAccount,
+        amount: int,
+        token: str,
+        network: str,
+    ):
         """Transfer an amount of a token from an account to another account.
 
         Args:
