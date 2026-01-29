@@ -2,6 +2,13 @@
 
 <!-- towncrier release notes start -->
 
+## [1.39.1] - 2026-01-29
+
+### Bugfixes
+
+- Removed BaseAccount inheritance of EvmServerAccount ([#581](https://github.com/coinbase/cdp-sdk/pull/581))
+
+
 ## [1.39.0] - 2026-01-29
 
 ### Features
