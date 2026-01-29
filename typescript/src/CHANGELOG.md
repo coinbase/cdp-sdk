@@ -1,5 +1,17 @@
 # CDP SDK Changelog
 
+## 1.44.0
+
+### Minor Changes
+
+- [#577](https://github.com/coinbase/cdp-sdk/pull/577) [`142499a`](https://github.com/coinbase/cdp-sdk/commit/142499abc3ea8d9835b5d953e8d1e22d4922e663) Thanks [@marcin-cb](https://github.com/marcin-cb)! - Added new methods for the end user client to add additional EVM accounts, EVM Smart Accounts, and Solana accounts.
+
+- [#579](https://github.com/coinbase/cdp-sdk/pull/579) [`fe9d065`](https://github.com/coinbase/cdp-sdk/commit/fe9d065c6cd547497d2ab3534a84ff43d752d2cd) Thanks [@marcin-cb](https://github.com/marcin-cb)! - Added convenience methods to the EndUserAccount object for adding accounts.
+
+### Patch Changes
+
+- [#571](https://github.com/coinbase/cdp-sdk/pull/571) [`a5546d1`](https://github.com/coinbase/cdp-sdk/commit/a5546d1d4132f7703b4625dcd9b218039775e8d9) Thanks [@0xRAG](https://github.com/0xRAG)! - Improve typing and make tsconfig stricter
+
 ## 1.43.1
 
 ### Patch Changes

@@ -1,5 +1,0 @@
----
-"@coinbase/cdp-sdk": minor
----
-
-Added new methods for the end user client to add additional EVM accounts, EVM Smart Accounts, and Solana accounts.
