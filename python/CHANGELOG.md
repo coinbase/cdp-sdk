@@ -2,6 +2,14 @@
 
 <!-- towncrier release notes start -->
 
+## [1.39.0] - 2026-01-29
+
+### Features
+
+- Added new methods for the end user client to add additional EVM accounts, EVM Smart Accounts, and Solana accounts. ([#578](https://github.com/coinbase/cdp-sdk/pull/578))
+- Added convenience methods to the EndUserAccount object for adding accounts. ([#579](https://github.com/coinbase/cdp-sdk/pull/579))
+
+
 ## [1.38.0] - 2026-01-22
 
 ### Features
