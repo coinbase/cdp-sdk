@@ -40,12 +40,12 @@ jobs:
         if: steps.check_branch.outputs.branch_exists == 'false'
         run: make update-openapi
 
-      - name: Set up JDK 11
+      - name: Set up JDK 23
         if: steps.check_branch.outputs.branch_exists == 'false'
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: "temurin"
-          java-version: "11"
+          java-version: "23"
 
       - name: Install OpenAPI Generator 7.11.0
         if: steps.check_branch.outputs.branch_exists == 'false'
