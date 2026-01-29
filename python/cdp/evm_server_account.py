@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any
 
 from eth_account.datastructures import (
@@ -8,7 +10,6 @@ from eth_account.messages import (
     SignableMessage,
     _hash_eip191_message,
 )
-from eth_account.signers.base import BaseAccount
 from eth_account.typed_transactions import DynamicFeeTransaction, TypedTransaction
 from eth_account.types import (
     TransactionDictType,
@@ -40,11 +41,22 @@ from cdp.openapi_client.models.sign_evm_transaction_request import (
 )
 
 if TYPE_CHECKING:
+    from eth_account.signers.base import BaseAccount
+
+    from cdp.evm_smart_account import EvmSmartAccount
     from cdp.spend_permissions import SpendPermissionInput
 
 
-class EvmServerAccount(BaseAccount, BaseModel):
-    """A class representing an EVM server account."""
+class EvmServerAccount(BaseModel):
+    """An EVM server account managed by the CDP API.
+
+    Provides async methods for signing messages and transactions.
+
+    Note:
+        For synchronous BaseAccount compatibility, wrap this in EvmLocalAccount.
+        See the README for details.
+
+    """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -235,7 +247,13 @@ class EvmServerAccount(BaseAccount, BaseModel):
             v=v,
         )
 
-    async def transfer(self, to: str | BaseAccount, amount: int, token: str, network: str):
+    async def transfer(
+        self,
+        to: str | BaseAccount | EvmServerAccount | EvmSmartAccount,
+        amount: int,
+        token: str,
+        network: str,
+    ):
         """Transfer an amount of a token from an account to another account.
 
         Args:
@@ -359,7 +377,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
         slippage_bps: int | None = None,
         signer_address: str | None = None,
         idempotency_key: str | None = None,
-    ) -> "QuoteSwapResult":
+    ) -> QuoteSwapResult:
         """Get a quote for swapping tokens.
 
         This is a convenience method that calls the underlying create_swap_quote
@@ -592,7 +610,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
 
     async def use_spend_permission(
         self,
-        spend_permission: "SpendPermissionInput",
+        spend_permission: SpendPermissionInput,
         value: int,
         network: str,
     ) -> str:
@@ -670,7 +688,7 @@ class EvmServerAccount(BaseAccount, BaseModel):
         return str(self)
 
     @classmethod
-    def to_evm_account(cls, address: str, name: str | None = None) -> "EvmServerAccount":
+    def to_evm_account(cls, address: str, name: str | None = None) -> EvmServerAccount:
         """Construct an existing EvmAccount by its address and the name.
 
         Args:
