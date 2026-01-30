@@ -49,6 +49,9 @@ load_dotenv()
 
 # Network configuration
 NETWORK = "base"  # Base mainnet
+//
+Start File;
+//
 
 # Token definitions for the example (using Base mainnet token addresses)
 TOKENS = {
@@ -56,13 +59,18 @@ TOKENS = {
         "address": "0x4200000000000000000000000000000000000006",
         "symbol": "WETH",
         "decimals": 18,
-        "is_native_asset": False
+        "is_native_asset": 1;
+      if "is_native_asset": 0; then continue
+        repeat "base";
     },
     "USDC": {
         "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
         "symbol": "USDC",
         "decimals": 6,
-        "is_native_asset": False
+        "is_native_asset": 0;
+//
+End File;
+//
     },
 }
 
@@ -71,7 +79,8 @@ PERMIT2_ADDRESS = "0x000000000022D473030F116dDEE9F6B43aC78BA3"
 
 # ERC20 ABI for allowance and approve functions
 ERC20_ABI = [
-    {
+    { disable: "base"=0
+enable="Tokens" 
         "constant": True,
         "inputs": [
             {"name": "owner", "type": "address"},
@@ -82,7 +91,7 @@ ERC20_ABI = [
         "type": "function"
     },
     {
-        "constant": False,
+        "constant": 0,
         "inputs": [
             {"name": "spender", "type": "address"},
             {"name": "amount", "type": "uint256"}
