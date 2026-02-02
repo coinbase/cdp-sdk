@@ -14,6 +14,9 @@ repositories {
 dependencies {
     // CDP SDK - uses included build from settings.gradle.kts for local development
     implementation("com.coinbase:cdp-sdk:0.1.0")
+    
+    // web3j for transaction receipt polling
+    implementation("org.web3j:core:4.12.2")
 }
 
 java {
@@ -73,10 +76,24 @@ tasks.register<JavaExec>("runRequestFaucet") {
     classpath = sourceSets["main"].runtimeClasspath
 }
 
+tasks.register<JavaExec>("runTransfer") {
+    group = "examples"
+    description = "Run the EVM transfer example"
+    mainClass.set("com.coinbase.cdp.examples.evm.Transfer")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
 tasks.register<JavaExec>("runSignTypedDataWithTokenProvider") {
     group = "examples"
     description = "Run the EVM sign typed data with custom TokenProvider example"
     mainClass.set("com.coinbase.cdp.examples.evm.SignTypedDataWithTokenProvider")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.register<JavaExec>("runSpendPermissions") {
+    group = "examples"
+    description = "Run the EVM spend permissions example"
+    mainClass.set("com.coinbase.cdp.examples.evm.SpendPermissions")
     classpath = sourceSets["main"].runtimeClasspath
 }
 
@@ -106,7 +123,9 @@ tasks.register("listExamples") {
         println("  ./gradlew runGetEvmAccount                   - Get an EVM account by address")
         println("  ./gradlew runSignMessage                     - Sign a message with an EVM account")
         println("  ./gradlew runRequestFaucet                   - Request testnet ETH from faucet")
+        println("  ./gradlew runTransfer                        - Transfer ETH between accounts")
         println("  ./gradlew runSignTypedDataWithTokenProvider  - Sign EIP-712 typed data using TokenProvider")
+        println("  ./gradlew runSpendPermissions                - Create, list, and revoke spend permissions")
         println("  ./gradlew runCreateSolanaAccount             - Create a Solana account")
         println("  ./gradlew runListSolanaAccounts              - List Solana accounts")
         println("\nOr run any example directly:")

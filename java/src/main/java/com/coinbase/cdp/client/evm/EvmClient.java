@@ -7,7 +7,9 @@ import com.coinbase.cdp.client.evm.EvmClientOptions.GetOrCreateAccountOptions;
 import com.coinbase.cdp.client.evm.EvmClientOptions.GetSwapPriceOptions;
 import com.coinbase.cdp.client.evm.EvmClientOptions.ListAccountsOptions;
 import com.coinbase.cdp.client.evm.EvmClientOptions.ListSmartAccountsOptions;
+import com.coinbase.cdp.client.evm.EvmClientOptions.ListSpendPermissionsOptions;
 import com.coinbase.cdp.client.evm.EvmClientOptions.ListTokenBalancesOptions;
+import com.coinbase.cdp.client.evm.EvmClientOptions.TransferOptions;
 import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.api.EvmAccountsApi;
@@ -18,16 +20,20 @@ import com.coinbase.cdp.openapi.api.FaucetsApi;
 import com.coinbase.cdp.openapi.model.CreateEvmAccountRequest;
 import com.coinbase.cdp.openapi.model.CreateEvmSmartAccountRequest;
 import com.coinbase.cdp.openapi.model.CreateEvmSwapQuoteRequest;
+import com.coinbase.cdp.openapi.model.CreateSpendPermissionRequest;
 import com.coinbase.cdp.openapi.model.CreateSwapQuoteResponseWrapper;
 import com.coinbase.cdp.openapi.model.EIP712Message;
 import com.coinbase.cdp.openapi.model.EvmAccount;
 import com.coinbase.cdp.openapi.model.EvmSmartAccount;
+import com.coinbase.cdp.openapi.model.EvmUserOperation;
 import com.coinbase.cdp.openapi.model.GetSwapPriceResponseWrapper;
 import com.coinbase.cdp.openapi.model.ListEvmAccounts200Response;
 import com.coinbase.cdp.openapi.model.ListEvmSmartAccounts200Response;
 import com.coinbase.cdp.openapi.model.ListEvmTokenBalances200Response;
+import com.coinbase.cdp.openapi.model.ListSpendPermissions200Response;
 import com.coinbase.cdp.openapi.model.RequestEvmFaucet200Response;
 import com.coinbase.cdp.openapi.model.RequestEvmFaucetRequest;
+import com.coinbase.cdp.openapi.model.RevokeSpendPermissionRequest;
 import com.coinbase.cdp.openapi.model.SendEvmTransaction200Response;
 import com.coinbase.cdp.openapi.model.SendEvmTransactionRequest;
 import com.coinbase.cdp.openapi.model.SignEvmHash200Response;
@@ -38,6 +44,8 @@ import com.coinbase.cdp.openapi.model.SignEvmTransaction200Response;
 import com.coinbase.cdp.openapi.model.SignEvmTransactionRequest;
 import com.coinbase.cdp.openapi.model.SignEvmTypedData200Response;
 import com.coinbase.cdp.openapi.model.UpdateEvmAccountRequest;
+import com.coinbase.cdp.utils.TokenAddressResolver;
+import com.coinbase.cdp.utils.TransactionBuilder;
 
 /**
  * The namespace client for EVM operations.
@@ -394,6 +402,93 @@ public class EvmClient {
     return accountsApi.sendEvmTransaction(address, walletJwt, idempotencyKey, request);
   }
 
+  // ==================== Transfers ====================
+
+  /**
+   * Transfers tokens from the specified account.
+   *
+   * <p>Supports native ETH transfers and ERC20 token transfers.
+   *
+   * <p>Example usage:
+   *
+   * <pre>{@code
+   * // Transfer native ETH
+   * var result = evmClient.transfer(
+   *     account.getAddress(),
+   *     TransferOptions.builder()
+   *         .to("0x742d35Cc6634C0532925a3b844Bc9e7595f3ABCD")
+   *         .amount(new BigInteger("1000000000000000")) // 0.001 ETH in wei
+   *         .token("eth")
+   *         .network(NetworkEnum.BASE_SEPOLIA)
+   *         .build()
+   * );
+   *
+   * // Transfer USDC
+   * var result = evmClient.transfer(
+   *     account.getAddress(),
+   *     TransferOptions.builder()
+   *         .to("0x742d35Cc6634C0532925a3b844Bc9e7595f3ABCD")
+   *         .amount(new BigInteger("1000000")) // 1 USDC (6 decimals)
+   *         .token("usdc")
+   *         .network(NetworkEnum.BASE)
+   *         .build()
+   * );
+   * }</pre>
+   *
+   * @param fromAddress the sender account address
+   * @param options the transfer options (to, amount, token, network)
+   * @return the transaction response with hash
+   * @throws ApiException if the API call fails
+   * @throws IllegalArgumentException if options are invalid
+   */
+  public SendEvmTransaction200Response transfer(String fromAddress, TransferOptions options)
+      throws ApiException {
+    return transfer(fromAddress, options, null);
+  }
+
+  /**
+   * Transfers tokens from the specified account with idempotency key.
+   *
+   * @param fromAddress the sender account address
+   * @param options the transfer options (to, amount, token, network)
+   * @param idempotencyKey optional idempotency key for request deduplication
+   * @return the transaction response with hash
+   * @throws ApiException if the API call fails
+   * @throws IllegalArgumentException if options are invalid
+   */
+  public SendEvmTransaction200Response transfer(
+      String fromAddress, TransferOptions options, String idempotencyKey) throws ApiException {
+
+    if (fromAddress == null || fromAddress.isBlank()) {
+      throw new IllegalArgumentException("fromAddress is required");
+    }
+    if (options == null) {
+      throw new IllegalArgumentException("options is required");
+    }
+
+    String transaction = buildTransferTransaction(options);
+
+    SendEvmTransactionRequest request =
+        new SendEvmTransactionRequest().network(options.network()).transaction(transaction);
+
+    return sendTransaction(fromAddress, request, idempotencyKey);
+  }
+
+  /**
+   * Builds the RLP-encoded transaction for a transfer.
+   *
+   * @param options the transfer options
+   * @return the RLP-encoded transaction as a hex string
+   */
+  private String buildTransferTransaction(TransferOptions options) {
+    if (TokenAddressResolver.isNativeEth(options.token())) {
+      return TransactionBuilder.buildNativeTransfer(options.to(), options.amount());
+    }
+
+    String tokenAddress = TokenAddressResolver.resolve(options.token(), options.network());
+    return TransactionBuilder.buildErc20Transfer(tokenAddress, options.to(), options.amount());
+  }
+
   // ==================== Smart Accounts ====================
 
   /**
@@ -441,6 +536,83 @@ public class EvmClient {
   public ListEvmSmartAccounts200Response listSmartAccounts(ListSmartAccountsOptions options)
       throws ApiException {
     return smartAccountsApi.listEvmSmartAccounts(options.pageSize(), options.pageToken());
+  }
+
+  // ==================== Spend Permissions ====================
+
+  /**
+   * Creates a spend permission for the specified smart account.
+   *
+   * @param address the smart account address
+   * @param request the spend permission request
+   * @return the user operation
+   * @throws ApiException if the API call fails
+   */
+  public EvmUserOperation createSpendPermission(
+      String address, CreateSpendPermissionRequest request) throws ApiException {
+    return createSpendPermission(address, request, null);
+  }
+
+  /**
+   * Creates a spend permission for the specified smart account with idempotency key.
+   *
+   * @param address the smart account address
+   * @param request the spend permission request
+   * @param idempotencyKey optional idempotency key
+   * @return the user operation
+   * @throws ApiException if the API call fails
+   */
+  public EvmUserOperation createSpendPermission(
+      String address, CreateSpendPermissionRequest request, String idempotencyKey)
+      throws ApiException {
+    String walletJwt =
+        generateWalletJwt(
+            "POST", "/v2/evm/smart-accounts/" + address + "/spend-permissions", request);
+    return smartAccountsApi.createSpendPermission(address, request, walletJwt, idempotencyKey);
+  }
+
+  /**
+   * Lists spend permissions for a smart account.
+   *
+   * @param options the list options (must include address)
+   * @return the list response
+   * @throws ApiException if the API call fails
+   */
+  public ListSpendPermissions200Response listSpendPermissions(ListSpendPermissionsOptions options)
+      throws ApiException {
+    return smartAccountsApi.listSpendPermissions(
+        options.address(), options.pageSize(), options.pageToken());
+  }
+
+  /**
+   * Revokes an existing spend permission.
+   *
+   * @param address the smart account address
+   * @param request the revoke request
+   * @return the user operation
+   * @throws ApiException if the API call fails
+   */
+  public EvmUserOperation revokeSpendPermission(
+      String address, RevokeSpendPermissionRequest request) throws ApiException {
+    return revokeSpendPermission(address, request, null);
+  }
+
+  /**
+   * Revokes an existing spend permission with idempotency key.
+   *
+   * @param address the smart account address
+   * @param request the revoke request
+   * @param idempotencyKey optional idempotency key
+   * @return the user operation
+   * @throws ApiException if the API call fails
+   */
+  public EvmUserOperation revokeSpendPermission(
+      String address, RevokeSpendPermissionRequest request, String idempotencyKey)
+      throws ApiException {
+    String walletJwt =
+        generateWalletJwt(
+            "POST", "/v2/evm/smart-accounts/" + address + "/spend-permissions/revoke", request);
+    return smartAccountsApi.revokeSpendPermission(address, request, walletJwt, idempotencyKey);
   }
 
   // ==================== Token Balances ====================

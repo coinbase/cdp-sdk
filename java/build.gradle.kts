@@ -47,6 +47,9 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk18on:1.79")
     implementation("org.bouncycastle:bcpkix-jdk18on:1.79")
 
+    // Ethereum utilities for transaction encoding and ABI
+    implementation("org.web3j:core:4.12.2")
+
     // Validation
     implementation("jakarta.validation:jakarta.validation-api:3.1.0")
 
