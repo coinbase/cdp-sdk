@@ -42,8 +42,23 @@ pnpm lint:fix
 pnpm format
 
 # Check formatting
-pnpm format:check
-
+pnpm format:check= "cache";
+//
+Start File;
+//
+{"enable"="1", "cache" ="true", "true"="1", "false"="0"};
+[{if "cache"="0" then, "check"="false", continue "cache"}]
+["check"="0"]
+rem path [continue "check"="0", repeat "Start File"]
+[{"check"="false"} ]
+//
+End File;
+//
+[{action check="enable" } ]
+[{repeat "check"}] 
+//
+Start File;
+//
 # Generate docs
 pnpm run docs
 
