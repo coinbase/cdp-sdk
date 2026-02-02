@@ -6,6 +6,12 @@ import com.coinbase.cdp.client.solana.SolanaClientOptions.GetAccountOptions;
 import com.coinbase.cdp.client.solana.SolanaClientOptions.GetOrCreateAccountOptions;
 import com.coinbase.cdp.client.solana.SolanaClientOptions.ListAccountsOptions;
 import com.coinbase.cdp.client.solana.SolanaClientOptions.ListTokenBalancesOptions;
+import com.coinbase.cdp.client.solana.SolanaClientOptions.TransferOptions;
+import com.coinbase.cdp.utils.SolanaMintAddressResolver;
+import com.coinbase.cdp.utils.SolanaTransactionBuilder;
+import org.p2p.solanaj.core.PublicKey;
+import org.p2p.solanaj.rpc.RpcClient;
+import org.p2p.solanaj.rpc.RpcException;
 import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.api.FaucetsApi;
@@ -56,6 +62,12 @@ import com.coinbase.cdp.openapi.model.SolanaAccount;
  * }</pre>
  */
 public class SolanaClient {
+
+  private static final String SOLANA_MAINNET_RPC = "https://api.mainnet-beta.solana.com";
+  private static final String SOLANA_DEVNET_RPC = "https://api.devnet.solana.com";
+
+  /** Default USDC decimals. */
+  private static final int USDC_DECIMALS = 6;
 
   private final CdpClient cdpClient;
   private final TokenProvider tokenProvider;
@@ -287,6 +299,114 @@ public class SolanaClient {
     String walletJwt =
         generateWalletJwt("POST", "/v2/solana/accounts/" + address + "/send/transaction", request);
     return accountsApi.sendSolanaTransaction(walletJwt, idempotencyKey, request);
+  }
+
+  // ==================== Transfers ====================
+
+  /**
+   * Transfers SOL or SPL tokens from the specified account.
+   *
+   * <p>Supports native SOL transfers and SPL token transfers (including automatic creation of
+   * destination associated token accounts if needed).
+   *
+   * <p>Example usage:
+   *
+   * <pre>{@code
+   * // Transfer native SOL
+   * var result = solanaClient.transfer(
+   *     account.getAddress(),
+   *     TransferOptions.builder()
+   *         .to("recipientAddress...")
+   *         .amount(new BigInteger("1000000000")) // 1 SOL in lamports
+   *         .token("sol")
+   *         .network(NetworkEnum.SOLANA_DEVNET)
+   *         .build()
+   * );
+   *
+   * // Transfer USDC
+   * var result = solanaClient.transfer(
+   *     account.getAddress(),
+   *     TransferOptions.builder()
+   *         .to("recipientAddress...")
+   *         .amount(new BigInteger("1000000")) // 1 USDC (6 decimals)
+   *         .token("usdc")
+   *         .network(NetworkEnum.SOLANA_DEVNET)
+   *         .build()
+   * );
+   * }</pre>
+   *
+   * @param fromAddress the sender account address
+   * @param options the transfer options (to, amount, token, network)
+   * @return the transaction response with signature
+   * @throws ApiException if the API call fails
+   */
+  public SendSolanaTransaction200Response transfer(String fromAddress, TransferOptions options)
+      throws ApiException {
+    return transfer(fromAddress, options, null);
+  }
+
+  /**
+   * Transfers SOL or SPL tokens with idempotency key.
+   *
+   * @param fromAddress the sender account address
+   * @param options the transfer options (to, amount, token, network)
+   * @param idempotencyKey optional idempotency key for request deduplication
+   * @return the transaction response with signature
+   * @throws ApiException if the API call fails
+   */
+  public SendSolanaTransaction200Response transfer(
+      String fromAddress, TransferOptions options, String idempotencyKey) throws ApiException {
+
+    if (fromAddress == null || fromAddress.isBlank()) {
+      throw new IllegalArgumentException("fromAddress is required");
+    }
+    if (options == null) {
+      throw new IllegalArgumentException("options is required");
+    }
+
+    String base64Transaction = buildTransferTransaction(fromAddress, options);
+
+    var request =
+        new SendSolanaTransactionRequest()
+            .network(options.network())
+            .transaction(base64Transaction);
+
+    return sendTransaction(fromAddress, request, idempotencyKey);
+  }
+
+  /**
+   * Builds the base64-encoded transaction for a transfer.
+   *
+   * @param fromAddress the sender address
+   * @param options the transfer options
+   * @return the base64-encoded unsigned transaction
+   */
+  private String buildTransferTransaction(String fromAddress, TransferOptions options) {
+    String rpcUrl =
+        options.network() == SendSolanaTransactionRequest.NetworkEnum.SOLANA
+            ? SOLANA_MAINNET_RPC
+            : SOLANA_DEVNET_RPC;
+    RpcClient rpcClient = new RpcClient(rpcUrl);
+
+    try {
+      PublicKey from = new PublicKey(fromAddress);
+      PublicKey to = new PublicKey(options.to());
+
+      if (SolanaMintAddressResolver.isNativeSol(options.token())) {
+        return SolanaTransactionBuilder.buildNativeTransfer(rpcClient, from, to, options.amount());
+      }
+
+      String mintAddress = SolanaMintAddressResolver.resolve(options.token(), options.network());
+      PublicKey mint = new PublicKey(mintAddress);
+
+      // Use USDC decimals for known tokens, otherwise default to 6
+      int decimals = USDC_DECIMALS;
+
+      return SolanaTransactionBuilder.buildSplTokenTransfer(
+          rpcClient, from, to, mint, options.amount(), decimals);
+    } catch (RpcException e) {
+      throw new RuntimeException("Failed to build Solana transaction: " + e.getMessage(), e);
+    }
   }
 
   // ==================== Token Balances ====================

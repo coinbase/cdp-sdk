@@ -9,6 +9,7 @@ version = "0.1.0"
 repositories {
     mavenCentral()
     mavenLocal()
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
@@ -17,6 +18,9 @@ dependencies {
     
     // web3j for transaction receipt polling
     implementation("org.web3j:core:4.12.2")
+
+    // SolanaJ for Solana transaction building and RPC
+    implementation("com.github.skynetcap:solanaj:1.18.1")
 }
 
 java {
@@ -111,6 +115,13 @@ tasks.register<JavaExec>("runListSolanaAccounts") {
     classpath = sourceSets["main"].runtimeClasspath
 }
 
+tasks.register<JavaExec>("runSolanaTransfer") {
+    group = "examples"
+    description = "Run the Solana transfer example"
+    mainClass.set("com.coinbase.cdp.examples.solana.Transfer")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
 // Task to list all available example tasks
 tasks.register("listExamples") {
     group = "examples"
@@ -128,6 +139,7 @@ tasks.register("listExamples") {
         println("  ./gradlew runSpendPermissions                - Create, list, and revoke spend permissions")
         println("  ./gradlew runCreateSolanaAccount             - Create a Solana account")
         println("  ./gradlew runListSolanaAccounts              - List Solana accounts")
+        println("  ./gradlew runSolanaTransfer                  - Transfer SOL between accounts")
         println("\nOr run any example directly:")
         println("  ./gradlew run -PmainClass=com.coinbase.cdp.examples.evm.CreateAccount")
     }

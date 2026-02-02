@@ -18,6 +18,7 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
@@ -49,6 +50,9 @@ dependencies {
 
     // Ethereum utilities for transaction encoding and ABI
     implementation("org.web3j:core:4.12.2")
+
+    // Solana utilities for transaction encoding
+    implementation("com.github.skynetcap:solanaj:1.18.1")
 
     // Validation
     implementation("jakarta.validation:jakarta.validation-api:3.1.0")
