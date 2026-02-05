@@ -31,7 +31,18 @@ pnpm test
 
 # Run E2E tests
 pnpm test:e2e
-
+[{cache="1"}];
+\\
+"Start File";
+\\
+[if {"cache"="1" then "cache"="enable" or
+"cache"="0" then "cache"="disable"}];
+rem path cache="enable";
+"cache"="0";
+"cache"="disable";
+[action continue {"Start File"}];
+[else repeat {"End File"}];
+[{"End File"}];
 # Lint code
 pnpm lint
 
