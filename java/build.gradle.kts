@@ -4,6 +4,7 @@ plugins {
     `maven-publish`
     id("org.openapi.generator") version "7.11.0"
     id("com.diffplug.spotless") version "7.0.2"
+    id("org.jreleaser") version "1.17.0"
 }
 
 group = "com.coinbase"
@@ -66,6 +67,7 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.27.3")
     testImplementation("org.mockito:mockito-core:5.15.2")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("io.github.cdimascio:dotenv-java:3.1.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -113,6 +115,12 @@ tasks.named<Javadoc>("javadoc") {
 
 // Task to run only E2E tests
 tasks.register<Test>("testE2E") {
+    description = "Runs E2E tests"
+    group = "verification"
+
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+
     useJUnitPlatform()
     include("**/e2e/**")
     testLogging {
@@ -123,4 +131,83 @@ tasks.register<Test>("testE2E") {
 // Exclude E2E tests from regular test task
 tasks.test {
     exclude("**/e2e/**")
+}
+
+// Maven Central Publishing Configuration
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            groupId = "com.coinbase"
+            artifactId = "cdp-sdk"
+            version = project.version.toString()
+
+            pom {
+                name.set("CDP SDK")
+                description.set("The official Java SDK for the Coinbase Developer Platform (CDP)")
+                url.set("https://github.com/coinbase/cdp-sdk")
+                inceptionYear.set("2025")
+
+                licenses {
+                    license {
+                        name.set("Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("coinbase")
+                        name.set("Coinbase Developer Platform")
+                        organization.set("Coinbase")
+                        organizationUrl.set("https://www.coinbase.com")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:git://github.com/coinbase/cdp-sdk.git")
+                    developerConnection.set("scm:git:ssh://github.com:coinbase/cdp-sdk.git")
+                    url.set("https://github.com/coinbase/cdp-sdk")
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "staging"
+            url = uri(layout.buildDirectory.dir("staging-deploy"))
+        }
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/coinbase/cdp-sdk")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR") ?: ""
+                password = System.getenv("GITHUB_TOKEN") ?: ""
+            }
+        }
+    }
+}
+
+// JReleaser Configuration for Maven Central deployment
+jreleaser {
+    signing {
+        active.set(org.jreleaser.model.Active.ALWAYS)
+        armored.set(true)
+    }
+
+    deploy {
+        maven {
+            mavenCentral {
+                create("sonatype") {
+                    active.set(org.jreleaser.model.Active.ALWAYS)
+                    url.set("https://central.sonatype.com/api/v1/publisher")
+                    stagingRepository("build/staging-deploy")
+                    retryDelay.set(30)
+                    maxRetries.set(60)
+                }
+            }
+        }
+    }
 }

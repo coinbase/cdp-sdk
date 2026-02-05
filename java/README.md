@@ -5,6 +5,7 @@ The official Java SDK for the [Coinbase Developer Platform (CDP)](https://docs.c
 ## Table of Contents
 
 - [Installation](#installation)
+  - [GitHub Packages (Alternative)](#github-packages-alternative)
 - [API Keys](#api-keys)
 - [Usage](#usage)
   - [Initialization](#initialization)
@@ -54,6 +55,37 @@ dependencies {
     <artifactId>cdp-sdk</artifactId>
     <version>0.1.0</version>
 </dependency>
+```
+
+### GitHub Packages (Alternative)
+
+The SDK is also available via GitHub Packages. This requires GitHub authentication.
+
+**Step 1:** Add your GitHub credentials to `~/.gradle/gradle.properties`:
+
+```properties
+gpr.user=YOUR_GITHUB_USERNAME
+gpr.token=YOUR_GITHUB_PERSONAL_ACCESS_TOKEN
+```
+
+> Generate a token at https://github.com/settings/tokens with `read:packages` scope.
+
+**Step 2:** Add the repository and dependency in your `build.gradle.kts`:
+
+```kotlin
+repositories {
+    maven {
+        url = uri("https://maven.pkg.github.com/coinbase/cdp-sdk")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.token") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+
+dependencies {
+    implementation("com.coinbase:cdp-sdk:0.1.0")
+}
 ```
 
 ## API Keys
@@ -356,7 +388,7 @@ By default, the SDK retries on these status codes:
 
 ## TokenProvider Pattern
 
-For serverless or edge deployments where you want to generate tokens separately from making API calls, use the `TokenProvider` pattern:
+For environments where you want to generate tokens separately from making API calls, use the `TokenProvider` pattern:
 
 ```java
 import com.coinbase.cdp.auth.CdpTokenGenerator;

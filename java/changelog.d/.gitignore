@@ -1,0 +1,12 @@
+# This directory is for changelog fragments
+# Each fragment should be a .md file named with the format:
+# {pr_number}.{type}.md
+#
+# Where type is one of:
+# - feature.md (for new features)
+# - bugfix.md (for bug fixes)
+# - removal.md (for breaking changes/removals)
+#
+# Example: 123.feature.md
+#
+# The content of the file should be a single line describing the change.
