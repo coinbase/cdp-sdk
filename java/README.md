@@ -31,33 +31,7 @@ The official Java SDK for the [Coinbase Developer Platform (CDP)](https://docs.c
 
 ## Installation
 
-### Gradle (Kotlin DSL)
-
-```kotlin
-dependencies {
-    implementation("com.coinbase:cdp-sdk:0.1.0")
-}
-```
-
-### Gradle (Groovy DSL)
-
-```groovy
-dependencies {
-    implementation 'com.coinbase:cdp-sdk:0.1.0'
-}
-```
-
-### Maven
-
-```xml
-<dependency>
-    <groupId>com.coinbase</groupId>
-    <artifactId>cdp-sdk</artifactId>
-    <version>0.1.0</version>
-</dependency>
-```
-
-### GitHub Packages (Alternative)
+### GitHub Packages
 
 The SDK is also available via GitHub Packages. This requires GitHub authentication.
 
