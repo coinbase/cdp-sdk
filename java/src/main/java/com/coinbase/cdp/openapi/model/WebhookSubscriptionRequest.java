@@ -66,7 +66,7 @@ public class WebhookSubscriptionRequest {
 
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @jakarta.annotation.Nullable
-  private Metadata metadata = new HashMap<>();
+  private Metadata metadata = new Metadata();
 
   public static final String JSON_PROPERTY_LABELS = "labels";
   @jakarta.annotation.Nullable
