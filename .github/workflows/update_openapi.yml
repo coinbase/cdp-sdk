@@ -45,7 +45,7 @@ jobs:
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: "temurin"
-          java-version: "23"
+          java-version: "21"
 
       - name: Install OpenAPI Generator 7.11.0
         if: steps.check_branch.outputs.branch_exists == 'false'
