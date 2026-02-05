@@ -49,8 +49,6 @@ import com.coinbase.cdp.openapi.ApiClient;
   WebhookSubscriptionResponse.JSON_PROPERTY_SECRET,
   WebhookSubscriptionResponse.JSON_PROPERTY_SUBSCRIPTION_ID,
   WebhookSubscriptionResponse.JSON_PROPERTY_TARGET,
-  WebhookSubscriptionResponse.JSON_PROPERTY_LABEL_KEY,
-  WebhookSubscriptionResponse.JSON_PROPERTY_LABEL_VALUE,
   WebhookSubscriptionResponse.JSON_PROPERTY_LABELS
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
@@ -86,14 +84,6 @@ public class WebhookSubscriptionResponse {
   public static final String JSON_PROPERTY_TARGET = "target";
   @jakarta.annotation.Nonnull
   private WebhookTarget target;
-
-  public static final String JSON_PROPERTY_LABEL_KEY = "labelKey";
-  @jakarta.annotation.Nullable
-  private String labelKey;
-
-  public static final String JSON_PROPERTY_LABEL_VALUE = "labelValue";
-  @jakarta.annotation.Nullable
-  private String labelValue;
 
   public static final String JSON_PROPERTY_LABELS = "labels";
   @jakarta.annotation.Nullable
@@ -164,7 +154,7 @@ public class WebhookSubscriptionResponse {
   }
 
   /**
-   * Types of events to subscribe to. Event types follow a three-part dot-separated format:  service.resource.verb (e.g., \&quot;onchain.activity.detected\&quot;, \&quot;wallet.activity.detected\&quot;, \&quot;onramp.transaction.created\&quot;). 
+   * Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \&quot;onchain.activity.detected\&quot;, \&quot;wallet.activity.detected\&quot;, \&quot;onramp.transaction.created\&quot;). 
    * @return eventTypes
    */
   @jakarta.annotation.Nonnull
@@ -302,58 +292,6 @@ public class WebhookSubscriptionResponse {
   }
 
 
-  public WebhookSubscriptionResponse labelKey(@jakarta.annotation.Nullable String labelKey) {
-    this.labelKey = labelKey;
-    return this;
-  }
-
-  /**
-   * (Deprecated) Use &#x60;labels&#x60; field instead.  Label key for filtering events. Present when subscription uses traditional single-label format. Maintained for backward compatibility only. 
-   * @return labelKey
-   * @deprecated
-   */
-  @Deprecated
-  @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_LABEL_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getLabelKey() {
-    return labelKey;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_LABEL_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setLabelKey(@jakarta.annotation.Nullable String labelKey) {
-    this.labelKey = labelKey;
-  }
-
-
-  public WebhookSubscriptionResponse labelValue(@jakarta.annotation.Nullable String labelValue) {
-    this.labelValue = labelValue;
-    return this;
-  }
-
-  /**
-   * (Deprecated) Use &#x60;labels&#x60; field instead.  Label value for filtering events. Present when subscription uses traditional single-label format. Maintained for backward compatibility only. 
-   * @return labelValue
-   * @deprecated
-   */
-  @Deprecated
-  @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_LABEL_VALUE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getLabelValue() {
-    return labelValue;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_LABEL_VALUE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setLabelValue(@jakarta.annotation.Nullable String labelValue) {
-    this.labelValue = labelValue;
-  }
-
-
   public WebhookSubscriptionResponse labels(@jakarta.annotation.Nullable Map<String, String> labels) {
     this.labels = labels;
     return this;
@@ -406,14 +344,12 @@ public class WebhookSubscriptionResponse {
         Objects.equals(this.secret, webhookSubscriptionResponse.secret) &&
         Objects.equals(this.subscriptionId, webhookSubscriptionResponse.subscriptionId) &&
         Objects.equals(this.target, webhookSubscriptionResponse.target) &&
-        Objects.equals(this.labelKey, webhookSubscriptionResponse.labelKey) &&
-        Objects.equals(this.labelValue, webhookSubscriptionResponse.labelValue) &&
         Objects.equals(this.labels, webhookSubscriptionResponse.labels);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(createdAt, description, eventTypes, isEnabled, metadata, secret, subscriptionId, target, labelKey, labelValue, labels);
+    return Objects.hash(createdAt, description, eventTypes, isEnabled, metadata, secret, subscriptionId, target, labels);
   }
 
   @Override
@@ -428,8 +364,6 @@ public class WebhookSubscriptionResponse {
     sb.append("    secret: ").append(toIndentedString(secret)).append("\n");
     sb.append("    subscriptionId: ").append(toIndentedString(subscriptionId)).append("\n");
     sb.append("    target: ").append(toIndentedString(target)).append("\n");
-    sb.append("    labelKey: ").append(toIndentedString(labelKey)).append("\n");
-    sb.append("    labelValue: ").append(toIndentedString(labelValue)).append("\n");
     sb.append("    labels: ").append(toIndentedString(labels)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -522,16 +456,6 @@ public class WebhookSubscriptionResponse {
       joiner.add(getTarget().toUrlQueryString(prefix + "target" + suffix));
     }
 
-    // add `labelKey` to the URL query string
-    if (getLabelKey() != null) {
-      joiner.add(String.format("%slabelKey%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getLabelKey()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-    }
-
-    // add `labelValue` to the URL query string
-    if (getLabelValue() != null) {
-      joiner.add(String.format("%slabelValue%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getLabelValue()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
-    }
-
     // add `labels` to the URL query string
     if (getLabels() != null) {
       for (String _key : getLabels().keySet()) {
@@ -588,14 +512,6 @@ public class WebhookSubscriptionResponse {
       this.instance.target = target;
       return this;
     }
-    public WebhookSubscriptionResponse.Builder labelKey(String labelKey) {
-      this.instance.labelKey = labelKey;
-      return this;
-    }
-    public WebhookSubscriptionResponse.Builder labelValue(String labelValue) {
-      this.instance.labelValue = labelValue;
-      return this;
-    }
     public WebhookSubscriptionResponse.Builder labels(Map<String, String> labels) {
       this.instance.labels = labels;
       return this;
@@ -642,8 +558,6 @@ public class WebhookSubscriptionResponse {
       .secret(getSecret())
       .subscriptionId(getSubscriptionId())
       .target(getTarget())
-      .labelKey(getLabelKey())
-      .labelValue(getLabelValue())
       .labels(getLabels());
   }
 

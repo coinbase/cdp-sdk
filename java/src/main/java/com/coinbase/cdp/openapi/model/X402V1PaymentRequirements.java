@@ -270,7 +270,7 @@ public class X402V1PaymentRequirements {
   }
 
   /**
-   * The description of the resource.
+   * A human-readable description of the resource.
    * @return description
    */
   @jakarta.annotation.Nonnull

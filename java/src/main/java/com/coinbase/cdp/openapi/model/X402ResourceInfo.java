@@ -84,7 +84,7 @@ public class X402ResourceInfo {
   }
 
   /**
-   * The description of the resource.
+   * A human-readable description of the resource.
    * @return description
    */
   @jakarta.annotation.Nullable

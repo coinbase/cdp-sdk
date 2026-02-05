@@ -104,11 +104,7 @@ public enum ErrorType {
   
   MFA_REQUIRED("mfa_required"),
   
-  MFA_NOT_ENROLLED("mfa_not_enrolled"),
-  
-  MFA_MULTIPLE_METHODS_AVAILABLE("mfa_multiple_methods_available"),
-  
-  MFA_INVALID_METHOD("mfa_invalid_method");
+  MFA_NOT_ENROLLED("mfa_not_enrolled");
 
   private String value;
 

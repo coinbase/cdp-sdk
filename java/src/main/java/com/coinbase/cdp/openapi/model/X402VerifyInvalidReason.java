@@ -98,7 +98,9 @@ public enum X402VerifyInvalidReason {
   
   INVALID_EXACT_SVM_PAYLOAD_TRANSACTION_FEE_PAYER_INCLUDED_IN_INSTRUCTION_ACCOUNTS("invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts"),
   
-  INVALID_EXACT_SVM_PAYLOAD_TRANSACTION_FEE_PAYER_TRANSFERRING_FUNDS("invalid_exact_svm_payload_transaction_fee_payer_transferring_funds");
+  INVALID_EXACT_SVM_PAYLOAD_TRANSACTION_FEE_PAYER_TRANSFERRING_FUNDS("invalid_exact_svm_payload_transaction_fee_payer_transferring_funds"),
+  
+  UNKNOWN_ERROR("unknown_error");
 
   private String value;
 

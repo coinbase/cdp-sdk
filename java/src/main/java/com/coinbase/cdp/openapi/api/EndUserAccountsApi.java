@@ -17,6 +17,10 @@ import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.ApiResponse;
 import com.coinbase.cdp.openapi.Pair;
 
+import com.coinbase.cdp.openapi.model.AddEndUserEvmAccount201Response;
+import com.coinbase.cdp.openapi.model.AddEndUserEvmSmartAccount201Response;
+import com.coinbase.cdp.openapi.model.AddEndUserEvmSmartAccountRequest;
+import com.coinbase.cdp.openapi.model.AddEndUserSolanaAccount201Response;
 import com.coinbase.cdp.openapi.model.CreateEndUserRequest;
 import com.coinbase.cdp.openapi.model.EndUser;
 import com.coinbase.cdp.openapi.model.Error;
@@ -84,6 +88,312 @@ public class EndUserAccountsApi {
       body = "[no body]";
     }
     return operationId + " call failed with: " + statusCode + " - " + body;
+  }
+
+  /**
+   * Add an EVM account to an end user
+   * Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * @param userId The ID of the end user to add the account to. (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param body  (optional)
+   * @return AddEndUserEvmAccount201Response
+   * @throws ApiException if fails to make API call
+   */
+  public AddEndUserEvmAccount201Response addEndUserEvmAccount(String userId, String xWalletAuth, String xIdempotencyKey, Object body) throws ApiException {
+    ApiResponse<AddEndUserEvmAccount201Response> localVarResponse = addEndUserEvmAccountWithHttpInfo(userId, xWalletAuth, xIdempotencyKey, body);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Add an EVM account to an end user
+   * Adds a new EVM EOA account to an existing end user. End users can have up to 10 EVM accounts. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * @param userId The ID of the end user to add the account to. (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param body  (optional)
+   * @return ApiResponse&lt;AddEndUserEvmAccount201Response&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AddEndUserEvmAccount201Response> addEndUserEvmAccountWithHttpInfo(String userId, String xWalletAuth, String xIdempotencyKey, Object body) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = addEndUserEvmAccountRequestBuilder(userId, xWalletAuth, xIdempotencyKey, body);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("addEndUserEvmAccount", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<AddEndUserEvmAccount201Response>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<AddEndUserEvmAccount201Response>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AddEndUserEvmAccount201Response>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder addEndUserEvmAccountRequestBuilder(String userId, String xWalletAuth, String xIdempotencyKey, Object body) throws ApiException {
+    // verify the required parameter 'userId' is set
+    if (userId == null) {
+      throw new ApiException(400, "Missing the required parameter 'userId' when calling addEndUserEvmAccount");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/end-users/{userId}/evm"
+        .replace("{userId}", ApiClient.urlEncode(userId.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (xWalletAuth != null) {
+      localVarRequestBuilder.header("X-Wallet-Auth", xWalletAuth.toString());
+    }
+    if (xIdempotencyKey != null) {
+      localVarRequestBuilder.header("X-Idempotency-Key", xIdempotencyKey.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(body);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Add an EVM smart account to an end user
+   * Creates an EVM smart account for an existing end user. The backend will create a new EVM EOA account to serve as the owner of the smart account. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * @param userId The ID of the end user to add the smart account to. (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param addEndUserEvmSmartAccountRequest  (optional)
+   * @return AddEndUserEvmSmartAccount201Response
+   * @throws ApiException if fails to make API call
+   */
+  public AddEndUserEvmSmartAccount201Response addEndUserEvmSmartAccount(String userId, String xWalletAuth, String xIdempotencyKey, AddEndUserEvmSmartAccountRequest addEndUserEvmSmartAccountRequest) throws ApiException {
+    ApiResponse<AddEndUserEvmSmartAccount201Response> localVarResponse = addEndUserEvmSmartAccountWithHttpInfo(userId, xWalletAuth, xIdempotencyKey, addEndUserEvmSmartAccountRequest);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Add an EVM smart account to an end user
+   * Creates an EVM smart account for an existing end user. The backend will create a new EVM EOA account to serve as the owner of the smart account. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * @param userId The ID of the end user to add the smart account to. (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param addEndUserEvmSmartAccountRequest  (optional)
+   * @return ApiResponse&lt;AddEndUserEvmSmartAccount201Response&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AddEndUserEvmSmartAccount201Response> addEndUserEvmSmartAccountWithHttpInfo(String userId, String xWalletAuth, String xIdempotencyKey, AddEndUserEvmSmartAccountRequest addEndUserEvmSmartAccountRequest) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = addEndUserEvmSmartAccountRequestBuilder(userId, xWalletAuth, xIdempotencyKey, addEndUserEvmSmartAccountRequest);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("addEndUserEvmSmartAccount", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<AddEndUserEvmSmartAccount201Response>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<AddEndUserEvmSmartAccount201Response>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AddEndUserEvmSmartAccount201Response>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder addEndUserEvmSmartAccountRequestBuilder(String userId, String xWalletAuth, String xIdempotencyKey, AddEndUserEvmSmartAccountRequest addEndUserEvmSmartAccountRequest) throws ApiException {
+    // verify the required parameter 'userId' is set
+    if (userId == null) {
+      throw new ApiException(400, "Missing the required parameter 'userId' when calling addEndUserEvmSmartAccount");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/end-users/{userId}/evm-smart-account"
+        .replace("{userId}", ApiClient.urlEncode(userId.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (xWalletAuth != null) {
+      localVarRequestBuilder.header("X-Wallet-Auth", xWalletAuth.toString());
+    }
+    if (xIdempotencyKey != null) {
+      localVarRequestBuilder.header("X-Idempotency-Key", xIdempotencyKey.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(addEndUserEvmSmartAccountRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Add a Solana account to an end user
+   * Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * @param userId The ID of the end user to add the account to. (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param body  (optional)
+   * @return AddEndUserSolanaAccount201Response
+   * @throws ApiException if fails to make API call
+   */
+  public AddEndUserSolanaAccount201Response addEndUserSolanaAccount(String userId, String xWalletAuth, String xIdempotencyKey, Object body) throws ApiException {
+    ApiResponse<AddEndUserSolanaAccount201Response> localVarResponse = addEndUserSolanaAccountWithHttpInfo(userId, xWalletAuth, xIdempotencyKey, body);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Add a Solana account to an end user
+   * Adds a new Solana account to an existing end user. End users can have  up to 10 Solana accounts. This API is intended to be used by the developer&#39;s own backend, and is authenticated using the developer&#39;s CDP API key.
+   * @param userId The ID of the end user to add the account to. (required)
+   * @param xWalletAuth A JWT signed using your Wallet Secret, encoded in base64. Refer to the [Generate Wallet Token](https://docs.cdp.coinbase.com/api-reference/v2/authentication#2-generate-wallet-token) section of our Authentication docs for more details on how to generate your Wallet Token.  (optional)
+   * @param xIdempotencyKey An optional [UUID v4](https://www.uuidgenerator.net/version4) request header for making requests safely retryable. When included, duplicate requests with the same key will return identical responses.  Refer to our [Idempotency docs](https://docs.cdp.coinbase.com/api-reference/v2/idempotency) for more information on using idempotency keys.  (optional)
+   * @param body  (optional)
+   * @return ApiResponse&lt;AddEndUserSolanaAccount201Response&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AddEndUserSolanaAccount201Response> addEndUserSolanaAccountWithHttpInfo(String userId, String xWalletAuth, String xIdempotencyKey, Object body) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = addEndUserSolanaAccountRequestBuilder(userId, xWalletAuth, xIdempotencyKey, body);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("addEndUserSolanaAccount", localVarResponse);
+        }
+        if (localVarResponse.body() == null) {
+          return new ApiResponse<AddEndUserSolanaAccount201Response>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+        String responseBody = new String(localVarResponse.body().readAllBytes());
+        localVarResponse.body().close();
+
+        return new ApiResponse<AddEndUserSolanaAccount201Response>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AddEndUserSolanaAccount201Response>() {})
+        );
+      } finally {
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder addEndUserSolanaAccountRequestBuilder(String userId, String xWalletAuth, String xIdempotencyKey, Object body) throws ApiException {
+    // verify the required parameter 'userId' is set
+    if (userId == null) {
+      throw new ApiException(400, "Missing the required parameter 'userId' when calling addEndUserSolanaAccount");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/v2/end-users/{userId}/solana"
+        .replace("{userId}", ApiClient.urlEncode(userId.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (xWalletAuth != null) {
+      localVarRequestBuilder.header("X-Wallet-Auth", xWalletAuth.toString());
+    }
+    if (xIdempotencyKey != null) {
+      localVarRequestBuilder.header("X-Idempotency-Key", xIdempotencyKey.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(body);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
   }
 
   /**

@@ -19,6 +19,7 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
+import com.coinbase.cdp.openapi.model.Metadata;
 import com.coinbase.cdp.openapi.model.WebhookTarget;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.coinbase.cdp.openapi.ApiClient;
 /**
- * Request to create a new webhook subscription with support for both traditional single-label  and multi-label filtering formats. 
+ * Request to create a new webhook subscription with support for multi-label filtering. 
  */
 @JsonPropertyOrder({
   WebhookSubscriptionRequest.JSON_PROPERTY_DESCRIPTION,
@@ -43,8 +44,6 @@ import com.coinbase.cdp.openapi.ApiClient;
   WebhookSubscriptionRequest.JSON_PROPERTY_IS_ENABLED,
   WebhookSubscriptionRequest.JSON_PROPERTY_TARGET,
   WebhookSubscriptionRequest.JSON_PROPERTY_METADATA,
-  WebhookSubscriptionRequest.JSON_PROPERTY_LABEL_KEY,
-  WebhookSubscriptionRequest.JSON_PROPERTY_LABEL_VALUE,
   WebhookSubscriptionRequest.JSON_PROPERTY_LABELS
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
@@ -54,28 +53,20 @@ public class WebhookSubscriptionRequest {
   private String description;
 
   public static final String JSON_PROPERTY_EVENT_TYPES = "eventTypes";
-  @jakarta.annotation.Nullable
+  @jakarta.annotation.Nonnull
   private List<String> eventTypes = new ArrayList<>();
 
   public static final String JSON_PROPERTY_IS_ENABLED = "isEnabled";
-  @jakarta.annotation.Nullable
+  @jakarta.annotation.Nonnull
   private Boolean isEnabled;
 
   public static final String JSON_PROPERTY_TARGET = "target";
-  @jakarta.annotation.Nullable
+  @jakarta.annotation.Nonnull
   private WebhookTarget target;
 
   public static final String JSON_PROPERTY_METADATA = "metadata";
   @jakarta.annotation.Nullable
-  private Map<String, Object> metadata = new HashMap<>();
-
-  public static final String JSON_PROPERTY_LABEL_KEY = "labelKey";
-  @jakarta.annotation.Nullable
-  private String labelKey;
-
-  public static final String JSON_PROPERTY_LABEL_VALUE = "labelValue";
-  @jakarta.annotation.Nullable
-  private String labelValue;
+  private Metadata metadata = new HashMap<>();
 
   public static final String JSON_PROPERTY_LABELS = "labels";
   @jakarta.annotation.Nullable
@@ -108,7 +99,7 @@ public class WebhookSubscriptionRequest {
   }
 
 
-  public WebhookSubscriptionRequest eventTypes(@jakarta.annotation.Nullable List<String> eventTypes) {
+  public WebhookSubscriptionRequest eventTypes(@jakarta.annotation.Nonnull List<String> eventTypes) {
     this.eventTypes = eventTypes;
     return this;
   }
@@ -122,25 +113,25 @@ public class WebhookSubscriptionRequest {
   }
 
   /**
-   * Types of events to subscribe to. Event types follow a three-part dot-separated format:  service.resource.verb (e.g., \&quot;onchain.activity.detected\&quot;, \&quot;wallet.activity.detected\&quot;, \&quot;onramp.transaction.created\&quot;). The subscription will only receive events matching these types AND the label filter(s). 
+   * Types of events to subscribe to. Event types follow a three-part dot-separated format: service.resource.verb (e.g., \&quot;onchain.activity.detected\&quot;, \&quot;wallet.activity.detected\&quot;, \&quot;onramp.transaction.created\&quot;). The subscription will only receive events matching these types AND the label filter(s). 
    * @return eventTypes
    */
-  @jakarta.annotation.Nullable
+  @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_EVENT_TYPES)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public List<String> getEventTypes() {
     return eventTypes;
   }
 
 
   @JsonProperty(JSON_PROPERTY_EVENT_TYPES)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setEventTypes(@jakarta.annotation.Nullable List<String> eventTypes) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setEventTypes(@jakarta.annotation.Nonnull List<String> eventTypes) {
     this.eventTypes = eventTypes;
   }
 
 
-  public WebhookSubscriptionRequest isEnabled(@jakarta.annotation.Nullable Boolean isEnabled) {
+  public WebhookSubscriptionRequest isEnabled(@jakarta.annotation.Nonnull Boolean isEnabled) {
     this.isEnabled = isEnabled;
     return this;
   }
@@ -149,22 +140,22 @@ public class WebhookSubscriptionRequest {
    * Whether the subscription is enabled.
    * @return isEnabled
    */
-  @jakarta.annotation.Nullable
+  @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_IS_ENABLED)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public Boolean getIsEnabled() {
     return isEnabled;
   }
 
 
   @JsonProperty(JSON_PROPERTY_IS_ENABLED)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setIsEnabled(@jakarta.annotation.Nullable Boolean isEnabled) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setIsEnabled(@jakarta.annotation.Nonnull Boolean isEnabled) {
     this.isEnabled = isEnabled;
   }
 
 
-  public WebhookSubscriptionRequest target(@jakarta.annotation.Nullable WebhookTarget target) {
+  public WebhookSubscriptionRequest target(@jakarta.annotation.Nonnull WebhookTarget target) {
     this.target = target;
     return this;
   }
@@ -173,102 +164,42 @@ public class WebhookSubscriptionRequest {
    * Get target
    * @return target
    */
-  @jakarta.annotation.Nullable
+  @jakarta.annotation.Nonnull
   @JsonProperty(JSON_PROPERTY_TARGET)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public WebhookTarget getTarget() {
     return target;
   }
 
 
   @JsonProperty(JSON_PROPERTY_TARGET)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setTarget(@jakarta.annotation.Nullable WebhookTarget target) {
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setTarget(@jakarta.annotation.Nonnull WebhookTarget target) {
     this.target = target;
   }
 
 
-  public WebhookSubscriptionRequest metadata(@jakarta.annotation.Nullable Map<String, Object> metadata) {
+  public WebhookSubscriptionRequest metadata(@jakarta.annotation.Nullable Metadata metadata) {
     this.metadata = metadata;
     return this;
   }
 
-  public WebhookSubscriptionRequest putMetadataItem(String key, Object metadataItem) {
-    if (this.metadata == null) {
-      this.metadata = new HashMap<>();
-    }
-    this.metadata.put(key, metadataItem);
-    return this;
-  }
-
   /**
-   * Additional metadata for the subscription.
+   * Get metadata
    * @return metadata
    */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_METADATA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public Map<String, Object> getMetadata() {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Metadata getMetadata() {
     return metadata;
   }
 
 
   @JsonProperty(JSON_PROPERTY_METADATA)
-  @JsonInclude(content = JsonInclude.Include.ALWAYS, value = JsonInclude.Include.USE_DEFAULTS)
-  public void setMetadata(@jakarta.annotation.Nullable Map<String, Object> metadata) {
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setMetadata(@jakarta.annotation.Nullable Metadata metadata) {
     this.metadata = metadata;
-  }
-
-
-  public WebhookSubscriptionRequest labelKey(@jakarta.annotation.Nullable String labelKey) {
-    this.labelKey = labelKey;
-    return this;
-  }
-
-  /**
-   * (Deprecated) Use &#x60;labels&#x60; instead for better filtering capabilities, including filtering on multiple labels simultaneously.  Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair  in addition to the event types. Only events matching both the event types AND this label filter will be delivered. NOTE: Use either (labelKey + labelValue) OR labels, not both.  Maintained for backward compatibility only. 
-   * @return labelKey
-   * @deprecated
-   */
-  @Deprecated
-  @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_LABEL_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getLabelKey() {
-    return labelKey;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_LABEL_KEY)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setLabelKey(@jakarta.annotation.Nullable String labelKey) {
-    this.labelKey = labelKey;
-  }
-
-
-  public WebhookSubscriptionRequest labelValue(@jakarta.annotation.Nullable String labelValue) {
-    this.labelValue = labelValue;
-    return this;
-  }
-
-  /**
-   * (Deprecated) Use &#x60;labels&#x60; instead for better filtering capabilities, including filtering on multiple labels simultaneously.  Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key). Only events with this exact label value will be delivered. NOTE: Use either (labelKey + labelValue) OR labels, not both.  Maintained for backward compatibility only. 
-   * @return labelValue
-   * @deprecated
-   */
-  @Deprecated
-  @jakarta.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_LABEL_VALUE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public String getLabelValue() {
-    return labelValue;
-  }
-
-
-  @JsonProperty(JSON_PROPERTY_LABEL_VALUE)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setLabelValue(@jakarta.annotation.Nullable String labelValue) {
-    this.labelValue = labelValue;
   }
 
 
@@ -286,7 +217,7 @@ public class WebhookSubscriptionRequest {
   }
 
   /**
-   * Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when  an event contains ALL the key-value pairs specified here. Additional labels on  the event are allowed and will not prevent matching.  **Note:** Currently, labels are supported for onchain webhooks only.  See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering). 
+   * Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when an event contains ALL the key-value pairs specified here. Additional labels on the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.  **Note:** Currently, labels are supported for onchain webhooks only.  See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering). 
    * @return labels
    */
   @jakarta.annotation.Nullable
@@ -321,14 +252,12 @@ public class WebhookSubscriptionRequest {
         Objects.equals(this.isEnabled, webhookSubscriptionRequest.isEnabled) &&
         Objects.equals(this.target, webhookSubscriptionRequest.target) &&
         Objects.equals(this.metadata, webhookSubscriptionRequest.metadata) &&
-        Objects.equals(this.labelKey, webhookSubscriptionRequest.labelKey) &&
-        Objects.equals(this.labelValue, webhookSubscriptionRequest.labelValue) &&
         Objects.equals(this.labels, webhookSubscriptionRequest.labels);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(description, eventTypes, isEnabled, target, metadata, labelKey, labelValue, labels);
+    return Objects.hash(description, eventTypes, isEnabled, target, metadata, labels);
   }
 
   @Override
@@ -340,8 +269,6 @@ public class WebhookSubscriptionRequest {
     sb.append("    isEnabled: ").append(toIndentedString(isEnabled)).append("\n");
     sb.append("    target: ").append(toIndentedString(target)).append("\n");
     sb.append("    metadata: ").append(toIndentedString(metadata)).append("\n");
-    sb.append("    labelKey: ").append(toIndentedString(labelKey)).append("\n");
-    sb.append("    labelValue: ").append(toIndentedString(labelValue)).append("\n");
     sb.append("    labels: ").append(toIndentedString(labels)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -390,6 +317,44 @@ public class WebhookSubscriptionRequest {
 
     StringJoiner joiner = new StringJoiner("&");
 
+    // add `description` to the URL query string
+    if (getDescription() != null) {
+      joiner.add(String.format("%sdescription%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getDescription()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `eventTypes` to the URL query string
+    if (getEventTypes() != null) {
+      for (int i = 0; i < getEventTypes().size(); i++) {
+        joiner.add(String.format("%seventTypes%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, i, containerSuffix),
+            URLEncoder.encode(ApiClient.valueToString(getEventTypes().get(i)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+      }
+    }
+
+    // add `isEnabled` to the URL query string
+    if (getIsEnabled() != null) {
+      joiner.add(String.format("%sisEnabled%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getIsEnabled()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `target` to the URL query string
+    if (getTarget() != null) {
+      joiner.add(getTarget().toUrlQueryString(prefix + "target" + suffix));
+    }
+
+    // add `metadata` to the URL query string
+    if (getMetadata() != null) {
+      joiner.add(String.format("%smetadata%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getMetadata()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
+    // add `labels` to the URL query string
+    if (getLabels() != null) {
+      for (String _key : getLabels().keySet()) {
+        joiner.add(String.format("%slabels%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, _key, containerSuffix),
+            getLabels().get(_key), URLEncoder.encode(ApiClient.valueToString(getLabels().get(_key)), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+      }
+    }
+
     return joiner.toString();
   }
 
@@ -421,16 +386,8 @@ public class WebhookSubscriptionRequest {
       this.instance.target = target;
       return this;
     }
-    public WebhookSubscriptionRequest.Builder metadata(Map<String, Object> metadata) {
+    public WebhookSubscriptionRequest.Builder metadata(Metadata metadata) {
       this.instance.metadata = metadata;
-      return this;
-    }
-    public WebhookSubscriptionRequest.Builder labelKey(String labelKey) {
-      this.instance.labelKey = labelKey;
-      return this;
-    }
-    public WebhookSubscriptionRequest.Builder labelValue(String labelValue) {
-      this.instance.labelValue = labelValue;
       return this;
     }
     public WebhookSubscriptionRequest.Builder labels(Map<String, String> labels) {
@@ -470,7 +427,13 @@ public class WebhookSubscriptionRequest {
   * Create a builder with a shallow copy of this instance.
   */
   public WebhookSubscriptionRequest.Builder toBuilder() {
-    return new WebhookSubscriptionRequest.Builder();
+    return new WebhookSubscriptionRequest.Builder()
+      .description(getDescription())
+      .eventTypes(getEventTypes())
+      .isEnabled(getIsEnabled())
+      .target(getTarget())
+      .metadata(getMetadata())
+      .labels(getLabels());
   }
 
 }

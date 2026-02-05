@@ -36,6 +36,7 @@ import com.coinbase.cdp.openapi.ApiClient;
 @JsonPropertyOrder({
   X402VerifyPaymentRejection.JSON_PROPERTY_IS_VALID,
   X402VerifyPaymentRejection.JSON_PROPERTY_INVALID_REASON,
+  X402VerifyPaymentRejection.JSON_PROPERTY_INVALID_MESSAGE,
   X402VerifyPaymentRejection.JSON_PROPERTY_PAYER
 })
 @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.11.0")
@@ -47,6 +48,10 @@ public class X402VerifyPaymentRejection {
   public static final String JSON_PROPERTY_INVALID_REASON = "invalidReason";
   @jakarta.annotation.Nonnull
   private X402VerifyInvalidReason invalidReason;
+
+  public static final String JSON_PROPERTY_INVALID_MESSAGE = "invalidMessage";
+  @jakarta.annotation.Nullable
+  private String invalidMessage;
 
   public static final String JSON_PROPERTY_PAYER = "payer";
   @jakarta.annotation.Nullable
@@ -103,6 +108,30 @@ public class X402VerifyPaymentRejection {
   }
 
 
+  public X402VerifyPaymentRejection invalidMessage(@jakarta.annotation.Nullable String invalidMessage) {
+    this.invalidMessage = invalidMessage;
+    return this;
+  }
+
+  /**
+   * The message describing the invalid reason.
+   * @return invalidMessage
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_INVALID_MESSAGE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getInvalidMessage() {
+    return invalidMessage;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_INVALID_MESSAGE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setInvalidMessage(@jakarta.annotation.Nullable String invalidMessage) {
+    this.invalidMessage = invalidMessage;
+  }
+
+
   public X402VerifyPaymentRejection payer(@jakarta.annotation.Nullable String payer) {
     this.payer = payer;
     return this;
@@ -141,12 +170,13 @@ public class X402VerifyPaymentRejection {
     X402VerifyPaymentRejection x402VerifyPaymentRejection = (X402VerifyPaymentRejection) o;
     return Objects.equals(this.isValid, x402VerifyPaymentRejection.isValid) &&
         Objects.equals(this.invalidReason, x402VerifyPaymentRejection.invalidReason) &&
+        Objects.equals(this.invalidMessage, x402VerifyPaymentRejection.invalidMessage) &&
         Objects.equals(this.payer, x402VerifyPaymentRejection.payer);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(isValid, invalidReason, payer);
+    return Objects.hash(isValid, invalidReason, invalidMessage, payer);
   }
 
   @Override
@@ -155,6 +185,7 @@ public class X402VerifyPaymentRejection {
     sb.append("class X402VerifyPaymentRejection {\n");
     sb.append("    isValid: ").append(toIndentedString(isValid)).append("\n");
     sb.append("    invalidReason: ").append(toIndentedString(invalidReason)).append("\n");
+    sb.append("    invalidMessage: ").append(toIndentedString(invalidMessage)).append("\n");
     sb.append("    payer: ").append(toIndentedString(payer)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -213,6 +244,11 @@ public class X402VerifyPaymentRejection {
       joiner.add(String.format("%sinvalidReason%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getInvalidReason()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `invalidMessage` to the URL query string
+    if (getInvalidMessage() != null) {
+      joiner.add(String.format("%sinvalidMessage%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getInvalidMessage()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     // add `payer` to the URL query string
     if (getPayer() != null) {
       joiner.add(String.format("%spayer%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPayer()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
@@ -239,6 +275,10 @@ public class X402VerifyPaymentRejection {
     }
     public X402VerifyPaymentRejection.Builder invalidReason(X402VerifyInvalidReason invalidReason) {
       this.instance.invalidReason = invalidReason;
+      return this;
+    }
+    public X402VerifyPaymentRejection.Builder invalidMessage(String invalidMessage) {
+      this.instance.invalidMessage = invalidMessage;
       return this;
     }
     public X402VerifyPaymentRejection.Builder payer(String payer) {
@@ -281,6 +321,7 @@ public class X402VerifyPaymentRejection {
     return new X402VerifyPaymentRejection.Builder()
       .isValid(getIsValid())
       .invalidReason(getInvalidReason())
+      .invalidMessage(getInvalidMessage())
       .payer(getPayer());
   }
 

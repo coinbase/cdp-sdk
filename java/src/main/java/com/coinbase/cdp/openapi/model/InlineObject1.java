@@ -36,6 +36,7 @@ import com.coinbase.cdp.openapi.ApiClient;
 @JsonPropertyOrder({
   InlineObject1.JSON_PROPERTY_SUCCESS,
   InlineObject1.JSON_PROPERTY_ERROR_REASON,
+  InlineObject1.JSON_PROPERTY_ERROR_MESSAGE,
   InlineObject1.JSON_PROPERTY_PAYER,
   InlineObject1.JSON_PROPERTY_TRANSACTION,
   InlineObject1.JSON_PROPERTY_NETWORK
@@ -49,6 +50,10 @@ public class InlineObject1 {
   public static final String JSON_PROPERTY_ERROR_REASON = "errorReason";
   @jakarta.annotation.Nullable
   private X402SettleErrorReason errorReason;
+
+  public static final String JSON_PROPERTY_ERROR_MESSAGE = "errorMessage";
+  @jakarta.annotation.Nullable
+  private String errorMessage;
 
   public static final String JSON_PROPERTY_PAYER = "payer";
   @jakarta.annotation.Nonnull
@@ -110,6 +115,30 @@ public class InlineObject1 {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setErrorReason(@jakarta.annotation.Nullable X402SettleErrorReason errorReason) {
     this.errorReason = errorReason;
+  }
+
+
+  public InlineObject1 errorMessage(@jakarta.annotation.Nullable String errorMessage) {
+    this.errorMessage = errorMessage;
+    return this;
+  }
+
+  /**
+   * The message describing the error reason.
+   * @return errorMessage
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ERROR_MESSAGE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getErrorMessage() {
+    return errorMessage;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ERROR_MESSAGE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setErrorMessage(@jakarta.annotation.Nullable String errorMessage) {
+    this.errorMessage = errorMessage;
   }
 
 
@@ -199,6 +228,7 @@ public class InlineObject1 {
     InlineObject1 inlineObject1 = (InlineObject1) o;
     return Objects.equals(this.success, inlineObject1.success) &&
         Objects.equals(this.errorReason, inlineObject1.errorReason) &&
+        Objects.equals(this.errorMessage, inlineObject1.errorMessage) &&
         Objects.equals(this.payer, inlineObject1.payer) &&
         Objects.equals(this.transaction, inlineObject1.transaction) &&
         Objects.equals(this.network, inlineObject1.network);
@@ -206,7 +236,7 @@ public class InlineObject1 {
 
   @Override
   public int hashCode() {
-    return Objects.hash(success, errorReason, payer, transaction, network);
+    return Objects.hash(success, errorReason, errorMessage, payer, transaction, network);
   }
 
   @Override
@@ -215,6 +245,7 @@ public class InlineObject1 {
     sb.append("class InlineObject1 {\n");
     sb.append("    success: ").append(toIndentedString(success)).append("\n");
     sb.append("    errorReason: ").append(toIndentedString(errorReason)).append("\n");
+    sb.append("    errorMessage: ").append(toIndentedString(errorMessage)).append("\n");
     sb.append("    payer: ").append(toIndentedString(payer)).append("\n");
     sb.append("    transaction: ").append(toIndentedString(transaction)).append("\n");
     sb.append("    network: ").append(toIndentedString(network)).append("\n");
@@ -275,6 +306,11 @@ public class InlineObject1 {
       joiner.add(String.format("%serrorReason%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getErrorReason()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `errorMessage` to the URL query string
+    if (getErrorMessage() != null) {
+      joiner.add(String.format("%serrorMessage%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getErrorMessage()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     // add `payer` to the URL query string
     if (getPayer() != null) {
       joiner.add(String.format("%spayer%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPayer()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
@@ -311,6 +347,10 @@ public class InlineObject1 {
     }
     public InlineObject1.Builder errorReason(X402SettleErrorReason errorReason) {
       this.instance.errorReason = errorReason;
+      return this;
+    }
+    public InlineObject1.Builder errorMessage(String errorMessage) {
+      this.instance.errorMessage = errorMessage;
       return this;
     }
     public InlineObject1.Builder payer(String payer) {
@@ -361,6 +401,7 @@ public class InlineObject1 {
     return new InlineObject1.Builder()
       .success(getSuccess())
       .errorReason(getErrorReason())
+      .errorMessage(getErrorMessage())
       .payer(getPayer())
       .transaction(getTransaction())
       .network(getNetwork());

@@ -108,7 +108,9 @@ public enum X402SettleErrorReason {
   
   SETTLE_EXACT_SVM_BLOCK_HEIGHT_EXCEEDED("settle_exact_svm_block_height_exceeded"),
   
-  SETTLE_EXACT_SVM_TRANSACTION_CONFIRMATION_TIMED_OUT("settle_exact_svm_transaction_confirmation_timed_out");
+  SETTLE_EXACT_SVM_TRANSACTION_CONFIRMATION_TIMED_OUT("settle_exact_svm_transaction_confirmation_timed_out"),
+  
+  UNKNOWN_ERROR("unknown_error");
 
   private String value;
 

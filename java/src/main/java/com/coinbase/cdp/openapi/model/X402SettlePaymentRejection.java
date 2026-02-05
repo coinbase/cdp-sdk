@@ -36,6 +36,7 @@ import com.coinbase.cdp.openapi.ApiClient;
 @JsonPropertyOrder({
   X402SettlePaymentRejection.JSON_PROPERTY_SUCCESS,
   X402SettlePaymentRejection.JSON_PROPERTY_ERROR_REASON,
+  X402SettlePaymentRejection.JSON_PROPERTY_ERROR_MESSAGE,
   X402SettlePaymentRejection.JSON_PROPERTY_PAYER,
   X402SettlePaymentRejection.JSON_PROPERTY_TRANSACTION,
   X402SettlePaymentRejection.JSON_PROPERTY_NETWORK
@@ -49,6 +50,10 @@ public class X402SettlePaymentRejection {
   public static final String JSON_PROPERTY_ERROR_REASON = "errorReason";
   @jakarta.annotation.Nonnull
   private X402SettleErrorReason errorReason;
+
+  public static final String JSON_PROPERTY_ERROR_MESSAGE = "errorMessage";
+  @jakarta.annotation.Nullable
+  private String errorMessage;
 
   public static final String JSON_PROPERTY_PAYER = "payer";
   @jakarta.annotation.Nullable
@@ -110,6 +115,30 @@ public class X402SettlePaymentRejection {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setErrorReason(@jakarta.annotation.Nonnull X402SettleErrorReason errorReason) {
     this.errorReason = errorReason;
+  }
+
+
+  public X402SettlePaymentRejection errorMessage(@jakarta.annotation.Nullable String errorMessage) {
+    this.errorMessage = errorMessage;
+    return this;
+  }
+
+  /**
+   * The message describing the error reason.
+   * @return errorMessage
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_ERROR_MESSAGE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getErrorMessage() {
+    return errorMessage;
+  }
+
+
+  @JsonProperty(JSON_PROPERTY_ERROR_MESSAGE)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setErrorMessage(@jakarta.annotation.Nullable String errorMessage) {
+    this.errorMessage = errorMessage;
   }
 
 
@@ -199,6 +228,7 @@ public class X402SettlePaymentRejection {
     X402SettlePaymentRejection x402SettlePaymentRejection = (X402SettlePaymentRejection) o;
     return Objects.equals(this.success, x402SettlePaymentRejection.success) &&
         Objects.equals(this.errorReason, x402SettlePaymentRejection.errorReason) &&
+        Objects.equals(this.errorMessage, x402SettlePaymentRejection.errorMessage) &&
         Objects.equals(this.payer, x402SettlePaymentRejection.payer) &&
         Objects.equals(this.transaction, x402SettlePaymentRejection.transaction) &&
         Objects.equals(this.network, x402SettlePaymentRejection.network);
@@ -206,7 +236,7 @@ public class X402SettlePaymentRejection {
 
   @Override
   public int hashCode() {
-    return Objects.hash(success, errorReason, payer, transaction, network);
+    return Objects.hash(success, errorReason, errorMessage, payer, transaction, network);
   }
 
   @Override
@@ -215,6 +245,7 @@ public class X402SettlePaymentRejection {
     sb.append("class X402SettlePaymentRejection {\n");
     sb.append("    success: ").append(toIndentedString(success)).append("\n");
     sb.append("    errorReason: ").append(toIndentedString(errorReason)).append("\n");
+    sb.append("    errorMessage: ").append(toIndentedString(errorMessage)).append("\n");
     sb.append("    payer: ").append(toIndentedString(payer)).append("\n");
     sb.append("    transaction: ").append(toIndentedString(transaction)).append("\n");
     sb.append("    network: ").append(toIndentedString(network)).append("\n");
@@ -275,6 +306,11 @@ public class X402SettlePaymentRejection {
       joiner.add(String.format("%serrorReason%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getErrorReason()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
     }
 
+    // add `errorMessage` to the URL query string
+    if (getErrorMessage() != null) {
+      joiner.add(String.format("%serrorMessage%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getErrorMessage()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    }
+
     // add `payer` to the URL query string
     if (getPayer() != null) {
       joiner.add(String.format("%spayer%s=%s", prefix, suffix, URLEncoder.encode(ApiClient.valueToString(getPayer()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
@@ -311,6 +347,10 @@ public class X402SettlePaymentRejection {
     }
     public X402SettlePaymentRejection.Builder errorReason(X402SettleErrorReason errorReason) {
       this.instance.errorReason = errorReason;
+      return this;
+    }
+    public X402SettlePaymentRejection.Builder errorMessage(String errorMessage) {
+      this.instance.errorMessage = errorMessage;
       return this;
     }
     public X402SettlePaymentRejection.Builder payer(String payer) {
@@ -361,6 +401,7 @@ public class X402SettlePaymentRejection {
     return new X402SettlePaymentRejection.Builder()
       .success(getSuccess())
       .errorReason(getErrorReason())
+      .errorMessage(getErrorMessage())
       .payer(getPayer())
       .transaction(getTransaction())
       .network(getNetwork());

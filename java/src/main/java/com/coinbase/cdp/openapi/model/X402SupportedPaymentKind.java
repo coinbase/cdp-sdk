@@ -94,7 +94,15 @@ public class X402SupportedPaymentKind {
     
     SOLANA_DEVNET(String.valueOf("solana-devnet")),
     
-    SOLANA(String.valueOf("solana"));
+    SOLANA(String.valueOf("solana")),
+    
+    EIP155_8453(String.valueOf("eip155:8453")),
+    
+    EIP155_84532(String.valueOf("eip155:84532")),
+    
+    SOLANA_5EYKT4_US_FV8_P8_NJD_TREP_Y1VZQ_KQ_Z_KVDP(String.valueOf("solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp")),
+    
+    SOLANA_ET_WTRABZA_YQ6I_MFE_Y_KOU_RU166_VU2XQA1(String.valueOf("solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"));
 
     private String value;
 
