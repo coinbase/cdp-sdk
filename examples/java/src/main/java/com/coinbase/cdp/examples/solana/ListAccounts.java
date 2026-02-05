@@ -2,12 +2,20 @@ package com.coinbase.cdp.examples.solana;
 
 import com.coinbase.cdp.CdpClient;
 import com.coinbase.cdp.examples.utils.EnvLoader;
-import com.coinbase.cdp.openapi.api.SolanaAccountsApi;
 
 /**
  * Example: List all Solana accounts.
  *
- * <p>This example demonstrates how to list all Solana accounts in your CDP project.
+ * <p>This example demonstrates how to list all Solana accounts in your CDP project using the
+ * high-level API.
+ *
+ * <p>Alternative initialization using the builder pattern:
+ *
+ * <pre>{@code
+ * CdpClient cdp = CdpClient.builder()
+ *     .credentials("api-key-id", "api-key-secret")
+ *     .build();
+ * }</pre>
  *
  * <p>Usage: ./gradlew runListSolanaAccounts
  */
@@ -17,10 +25,8 @@ public class ListAccounts {
     EnvLoader.load();
 
     try (CdpClient cdp = CdpClient.create()) {
-      SolanaAccountsApi solanaApi = new SolanaAccountsApi(cdp.getApiClient());
-
-      // List accounts (no wallet JWT needed for read operations)
-      var response = solanaApi.listSolanaAccounts(null, null);
+      // Use the high-level API - no wallet JWT needed for read operations
+      var response = cdp.solana().listAccounts();
 
       System.out.println("Solana Accounts (" + response.getAccounts().size() + " total):");
       System.out.println();

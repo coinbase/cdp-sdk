@@ -9,6 +9,15 @@ import com.coinbase.cdp.openapi.model.CreateEvmAccountRequest;
  *
  * <p>This example demonstrates how to create a new EVM account using the CDP SDK's high-level API.
  *
+ * <p>Alternative initialization using the builder pattern:
+ *
+ * <pre>{@code
+ * CdpClient cdp = CdpClient.builder()
+ *     .credentials("api-key-id", "api-key-secret")
+ *     .walletSecret("wallet-secret")
+ *     .build();
+ * }</pre>
+ *
  * <p>Usage: ./gradlew runCreateEvmAccount
  */
 public class CreateAccount {

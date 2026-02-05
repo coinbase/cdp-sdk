@@ -122,6 +122,13 @@ tasks.register<JavaExec>("runSolanaTransfer") {
     classpath = sourceSets["main"].runtimeClasspath
 }
 
+tasks.register<JavaExec>("runRetryConfiguration") {
+    group = "examples"
+    description = "Run the retry configuration example"
+    mainClass.set("com.coinbase.cdp.examples.config.RetryConfiguration")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
 // Task to list all available example tasks
 tasks.register("listExamples") {
     group = "examples"
@@ -140,6 +147,7 @@ tasks.register("listExamples") {
         println("  ./gradlew runCreateSolanaAccount             - Create a Solana account")
         println("  ./gradlew runListSolanaAccounts              - List Solana accounts")
         println("  ./gradlew runSolanaTransfer                  - Transfer SOL between accounts")
+        println("  ./gradlew runRetryConfiguration              - Configure HTTP retry behavior")
         println("\nOr run any example directly:")
         println("  ./gradlew run -PmainClass=com.coinbase.cdp.examples.evm.CreateAccount")
     }

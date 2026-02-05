@@ -28,6 +28,15 @@ import java.time.Instant;
  *   <li>Revoke the spend permission
  * </ol>
  *
+ * <p>Alternative initialization using the builder pattern:
+ *
+ * <pre>{@code
+ * CdpClient cdp = CdpClient.builder()
+ *     .credentials("api-key-id", "api-key-secret")
+ *     .walletSecret("wallet-secret")
+ *     .build();
+ * }</pre>
+ *
  * <p>Usage: ./gradlew runSpendPermissions
  */
 public class SpendPermissions {

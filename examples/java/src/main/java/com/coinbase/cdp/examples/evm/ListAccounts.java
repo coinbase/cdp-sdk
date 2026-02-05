@@ -2,12 +2,20 @@ package com.coinbase.cdp.examples.evm;
 
 import com.coinbase.cdp.CdpClient;
 import com.coinbase.cdp.examples.utils.EnvLoader;
-import com.coinbase.cdp.openapi.api.EvmAccountsApi;
 
 /**
  * Example: List all EVM accounts.
  *
- * <p>This example demonstrates how to list all EVM accounts in your CDP project.
+ * <p>This example demonstrates how to list all EVM accounts in your CDP project using the
+ * high-level API.
+ *
+ * <p>Alternative initialization using the builder pattern:
+ *
+ * <pre>{@code
+ * CdpClient cdp = CdpClient.builder()
+ *     .credentials("api-key-id", "api-key-secret")
+ *     .build();
+ * }</pre>
  *
  * <p>Usage: ./gradlew runListEvmAccounts
  */
@@ -17,10 +25,8 @@ public class ListAccounts {
     EnvLoader.load();
 
     try (CdpClient cdp = CdpClient.create()) {
-      EvmAccountsApi evmApi = new EvmAccountsApi(cdp.getApiClient());
-
-      // List accounts (no wallet JWT needed for read operations)
-      var response = evmApi.listEvmAccounts(null, null);
+      // Use the high-level API - no wallet JWT needed for read operations
+      var response = cdp.evm().listAccounts();
 
       System.out.println("EVM Accounts (" + response.getAccounts().size() + " total):");
       System.out.println();

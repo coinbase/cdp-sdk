@@ -7,11 +7,6 @@ import com.coinbase.cdp.client.solana.SolanaClientOptions.GetOrCreateAccountOpti
 import com.coinbase.cdp.client.solana.SolanaClientOptions.ListAccountsOptions;
 import com.coinbase.cdp.client.solana.SolanaClientOptions.ListTokenBalancesOptions;
 import com.coinbase.cdp.client.solana.SolanaClientOptions.TransferOptions;
-import com.coinbase.cdp.utils.SolanaMintAddressResolver;
-import com.coinbase.cdp.utils.SolanaTransactionBuilder;
-import org.p2p.solanaj.core.PublicKey;
-import org.p2p.solanaj.rpc.RpcClient;
-import org.p2p.solanaj.rpc.RpcException;
 import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.openapi.ApiException;
 import com.coinbase.cdp.openapi.api.FaucetsApi;
@@ -29,6 +24,11 @@ import com.coinbase.cdp.openapi.model.SignSolanaMessageRequest;
 import com.coinbase.cdp.openapi.model.SignSolanaTransaction200Response;
 import com.coinbase.cdp.openapi.model.SignSolanaTransactionRequest;
 import com.coinbase.cdp.openapi.model.SolanaAccount;
+import com.coinbase.cdp.utils.SolanaMintAddressResolver;
+import com.coinbase.cdp.utils.SolanaTransactionBuilder;
+import org.p2p.solanaj.core.PublicKey;
+import org.p2p.solanaj.rpc.RpcClient;
+import org.p2p.solanaj.rpc.RpcException;
 
 /**
  * The namespace client for Solana operations.
@@ -41,24 +41,31 @@ import com.coinbase.cdp.openapi.model.SolanaAccount;
  * <p>Usage patterns:
  *
  * <pre>{@code
- * // Pattern 1: Instance-based (automatic token generation)
+ * // Pattern 1: From environment variables
  * try (CdpClient cdp = CdpClient.create()) {
  *     SolanaAccount account = cdp.solana().createAccount(
  *         new CreateSolanaAccountRequest().name("my-account")
  *     );
+ * }
  *
- *     // Sign a message
- *     var signature = cdp.solana().signMessage(
- *         account.getAddress(),
- *         new SignSolanaMessageRequest().message("Hello, World!")
+ * // Pattern 2: With credentials
+ * try (CdpClient cdp = CdpClient.builder()
+ *         .credentials("api-key-id", "api-key-secret")
+ *         .walletSecret("wallet-secret")
+ *         .build()) {
+ *     SolanaAccount account = cdp.solana().createAccount(
+ *         new CreateSolanaAccountRequest().name("my-account")
  *     );
  * }
  *
- * // Pattern 2: Static factory with pre-generated tokens
- * CdpTokenResponse tokens = tokenGenerator.generateTokens(request);
- * SolanaAccount account = CdpClient.solana(tokens).createAccount(
- *     new CreateSolanaAccountRequest().name("my-account")
- * );
+ * // Pattern 3: With pre-generated TokenProvider
+ * try (CdpClient cdp = CdpClient.builder()
+ *         .tokenProvider(myTokenProvider)
+ *         .build()) {
+ *     SolanaAccount account = cdp.solana().createAccount(
+ *         new CreateSolanaAccountRequest().name("my-account")
+ *     );
+ * }
  * }</pre>
  */
 public class SolanaClient {

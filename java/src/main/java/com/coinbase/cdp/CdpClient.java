@@ -12,13 +12,19 @@ import com.coinbase.cdp.client.evm.EvmClient;
 import com.coinbase.cdp.client.policies.PoliciesClient;
 import com.coinbase.cdp.client.solana.SolanaClient;
 import com.coinbase.cdp.errors.ValidationException;
+import com.coinbase.cdp.http.DelegatingHttpClientBuilder;
+import com.coinbase.cdp.http.HttpClientConfig;
+import com.coinbase.cdp.http.RetryConfig;
+import com.coinbase.cdp.http.RetryingHttpClient;
 import com.coinbase.cdp.openapi.ApiClient;
 import com.coinbase.cdp.utils.CorrelationData;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Closeable;
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.time.Duration;
 import java.util.Map;
 
 /**
@@ -35,33 +41,47 @@ import java.util.Map;
  * <p>Example usage:
  *
  * <pre>{@code
- * // Pattern 1: Instance-based (automatic token generation)
+ * // Pattern 1: From environment variables
  * try (CdpClient cdp = CdpClient.create()) {
- *     // Create an EVM account
  *     EvmAccount account = cdp.evm().createAccount(
  *         CreateAccountOptions.builder()
  *             .name("my-account")
  *             .build()
  *     );
+ * }
  *
- *     // Create a Solana account
- *     SolanaAccount solAccount = cdp.solana().createAccount();
- *
- *     // Create a policy
- *     Policy policy = cdp.policies().createPolicy(
- *         CreatePolicyOptions.builder()
- *             .policy(policyRequest)
+ * // Pattern 2: With API key credentials
+ * try (CdpClient cdp = CdpClient.builder()
+ *         .credentials("api-key-id", "api-key-secret")
+ *         .walletSecret("wallet-secret")
+ *         .build()) {
+ *     EvmAccount account = cdp.evm().createAccount(
+ *         CreateAccountOptions.builder()
+ *             .name("my-account")
  *             .build()
  *     );
  * }
  *
- * // Pattern 2: Static factory with pre-generated tokens
- * CdpTokenResponse tokens = tokenGenerator.generateTokens(request);
- * EvmAccount account = CdpClient.evm(tokens).createAccount(
- *     CreateAccountOptions.builder()
- *         .name("my-account")
- *         .build()
- * );
+ * // Pattern 3: With pre-generated TokenProvider
+ * try (CdpClient cdp = CdpClient.builder()
+ *         .tokenProvider(myTokenProvider)
+ *         .build()) {
+ *     EvmAccount account = cdp.evm().createAccount(
+ *         CreateAccountOptions.builder()
+ *             .name("my-account")
+ *             .build()
+ *     );
+ * }
+ *
+ * // Pattern 4: With HTTP configuration
+ * try (CdpClient cdp = CdpClient.builder()
+ *         .credentials("api-key-id", "api-key-secret")
+ *         .httpConfig(config -> config
+ *             .basePath("https://custom.api.com")
+ *             .debugging(true))
+ *         .build()) {
+ *     // ...
+ * }
  * }</pre>
  *
  * <p>For low-level access, you can still use the generated OpenAPI API classes directly:
@@ -81,10 +101,12 @@ public class CdpClient implements Closeable {
   /** The SDK language identifier. */
   public static final String SDK_LANGUAGE = "java";
 
+  // Internal state - either options/tokenGenerator OR tokenProvider is set
   private final CdpClientOptions options;
   private final ApiClient apiClient;
   private final ObjectMapper objectMapper;
   private final CdpTokenGenerator tokenGenerator;
+  private final TokenProvider tokenProvider;
   private volatile boolean closed = false;
 
   // Lazily initialized namespace clients
@@ -93,7 +115,8 @@ public class CdpClient implements Closeable {
   private volatile PoliciesClient policiesClient;
   private final Object namespaceLock = new Object();
 
-  private CdpClient(CdpClientOptions options) {
+  // Package-private constructor for credential-based authentication (used by builder)
+  CdpClient(CdpClientOptions options) {
     this.options = options;
     this.objectMapper = ApiClient.createDefaultObjectMapper();
     this.tokenGenerator =
@@ -102,7 +125,17 @@ public class CdpClient implements Closeable {
             options.apiKeySecret(),
             options.walletSecret(),
             options.expiresIn());
+    this.tokenProvider = null;
     this.apiClient = buildApiClient(options);
+  }
+
+  // Package-private constructor for TokenProvider-based authentication (used by builder)
+  CdpClient(TokenProvider tokenProvider, HttpClientConfig config) {
+    this.options = null;
+    this.objectMapper = ApiClient.createDefaultObjectMapper();
+    this.tokenGenerator = null;
+    this.tokenProvider = tokenProvider;
+    this.apiClient = buildApiClientWithTokens(tokenProvider, config);
   }
 
   /**
@@ -131,6 +164,41 @@ public class CdpClient implements Closeable {
    */
   public static CdpClient create(CdpClientOptions options) {
     return new CdpClient(options);
+  }
+
+  /**
+   * Creates a new builder for CdpClient.
+   *
+   * <p>The builder supports two authentication modes:
+   *
+   * <ul>
+   *   <li>Credentials - use {@code credentials(apiKeyId, apiKeySecret)} for automatic token
+   *       generation
+   *   <li>TokenProvider - use {@code tokenProvider(tokens)} for pre-generated tokens
+   * </ul>
+   *
+   * <p>Example with credentials:
+   *
+   * <pre>{@code
+   * CdpClient client = CdpClient.builder()
+   *     .credentials("api-key-id", "api-key-secret")
+   *     .walletSecret("wallet-secret")
+   *     .build();
+   * }</pre>
+   *
+   * <p>Example with TokenProvider:
+   *
+   * <pre>{@code
+   * CdpClient client = CdpClient.builder()
+   *     .tokenProvider(myTokenProvider)
+   *     .httpConfig(config -> config.debugging(true))
+   *     .build();
+   * }</pre>
+   *
+   * @return a new builder instance
+   */
+  public static CdpClientBuilder builder() {
+    return new CdpClientBuilder();
   }
 
   /**
@@ -181,7 +249,11 @@ public class CdpClient implements Closeable {
     if (evmClient == null) {
       synchronized (namespaceLock) {
         if (evmClient == null) {
-          evmClient = new EvmClient(this);
+          if (tokenProvider != null) {
+            evmClient = new EvmClient(apiClient, tokenProvider);
+          } else {
+            evmClient = new EvmClient(this);
+          }
         }
       }
     }
@@ -207,7 +279,11 @@ public class CdpClient implements Closeable {
     if (solanaClient == null) {
       synchronized (namespaceLock) {
         if (solanaClient == null) {
-          solanaClient = new SolanaClient(this);
+          if (tokenProvider != null) {
+            solanaClient = new SolanaClient(apiClient, tokenProvider);
+          } else {
+            solanaClient = new SolanaClient(this);
+          }
         }
       }
     }
@@ -233,127 +309,15 @@ public class CdpClient implements Closeable {
     if (policiesClient == null) {
       synchronized (namespaceLock) {
         if (policiesClient == null) {
-          policiesClient = new PoliciesClient(this);
+          if (tokenProvider != null) {
+            policiesClient = new PoliciesClient(apiClient, tokenProvider);
+          } else {
+            policiesClient = new PoliciesClient(this);
+          }
         }
       }
     }
     return policiesClient;
-  }
-
-  // ==================== Static Factory Methods (pre-generated tokens) ====================
-
-  /**
-   * Creates an EVM client using pre-generated tokens.
-   *
-   * <p>Use this when tokens are generated externally (e.g., from a separate auth service):
-   *
-   * <pre>{@code
-   * // Using CdpTokenResponse
-   * CdpTokenResponse tokens = tokenGenerator.generateTokens(request);
-   * EvmAccount account = CdpClient.evm(tokens).createAccount(
-   *     CreateAccountOptions.builder().name("my-account").build()
-   * );
-   *
-   * // Using custom TokenProvider implementation
-   * TokenProvider customTokens = new MyCustomTokenProvider();
-   * EvmAccount account = CdpClient.evm(customTokens).createAccount(
-   *     CreateAccountOptions.builder().name("my-account").build()
-   * );
-   * }</pre>
-   *
-   * @param tokens the pre-generated tokens
-   * @return a new EVM client
-   */
-  public static EvmClient evm(TokenProvider tokens) {
-    return evm(tokens, CdpClientOptions.DEFAULT_BASE_PATH);
-  }
-
-  /**
-   * Creates an EVM client using pre-generated tokens with a custom base path.
-   *
-   * @param tokens the pre-generated tokens
-   * @param basePath the API base path
-   * @return a new EVM client
-   */
-  public static EvmClient evm(TokenProvider tokens, String basePath) {
-    ApiClient apiClient = createApiClientWithTokens(tokens, basePath);
-    return new EvmClient(apiClient, tokens);
-  }
-
-  /**
-   * Creates a Solana client using pre-generated tokens.
-   *
-   * <p>Use this when tokens are generated externally (e.g., from a separate auth service):
-   *
-   * <pre>{@code
-   * // Using CdpTokenResponse
-   * CdpTokenResponse tokens = tokenGenerator.generateTokens(request);
-   * SolanaAccount account = CdpClient.solana(tokens).createAccount(
-   *     CreateAccountOptions.builder().name("my-account").build()
-   * );
-   *
-   * // Using custom TokenProvider implementation
-   * TokenProvider customTokens = new MyCustomTokenProvider();
-   * SolanaAccount account = CdpClient.solana(customTokens).createAccount(
-   *     CreateAccountOptions.builder().name("my-account").build()
-   * );
-   * }</pre>
-   *
-   * @param tokens the pre-generated tokens
-   * @return a new Solana client
-   */
-  public static SolanaClient solana(TokenProvider tokens) {
-    return solana(tokens, CdpClientOptions.DEFAULT_BASE_PATH);
-  }
-
-  /**
-   * Creates a Solana client using pre-generated tokens with a custom base path.
-   *
-   * @param tokens the pre-generated tokens
-   * @param basePath the API base path
-   * @return a new Solana client
-   */
-  public static SolanaClient solana(TokenProvider tokens, String basePath) {
-    ApiClient apiClient = createApiClientWithTokens(tokens, basePath);
-    return new SolanaClient(apiClient, tokens);
-  }
-
-  /**
-   * Creates a Policies client using pre-generated tokens.
-   *
-   * <p>Use this when tokens are generated externally (e.g., from a separate auth service):
-   *
-   * <pre>{@code
-   * // Using CdpTokenResponse
-   * CdpTokenResponse tokens = tokenGenerator.generateTokens(request);
-   * Policy policy = CdpClient.policies(tokens).createPolicy(
-   *     CreatePolicyOptions.builder().policy(policyRequest).build()
-   * );
-   *
-   * // Using custom TokenProvider implementation
-   * TokenProvider customTokens = new MyCustomTokenProvider();
-   * Policy policy = CdpClient.policies(customTokens).createPolicy(
-   *     CreatePolicyOptions.builder().policy(policyRequest).build()
-   * );
-   * }</pre>
-   *
-   * @param tokens the pre-generated tokens
-   * @return a new Policies client
-   */
-  public static PoliciesClient policies(TokenProvider tokens) {
-    return policies(tokens, CdpClientOptions.DEFAULT_BASE_PATH);
-  }
-
-  /**
-   * Creates a Policies client using pre-generated tokens with a custom base path.
-   *
-   * @param tokens the pre-generated tokens
-   * @param basePath the API base path
-   * @return a new Policies client
-   */
-  public static PoliciesClient policies(TokenProvider tokens, String basePath) {
-    ApiClient apiClient = createApiClientWithTokens(tokens, basePath);
-    return new PoliciesClient(apiClient, tokens);
   }
 
   /**
@@ -448,49 +412,33 @@ public class CdpClient implements Closeable {
     return tokenGenerator;
   }
 
-  /**
-   * Creates an ApiClient configured to use pre-generated tokens.
-   *
-   * <p>This factory method allows constructing an ApiClient that uses externally generated tokens
-   * rather than auto-generating them via the request interceptor. This is useful for environments
-   * where token generation happens in a separate service or process.
-   *
-   * <p>Accepts any implementation of {@link TokenProvider}, allowing for flexible token sourcing
-   * from custom authentication systems, external services, or alternative token generators.
-   *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * // Using CdpTokenResponse
-   * CdpTokenResponse tokens = externalGenerator.generateTokens(request);
-   * ApiClient apiClient = CdpClient.createApiClientWithTokens(tokens);
-   *
-   * // Using custom TokenProvider
-   * TokenProvider customTokens = new MyCustomTokenProvider();
-   * ApiClient apiClient = CdpClient.createApiClientWithTokens(customTokens);
-   *
-   * // Use API directly
-   * EvmAccountsApi evmApi = new EvmAccountsApi(apiClient);
-   * }</pre>
-   *
-   * @param tokens the pre-generated tokens
-   * @return a configured ApiClient
-   */
-  public static ApiClient createApiClientWithTokens(TokenProvider tokens) {
-    return createApiClientWithTokens(tokens, CdpClientOptions.DEFAULT_BASE_PATH);
-  }
+  // Internal method to build ApiClient for TokenProvider mode
+  private static ApiClient buildApiClientWithTokens(TokenProvider tokens, HttpClientConfig config) {
+    // Build retry config (use defaults if not specified)
+    RetryConfig retryConfig = config.retryConfig().orElse(RetryConfig.defaultConfig());
 
-  /**
-   * Creates an ApiClient configured to use pre-generated tokens with a custom base path.
-   *
-   * @param tokens the pre-generated tokens
-   * @param basePath the API base path
-   * @return a configured ApiClient
-   */
-  public static ApiClient createApiClientWithTokens(TokenProvider tokens, String basePath) {
-    ApiClient client = new ApiClient();
-    client.updateBaseUri(basePath);
+    // Create base HttpClient using user-provided builder or default
+    HttpClient.Builder baseBuilder = config.httpClientBuilder().orElseGet(HttpClient::newBuilder);
 
+    // Apply default connect timeout
+    baseBuilder.connectTimeout(Duration.ofSeconds(30));
+
+    HttpClient baseClient = baseBuilder.build();
+
+    // Wrap with retry functionality if retries > 0
+    HttpClient httpClient =
+        retryConfig.maxRetries() > 0
+            ? new RetryingHttpClient(baseClient, retryConfig, config.debugging())
+            : baseClient;
+
+    // Create ApiClient with our wrapped HttpClient
+    ApiClient client =
+        new ApiClient(
+            new DelegatingHttpClientBuilder(httpClient),
+            ApiClient.createDefaultObjectMapper(),
+            config.basePath());
+
+    // Set request interceptor for auth headers
     client.setRequestInterceptor(
         builder -> {
           builder.header("Authorization", "Bearer " + tokens.bearerToken());
@@ -523,9 +471,34 @@ public class CdpClient implements Closeable {
   }
 
   private ApiClient buildApiClient(CdpClientOptions options) {
-    ApiClient client = new ApiClient();
-    client.updateBaseUri(options.basePath());
     String host = extractHost(options.basePath());
+
+    // Build the retry configuration
+    RetryConfig retryConfig =
+        options
+            .retryConfig()
+            .orElseGet(() -> RetryConfig.withMaxRetries(options.maxNetworkRetries()));
+
+    // Create the base HttpClient using user-provided builder or default
+    HttpClient.Builder baseBuilder = options.httpClientBuilder().orElseGet(HttpClient::newBuilder);
+
+    // Apply default connect timeout if not already set
+    baseBuilder.connectTimeout(Duration.ofSeconds(30));
+
+    HttpClient baseClient = baseBuilder.build();
+
+    // Wrap with retry functionality if retries > 0
+    HttpClient httpClient =
+        retryConfig.maxRetries() > 0
+            ? new RetryingHttpClient(baseClient, retryConfig, options.debugging())
+            : baseClient;
+
+    // Create ApiClient with our wrapped HttpClient
+    ApiClient client =
+        new ApiClient(
+            new DelegatingHttpClientBuilder(httpClient),
+            ApiClient.createDefaultObjectMapper(),
+            options.basePath());
 
     // Set request interceptor to add auth headers
     client.setRequestInterceptor(

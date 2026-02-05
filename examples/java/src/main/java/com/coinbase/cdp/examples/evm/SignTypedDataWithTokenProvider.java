@@ -18,7 +18,7 @@ import java.util.Optional;
  * Example: Sign EIP-712 typed data using the TokenProvider pattern.
  *
  * <p>This example demonstrates how to use the CdpTokenGenerator to generate tokens for each API
- * request, then use the static factory pattern CdpClient.evm(tokenProvider) to make API calls.
+ * request, then use CdpClient.builder().tokenProvider(tokens) to make API calls.
  *
  * <p>Key concepts demonstrated:
  *
@@ -27,8 +27,8 @@ import java.util.Optional;
  *   <li><strong>TokenProvider interface</strong> - Abstraction for token sources
  *   <li><strong>Request-specific tokens</strong> - Each write operation requires its own tokens
  *       because wallet JWTs include the request method, path, and body hash
- *   <li><strong>Static factory pattern</strong> - Using CdpClient.evm(tokens) instead of
- *       CdpClient.create().evm()
+ *   <li><strong>Builder pattern</strong> - Using CdpClient.builder().tokenProvider(tokens) for
+ *       pre-generated token authentication
  * </ol>
  *
  * <p><strong>Important:</strong> Pre-generated wallet JWTs are request-specific. Each operation
@@ -45,7 +45,7 @@ public class SignTypedDataWithTokenProvider {
     System.out.println("=== TokenProvider Pattern with CdpTokenGenerator ===");
     System.out.println();
     System.out.println("This example shows how to use CdpTokenGenerator to generate");
-    System.out.println("request-specific tokens and use CdpClient.evm(tokenProvider)");
+    System.out.println("request-specific tokens and use CdpClient.builder().tokenProvider(tokens)");
     System.out.println("for API calls.");
     System.out.println();
 
@@ -84,9 +84,12 @@ public class SignTypedDataWithTokenProvider {
     System.out.println(
         "  ✓ Wallet auth token generated: " + createTokens.walletAuthToken().isPresent());
 
-    // Use the static factory pattern with the generated tokens
-    System.out.println("  Calling CdpClient.evm(tokens).createAccount(...)");
-    EvmAccount account = CdpClient.evm(createTokens).createAccount(createAccountRequest);
+    // Use the builder pattern with the generated tokens
+    System.out.println("  Calling CdpClient.builder().tokenProvider(tokens).build().evm().createAccount(...)");
+    EvmAccount account;
+    try (CdpClient cdp = CdpClient.builder().tokenProvider(createTokens).build()) {
+      account = cdp.evm().createAccount(createAccountRequest);
+    }
 
     System.out.println();
     System.out.println("  ✓ Created account: " + account.getAddress());
@@ -172,13 +175,15 @@ public class SignTypedDataWithTokenProvider {
     System.out.println(
         "  ✓ Wallet auth token generated: " + signTokens.walletAuthToken().isPresent());
 
-    // Use the static factory pattern with the new tokens
-    System.out.println("  Calling CdpClient.evm(tokens).signTypedData(...)");
-    var signature = CdpClient.evm(signTokens).signTypedData(account.getAddress(), eip712Message);
+    // Use the builder pattern with the new tokens
+    System.out.println("  Calling CdpClient.builder().tokenProvider(tokens).build().evm().signTypedData(...)");
+    try (CdpClient cdp = CdpClient.builder().tokenProvider(signTokens).build()) {
+      var signature = cdp.evm().signTypedData(account.getAddress(), eip712Message);
 
-    System.out.println();
-    System.out.println("  ✓ Successfully signed EIP-712 typed data!");
-    System.out.println("  ✓ Signature: " + signature.getSignature());
+      System.out.println();
+      System.out.println("  ✓ Successfully signed EIP-712 typed data!");
+      System.out.println("  ✓ Signature: " + signature.getSignature());
+    }
     System.out.println();
 
     // ==================== Summary ====================
@@ -186,7 +191,7 @@ public class SignTypedDataWithTokenProvider {
     System.out.println();
     System.out.println("This example demonstrated:");
     System.out.println("1. Using CdpTokenGenerator to generate request-specific tokens");
-    System.out.println("2. Using CdpClient.evm(tokenProvider) static factory pattern");
+    System.out.println("2. Using CdpClient.builder().tokenProvider(tokens) builder pattern");
     System.out.println("3. Generating NEW tokens for each write operation");
     System.out.println("4. EIP-712 typed data construction and signing");
     System.out.println();
@@ -194,7 +199,7 @@ public class SignTypedDataWithTokenProvider {
     System.out.println("- Each write operation needs its own TokenProvider with fresh tokens");
     System.out.println("- Wallet JWTs include method, path, and body hash - they're request-specific");
     System.out.println("- The TokenProvider interface enables integration with external systems");
-    System.out.println("- Use CdpClient.evm(tokens) for the static factory pattern");
+    System.out.println("- Use CdpClient.builder().tokenProvider(tokens) for pre-generated token auth");
   }
 
   /** Gets a value from environment variable or system property. */

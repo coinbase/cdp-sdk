@@ -1,5 +1,7 @@
 package com.coinbase.cdp;
 
+import com.coinbase.cdp.http.RetryConfig;
+import java.net.http.HttpClient;
 import java.util.Optional;
 
 /**
@@ -27,7 +29,9 @@ public record CdpClientOptions(
     boolean debugging,
     String basePath,
     long expiresIn,
-    int maxNetworkRetries) {
+    int maxNetworkRetries,
+    Optional<RetryConfig> retryConfig,
+    Optional<HttpClient.Builder> httpClientBuilder) {
 
   /** Default base URL for the CDP API. */
   public static final String DEFAULT_BASE_PATH = "https://api.cdp.coinbase.com/platform";
@@ -61,6 +65,12 @@ public record CdpClientOptions(
     }
     if (maxNetworkRetries < 0) {
       maxNetworkRetries = DEFAULT_MAX_RETRIES;
+    }
+    if (retryConfig == null) {
+      retryConfig = Optional.empty();
+    }
+    if (httpClientBuilder == null) {
+      httpClientBuilder = Optional.empty();
     }
   }
 
@@ -131,6 +141,8 @@ public record CdpClientOptions(
     private String basePath = DEFAULT_BASE_PATH;
     private long expiresIn = DEFAULT_EXPIRES_IN;
     private int maxNetworkRetries = DEFAULT_MAX_RETRIES;
+    private Optional<RetryConfig> retryConfig = Optional.empty();
+    private Optional<HttpClient.Builder> httpClientBuilder = Optional.empty();
 
     /**
      * Sets the API key ID.
@@ -201,11 +213,73 @@ public record CdpClientOptions(
     /**
      * Sets the maximum number of network retries.
      *
+     * <p>For more advanced retry configuration, use {@link #retryConfig(RetryConfig)} instead.
+     *
      * @param retries the maximum number of retries
      * @return this builder
      */
     public Builder maxNetworkRetries(int retries) {
       this.maxNetworkRetries = retries;
+      return this;
+    }
+
+    /**
+     * Sets the retry configuration.
+     *
+     * <p>This provides fine-grained control over retry behavior including backoff timing, jitter,
+     * and retryable status codes. If set, this takes precedence over {@link
+     * #maxNetworkRetries(int)}.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * RetryConfig retryConfig = RetryConfig.builder()
+     *     .maxRetries(5)
+     *     .initialBackoff(Duration.ofMillis(200))
+     *     .maxBackoff(Duration.ofSeconds(60))
+     *     .build();
+     *
+     * CdpClientOptions options = CdpClientOptions.builder()
+     *     .apiKeyId("...")
+     *     .apiKeySecret("...")
+     *     .retryConfig(retryConfig)
+     *     .build();
+     * }</pre>
+     *
+     * @param config the retry configuration
+     * @return this builder
+     */
+    public Builder retryConfig(RetryConfig config) {
+      this.retryConfig = Optional.ofNullable(config);
+      return this;
+    }
+
+    /**
+     * Sets a custom HttpClient.Builder to use for HTTP requests.
+     *
+     * <p>The SDK will use this builder to create the underlying HttpClient, then layer
+     * authentication and retry logic on top. This allows customizing connection settings, proxies,
+     * SSL configuration, and other HttpClient options.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * HttpClient.Builder customBuilder = HttpClient.newBuilder()
+     *     .connectTimeout(Duration.ofSeconds(10))
+     *     .proxy(ProxySelector.of(new InetSocketAddress("proxy.example.com", 8080)));
+     *
+     * CdpClientOptions options = CdpClientOptions.builder()
+     *     .apiKeyId("...")
+     *     .apiKeySecret("...")
+     *     .httpClientBuilder(customBuilder)
+     *     .build();
+     * }</pre>
+     *
+     * @param builder the HttpClient.Builder to use
+     * @return this builder
+     */
+    public Builder httpClientBuilder(HttpClient.Builder builder) {
+      this.httpClientBuilder = Optional.ofNullable(builder);
       return this;
     }
 
@@ -217,7 +291,15 @@ public record CdpClientOptions(
      */
     public CdpClientOptions build() {
       return new CdpClientOptions(
-          apiKeyId, apiKeySecret, walletSecret, debugging, basePath, expiresIn, maxNetworkRetries);
+          apiKeyId,
+          apiKeySecret,
+          walletSecret,
+          debugging,
+          basePath,
+          expiresIn,
+          maxNetworkRetries,
+          retryConfig,
+          httpClientBuilder);
     }
   }
 }

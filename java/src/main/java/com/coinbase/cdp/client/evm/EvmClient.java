@@ -58,24 +58,31 @@ import com.coinbase.cdp.utils.TransactionBuilder;
  * <p>Usage patterns:
  *
  * <pre>{@code
- * // Pattern 1: Instance-based (automatic token generation)
+ * // Pattern 1: From environment variables
  * try (CdpClient cdp = CdpClient.create()) {
  *     EvmAccount account = cdp.evm().createAccount(
  *         new CreateEvmAccountRequest().name("my-account")
  *     );
+ * }
  *
- *     // Sign a message
- *     var signature = cdp.evm().signMessage(
- *         account.getAddress(),
- *         new SignEvmMessageRequest().message("Hello, World!")
+ * // Pattern 2: With credentials
+ * try (CdpClient cdp = CdpClient.builder()
+ *         .credentials("api-key-id", "api-key-secret")
+ *         .walletSecret("wallet-secret")
+ *         .build()) {
+ *     EvmAccount account = cdp.evm().createAccount(
+ *         new CreateEvmAccountRequest().name("my-account")
  *     );
  * }
  *
- * // Pattern 2: Static factory with pre-generated tokens
- * CdpTokenResponse tokens = tokenGenerator.generateTokens(request);
- * EvmAccount account = CdpClient.evm(tokens).createAccount(
- *     new CreateEvmAccountRequest().name("my-account")
- * );
+ * // Pattern 3: With pre-generated TokenProvider
+ * try (CdpClient cdp = CdpClient.builder()
+ *         .tokenProvider(myTokenProvider)
+ *         .build()) {
+ *     EvmAccount account = cdp.evm().createAccount(
+ *         new CreateEvmAccountRequest().name("my-account")
+ *     );
+ * }
  * }</pre>
  */
 public class EvmClient {

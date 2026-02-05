@@ -94,12 +94,42 @@ To see all available example tasks:
 
 ## Code Pattern
 
+### Client Initialization
+
+There are multiple ways to initialize the CDP client:
+
+```java
+// Option 1: From environment variables (simplest)
+// Reads CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET
+CdpClient cdp = CdpClient.create();
+
+// Option 2: With explicit credentials using the builder pattern
+CdpClient cdp = CdpClient.builder()
+    .credentials("api-key-id", "api-key-secret")
+    .walletSecret("wallet-secret")
+    .build();
+
+// Option 3: With pre-generated tokens (for serverless/edge deployments)
+CdpClient cdp = CdpClient.builder()
+    .tokenProvider(myTokenProvider)
+    .build();
+
+// Option 4: With custom HTTP configuration
+CdpClient cdp = CdpClient.builder()
+    .credentials("api-key-id", "api-key-secret")
+    .httpConfig(config -> config
+        .debugging(true)
+        .retryConfig(RetryConfig.builder().maxRetries(5).build()))
+    .build();
+```
+
+### Basic Usage Pattern
+
 Each example follows a consistent pattern:
 
 ```java
 import com.coinbase.cdp.CdpClient;
 import com.coinbase.cdp.examples.utils.EnvLoader;
-import com.coinbase.cdp.openapi.api.EvmAccountsApi;
 
 public class Example {
     public static void main(String[] args) throws Exception {
@@ -107,16 +137,14 @@ public class Example {
         EnvLoader.load();
 
         try (CdpClient cdp = CdpClient.create()) {
-            // Get configured API client
+            // Use high-level namespace clients (recommended)
+            var account = cdp.evm().createAccount(
+                new CreateEvmAccountRequest().name("my-account")
+            );
+
+            // Or use low-level OpenAPI clients for advanced usage
             EvmAccountsApi evmApi = new EvmAccountsApi(cdp.getApiClient());
-
-            // Read operations - no wallet JWT needed
             var accounts = evmApi.listEvmAccounts(null, null, null);
-
-            // Write operations - generate wallet JWT
-            var request = new CreateEvmAccountRequest().name("my-account");
-            String walletJwt = cdp.generateWalletJwt("POST", "/v2/evm/accounts", request);
-            var account = evmApi.createEvmAccount(walletJwt, null, request);
         }
     }
 }

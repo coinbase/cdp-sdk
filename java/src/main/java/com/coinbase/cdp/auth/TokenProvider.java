@@ -39,8 +39,11 @@ import java.util.Optional;
  *
  * // Usage with CDP clients
  * TokenProvider tokens = new ExternalTokenProvider(authService);
- * EvmClient evmClient = CdpClient.evm(tokens);
- * PoliciesClient policiesClient = CdpClient.policies(tokens);
+ * CdpClient client = CdpClient.builder()
+ *     .tokenProvider(tokens)
+ *     .build();
+ * EvmClient evmClient = client.evm();
+ * PoliciesClient policiesClient = client.policies();
  * }</pre>
  *
  * <p>The SDK provides a default implementation via {@link CdpTokenResponse} that is returned by

@@ -25,7 +25,10 @@ import java.util.Optional;
  * });
  *
  * // Use as TokenProvider
- * EvmClient evmClient = CdpClient.evm(response);
+ * CdpClient client = CdpClient.builder()
+ *     .tokenProvider(response)
+ *     .build();
+ * EvmClient evmClient = client.evm();
  * }</pre>
  */
 public record CdpTokenResponse(String bearerToken, Optional<String> walletAuthToken)

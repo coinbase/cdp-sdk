@@ -21,7 +21,7 @@ import com.coinbase.cdp.openapi.model.UpdatePolicyRequest;
  * <p>Usage patterns:
  *
  * <pre>{@code
- * // Pattern 1: Instance-based (automatic token generation)
+ * // Pattern 1: From environment variables
  * try (CdpClient cdp = CdpClient.create()) {
  *     Policy policy = cdp.policies().createPolicy(
  *         new CreatePolicyRequest()
@@ -31,14 +31,29 @@ import com.coinbase.cdp.openapi.model.UpdatePolicyRequest;
  *     );
  * }
  *
- * // Pattern 2: Static factory with pre-generated tokens
- * CdpTokenResponse tokens = tokenGenerator.generateTokens(request);
- * Policy policy = CdpClient.policies(tokens).createPolicy(
- *     new CreatePolicyRequest()
- *         .scope("account")
- *         .description("My policy")
- *         .rules(rules)
- * );
+ * // Pattern 2: With credentials
+ * try (CdpClient cdp = CdpClient.builder()
+ *         .credentials("api-key-id", "api-key-secret")
+ *         .build()) {
+ *     Policy policy = cdp.policies().createPolicy(
+ *         new CreatePolicyRequest()
+ *             .scope("account")
+ *             .description("My policy")
+ *             .rules(rules)
+ *     );
+ * }
+ *
+ * // Pattern 3: With pre-generated TokenProvider
+ * try (CdpClient cdp = CdpClient.builder()
+ *         .tokenProvider(myTokenProvider)
+ *         .build()) {
+ *     Policy policy = cdp.policies().createPolicy(
+ *         new CreatePolicyRequest()
+ *             .scope("account")
+ *             .description("My policy")
+ *             .rules(rules)
+ *     );
+ * }
  * }</pre>
  */
 public class PoliciesClient {

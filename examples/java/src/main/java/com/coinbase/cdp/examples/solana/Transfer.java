@@ -17,6 +17,15 @@ import org.p2p.solanaj.rpc.RpcClient;
  * accounts. It creates a sender and receiver account, funds the sender from the faucet, waits for
  * confirmation, and then transfers SOL to the receiver.
  *
+ * <p>Alternative initialization using the builder pattern:
+ *
+ * <pre>{@code
+ * CdpClient cdp = CdpClient.builder()
+ *     .credentials("api-key-id", "api-key-secret")
+ *     .walletSecret("wallet-secret")
+ *     .build();
+ * }</pre>
+ *
  * <p>Usage: ./gradlew runSolanaTransfer
  */
 public class Transfer {

@@ -20,6 +20,24 @@ import com.coinbase.cdp.openapi.model.RequestEvmFaucetRequest.TokenEnum;
  *   <li>Request testnet ETH from the faucet
  * </ol>
  *
+ * <p>There are multiple ways to initialize the CDP client:
+ *
+ * <pre>{@code
+ * // Option 1: From environment variables (CDP_API_KEY_ID, CDP_API_KEY_SECRET, CDP_WALLET_SECRET)
+ * CdpClient cdp = CdpClient.create();
+ *
+ * // Option 2: With explicit credentials using the builder pattern
+ * CdpClient cdp = CdpClient.builder()
+ *     .credentials("api-key-id", "api-key-secret")
+ *     .walletSecret("wallet-secret")
+ *     .build();
+ *
+ * // Option 3: With pre-generated tokens (for serverless/edge deployments)
+ * CdpClient cdp = CdpClient.builder()
+ *     .tokenProvider(myTokenProvider)
+ *     .build();
+ * }</pre>
+ *
  * <p>Usage: ./gradlew runQuickstart
  */
 public class Quickstart {

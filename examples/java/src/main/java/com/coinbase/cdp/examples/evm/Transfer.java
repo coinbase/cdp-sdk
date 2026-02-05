@@ -19,6 +19,15 @@ import org.web3j.protocol.http.HttpService;
  * accounts. It creates a sender and receiver account, funds the sender with ETH (for gas) and USDC
  * from the faucet, and then transfers USDC to the receiver.
  *
+ * <p>Alternative initialization using the builder pattern:
+ *
+ * <pre>{@code
+ * CdpClient cdp = CdpClient.builder()
+ *     .credentials("api-key-id", "api-key-secret")
+ *     .walletSecret("wallet-secret")
+ *     .build();
+ * }</pre>
+ *
  * <p>Usage: ./gradlew runTransfer
  */
 public class Transfer {
