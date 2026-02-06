@@ -38,6 +38,7 @@ class TestX402VerifyPaymentRejection(unittest.TestCase):
             return X402VerifyPaymentRejection(
                 is_valid = False,
                 invalid_reason = 'insufficient_funds',
+                invalid_message = 'Insufficient funds',
                 payer = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             )
         else:
