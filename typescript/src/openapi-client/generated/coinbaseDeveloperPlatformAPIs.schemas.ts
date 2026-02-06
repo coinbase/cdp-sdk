@@ -2634,24 +2634,6 @@ service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detec
   /** Unique identifier for the subscription. */
   subscriptionId: string;
   target: WebhookTarget;
-  /**
-   * (Deprecated) Use `labels` field instead.
-
-Label key for filtering events. Present when subscription uses traditional single-label format.
-Maintained for backward compatibility only.
-
-   * @deprecated
-   */
-  labelKey?: string;
-  /**
-   * (Deprecated) Use `labels` field instead.
-
-Label value for filtering events. Present when subscription uses traditional single-label format.
-Maintained for backward compatibility only.
-
-   * @deprecated
-   */
-  labelValue?: string;
   /** Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.
 Present when subscription uses multi-label format.
  */
@@ -2669,9 +2651,9 @@ export type WebhookSubscriptionListResponseAllOf = {
 export type WebhookSubscriptionListResponse = WebhookSubscriptionListResponseAllOf & ListResponse;
 
 /**
- * Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
-an event contains ALL the key-value pairs specified here. Additional labels on 
-the event are allowed and will not prevent matching.
+ * Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
+an event contains ALL the key-value pairs specified here. Additional labels on
+the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
 
 **Note:** Currently, labels are supported for onchain webhooks only.
 
@@ -2681,194 +2663,67 @@ See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-refe
 export type WebhookSubscriptionRequestLabels = { [key: string]: string };
 
 /**
- * Request to create a new webhook subscription with support for both traditional single-label 
-and multi-label filtering formats.
+ * Request to create a new webhook subscription with support for multi-label filtering.
 
  */
-export type WebhookSubscriptionRequest =
-  | (unknown & {
-      /** Description of the webhook subscription. */
-      description?: Description;
-      /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
+export interface WebhookSubscriptionRequest {
+  /** Description of the webhook subscription. */
+  description?: Description;
+  /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
 The subscription will only receive events matching these types AND the label filter(s).
  */
-      eventTypes?: string[];
-      /** Whether the subscription is enabled. */
-      isEnabled?: boolean;
-      target?: WebhookTarget;
-      metadata?: Metadata;
-      /**
-   * (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-
-Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair 
-in addition to the event types. Only events matching both the event types AND this label filter will be delivered.
-NOTE: Use either (labelKey + labelValue) OR labels, not both.
-
-Maintained for backward compatibility only.
-
-   * @deprecated
-   */
-      labelKey?: string;
-      /**
-   * (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-
-Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).
-Only events with this exact label value will be delivered.
-NOTE: Use either (labelKey + labelValue) OR labels, not both.
-
-Maintained for backward compatibility only.
-
-   * @deprecated
-   */
-      labelValue?: string;
-      /** Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
-an event contains ALL the key-value pairs specified here. Additional labels on 
-the event are allowed and will not prevent matching.
+  eventTypes: string[];
+  /** Whether the subscription is enabled. */
+  isEnabled: boolean;
+  target: WebhookTarget;
+  metadata?: Metadata;
+  /** Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
+an event contains ALL the key-value pairs specified here. Additional labels on
+the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
 
 **Note:** Currently, labels are supported for onchain webhooks only.
 
 See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
  */
-      labels?: WebhookSubscriptionRequestLabels;
-    })
-  | (unknown & {
-      /** Description of the webhook subscription. */
-      description?: Description;
-      /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
-service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
-The subscription will only receive events matching these types AND the label filter(s).
- */
-      eventTypes?: string[];
-      /** Whether the subscription is enabled. */
-      isEnabled?: boolean;
-      target?: WebhookTarget;
-      metadata?: Metadata;
-      /**
-   * (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-
-Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair 
-in addition to the event types. Only events matching both the event types AND this label filter will be delivered.
-NOTE: Use either (labelKey + labelValue) OR labels, not both.
-
-Maintained for backward compatibility only.
-
-   * @deprecated
-   */
-      labelKey?: string;
-      /**
-   * (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-
-Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).
-Only events with this exact label value will be delivered.
-NOTE: Use either (labelKey + labelValue) OR labels, not both.
-
-Maintained for backward compatibility only.
-
-   * @deprecated
-   */
-      labelValue?: string;
-      /** Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
-an event contains ALL the key-value pairs specified here. Additional labels on 
-the event are allowed and will not prevent matching.
-
-**Note:** Currently, labels are supported for onchain webhooks only.
-
-See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
- */
-      labels?: WebhookSubscriptionRequestLabels;
-    });
+  labels?: WebhookSubscriptionRequestLabels;
+}
 
 /**
- * Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
+ * Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
 
 **Note:** Currently, labels are supported for onchain webhooks only.
 
 See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
+Omit to receive all events for the selected event types.
 
  */
 export type WebhookSubscriptionUpdateRequestLabels = { [key: string]: string };
 
 /**
- * Request to update an existing webhook subscription. The update format must match 
-the original subscription format (traditional or multi-label).
+ * Request to update an existing webhook subscription.
 
  */
-export type WebhookSubscriptionUpdateRequest =
-  | (unknown & {
-      /** Description of the webhook subscription. */
-      description?: Description;
-      /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
+export interface WebhookSubscriptionUpdateRequest {
+  /** Description of the webhook subscription. */
+  description?: Description;
+  /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
 service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
  */
-      eventTypes?: string[];
-      /** Whether the subscription is enabled. */
-      isEnabled?: boolean;
-      target?: WebhookTarget;
-      metadata?: Metadata;
-      /** Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
+  eventTypes: string[];
+  /** Whether the subscription is enabled. */
+  isEnabled: boolean;
+  target: WebhookTarget;
+  metadata?: Metadata;
+  /** Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
 
 **Note:** Currently, labels are supported for onchain webhooks only.
 
 See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
+Omit to receive all events for the selected event types.
  */
-      labels?: WebhookSubscriptionUpdateRequestLabels;
-      /**
-   * (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-
-Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.
-Maintained for backward compatibility only.
-
-   * @deprecated
-   */
-      labelKey?: string;
-      /**
-   * (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-
-Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.
-Maintained for backward compatibility only.
-
-   * @deprecated
-   */
-      labelValue?: string;
-    })
-  | (unknown & {
-      /** Description of the webhook subscription. */
-      description?: Description;
-      /** Types of events to subscribe to. Event types follow a three-part dot-separated format:
-service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
- */
-      eventTypes?: string[];
-      /** Whether the subscription is enabled. */
-      isEnabled?: boolean;
-      target?: WebhookTarget;
-      metadata?: Metadata;
-      /** Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
-
-**Note:** Currently, labels are supported for onchain webhooks only.
-
-See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
- */
-      labels?: WebhookSubscriptionUpdateRequestLabels;
-      /**
-   * (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-
-Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.
-Maintained for backward compatibility only.
-
-   * @deprecated
-   */
-      labelKey?: string;
-      /**
-   * (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-
-Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.
-Maintained for backward compatibility only.
-
-   * @deprecated
-   */
-      labelValue?: string;
-    });
+  labels?: WebhookSubscriptionUpdateRequestLabels;
+}
 
 /**
  * The version of the x402 protocol.
@@ -3206,6 +3061,7 @@ export const X402VerifyInvalidReason = {
     "invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts",
   invalid_exact_svm_payload_transaction_fee_payer_transferring_funds:
     "invalid_exact_svm_payload_transaction_fee_payer_transferring_funds",
+  unknown_error: "unknown_error",
 } as const;
 
 /**
@@ -3215,6 +3071,8 @@ export interface X402VerifyPaymentRejection {
   /** Indicates whether the payment is valid. */
   isValid: boolean;
   invalidReason: X402VerifyInvalidReason;
+  /** The message describing the invalid reason. */
+  invalidMessage?: string;
   /**
    * The onchain address of the client that is paying for the resource.
 
@@ -3301,6 +3159,7 @@ export const X402SettleErrorReason = {
   settle_exact_svm_block_height_exceeded: "settle_exact_svm_block_height_exceeded",
   settle_exact_svm_transaction_confirmation_timed_out:
     "settle_exact_svm_transaction_confirmation_timed_out",
+  unknown_error: "unknown_error",
 } as const;
 
 /**
@@ -3310,6 +3169,8 @@ export interface X402SettlePaymentRejection {
   /** Indicates whether the payment settlement is successful. */
   success: boolean;
   errorReason: X402SettleErrorReason;
+  /** The message describing the error reason. */
+  errorMessage?: string;
   /**
    * The onchain address of the client that is paying for the resource.
 
@@ -3593,6 +3454,8 @@ export type X402VerifyResponseResponse = {
   /** Indicates whether the payment is valid. */
   isValid: boolean;
   invalidReason?: X402VerifyInvalidReason;
+  /** The message describing the invalid reason. */
+  invalidMessage?: string;
   /**
    * The onchain address of the client that is paying for the resource.
 
@@ -3613,6 +3476,8 @@ export type X402SettleResponseResponse = {
   /** Indicates whether the payment settlement is successful. */
   success: boolean;
   errorReason?: X402SettleErrorReason;
+  /** The message describing the error reason. */
+  errorMessage?: string;
   /**
    * The onchain address of the client that is paying for the resource.
 

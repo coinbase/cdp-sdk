@@ -74,6 +74,20 @@ go.work
 vendor/
 go/docs
 
+# Java / Gradle
+.gradle/
+bin/
+*.class
+*.jar
+!gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.war
+*.nar
+*.ear
+.classpath
+.project
+.settings/
+
 # OpenAPI
 openapi-preprocessed.yaml
 openapi_preprocessed.yaml

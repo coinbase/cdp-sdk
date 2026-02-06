@@ -40,12 +40,12 @@ jobs:
         if: steps.check_branch.outputs.branch_exists == 'false'
         run: make update-openapi
 
-      - name: Set up JDK 11
+      - name: Set up JDK 23
         if: steps.check_branch.outputs.branch_exists == 'false'
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: "temurin"
-          java-version: "11"
+          java-version: "21"
 
       - name: Install OpenAPI Generator 7.11.0
         if: steps.check_branch.outputs.branch_exists == 'false'
@@ -93,6 +93,11 @@ jobs:
         run: |
           go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
 
+      # Gradle setup for Java SDK
+      - name: Setup Gradle
+        if: steps.check_branch.outputs.branch_exists == 'false'
+        uses: gradle/actions/setup-gradle@ac638b010cf58a27ee6c972d7336334ccaf61c96 # v4.4.1
+
       - name: Install dependencies and run orval in typescript folder
         if: steps.check_branch.outputs.branch_exists == 'false'
         working-directory: ./typescript
@@ -108,6 +113,11 @@ jobs:
       - name: Run make client in go folder
         if: steps.check_branch.outputs.branch_exists == 'false'
         working-directory: ./go
+        run: make client
+
+      - name: Run make client in java folder
+        if: steps.check_branch.outputs.branch_exists == 'false'
+        working-directory: ./java
         run: make client
 
       - name: Run make generate in rust folder
@@ -135,6 +145,7 @@ jobs:
             - Generated TypeScript code from the updated specs
             - Generated Python client from the updated specs
             - Generated Go client from the updated specs
+            - Generated Java client from the updated specs
             - Generated Rust client from the updated specs
           commit-message: "chore: update OpenAPI spec and generated code"
           sign-commits: true

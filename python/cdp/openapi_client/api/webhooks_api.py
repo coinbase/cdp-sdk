@@ -46,7 +46,7 @@ class WebhooksApi:
     @validate_call
     async def create_webhook_subscription(
         self,
-        webhook_subscription_request: Optional[WebhookSubscriptionRequest],
+        webhook_subscription_request: WebhookSubscriptionRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -117,7 +117,7 @@ class WebhooksApi:
     @validate_call
     async def create_webhook_subscription_with_http_info(
         self,
-        webhook_subscription_request: Optional[WebhookSubscriptionRequest],
+        webhook_subscription_request: WebhookSubscriptionRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -188,7 +188,7 @@ class WebhooksApi:
     @validate_call
     async def create_webhook_subscription_without_preload_content(
         self,
-        webhook_subscription_request: Optional[WebhookSubscriptionRequest],
+        webhook_subscription_request: WebhookSubscriptionRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1171,7 +1171,7 @@ class WebhooksApi:
     async def update_webhook_subscription(
         self,
         subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
-        webhook_subscription_update_request: Optional[WebhookSubscriptionUpdateRequest],
+        webhook_subscription_update_request: WebhookSubscriptionUpdateRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1247,7 +1247,7 @@ class WebhooksApi:
     async def update_webhook_subscription_with_http_info(
         self,
         subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
-        webhook_subscription_update_request: Optional[WebhookSubscriptionUpdateRequest],
+        webhook_subscription_update_request: WebhookSubscriptionUpdateRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],
@@ -1323,7 +1323,7 @@ class WebhooksApi:
     async def update_webhook_subscription_without_preload_content(
         self,
         subscription_id: Annotated[StrictStr, Field(description="Unique identifier for the webhook subscription.")],
-        webhook_subscription_update_request: Optional[WebhookSubscriptionUpdateRequest],
+        webhook_subscription_update_request: WebhookSubscriptionUpdateRequest,
         _request_timeout: Union[
             None,
             Annotated[StrictFloat, Field(gt=0)],

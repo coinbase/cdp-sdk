@@ -1,0 +1,57 @@
+name: E2E Java Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ./java
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        java: ["21", "22"]
+
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: "temurin"
+          java-version: ${{ matrix.java }}
+          cache: "gradle"
+          cache-dependency-path: |
+            java/build.gradle.kts
+            java/settings.gradle.kts
+            java/gradle/wrapper/gradle-wrapper.properties
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build project
+        run: ./gradlew build -x test
+
+      - name: Run E2E Tests
+        env:
+          CDP_API_KEY_ID: ${{ secrets.CDP_API_KEY_ID }}
+          CDP_API_KEY_SECRET: ${{ secrets.CDP_API_KEY_SECRET }}
+          CDP_WALLET_SECRET: ${{ secrets.CDP_WALLET_SECRET }}
+          CDP_E2E_SMART_ACCOUNT_ADDRESS: ${{ vars.CDP_E2E_SMART_ACCOUNT_ADDRESS }}
+          CDP_E2E_SOLANA_RPC_URL: ${{ secrets.CDP_E2E_SOLANA_RPC_URL }}
+          DISABLE_CDP_ERROR_REPORTING: true
+          DISABLE_CDP_USAGE_TRACKING: true
+        run: ./gradlew testE2E

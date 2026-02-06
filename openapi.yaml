@@ -10099,24 +10099,6 @@ components:
           example: 123e4567-e89b-12d3-a456-426614174000
         target:
           $ref: '#/components/schemas/WebhookTarget'
-        labelKey:
-          type: string
-          deprecated: true
-          description: |
-            (Deprecated) Use `labels` field instead.
-
-            Label key for filtering events. Present when subscription uses traditional single-label format.
-            Maintained for backward compatibility only.
-          example: contract_address
-        labelValue:
-          type: string
-          deprecated: true
-          description: |
-            (Deprecated) Use `labels` field instead.
-
-            Label value for filtering events. Present when subscription uses traditional single-label format.
-            Maintained for backward compatibility only.
-          example: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
         labels:
           type: object
           description: |
@@ -10133,8 +10115,6 @@ components:
         eventTypes:
           - onchain.activity.detected
         isEnabled: true
-        labelKey: event_name
-        labelValue: Transfer
         labels:
           contract_address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
           event_name: Transfer
@@ -10163,8 +10143,7 @@ components:
     WebhookSubscriptionRequest:
       type: object
       description: |
-        Request to create a new webhook subscription with support for both traditional single-label 
-        and multi-label filtering formats.
+        Request to create a new webhook subscription with support for multi-label filtering.
       properties:
         description:
           allOf:
@@ -10189,36 +10168,12 @@ components:
           $ref: '#/components/schemas/WebhookTarget'
         metadata:
           $ref: '#/components/schemas/Metadata'
-        labelKey:
-          type: string
-          deprecated: true
-          description: |
-            (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-
-            Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair 
-            in addition to the event types. Only events matching both the event types AND this label filter will be delivered.
-            NOTE: Use either (labelKey + labelValue) OR labels, not both.
-
-            Maintained for backward compatibility only.
-          example: contract_address
-        labelValue:
-          type: string
-          deprecated: true
-          description: |
-            (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-
-            Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).
-            Only events with this exact label value will be delivered.
-            NOTE: Use either (labelKey + labelValue) OR labels, not both.
-
-            Maintained for backward compatibility only.
-          example: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
         labels:
           type: object
           description: |
-            Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when 
-            an event contains ALL the key-value pairs specified here. Additional labels on 
-            the event are allowed and will not prevent matching.
+            Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
+            an event contains ALL the key-value pairs specified here. Additional labels on
+            the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
 
             **Note:** Currently, labels are supported for onchain webhooks only.
 
@@ -10229,34 +10184,14 @@ components:
             network: base-mainnet
             contract_address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
             event_name: Transfer
-      oneOf:
-        - title: Multi-label format (recommended)
-          required:
-            - eventTypes
-            - isEnabled
-            - labels
-            - target
-          not:
-            anyOf:
-              - required:
-                  - labelKey
-              - required:
-                  - labelValue
-        - title: Legacy single-label format (deprecated)
-          required:
-            - eventTypes
-            - isEnabled
-            - labelKey
-            - labelValue
-            - target
-          not:
-            required:
-              - labels
+      required:
+        - eventTypes
+        - isEnabled
+        - target
     WebhookSubscriptionUpdateRequest:
       type: object
       description: |
-        Request to update an existing webhook subscription. The update format must match 
-        the original subscription format (traditional or multi-label).
+        Request to update an existing webhook subscription.
       properties:
         description:
           allOf:
@@ -10283,58 +10218,22 @@ components:
         labels:
           type: object
           description: |
-            Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
+            Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
 
             **Note:** Currently, labels are supported for onchain webhooks only.
 
             See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
+            Omit to receive all events for the selected event types.
           additionalProperties:
             type: string
           example:
             network: base-mainnet
             contract_address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'
             event_name: Transfer
-        labelKey:
-          type: string
-          deprecated: true
-          description: |
-            (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-
-            Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.
-            Maintained for backward compatibility only.
-          example: contract_address
-        labelValue:
-          type: string
-          deprecated: true
-          description: |
-            (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-
-            Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.
-            Maintained for backward compatibility only.
-          example: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
-      oneOf:
-        - title: Multi-label update format (recommended)
-          required:
-            - eventTypes
-            - isEnabled
-            - labels
-            - target
-          not:
-            anyOf:
-              - required:
-                  - labelKey
-              - required:
-                  - labelValue
-        - title: Legacy single-label update format (deprecated)
-          required:
-            - eventTypes
-            - isEnabled
-            - labelKey
-            - labelValue
-            - target
-          not:
-            required:
-              - labels
+      required:
+        - eventTypes
+        - isEnabled
+        - target
     X402Version:
       type: integer
       description: The version of the x402 protocol.
@@ -10741,6 +10640,7 @@ components:
         - invalid_exact_svm_payload_transaction_transfer_to_incorrect_ata
         - invalid_exact_svm_payload_transaction_fee_payer_included_in_instruction_accounts
         - invalid_exact_svm_payload_transaction_fee_payer_transferring_funds
+        - unknown_error
       example: insufficient_funds
     x402VerifyPaymentRejection:
       type: object
@@ -10752,6 +10652,10 @@ components:
           example: false
         invalidReason:
           $ref: '#/components/schemas/x402VerifyInvalidReason'
+        invalidMessage:
+          type: string
+          description: The message describing the invalid reason.
+          example: Insufficient funds
         payer:
           type: string
           description: |-
@@ -10768,6 +10672,7 @@ components:
       example:
         isValid: false
         invalidReason: insufficient_funds
+        invalidMessage: Insufficient funds
         payer: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
     x402SettleErrorReason:
       type: string
@@ -10813,6 +10718,7 @@ components:
         - settle_exact_failed_onchain
         - settle_exact_svm_block_height_exceeded
         - settle_exact_svm_transaction_confirmation_timed_out
+        - unknown_error
       example: insufficient_funds
     x402SettlePaymentRejection:
       type: object
@@ -10824,6 +10730,10 @@ components:
           example: false
         errorReason:
           $ref: '#/components/schemas/x402SettleErrorReason'
+        errorMessage:
+          type: string
+          description: The message describing the error reason.
+          example: Insufficient funds
         payer:
           type: string
           description: |-
@@ -11265,6 +11175,10 @@ components:
                 example: false
               invalidReason:
                 $ref: '#/components/schemas/x402VerifyInvalidReason'
+              invalidMessage:
+                type: string
+                description: The message describing the invalid reason.
+                example: Insufficient funds
               payer:
                 type: string
                 description: |-
@@ -11289,6 +11203,7 @@ components:
               value:
                 isValid: false
                 invalidReason: insufficient_funds
+                invalidMessage: Insufficient funds
                 payer: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
     x402SettleResponse:
       description: Successfully settled payment on the x402 protocol.
@@ -11303,6 +11218,10 @@ components:
                 example: false
               errorReason:
                 $ref: '#/components/schemas/x402SettleErrorReason'
+              errorMessage:
+                type: string
+                description: The message describing the error reason.
+                example: Insufficient funds
               payer:
                 type: string
                 description: |-
@@ -11341,6 +11260,7 @@ components:
               value:
                 success: false
                 errorReason: insufficient_funds
+                errorMessage: Insufficient funds
                 payer: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
     x402SupportedPaymentKindsResponse:
       description: Successfully retrieved supported payment kinds for the x402 protocol.

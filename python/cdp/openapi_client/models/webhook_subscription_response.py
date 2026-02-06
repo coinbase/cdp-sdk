@@ -39,10 +39,8 @@ class WebhookSubscriptionResponse(BaseModel):
     secret: StrictStr = Field(description="Secret for webhook signature validation.")
     subscription_id: StrictStr = Field(description="Unique identifier for the subscription.", alias="subscriptionId")
     target: WebhookTarget
-    label_key: Optional[StrictStr] = Field(default=None, description="(Deprecated) Use `labels` field instead.  Label key for filtering events. Present when subscription uses traditional single-label format. Maintained for backward compatibility only. ", alias="labelKey")
-    label_value: Optional[StrictStr] = Field(default=None, description="(Deprecated) Use `labels` field instead.  Label value for filtering events. Present when subscription uses traditional single-label format. Maintained for backward compatibility only. ", alias="labelValue")
     labels: Optional[Dict[str, StrictStr]] = Field(default=None, description="Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs. Present when subscription uses multi-label format. ")
-    __properties: ClassVar[List[str]] = ["createdAt", "description", "eventTypes", "isEnabled", "metadata", "secret", "subscriptionId", "target", "labelKey", "labelValue", "labels"]
+    __properties: ClassVar[List[str]] = ["createdAt", "description", "eventTypes", "isEnabled", "metadata", "secret", "subscriptionId", "target", "labels"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -109,8 +107,6 @@ class WebhookSubscriptionResponse(BaseModel):
             "secret": obj.get("secret"),
             "subscriptionId": obj.get("subscriptionId"),
             "target": WebhookTarget.from_dict(obj["target"]) if obj.get("target") is not None else None,
-            "labelKey": obj.get("labelKey"),
-            "labelValue": obj.get("labelValue"),
             "labels": obj.get("labels")
         })
         return _obj

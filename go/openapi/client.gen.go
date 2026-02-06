@@ -656,6 +656,7 @@ const (
 	X402SettleErrorReasonSettleExactNodeFailure                                                      X402SettleErrorReason = "settle_exact_node_failure"
 	X402SettleErrorReasonSettleExactSvmBlockHeightExceeded                                           X402SettleErrorReason = "settle_exact_svm_block_height_exceeded"
 	X402SettleErrorReasonSettleExactSvmTransactionConfirmationTimedOut                               X402SettleErrorReason = "settle_exact_svm_transaction_confirmation_timed_out"
+	X402SettleErrorReasonUnknownError                                                                X402SettleErrorReason = "unknown_error"
 )
 
 // Defines values for X402SupportedPaymentKindNetwork.
@@ -743,6 +744,7 @@ const (
 	X402VerifyInvalidReasonInvalidPaymentRequirements                                                  X402VerifyInvalidReason = "invalid_payment_requirements"
 	X402VerifyInvalidReasonInvalidScheme                                                               X402VerifyInvalidReason = "invalid_scheme"
 	X402VerifyInvalidReasonInvalidX402Version                                                          X402VerifyInvalidReason = "invalid_x402_version"
+	X402VerifyInvalidReasonUnknownError                                                                X402VerifyInvalidReason = "unknown_error"
 )
 
 // Defines values for ListTokensForAccountParamsNetwork.
@@ -2664,8 +2666,7 @@ type WebhookSubscriptionListResponse struct {
 	Subscriptions []WebhookSubscriptionResponse `json:"subscriptions"`
 }
 
-// WebhookSubscriptionRequest Request to create a new webhook subscription with support for both traditional single-label
-// and multi-label filtering formats.
+// WebhookSubscriptionRequest Request to create a new webhook subscription with support for multi-label filtering.
 type WebhookSubscriptionRequest struct {
 	// Description Description of the webhook subscription.
 	Description *Description `json:"description,omitempty"`
@@ -2673,34 +2674,14 @@ type WebhookSubscriptionRequest struct {
 	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
 	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
 	// The subscription will only receive events matching these types AND the label filter(s).
-	EventTypes *[]string `json:"eventTypes,omitempty"`
+	EventTypes []string `json:"eventTypes"`
 
 	// IsEnabled Whether the subscription is enabled.
-	IsEnabled *bool `json:"isEnabled,omitempty"`
+	IsEnabled bool `json:"isEnabled"`
 
-	// LabelKey (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-	//
-	// Label key for filtering events. Each subscription filters on exactly one (labelKey, labelValue) pair
-	// in addition to the event types. Only events matching both the event types AND this label filter will be delivered.
-	// NOTE: Use either (labelKey + labelValue) OR labels, not both.
-	//
-	// Maintained for backward compatibility only.
-	// Deprecated:
-	LabelKey *string `json:"labelKey,omitempty"`
-
-	// LabelValue (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-	//
-	// Label value for filtering events. Must correspond to the labelKey (e.g., contract address for contract_address key).
-	// Only events with this exact label value will be delivered.
-	// NOTE: Use either (labelKey + labelValue) OR labels, not both.
-	//
-	// Maintained for backward compatibility only.
-	// Deprecated:
-	LabelValue *string `json:"labelValue,omitempty"`
-
-	// Labels Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
+	// Labels Optional. Multi-label filters using total overlap logic. Total overlap means the subscription will only trigger when
 	// an event contains ALL the key-value pairs specified here. Additional labels on
-	// the event are allowed and will not prevent matching.
+	// the event are allowed and will not prevent matching. Omit to receive all events for the selected event types.
 	//
 	// **Note:** Currently, labels are supported for onchain webhooks only.
 	//
@@ -2712,15 +2693,8 @@ type WebhookSubscriptionRequest struct {
 
 	// Target Target configuration for webhook delivery.
 	// Specifies the destination URL and any custom headers to include in webhook requests.
-	Target *WebhookTarget `json:"target,omitempty"`
-	union  json.RawMessage
+	Target WebhookTarget `json:"target"`
 }
-
-// WebhookSubscriptionRequest0 defines model for .
-type WebhookSubscriptionRequest0 = interface{}
-
-// WebhookSubscriptionRequest1 defines model for .
-type WebhookSubscriptionRequest1 = interface{}
 
 // WebhookSubscriptionResponse Response containing webhook subscription details.
 type WebhookSubscriptionResponse struct {
@@ -2736,20 +2710,6 @@ type WebhookSubscriptionResponse struct {
 
 	// IsEnabled Whether the subscription is enabled.
 	IsEnabled bool `json:"isEnabled"`
-
-	// LabelKey (Deprecated) Use `labels` field instead.
-	//
-	// Label key for filtering events. Present when subscription uses traditional single-label format.
-	// Maintained for backward compatibility only.
-	// Deprecated:
-	LabelKey *string `json:"labelKey,omitempty"`
-
-	// LabelValue (Deprecated) Use `labels` field instead.
-	//
-	// Label value for filtering events. Present when subscription uses traditional single-label format.
-	// Maintained for backward compatibility only.
-	// Deprecated:
-	LabelValue *string `json:"labelValue,omitempty"`
 
 	// Labels Multi-label filters using total overlap logic. Total overlap means the subscription only triggers when events contain ALL these key-value pairs.
 	// Present when subscription uses multi-label format.
@@ -2777,38 +2737,24 @@ type WebhookSubscriptionResponse_Metadata struct {
 	AdditionalProperties map[string]string   `json:"-"`
 }
 
-// WebhookSubscriptionUpdateRequest Request to update an existing webhook subscription. The update format must match
-// the original subscription format (traditional or multi-label).
+// WebhookSubscriptionUpdateRequest Request to update an existing webhook subscription.
 type WebhookSubscriptionUpdateRequest struct {
 	// Description Description of the webhook subscription.
 	Description *Description `json:"description,omitempty"`
 
 	// EventTypes Types of events to subscribe to. Event types follow a three-part dot-separated format:
 	// service.resource.verb (e.g., "onchain.activity.detected", "wallet.activity.detected", "onramp.transaction.created").
-	EventTypes *[]string `json:"eventTypes,omitempty"`
+	EventTypes []string `json:"eventTypes"`
 
 	// IsEnabled Whether the subscription is enabled.
-	IsEnabled *bool `json:"isEnabled,omitempty"`
+	IsEnabled bool `json:"isEnabled"`
 
-	// LabelKey (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-	//
-	// Label key for filtering events. Use either (labelKey + labelValue) OR labels, not both.
-	// Maintained for backward compatibility only.
-	// Deprecated:
-	LabelKey *string `json:"labelKey,omitempty"`
-
-	// LabelValue (Deprecated) Use `labels` instead for better filtering capabilities, including filtering on multiple labels simultaneously.
-	//
-	// Label value for filtering events. Use either (labelKey + labelValue) OR labels, not both.
-	// Maintained for backward compatibility only.
-	// Deprecated:
-	LabelValue *string `json:"labelValue,omitempty"`
-
-	// Labels Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
+	// Labels Optional. Multi-label filters that trigger only when an event contains ALL of these key-value pairs.
 	//
 	// **Note:** Currently, labels are supported for onchain webhooks only.
 	//
 	// See [allowed labels for onchain webhooks](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/webhooks/create-webhook-subscription#onchain-label-filtering).
+	// Omit to receive all events for the selected event types.
 	Labels *map[string]string `json:"labels,omitempty"`
 
 	// Metadata Optional metadata as key-value pairs. Use this to store additional structured information on a resource, such as customer IDs, order references, or any application-specific data. Up to 50 key/value pairs may be provided.  Keys and values are both strings. Keys must be ≤ 40 characters; values must be ≤ 500 characters.
@@ -2816,15 +2762,8 @@ type WebhookSubscriptionUpdateRequest struct {
 
 	// Target Target configuration for webhook delivery.
 	// Specifies the destination URL and any custom headers to include in webhook requests.
-	Target *WebhookTarget `json:"target,omitempty"`
-	union  json.RawMessage
+	Target WebhookTarget `json:"target"`
 }
-
-// WebhookSubscriptionUpdateRequest0 defines model for .
-type WebhookSubscriptionUpdateRequest0 = interface{}
-
-// WebhookSubscriptionUpdateRequest1 defines model for .
-type WebhookSubscriptionUpdateRequest1 = interface{}
 
 // WebhookTarget Target configuration for webhook delivery.
 // Specifies the destination URL and any custom headers to include in webhook requests.
@@ -2920,6 +2859,9 @@ type X402SettleErrorReason string
 
 // X402SettlePaymentRejection The result when x402 payment settlement fails.
 type X402SettlePaymentRejection struct {
+	// ErrorMessage The message describing the error reason.
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+
 	// ErrorReason The reason the payment settlement errored on the x402 protocol.
 	ErrorReason X402SettleErrorReason `json:"errorReason"`
 
@@ -3102,6 +3044,9 @@ type X402VerifyInvalidReason string
 
 // X402VerifyPaymentRejection The result when x402 payment verification fails.
 type X402VerifyPaymentRejection struct {
+	// InvalidMessage The message describing the invalid reason.
+	InvalidMessage *string `json:"invalidMessage,omitempty"`
+
 	// InvalidReason The reason the payment is invalid on the x402 protocol.
 	InvalidReason X402VerifyInvalidReason `json:"invalidReason"`
 
@@ -3163,6 +3108,9 @@ type X402SettleError = X402SettlePaymentRejection
 
 // X402SettleResponse defines model for x402SettleResponse.
 type X402SettleResponse struct {
+	// ErrorMessage The message describing the error reason.
+	ErrorMessage *string `json:"errorMessage,omitempty"`
+
 	// ErrorReason The reason the payment settlement errored on the x402 protocol.
 	ErrorReason *X402SettleErrorReason `json:"errorReason,omitempty"`
 
@@ -3202,6 +3150,9 @@ type X402VerifyInvalidError = X402VerifyPaymentRejection
 
 // X402VerifyResponse defines model for x402VerifyResponse.
 type X402VerifyResponse struct {
+	// InvalidMessage The message describing the invalid reason.
+	InvalidMessage *string `json:"invalidMessage,omitempty"`
+
 	// InvalidReason The reason the payment is invalid on the x402 protocol.
 	InvalidReason *X402VerifyInvalidReason `json:"invalidReason,omitempty"`
 
@@ -6324,394 +6275,6 @@ func (t SolDataCriterion_Idls_Item) MarshalJSON() ([]byte, error) {
 
 func (t *SolDataCriterion_Idls_Item) UnmarshalJSON(b []byte) error {
 	err := t.union.UnmarshalJSON(b)
-	return err
-}
-
-// AsWebhookSubscriptionRequest0 returns the union data inside the WebhookSubscriptionRequest as a WebhookSubscriptionRequest0
-func (t WebhookSubscriptionRequest) AsWebhookSubscriptionRequest0() (WebhookSubscriptionRequest0, error) {
-	var body WebhookSubscriptionRequest0
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromWebhookSubscriptionRequest0 overwrites any union data inside the WebhookSubscriptionRequest as the provided WebhookSubscriptionRequest0
-func (t *WebhookSubscriptionRequest) FromWebhookSubscriptionRequest0(v WebhookSubscriptionRequest0) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeWebhookSubscriptionRequest0 performs a merge with any union data inside the WebhookSubscriptionRequest, using the provided WebhookSubscriptionRequest0
-func (t *WebhookSubscriptionRequest) MergeWebhookSubscriptionRequest0(v WebhookSubscriptionRequest0) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JsonMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsWebhookSubscriptionRequest1 returns the union data inside the WebhookSubscriptionRequest as a WebhookSubscriptionRequest1
-func (t WebhookSubscriptionRequest) AsWebhookSubscriptionRequest1() (WebhookSubscriptionRequest1, error) {
-	var body WebhookSubscriptionRequest1
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromWebhookSubscriptionRequest1 overwrites any union data inside the WebhookSubscriptionRequest as the provided WebhookSubscriptionRequest1
-func (t *WebhookSubscriptionRequest) FromWebhookSubscriptionRequest1(v WebhookSubscriptionRequest1) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeWebhookSubscriptionRequest1 performs a merge with any union data inside the WebhookSubscriptionRequest, using the provided WebhookSubscriptionRequest1
-func (t *WebhookSubscriptionRequest) MergeWebhookSubscriptionRequest1(v WebhookSubscriptionRequest1) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JsonMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-func (t WebhookSubscriptionRequest) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	if err != nil {
-		return nil, err
-	}
-	object := make(map[string]json.RawMessage)
-	if t.union != nil {
-		err = json.Unmarshal(b, &object)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if t.Description != nil {
-		object["description"], err = json.Marshal(t.Description)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'description': %w", err)
-		}
-	}
-
-	if t.EventTypes != nil {
-		object["eventTypes"], err = json.Marshal(t.EventTypes)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'eventTypes': %w", err)
-		}
-	}
-
-	if t.IsEnabled != nil {
-		object["isEnabled"], err = json.Marshal(t.IsEnabled)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'isEnabled': %w", err)
-		}
-	}
-
-	if t.LabelKey != nil {
-		object["labelKey"], err = json.Marshal(t.LabelKey)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'labelKey': %w", err)
-		}
-	}
-
-	if t.LabelValue != nil {
-		object["labelValue"], err = json.Marshal(t.LabelValue)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'labelValue': %w", err)
-		}
-	}
-
-	if t.Labels != nil {
-		object["labels"], err = json.Marshal(t.Labels)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'labels': %w", err)
-		}
-	}
-
-	if t.Metadata != nil {
-		object["metadata"], err = json.Marshal(t.Metadata)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'metadata': %w", err)
-		}
-	}
-
-	if t.Target != nil {
-		object["target"], err = json.Marshal(t.Target)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'target': %w", err)
-		}
-	}
-	b, err = json.Marshal(object)
-	return b, err
-}
-
-func (t *WebhookSubscriptionRequest) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	if err != nil {
-		return err
-	}
-	object := make(map[string]json.RawMessage)
-	err = json.Unmarshal(b, &object)
-	if err != nil {
-		return err
-	}
-
-	if raw, found := object["description"]; found {
-		err = json.Unmarshal(raw, &t.Description)
-		if err != nil {
-			return fmt.Errorf("error reading 'description': %w", err)
-		}
-	}
-
-	if raw, found := object["eventTypes"]; found {
-		err = json.Unmarshal(raw, &t.EventTypes)
-		if err != nil {
-			return fmt.Errorf("error reading 'eventTypes': %w", err)
-		}
-	}
-
-	if raw, found := object["isEnabled"]; found {
-		err = json.Unmarshal(raw, &t.IsEnabled)
-		if err != nil {
-			return fmt.Errorf("error reading 'isEnabled': %w", err)
-		}
-	}
-
-	if raw, found := object["labelKey"]; found {
-		err = json.Unmarshal(raw, &t.LabelKey)
-		if err != nil {
-			return fmt.Errorf("error reading 'labelKey': %w", err)
-		}
-	}
-
-	if raw, found := object["labelValue"]; found {
-		err = json.Unmarshal(raw, &t.LabelValue)
-		if err != nil {
-			return fmt.Errorf("error reading 'labelValue': %w", err)
-		}
-	}
-
-	if raw, found := object["labels"]; found {
-		err = json.Unmarshal(raw, &t.Labels)
-		if err != nil {
-			return fmt.Errorf("error reading 'labels': %w", err)
-		}
-	}
-
-	if raw, found := object["metadata"]; found {
-		err = json.Unmarshal(raw, &t.Metadata)
-		if err != nil {
-			return fmt.Errorf("error reading 'metadata': %w", err)
-		}
-	}
-
-	if raw, found := object["target"]; found {
-		err = json.Unmarshal(raw, &t.Target)
-		if err != nil {
-			return fmt.Errorf("error reading 'target': %w", err)
-		}
-	}
-
-	return err
-}
-
-// AsWebhookSubscriptionUpdateRequest0 returns the union data inside the WebhookSubscriptionUpdateRequest as a WebhookSubscriptionUpdateRequest0
-func (t WebhookSubscriptionUpdateRequest) AsWebhookSubscriptionUpdateRequest0() (WebhookSubscriptionUpdateRequest0, error) {
-	var body WebhookSubscriptionUpdateRequest0
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromWebhookSubscriptionUpdateRequest0 overwrites any union data inside the WebhookSubscriptionUpdateRequest as the provided WebhookSubscriptionUpdateRequest0
-func (t *WebhookSubscriptionUpdateRequest) FromWebhookSubscriptionUpdateRequest0(v WebhookSubscriptionUpdateRequest0) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeWebhookSubscriptionUpdateRequest0 performs a merge with any union data inside the WebhookSubscriptionUpdateRequest, using the provided WebhookSubscriptionUpdateRequest0
-func (t *WebhookSubscriptionUpdateRequest) MergeWebhookSubscriptionUpdateRequest0(v WebhookSubscriptionUpdateRequest0) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JsonMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-// AsWebhookSubscriptionUpdateRequest1 returns the union data inside the WebhookSubscriptionUpdateRequest as a WebhookSubscriptionUpdateRequest1
-func (t WebhookSubscriptionUpdateRequest) AsWebhookSubscriptionUpdateRequest1() (WebhookSubscriptionUpdateRequest1, error) {
-	var body WebhookSubscriptionUpdateRequest1
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-// FromWebhookSubscriptionUpdateRequest1 overwrites any union data inside the WebhookSubscriptionUpdateRequest as the provided WebhookSubscriptionUpdateRequest1
-func (t *WebhookSubscriptionUpdateRequest) FromWebhookSubscriptionUpdateRequest1(v WebhookSubscriptionUpdateRequest1) error {
-	b, err := json.Marshal(v)
-	t.union = b
-	return err
-}
-
-// MergeWebhookSubscriptionUpdateRequest1 performs a merge with any union data inside the WebhookSubscriptionUpdateRequest, using the provided WebhookSubscriptionUpdateRequest1
-func (t *WebhookSubscriptionUpdateRequest) MergeWebhookSubscriptionUpdateRequest1(v WebhookSubscriptionUpdateRequest1) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JsonMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
-func (t WebhookSubscriptionUpdateRequest) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	if err != nil {
-		return nil, err
-	}
-	object := make(map[string]json.RawMessage)
-	if t.union != nil {
-		err = json.Unmarshal(b, &object)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if t.Description != nil {
-		object["description"], err = json.Marshal(t.Description)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'description': %w", err)
-		}
-	}
-
-	if t.EventTypes != nil {
-		object["eventTypes"], err = json.Marshal(t.EventTypes)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'eventTypes': %w", err)
-		}
-	}
-
-	if t.IsEnabled != nil {
-		object["isEnabled"], err = json.Marshal(t.IsEnabled)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'isEnabled': %w", err)
-		}
-	}
-
-	if t.LabelKey != nil {
-		object["labelKey"], err = json.Marshal(t.LabelKey)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'labelKey': %w", err)
-		}
-	}
-
-	if t.LabelValue != nil {
-		object["labelValue"], err = json.Marshal(t.LabelValue)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'labelValue': %w", err)
-		}
-	}
-
-	if t.Labels != nil {
-		object["labels"], err = json.Marshal(t.Labels)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'labels': %w", err)
-		}
-	}
-
-	if t.Metadata != nil {
-		object["metadata"], err = json.Marshal(t.Metadata)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'metadata': %w", err)
-		}
-	}
-
-	if t.Target != nil {
-		object["target"], err = json.Marshal(t.Target)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling 'target': %w", err)
-		}
-	}
-	b, err = json.Marshal(object)
-	return b, err
-}
-
-func (t *WebhookSubscriptionUpdateRequest) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	if err != nil {
-		return err
-	}
-	object := make(map[string]json.RawMessage)
-	err = json.Unmarshal(b, &object)
-	if err != nil {
-		return err
-	}
-
-	if raw, found := object["description"]; found {
-		err = json.Unmarshal(raw, &t.Description)
-		if err != nil {
-			return fmt.Errorf("error reading 'description': %w", err)
-		}
-	}
-
-	if raw, found := object["eventTypes"]; found {
-		err = json.Unmarshal(raw, &t.EventTypes)
-		if err != nil {
-			return fmt.Errorf("error reading 'eventTypes': %w", err)
-		}
-	}
-
-	if raw, found := object["isEnabled"]; found {
-		err = json.Unmarshal(raw, &t.IsEnabled)
-		if err != nil {
-			return fmt.Errorf("error reading 'isEnabled': %w", err)
-		}
-	}
-
-	if raw, found := object["labelKey"]; found {
-		err = json.Unmarshal(raw, &t.LabelKey)
-		if err != nil {
-			return fmt.Errorf("error reading 'labelKey': %w", err)
-		}
-	}
-
-	if raw, found := object["labelValue"]; found {
-		err = json.Unmarshal(raw, &t.LabelValue)
-		if err != nil {
-			return fmt.Errorf("error reading 'labelValue': %w", err)
-		}
-	}
-
-	if raw, found := object["labels"]; found {
-		err = json.Unmarshal(raw, &t.Labels)
-		if err != nil {
-			return fmt.Errorf("error reading 'labels': %w", err)
-		}
-	}
-
-	if raw, found := object["metadata"]; found {
-		err = json.Unmarshal(raw, &t.Metadata)
-		if err != nil {
-			return fmt.Errorf("error reading 'metadata': %w", err)
-		}
-	}
-
-	if raw, found := object["target"]; found {
-		err = json.Unmarshal(raw, &t.Target)
-		if err != nil {
-			return fmt.Errorf("error reading 'target': %w", err)
-		}
-	}
-
 	return err
 }
 

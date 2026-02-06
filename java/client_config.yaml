@@ -1,0 +1,27 @@
+# OpenAPI Generator Configuration for Java SDK
+# https://openapi-generator.tech/docs/generators/java/
+
+# Package configuration
+apiPackage: com.coinbase.cdp.openapi.api
+modelPackage: com.coinbase.cdp.openapi.model
+invokerPackage: com.coinbase.cdp.openapi
+
+# Generator options - using native library for cleaner code
+library: native
+dateLibrary: java8
+
+# Code generation options
+hideGenerationTimestamp: true
+useJakartaEe: true
+openApiNullable: false
+
+# Additional properties
+additionalProperties:
+  supportStreaming: false
+  asyncNative: false
+  useBeanValidation: false
+  performBeanValidation: false
+  disallowAdditionalPropertiesIfNotPresent: false
+  enumUnknownDefaultCase: false
+  useRuntimeException: true
+  generateBuilders: true
