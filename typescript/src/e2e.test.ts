@@ -2731,7 +2731,7 @@ describe("CDP Client E2E Tests", () => {
             update: { accountPolicy: policy.id },
           });
           const transferData =
-            "0xa9059cbb000000000000000000000000742d35cc6634c0532925a3b844bc454e4438f44e0000000000000000000000000000000000000000000000000000000000200000"; // transfer to address with 2M tokens
+            "0xa9059cbb00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000200000"; // transfer 2M tokens to 0x01 (burn address)
 
           await expect(() =>
             cdp.evm.signTransaction({
@@ -2983,7 +2983,7 @@ describe("CDP Client E2E Tests", () => {
             update: { accountPolicy: policy.id },
           });
           const transferData =
-            "0xa9059cbb000000000000000000000000742d35cc6634c0532925a3b844bc454e4438f44e0000000000000000000000000000000000000000000000000000000000200000"; // transfer to address with 2M tokens
+            "0xa9059cbb00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000200000"; // transfer 2M tokens to 0x01 (burn address)
 
           await expect(() =>
             cdp.evm.sendTransaction({
