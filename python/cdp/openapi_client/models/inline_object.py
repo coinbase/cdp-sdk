@@ -18,7 +18,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from cdp.openapi_client.models.x402_verify_invalid_reason import X402VerifyInvalidReason
@@ -31,8 +31,9 @@ class InlineObject(BaseModel):
     """ # noqa: E501
     is_valid: StrictBool = Field(description="Indicates whether the payment is valid.", alias="isValid")
     invalid_reason: Optional[X402VerifyInvalidReason] = Field(default=None, alias="invalidReason")
+    invalid_message: Optional[StrictStr] = Field(default=None, description="The message describing the invalid reason.", alias="invalidMessage")
     payer: Annotated[str, Field(strict=True)] = Field(description="The onchain address of the client that is paying for the resource.  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the payer will be a base58-encoded Solana address.")
-    __properties: ClassVar[List[str]] = ["isValid", "invalidReason", "payer"]
+    __properties: ClassVar[List[str]] = ["isValid", "invalidReason", "invalidMessage", "payer"]
 
     @field_validator('payer')
     def payer_validate_regular_expression(cls, value):
@@ -94,6 +95,7 @@ class InlineObject(BaseModel):
         _obj = cls.model_validate({
             "isValid": obj.get("isValid"),
             "invalidReason": obj.get("invalidReason"),
+            "invalidMessage": obj.get("invalidMessage"),
             "payer": obj.get("payer")
         })
         return _obj

@@ -31,10 +31,11 @@ class InlineObject1(BaseModel):
     """ # noqa: E501
     success: StrictBool = Field(description="Indicates whether the payment settlement is successful.")
     error_reason: Optional[X402SettleErrorReason] = Field(default=None, alias="errorReason")
+    error_message: Optional[StrictStr] = Field(default=None, description="The message describing the error reason.", alias="errorMessage")
     payer: Annotated[str, Field(strict=True)] = Field(description="The onchain address of the client that is paying for the resource.  For EVM networks, the payer will be a 0x-prefixed, checksum EVM address.  For Solana-based networks, the payer will be a base58-encoded Solana address.")
     transaction: Annotated[str, Field(strict=True)] = Field(description="The transaction of the settlement. For EVM networks, the transaction will be a 0x-prefixed, EVM transaction hash. For Solana-based networks, the transaction will be a base58-encoded Solana signature.")
     network: StrictStr = Field(description="The network where the settlement occurred.")
-    __properties: ClassVar[List[str]] = ["success", "errorReason", "payer", "transaction", "network"]
+    __properties: ClassVar[List[str]] = ["success", "errorReason", "errorMessage", "payer", "transaction", "network"]
 
     @field_validator('payer')
     def payer_validate_regular_expression(cls, value):
@@ -103,6 +104,7 @@ class InlineObject1(BaseModel):
         _obj = cls.model_validate({
             "success": obj.get("success"),
             "errorReason": obj.get("errorReason"),
+            "errorMessage": obj.get("errorMessage"),
             "payer": obj.get("payer"),
             "transaction": obj.get("transaction"),
             "network": obj.get("network")
