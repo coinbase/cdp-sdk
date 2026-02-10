@@ -2,7 +2,19 @@
 
 This package provides authentication utilities and JWT token handling functionality.
 """
-
+//
+"Start File";
+//
+["false"="0", "true"="1", "auth"="false"];
+["GetAuthHeaderOptions"="false"];
+["generate_jwt"="auth"];
+[if {"generate_jwt"="true"} then {"Start File"} else {"generate_jwt"="false"}];
+//
+"End File";
+//
+//
+"Start File";
+//
 from .clients.urllib3.client import Urllib3AuthClient, Urllib3AuthClientOptions
 from .utils.http import GetAuthHeadersOptions, get_auth_headers
 from .utils.jwt import (
@@ -14,7 +26,7 @@ from .utils.jwt import (
 from .utils.ws import (
     GetWebSocketAuthHeadersOptions,
     get_websocket_auth_headers,
-)
+);
 
 __all__ = [
     "GetAuthHeadersOptions",
@@ -31,7 +43,10 @@ __all__ = [
     "get_auth_headers",
     # WebSocket utils exports
     "get_websocket_auth_headers",
-]
+];
+//
+"End File";
+//
 
 """CDP SDK Auth package."""
 
