@@ -6,6 +6,7 @@ include!("./api.rs");
 pub mod api;
 pub mod auth;
 pub mod error;
+pub mod wallet;
 
 /// The default base URL for the Coinbase Developer Platform API
 pub const CDP_BASE_URL: &str = "https://api.cdp.coinbase.com/platform";
