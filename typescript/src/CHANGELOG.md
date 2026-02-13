@@ -1,5 +1,11 @@
 # CDP SDK Changelog
 
+## 1.44.1
+
+### Patch Changes
+
+- [#594](https://github.com/coinbase/cdp-sdk/pull/594) [`80547d1`](https://github.com/coinbase/cdp-sdk/commit/80547d1803cc991121564cdd802f3d5245bef18d) Thanks [@jazz-cb](https://github.com/jazz-cb)! - Fixed a bug where concurrent async method calls on the same object were short-circuited by the analytics error tracking wrapper, causing only the first call to execute and subsequent calls to return the input parameters instead of the actual result.
+
 ## 1.44.0
 
 ### Minor Changes
