@@ -120,9 +120,7 @@ describe("Analytics", () => {
 
       Analytics.wrapObjectMethodsWithErrorTracking(testObject);
 
-      const promises = Array.from({ length: 10 }, (_, i) =>
-        testObject.sign({ data: `msg_${i}` }),
-      );
+      const promises = Array.from({ length: 10 }, (_, i) => testObject.sign({ data: `msg_${i}` }));
       const results = await Promise.all(promises);
 
       expect(callCount).toBe(10);
