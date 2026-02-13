@@ -38,6 +38,9 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: ./typescript
 
+      - name: Use latest npm for trusted publishing
+        run: npm install -g npm@latest
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -47,6 +50,4 @@ jobs:
       - name: Publish
         run: |
           pnpm run prepublish
-          pnpm publish --recursive --no-git-checks --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          pnpm publish --recursive --no-git-checks --access public
