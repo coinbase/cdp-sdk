@@ -287,37 +287,22 @@ def _create_error_tracking_wrapper(original_method, method_name, executing_insta
     recursive_interceptor = _create_recursive_interceptor(executing_instances, original_method)
 
     if inspect.iscoroutinefunction(original_method):
+        # Use a set of (id(self), id(task)) keys for async methods.
+        # This correctly distinguishes recursion (same instance + same task)
+        # from concurrency (same instance + different task).
+        executing_keys: set[tuple[int, int]] = set()
 
         @functools.wraps(original_method)
         async def async_wrapper(self, *args, **kwargs):
-            # Check if already executing - return first arg if so
-            # Handle case where object can't be hashed yet (e.g., during __init__)
-            try:
-                is_executing = self in executing_instances
-            except (AttributeError, TypeError):
-                is_executing = False
+            task = asyncio.current_task()
+            key = (id(self), id(task))
 
-            if is_executing:
+            if key in executing_keys:
                 return args[0] if args else None
 
-            # Save current method and temporarily replace with interceptor
-            if inspect.isclass(cls_or_obj):
-                previous_method = getattr(cls_or_obj, method_name)
-                setattr(cls_or_obj, method_name, recursive_interceptor)
-            else:
-                previous_method = getattr(cls_or_obj, method_name)
-                setattr(cls_or_obj, method_name, recursive_interceptor)
-
-            # Mark instance as executing (if possible)
-            try:
-                executing_instances.add(self)
-                added_to_set = True
-            except (AttributeError, TypeError):
-                # Object can't be hashed yet, proceed without recursion protection
-                added_to_set = False
+            executing_keys.add(key)
 
             try:
-                # Execute the original method
                 result = await original_method(self, *args, **kwargs)
                 return result
             except Exception as error:
@@ -336,13 +321,7 @@ def _create_error_tracking_wrapper(original_method, method_name, executing_insta
 
                 raise error
             finally:
-                # Always restore previous method and remove from executing set
-                if added_to_set:
-                    executing_instances.discard(self)
-                if inspect.isclass(cls_or_obj):
-                    setattr(cls_or_obj, method_name, previous_method)
-                else:
-                    setattr(cls_or_obj, method_name, previous_method)
+                executing_keys.discard(key)
 
         return async_wrapper
     else:
