@@ -103,4 +103,30 @@ describe("Analytics", () => {
       expect(shouldTrackError(userError)).toBe(false);
     });
   });
+
+  describe("wrapObjectMethodsWithErrorTracking", () => {
+    it("should execute all concurrent calls instead of short-circuiting them", async () => {
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200 });
+      Analytics.identifier = "test-id";
+
+      let callCount = 0;
+      const testObject = {
+        async sign(params: { data: string }): Promise<string> {
+          callCount++;
+          await new Promise(resolve => setTimeout(resolve, 10));
+          return `sig_${params.data}`;
+        },
+      };
+
+      Analytics.wrapObjectMethodsWithErrorTracking(testObject);
+
+      const promises = Array.from({ length: 10 }, (_, i) => testObject.sign({ data: `msg_${i}` }));
+      const results = await Promise.all(promises);
+
+      expect(callCount).toBe(10);
+      for (let i = 0; i < 10; i++) {
+        expect(results[i]).toBe(`sig_msg_${i}`);
+      }
+    });
+  });
 });

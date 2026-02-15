@@ -1,0 +1,1 @@
+Fixed a bug where concurrent async method calls on the same object were short-circuited by the analytics error tracking wrapper, causing only the first call to execute and subsequent calls to return the input parameters instead of the actual result.

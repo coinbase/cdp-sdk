@@ -1,10 +1,16 @@
+import asyncio
 import json
 import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from cdp.analytics import Analytics, ErrorEventData, should_track_error
+from cdp.analytics import (
+    Analytics,
+    ErrorEventData,
+    should_track_error,
+    wrap_class_with_error_tracking,
+)
 from cdp.errors import UserInputValidationError
 from cdp.openapi_client.errors import ApiError, HttpErrorType, NetworkError
 
@@ -114,3 +120,25 @@ def test_should_track_error_generic_exception():
     """Test that generic exceptions are tracked."""
     error = ValueError("Some value error")
     assert should_track_error(error)
+
+
+@pytest.mark.asyncio
+async def test_wrap_class_concurrent_calls_not_short_circuited(mock_send_event):
+    """Test that concurrent async calls on the same instance are not short-circuited."""
+    call_count = 0
+
+    class TestService:
+        async def sign(self, params):
+            nonlocal call_count
+            call_count += 1
+            await asyncio.sleep(0.01)
+            return f"sig_{params['data']}"
+
+    wrap_class_with_error_tracking(TestService)
+    instance = TestService()
+
+    results = await asyncio.gather(*[instance.sign({"data": f"msg_{i}"}) for i in range(10)])
+
+    assert call_count == 10
+    for i in range(10):
+        assert results[i] == f"sig_msg_{i}"

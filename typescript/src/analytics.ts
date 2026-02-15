@@ -204,33 +204,6 @@ function createRecursiveInterceptor(
     return fallbackMethod.apply(this, callArgs);
   };
 }
-
-/**
- * Executes a method with recursion protection by tracking executing instances.
- *
- * @param executingInstances - A WeakSet tracking instances that are currently executing.
- * @param originalMethod - The original method to execute.
- * @param context - The context (this) to bind the method to.
- * @param args - The arguments to pass to the method.
- * @returns The result of executing the original method.
- */
-async function executeWithRecursionProtection<T>(
-  executingInstances: WeakSet<object>,
-  originalMethod: (this: unknown, ...args: unknown[]) => Promise<T>,
-  context: unknown,
-  args: unknown[],
-): Promise<T> {
-  if (executingInstances.has(context as object)) {
-    return args[0] as T;
-  }
-  executingInstances.add(context as object);
-  try {
-    return await originalMethod.apply(context, args);
-  } finally {
-    executingInstances.delete(context as object);
-  }
-}
-
 /**
  * Handles an error that occurred in a method by sending an analytics event and rethrowing the error.
  *
@@ -258,6 +231,13 @@ async function handleMethodError(error: unknown, methodName: string): Promise<vo
 /**
  * Creates a wrapper function that adds error tracking and recursion protection to a method.
  *
+ * The recursion protection works by temporarily replacing the method with an interceptor
+ * during the synchronous phase of execution. Any recursive calls (e.g., a method calling
+ * itself via `this.method()` or `Class.prototype.method()`) happen synchronously and will
+ * hit the interceptor. After the synchronous phase completes (i.e., `originalMethod.apply()`
+ * returns a Promise), the method is immediately restored so that concurrent calls arriving
+ * after an `await` suspension go through the full wrapper instead of being intercepted.
+ *
  * @param originalMethod - The original method to wrap.
  * @param methodName - The name of the method being wrapped.
  * @param executingInstances - A WeakSet tracking instances that are currently executing.
@@ -276,18 +256,28 @@ function createErrorTrackingWrapper(
     const previousMethod = getMethod();
     const recursiveInterceptor = createRecursiveInterceptor(executingInstances, previousMethod);
     setMethod(recursiveInterceptor);
+    executingInstances.add(this as object);
 
     try {
-      const result = await executeWithRecursionProtection(
-        executingInstances,
-        originalMethod,
-        this,
-        args,
-      );
+      /*
+       * Start executing the original method. The synchronous portion runs immediately.
+       * Any recursive calls (e.g., this.method() or Class.prototype.method()) during
+       * this synchronous phase will hit the recursiveInterceptor.
+       */
+      const resultPromise = originalMethod.apply(this, args);
+
+      /*
+       * Restore the method immediately after the synchronous phase completes.
+       * This ensures concurrent calls (arriving after an await suspension) go through
+       * the full wrapper chain instead of being short-circuited by the interceptor.
+       */
       setMethod(previousMethod);
-      return result;
+      executingInstances.delete(this as object);
+
+      return await resultPromise;
     } catch (error) {
       setMethod(previousMethod);
+      executingInstances.delete(this as object);
       return handleMethodError(error, methodName);
     }
   };
