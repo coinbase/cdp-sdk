@@ -41,7 +41,7 @@ class TestX402ExactEvmPayloadAuthorization(unittest.TestCase):
                 value = '1000000000000000000',
                 valid_after = '1716150000',
                 valid_before = '1716150000',
-                nonce = '0x1234567890abcdef1234567890abcdef12345678'
+                nonce = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
             )
         else:
             return X402ExactEvmPayloadAuthorization(
@@ -50,7 +50,7 @@ class TestX402ExactEvmPayloadAuthorization(unittest.TestCase):
                 value = '1000000000000000000',
                 valid_after = '1716150000',
                 valid_before = '1716150000',
-                nonce = '0x1234567890abcdef1234567890abcdef12345678',
+                nonce = '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
         )
         """
 

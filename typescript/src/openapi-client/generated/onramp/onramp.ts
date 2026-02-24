@@ -11,6 +11,8 @@ import type {
   CreateOnrampSession201,
   CreateOnrampSessionBody,
   GetOnrampOrderById200,
+  GetOnrampUserLimits200,
+  GetOnrampUserLimitsBody,
 } from "../coinbaseDeveloperPlatformAPIs.schemas.js";
 
 import { cdpApiClient } from "../../cdpApiClient.js";
@@ -87,8 +89,30 @@ export const createOnrampSession = (
     options,
   );
 };
+/**
+ * Returns the transaction limits for an onramp user based on their payment method and user identifier. Use this API to show users their remaining purchase capacity before initiating an onramp transaction.
+Currently supports `GUEST_CHECKOUT_APPLE_PAY` payment method with phone number identification. The phone number must have been previously verified via OTP.
+ * @summary Get onramp user limits
+ */
+export const getOnrampUserLimits = (
+  getOnrampUserLimitsBody: GetOnrampUserLimitsBody,
+  options?: SecondParameter<typeof cdpApiClient>,
+) => {
+  return cdpApiClient<GetOnrampUserLimits200>(
+    {
+      url: `/v2/onramp/limits`,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      data: getOnrampUserLimitsBody,
+    },
+    options,
+  );
+};
 export type CreateOnrampOrderResult = NonNullable<Awaited<ReturnType<typeof createOnrampOrder>>>;
 export type GetOnrampOrderByIdResult = NonNullable<Awaited<ReturnType<typeof getOnrampOrderById>>>;
 export type CreateOnrampSessionResult = NonNullable<
   Awaited<ReturnType<typeof createOnrampSession>>
+>;
+export type GetOnrampUserLimitsResult = NonNullable<
+  Awaited<ReturnType<typeof getOnrampUserLimits>>
 >;

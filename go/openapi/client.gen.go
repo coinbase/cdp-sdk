@@ -66,44 +66,57 @@ const (
 
 // Defines values for ErrorType.
 const (
-	ErrorTypeAccountLimitExceeded            ErrorType = "account_limit_exceeded"
-	ErrorTypeAlreadyExists                   ErrorType = "already_exists"
-	ErrorTypeBadGateway                      ErrorType = "bad_gateway"
-	ErrorTypeDocumentVerificationFailed      ErrorType = "document_verification_failed"
-	ErrorTypeFaucetLimitExceeded             ErrorType = "faucet_limit_exceeded"
-	ErrorTypeForbidden                       ErrorType = "forbidden"
-	ErrorTypeGuestPermissionDenied           ErrorType = "guest_permission_denied"
-	ErrorTypeGuestRegionForbidden            ErrorType = "guest_region_forbidden"
-	ErrorTypeGuestTransactionCount           ErrorType = "guest_transaction_count"
-	ErrorTypeGuestTransactionLimit           ErrorType = "guest_transaction_limit"
-	ErrorTypeIdempotencyError                ErrorType = "idempotency_error"
-	ErrorTypeInternalServerError             ErrorType = "internal_server_error"
-	ErrorTypeInvalidRequest                  ErrorType = "invalid_request"
-	ErrorTypeInvalidSignature                ErrorType = "invalid_signature"
-	ErrorTypeInvalidSqlQuery                 ErrorType = "invalid_sql_query"
-	ErrorTypeMalformedTransaction            ErrorType = "malformed_transaction"
-	ErrorTypeMfaAlreadyEnrolled              ErrorType = "mfa_already_enrolled"
-	ErrorTypeMfaFlowExpired                  ErrorType = "mfa_flow_expired"
-	ErrorTypeMfaInvalidCode                  ErrorType = "mfa_invalid_code"
-	ErrorTypeMfaNotEnrolled                  ErrorType = "mfa_not_enrolled"
-	ErrorTypeMfaRequired                     ErrorType = "mfa_required"
-	ErrorTypeNetworkNotTradable              ErrorType = "network_not_tradable"
-	ErrorTypeNotFound                        ErrorType = "not_found"
-	ErrorTypePaymentMethodRequired           ErrorType = "payment_method_required"
-	ErrorTypePhoneNumberVerificationExpired  ErrorType = "phone_number_verification_expired"
-	ErrorTypePolicyInUse                     ErrorType = "policy_in_use"
-	ErrorTypePolicyViolation                 ErrorType = "policy_violation"
-	ErrorTypeRateLimitExceeded               ErrorType = "rate_limit_exceeded"
-	ErrorTypeRecipientAllowlistPending       ErrorType = "recipient_allowlist_pending"
-	ErrorTypeRecipientAllowlistViolation     ErrorType = "recipient_allowlist_violation"
-	ErrorTypeRequestCanceled                 ErrorType = "request_canceled"
-	ErrorTypeServiceUnavailable              ErrorType = "service_unavailable"
-	ErrorTypeTimedOut                        ErrorType = "timed_out"
-	ErrorTypeTransferAmountOutOfBounds       ErrorType = "transfer_amount_out_of_bounds"
-	ErrorTypeTransferQuoteExpired            ErrorType = "transfer_quote_expired"
-	ErrorTypeTransferRecipientAddressInvalid ErrorType = "transfer_recipient_address_invalid"
-	ErrorTypeTravelRulesRecipientViolation   ErrorType = "travel_rules_recipient_violation"
-	ErrorTypeUnauthorized                    ErrorType = "unauthorized"
+	ErrorTypeAccountLimitExceeded           ErrorType = "account_limit_exceeded"
+	ErrorTypeAlreadyExists                  ErrorType = "already_exists"
+	ErrorTypeAssetMismatch                  ErrorType = "asset_mismatch"
+	ErrorTypeBadGateway                     ErrorType = "bad_gateway"
+	ErrorTypeDocumentVerificationFailed     ErrorType = "document_verification_failed"
+	ErrorTypeFaucetLimitExceeded            ErrorType = "faucet_limit_exceeded"
+	ErrorTypeForbidden                      ErrorType = "forbidden"
+	ErrorTypeGuestPermissionDenied          ErrorType = "guest_permission_denied"
+	ErrorTypeGuestRegionForbidden           ErrorType = "guest_region_forbidden"
+	ErrorTypeGuestTransactionCount          ErrorType = "guest_transaction_count"
+	ErrorTypeGuestTransactionLimit          ErrorType = "guest_transaction_limit"
+	ErrorTypeIdempotencyError               ErrorType = "idempotency_error"
+	ErrorTypeInsufficientBalance            ErrorType = "insufficient_balance"
+	ErrorTypeInternalServerError            ErrorType = "internal_server_error"
+	ErrorTypeInvalidRequest                 ErrorType = "invalid_request"
+	ErrorTypeInvalidSignature               ErrorType = "invalid_signature"
+	ErrorTypeInvalidSqlQuery                ErrorType = "invalid_sql_query"
+	ErrorTypeMalformedTransaction           ErrorType = "malformed_transaction"
+	ErrorTypeMetadataKeyTooLong             ErrorType = "metadata_key_too_long"
+	ErrorTypeMetadataTooManyEntries         ErrorType = "metadata_too_many_entries"
+	ErrorTypeMetadataValueTooLong           ErrorType = "metadata_value_too_long"
+	ErrorTypeMfaAlreadyEnrolled             ErrorType = "mfa_already_enrolled"
+	ErrorTypeMfaFlowExpired                 ErrorType = "mfa_flow_expired"
+	ErrorTypeMfaInvalidCode                 ErrorType = "mfa_invalid_code"
+	ErrorTypeMfaNotEnrolled                 ErrorType = "mfa_not_enrolled"
+	ErrorTypeMfaRequired                    ErrorType = "mfa_required"
+	ErrorTypeNetworkNotTradable             ErrorType = "network_not_tradable"
+	ErrorTypeNotFound                       ErrorType = "not_found"
+	ErrorTypePaymentMethodRequired          ErrorType = "payment_method_required"
+	ErrorTypePhoneNumberVerificationExpired ErrorType = "phone_number_verification_expired"
+	ErrorTypePolicyInUse                    ErrorType = "policy_in_use"
+	ErrorTypePolicyViolation                ErrorType = "policy_violation"
+	ErrorTypeRateLimitExceeded              ErrorType = "rate_limit_exceeded"
+	ErrorTypeRecipientAllowlistPending      ErrorType = "recipient_allowlist_pending"
+	ErrorTypeRecipientAllowlistViolation    ErrorType = "recipient_allowlist_violation"
+	ErrorTypeRequestCanceled                ErrorType = "request_canceled"
+	ErrorTypeServiceUnavailable             ErrorType = "service_unavailable"
+	ErrorTypeSourceAccountInvalid           ErrorType = "source_account_invalid"
+	ErrorTypeSourceAccountNotFound          ErrorType = "source_account_not_found"
+	ErrorTypeSourceAssetNotSupported        ErrorType = "source_asset_not_supported"
+	ErrorTypeTargetAccountInvalid           ErrorType = "target_account_invalid"
+	ErrorTypeTargetAccountNotFound          ErrorType = "target_account_not_found"
+	ErrorTypeTargetAssetNotSupported        ErrorType = "target_asset_not_supported"
+	ErrorTypeTargetEmailInvalid             ErrorType = "target_email_invalid"
+	ErrorTypeTargetOnchainAddressInvalid    ErrorType = "target_onchain_address_invalid"
+	ErrorTypeTimedOut                       ErrorType = "timed_out"
+	ErrorTypeTransferAmountInvalid          ErrorType = "transfer_amount_invalid"
+	ErrorTypeTransferAssetNotSupported      ErrorType = "transfer_asset_not_supported"
+	ErrorTypeTravelRulesFieldMissing        ErrorType = "travel_rules_field_missing"
+	ErrorTypeTravelRulesRecipientViolation  ErrorType = "travel_rules_recipient_violation"
+	ErrorTypeUnauthorized                   ErrorType = "unauthorized"
 )
 
 // Defines values for EthValueCriterionOperator.
@@ -287,9 +300,10 @@ const (
 
 // Defines values for OAuth2ProviderType.
 const (
-	Apple  OAuth2ProviderType = "apple"
-	Google OAuth2ProviderType = "google"
-	X      OAuth2ProviderType = "x"
+	Apple    OAuth2ProviderType = "apple"
+	Google   OAuth2ProviderType = "google"
+	Telegram OAuth2ProviderType = "telegram"
+	X        OAuth2ProviderType = "x"
 )
 
 // Defines values for OnchainDataResultSchemaColumnsType.
@@ -314,6 +328,12 @@ const (
 	UInt64     OnchainDataResultSchemaColumnsType = "UInt64"
 	UInt8      OnchainDataResultSchemaColumnsType = "UInt8"
 	UUID       OnchainDataResultSchemaColumnsType = "UUID"
+)
+
+// Defines values for OnrampLimitType.
+const (
+	LifetimeTransactions OnrampLimitType = "lifetime_transactions"
+	WeeklySpending       OnrampLimitType = "weekly_spending"
 )
 
 // Defines values for OnrampOrderFeeType.
@@ -349,6 +369,11 @@ const (
 	CRYPTOWALLET OnrampQuotePaymentMethodTypeId = "CRYPTO_WALLET"
 	FIATWALLET   OnrampQuotePaymentMethodTypeId = "FIAT_WALLET"
 	PAYPAL       OnrampQuotePaymentMethodTypeId = "PAYPAL"
+)
+
+// Defines values for OnrampUserIdType.
+const (
+	PhoneNumber OnrampUserIdType = "phone_number"
 )
 
 // Defines values for PolicyScope.
@@ -626,6 +651,13 @@ const (
 	X402SettleErrorReasonInvalidExactEvmPayloadAuthorizationValueTooLow                              X402SettleErrorReason = "invalid_exact_evm_payload_authorization_value_too_low"
 	X402SettleErrorReasonInvalidExactEvmPayloadSignature                                             X402SettleErrorReason = "invalid_exact_evm_payload_signature"
 	X402SettleErrorReasonInvalidExactEvmPayloadSignatureAddress                                      X402SettleErrorReason = "invalid_exact_evm_payload_signature_address"
+	X402SettleErrorReasonInvalidExactEvmPermit2PayloadAllowanceRequired                              X402SettleErrorReason = "invalid_exact_evm_permit2_payload_allowance_required"
+	X402SettleErrorReasonInvalidExactEvmPermit2PayloadAmount                                         X402SettleErrorReason = "invalid_exact_evm_permit2_payload_amount"
+	X402SettleErrorReasonInvalidExactEvmPermit2PayloadDeadline                                       X402SettleErrorReason = "invalid_exact_evm_permit2_payload_deadline"
+	X402SettleErrorReasonInvalidExactEvmPermit2PayloadRecipient                                      X402SettleErrorReason = "invalid_exact_evm_permit2_payload_recipient"
+	X402SettleErrorReasonInvalidExactEvmPermit2PayloadSignature                                      X402SettleErrorReason = "invalid_exact_evm_permit2_payload_signature"
+	X402SettleErrorReasonInvalidExactEvmPermit2PayloadSpender                                        X402SettleErrorReason = "invalid_exact_evm_permit2_payload_spender"
+	X402SettleErrorReasonInvalidExactEvmPermit2PayloadValidAfter                                     X402SettleErrorReason = "invalid_exact_evm_permit2_payload_valid_after"
 	X402SettleErrorReasonInvalidExactSvmPayloadTransaction                                           X402SettleErrorReason = "invalid_exact_svm_payload_transaction"
 	X402SettleErrorReasonInvalidExactSvmPayloadTransactionAmountMismatch                             X402SettleErrorReason = "invalid_exact_svm_payload_transaction_amount_mismatch"
 	X402SettleErrorReasonInvalidExactSvmPayloadTransactionCannotDeriveReceiverAta                    X402SettleErrorReason = "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata"
@@ -719,6 +751,13 @@ const (
 	X402VerifyInvalidReasonInvalidExactEvmPayloadAuthorizationValueTooLow                              X402VerifyInvalidReason = "invalid_exact_evm_payload_authorization_value_too_low"
 	X402VerifyInvalidReasonInvalidExactEvmPayloadSignature                                             X402VerifyInvalidReason = "invalid_exact_evm_payload_signature"
 	X402VerifyInvalidReasonInvalidExactEvmPayloadSignatureAddress                                      X402VerifyInvalidReason = "invalid_exact_evm_payload_signature_address"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadAllowanceRequired                              X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_allowance_required"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadAmount                                         X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_amount"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadDeadline                                       X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_deadline"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadRecipient                                      X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_recipient"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadSignature                                      X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_signature"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadSpender                                        X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_spender"
+	X402VerifyInvalidReasonInvalidExactEvmPermit2PayloadValidAfter                                     X402VerifyInvalidReason = "invalid_exact_evm_permit2_payload_valid_after"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransaction                                           X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionAmountMismatch                             X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_amount_mismatch"
 	X402VerifyInvalidReasonInvalidExactSvmPayloadTransactionCannotDeriveReceiverAta                    X402VerifyInvalidReason = "invalid_exact_svm_payload_transaction_cannot_derive_receiver_ata"
@@ -1787,6 +1826,15 @@ type OnchainDataResult struct {
 // OnchainDataResultSchemaColumnsType Column data type (ClickHouse types).
 type OnchainDataResultSchemaColumnsType string
 
+// OnrampLimitType The type of limit:
+//   - `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions
+//     within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.
+//     $500 is the default limit.
+//   - `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions
+//     across the user's entire history with no time-based expiration. Once the limit is reached, no further
+//     transactions are allowed. 15 is the default limit.
+type OnrampLimitType string
+
 // OnrampOrder An Onramp order.
 type OnrampOrder struct {
 	// CreatedAt The date and time the order was created.
@@ -1907,6 +1955,31 @@ type OnrampQuotePaymentMethodTypeId string
 type OnrampSession struct {
 	// OnrampUrl Ready-to-use onramp URL.
 	OnrampUrl Url `json:"onrampUrl"`
+}
+
+// OnrampUserIdType The type of user identifier:
+// - `phone_number`: A phone number in E.164 format associated with an onramp user.
+type OnrampUserIdType string
+
+// OnrampUserLimit A single limit with remaining capacity.
+type OnrampUserLimit struct {
+	// Currency The currency of the limit amounts. Only present for spending limits, not for count-based limits.
+	Currency *string `json:"currency,omitempty"`
+
+	// Limit The maximum limit value.
+	Limit string `json:"limit"`
+
+	// LimitType The type of limit:
+	// - `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions
+	//   within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window.
+	//   $500 is the default limit.
+	// - `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions
+	//   across the user's entire history with no time-based expiration. Once the limit is reached, no further
+	//   transactions are allowed. 15 is the default limit.
+	LimitType OnrampLimitType `json:"limitType"`
+
+	// Remaining The remaining amount or count available.
+	Remaining string `json:"remaining"`
 }
 
 // Policy defines model for Policy.
@@ -2570,6 +2643,30 @@ type SwapUnavailableResponse struct {
 // SwapUnavailableResponseLiquidityAvailable Whether sufficient liquidity is available to settle the swap. All other fields in the response will be empty if this is false.
 type SwapUnavailableResponseLiquidityAvailable bool
 
+// TelegramAuthentication Information about an end user who authenticates using Telegram.
+type TelegramAuthentication struct {
+	// AuthDate The Telegram user's last login as a Unix timestamp.
+	AuthDate int `json:"authDate"`
+
+	// FirstName The Telegram user's first name.
+	FirstName string `json:"firstName"`
+
+	// Id The Telegram ID for the end user.
+	Id int `json:"id"`
+
+	// LastName The Telegram user's last name.
+	LastName string `json:"lastName"`
+
+	// PhotoUrl The Telegram user's profile picture.
+	PhotoUrl string `json:"photoUrl"`
+
+	// Type The type of OAuth2 provider.
+	Type OAuth2ProviderType `json:"type"`
+
+	// Username The Telegram user's username.
+	Username string `json:"username"`
+}
+
 // Token General information about a token. Includes the type, the network, and other identifying information.
 type Token struct {
 	// ContractAddress The contract address of the token.
@@ -2806,7 +2903,7 @@ type X402ExactEvmPayload struct {
 		// From The 0x-prefixed, checksum EVM address of the sender of the payment.
 		From string `json:"from"`
 
-		// Nonce The hex-encoded nonce of the payment.
+		// Nonce The hex-encoded nonce of the payment (bytes32).
 		Nonce string `json:"nonce"`
 
 		// To The 0x-prefixed, checksum EVM address of the recipient of the payment.
@@ -2822,7 +2919,49 @@ type X402ExactEvmPayload struct {
 		Value string `json:"value"`
 	} `json:"authorization"`
 
-	// Signature The EIP-712 hex-encoded signature of the ERC-3009 authorization message.
+	// Signature The EIP-712 hex-encoded signature of the ERC-3009 authorization message. Smart account signatures may be longer than 65 bytes.
+	Signature string `json:"signature"`
+}
+
+// X402ExactEvmPermit2Payload The x402 protocol exact scheme payload for EVM networks using Permit2. Permit2 is a universal token approval mechanism that works with any ERC-20 token, unlike ERC-3009 which requires token-level support.
+type X402ExactEvmPermit2Payload struct {
+	// Permit2Authorization The authorization data for the Permit2 PermitWitnessTransferFrom message.
+	Permit2Authorization struct {
+		// Deadline The unix timestamp before which the permit is valid.
+		Deadline string `json:"deadline"`
+
+		// From The 0x-prefixed, checksum EVM address of the sender of the payment.
+		From string `json:"from"`
+
+		// Nonce The Permit2 nonce as a decimal string (uint256).
+		Nonce string `json:"nonce"`
+
+		// Permitted The token permissions for the transfer.
+		Permitted struct {
+			// Amount The amount to transfer in atomic units.
+			Amount string `json:"amount"`
+
+			// Token The 0x-prefixed, checksum EVM address of the token to transfer.
+			Token string `json:"token"`
+		} `json:"permitted"`
+
+		// Spender The 0x-prefixed, checksum EVM address of the spender (x402 Permit2 proxy contract).
+		Spender string `json:"spender"`
+
+		// Witness The witness data containing payment details.
+		Witness struct {
+			// Extra Optional hex-encoded extra data.
+			Extra *string `json:"extra,omitempty"`
+
+			// To The 0x-prefixed, checksum EVM address of the recipient.
+			To string `json:"to"`
+
+			// ValidAfter The unix timestamp after which the payment is valid.
+			ValidAfter string `json:"validAfter"`
+		} `json:"witness"`
+	} `json:"permit2Authorization"`
+
+	// Signature The EIP-712 hex-encoded signature of the Permit2 PermitWitnessTransferFrom message. Smart account signatures may be longer than 65 bytes.
 	Signature string `json:"signature"`
 }
 
@@ -2833,6 +2972,7 @@ type X402ExactSolanaPayload struct {
 }
 
 // X402PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+// For EVM networks, smart account signatures can be longer than 65 bytes.
 type X402PaymentPayload struct {
 	union json.RawMessage
 }
@@ -3733,6 +3873,19 @@ type ListEvmTokenBalancesParams struct {
 	PageToken *PageToken `form:"pageToken,omitempty" json:"pageToken,omitempty"`
 }
 
+// GetOnrampUserLimitsJSONBody defines parameters for GetOnrampUserLimits.
+type GetOnrampUserLimitsJSONBody struct {
+	// PaymentMethodType The type of payment method to be used to complete an onramp order.
+	PaymentMethodType OnrampOrderPaymentMethodTypeId `json:"paymentMethodType"`
+
+	// UserId The user identifier value. For `phone_number` type, this must be in E.164 format.
+	UserId string `json:"userId"`
+
+	// UserIdType The type of user identifier:
+	// - `phone_number`: A phone number in E.164 format associated with an onramp user.
+	UserIdType OnrampUserIdType `json:"userIdType"`
+}
+
 // CreateOnrampOrderJSONBody defines parameters for CreateOnrampOrder.
 type CreateOnrampOrderJSONBody struct {
 	// AgreementAcceptedAt The timestamp of when the user acknowledged that by using Coinbase Onramp they are accepting the Coinbase Terms  (https://www.coinbase.com/legal/guest-checkout/us), User Agreement (https://www.coinbase.com/legal/user_agreement),  and Privacy Policy (https://www.coinbase.com/legal/privacy).
@@ -4102,6 +4255,7 @@ type ListSolanaTokenBalancesParams struct {
 // SettleX402PaymentJSONBody defines parameters for SettleX402Payment.
 type SettleX402PaymentJSONBody struct {
 	// PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+	// For EVM networks, smart account signatures can be longer than 65 bytes.
 	PaymentPayload X402PaymentPayload `json:"paymentPayload"`
 
 	// PaymentRequirements The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
@@ -4114,6 +4268,7 @@ type SettleX402PaymentJSONBody struct {
 // VerifyX402PaymentJSONBody defines parameters for VerifyX402Payment.
 type VerifyX402PaymentJSONBody struct {
 	// PaymentPayload The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+	// For EVM networks, smart account signatures can be longer than 65 bytes.
 	PaymentPayload X402PaymentPayload `json:"paymentPayload"`
 
 	// PaymentRequirements The x402 protocol payment requirements that the resource server expects the client's payment payload to meet.
@@ -4206,6 +4361,9 @@ type SendUserOperationJSONRequestBody SendUserOperationJSONBody
 
 // CreateEvmSwapQuoteJSONRequestBody defines body for CreateEvmSwapQuote for application/json ContentType.
 type CreateEvmSwapQuoteJSONRequestBody CreateEvmSwapQuoteJSONBody
+
+// GetOnrampUserLimitsJSONRequestBody defines body for GetOnrampUserLimits for application/json ContentType.
+type GetOnrampUserLimitsJSONRequestBody GetOnrampUserLimitsJSONBody
 
 // CreateOnrampOrderJSONRequestBody defines body for CreateOnrampOrder for application/json ContentType.
 type CreateOnrampOrderJSONRequestBody CreateOnrampOrderJSONBody
@@ -4476,6 +4634,32 @@ func (t *AuthenticationMethod) FromOAuth2Authentication(v OAuth2Authentication) 
 
 // MergeOAuth2Authentication performs a merge with any union data inside the AuthenticationMethod, using the provided OAuth2Authentication
 func (t *AuthenticationMethod) MergeOAuth2Authentication(v OAuth2Authentication) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsTelegramAuthentication returns the union data inside the AuthenticationMethod as a TelegramAuthentication
+func (t AuthenticationMethod) AsTelegramAuthentication() (TelegramAuthentication, error) {
+	var body TelegramAuthentication
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromTelegramAuthentication overwrites any union data inside the AuthenticationMethod as the provided TelegramAuthentication
+func (t *AuthenticationMethod) FromTelegramAuthentication(v TelegramAuthentication) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeTelegramAuthentication performs a merge with any union data inside the AuthenticationMethod, using the provided TelegramAuthentication
+func (t *AuthenticationMethod) MergeTelegramAuthentication(v TelegramAuthentication) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -6428,6 +6612,32 @@ func (t *X402V1PaymentPayload_Payload) MergeX402ExactEvmPayload(v X402ExactEvmPa
 	return err
 }
 
+// AsX402ExactEvmPermit2Payload returns the union data inside the X402V1PaymentPayload_Payload as a X402ExactEvmPermit2Payload
+func (t X402V1PaymentPayload_Payload) AsX402ExactEvmPermit2Payload() (X402ExactEvmPermit2Payload, error) {
+	var body X402ExactEvmPermit2Payload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402ExactEvmPermit2Payload overwrites any union data inside the X402V1PaymentPayload_Payload as the provided X402ExactEvmPermit2Payload
+func (t *X402V1PaymentPayload_Payload) FromX402ExactEvmPermit2Payload(v X402ExactEvmPermit2Payload) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402ExactEvmPermit2Payload performs a merge with any union data inside the X402V1PaymentPayload_Payload, using the provided X402ExactEvmPermit2Payload
+func (t *X402V1PaymentPayload_Payload) MergeX402ExactEvmPermit2Payload(v X402ExactEvmPermit2Payload) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
 // AsX402ExactSolanaPayload returns the union data inside the X402V1PaymentPayload_Payload as a X402ExactSolanaPayload
 func (t X402V1PaymentPayload_Payload) AsX402ExactSolanaPayload() (X402ExactSolanaPayload, error) {
 	var body X402ExactSolanaPayload
@@ -6480,6 +6690,32 @@ func (t *X402V2PaymentPayload_Payload) FromX402ExactEvmPayload(v X402ExactEvmPay
 
 // MergeX402ExactEvmPayload performs a merge with any union data inside the X402V2PaymentPayload_Payload, using the provided X402ExactEvmPayload
 func (t *X402V2PaymentPayload_Payload) MergeX402ExactEvmPayload(v X402ExactEvmPayload) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JsonMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsX402ExactEvmPermit2Payload returns the union data inside the X402V2PaymentPayload_Payload as a X402ExactEvmPermit2Payload
+func (t X402V2PaymentPayload_Payload) AsX402ExactEvmPermit2Payload() (X402ExactEvmPermit2Payload, error) {
+	var body X402ExactEvmPermit2Payload
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromX402ExactEvmPermit2Payload overwrites any union data inside the X402V2PaymentPayload_Payload as the provided X402ExactEvmPermit2Payload
+func (t *X402V2PaymentPayload_Payload) FromX402ExactEvmPermit2Payload(v X402ExactEvmPermit2Payload) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeX402ExactEvmPermit2Payload performs a merge with any union data inside the X402V2PaymentPayload_Payload, using the provided X402ExactEvmPermit2Payload
+func (t *X402V2PaymentPayload_Payload) MergeX402ExactEvmPermit2Payload(v X402ExactEvmPermit2Payload) error {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -6792,6 +7028,11 @@ type ClientInterface interface {
 
 	// ListEvmTokenBalances request
 	ListEvmTokenBalances(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetOnrampUserLimitsWithBody request with any body
+	GetOnrampUserLimitsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	GetOnrampUserLimits(ctx context.Context, body GetOnrampUserLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateOnrampOrderWithBody request with any body
 	CreateOnrampOrderWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -7774,6 +8015,30 @@ func (c *CDPClient) GetEvmSwapPrice(ctx context.Context, params *GetEvmSwapPrice
 
 func (c *CDPClient) ListEvmTokenBalances(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListEvmTokenBalancesRequest(c.Server, network, address, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetOnrampUserLimitsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetOnrampUserLimitsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *CDPClient) GetOnrampUserLimits(ctx context.Context, body GetOnrampUserLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetOnrampUserLimitsRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -10986,6 +11251,46 @@ func NewListEvmTokenBalancesRequest(server string, network ListEvmTokenBalancesN
 	return req, nil
 }
 
+// NewGetOnrampUserLimitsRequest calls the generic GetOnrampUserLimits builder with application/json body
+func NewGetOnrampUserLimitsRequest(server string, body GetOnrampUserLimitsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewGetOnrampUserLimitsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewGetOnrampUserLimitsRequestWithBody generates requests for GetOnrampUserLimits with any type of body
+func NewGetOnrampUserLimitsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/v2/onramp/limits")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewCreateOnrampOrderRequest calls the generic CreateOnrampOrder builder with application/json body
 func NewCreateOnrampOrderRequest(server string, body CreateOnrampOrderJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -12529,6 +12834,11 @@ type ClientWithResponsesInterface interface {
 	// ListEvmTokenBalancesWithResponse request
 	ListEvmTokenBalancesWithResponse(ctx context.Context, network ListEvmTokenBalancesNetwork, address string, params *ListEvmTokenBalancesParams, reqEditors ...RequestEditorFn) (*ListEvmTokenBalancesResponse, error)
 
+	// GetOnrampUserLimitsWithBodyWithResponse request with any body
+	GetOnrampUserLimitsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetOnrampUserLimitsResponse, error)
+
+	GetOnrampUserLimitsWithResponse(ctx context.Context, body GetOnrampUserLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*GetOnrampUserLimitsResponse, error)
+
 	// CreateOnrampOrderWithBodyWithResponse request with any body
 	CreateOnrampOrderWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateOnrampOrderResponse, error)
 
@@ -13987,6 +14297,35 @@ func (r ListEvmTokenBalancesResponse) StatusCode() int {
 	return 0
 }
 
+type GetOnrampUserLimitsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		// Limits The list of limits applicable to the user.
+		Limits []OnrampUserLimit `json:"limits"`
+	}
+	JSON400 *Error
+	JSON401 *UnauthorizedError
+	JSON429 *RateLimitExceeded
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetOnrampUserLimitsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetOnrampUserLimitsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 type CreateOnrampOrderResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -15344,6 +15683,23 @@ func (c *ClientWithResponses) ListEvmTokenBalancesWithResponse(ctx context.Conte
 		return nil, err
 	}
 	return ParseListEvmTokenBalancesResponse(rsp)
+}
+
+// GetOnrampUserLimitsWithBodyWithResponse request with arbitrary body returning *GetOnrampUserLimitsResponse
+func (c *ClientWithResponses) GetOnrampUserLimitsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*GetOnrampUserLimitsResponse, error) {
+	rsp, err := c.GetOnrampUserLimitsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetOnrampUserLimitsResponse(rsp)
+}
+
+func (c *ClientWithResponses) GetOnrampUserLimitsWithResponse(ctx context.Context, body GetOnrampUserLimitsJSONRequestBody, reqEditors ...RequestEditorFn) (*GetOnrampUserLimitsResponse, error) {
+	rsp, err := c.GetOnrampUserLimits(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetOnrampUserLimitsResponse(rsp)
 }
 
 // CreateOnrampOrderWithBodyWithResponse request with arbitrary body returning *CreateOnrampOrderResponse
@@ -18853,6 +19209,63 @@ func ParseListEvmTokenBalancesResponse(rsp *http.Response) (*ListEvmTokenBalance
 			return nil, err
 		}
 		response.JSON503 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetOnrampUserLimitsResponse parses an HTTP response from a GetOnrampUserLimitsWithResponse call
+func ParseGetOnrampUserLimitsResponse(rsp *http.Response) (*GetOnrampUserLimitsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetOnrampUserLimitsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Limits The list of limits applicable to the user.
+			Limits []OnrampUserLimit `json:"limits"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest Error
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest UnauthorizedError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 429:
+		var dest RateLimitExceeded
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON429 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
 
 	}
 

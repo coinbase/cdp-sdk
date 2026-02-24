@@ -33,7 +33,7 @@ class X402ExactEvmPayloadAuthorization(BaseModel):
     value: StrictStr = Field(description="The value of the payment, in atomic units of the payment asset.")
     valid_after: StrictStr = Field(description="The unix timestamp after which the payment is valid.", alias="validAfter")
     valid_before: StrictStr = Field(description="The unix timestamp before which the payment is valid.", alias="validBefore")
-    nonce: StrictStr = Field(description="The hex-encoded nonce of the payment.")
+    nonce: Annotated[str, Field(strict=True)] = Field(description="The hex-encoded nonce of the payment (bytes32).")
     __properties: ClassVar[List[str]] = ["from", "to", "value", "validAfter", "validBefore", "nonce"]
 
     @field_validator('var_from')
@@ -48,6 +48,13 @@ class X402ExactEvmPayloadAuthorization(BaseModel):
         """Validates the regular expression"""
         if not re.match(r"^0x[0-9a-fA-F]{40}$", value):
             raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{40}$/")
+        return value
+
+    @field_validator('nonce')
+    def nonce_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if not re.match(r"^0x[0-9a-fA-F]{64}$", value):
+            raise ValueError(r"must validate the regular expression /^0x[0-9a-fA-F]{64}$/")
         return value
 
     model_config = ConfigDict(

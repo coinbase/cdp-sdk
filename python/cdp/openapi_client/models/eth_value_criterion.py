@@ -29,7 +29,7 @@ class EthValueCriterion(BaseModel):
     A schema for specifying a criterion for the `value` field of an EVM transaction.
     """ # noqa: E501
     type: StrictStr = Field(description="The type of criterion to use. This should be `ethValue`.")
-    eth_value: Annotated[str, Field(strict=True)] = Field(description="The amount of ETH, in wei, that the transaction's `value` field should be compared to.", alias="ethValue")
+    eth_value: Annotated[str, Field(strict=True, max_length=78)] = Field(description="The amount of ETH, in wei, that the transaction's `value` field should be compared to.", alias="ethValue")
     operator: StrictStr = Field(description="The operator to use for the comparison. The transaction's `value` field will be on the left-hand side of the operator, and the `ethValue` field will be on the right-hand side.")
     __properties: ClassVar[List[str]] = ["type", "ethValue", "operator"]
 

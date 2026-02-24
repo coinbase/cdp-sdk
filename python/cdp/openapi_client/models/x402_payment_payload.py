@@ -28,7 +28,7 @@ X402PAYMENTPAYLOAD_ONE_OF_SCHEMAS = ["X402V1PaymentPayload", "X402V2PaymentPaylo
 
 class X402PaymentPayload(BaseModel):
     """
-    The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+    The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header. For EVM networks, smart account signatures can be longer than 65 bytes.
     """
     # data type: X402V1PaymentPayload
     oneof_schema_1_validator: Optional[X402V1PaymentPayload] = None

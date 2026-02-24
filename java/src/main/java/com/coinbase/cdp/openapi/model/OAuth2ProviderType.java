@@ -34,7 +34,9 @@ public enum OAuth2ProviderType {
   
   APPLE("apple"),
   
-  X("x");
+  X("x"),
+  
+  TELEGRAM("telegram");
 
   private String value;
 

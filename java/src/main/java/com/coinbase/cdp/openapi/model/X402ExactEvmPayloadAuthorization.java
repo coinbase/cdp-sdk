@@ -195,7 +195,7 @@ public class X402ExactEvmPayloadAuthorization {
   }
 
   /**
-   * The hex-encoded nonce of the payment.
+   * The hex-encoded nonce of the payment (bytes32).
    * @return nonce
    */
   @jakarta.annotation.Nonnull

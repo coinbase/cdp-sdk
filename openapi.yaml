@@ -6000,6 +6000,7 @@ paths:
           $ref: '#/components/responses/ServiceUnavailableError'
   /v2/onramp/orders:
     post:
+      x-audience: public
       summary: Create an onramp order
       description: |-
         Create a new Onramp order or get a quote for an Onramp order. Either `paymentAmount` or `purchaseAmount` must be provided.
@@ -6162,6 +6163,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /v2/onramp/orders/{orderId}:
     get:
+      x-audience: public
       summary: Get an onramp order by ID
       description: Get an onramp order by ID.
       operationId: getOnrampOrderById
@@ -6206,6 +6208,7 @@ paths:
           $ref: '#/components/responses/RateLimitExceeded'
   /v2/onramp/sessions:
     post:
+      x-audience: public
       summary: Create an onramp session
       description: |-
         Returns a single-use URL for an Onramp session. This API provides flexible  functionality based on the parameters provided, supporting three cases:
@@ -6332,6 +6335,79 @@ paths:
           $ref: '#/components/responses/RateLimitExceeded'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /v2/onramp/limits:
+    post:
+      summary: Get onramp user limits
+      x-audience: public
+      description: |-
+        Returns the transaction limits for an onramp user based on their payment method and user identifier. Use this API to show users their remaining purchase capacity before initiating an onramp transaction.
+        Currently supports `GUEST_CHECKOUT_APPLE_PAY` payment method with phone number identification. The phone number must have been previously verified via OTP.
+      operationId: getOnrampUserLimits
+      tags:
+        - Onramp
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                paymentMethodType:
+                  $ref: '#/components/schemas/OnrampOrderPaymentMethodTypeId'
+                userId:
+                  type: string
+                  description: The user identifier value. For `phone_number` type, this must be in E.164 format.
+                  example: '+12055555555'
+                userIdType:
+                  $ref: '#/components/schemas/OnrampUserIdType'
+              required:
+                - paymentMethodType
+                - userId
+                - userIdType
+      responses:
+        '200':
+          description: Successfully retrieved user limits.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  limits:
+                    type: array
+                    description: The list of limits applicable to the user.
+                    items:
+                      $ref: '#/components/schemas/OnrampUserLimit'
+                required:
+                  - limits
+              examples:
+                default:
+                  value:
+                    limits:
+                      - limitType: weekly_spending
+                        currency: USD
+                        limit: '500'
+                        remaining: '400'
+                      - limitType: lifetime_transactions
+                        limit: '15'
+                        remaining: '12'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_request:
+                  value:
+                    errorType: invalid_request
+                    errorMessage: Must provide a valid payment method type and user identifier.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 webhooks: {}
 components:
   securitySchemes:
@@ -6409,6 +6485,7 @@ components:
         - google
         - apple
         - x
+        - telegram
       example: google
     OAuth2Authentication:
       type: object
@@ -6436,6 +6513,44 @@ components:
       required:
         - type
         - sub
+    TelegramAuthentication:
+      type: object
+      description: Information about an end user who authenticates using Telegram.
+      properties:
+        type:
+          $ref: '#/components/schemas/OAuth2ProviderType'
+        id:
+          type: integer
+          description: The Telegram ID for the end user.
+          example: 123456
+        firstName:
+          type: string
+          description: The Telegram user's first name.
+          example: Satoshi
+        lastName:
+          type: string
+          description: The Telegram user's last name.
+          example: Nakamoto
+        photoUrl:
+          type: string
+          description: The Telegram user's profile picture.
+          example: https://image.url/profile.png
+        authDate:
+          type: integer
+          description: The Telegram user's last login as a Unix timestamp.
+          example: 1770681412
+        username:
+          type: string
+          description: The Telegram user's username.
+          example: satoshinakamoto
+      required:
+        - type
+        - id
+        - firstName
+        - lastName
+        - photoUrl
+        - authDate
+        - username
     AuthenticationMethod:
       description: Information about how the end user is authenticated.
       oneOf:
@@ -6443,6 +6558,7 @@ components:
         - $ref: '#/components/schemas/SmsAuthentication'
         - $ref: '#/components/schemas/DeveloperJWTAuthentication'
         - $ref: '#/components/schemas/OAuth2Authentication'
+        - $ref: '#/components/schemas/TelegramAuthentication'
     AuthenticationMethods:
       type: array
       description: The list of valid authentication methods linked to the end user.
@@ -6459,6 +6575,13 @@ components:
         - type: google
           sub: '115346410074741490243'
           email: test.user@gmail.com
+        - type: telegram
+          id: 1223456
+          firstName: Satoshi
+          lastName: Nakamoto
+          photoUrl: https://image.url/profile.jpg
+          authDate: 1770681412
+          username: satoshinakamoto
     MFAMethods:
       x-audience: public
       description: |
@@ -6695,9 +6818,22 @@ components:
         - recipient_allowlist_violation
         - recipient_allowlist_pending
         - travel_rules_recipient_violation
-        - transfer_amount_out_of_bounds
-        - transfer_recipient_address_invalid
-        - transfer_quote_expired
+        - source_account_invalid
+        - target_account_invalid
+        - source_account_not_found
+        - target_account_not_found
+        - source_asset_not_supported
+        - target_asset_not_supported
+        - target_email_invalid
+        - target_onchain_address_invalid
+        - transfer_amount_invalid
+        - transfer_asset_not_supported
+        - insufficient_balance
+        - metadata_too_many_entries
+        - metadata_key_too_long
+        - metadata_value_too_long
+        - travel_rules_field_missing
+        - asset_mismatch
         - mfa_already_enrolled
         - mfa_invalid_code
         - mfa_flow_expired
@@ -7020,21 +7156,6 @@ components:
           This error occurs when the user is not allowed to receive funds at this address, because it violates travel rules.
           **Steps to resolve:**
           1. Ensure your desired transfer is not blocked by local travel regulations.
-        transfer_amount_out_of_bounds: |-
-          This error occurs when the transfer amount is less than $1 USD equivalent amount or greater than the maximum transfer amount for the account.
-
-          **Steps to resolve:**
-          1. Verify the transfer amount is greater than $1 USD equivalent amount.
-          2. Confirm that the account has sufficient funds to cover the transfer amount.
-        transfer_recipient_address_invalid: |-
-          This error occurs when the recipient address is invalid for the specified network.
-          **Steps to resolve:**
-          1. Verify the network is supported for the transfer.
-          2. Confirm that the recipient address is valid for the specified network.
-        transfer_quote_expired: |-
-          This error occurs when the transfer quote has expired.
-          **Steps to resolve:**
-          1. Create a new quoted transfer and retry the request.
         mfa_already_enrolled: |-
           This error occurs when attempting to enroll in an MFA method that the user has already enrolled in.
 
@@ -7086,6 +7207,170 @@ components:
           1. Check if the user has enrolled in MFA before attempting verification
           2. Guide the user through MFA enrollment first using the `/mfa/enroll/{mfaMethod}/init` endpoint
           3. Complete enrollment before requiring MFA verification
+        source_account_invalid: |-
+          This error occurs when the source account specified in the transfer request is invalid or malformed.
+
+          **Steps to resolve:**
+          1. Verify the account ID format is correct (e.g., `account_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+          2. Ensure the account ID belongs to your CDP entity
+          3. Verify the account ID exists by calling `GET /v2/accounts/{accountId}` or `GET /v2/accounts`
+
+          **Common causes:**
+          - Malformed account ID
+          - Typo in the account ID
+        target_account_invalid: |-
+          This error occurs when the target account specified in the transfer request is invalid or malformed.
+
+          **Steps to resolve:**
+          1. Verify the account ID format is correct (e.g., `account_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+          2. Ensure the account exists and can receive funds
+          3. Verify the account ID exists by calling `GET /v2/accounts/{accountId}` or `GET /v2/accounts`
+
+          **Common causes:**
+          - Malformed account ID
+          - Typo in the account ID
+        source_account_not_found: |-
+          This error occurs when the source account specified in the transfer does not exist.
+
+          **Steps to resolve:**
+          1. Verify the account ID exists by calling `GET /v2/accounts/{accountId}` or `GET /v2/accounts`
+        target_account_not_found: |-
+          This error occurs when the target account specified in the transfer does not exist.
+
+          **Steps to resolve:**
+          1. Verify the account ID exists by calling `GET /v2/accounts/{accountId}` or `GET /v2/accounts`
+        source_asset_not_supported: |-
+          This error occurs when the asset specified in the transfer source is not supported for this transfer type.
+
+          **Steps to resolve:**
+          1. Check the list of supported assets for the source account type
+          2. Verify the asset symbol is correctly specified (e.g., `usdc`, `usdt`)
+
+          **Common causes:**
+          - Unsupported asset for the transfer route
+          - Incorrect asset symbol
+        target_asset_not_supported: |-
+          This error occurs when the asset specified in the transfer target is not supported for this transfer type.
+
+          **Steps to resolve:**
+          1. Check the list of supported assets for the target
+          2. Verify the asset symbol is correctly specified (e.g., `usdc`, `usdt`)
+          3. Ensure the target can receive this asset type
+
+          **Common causes:**
+          - Asset not supported by the target
+          - Unsupported conversion between source and target assets
+        target_email_invalid: |-
+          This error occurs when the email address specified as the transfer target is invalid.
+
+          **Steps to resolve:**
+          1. Verify the email address format is valid (e.g., `user@example.com`)
+          2. Check for typos in the email address
+          3. Ensure the email domain is valid
+
+          **Common causes:**
+          - Invalid email format
+          - Missing @ symbol or domain
+          - Typo in the email address
+        target_onchain_address_invalid: |-
+          This error occurs when the onchain address specified as the transfer target is invalid for the specified network.
+
+          **Steps to resolve:**
+          1. Ensure the network is supported for the transfer type
+          2. Verify the address format matches the target network
+          3. Ensure you haven't mixed up addresses from different networks
+
+          **Common causes:**
+          - Network not supported for the transfer type
+          - Address format doesn't match network
+          - Address from a different blockchain network
+        transfer_amount_invalid: |-
+          This error occurs when the transfer amount is invalid.
+
+          **Steps to resolve:**
+          1. Ensure the amount is a positive number and greater than $1 USD equivalent amount
+          2. Verify the amount format is a valid decimal string (e.g., `"100.50"`)
+          3. Check the number of decimal places for the asset
+
+          **Common causes:**
+          - Zero or negative amount
+          - Too many decimal places for the asset
+          - Amount below minimum threshold ($1 USD equivalent amount)
+        transfer_asset_not_supported: |-
+          This error occurs when the asset specified for the transfer is not supported.
+
+          **Steps to resolve:**
+          1. Check the list of supported assets for transfers
+          2. Verify the asset symbol is correctly specified
+          3. Ensure the asset is supported for the transfer route (source → target)
+
+          **Common causes:**
+          - Asset not supported for transfers
+          - Incorrect asset symbol
+        insufficient_balance: |-
+          This error occurs when the source account does not have enough funds to complete the transfer including fees.
+
+          **Steps to resolve:**
+          1. Check the source account balance
+          2. Ensure the balance covers both the transfer amount and any fees
+          3. Consider using `amountType: "source"` to transfer the maximum available amount minus fees
+          4. Add funds to the source account if needed
+
+          **Common causes:**
+          - Transfer amount exceeds available balance
+          - Not accounting for transfer fees
+          - Pending transactions reducing available balance
+        metadata_too_many_entries: |-
+          This error occurs when the transfer metadata contains more entries than allowed.
+
+          **Steps to resolve:**
+          1. Reduce the number of metadata entries (maximum 10 allowed)
+          2. Consolidate related data into fewer keys
+          3. Store additional data externally and reference it with a single metadata entry
+
+          **Limits:**
+          - Maximum entries: 10
+        metadata_key_too_long: |-
+          This error occurs when a metadata key exceeds the maximum allowed length.
+
+          **Steps to resolve:**
+          1. Shorten the metadata key to 40 characters or less
+          2. Use abbreviations or shorter naming conventions
+          3. Consider using a key-value structure where the value contains the longer identifier
+
+          **Limits:**
+          - Maximum key length: 40 characters
+        metadata_value_too_long: |-
+          This error occurs when a metadata value exceeds the maximum allowed length.
+
+          **Steps to resolve:**
+          1. Shorten the metadata value to 500 characters or less
+          2. Store longer data externally and reference it with a shorter identifier
+          3. Consider compressing or encoding the data if appropriate
+
+          **Limits:**
+          - Maximum value length: 500 characters
+        travel_rules_field_missing: |-
+          This error occurs when required travel rule fields are missing from the transfer request.
+
+          **Steps to resolve:**
+          1. Include the `travelRule` object in your transfer request
+          2. Supply the required missing fields prompted by the error message
+          3. Review the travel rule requirements for your jurisdiction
+
+          Note: Required fields may vary by region.
+        asset_mismatch: |-
+          This error occurs when the assets specified in the transfer are incompatible or don't match expected values.
+
+          **Steps to resolve:**
+          1. Ensure the `asset` field matches either the source or target asset
+          2. Verify that the source and target assets are compatible for conversion (if different)
+          3. Check that the asset symbols are correctly specified
+
+          **Common causes:**
+          - Transfer asset doesn't match source or target
+          - Attempting an unsupported asset conversion
+          - Typo in asset symbols
     Url:
       type: string
       format: uri
@@ -8074,6 +8359,7 @@ components:
         ethValue:
           type: string
           pattern: ^[0-9]+$
+          maxLength: 78
           description: The amount of ETH, in wei, that the transaction's `value` field should be compared to.
           example: '1000000000000000000'
         operator:
@@ -10248,8 +10534,9 @@ components:
       properties:
         signature:
           type: string
-          description: The EIP-712 hex-encoded signature of the ERC-3009 authorization message.
-          example: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480'
+          pattern: ^0x[0-9a-fA-F]{130,}$
+          description: The EIP-712 hex-encoded signature of the ERC-3009 authorization message. Smart account signatures may be longer than 65 bytes.
+          example: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'
         authorization:
           type: object
           description: The authorization data for the ERC-3009 authorization message.
@@ -10278,15 +10565,16 @@ components:
               example: '1716150000'
             nonce:
               type: string
-              description: The hex-encoded nonce of the payment.
-              example: '0x1234567890abcdef1234567890abcdef12345678'
+              pattern: ^0x[0-9a-fA-F]{64}$
+              description: The hex-encoded nonce of the payment (bytes32).
+              example: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
           example:
             from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             value: '1000000000000000000'
             validAfter: '1716150000'
             validBefore: '1716150000'
-            nonce: '0x1234567890abcdef1234567890abcdef12345678'
+            nonce: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
           required:
             - from
             - to
@@ -10295,17 +10583,123 @@ components:
             - validBefore
             - nonce
       example:
-        signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480'
+        signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'
         authorization:
           from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
           to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
           value: '1000000000000000000'
           validAfter: '1716150000'
           validBefore: '1716150000'
-          nonce: '0x1234567890abcdef1234567890abcdef12345678'
+          nonce: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
       required:
         - signature
         - authorization
+    x402ExactEvmPermit2Payload:
+      type: object
+      title: x402ExactEvmPermit2Payload
+      description: The x402 protocol exact scheme payload for EVM networks using Permit2. Permit2 is a universal token approval mechanism that works with any ERC-20 token, unlike ERC-3009 which requires token-level support.
+      properties:
+        signature:
+          type: string
+          pattern: ^0x[0-9a-fA-F]{130,}$
+          description: The EIP-712 hex-encoded signature of the Permit2 PermitWitnessTransferFrom message. Smart account signatures may be longer than 65 bytes.
+          example: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'
+        permit2Authorization:
+          type: object
+          description: The authorization data for the Permit2 PermitWitnessTransferFrom message.
+          properties:
+            from:
+              type: string
+              pattern: ^0x[0-9a-fA-F]{40}$
+              description: The 0x-prefixed, checksum EVM address of the sender of the payment.
+              example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            permitted:
+              type: object
+              description: The token permissions for the transfer.
+              properties:
+                token:
+                  type: string
+                  pattern: ^0x[0-9a-fA-F]{40}$
+                  description: The 0x-prefixed, checksum EVM address of the token to transfer.
+                  example: '0x036CbD53842c5426634e7929541eC2318f3dCF7e'
+                amount:
+                  type: string
+                  description: The amount to transfer in atomic units.
+                  example: '1000000'
+              required:
+                - token
+                - amount
+            spender:
+              type: string
+              pattern: ^0x[0-9a-fA-F]{40}$
+              description: The 0x-prefixed, checksum EVM address of the spender (x402 Permit2 proxy contract).
+              example: '0x4020615294c913F045dc10f0a5cdEbd86c280001'
+            nonce:
+              type: string
+              pattern: ^[0-9]+$
+              description: The Permit2 nonce as a decimal string (uint256).
+              example: '12345678901234567890'
+            deadline:
+              type: string
+              description: The unix timestamp before which the permit is valid.
+              example: '1716150000'
+            witness:
+              type: object
+              description: The witness data containing payment details.
+              properties:
+                to:
+                  type: string
+                  pattern: ^0x[0-9a-fA-F]{40}$
+                  description: The 0x-prefixed, checksum EVM address of the recipient.
+                  example: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+                validAfter:
+                  type: string
+                  description: The unix timestamp after which the payment is valid.
+                  example: '1716150000'
+                extra:
+                  type: string
+                  pattern: ^0x[0-9a-fA-F]*$
+                  description: Optional hex-encoded extra data.
+                  example: 0x
+              required:
+                - to
+                - validAfter
+          example:
+            from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            permitted:
+              token: '0x036CbD53842c5426634e7929541eC2318f3dCF7e'
+              amount: '1000000'
+            spender: '0x4020615294c913F045dc10f0a5cdEbd86c280001'
+            nonce: '12345678901234567890'
+            deadline: '1716150000'
+            witness:
+              to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+              validAfter: '1716150000'
+              extra: 0x
+          required:
+            - from
+            - permitted
+            - spender
+            - nonce
+            - deadline
+            - witness
+      example:
+        signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'
+        permit2Authorization:
+          from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          permitted:
+            token: '0x036CbD53842c5426634e7929541eC2318f3dCF7e'
+            amount: '1000000'
+          spender: '0x4020615294c913F045dc10f0a5cdEbd86c280001'
+          nonce: '12345678901234567890'
+          deadline: '1716150000'
+          witness:
+            to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+            validAfter: '1716150000'
+            extra: 0x
+      required:
+        - signature
+        - permit2Authorization
     x402ExactSolanaPayload:
       type: object
       title: x402ExactSolanaPayload
@@ -10345,29 +10739,30 @@ components:
           description: The payload of the payment depending on the x402Version, scheme, and network.
           oneOf:
             - $ref: '#/components/schemas/x402ExactEvmPayload'
+            - $ref: '#/components/schemas/x402ExactEvmPermit2Payload'
             - $ref: '#/components/schemas/x402ExactSolanaPayload'
           example:
-            signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480'
+            signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'
             authorization:
               from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
               to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
               value: '1000000000000000000'
               validAfter: '1716150000'
               validBefore: '1716150000'
-              nonce: '0x1234567890abcdef1234567890abcdef12345678'
+              nonce: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
       example:
         x402Version: 1
         scheme: exact
         network: base
         payload:
-          signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480'
+          signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'
           authorization:
             from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             value: '1000000000000000000'
             validAfter: '1716150000'
             validBefore: '1716150000'
-            nonce: '0x1234567890abcdef1234567890abcdef12345678'
+            nonce: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
       required:
         - x402Version
         - scheme
@@ -10457,16 +10852,17 @@ components:
           description: The payload of the payment depending on the x402Version, scheme, and network.
           oneOf:
             - $ref: '#/components/schemas/x402ExactEvmPayload'
+            - $ref: '#/components/schemas/x402ExactEvmPermit2Payload'
             - $ref: '#/components/schemas/x402ExactSolanaPayload'
           example:
-            signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480'
+            signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'
             authorization:
               from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
               to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
               value: '1000000000000000000'
               validAfter: '1716150000'
               validBefore: '1716150000'
-              nonce: '0x1234567890abcdef1234567890abcdef12345678'
+              nonce: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
         accepted:
           $ref: '#/components/schemas/x402V2PaymentRequirements'
         resource:
@@ -10491,14 +10887,14 @@ components:
             name: USDC
             version: '2'
         payload:
-          signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f13480'
+          signature: '0xf3746613c2d920b5fdabc0856f2aeb2d4f88ee6037b8cc5d04a71a4462f134801234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1b'
           authorization:
             from: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
             value: '1000000000000000000'
             validAfter: '1716150000'
             validBefore: '1716150000'
-            nonce: '0x1234567890abcdef1234567890abcdef12345678'
+            nonce: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
         resource:
           url: https://api.example.com/premium/resource/123
           description: Premium API access for data analysis.
@@ -10509,7 +10905,9 @@ components:
         - payload
     x402PaymentPayload:
       type: object
-      description: The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+      description: |-
+        The x402 protocol payment payload that the client attaches to x402-paid API requests to the resource server in the X-PAYMENT header.
+        For EVM networks, smart account signatures can be longer than 65 bytes.
       oneOf:
         - $ref: '#/components/schemas/x402V1PaymentPayload'
         - $ref: '#/components/schemas/x402V2PaymentPayload'
@@ -10620,6 +11018,13 @@ components:
         - invalid_exact_evm_payload_authorization_to_address_kyt
         - invalid_exact_evm_payload_signature
         - invalid_exact_evm_payload_signature_address
+        - invalid_exact_evm_permit2_payload_allowance_required
+        - invalid_exact_evm_permit2_payload_signature
+        - invalid_exact_evm_permit2_payload_deadline
+        - invalid_exact_evm_permit2_payload_valid_after
+        - invalid_exact_evm_permit2_payload_spender
+        - invalid_exact_evm_permit2_payload_recipient
+        - invalid_exact_evm_permit2_payload_amount
         - invalid_exact_svm_payload_transaction
         - invalid_exact_svm_payload_transaction_amount_mismatch
         - invalid_exact_svm_payload_transaction_create_ata_instruction
@@ -10693,6 +11098,13 @@ components:
         - invalid_exact_evm_payload_authorization_to_address_kyt
         - invalid_exact_evm_payload_signature
         - invalid_exact_evm_payload_signature_address
+        - invalid_exact_evm_permit2_payload_allowance_required
+        - invalid_exact_evm_permit2_payload_signature
+        - invalid_exact_evm_permit2_payload_deadline
+        - invalid_exact_evm_permit2_payload_valid_after
+        - invalid_exact_evm_permit2_payload_spender
+        - invalid_exact_evm_permit2_payload_recipient
+        - invalid_exact_evm_permit2_payload_amount
         - invalid_exact_svm_payload_transaction
         - invalid_exact_svm_payload_transaction_amount_mismatch
         - invalid_exact_svm_payload_transaction_create_ata_instruction
@@ -11054,6 +11466,50 @@ components:
             amount: '0.25'
             currency: USD
         exchangeRate: '1'
+    OnrampUserIdType:
+      type: string
+      description: |
+        The type of user identifier:
+        - `phone_number`: A phone number in E.164 format associated with an onramp user.
+      enum:
+        - phone_number
+      example: phone_number
+    OnrampLimitType:
+      type: string
+      description: |
+        The type of limit:
+        - `weekly_spending`: Rolling 7-day spending limit. The limit applies to the sum of all completed transactions 
+          within a sliding 168-hour (7-day) window. As time passes, older transactions naturally expire from the window. 
+          $500 is the default limit.
+        - `lifetime_transactions`: All-time transaction count limit. Tracks the total number of completed transactions 
+          across the user's entire history with no time-based expiration. Once the limit is reached, no further 
+          transactions are allowed. 15 is the default limit.
+      enum:
+        - weekly_spending
+        - lifetime_transactions
+      example: weekly_spending
+    OnrampUserLimit:
+      type: object
+      description: A single limit with remaining capacity.
+      properties:
+        limitType:
+          $ref: '#/components/schemas/OnrampLimitType'
+        currency:
+          type: string
+          description: The currency of the limit amounts. Only present for spending limits, not for count-based limits.
+          example: USD
+        limit:
+          type: string
+          description: The maximum limit value.
+          example: '2500'
+        remaining:
+          type: string
+          description: The remaining amount or count available.
+          example: '2000'
+      required:
+        - limitType
+        - limit
+        - remaining
   responses:
     UnauthorizedError:
       description: Unauthorized.

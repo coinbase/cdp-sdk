@@ -50,14 +50,11 @@ Further documentation is also available on the CDP docs website:
 
 ## Installation
 
-> [!WARNING]
-> While this library is unpublished, if you'd like to use it, you must specify `cdp-sdk` as a git dependency.
-
 Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-cdp-sdk = { git = "https://github.com/coinbase/cdp-sdk" }
+cdp-sdk = { version = "^0.2.0" }
 tokio = { version = "1.0", features = ["full"] }
 ```
 
